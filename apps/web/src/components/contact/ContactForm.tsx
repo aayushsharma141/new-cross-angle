@@ -71,8 +71,8 @@ const FloatingInput = ({ label, type = "text", value, onChange, required, delay 
           text-foreground
           transition-all duration-300
           focus:outline-none
-          ${isFocused 
-            ? 'border-primary shadow-[0_0_20px_hsl(var(--primary)/0.15)]' 
+          ${isFocused
+            ? 'border-primary shadow-[0_0_20px_hsl(var(--primary)/0.15)]'
             : 'border-border hover:border-border/80'}
         `}
         placeholder=" "
@@ -129,8 +129,8 @@ const FloatingTextarea = ({ label, value, onChange, rows = 4, delay = 0 }: Float
           text-foreground resize-none
           transition-all duration-300
           focus:outline-none
-          ${isFocused 
-            ? 'border-primary shadow-[0_0_20px_hsl(var(--primary)/0.15)]' 
+          ${isFocused
+            ? 'border-primary shadow-[0_0_20px_hsl(var(--primary)/0.15)]'
             : 'border-border hover:border-border/80'}
         `}
         placeholder=" "
@@ -168,7 +168,7 @@ const FloatingSelect = ({ label, options, value, onChange, delay = 0 }: Floating
       transition={{ delay, duration: 0.4 }}
     >
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger 
+        <SelectTrigger
           className={`
             w-full pt-6 pb-3 px-4 h-auto
             bg-card border-2 rounded-xl
@@ -183,8 +183,8 @@ const FloatingSelect = ({ label, options, value, onChange, delay = 0 }: Floating
         </SelectTrigger>
         <SelectContent className="bg-card border border-border rounded-xl shadow-xl">
           {options.map((option) => (
-            <SelectItem 
-              key={option} 
+            <SelectItem
+              key={option}
               value={option}
               className="py-3 focus:bg-primary/10 cursor-pointer"
             >
@@ -213,7 +213,7 @@ const ContactForm = () => {
   const isInView = useInView(containerRef, { once: true, margin: "-50px" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -233,33 +233,55 @@ const ContactForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    
-    toast({
-      title: "Message sent successfully!",
-      description: "We'll get back to you within 24 hours.",
-    });
 
-    // Reset after animation
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        fullName: "",
-        phone: "",
-        email: "",
-        projectType: "",
-        area: "",
-        budget: "",
-        city: "",
-        projectStage: "",
-        message: ""
+    try {
+      // Google Apps Script Web App URL
+      const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyX3RPlj6Yg-7nn9xMRLhsrd5tiimH9Vz_k4VTH36IB4sa80uSwh6ZOFGVgX7tuKEi2/exec";
+
+      // Using no-cors mode is standard for Google Apps Script to avoid CORS errors
+      // The script will receive the body as text/plain and parse it
+      await fetch(GOOGLE_SHEET_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "text/plain",
+        },
+        body: JSON.stringify(formData),
       });
-    }, 3000);
+
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+
+      toast({
+        title: "Message sent successfully!",
+        description: "We'll get back to you within 24 hours.",
+      });
+
+      // Reset after animation
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({
+          fullName: "",
+          phone: "",
+          email: "",
+          projectType: "",
+          area: "",
+          budget: "",
+          city: "",
+          projectStage: "",
+          message: ""
+        });
+      }, 3000);
+
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setIsSubmitting(false);
+      toast({
+        title: "Error sending message",
+        description: "Please try again later or contact us directly on WhatsApp.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -377,8 +399,8 @@ const ContactForm = () => {
               className={`
                 w-full py-7 text-lg rounded-xl
                 shadow-lg transition-all duration-500
-                ${isSubmitted 
-                  ? 'bg-green-500 hover:bg-green-500 shadow-green-500/30' 
+                ${isSubmitted
+                  ? 'bg-green-500 hover:bg-green-500 shadow-green-500/30'
                   : 'shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5'}
               `}
               disabled={isSubmitting || isSubmitted}

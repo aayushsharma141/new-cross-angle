@@ -64,24 +64,24 @@ const Navbar = () => {
   const showTransparent = isHomePage && !isScrolled;
 
   return (
-    <header 
+    <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        showTransparent 
-          ? 'bg-transparent py-5' 
+        showTransparent
+          ? 'bg-transparent py-5'
           : 'bg-background/95 backdrop-blur-lg shadow-lg py-3 border-b border-border/50'
       )}
     >
       <nav className="container mx-auto px-4">
         <div className="flex items-center justify-between">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="flex items-center gap-4 group"
           >
             {/* Logo Icon - Larger with more breathing room */}
             <div className="relative">
-              <motion.img 
-                src={logoIcon} 
+              <motion.img
+                src={logoIcon}
                 alt="Cross Angle Interior"
                 className={cn(
                   "w-auto transition-all duration-500",
@@ -97,7 +97,7 @@ const Navbar = () => {
                 Crossangle
               </span>
               {" "}
-              <span 
+              <span
                 className={cn(
                   "transition-all duration-300 font-semibold inline-flex cursor-pointer",
                   showTransparent ? 'text-primary-foreground' : 'text-foreground',
@@ -113,7 +113,7 @@ const Navbar = () => {
                       "inline-block",
                       !isHoveringInterior && "animate-[magnetic-bounce_600ms_ease-out_forwards]"
                     )}
-                    style={{ 
+                    style={{
                       animationDelay: `${i * 80}ms`,
                       animationPlayState: isHoveringInterior ? 'paused' : 'running'
                     }}
@@ -154,7 +154,7 @@ const Navbar = () => {
                     location.pathname === link.href ? 'w-full' : 'w-0 group-hover:w-full'
                   )} />
                 </Link>
-                
+
                 {/* Mega Menu positioned under Services link */}
                 {link.hasMegaMenu && (
                   <AnimatePresence>
@@ -168,13 +168,13 @@ const Navbar = () => {
                       >
                         {/* Invisible bridge to prevent gap issue */}
                         <div className="absolute -top-8 left-0 right-0 h-8" />
-                        
+
                         <div className="bg-background backdrop-blur-xl rounded-2xl shadow-2xl border border-border p-8 min-w-[720px] relative overflow-hidden">
                           {/* Solid background overlay */}
                           <div className="absolute inset-0 bg-background" />
                           {/* Subtle gradient overlay for depth */}
                           <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.03] to-transparent pointer-events-none" />
-                          
+
                           <div className="grid grid-cols-3 gap-8 relative z-10">
                             {/* Residential */}
                             <div>
@@ -280,13 +280,19 @@ const Navbar = () => {
                           {/* CTA in Mega Menu */}
                           <div className="mt-8 pt-6 border-t border-border flex items-center justify-between relative z-10">
                             <p className="text-sm text-muted-foreground">
-                              Not sure what you need? Let's discuss your vision.
+                              Planning your budget? Get a quick cost estimate.
                             </p>
-                            <Link to="/contact-us" onClick={() => setIsMegaMenuOpen(false)}>
-                              <Button size="sm" className="shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all">
-                                Book Free Consultation
-                              </Button>
-                            </Link>
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setIsMegaMenuOpen(false);
+                                setIsCalculatorOpen(true);
+                              }}
+                              className="shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all gap-2"
+                            >
+                              <Calculator className="w-4 h-4" />
+                              Get Free Estimate
+                            </Button>
                           </div>
                         </div>
                       </motion.div>
@@ -300,8 +306,8 @@ const Navbar = () => {
 
           {/* Phone + CTA - Enhanced */}
           <div className="hidden lg:flex items-center gap-6">
-            <a 
-              href="https://wa.me/917909041132" 
+            <a
+              href="https://wa.me/917909041132"
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
@@ -317,21 +323,21 @@ const Navbar = () => {
                 +91 7909041132
               </span>
             </a>
-            <Button 
-              onClick={() => setIsCalculatorOpen(true)}
-              className="px-6 py-5 rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/35 transition-all duration-500 hover:-translate-y-0.5 font-medium gap-2"
-            >
-              <Calculator className="w-4 h-4" />
-              Get Free Estimate
-            </Button>
+            <Link to="/contact-us">
+              <Button
+                className="px-6 py-5 rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/35 transition-all duration-500 hover:-translate-y-0.5 font-medium gap-2"
+              >
+                Book Free Consultation
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
           <button
             className={cn(
               "lg:hidden p-2 rounded-xl transition-colors",
-              showTransparent 
-                ? 'text-primary-foreground hover:bg-primary-foreground/10' 
+              showTransparent
+                ? 'text-primary-foreground hover:bg-primary-foreground/10'
                 : 'text-foreground hover:bg-accent'
             )}
             onClick={() => setIsOpen(!isOpen)}
@@ -344,7 +350,7 @@ const Navbar = () => {
         {/* Mobile Navigation */}
         <AnimatePresence>
           {isOpen && (
-            <motion.div 
+            <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -364,8 +370,8 @@ const Navbar = () => {
                         to={link.href}
                         className={cn(
                           "transition-colors duration-300 font-medium text-lg py-3 px-4 rounded-xl block",
-                          location.pathname === link.href 
-                            ? 'text-primary bg-primary/10' 
+                          location.pathname === link.href
+                            ? 'text-primary bg-primary/10'
                             : 'text-foreground hover:text-primary hover:bg-accent/50'
                         )}
                         onClick={() => setIsOpen(false)}
@@ -375,8 +381,8 @@ const Navbar = () => {
                     </motion.div>
                   ))}
                   <div className="pt-4 mt-2 border-t border-border/50 flex flex-col gap-4">
-                    <a 
-                      href="https://wa.me/917909041132" 
+                    <a
+                      href="https://wa.me/917909041132"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 text-muted-foreground font-medium px-4"
@@ -387,16 +393,13 @@ const Navbar = () => {
                         <span>+91 7909041132</span>
                       </div>
                     </a>
-                    <Button 
-                      onClick={() => {
-                        setIsOpen(false);
-                        setIsCalculatorOpen(true);
-                      }}
-                      className="w-full shadow-lg py-6 rounded-xl text-base gap-2"
-                    >
-                      <Calculator className="w-5 h-5" />
-                      Get Free Estimate
-                    </Button>
+                    <Link to="/contact-us" onClick={() => setIsOpen(false)} className="w-full">
+                      <Button
+                        className="w-full shadow-lg py-6 rounded-xl text-base gap-2"
+                      >
+                        Book Free Consultation
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -404,11 +407,11 @@ const Navbar = () => {
           )}
         </AnimatePresence>
       </nav>
-      
+
       {/* Cost Calculator Modal */}
-      <CostCalculatorModal 
-        isOpen={isCalculatorOpen} 
-        onClose={() => setIsCalculatorOpen(false)} 
+      <CostCalculatorModal
+        isOpen={isCalculatorOpen}
+        onClose={() => setIsCalculatorOpen(false)}
       />
     </header>
   );

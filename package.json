@@ -11,8 +11,7 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "dev:web": "npm run dev --workspace=web",
-    "dev:admin": "npm run dev --workspace=admin",
-    "build:all": "npm run build --workspaces"
+    "dev:admin": "npm run dev --workspace=admin"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

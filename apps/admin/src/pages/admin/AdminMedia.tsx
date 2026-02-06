@@ -62,10 +62,9 @@ const AdminMedia = () => {
         }
     };
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const [isDragging, setIsDragging] = useState(false);
 
+    const processFile = async (file: File) => {
         setIsUploading(true);
         try {
             const fileExt = file.name.split('.').pop();
@@ -89,6 +88,40 @@ const AdminMedia = () => {
         } finally {
             setIsUploading(false);
         }
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        await processFile(file);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = async (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            toast({
+                title: "Invalid file type",
+                description: "Please upload an image file.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        await processFile(file);
     };
 
     const handleDelete = async (fileName: string) => {
@@ -127,17 +160,46 @@ const AdminMedia = () => {
 
     return (
         <div className="space-y-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col gap-6">
                 <div>
                     <h1 className="font-display text-3xl font-bold">Media Library</h1>
                     <p className="text-muted-foreground mt-1">Manage your images and assets</p>
                 </div>
-                <div className="flex items-center gap-2">
+
+                {/* Drag and Drop Zone */}
+                <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`
+                        border-2 border-dashed rounded-xl p-8 transition-all duration-200 ease-in-out
+                        flex flex-col items-center justify-center gap-4 text-center cursor-pointer
+                        ${isDragging
+                            ? "border-primary bg-primary/5 scale-[1.01]"
+                            : "border-border hover:border-primary/50 hover:bg-secondary/30"
+                        }
+                    `}
+                >
+                    <div className="bg-background p-4 rounded-full shadow-sm">
+                        {isUploading ? (
+                            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                        ) : (
+                            <Upload className="w-8 h-8 text-primary" />
+                        )}
+                    </div>
+                    <div>
+                        <h3 className="font-semibold text-lg mb-1">
+                            {isUploading ? "Uploading..." : "Click or drag file to upload"}
+                        </h3>
+                        <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                            SVG, PNG, JPG or GIF (max. 10MB)
+                        </p>
+                    </div>
+
                     <div className="relative">
                         <Label htmlFor="file-upload" className="cursor-pointer">
-                            <Button variant="gold" disabled={isUploading} className="pointer-events-none">
-                                {isUploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
-                                Upload New
+                            <Button variant="secondary" disabled={isUploading} className="pointer-events-none">
+                                Select File
                             </Button>
                         </Label>
                         <Input
