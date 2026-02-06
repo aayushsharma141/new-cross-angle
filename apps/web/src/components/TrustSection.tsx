@@ -5,33 +5,33 @@ import { cn } from "@/lib/utils";
 const trustItems = [
   {
     icon: Award,
-    title: "Award-Winning Designs",
-    description: "Recognized for excellence in interior design across Jharkhand"
-  },
-  {
-    icon: Users,
-    title: "Expert Team",
-    description: "15+ certified designers and skilled craftsmen"
+    title: "45-Day Delivery",
+    description: "Or we pay you rent. Guaranteed on-time completion."
   },
   {
     icon: ShieldCheck,
-    title: "Quality Guarantee",
-    description: "100% client satisfaction with money-back guarantee"
+    title: "10-Year Warranty",
+    description: "On all modular products. Quality you can trust."
+  },
+  {
+    icon: Users,
+    title: "500+ Happy Homes",
+    description: "Recognized for excellence across Jharkhand & Kolkata"
   },
   {
     icon: Wrench,
-    title: "Premium Tools & Materials",
-    description: "Partnered with top brands for superior quality"
+    title: "No Hidden Costs",
+    description: "Transparent pricing with detailed BOQ from day one."
   },
   {
     icon: Package,
-    title: "Authentic Materials",
-    description: "Direct sourcing from verified manufacturers"
+    title: "Factory Finish",
+    description: "Precision manufacturing for modular kitchens & wardrobes."
   },
   {
     icon: HeadphonesIcon,
     title: "Post-Project Support",
-    description: "1 year free maintenance and support"
+    description: "1 year free maintenance service included."
   }
 ];
 
@@ -125,13 +125,13 @@ const TrustSection = () => {
           <p className="text-sm text-primary-foreground/50 mb-6 uppercase tracking-wider text-center">
             Trusted Brand Partners
           </p>
-          
+
           {/* Marquee Container */}
           <div className="relative overflow-hidden py-4">
             {/* Gradient Masks */}
             <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-r from-foreground to-transparent z-10" />
             <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-l from-foreground to-transparent z-10" />
-            
+
             {/* Marquee Track */}
             <div className="flex animate-marquee">
               {/* First set */}

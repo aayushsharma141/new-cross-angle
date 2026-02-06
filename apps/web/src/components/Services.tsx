@@ -66,7 +66,7 @@ const Services = () => {
             const Icon = iconMap[service.icon] || Home;
 
             return (
-              <div
+              <article
                 key={service.id}
                 className={cn(
                   "group relative bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 rounded-xl p-6 md:p-8",
@@ -112,7 +112,7 @@ const Services = () => {
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>

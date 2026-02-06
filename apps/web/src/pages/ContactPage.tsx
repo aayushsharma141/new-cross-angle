@@ -32,9 +32,20 @@ const ContactPage = () => {
         {/* Contact Form Section */}
         <section className="pb-24 bg-gradient-to-b from-background to-accent/5">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+              {/* Form Section */}
               <ContactForm />
-              <ContactInfo />
+
+              {/* Info Section - Sticky on Desktop */}
+              <div className="lg:sticky lg:top-24 space-y-8">
+                <div className="hidden lg:block mb-6">
+                  <h3 className="text-2xl font-serif font-bold text-foreground">Get in Touch</h3>
+                  <p className="text-primary-foreground/60 mt-2">
+                    Visit our studio or contact us directly. We're here to help.
+                  </p>
+                </div>
+                <ContactInfo />
+              </div>
             </div>
           </div>
         </section>

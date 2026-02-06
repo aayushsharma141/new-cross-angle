@@ -1,4 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { AppBreadcrumb } from "@/components/AppBreadcrumb";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight, Quote } from "lucide-react";
@@ -52,25 +53,12 @@ const ProjectPage = () => {
       </Helmet>
 
       <Navbar />
+      <div className="pt-24">
+        <AppBreadcrumb />
+      </div>
       <WhatsAppButton />
 
       <main className="bg-background">
-        {/* Breadcrumb */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="fixed top-24 left-0 right-0 z-40 pointer-events-none"
-        >
-          <div className="container mx-auto px-4">
-            <Link
-              to="/gallery"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors pointer-events-auto bg-background/80 backdrop-blur-sm px-4 py-2 rounded-full border border-border/50"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Portfolio
-            </Link>
-          </div>
-        </motion.div>
 
         {/* Immersive Hero */}
         <ProjectHero
@@ -185,7 +173,7 @@ const ProjectPage = () => {
                 >
                   {/* Quote Icon */}
                   <Quote className="absolute top-6 right-6 w-16 h-16 text-primary/10" />
-                  
+
                   <blockquote className="text-lg md:text-xl italic text-foreground mb-6 relative z-10">
                     "{project.testimonial.quote}"
                   </blockquote>
@@ -223,7 +211,7 @@ const ProjectPage = () => {
                     <div className="absolute top-0 right-0 w-32 h-32 border border-primary-foreground rounded-full -translate-y-1/2 translate-x-1/2" />
                     <div className="absolute bottom-0 left-0 w-24 h-24 border border-primary-foreground rounded-full translate-y-1/2 -translate-x-1/2" />
                   </div>
-                  
+
                   <h3 className="font-semibold mb-2 relative z-10">Interested in Similar Design?</h3>
                   <p className="text-primary-foreground/80 text-sm mb-4 relative z-10">
                     Get a free consultation for your project
@@ -340,7 +328,7 @@ const ProjectPage = () => {
             </div>
           </section>
         )}
-      </main>
+      </main >
 
       <Footer />
     </>

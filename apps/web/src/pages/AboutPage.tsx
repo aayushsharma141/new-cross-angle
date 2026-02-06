@@ -11,6 +11,7 @@ import AboutStats from "@/components/about/AboutStats";
 import AboutTimeline from "@/components/about/AboutTimeline";
 import AboutCTA from "@/components/about/AboutCTA";
 import AboutVideoModal from "@/components/about/AboutVideoModal";
+import { AppBreadcrumb } from "@/components/AppBreadcrumb";
 
 const AboutPage = () => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -28,36 +29,38 @@ const AboutPage = () => {
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/about-us" />
       </Helmet>
-      
+
       <FloatingParticles count={25} />
-      
+
       <main className="min-h-screen relative z-10">
         <FixedSocialBar />
         <Navbar />
-        
+
         {/* Immersive Hero with Video */}
         <AboutHero onPlayVideo={() => setIsVideoOpen(true)} />
-        
+
+        <AppBreadcrumb />
+
         {/* Core Values with 3D Cards */}
         <AboutValues />
-        
+
         {/* Stats Section with Count-up */}
         <AboutStats />
-        
+
         {/* Timeline with Scroll Animation */}
         <AboutTimeline />
-        
+
         {/* CTA Section */}
         <AboutCTA />
-        
+
         <Footer />
         <ScrollToTop />
       </main>
 
       {/* Video Modal */}
-      <AboutVideoModal 
-        isOpen={isVideoOpen} 
-        onClose={() => setIsVideoOpen(false)} 
+      <AboutVideoModal
+        isOpen={isVideoOpen}
+        onClose={() => setIsVideoOpen(false)}
       />
     </>
   );
