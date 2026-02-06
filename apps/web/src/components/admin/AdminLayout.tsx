@@ -128,7 +128,9 @@ const AdminLayout = () => {
         },
       ],
     },
-  ] as const;
+  ];
+
+  type MenuSection = typeof menuSections[number];
 
   return (
     <SidebarProvider>
