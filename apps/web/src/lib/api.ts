@@ -181,8 +181,8 @@ export const api = {
   },
 
   // Stub other methods if used by context, or leave empty
-  createProject: async (): Promise<Project> => { throw new Error("Read only"); },
-  updateProject: async (): Promise<Project> => { throw new Error("Read only"); },
-  deleteProject: async (): Promise<void> => { throw new Error("Read only"); },
-  updateHeroContent: async (): Promise<HeroContent> => { throw new Error("Read only"); }
+  createProject: async (_project: Omit<Project, "id">): Promise<Project> => { throw new Error("Read only"); },
+  updateProject: async (_id: string, _updates: Partial<Project>): Promise<Project> => { throw new Error("Read only"); },
+  deleteProject: async (_id: string): Promise<void> => { throw new Error("Read only"); },
+  updateHeroContent: async (_content: Partial<HeroContent>): Promise<HeroContent> => { throw new Error("Read only"); }
 };
