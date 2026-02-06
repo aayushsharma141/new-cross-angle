@@ -4,7 +4,8 @@ import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { cn } from "./lib/utils";
 import { Button } from "./button";
 
-export interface PaginationProps extends React.HTMLAttributes<HTMLElement> {
+export interface PaginationProps {
+    className?: string;
     currentPage: number;
     totalPages: number;
     onPageChange: (page: number) => void;
