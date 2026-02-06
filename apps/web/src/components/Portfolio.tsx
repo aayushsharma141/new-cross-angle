@@ -7,8 +7,7 @@ import { cn } from "@/lib/utils";
 import { categories } from "@/data/projects";
 import { useProjects } from "@/context/ProjectContext";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-
-import { Image } from "@repo/ui";
+import { Image } from "@/components/ui/image";
 
 const Portfolio = () => {
   const { projects } = useProjects();

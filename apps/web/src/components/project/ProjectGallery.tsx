@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { X, ChevronLeft, ChevronRight, Expand } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Image } from "@repo/ui";
+import { Image } from "@/components/ui/image";
 
 interface GalleryItem {
   room: string;
