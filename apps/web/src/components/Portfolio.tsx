@@ -8,14 +8,16 @@ import { categories } from "@/data/projects";
 import { useProjects } from "@/context/ProjectContext";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
+import { Image } from "@repo/ui";
+
 const Portfolio = () => {
   const { projects } = useProjects();
   const [activeFilter, setActiveFilter] = useState("All");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const filteredProjects = activeFilter === "All" 
-    ? projects 
+  const filteredProjects = activeFilter === "All"
+    ? projects
     : projects.filter(p => p.category === activeFilter);
 
   const openLightbox = (index: number) => {
@@ -35,7 +37,7 @@ const Portfolio = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!lightboxOpen) return;
-      
+
       if (e.key === "ArrowLeft") {
         navigateLightbox("prev");
       } else if (e.key === "ArrowRight") {
@@ -53,14 +55,14 @@ const Portfolio = () => {
     <section id="portfolio" className="py-32 relative overflow-hidden">
       {/* Dark overlay matching hero */}
       <div className="absolute inset-0 bg-gradient-to-b from-foreground/90 via-foreground/85 to-foreground/95 z-0" />
-      
+
       {/* Interactive Floating Particles */}
       <FloatingParticles count={15} />
-      
+
       {/* Decorative Elements */}
       <div className="absolute top-20 left-20 w-32 h-32 border border-primary/20 rounded-full z-[1]" />
       <div className="absolute bottom-20 right-20 w-48 h-48 border border-primary/20 rounded-full z-[1]" />
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-12">
           <div className="max-w-2xl">
@@ -75,11 +77,11 @@ const Portfolio = () => {
               showcase our commitment to excellence and attention to detail.
             </p>
           </div>
-          <Link 
+          <Link
             to="/gallery"
             className="group flex items-center gap-3 text-primary font-medium hover:gap-4 transition-all duration-300"
           >
-            View All Projects 
+            View All Projects
             <ArrowUpRight className="w-5 h-5 group-hover:rotate-45 transition-transform duration-300" />
           </Link>
         </div>
@@ -116,16 +118,16 @@ const Portfolio = () => {
             >
               <div className="relative overflow-hidden rounded-2xl mb-6">
                 <div className="aspect-[4/5] overflow-hidden">
-                  <img
+                  <Image
                     src={project.heroImage}
                     alt={project.title}
-                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
+                    imageClassName="transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
                   />
                 </div>
-                
+
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                
+
                 {/* View Button */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
                   <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center transform scale-50 group-hover:scale-100 transition-transform duration-500 shadow-2xl">
@@ -145,7 +147,7 @@ const Portfolio = () => {
                   </span>
                 </div>
               </div>
-              
+
               <div className="px-2">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="w-8 h-px bg-primary" />
@@ -175,7 +177,7 @@ const Portfolio = () => {
         {/* Bottom CTA */}
         <div className="mt-20 text-center">
           <p className="text-primary-foreground/60 mb-6">Want to see more of our work?</p>
-          <Link 
+          <Link
             to="/gallery"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-medium hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 hover:-translate-y-1"
           >
@@ -193,7 +195,7 @@ const Portfolio = () => {
           </VisuallyHidden>
           <div className="relative">
             {/* Close button */}
-            <button 
+            <button
               onClick={() => setLightboxOpen(false)}
               className="absolute top-4 right-4 z-20 p-2 rounded-full bg-foreground/80 hover:bg-foreground transition-colors"
               aria-label="Close lightbox"
@@ -219,10 +221,9 @@ const Portfolio = () => {
 
             {/* Image */}
             <div className="aspect-[4/3] rounded-xl overflow-hidden">
-              <img
+              <Image
                 src={filteredProjects[currentImageIndex]?.heroImage}
                 alt={filteredProjects[currentImageIndex]?.title}
-                className="w-full h-full object-cover"
               />
             </div>
 
@@ -264,7 +265,7 @@ const Portfolio = () => {
                   )}
                   aria-label={`View ${project.title}`}
                 >
-                  <img src={project.heroImage} alt={project.title} className="w-full h-full object-cover" />
+                  <Image src={project.heroImage} alt={project.title} />
                 </button>
               ))}
             </div>

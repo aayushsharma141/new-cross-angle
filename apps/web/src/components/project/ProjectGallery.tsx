@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { X, ChevronLeft, ChevronRight, Expand } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Image } from "@repo/ui";
 
 interface GalleryItem {
   room: string;
@@ -158,12 +159,12 @@ const ProjectGallery = ({ gallery, title }: ProjectGalleryProps) => {
               className="max-w-[90vw] max-h-[80vh] relative"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
+              <Image
                 src={allImages[currentIndex].image}
                 alt={`${title} - ${allImages[currentIndex].room}`}
-                className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl"
+                imageClassName="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl"
               />
-              
+
               {/* Image Info */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -189,15 +190,15 @@ const ProjectGallery = ({ gallery, title }: ProjectGalleryProps) => {
                   onClick={(e) => { e.stopPropagation(); setCurrentIndex(index); }}
                   className={cn(
                     "w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 transition-all duration-300",
-                    currentIndex === index 
-                      ? "ring-2 ring-primary scale-110" 
+                    currentIndex === index
+                      ? "ring-2 ring-primary scale-110"
                       : "opacity-50 hover:opacity-100"
                   )}
                 >
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.room}
-                    className="w-full h-full object-cover"
+                    imageClassName="w-full h-full object-cover"
                   />
                 </button>
               ))}

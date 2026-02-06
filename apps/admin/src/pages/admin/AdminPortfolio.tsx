@@ -49,11 +49,18 @@ interface PortfolioItem {
 
 const categories = ["Residential", "Commercial", "Hospitality", "Retail", "Office"];
 
+import { Pagination, Image } from "@repo/ui";
+
+const ITEMS_PER_PAGE = 9;
+
 const AdminPortfolio = () => {
   const [items, setItems] = useState<PortfolioItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<PortfolioItem | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -80,17 +87,27 @@ const AdminPortfolio = () => {
 
   useEffect(() => {
     fetchItems();
-  }, []);
+  }, [currentPage]);
 
   const fetchItems = async () => {
-    const { data, error } = await supabase
+    setIsLoading(true);
+    const from = (currentPage - 1) * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
+
+    const { data, count, error } = await supabase
       .from('projects')
-      .select('*')
-      .order('display_order', { ascending: true });
+      .select('*', { count: 'exact' })
+      .order('display_order', { ascending: true })
+      .range(from, to);
 
     if (data) {
       setItems(data);
     }
+
+    if (count) {
+      setTotalPages(Math.ceil(count / ITEMS_PER_PAGE));
+    }
+
     setIsLoading(false);
   };
 
@@ -434,10 +451,10 @@ const AdminPortfolio = () => {
                   </Button>
                 </div>
                 {formData.hero_image && (
-                  <img
+                  <Image
                     src={formData.hero_image}
                     alt="Preview"
-                    className="mt-2 w-full h-40 object-cover rounded-lg"
+                    imageClassName="mt-2 w-full h-40 object-cover rounded-lg"
                   />
                 )}
               </div>
@@ -475,10 +492,10 @@ const AdminPortfolio = () => {
             <Card className="bg-card border-border overflow-hidden group">
               <div className="aspect-[4/3] relative">
                 {item.hero_image ? (
-                  <img
+                  <Image
                     src={item.hero_image}
                     alt={item.title}
-                    className="w-full h-full object-cover"
+                    imageClassName="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-secondary flex items-center justify-center">
@@ -512,6 +529,16 @@ const AdminPortfolio = () => {
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="py-4">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
     </div>
   );
 };

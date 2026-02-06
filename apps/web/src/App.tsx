@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-route
 import { HelmetProvider } from "react-helmet-async";
 import { AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
+import { UI } from "@repo/ui";
 // Public Pages
 import Index from "./pages/Index";
 import AboutPage from "./pages/AboutPage";
@@ -38,6 +39,7 @@ const ScrollToTop = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
+    console.log("Shared Package Loaded:", UI);
   }, [pathname]);
 
   return null;

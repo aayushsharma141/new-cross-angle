@@ -28,11 +28,18 @@ interface Service {
 
 const ICONS = ["Home", "Building2", "Palette", "Lightbulb", "Sofa", "PenTool"];
 
+import { Pagination } from "@repo/ui";
+
+const ITEMS_PER_PAGE = 9;
+
 const AdminServices = () => {
     const [services, setServices] = useState<Service[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingService, setEditingService] = useState<Service | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -44,18 +51,28 @@ const AdminServices = () => {
 
     useEffect(() => {
         fetchServices();
-    }, []);
+    }, [currentPage]);
 
     const fetchServices = async () => {
+        setIsLoading(true);
+        const from = (currentPage - 1) * ITEMS_PER_PAGE;
+        const to = from + ITEMS_PER_PAGE - 1;
+
         // Cast to any to bypass strict type checking for new table
-        const { data, error } = await (supabase
+        const { data, count, error } = await (supabase
             .from('services' as any)
-            .select('*')
-            .order('display_order', { ascending: true })) as any;
+            .select('*', { count: 'exact' })
+            .order('display_order', { ascending: true })
+            .range(from, to)) as any;
 
         if (data) {
             setServices(data);
         }
+
+        if (count) {
+            setTotalPages(Math.ceil(count / ITEMS_PER_PAGE));
+        }
+
         setIsLoading(false);
     };
 
@@ -281,6 +298,16 @@ const AdminServices = () => {
                     </div>
                 )}
             </div>
+
+            {totalPages > 1 && (
+                <div className="py-4">
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
+                </div>
+            )}
         </div>
     );
 };

@@ -22,8 +22,9 @@ const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard, roles: ["admin", "editor"] },
   { name: "Site Content", href: "/admin/content", icon: Edit3, roles: ["admin", "editor"] },
   { name: "Blog Posts", href: "/admin/blogs", icon: FileText, roles: ["admin", "editor"] },
-  { name: "Services", href: "/admin/services", icon: Home, roles: ["admin", "editor"] }, // Added Services link
+  { name: "Services", href: "/admin/services", icon: Home, roles: ["admin", "editor"] },
   { name: "Portfolio", href: "/admin/portfolio", icon: Image, roles: ["admin", "editor"] },
+  { name: "Media", href: "/admin/media", icon: Image, roles: ["admin", "editor"] },
   { name: "Leads", href: "/admin/leads", icon: Users, roles: ["admin"] },
   { name: "Settings", href: "/admin/settings", icon: Settings, roles: ["admin", "editor"] },
 ];

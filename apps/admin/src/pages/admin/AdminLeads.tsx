@@ -17,20 +17,34 @@ interface Lead {
   created_at: string;
 }
 
+import { Pagination } from "@repo/ui";
+
+const ITEMS_PER_PAGE = 9;
+
 const AdminLeads = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchLeads();
-  }, []);
+  }, [currentPage]);
 
   const fetchLeads = async () => {
-    const { data } = await supabase
-      .from('leads')
-      .select('*')
-      .order('created_at', { ascending: false });
+    setIsLoading(true);
+    const from = (currentPage - 1) * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
+
+    const { data, count } = await (supabase
+      .from('leads' as any)
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to)) as any;
+
     if (data) setLeads(data);
+    if (count) setTotalPages(Math.ceil(count / ITEMS_PER_PAGE));
+
     setIsLoading(false);
   };
 
@@ -75,6 +89,16 @@ const AdminLeads = () => {
         ))}
         {leads.length === 0 && <div className="text-center py-12 text-muted-foreground">No leads yet.</div>}
       </div>
+
+      {totalPages > 1 && (
+        <div className="py-4">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
     </div>
   );
 };
