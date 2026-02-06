@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => ({
         port: 8080,
     },
     plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+    publicDir: path.resolve(__dirname, "./apps/web/public"),
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./apps/web/src"),
@@ -17,5 +18,4 @@ export default defineConfig(({ mode }) => ({
             "@repo/utils": path.resolve(__dirname, "./packages/utils/src"),
         },
     },
-    // Tailwind config is now handled by root postcss.config.js and tailwind.config.ts
 }));
