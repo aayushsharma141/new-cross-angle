@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  Users, 
-  TrendingUp, 
-  Eye, 
+import {
+  Users,
+  TrendingUp,
+  Eye,
   FileText,
   ArrowUpRight,
   ArrowDownRight,
@@ -11,6 +11,8 @@ import {
   Building2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import AnimatedCounter from "@/components/ui/AnimatedCounter";
+import { StatsSkeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BarChart,
@@ -69,7 +71,7 @@ const AdminDashboard = () => {
       const { data: blogs } = await supabase
         .from('blogs')
         .select('id')
-        .eq('is_published', true);
+        .eq('published', true);
 
       // Fetch portfolio
       const { data: portfolio } = await supabase
@@ -95,7 +97,7 @@ const AdminDashboard = () => {
         // Generate weekly data
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         const weekData = days.map((day, index) => {
-          const dayLeads = weekLeads.filter(l => 
+          const dayLeads = weekLeads.filter(l =>
             new Date(l.created_at).getDay() === index
           );
           return { name: day, leads: dayLeads.length };
@@ -148,8 +150,14 @@ const AdminDashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="space-y-8">
+        <div>
+          <h1 className="font-display text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Loading your data...</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => <StatsSkeleton key={i} />)}
+        </div>
       </div>
     );
   }
@@ -180,7 +188,9 @@ const AdminDashboard = () => {
                     <ArrowUpRight className="w-4 h-4 text-green-500" />
                   )}
                 </div>
-                <div className="text-3xl font-bold mb-1">{stat.value}</div>
+                <div className="text-3xl font-bold mb-1">
+                  <AnimatedCounter value={stat.value} duration={1.5} />
+                </div>
                 <div className="text-sm text-muted-foreground">{stat.title}</div>
                 <div className="text-xs text-muted-foreground mt-2">{stat.trendValue}</div>
               </CardContent>
@@ -203,9 +213,9 @@ const AdminDashboard = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
                   <YAxis stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px'
                     }}
@@ -240,9 +250,9 @@ const AdminDashboard = () => {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))', 
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px'
                       }}
@@ -256,8 +266,8 @@ const AdminDashboard = () => {
             <div className="flex justify-center gap-6 mt-4">
               {pieData.map((entry, index) => (
                 <div key={entry.name} className="flex items-center gap-2">
-                  <div 
-                    className="w-3 h-3 rounded-full" 
+                  <div
+                    className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
                   />
                   <span className="text-sm text-muted-foreground">{entry.name}</span>

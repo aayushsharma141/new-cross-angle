@@ -1,7 +1,7 @@
 import { ArrowRight, Calculator, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WaterRippleEffect from "./WaterRippleEffect";
-import CostCalculatorModal from "./CostCalculatorModal";
+import { CostCalculator as CostCalculatorModal } from "./CostCalculator";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, HeroContent } from "@/lib/api";

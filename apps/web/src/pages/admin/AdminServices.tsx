@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, Loader2, Home, Building2, Palette, Lightbulb, Sofa, PenTool } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, ImagePlus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Dialog,
     DialogContent,
@@ -14,32 +15,42 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { ServiceDetail, Feature, ProcessStep, FAQItem } from "@repo/types";
+import { FeaturesEditor, ProcessEditor, FAQEditor } from "@/components/admin/ServiceFormFields";
+import MediaPickerModal from "@/components/admin/MediaPickerModal";
 
-interface Service {
-    id: string;
-    title: string;
-    description: string;
-    icon: string;
-    tag: string | null;
-    display_order: number;
-}
-
-const ICONS = ["Home", "Building2", "Palette", "Lightbulb", "Sofa", "PenTool"];
+const ICONS = ["Home", "Building2", "Palette", "Lightbulb", "Sofa", "PenTool", "Lamp", "UtensilsCrossed", "Bed"];
+const CATEGORIES = [
+    { id: "residential", label: "Residential" },
+    { id: "commercial", label: "Commercial" },
+    { id: "specialized", label: "Specialized" }
+];
 
 const AdminServices = () => {
-    const [services, setServices] = useState<Service[]>([]);
+    const [services, setServices] = useState<ServiceDetail[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [editingService, setEditingService] = useState<Service | null>(null);
-    const [formData, setFormData] = useState({
+    const [editingService, setEditingService] = useState<ServiceDetail | null>(null);
+
+    // Form State
+    const [formData, setFormData] = useState<Partial<ServiceDetail>>({
         title: "",
+        slug: "",
         description: "",
+        hero_image: "",
+        category_id: "residential",
         icon: "Home",
-        tag: ""
+        tag: "",
+        features: [],
+        process_steps: [],
+        faq: []
     });
+
     const [isSaving, setIsSaving] = useState(false);
+    const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -47,25 +58,32 @@ const AdminServices = () => {
     }, []);
 
     const fetchServices = async () => {
-        // Cast to any to bypass strict type checking for new table
-        const { data, error } = await (supabase
-            .from('services' as any)
+        const { data, error } = await supabase
+            .from('services')
             .select('*')
-            .order('display_order', { ascending: true })) as any;
+            .order('display_order', { ascending: true });
 
         if (data) {
-            setServices(data);
+            // Need to ensure JSON fields are parsed if Supabase returns them as strings (though pg usually handles this)
+            // But we cast to ServiceDetail[] assuming the API/Supabase client types are aligned or raw data matches
+            setServices(data as unknown as ServiceDetail[]);
         }
         setIsLoading(false);
     };
 
-    const handleEdit = (service: Service) => {
+    const handleEdit = (service: ServiceDetail) => {
         setEditingService(service);
         setFormData({
             title: service.title,
+            slug: service.slug,
             description: service.description || "",
+            hero_image: service.hero_image || "",
+            category_id: service.category_id || "residential",
             icon: service.icon || "Home",
-            tag: service.tag || ""
+            tag: service.tag || "",
+            features: service.features || [],
+            process_steps: service.process_steps || [],
+            faq: service.faq || []
         });
         setIsDialogOpen(true);
     };
@@ -73,10 +91,10 @@ const AdminServices = () => {
     const handleDelete = async (id: string) => {
         if (!confirm('Are you sure you want to delete this service?')) return;
 
-        const { error } = await (supabase
-            .from('services' as any)
+        const { error } = await supabase
+            .from('services')
             .delete()
-            .eq('id', id)) as any;
+            .eq('id', id);
 
         if (error) {
             toast({
@@ -89,6 +107,10 @@ const AdminServices = () => {
         }
     };
 
+    const generateSlug = (title: string) => {
+        return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
@@ -96,21 +118,27 @@ const AdminServices = () => {
         try {
             const serviceData = {
                 title: formData.title,
+                slug: formData.slug || generateSlug(formData.title || ""),
                 description: formData.description,
+                hero_image: formData.hero_image,
+                category_id: formData.category_id,
                 icon: formData.icon,
-                tag: formData.tag || null
+                tag: formData.tag || null,
+                features: formData.features,
+                process_steps: formData.process_steps,
+                faq: formData.faq
             };
 
             if (editingService) {
-                const { error } = await (supabase
-                    .from('services' as any)
+                const { error } = await supabase
+                    .from('services')
                     .update(serviceData)
-                    .eq('id', editingService.id)) as any;
+                    .eq('id', editingService.id);
                 if (error) throw error;
             } else {
-                const { error } = await (supabase
-                    .from('services' as any)
-                    .insert([{ ...serviceData, display_order: services.length + 1 }])) as any;
+                const { error } = await supabase
+                    .from('services')
+                    .insert([{ ...serviceData, display_order: services.length + 1 }]);
                 if (error) throw error;
             }
 
@@ -120,14 +148,9 @@ const AdminServices = () => {
 
             setIsDialogOpen(false);
             setEditingService(null);
-            setFormData({
-                title: "",
-                description: "",
-                icon: "Home",
-                tag: ""
-            });
             fetchServices();
         } catch (error: any) {
+            console.error(error);
             toast({
                 title: "Error saving service",
                 description: error.message,
@@ -142,9 +165,15 @@ const AdminServices = () => {
         setEditingService(null);
         setFormData({
             title: "",
+            slug: "",
             description: "",
+            hero_image: "",
+            category_id: "residential",
             icon: "Home",
-            tag: ""
+            tag: "",
+            features: [],
+            process_steps: [],
+            faq: []
         });
         setIsDialogOpen(true);
     };
@@ -171,65 +200,158 @@ const AdminServices = () => {
                             New Service
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
                         <DialogHeader>
                             <DialogTitle>
                                 {editingService ? "Edit Service" : "New Service"}
                             </DialogTitle>
                         </DialogHeader>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>Title</Label>
-                                <Input
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Description</Label>
-                                <Textarea
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    rows={3}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Icon</Label>
-                                <Select
-                                    value={formData.icon}
-                                    onValueChange={(value) => setFormData({ ...formData, icon: value })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select an icon" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {ICONS.map((icon) => (
-                                            <SelectItem key={icon} value={icon}>
-                                                {icon}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Tag (Optional)</Label>
-                                <Input
-                                    value={formData.tag}
-                                    onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                                    placeholder="e.g. Popular, Premium"
-                                />
-                            </div>
-                            <div className="flex justify-end gap-2 pt-2">
-                                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                                    Cancel
-                                </Button>
-                                <Button type="submit" variant="gold" disabled={isSaving}>
-                                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                                    {editingService ? "Update" : "Create"}
-                                </Button>
-                            </div>
-                        </form>
+                        <ScrollArea className="flex-1 pr-4">
+                            <form onSubmit={handleSubmit} className="space-y-6 pb-6">
+                                <Tabs defaultValue="basic">
+                                    <TabsList className="grid w-full grid-cols-4">
+                                        <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                                        <TabsTrigger value="features">Features</TabsTrigger>
+                                        <TabsTrigger value="process">Process</TabsTrigger>
+                                        <TabsTrigger value="faq">FAQ</TabsTrigger>
+                                    </TabsList>
+
+                                    <TabsContent value="basic" className="space-y-4 mt-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label>Title</Label>
+                                                <Input
+                                                    value={formData.title}
+                                                    onChange={(e) => {
+                                                        const title = e.target.value;
+                                                        // Only auto-generate slug if generic or empty
+                                                        const slug = !editingService ? generateSlug(title) : formData.slug;
+                                                        setFormData({ ...formData, title, slug });
+                                                    }}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Slug</Label>
+                                                <Input
+                                                    value={formData.slug}
+                                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label>Category</Label>
+                                                <Select
+                                                    value={formData.category_id}
+                                                    onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select Category" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {CATEGORIES.map((cat) => (
+                                                            <SelectItem key={cat.id} value={cat.id}>{cat.label}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Icon</Label>
+                                                <Select
+                                                    value={formData.icon}
+                                                    onValueChange={(value) => setFormData({ ...formData, icon: value })}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select Icon" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {ICONS.map((icon) => (
+                                                            <SelectItem key={icon} value={icon}>{icon}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Hero Image URL</Label>
+                                            <div className="flex gap-2">
+                                                <Input
+                                                    value={formData.hero_image}
+                                                    onChange={(e) => setFormData({ ...formData, hero_image: e.target.value })}
+                                                    placeholder="https://..."
+                                                    className="flex-1"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => setIsMediaPickerOpen(true)}
+                                                >
+                                                    <ImagePlus className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                            <MediaPickerModal
+                                                open={isMediaPickerOpen}
+                                                onOpenChange={setIsMediaPickerOpen}
+                                                onSelect={(url) => setFormData({ ...formData, hero_image: url })}
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Description</Label>
+                                            <Textarea
+                                                value={formData.description}
+                                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                                rows={3}
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Tag (Optional)</Label>
+                                            <Input
+                                                value={formData.tag}
+                                                onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+                                                placeholder="e.g. Popular"
+                                            />
+                                        </div>
+                                    </TabsContent>
+
+                                    <TabsContent value="features" className="mt-4">
+                                        <FeaturesEditor
+                                            features={formData.features || []}
+                                            onChange={(f) => setFormData({ ...formData, features: f })}
+                                        />
+                                    </TabsContent>
+
+                                    <TabsContent value="process" className="mt-4">
+                                        <ProcessEditor
+                                            steps={formData.process_steps || []}
+                                            onChange={(s) => setFormData({ ...formData, process_steps: s })}
+                                        />
+                                    </TabsContent>
+
+                                    <TabsContent value="faq" className="mt-4">
+                                        <FAQEditor
+                                            faq={formData.faq || []}
+                                            onChange={(f) => setFormData({ ...formData, faq: f })}
+                                        />
+                                    </TabsContent>
+                                </Tabs>
+
+                                <div className="flex justify-end gap-2 pt-4">
+                                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                                        Cancel
+                                    </Button>
+                                    <Button type="submit" variant="gold" disabled={isSaving}>
+                                        {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                                        {editingService ? "Update" : "Create"}
+                                    </Button>
+                                </div>
+                            </form>
+                        </ScrollArea>
                     </DialogContent>
                 </Dialog>
             </div>
@@ -257,7 +379,7 @@ const AdminServices = () => {
                                 </div>
 
                                 <h3 className="font-semibold text-lg mb-2">{service.title}</h3>
-                                <p className="text-muted-foreground text-sm mb-4">
+                                <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                                     {service.description}
                                 </p>
 

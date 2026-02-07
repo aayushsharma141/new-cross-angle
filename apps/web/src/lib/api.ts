@@ -1,5 +1,6 @@
 import { Project } from "@/data/projects";
 import { supabase } from "@/lib/supabase";
+import { ServiceDetail, ProcessStep, FAQItem } from "@repo/types";
 
 export interface HeroContent {
   badgeText: string;
@@ -70,13 +71,8 @@ export interface Blog {
   content?: string;
 }
 
-export interface Service {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  tag?: string;
-}
+// Re-export or use from @repo/types
+export type { ServiceDetail };
 
 const mapSupabaseToBlog = (item: any): Blog => {
   return {
@@ -91,13 +87,21 @@ const mapSupabaseToBlog = (item: any): Blog => {
   };
 };
 
-const mapSupabaseToService = (item: any): Service => {
+const mapSupabaseToServiceDetail = (item: any): ServiceDetail => {
   return {
     id: item.id,
+    created_at: item.created_at,
     title: item.title,
+    slug: item.slug || item.id, // Fallback to ID if no slug
     description: item.description || "",
     icon: item.icon || "Home",
-    tag: item.tag
+    tag: item.tag,
+    hero_image: item.hero_image || "",
+    category_id: item.category_id || "general",
+    // Handle JSONB fields safely
+    features: Array.isArray(item.features) ? item.features : [],
+    process_steps: Array.isArray(item.process_steps) ? item.process_steps : [],
+    faq: Array.isArray(item.faq) ? item.faq : []
   };
 };
 
@@ -124,7 +128,7 @@ export const api = {
     const { data, error } = await supabase
       .from('blogs')
       .select('*')
-      .eq('is_published', true)
+      .eq('published', true)
       .order('published_at', { ascending: false });
 
     if (error) {
@@ -135,21 +139,32 @@ export const api = {
     return (data || []).map(mapSupabaseToBlog);
   },
 
-  getServices: async (): Promise<Service[]> => {
-    // For now, return static services if DB is empty or fails, to keep the UI looking good until populated
-    // But we will try to fetch from DB first
+  getServices: async (): Promise<ServiceDetail[]> => {
     const { data, error } = await supabase
       .from('services')
       .select('*')
       .order('display_order', { ascending: true });
 
-    if (error || !data || data.length === 0) {
-      // Return null or empty array, caller handles fallback or we can return empty
-      // console.log("Using dynamic services");
-      return (data || []).map(mapSupabaseToService);
+    if (error) {
+      console.error('Error fetching services:', error);
+      return [];
     }
 
-    return data.map(mapSupabaseToService);
+    return (data || []).map(mapSupabaseToServiceDetail);
+  },
+
+  getServiceBySlug: async (slug: string): Promise<ServiceDetail | null> => {
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return mapSupabaseToServiceDetail(data);
   },
 
   getHeroContent: async (): Promise<HeroContent> => {

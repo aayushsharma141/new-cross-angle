@@ -1,42 +1,11 @@
-import { useState, useEffect } from "react";
-import { Home, Building2, Palette, Lightbulb, Sofa, PenTool, ArrowRight, LucideIcon } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
-import { api, Service } from "@/lib/api";
-
-const iconMap: Record<string, LucideIcon> = {
-  Home,
-  Building2,
-  Palette,
-  Lightbulb,
-  Sofa,
-  PenTool
-};
+import { serviceCategories } from "@/config/site-content";
 
 const Services = () => {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
-  const [services, setServices] = useState<Service[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const data = await api.getServices();
-        setServices(data);
-      } catch (error) {
-        console.error("Failed to fetch services", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchServices();
-  }, []);
-
-  // Fallback if no services in DB yet
-  if (!isLoading && services.length === 0) {
-    return null; // Or show empty state/fallback
-  }
 
   return (
     <section id="services" className="py-20 md:py-32 relative overflow-hidden">
@@ -62,57 +31,47 @@ const Services = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {services.map((service, index) => {
-            const Icon = iconMap[service.icon] || Home;
+          {serviceCategories.map((category, index) => {
+            const Icon = category.icon;
 
             return (
-              <article
-                key={service.id}
-                className={cn(
-                  "group relative bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 rounded-xl p-6 md:p-8",
-                  "hover:border-primary/40 transition-all duration-500 hover:shadow-xl hover:shadow-primary/10",
-                  "cursor-pointer"
-                )}
-                onMouseEnter={() => setHoveredCard(index)}
-                onMouseLeave={() => setHoveredCard(null)}
+              <Link
+                key={category.id}
+                to={`/services/${category.slug}`}
+                className="block"
               >
-                {/* Tag */}
-                {service.tag && (
-                  <div className="absolute top-4 right-4">
-                    <span
-                      className={cn(
-                        "text-xs font-medium px-2.5 py-1 rounded-full",
-                        service.tag === "Popular" && "bg-primary/20 text-primary",
-                        service.tag === "Premium" && "bg-secondary/20 text-secondary"
-                      )}
-                    >
-                      {service.tag}
-                    </span>
-                  </div>
-                )}
+                <article
+                  className={cn(
+                    "group relative bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 rounded-xl p-6 md:p-8",
+                    "hover:border-primary/40 transition-all duration-500 hover:shadow-xl hover:shadow-primary/10",
+                    "cursor-pointer h-full"
+                  )}
+                  onMouseEnter={() => setHoveredCard(index)}
+                  onMouseLeave={() => setHoveredCard(null)}
+                >
+                  {/* Number */}
+                  <span className="absolute top-4 left-6 text-5xl font-serif font-bold text-primary-foreground/5 group-hover:text-primary/10 transition-colors duration-500">
+                    0{index + 1}
+                  </span>
 
-                {/* Number */}
-                <span className="absolute top-4 left-6 text-5xl font-serif font-bold text-primary-foreground/5 group-hover:text-primary/10 transition-colors duration-500">
-                  0{index + 1}
-                </span>
+                  <div className="relative z-10 mt-6">
+                    <div className="w-14 h-14 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:border-primary transition-all duration-500">
+                      <Icon className="w-7 h-7 text-primary group-hover:text-primary-foreground transition-colors duration-500" />
+                    </div>
+                    <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary-foreground mb-3 group-hover:text-primary transition-colors duration-300">
+                      {category.title}
+                    </h3>
+                    <p className="text-primary-foreground/60 text-sm md:text-base leading-relaxed mb-4">
+                      {category.description}
+                    </p>
 
-                <div className="relative z-10 mt-6">
-                  <div className="w-14 h-14 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:border-primary transition-all duration-500">
-                    <Icon className="w-7 h-7 text-primary group-hover:text-primary-foreground transition-colors duration-500" />
+                    <div className="flex items-center text-primary font-medium text-sm opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                      Explore {category.title}
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
                   </div>
-                  <h3 className="font-serif text-xl md:text-2xl font-semibold text-primary-foreground mb-3 group-hover:text-primary transition-colors duration-300">
-                    {service.title}
-                  </h3>
-                  <p className="text-primary-foreground/60 text-sm md:text-base leading-relaxed mb-4">
-                    {service.description}
-                  </p>
-
-                  <div className="flex items-center text-primary font-medium text-sm opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                    Learn more
-                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </article>
+                </article>
+              </Link>
             );
           })}
         </div>
@@ -121,7 +80,7 @@ const Services = () => {
         <div className="text-center mt-12">
           <Link to="/services">
             <button className="inline-flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-full font-medium hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 group">
-              View All Services
+              View Full Overview
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
           </Link>
@@ -132,3 +91,4 @@ const Services = () => {
 };
 
 export default Services;
+

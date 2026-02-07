@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, Loader2, Upload, Star, GripVertical, Video, Image as ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, Star, GripVertical, Video, Image as ImageIcon, ImagePlus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import MediaPickerModal from "@/components/admin/MediaPickerModal";
 
 interface PortfolioItem {
   id: string;
@@ -75,6 +76,7 @@ const AdminPortfolio = () => {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -432,7 +434,19 @@ const AdminPortfolio = () => {
                   >
                     {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsMediaPickerOpen(true)}
+                  >
+                    <ImagePlus className="w-4 h-4" />
+                  </Button>
                 </div>
+                <MediaPickerModal
+                  open={isMediaPickerOpen}
+                  onOpenChange={setIsMediaPickerOpen}
+                  onSelect={(url) => setFormData({ ...formData, hero_image: url })}
+                />
                 {formData.hero_image && (
                   <img
                     src={formData.hero_image}

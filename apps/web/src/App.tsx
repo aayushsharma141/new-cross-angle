@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-route
 import { HelmetProvider } from "react-helmet-async";
 import { AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
+import { SchemaMarkup } from "./components/SchemaMarkup";
 // Public Pages
 import Index from "./pages/Index";
 import AboutPage from "./pages/AboutPage";
@@ -29,6 +30,7 @@ import AdminServices from "./pages/admin/AdminServices";
 import AdminPortfolio from "./pages/admin/AdminPortfolio";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminMedia from "./pages/admin/AdminMedia";
 
 import { ProjectProvider } from "./context/ProjectContext";
 
@@ -64,6 +66,7 @@ const AnimatedRoutes = () => {
             <Route path="portfolio" element={<AdminPortfolio />} />
             <Route path="leads" element={<AdminLeads />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="media" element={<AdminMedia />} />
           </Route>
         </Routes>
       ) : (
@@ -89,6 +92,48 @@ const AnimatedRoutes = () => {
 
 const App = () => (
   <HelmetProvider>
+    <SchemaMarkup
+      type="LocalBusiness"
+      data={{
+        "@type": "InteriorDesigner",
+        "name": "Cross Angle Interior",
+        "image": "https://crossangleinterior.com/logo-icon.png",
+        "@id": "https://crossangleinterior.com",
+        "url": "https://crossangleinterior.com",
+        "telephone": "+917909041132",
+        "priceRange": "$$",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "2-G, 2nd floor, Aditya Signature building, Dimna Rd, Mango",
+          "addressLocality": "Jamshedpur",
+          "addressRegion": "Jharkhand",
+          "postalCode": "831012",
+          "addressCountry": "IN"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 22.8027,
+          "longitude": 86.2047
+        },
+        "openingHoursSpecification": {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+          ],
+          "opens": "09:00",
+          "closes": "20:00"
+        },
+        "sameAs": [
+          "https://www.instagram.com/crossangleinterior/",
+          "https://www.facebook.com/crossangleinterior"
+        ]
+      }}
+    />
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ProjectProvider>

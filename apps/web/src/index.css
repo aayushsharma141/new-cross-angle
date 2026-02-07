@@ -6,100 +6,142 @@
 @tailwind utilities;
 
 @layer base {
+
+  /* =========================
+     MASTER – MONOCHROMATIC WINE (DEFAULT)
+     Used for: Homepage, Portfolio, Brand pages
+  ========================= */
   :root {
-    /* Light Mode */
-    --background: 30 100% 95%;
-    /* Diesel 50 */
-    --foreground: 0 100% 3%;
-    /* Diesel 950 */
+    /* Backgrounds */
+    --background: 0 0% 4%;
+    /* #0A0A0A - Noir Black */
+    --foreground: 0 0% 96%;
+    /* #F5F5F5 - Pearl White */
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 100% 3%;
+    --card: 0 0% 16%;
+    /* #2A2A2A - Surface */
+    --card-foreground: 0 0% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 100% 3%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 96%;
 
-    /* Diesel 500 as Primary */
-    --primary: 19 100% 50%;
+    /* Brand Wine Primary */
+    --primary: 352 78% 31%;
+    /* #8E1225 - Brand Wine */
     --primary-foreground: 0 0% 98%;
 
-    /* Diesel 200/300 for accents */
-    --secondary: 31 100% 75%;
-    --secondary-foreground: 0 100% 3%;
+    /* Wine Interaction States */
+    --primary-hover: 352 78% 26%;
+    /* #73101D - Hover (darker) */
+    --primary-active: 352 80% 20%;
+    /* #5C0C17 - Active */
 
-    --muted: 32 100% 87%;
-    --muted-foreground: 9 100% 35%;
+    /* Rose Highlight (decorative only) */
+    --secondary: 350 74% 44%;
+    /* #C41E3A - Rose Highlight */
+    --secondary-foreground: 0 0% 98%;
 
-    --accent: 32 100% 87%;
-    --accent-foreground: 13 100% 43%;
+    /* Muted & Subtle */
+    --muted: 0 0% 16%;
+    /* #2A2A2A */
+    --muted-foreground: 0 0% 80%;
+    /* #CCCCCC */
 
-    --destructive: 0 84.2% 60.2%;
+    --accent: 352 78% 36%;
+    /* Lighter Wine */
+    --accent-foreground: 0 0% 96%;
+
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 31 100% 75%;
-    --input: 31 100% 75%;
-    --ring: 19 100% 50%;
+    /* UI Elements */
+    --border: 0 0% 23%;
+    /* #3A3A3A */
+    --input: 0 0% 20%;
+    --ring: 352 78% 31%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 30 100% 95%;
-    --sidebar-foreground: 0 100% 3%;
-    --sidebar-primary: 19 100% 50%;
+    /* Focus Ring */
+    --focus-ring: 352 78% 31% / 0.55;
+
+    /* Sidebar (Admin) */
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 352 78% 31%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 31 100% 75%;
-    --sidebar-accent-foreground: 0 100% 3%;
-    --sidebar-border: 28 100% 60%;
-    --sidebar-ring: 19 100% 50%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 0 0% 23%;
+    --sidebar-ring: 352 78% 31%;
 
     /* Gradients */
-    --gradient-gold: linear-gradient(135deg, hsl(25 100% 50%) 0%, hsl(31 100% 75%) 100%);
-    --shadow-gold: 0 4px 30px -10px hsl(19 100% 50% / 0.3);
-    --shadow-luxury: 0 25px 50px -12px hsl(0 100% 3% / 0.1);
+    --gradient-wine: linear-gradient(135deg, hsl(352 78% 31%) 0%, hsl(350 74% 44%) 100%);
+    --gradient-gold: linear-gradient(90deg, hsl(352 78% 31%) 0%, hsl(46 70% 47%) 100%);
+    --shadow-luxury: 0 25px 50px -12px hsl(0 0% 0% / 0.8);
   }
 
-  .dark {
-    /* Dark Mode - Pure Black (Fully Dark) */
-    --background: 0 0% 0%;
-    --foreground: 30 100% 95%;
+  /* =========================
+     RESIDENTIAL – WINE + GOLD
+     Used for: Testimonials, Awards, Premium sections
+  ========================= */
+  [data-theme="residential"],
+  .theme-residential {
+    --background: 0 0% 5%;
+    /* #0D0D0D */
+    --foreground: 40 33% 97%;
+    /* #FAF8F5 - Cream */
 
-    --card: 0 0% 0%;
-    /* Pure Black Cards */
-    --card-foreground: 30 100% 95%;
+    --card: 0 0% 10%;
+    /* #1A1A1A */
+    --card-foreground: 40 33% 97%;
 
-    --popover: 0 0% 0%;
-    --popover-foreground: 30 100% 95%;
+    --muted-foreground: 0 0% 72%;
+    /* #B8B8B8 */
 
-    /* Diesel 500 Primary */
-    --primary: 19 100% 50%;
+    /* Gold Accent (use sparingly - borders, icons, separators) */
+    --accent-gold: 46 70% 47%;
+    /* #C9A227 */
+  }
+
+  /* =========================
+     COMMERCIAL – WINE + TEAL
+     Used for: Filters, Dashboards, Interactive sections
+  ========================= */
+  [data-theme="commercial"],
+  .theme-commercial {
+    --background: 240 20% 5%;
+    /* #0A0A0F */
+    --foreground: 180 20% 95%;
+    /* #F0F4F4 */
+
+    --card: 240 12% 17%;
+    /* #252530 */
+    --card-foreground: 180 20% 95%;
+
+    --muted-foreground: 200 8% 70%;
+    /* #AEB4B8 */
+
+    /* Teal Accent */
+    --accent-teal: 180 58% 27%;
+    /* #1E6E6E */
+  }
+
+  /* Legacy light mode support (minimal use) */
+  .light {
+    --background: 40 20% 97%;
+    --foreground: 0 0% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
+
+    --primary: 352 78% 31%;
     --primary-foreground: 0 0% 98%;
 
-    /* Diesel 800/900 Secondary */
-    --secondary: 6 97% 29%;
-    --secondary-foreground: 30 100% 95%;
+    --muted: 40 10% 92%;
+    --muted-foreground: 0 0% 40%;
 
-    --muted: 0 0% 10%;
-    --muted-foreground: 31 100% 75%;
-
-    --accent: 6 97% 29%;
-    --accent-foreground: 30 100% 95%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 6 97% 29%;
-    --input: 6 97% 29%;
-    --ring: 19 100% 50%;
-
-    --sidebar-background: 0 0% 0%;
-    --sidebar-foreground: 30 100% 95%;
-    --sidebar-primary: 19 100% 50%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 6 97% 29%;
-    --sidebar-accent-foreground: 30 100% 95%;
-    --sidebar-border: 6 97% 29%;
-    --sidebar-ring: 19 100% 50%;
-
-    --shadow-luxury: 0 25px 50px -12px hsl(0 0% 0% / 0.8);
+    --border: 40 15% 85%;
   }
 }
 
@@ -123,6 +165,15 @@
 }
 
 @layer components {
+
+  /* Text Gradients */
+  .text-gradient-wine {
+    background: var(--gradient-wine);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
   .text-gradient-gold {
     background: var(--gradient-gold);
     -webkit-background-clip: text;
@@ -130,17 +181,89 @@
     background-clip: text;
   }
 
+  /* Background Gradients */
+  .bg-gradient-wine {
+    background: var(--gradient-wine);
+  }
+
   .bg-gradient-gold {
     background: var(--gradient-gold);
   }
 
+  /* Glass Effect */
   .glass {
-    background: hsl(0 0% 0% / 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: hsl(0 0% 4% / 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
 
   .glass-border {
-    border: 1px solid hsl(19 100% 50% / 0.2);
+    border: 1px solid hsl(352 78% 31% / 0.2);
+  }
+
+  /* Brand Colors Direct Access */
+  .bg-brand {
+    background-color: hsl(352 78% 31%);
+  }
+
+  .bg-brand-hover {
+    background-color: hsl(352 78% 26%);
+  }
+
+  .text-brand {
+    color: hsl(352 78% 31%);
+  }
+
+  .text-brand-highlight {
+    color: hsl(350 74% 44%);
+  }
+
+  .border-brand {
+    border-color: hsl(352 78% 31%);
+  }
+
+  /* Gold Accent (use sparingly) */
+  .text-gold {
+    color: hsl(46 70% 47%);
+  }
+
+  .border-gold {
+    border-color: hsl(46 70% 47%);
+  }
+
+  /* Teal Accent */
+  .text-teal {
+    color: hsl(180 58% 27%);
+  }
+
+  .border-teal {
+    border-color: hsl(180 58% 27%);
+  }
+
+  /* WCAG-Safe Button Hover Pattern */
+  .btn-brand {
+    @apply bg-primary text-primary-foreground transition-all duration-300;
+  }
+
+  .btn-brand:hover {
+    background-color: hsl(var(--primary-hover));
+  }
+
+  .btn-brand:active {
+    background-color: hsl(var(--primary-active));
+  }
+
+  .btn-brand:focus {
+    @apply outline-none ring-2;
+    --tw-ring-color: hsl(var(--focus-ring));
+  }
+
+  /* Surface/Card Hover Pattern */
+  .surface-hover {
+    @apply transition-all duration-300;
+  }
+
+  .surface-hover:hover {
+    border-color: hsl(352 78% 31%);
   }
 }

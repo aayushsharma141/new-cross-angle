@@ -25,7 +25,7 @@ interface BlogPost {
   excerpt: string | null;
   content: string | null;
   cover_image: string | null;
-  is_published: boolean;
+  published: boolean;
   published_at: string | null;
   created_at: string;
 }
@@ -41,7 +41,7 @@ const AdminBlogs = () => {
     excerpt: "",
     content: "",
     cover_image: "",
-    is_published: false
+    published: false
   });
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -85,7 +85,7 @@ const AdminBlogs = () => {
       excerpt: post.excerpt || "",
       content: post.content || "",
       cover_image: post.cover_image || "",
-      is_published: post.is_published
+      published: post.published
     });
     setIsDialogOpen(true);
   };
@@ -120,8 +120,8 @@ const AdminBlogs = () => {
         excerpt: formData.excerpt,
         content: formData.content,
         cover_image: formData.cover_image || null,
-        is_published: formData.is_published,
-        published_at: formData.is_published ? new Date().toISOString() : null
+        published: formData.published,
+        published_at: formData.published ? new Date().toISOString() : null
       };
 
       if (editingPost) {
@@ -149,7 +149,7 @@ const AdminBlogs = () => {
         excerpt: "",
         content: "",
         cover_image: "",
-        is_published: false
+        published: false
       });
       fetchPosts();
     } catch (error: any) {
@@ -171,7 +171,7 @@ const AdminBlogs = () => {
       excerpt: "",
       content: "",
       cover_image: "",
-      is_published: false
+      published: false
     });
     setIsDialogOpen(true);
   };
@@ -247,8 +247,8 @@ const AdminBlogs = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Switch
-                  checked={formData.is_published}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_published: checked })}
+                  checked={formData.published}
+                  onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
                 />
                 <Label>Publish immediately</Label>
               </div>
@@ -279,13 +279,13 @@ const AdminBlogs = () => {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      {post.is_published ? (
+                      {post.published ? (
                         <Eye className="w-4 h-4 text-green-500" />
                       ) : (
                         <EyeOff className="w-4 h-4 text-muted-foreground" />
                       )}
-                      <span className={`text-xs ${post.is_published ? 'text-green-500' : 'text-muted-foreground'}`}>
-                        {post.is_published ? 'Published' : 'Draft'}
+                      <span className={`text-xs ${post.published ? 'text-green-500' : 'text-muted-foreground'}`}>
+                        {post.published ? 'Published' : 'Draft'}
                       </span>
                     </div>
                     <h3 className="font-semibold text-lg mb-1">{post.title}</h3>

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import logoIcon from "@/assets/logo-icon.png";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { motion, AnimatePresence } from "framer-motion";
 import { CostCalculator } from "@/components/CostCalculator";
 import { services } from "@/config/site-content";
 

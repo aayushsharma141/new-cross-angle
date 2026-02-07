@@ -63,23 +63,47 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				gold: {
-					DEFAULT: "hsl(38 75% 55%)",
-					light: "hsl(45 80% 65%)",
-					dark: "hsl(35 70% 45%)",
+				// Brand Wine Colors
+				wine: {
+					DEFAULT: "#8E1225",
+					50: "#FCE8EB",
+					100: "#F8C5CC",
+					200: "#E8919C",
+					300: "#D85D6D",
+					400: "#C41E3A",      // Rose Highlight
+					500: "#8E1225",      // Brand Primary
+					600: "#73101D",      // Hover State
+					700: "#5C0C17",      // Active State
+					800: "#450912",
+					900: "#2E060C",
+					950: "#170305",
 				},
-				diesel: {
-					'50': '#fff3e6',
-					'100': '#ffe1bd',
-					'200': '#ffc17e',
-					'300': '#ff9435',
-					'400': '#ff6c00',
-					'500': '#ff5100',
-					'600': '#de3100',
-					'700': '#b01900',
-					'800': '#911002',
-					'900': '#7a0e09',
-					'950': '#0f0000',
+				// Antique Gold (use sparingly)
+				gold: {
+					DEFAULT: "#C9A227",
+					50: "#FCF8E8",
+					100: "#F7EEC4",
+					200: "#EFDC8A",
+					300: "#E5C64D",
+					400: "#C9A227",
+					500: "#A6841D",
+					600: "#836615",
+					700: "#61490F",
+					800: "#3F2E0A",
+					900: "#1E1504",
+				},
+				// Deep Teal (commercial sections only)
+				teal: {
+					DEFAULT: "#1E6E6E",
+					50: "#E6F4F4",
+					100: "#C2E5E5",
+					200: "#85CBCB",
+					300: "#47B1B1",
+					400: "#1E6E6E",
+					500: "#175656",
+					600: "#114040",
+					700: "#0B2A2A",
+					800: "#051515",
 				},
 			},
 			borderRadius: {
