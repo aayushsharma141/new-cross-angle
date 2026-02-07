@@ -35,10 +35,10 @@ const CTAContact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate form submission
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     toast({
       title: "Message sent!",
       description: "We'll get back to you within 24 hours.",
@@ -50,8 +50,9 @@ const CTAContact = () => {
   return (
     <section id="contact" className="py-20 md:py-32 relative overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-foreground via-foreground/95 to-foreground z-0" />
-      
+      <div className="absolute inset-0 bg-background z-0" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-primary/5 z-0" />
+
       {/* Decorative elements */}
       <div className="absolute top-10 left-10 w-64 h-64 border border-primary/10 rounded-full z-[1]" />
       <div className="absolute bottom-10 right-10 w-48 h-48 border border-primary/10 rounded-full z-[1]" />
@@ -111,8 +112,8 @@ const CTAContact = () => {
             {/* Contact Info Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {contactInfo.map((info, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="flex gap-4 group p-4 rounded-xl bg-primary-foreground/5 border border-primary-foreground/10 hover:border-primary/30 transition-all duration-300"
                 >
                   <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-primary transition-all duration-300">
@@ -152,10 +153,10 @@ const CTAContact = () => {
                   <label htmlFor="firstName" className="block text-sm font-medium text-primary-foreground mb-2">
                     First Name
                   </label>
-                  <Input 
-                    id="firstName" 
-                    placeholder="John" 
-                    required 
+                  <Input
+                    id="firstName"
+                    placeholder="John"
+                    required
                     className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40"
                   />
                 </div>
@@ -163,10 +164,10 @@ const CTAContact = () => {
                   <label htmlFor="lastName" className="block text-sm font-medium text-primary-foreground mb-2">
                     Last Name
                   </label>
-                  <Input 
-                    id="lastName" 
-                    placeholder="Doe" 
-                    required 
+                  <Input
+                    id="lastName"
+                    placeholder="Doe"
+                    required
                     className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40"
                   />
                 </div>
@@ -175,11 +176,11 @@ const CTAContact = () => {
                 <label htmlFor="email" className="block text-sm font-medium text-primary-foreground mb-2">
                   Email Address
                 </label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="john@example.com" 
-                  required 
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="john@example.com"
+                  required
                   className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40"
                 />
               </div>
@@ -187,10 +188,10 @@ const CTAContact = () => {
                 <label htmlFor="phone" className="block text-sm font-medium text-primary-foreground mb-2">
                   Phone Number
                 </label>
-                <Input 
-                  id="phone" 
-                  type="tel" 
-                  placeholder="+91 9876543210" 
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+91 9876543210"
                   required
                   className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40"
                 />
@@ -207,9 +208,9 @@ const CTAContact = () => {
                   className="bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 resize-none"
                 />
               </div>
-              <Button 
-                type="submit" 
-                size="lg" 
+              <Button
+                type="submit"
+                size="lg"
                 className="w-full group"
                 disabled={isSubmitting}
               >

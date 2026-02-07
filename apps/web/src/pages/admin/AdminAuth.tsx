@@ -233,6 +233,7 @@ const AdminAuth = () => {
 
     try {
       const redirectUrl = `${window.location.origin}/admin/reset-password`;
+      console.log("Sending password reset with redirect URL:", redirectUrl);
 
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: redirectUrl,
