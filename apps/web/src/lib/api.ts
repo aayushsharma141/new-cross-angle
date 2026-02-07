@@ -107,6 +107,7 @@ const mapSupabaseToServiceDetail = (item: any): ServiceDetail => {
 
 export const api = {
   getProjects: async (): Promise<Project[]> => {
+    if (!supabase) return [];
     const { data, error } = await supabase
       .from('projects')
       .select(`
@@ -125,6 +126,7 @@ export const api = {
   },
 
   getBlogs: async (): Promise<Blog[]> => {
+    if (!supabase) return [];
     const { data, error } = await supabase
       .from('blogs')
       .select('*')
@@ -140,6 +142,7 @@ export const api = {
   },
 
   getServices: async (): Promise<ServiceDetail[]> => {
+    if (!supabase) return [];
     const { data, error } = await supabase
       .from('services')
       .select('*')
@@ -168,7 +171,14 @@ export const api = {
   },
 
   getHeroContent: async (): Promise<HeroContent> => {
-    // Explicitly select fields or treat data as any to avoid 'never' errors if types are mismatched
+    if (!supabase) {
+      return {
+        badgeText: "Premier Interior Design Studio",
+        headlineLine1: "Elevate Your Space",
+        headlineLine2: "Into Luxury",
+        subtitle: "Transforming your vision..."
+      };
+    }
     const { data: rawData, error } = await supabase
       .from('site_content')
       .select('*')
