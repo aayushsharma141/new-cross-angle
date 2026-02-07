@@ -1,12 +1,138 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Lock, Loader2, Eye, EyeOff, User, Shield } from "lucide-react";
+import { Lock, Loader2, Eye, EyeOff, User, Shield, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { changePasswordSchema } from "@/lib/auth-validation";
+import { Textarea } from "@/components/ui/textarea";
+
+
+const GlobalConfigSection = () => {
+  const [config, setConfig] = useState({
+    siteTitle: "",
+    metaDescription: "",
+    contactEmail: "",
+    contactPhone: "",
+    address: ""
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchConfig();
+  }, []);
+
+  const fetchConfig = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('site_content')
+        .select('content')
+        .eq('section', 'global_settings')
+        .single();
+
+      if (data?.content) {
+        // @ts-ignore
+        setConfig({ ...config, ...data.content });
+      }
+    } catch (error) {
+      console.error("Error fetching config:", error);
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase
+        .from('site_content')
+        .upsert({
+          section: 'global_settings',
+          content: config
+        }, { onConflict: 'section' });
+
+      if (error) throw error;
+
+      toast({ title: "Settings saved successfully" });
+    } catch (error: any) {
+      toast({
+        title: "Error saving settings",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+      className="p-6 rounded-xl bg-card border border-border"
+    >
+      <div className="flex items-center gap-3 mb-6">
+        <Globe className="text-primary" size={24} />
+        <h2 className="text-xl font-display font-semibold">Global Configuration</h2>
+      </div>
+
+      <form onSubmit={handleSave} className="space-y-6 max-w-2xl">
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label>Site Title</Label>
+            <Input
+              value={config.siteTitle}
+              onChange={(e) => setConfig({ ...config, siteTitle: e.target.value })}
+              placeholder="Cross Angle Interior"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Contact Email</Label>
+            <Input
+              value={config.contactEmail}
+              onChange={(e) => setConfig({ ...config, contactEmail: e.target.value })}
+              placeholder="info@crossangle.com"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Meta Description</Label>
+          <Textarea
+            value={config.metaDescription}
+            onChange={(e) => setConfig({ ...config, metaDescription: e.target.value })}
+            placeholder="Default SEO description..."
+            rows={3}
+          />
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label>Phone Number</Label>
+            <Input
+              value={config.contactPhone}
+              onChange={(e) => setConfig({ ...config, contactPhone: e.target.value })}
+              placeholder="+91..."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Address</Label>
+            <Input
+              value={config.address}
+              onChange={(e) => setConfig({ ...config, address: e.target.value })}
+              placeholder="Jamshedpur..."
+            />
+          </div>
+        </div>
+
+        <Button type="submit" variant="gold" disabled={isLoading}>
+          {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Save Changes"}
+        </Button>
+      </form>
+    </motion.div>
+  );
+};
 
 const AdminSettings = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -26,13 +152,13 @@ const AdminSettings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserEmail(user.email || "");
-        
+
         const { data: roleData } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id)
           .single();
-        
+
         if (roleData) {
           setUserRole(roleData.role);
         }
@@ -123,7 +249,7 @@ const AdminSettings = () => {
           <User className="text-primary" size={24} />
           <h2 className="text-xl font-display font-semibold">Account Information</h2>
         </div>
-        
+
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label className="text-muted-foreground text-sm">Email Address</Label>
@@ -152,6 +278,13 @@ const AdminSettings = () => {
         </div>
 
         <form onSubmit={handleChangePassword} className="space-y-6 max-w-md">
+          {/* ... existing password form fields ... */}
+          {/* I will keep the password form logic intact in the replacement or assume implicit keep if I target correctly, 
+               but replace_file_content requires exact target. 
+               The instruction implies ADDING, so I should probably append or insert.
+               However, to be safe and clean, I will replace the component return or specific section.
+               Actually, the best way is to insert the new section BEFORE the closing </div> of the main container.
+           */}
           <div className="space-y-2">
             <Label htmlFor="currentPassword">Current Password</Label>
             <div className="relative">
@@ -239,6 +372,9 @@ const AdminSettings = () => {
           </Button>
         </form>
       </motion.div>
+
+      {/* Global Configuration */}
+      <GlobalConfigSection />
     </div>
   );
 };

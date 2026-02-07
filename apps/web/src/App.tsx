@@ -10,6 +10,8 @@ import { useEffect } from "react";
 import Index from "./pages/Index";
 import AboutPage from "./pages/AboutPage";
 import ServicesPage from "./pages/ServicesPage";
+import ServiceCategoryPage from "./pages/ServiceCategoryPage";
+import ServiceDetailPage from "./pages/ServiceDetailPage";
 import GalleryPage from "./pages/GalleryPage";
 import BlogPage from "./pages/BlogPage";
 import ContactPage from "./pages/ContactPage";

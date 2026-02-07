@@ -14,6 +14,8 @@ import CursorSpotlight from "@/components/gallery/CursorSpotlight";
 import GalleryScrollIndicator from "@/components/gallery/GalleryScrollIndicator";
 import GalleryCTA from "@/components/gallery/GalleryCTA";
 import GalleryParticles from "@/components/gallery/GalleryParticles";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 const categories = [
   "All",
@@ -25,121 +27,86 @@ const categories = [
 ];
 
 const galleryItems = [
-  { 
-    category: "Modular-Kitchen", 
+  {
+    category: "Modular-Kitchen",
+    style: "Modern",
     image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?q=80&w=1200",
     title: "Modern Minimalist Kitchen"
   },
-  { 
-    category: "Modular-Kitchen", 
+  {
+    category: "Modular-Kitchen",
+    style: "Luxury",
     image: "https://images.unsplash.com/photo-1556909172-54557c7e4fb7?q=80&w=1200",
     title: "Luxury White Kitchen"
   },
-  { 
-    category: "Modular-Kitchen", 
+  {
+    category: "Modular-Kitchen",
+    style: "Contemporary",
     image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200",
     title: "Contemporary Kitchen Design"
   },
-  { 
-    category: "Modular-Kitchen", 
-    image: "https://images.unsplash.com/photo-1565538810643-b5bdb714032a?q=80&w=1200",
-    title: "Scandinavian Kitchen"
-  },
-  { 
-    category: "Bedroom-Interior", 
+  {
+    category: "Bedroom-Interior",
+    style: "Modern",
     image: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1200",
     title: "Master Bedroom Suite"
   },
-  { 
-    category: "Bedroom-Interior", 
+  {
+    category: "Bedroom-Interior",
+    style: "Luxury",
     image: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=1200",
     title: "Cozy Modern Bedroom"
   },
-  { 
-    category: "Bedroom-Interior", 
-    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200",
-    title: "Minimalist Sleep Space"
-  },
-  { 
-    category: "Bedroom-Interior", 
-    image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1200",
-    title: "Luxury Master Suite"
-  },
-  { 
-    category: "Living-Room-Interior", 
+  {
+    category: "Living-Room-Interior",
+    style: "Contemporary",
     image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1200",
     title: "Contemporary Living Space"
   },
-  { 
-    category: "Living-Room-Interior", 
+  {
+    category: "Living-Room-Interior",
+    style: "Classic",
     image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1200",
     title: "Open Plan Living"
   },
-  { 
-    category: "Living-Room-Interior", 
-    image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200",
-    title: "Modern Family Room"
-  },
-  { 
-    category: "Living-Room-Interior", 
-    image: "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?q=80&w=1200",
-    title: "Elegant Lounge Area"
-  },
-  { 
-    category: "Commercial-Interior", 
+  {
+    category: "Commercial-Interior",
+    style: "Modern",
     image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200",
     title: "Modern Office Space"
   },
-  { 
-    category: "Commercial-Interior", 
+  {
+    category: "Commercial-Interior",
+    style: "Industrial",
     image: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?q=80&w=1200",
     title: "Creative Workspace"
   },
-  { 
-    category: "Commercial-Interior", 
-    image: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200",
-    title: "Executive Meeting Room"
-  },
-  { 
-    category: "Commercial-Interior", 
-    image: "https://images.unsplash.com/photo-1604328698692-f76ea9498e76?q=80&w=1200",
-    title: "Retail Store Design"
-  },
-  { 
-    category: "Exterior-Interior", 
+  {
+    category: "Exterior-Interior",
+    style: "Modern",
     image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200",
     title: "Modern Villa Exterior"
-  },
-  { 
-    category: "Exterior-Interior", 
-    image: "https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?q=80&w=1200",
-    title: "Contemporary Home Facade"
-  },
-  { 
-    category: "Exterior-Interior", 
-    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200",
-    title: "Luxury House Exterior"
-  },
-  { 
-    category: "Exterior-Interior", 
-    image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1200",
-    title: "Modern Architecture"
   }
 ];
 
+const STYLES = ["All", "Modern", "Luxury", "Contemporary", "Classic", "Industrial"];
+
 const GalleryPage = () => {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [activeStyle, setActiveStyle] = useState("All");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const filteredItems = activeCategory === "All"
-    ? galleryItems
-    : galleryItems.filter(item => item.category === activeCategory);
+  const filteredItems = galleryItems.filter(item => {
+    const matchCategory = activeCategory === "All" || item.category === activeCategory;
+    const matchStyle = activeStyle === "All" || item.style === activeStyle;
+    return matchCategory && matchStyle;
+  });
 
   // Calculate counts for each category
   const categoryCounts = categories.reduce((acc, category) => {
-    acc[category] = category === "All" 
-      ? galleryItems.length 
+    acc[category] = category === "All"
+      ? galleryItems.length
       : galleryItems.filter(item => item.category === category).length;
     return acc;
   }, {} as Record<string, number>);
@@ -180,7 +147,7 @@ const GalleryPage = () => {
       <CursorSpotlight>
         <GalleryParticles />
         <GalleryScrollIndicator />
-        
+
         <main className="min-h-screen relative z-10">
           <FixedSocialBar />
           <Navbar />
@@ -188,13 +155,29 @@ const GalleryPage = () => {
           {/* Immersive Hero */}
           <GalleryHero />
 
-          {/* Magnetic Filter Tabs */}
-          <MagneticFilterTabs
-            categories={categories}
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-            counts={categoryCounts}
-          />
+          {/* Magnetic Filter Tabs & Style Filter */}
+          <div className="container px-4 mb-12 space-y-8">
+            <MagneticFilterTabs
+              categories={categories}
+              activeCategory={activeCategory}
+              onCategoryChange={setActiveCategory}
+              counts={categoryCounts}
+            />
+
+            <div className="flex items-center justify-center gap-4">
+              <Label className="text-muted-foreground">Filter by Style:</Label>
+              <Select value={activeStyle} onValueChange={setActiveStyle}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Style" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STYLES.map(style => (
+                    <SelectItem key={style} value={style}>{style}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
           {/* Masonry Gallery Grid */}
           <GalleryMasonryGrid

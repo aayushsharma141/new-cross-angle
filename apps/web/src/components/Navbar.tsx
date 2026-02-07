@@ -5,23 +5,24 @@ import { Button } from "@/components/ui/button";
 import logoIcon from "@/assets/logo-icon.png";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import CostCalculatorModal from "@/components/CostCalculatorModal";
+import { motion, AnimatePresence } from "framer-motion";
+import { CostCalculator } from "@/components/CostCalculator";
+import { services } from "@/config/site-content";
 
 const servicesMenu = {
   residential: [
-    { name: "Living Room Design", href: "/services#living-room", description: "Elegant spaces for daily living", icon: Sofa },
-    { name: "Bedroom Interior", href: "/services#bedroom", description: "Peaceful sanctuaries for rest", icon: Home },
-    { name: "Kitchen & Dining", href: "/services#kitchen", description: "Heart of your home", icon: UtensilsCrossed },
+    { name: "Living Room Design", href: "/services/residential/living-room", description: "Elegant spaces for daily living", icon: Sofa },
+    { name: "Bedroom Interior", href: "/services/residential/bedroom", description: "Peaceful sanctuaries for rest", icon: Home },
+    { name: "Kitchen & Dining", href: "/services/residential/kitchen", description: "Heart of your home", icon: UtensilsCrossed },
   ],
   commercial: [
-    { name: "Office Design", href: "/services#office", description: "Productive work environments", icon: Building2 },
-    { name: "Retail Spaces", href: "/services#retail", description: "Engaging customer experiences", icon: Building2 },
-    { name: "Restaurant & Cafe", href: "/services#restaurant", description: "Memorable dining atmospheres", icon: UtensilsCrossed },
+    { name: "Office Design", href: "/services/commercial/office", description: "Productive work environments", icon: Building2 },
+    { name: "Retail Spaces", href: "/services/commercial/retail", description: "Engaging customer experiences", icon: Building2 },
+    { name: "Restaurant & Cafe", href: "/services/commercial/hospitality", description: "Memorable dining atmospheres", icon: UtensilsCrossed },
   ],
   specialized: [
-    { name: "Modular Kitchen", href: "/services#modular-kitchen", description: "Factory-finished, quick install", icon: UtensilsCrossed, badge: "Popular" },
-    { name: "False Ceiling", href: "/services#false-ceiling", description: "Architectural elegance", icon: Lamp },
-    { name: "Lighting Design", href: "/services#lighting", description: "Ambiance that transforms", icon: Lamp },
+    { name: "Modular Kitchen", href: "/services/specialized/modular-kitchens", description: "Factory-finished, quick install", icon: UtensilsCrossed, badge: "Popular" },
+    { name: "False Ceiling", href: "/services/specialized/ceilings", description: "Architectural elegance", icon: Lamp },
   ],
 };
 
@@ -409,7 +410,7 @@ const Navbar = () => {
       </nav>
 
       {/* Cost Calculator Modal */}
-      <CostCalculatorModal
+      <CostCalculator
         isOpen={isCalculatorOpen}
         onClose={() => setIsCalculatorOpen(false)}
       />
