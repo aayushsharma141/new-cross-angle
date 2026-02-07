@@ -37,7 +37,7 @@ export const BeforeAfterShowcase = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <section className="py-20 lg:py-32 bg-muted/30 relative overflow-hidden">
+    <section className="py-20 lg:py-32 bg-background relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
@@ -67,7 +67,7 @@ export const BeforeAfterShowcase = () => {
               afterImage={transformations[activeIndex].afterImage}
               className="shadow-2xl"
             />
-            
+
             {/* Project Info */}
             <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>

@@ -103,7 +103,7 @@ const Process = () => {
     <section
       id="process"
       ref={sectionRef}
-      className="py-16 md:py-24 relative overflow-hidden bg-gradient-to-b from-muted/30 via-background to-muted/30"
+      className="py-16 md:py-24 relative overflow-hidden bg-muted/5"
     >
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
@@ -139,33 +139,33 @@ const Process = () => {
                 >
                   {/* Icon & Line */}
                   <div className="flex flex-col items-center">
-                    <div 
+                    <div
                       className={cn(
                         "w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-lg shrink-0 transition-all duration-500",
-                        isActive 
-                          ? "bg-primary text-primary-foreground scale-110" 
+                        isActive
+                          ? "bg-primary text-primary-foreground scale-110"
                           : "bg-primary/80 text-primary-foreground"
                       )}
                     >
                       <Icon className="w-5 h-5 md:w-6 md:h-6" />
                     </div>
                     {index < steps.length - 1 && (
-                      <div 
+                      <div
                         className={cn(
                           "w-0.5 flex-1 my-2 min-h-[40px] md:min-h-[60px] transition-colors duration-500",
                           isVisible ? "bg-primary/50" : "bg-primary/20"
-                        )} 
+                        )}
                       />
                     )}
                   </div>
 
                   {/* Content Card */}
                   <div className="flex-1 pb-4">
-                    <div 
+                    <div
                       className={cn(
                         "p-4 md:p-6 rounded-xl border shadow-sm transition-all duration-500",
-                        isActive 
-                          ? "bg-background border-primary/30 shadow-md" 
+                        isActive
+                          ? "bg-background border-primary/30 shadow-md"
                           : "bg-background/50 border-border"
                       )}
                     >
@@ -176,9 +176,9 @@ const Process = () => {
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{step.description}</p>
-                      
+
                       {/* Details - Show on active or always on larger screens */}
-                      <ul 
+                      <ul
                         className={cn(
                           "space-y-2 transition-all duration-500 overflow-hidden",
                           isActive ? "max-h-40 opacity-100" : "max-h-0 opacity-0 md:max-h-40 md:opacity-70"

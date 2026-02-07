@@ -16,17 +16,17 @@ const features = [
   "Post-Completion Support",
 ];
 
-const StatCard = ({ 
-  stat, 
-  index 
-}: { 
-  stat: typeof stats[0]; 
+const StatCard = ({
+  stat,
+  index
+}: {
+  stat: typeof stats[0];
   index: number;
 }) => {
   const { count, ref } = useCountUp(stat.value, { duration: 2000, delay: index * 150 });
 
   return (
-    <div 
+    <div
       ref={ref}
       className="text-center px-4 md:px-6 py-4"
     >
@@ -47,20 +47,20 @@ const StatCard = ({
 
 const About = () => {
   return (
-    <section id="about" className="py-20 md:py-32 relative overflow-hidden">
+    <section id="about" className="py-20 md:py-32 relative overflow-hidden bg-muted/5">
       {/* Dark overlay matching hero */}
-      <div className="absolute inset-0 bg-gradient-to-br from-foreground/95 via-foreground/90 to-foreground/95 z-0" />
-      
+      <div className="absolute inset-0 bg-background/95 z-0" />
+
       {/* Decorative Background */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent z-[1]" />
-      <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl z-[1]" />
-      
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-wine-500/10 to-transparent z-[1]" />
+      <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-wine-500/5 rounded-full blur-3xl z-[1]" />
+
       <div className="container mx-auto px-4 relative z-10">
         {/* Horizontal Stats Bar */}
         <div className="mb-16">
-          <div className="relative bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 rounded-2xl overflow-hidden">
+          <div className="relative bg-card/40 backdrop-blur-sm border border-border/20 rounded-2xl overflow-hidden">
             {/* Stats Grid - Horizontal on all screens */}
-            <div className="flex overflow-x-auto md:overflow-visible scrollbar-hide snap-x snap-mandatory md:grid md:grid-cols-4 divide-x divide-primary-foreground/10">
+            <div className="flex overflow-x-auto md:overflow-visible scrollbar-hide snap-x snap-mandatory md:grid md:grid-cols-4 divide-x divide-white/5">
               {stats.map((stat, index) => (
                 <div key={index} className="min-w-[50%] md:min-w-0 snap-center">
                   <StatCard stat={stat} index={index} />
@@ -73,20 +73,20 @@ const About = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Content */}
           <div>
-            <span className="inline-block text-primary font-medium tracking-[0.2em] uppercase text-sm mb-4 border-b-2 border-primary pb-2">
+            <span className="inline-block text-primary font-medium tracking-[0.2em] uppercase text-sm mb-4 border-b-2 border-primary/30 pb-2">
               About Us
             </span>
-            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mt-4 mb-6 leading-tight">
+            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-4 mb-6 leading-tight">
               Creating Spaces <br />
               <span className="text-primary">That Inspire</span>
             </h2>
-            <p className="text-primary-foreground/70 text-base md:text-lg leading-relaxed mb-4">
+            <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-4">
               Welcome to Crossangle Interior, a premier interior design studio
-              where creativity meets craftsmanship. Our team of passionate designers 
-              brings together diverse expertise in residential, commercial, and 
+              where creativity meets craftsmanship. Our team of passionate designers
+              brings together diverse expertise in residential, commercial, and
               hospitality design.
             </p>
-            <p className="text-primary-foreground/70 text-base md:text-lg leading-relaxed mb-8">
+            <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-8">
               We believe that great design is about more than aesthetics—it's
               about creating environments that enhance how you live, work, and
               feel.
@@ -99,14 +99,14 @@ const About = () => {
                   <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary transition-all duration-300">
                     <CheckCircle className="w-3 h-3 text-primary group-hover:text-primary-foreground transition-colors" />
                   </div>
-                  <span className="text-primary-foreground text-sm md:text-base font-medium">{feature}</span>
+                  <span className="text-foreground/90 text-sm md:text-base font-medium">{feature}</span>
                 </div>
               ))}
             </div>
 
             {/* CTA Button */}
             <Link to="/about-us">
-              <button className="group inline-flex items-center gap-3 bg-primary text-primary-foreground px-6 md:px-8 py-3 md:py-4 rounded-full font-medium hover:shadow-lg hover:shadow-primary/25 transition-all duration-300">
+              <button className="group inline-flex items-center gap-3 bg-primary text-primary-foreground px-6 md:px-8 py-3 md:py-4 rounded-full font-medium hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 hover:bg-wine-600 active:bg-wine-700">
                 Learn More About Us
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -116,23 +116,23 @@ const About = () => {
           {/* Visual Element */}
           <div className="relative hidden lg:block">
             {/* Background Shape */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-primary/10 rounded-3xl transform rotate-3 z-0" />
-            
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 rounded-3xl transform rotate-3 z-0" />
+
             <div className="relative p-8 z-10">
-              <div className="bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 rounded-2xl p-8">
+              <div className="bg-card/40 backdrop-blur-sm border border-border/20 rounded-2xl p-8">
                 <div className="text-center">
                   <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
                     <Sparkles className="w-10 h-10 text-primary" />
                   </div>
-                  <h3 className="font-serif text-2xl font-bold text-primary-foreground mb-4">
+                  <h3 className="font-serif text-2xl font-bold text-foreground mb-4">
                     Award-Winning Design
                   </h3>
-                  <p className="text-primary-foreground/70 mb-6">
+                  <p className="text-muted-foreground mb-6">
                     Recognized for excellence in interior design across Jharkhand and Kolkata.
                   </p>
                   <div className="flex items-center justify-center gap-2 text-primary">
                     <span className="font-bold text-3xl">25+</span>
-                    <span className="text-primary-foreground/60 text-sm">Awards Won</span>
+                    <span className="text-muted-foreground/80 text-sm">Awards Won</span>
                   </div>
                 </div>
               </div>
@@ -144,7 +144,7 @@ const About = () => {
                 <Award className="w-6 h-6" />
                 <div>
                   <div className="font-bold text-lg">Certified</div>
-                  <div className="text-primary-foreground/80 text-sm">Design Experts</div>
+                  <div className="text-primary-foreground/90 text-sm">Design Experts</div>
                 </div>
               </div>
             </div>

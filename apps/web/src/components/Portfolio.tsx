@@ -51,16 +51,16 @@ const Portfolio = () => {
   }, [lightboxOpen, navigateLightbox]);
 
   return (
-    <section id="portfolio" className="py-32 relative overflow-hidden">
+    <section id="portfolio" className="py-32 relative overflow-hidden bg-background">
       {/* Dark overlay matching hero */}
-      <div className="absolute inset-0 bg-gradient-to-b from-foreground/90 via-foreground/85 to-foreground/95 z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,hsl(352_78%_31%/0.1)_0%,transparent_50%)] z-0" />
 
       {/* Interactive Floating Particles */}
       <FloatingParticles count={15} />
 
       {/* Decorative Elements */}
-      <div className="absolute top-20 left-20 w-32 h-32 border border-primary/20 rounded-full z-[1]" />
-      <div className="absolute bottom-20 right-20 w-48 h-48 border border-primary/20 rounded-full z-[1]" />
+      <div className="absolute top-20 left-20 w-32 h-32 border border-wine-500/10 rounded-full z-[1]" />
+      <div className="absolute bottom-20 right-20 w-48 h-48 border border-wine-500/10 rounded-full z-[1]" />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-12">

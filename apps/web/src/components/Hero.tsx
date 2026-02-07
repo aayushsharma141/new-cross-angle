@@ -89,8 +89,10 @@ const Hero = () => {
           <source src="https://videos.pexels.com/video-files/7578546/7578546-uhd_2560_1440_30fps.mp4" type="video/mp4" />
           <source src="https://cdn.coverr.co/videos/coverr-interior-design-of-a-living-room-2679/1080p.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/90 via-foreground/60 to-foreground/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-transparent to-foreground/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/95 via-[#0A0A0A]/70 to-[#0A0A0A]/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/90 via-transparent to-[#0A0A0A]/30" />
+        {/* Subtle wine tint overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(352_78%_31%/0.08)_0%,transparent_60%)]" />
       </div>
 
       {/* Content */}

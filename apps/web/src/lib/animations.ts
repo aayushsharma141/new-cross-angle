@@ -12,7 +12,7 @@ export const ANIMATION_DURATION = {
 };
 
 // Custom easing curve for smooth, premium feel
-export const EASE_SMOOTH = [0.2, 0.8, 0.2, 1];
+export const EASE_SMOOTH = "easeInOut";
 
 // ============================================
 // FADE ANIMATIONS

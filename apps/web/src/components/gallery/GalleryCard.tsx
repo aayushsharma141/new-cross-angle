@@ -12,11 +12,11 @@ interface GalleryCardProps {
   size?: 'normal' | 'featured';
 }
 
-const GalleryCard = ({ 
-  image, 
-  category, 
-  title, 
-  index, 
+const GalleryCard = ({
+  image,
+  category,
+  title,
+  index,
   onClick,
   size = 'normal'
 }: GalleryCardProps) => {
@@ -38,11 +38,11 @@ const GalleryCard = ({
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
-    
+
     const rect = cardRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    
+
     mouseX.set(x);
     mouseY.set(y);
   };
@@ -59,10 +59,10 @@ const GalleryCard = ({
       initial={{ opacity: 0, y: 60, rotateX: -15 }}
       whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ 
-        duration: 0.6, 
+      transition={{
+        duration: 0.6,
         delay: index * 0.08,
-        ease: [0.22, 1, 0.36, 1]
+        ease: "easeInOut"
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseMove={handleMouseMove}
@@ -91,12 +91,12 @@ const GalleryCard = ({
         )}
 
         {/* Image with parallax effect */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0"
           animate={{
             scale: isHovered ? 1.1 : 1
           }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.6, ease: "easeInOut" }}
         >
           <img
             src={image}
@@ -108,7 +108,7 @@ const GalleryCard = ({
         </motion.div>
 
         {/* Gradient overlay */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"
           initial={{ opacity: 0.3 }}
           animate={{ opacity: isHovered ? 0.9 : 0.3 }}

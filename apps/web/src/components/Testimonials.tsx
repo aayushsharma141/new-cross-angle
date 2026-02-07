@@ -108,7 +108,7 @@ const Testimonials = () => {
 
   useEffect(() => {
     if (isPaused) return;
-    
+
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % testimonials.length);
     }, 5000);
@@ -120,26 +120,28 @@ const Testimonials = () => {
       id="testimonials"
       ref={sectionRef}
       className="py-24 md:py-32 relative overflow-hidden"
+      data-theme="residential"
     >
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-foreground/90 via-foreground/85 to-foreground/95 z-0" />
+      {/* Dark overlay with Gold tint */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(46_70%_47%/0.05)_0%,transparent_70%)] z-0" />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <span className="text-primary text-sm uppercase tracking-[0.3em] font-medium">
+          <span className="text-gold text-sm uppercase tracking-[0.3em] font-medium border-b border-gold/30 pb-2">
             Client Reviews
           </span>
-          <h2 className="text-3xl md:text-5xl font-serif font-bold text-background mt-4">
+          <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground mt-6">
             What Our Clients Say
           </h2>
-          <p className="text-background/60 mt-4 max-w-2xl mx-auto">
+          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
             Real experiences from homeowners and businesses who trusted us with their spaces
           </p>
         </div>
 
         {/* Featured Testimonial */}
-        <div 
+        <div
           className="max-w-4xl mx-auto mb-12"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
@@ -147,12 +149,12 @@ const Testimonials = () => {
           <div
             className={cn(
               "relative p-8 md:p-12 rounded-3xl backdrop-blur-lg",
-              "bg-background/5 border border-background/10",
+              "bg-card/30 border border-gold/20",
               "transition-all duration-700",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
             )}
           >
-            <Quote className="absolute top-6 left-6 w-12 h-12 text-primary/30" />
+            <Quote className="absolute top-6 left-6 w-12 h-12 text-gold/20" />
 
             <div className="relative z-10">
               <AnimatedStars
@@ -160,25 +162,25 @@ const Testimonials = () => {
                 isVisible={isVisible}
               />
 
-              <p className="text-xl md:text-2xl text-background/90 mt-6 leading-relaxed italic">
+              <p className="text-xl md:text-2xl text-foreground/90 mt-6 leading-relaxed italic font-light">
                 "{testimonials[activeIndex].review}"
               </p>
 
               <div className="mt-8 flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
-                  <span className="text-primary font-bold text-lg">
+                <div className="w-14 h-14 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center">
+                  <span className="text-gold font-bold text-lg font-serif">
                     {testimonials[activeIndex].name.charAt(0)}
                   </span>
                 </div>
                 <div>
-                  <h4 className="text-background font-semibold">
+                  <h4 className="text-foreground font-semibold text-lg">
                     {testimonials[activeIndex].name}
                   </h4>
-                  <p className="text-background/60 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     {testimonials[activeIndex].role}
                   </p>
                   {testimonials[activeIndex].project && (
-                    <p className="text-primary text-xs mt-0.5">
+                    <p className="text-gold text-xs mt-1 font-medium">
                       {testimonials[activeIndex].project}
                     </p>
                   )}
@@ -189,16 +191,16 @@ const Testimonials = () => {
         </div>
 
         {/* Navigation Dots */}
-        <div className="flex justify-center gap-3 mb-8">
+        <div className="flex justify-center gap-3 mb-12">
           {testimonials.map((_, index) => (
             <button
               key={index}
               onClick={() => setActiveIndex(index)}
               className={cn(
-                "w-3 h-3 rounded-full transition-all duration-300",
+                "w-2.5 h-2.5 rounded-full transition-all duration-300",
                 activeIndex === index
-                  ? "bg-primary w-8"
-                  : "bg-background/30 hover:bg-background/50"
+                  ? "bg-gold w-8"
+                  : "bg-muted hover:bg-gold/50"
               )}
               aria-label={`View testimonial ${index + 1}`}
               aria-current={activeIndex === index ? "true" : "false"}
@@ -209,7 +211,7 @@ const Testimonials = () => {
         {/* Google Reviews Badge */}
         <div
           className={cn(
-            "flex justify-center mb-12 transition-all duration-700",
+            "flex justify-center mb-16 transition-all duration-700",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           )}
           style={{ transitionDelay: "300ms" }}
@@ -218,22 +220,23 @@ const Testimonials = () => {
             href="https://g.page/crossangle-interior/review"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-background/10 border border-background/20 hover:bg-background/15 transition-colors"
+            className="inline-flex items-center gap-4 px-8 py-3 rounded-full bg-card border border-border hover:border-gold/30 hover:bg-card/80 transition-all duration-300 group"
           >
             <div className="flex items-center gap-1">
-              <span className="text-2xl font-bold text-background">G</span>
+              <span className="text-2xl font-bold text-foreground">G</span>
             </div>
+            <div className="h-8 w-px bg-border group-hover:bg-gold/30 transition-colors" />
             <div className="text-left">
-              <div className="flex items-center gap-1">
-                <span className="text-primary font-bold">4.8</span>
-                <span className="text-background/60">/5.0</span>
-                <div className="flex gap-0.5 ml-1">
+              <div className="flex items-center gap-2">
+                <span className="text-foreground font-bold">4.8</span>
+                <span className="text-muted-foreground text-sm">/ 5.0</span>
+                <div className="flex gap-0.5 ml-2">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} className="w-3 h-3 text-primary fill-primary" />
+                    <Star key={star} className="w-3.5 h-3.5 text-gold fill-gold" />
                   ))}
                 </div>
               </div>
-              <p className="text-xs text-background/50">Based on 50+ Google reviews</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Based on 50+ Google reviews</p>
             </div>
           </a>
         </div>
@@ -244,9 +247,9 @@ const Testimonials = () => {
             <div
               key={testimonial.id}
               className={cn(
-                "p-6 rounded-2xl backdrop-blur-lg",
-                "bg-background/5 border border-background/10",
-                "hover:bg-background/10 hover:border-primary/30",
+                "p-6 rounded-2xl backdrop-blur-sm",
+                "bg-card/20 border border-white/5",
+                "hover:bg-card/40 hover:border-gold/30 hover:-translate-y-1",
                 "transition-all duration-500 cursor-pointer group",
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
               )}
@@ -255,19 +258,28 @@ const Testimonials = () => {
               role="button"
               tabIndex={0}
               onKeyDown={(e) => e.key === "Enter" && setActiveIndex(index)}
-              aria-label={`View testimonial from ${testimonial.name}`}
             >
-              <AnimatedStars rating={testimonial.rating} isVisible={isVisible} />
+              <div className="flex gap-0.5 mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={cn(
+                      "w-3.5 h-3.5 transition-colors duration-300",
+                      testimonial.rating >= star ? "text-gold fill-gold" : "text-muted"
+                    )}
+                  />
+                ))}
+              </div>
 
-              <p className="text-background/70 mt-4 text-sm line-clamp-3 group-hover:text-background/90 transition-colors">
+              <p className="text-muted-foreground mt-2 text-sm line-clamp-3 group-hover:text-foreground transition-colors duration-300">
                 "{testimonial.review}"
               </p>
 
-              <div className="mt-4 pt-4 border-t border-background/10">
-                <h4 className="text-background font-medium text-sm">
+              <div className="mt-6 pt-4 border-t border-white/5 group-hover:border-gold/20 transition-colors">
+                <h4 className="text-foreground font-medium text-sm group-hover:text-gold transition-colors">
                   {testimonial.name}
                 </h4>
-                <p className="text-background/50 text-xs">{testimonial.role}</p>
+                <p className="text-muted-foreground/60 text-xs mt-0.5">{testimonial.role}</p>
               </div>
             </div>
           ))}

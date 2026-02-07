@@ -32,11 +32,11 @@ const Footer = () => {
 
   return (
     <footer
-      className="text-foreground relative overflow-hidden border-t border-primary/20"
-      style={{ background: '#000000' }}
+      className="text-foreground relative overflow-hidden border-t border-wine-600/30"
+      style={{ background: '#0A0A0A' }}
     >
-      {/* Subtle overlay pattern - much more subtle now */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(19_100%_50%/0.03)_0%,transparent_50%)]" />
+      {/* Subtle wine overlay pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(352_78%_31%/0.05)_0%,transparent_50%)]" />
 
       <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">

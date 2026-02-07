@@ -287,15 +287,15 @@ const ContactForm = () => {
   return (
     <div ref={containerRef}>
       <motion.div
-        className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden"
+        className="bg-card backdrop-blur-sm border border-border rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden"
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6 }}
       >
         {/* Progress bar */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-border/50">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-wine-900/20">
           <motion.div
-            className="h-full bg-primary"
+            className="h-full bg-gradient-to-r from-wine-600 to-wine-400"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3 }}
@@ -303,6 +303,9 @@ const ContactForm = () => {
         </div>
 
         <div className="mb-8">
+          <span className="text-wine-500 font-medium tracking-wider uppercase text-xs mb-2 block">
+            Consultation Request
+          </span>
           <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-2">
             Start Your Project
           </h2>
@@ -400,8 +403,8 @@ const ContactForm = () => {
                 w-full py-7 text-lg rounded-xl
                 shadow-lg transition-all duration-500
                 ${isSubmitted
-                  ? 'bg-green-500 hover:bg-green-500 shadow-green-500/30'
-                  : 'shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5'}
+                  ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-500/30'
+                  : 'bg-wine-600 hover:bg-wine-700 text-white shadow-wine-500/30 hover:shadow-xl hover:shadow-wine-500/40 hover:-translate-y-0.5'}
               `}
               disabled={isSubmitting || isSubmitted}
             >

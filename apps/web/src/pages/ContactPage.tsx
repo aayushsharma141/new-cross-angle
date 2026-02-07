@@ -23,14 +23,18 @@ const ContactPage = () => {
         <link rel="canonical" href="https://crossangleinterior.com/contact-us" />
       </Helmet>
       <FloatingParticles count={25} />
-      <main className="min-h-screen relative z-10">
+      <main className="min-h-screen relative z-10 bg-background">
         <FixedSocialBar />
         <Navbar />
 
         <ContactHero />
 
         {/* Contact Form Section */}
-        <section className="pb-24 bg-gradient-to-b from-background to-accent/5">
+        <section className="pb-24 relative overflow-hidden">
+          {/* Decorative Elements */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-wine-500/5 rounded-full blur-3xl -z-10" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-wine-500/5 rounded-full blur-3xl -z-10" />
+
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
               {/* Form Section */}
@@ -40,7 +44,7 @@ const ContactPage = () => {
               <div className="lg:sticky lg:top-24 space-y-8">
                 <div className="hidden lg:block mb-6">
                   <h3 className="text-2xl font-serif font-bold text-foreground">Get in Touch</h3>
-                  <p className="text-primary-foreground/60 mt-2">
+                  <p className="text-muted-foreground mt-2">
                     Visit our studio or contact us directly. We're here to help.
                   </p>
                 </div>

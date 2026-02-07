@@ -32,7 +32,7 @@ const AdminAuth = () => {
         const { data, error } = await supabase.functions.invoke("assign-first-admin", {
           body: { check_signup_enabled: true },
         });
-        
+
         if (!error && data?.signup_enabled) {
           setSignupEnabled(true);
         }
@@ -42,7 +42,7 @@ const AdminAuth = () => {
         setCheckingSignup(false);
       }
     };
-    
+
     checkSignupStatus();
   }, []);
 
@@ -233,7 +233,7 @@ const AdminAuth = () => {
 
     try {
       const redirectUrl = `${window.location.origin}/admin/reset-password`;
-      
+
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: redirectUrl,
       });
@@ -248,9 +248,11 @@ const AdminAuth = () => {
       setView("login");
       setEmail("");
     } catch (error: any) {
+      console.error("Forgot password error:", error);
       toast({
-        title: "Check your email",
-        description: "If an account exists, you'll receive a password reset link.",
+        title: "Error requesting reset",
+        description: error.message || "Failed to send reset email. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);

@@ -64,16 +64,15 @@ const TrustSection = () => {
   }, []);
 
   return (
-    <section id="trust" ref={sectionRef} className="py-20 md:py-32 relative overflow-hidden">
+    <section id="trust" ref={sectionRef} className="py-20 md:py-32 relative overflow-hidden bg-muted/5">
       {/* Blurred Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-foreground via-foreground/95 to-foreground" />
-        <div className="absolute inset-0 backdrop-blur-3xl" />
+        <div className="absolute inset-0 bg-background/50" />
       </div>
 
       {/* Subtle gradient overlays */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(var(--primary)/0.08),transparent_50%)] z-0" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--secondary)/0.06),transparent_50%)] z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(var(--primary)/0.05),transparent_50%)] z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--background)/0.5),transparent_50%)] z-0" />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
