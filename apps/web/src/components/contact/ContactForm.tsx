@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 const projectTypes = [
   "Residential Interior",
@@ -235,17 +236,37 @@ const ContactForm = () => {
     setIsSubmitting(true);
 
     try {
-      // Google Apps Script Web App URL
-      const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyX3RPlj6Yg-7nn9xMRLhsrd5tiimH9Vz_k4VTH36IB4sa80uSwh6ZOFGVgX7tuKEi2/exec";
+      // Supabase Insertion
+      const leadData = {
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        service: formData.projectType,
+        budget: formData.budget,
+        message: `${formData.message}\n\nDetails:\nArea: ${formData.area}\nCity: ${formData.city}\nStage: ${formData.projectStage}`,
+        source: "Website Form"
+      };
 
-      // Using no-cors mode is standard for Google Apps Script to avoid CORS errors
-      // The script will receive the body as text/plain and parse it
+      const { data: newLead, error: supabaseError } = await supabase
+        .from('leads')
+        .insert([leadData])
+        .select()
+        .single();
+
+      if (supabaseError) throw supabaseError;
+
+      // Trigger Smart Notifications & Auto-reply (Fire & Forget)
+      if (newLead) {
+        supabase.functions.invoke('notify-hot-lead', { body: { lead: newLead } });
+        supabase.functions.invoke('auto-reply-lead', { body: { lead: newLead } });
+      }
+
+      // Legacy Google Sheet (Optional - keeping for backup)
+      const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyX3RPlj6Yg-7nn9xMRLhsrd5tiimH9Vz_k4VTH36IB4sa80uSwh6ZOFGVgX7tuKEi2/exec";
       await fetch(GOOGLE_SHEET_URL, {
         method: "POST",
         mode: "no-cors",
-        headers: {
-          "Content-Type": "text/plain",
-        },
+        headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(formData),
       });
 

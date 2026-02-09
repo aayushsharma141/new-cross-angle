@@ -1,4 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { AppBreadcrumb } from "@/components/AppBreadcrumb";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
@@ -20,6 +22,23 @@ const ProjectPage = () => {
 
   const currentIndex = projects.findIndex((p) => p.slug === slug);
   const project = projects[currentIndex];
+
+  useEffect(() => {
+    const trackView = async () => {
+      if (project?.id) {
+        const viewedKey = `viewed_project_${project.id}`;
+        if (!sessionStorage.getItem(viewedKey)) {
+          // Fire and forget
+          supabase.rpc('increment_project_view', { project_id: project.id }).then(({ error }) => {
+            if (!error) {
+              sessionStorage.setItem(viewedKey, 'true');
+            }
+          });
+        }
+      }
+    };
+    trackView();
+  }, [project?.id]);
 
   if (!project) {
     return (

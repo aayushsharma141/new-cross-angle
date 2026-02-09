@@ -24,7 +24,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { MediaGrid } from "@/components/admin/media/MediaGrid";
 import { MediaUploadZone } from "@/components/admin/media/MediaUploadZone";
-import { MediaPreviewDialog } from "@/components/admin/media/MediaPreviewDialog";
+import { MediaDetailsSheet } from "@/components/admin/media/MediaDetailsSheet";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 interface MediaFile {
     id: string;
@@ -33,6 +41,8 @@ interface MediaFile {
     folder: string;
     size: number;
     created_at: string;
+    alt?: string;
+    caption?: string;
 }
 
 const FOLDERS = ["portfolio", "services", "blogs", "general"];
@@ -43,6 +53,7 @@ const AdminMedia = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
     const [selectedFolder, setSelectedFolder] = useState<string>("all");
+    const [selectedType, setSelectedType] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
@@ -75,13 +86,19 @@ const AdminMedia = () => {
                         const { data: { publicUrl } } = supabase.storage
                             .from(BUCKET_NAME)
                             .getPublicUrl(`${folder}/${file.name}`);
+
+                        // Extract metadata
+                        const metadata = file.metadata || {};
+
                         return {
                             id: file.id || `${folder}-${file.name}`,
                             name: file.name,
                             url: publicUrl,
                             folder,
-                            size: file.metadata?.size || 0,
+                            size: metadata.size || 0,
                             created_at: file.created_at || new Date().toISOString(),
+                            alt: metadata.alt || "",
+                            caption: metadata.caption || ""
                         };
                     });
                 allFiles.push(...folderFiles);
@@ -92,28 +109,52 @@ const AdminMedia = () => {
         setIsLoading(false);
     };
 
-    const handleUpload = async (uploadFiles: FileList | null) => {
+    const [uploadError, setUploadError] = useState<string | null>(null);
+
+    const handleUpload = async (uploadFiles: File[]) => {
         if (!uploadFiles || uploadFiles.length === 0) return;
 
         setIsUploading(true);
+        setUploadError(null);
         const folder = selectedFolder === "all" ? "general" : selectedFolder;
 
         try {
-            for (const file of Array.from(uploadFiles)) {
-                const fileExt = file.name.split(".").pop();
-                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-                const filePath = `${folder}/${fileName}`;
+            const errors: string[] = [];
+            let successCount = 0;
 
-                const { error } = await supabase.storage
-                    .from(BUCKET_NAME)
-                    .upload(filePath, file);
+            for (const file of uploadFiles) {
+                try {
+                    const fileExt = file.name.split(".").pop();
+                    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+                    const filePath = `${folder}/${fileName}`;
 
-                if (error) throw error;
+                    const { error } = await supabase.storage
+                        .from(BUCKET_NAME)
+                        .upload(filePath, file);
+
+                    if (error) throw error;
+                    successCount++;
+                } catch (err: any) {
+                    console.error(`Error uploading ${file.name}:`, err);
+                    errors.push(`${file.name}: ${err.message}`);
+                }
             }
 
-            toast({ title: `${uploadFiles.length} file(s) uploaded successfully` });
-            fetchFiles();
+            if (successCount > 0) {
+                toast({ title: `${successCount} file(s) uploaded successfully` });
+                fetchFiles();
+            }
+
+            if (errors.length > 0) {
+                setUploadError(`Failed to upload ${errors.length} file(s). ${errors[0]}`);
+                toast({
+                    title: "Partially failed",
+                    description: "Some files failed to upload. See details above.",
+                    variant: "destructive",
+                });
+            }
         } catch (error: any) {
+            setUploadError(error.message);
             toast({
                 title: "Upload failed",
                 description: error.message,
@@ -185,7 +226,15 @@ const AdminMedia = () => {
     const filteredFiles = files.filter((file) => {
         const matchesFolder = selectedFolder === "all" || file.folder === selectedFolder;
         const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesFolder && matchesSearch;
+
+        let matchesType = true;
+        if (selectedType === "image") {
+            matchesType = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name);
+        } else if (selectedType === "video") {
+            matchesType = /\.(mp4|webm|ogg)$/i.test(file.name);
+        }
+
+        return matchesFolder && matchesSearch && matchesType;
     });
 
     const isSelectionMode = selectedFiles.size > 0;
@@ -200,6 +249,18 @@ const AdminMedia = () => {
 
     return (
         <div className="space-y-6">
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Media Library</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="font-display text-3xl font-bold">Media Library</h1>
@@ -299,6 +360,7 @@ const AdminMedia = () => {
                 onUpload={handleUpload}
                 isUploading={isUploading}
                 selectedFolder={selectedFolder}
+                errorMessage={uploadError}
             />
 
             {/* Files Grid/List */}
@@ -313,10 +375,13 @@ const AdminMedia = () => {
                 copiedUrl={copiedUrl}
             />
 
-            {/* Image Preview Modal */}
-            <MediaPreviewDialog
+            {/* Image Details Sheet */}
+            <MediaDetailsSheet
                 file={previewFile}
+                open={!!previewFile}
                 onClose={() => setPreviewFile(null)}
+                onDelete={(file) => { setFileToDelete(file); setDeleteDialogOpen(true); }}
+                onCopyUrl={copyToClipboard}
             />
 
             {/* Single Delete Confirmation */}

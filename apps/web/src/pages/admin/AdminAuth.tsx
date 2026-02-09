@@ -54,7 +54,7 @@ const AdminAuth = () => {
   //   checkSignupStatus();
   // }, []);
 
-  // Auth state is now managed by useAuth hook
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

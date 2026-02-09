@@ -1,437 +1,226 @@
-import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
-import {
-  Mail,
-  Phone,
-  Calendar,
-  MessageSquare,
-  Loader2,
-  Trash2,
-  Search,
-  Filter,
-  MoreVertical,
-  CheckCircle,
-  Clock,
-  XCircle,
-  UserCheck,
-  StickyNote,
-  ExternalLink
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { LeadPipeline } from "@/components/admin/leads/LeadPipeline";
+import { LeadDetailSheet } from "@/components/admin/leads/LeadDetailSheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { LayoutGrid, List as ListIcon, Loader2, Download, Search, Plus, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { leadStatusOptions, type LeadStatus } from "@/lib/validations";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { calculateLeadScore, Lead } from "@/lib/leadScoring";
+import { EmptyState } from "@/components/admin/EmptyState";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
-interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  message: string | null;
-  service: string | null;
-  status: LeadStatus;
-  source: string | null;
-  notes: string | null;
-  created_at: string;
-}
+export default function AdminLeads() {
+  const [view, setView] = useState<"board" | "list">("board");
+  const [search, setSearch] = useState("");
+  const [selectedLead, setSelectedLead] = useState<any | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-const statusConfig: Record<LeadStatus, { label: string; color: string; icon: React.ElementType }> = {
-  new: { label: "New", color: "bg-blue-500", icon: Clock },
-  contacted: { label: "Contacted", color: "bg-yellow-500", icon: Phone },
-  qualified: { label: "Qualified", color: "bg-green-500", icon: UserCheck },
-  closed: { label: "Closed", color: "bg-primary", icon: CheckCircle },
-  lost: { label: "Lost", color: "bg-gray-500", icon: XCircle },
-};
-
-const AdminLeads = () => {
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<LeadStatus | "all">("all");
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [leadToDelete, setLeadToDelete] = useState<Lead | null>(null);
-  const [notesDialogOpen, setNotesDialogOpen] = useState(false);
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [editNotes, setEditNotes] = useState("");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    fetchLeads();
-  }, []);
+  // Fetch Leads
+  const { data: leads = [], isLoading } = useQuery({
+    queryKey: ["leads"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-  const fetchLeads = async () => {
-    const { data, error } = await supabase
-      .from('leads')
-      .select('*')
-      .order('created_at', { ascending: false });
+      if (error) throw error;
 
-    if (error) {
-      toast({
-        title: "Error fetching leads",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+      const leadsWithScore = (data as unknown as Lead[]).map(lead => ({
+        ...lead,
+        score: lead.score ?? calculateLeadScore(lead)
+      }));
 
-    if (data) setLeads(data as Lead[]);
-    setIsLoading(false);
+      return leadsWithScore.sort((a, b) => (b.score || 0) - (a.score || 0));
+    },
+  });
+
+  // Filter Leads
+  const filteredLeads = leads.filter((lead) =>
+    lead.name?.toLowerCase().includes(search.toLowerCase()) ||
+    lead.email?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Update Lead Mutation
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, ...updates }: any) => {
+      const { error } = await supabase.from("leads").update(updates).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      toast({ title: "Lead Updated", description: "Changes saved successfully." });
+      setIsSheetOpen(false);
+    },
+    onError: (err) => {
+      toast({ variant: "destructive", title: "Error", description: err.message });
+    },
+  });
+
+  // Delete Lead Mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("leads").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      toast({ title: "Lead Deleted", description: "Lead removed permanently." });
+      setIsSheetOpen(false);
+    },
+  });
+
+  const handleDragMove = (leadId: string, newStatus: string) => {
+    // Optimistic update could go here, but for now we'll just trigger mutation
+    updateMutation.mutate({ id: leadId, status: newStatus });
   };
 
-  const filteredLeads = useMemo(() => {
-    return leads.filter(lead => {
-      const matchesSearch =
-        lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        lead.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (lead.phone && lead.phone.includes(searchQuery));
+  const handleExport = () => {
+    const csvContent = [
+      ["Name", "Email", "Phone", "Service", "Status", "Date"],
+      ...leads.map((l) => [l.name, l.email, l.phone, l.service, l.status, l.created_at])
+    ].map(e => e.join(",")).join("\n");
 
-      const matchesStatus = statusFilter === "all" || lead.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [leads, searchQuery, statusFilter]);
-
-  const statusCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: leads.length };
-    leadStatusOptions.forEach(status => {
-      counts[status] = leads.filter(l => l.status === status).length;
-    });
-    return counts;
-  }, [leads]);
-
-  const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
-    const { error } = await supabase
-      .from('leads')
-      .update({ status: newStatus, updated_at: new Date().toISOString() })
-      .eq('id', leadId);
-
-    if (error) {
-      toast({
-        title: "Error updating status",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({ title: "Status updated" });
-      setLeads(prev => prev.map(l => l.id === leadId ? { ...l, status: newStatus } : l));
-    }
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `leads_export_${format(new Date(), "yyyy-MM-dd")}.csv`;
+    link.click();
   };
-
-  const handleDelete = async () => {
-    if (!leadToDelete) return;
-
-    const { error } = await supabase
-      .from('leads')
-      .delete()
-      .eq('id', leadToDelete.id);
-
-    if (error) {
-      toast({
-        title: "Error deleting lead",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({ title: "Lead deleted" });
-      setLeads(prev => prev.filter(l => l.id !== leadToDelete.id));
-    }
-  };
-
-  const handleSaveNotes = async () => {
-    if (!selectedLead) return;
-
-    const { error } = await supabase
-      .from('leads')
-      .update({ notes: editNotes, updated_at: new Date().toISOString() })
-      .eq('id', selectedLead.id);
-
-    if (error) {
-      toast({
-        title: "Error saving notes",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({ title: "Notes saved" });
-      setLeads(prev => prev.map(l => l.id === selectedLead.id ? { ...l, notes: editNotes } : l));
-      setNotesDialogOpen(false);
-    }
-  };
-
-  const openNotesDialog = (lead: Lead) => {
-    setSelectedLead(lead);
-    setEditNotes(lead.notes || "");
-    setNotesDialogOpen(true);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="h-[calc(100vh-100px)] flex flex-col space-y-4">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Leads</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold">Leads</h1>
-          <p className="text-muted-foreground mt-1">Manage your inquiries</p>
+          <h2 className="text-3xl font-display font-bold text-[hsl(var(--admin-foreground))]">Leads CRM</h2>
+          <p className="text-[hsl(var(--admin-muted))]">Manage your sales pipeline.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-sm">
-            {leads.length} total leads
-          </Badge>
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" /> Export CSV
+          </Button>
+          <Button onClick={() => setIsSheetOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Add Lead
+          </Button>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name, email, or phone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search leads..."
             className="pl-9"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+        <Tabs value={view} onValueChange={(v) => setView(v as "board" | "list")}>
+          <TabsList>
+            <TabsTrigger value="board"><LayoutGrid className="mr-2 h-4 w-4" /> Board</TabsTrigger>
+            <TabsTrigger value="list"><ListIcon className="mr-2 h-4 w-4" /> List</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
-      {/* Status Tabs */}
-      <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as LeadStatus | "all")}>
-        <TabsList className="w-full justify-start overflow-x-auto">
-          <TabsTrigger value="all" className="gap-2">
-            All <Badge variant="secondary">{statusCounts.all}</Badge>
-          </TabsTrigger>
-          {leadStatusOptions.map(status => {
-            const config = statusConfig[status];
-            return (
-              <TabsTrigger key={status} value={status} className="gap-2">
-                <div className={`w-2 h-2 rounded-full ${config.color}`} />
-                {config.label}
-                <Badge variant="secondary">{statusCounts[status]}</Badge>
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
-      </Tabs>
-
-      {/* Leads List */}
-      <div className="space-y-4">
-        {filteredLeads.map((lead, i) => {
-          const statusInfo = statusConfig[lead.status] || statusConfig.new;
-          const StatusIcon = statusInfo.icon;
-
-          return (
-            <motion.div
-              key={lead.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03 }}
-            >
-              <Card className="bg-card border-border hover:border-primary/50 transition-colors">
-                <CardContent className="p-6">
-                  <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-                    {/* Lead Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="font-semibold text-lg truncate">{lead.name}</h3>
-                        <Badge className={`${statusInfo.color} text-white`}>
-                          <StatusIcon className="w-3 h-3 mr-1" />
-                          {statusInfo.label}
-                        </Badge>
-                        {lead.service && (
-                          <Badge variant="outline">{lead.service}</Badge>
-                        )}
-                      </div>
-
-                      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-3">
-                        <a
-                          href={`mailto:${lead.email}`}
-                          className="flex items-center gap-1 hover:text-primary transition-colors"
-                        >
-                          <Mail size={14} />
-                          {lead.email}
-                        </a>
-                        {lead.phone && (
-                          <a
-                            href={`tel:${lead.phone}`}
-                            className="flex items-center gap-1 hover:text-primary transition-colors"
-                          >
-                            <Phone size={14} />
-                            {lead.phone}
-                          </a>
-                        )}
-                        <span className="flex items-center gap-1">
-                          <Calendar size={14} />
-                          {format(new Date(lead.created_at), 'MMM dd, yyyy - h:mm a')}
-                        </span>
-                      </div>
-
-                      {lead.message && (
-                        <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-                          {lead.message}
-                        </p>
-                      )}
-
-                      {lead.notes && (
-                        <div className="p-3 rounded-lg bg-secondary/50 border border-border">
-                          <p className="text-xs text-primary mb-1 flex items-center gap-1">
-                            <StickyNote size={12} />
-                            Notes
-                          </p>
-                          <p className="text-sm text-muted-foreground">{lead.notes}</p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2">
-                      <Select
-                        value={lead.status}
-                        onValueChange={(value) => handleStatusChange(lead.id, value as LeadStatus)}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {leadStatusOptions.map(status => (
-                            <SelectItem key={status} value={status}>
-                              <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${statusConfig[status].color}`} />
-                                {statusConfig[status].label}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openNotesDialog(lead)}>
-                            <StickyNote className="mr-2 h-4 w-4" />
-                            {lead.notes ? "Edit Notes" : "Add Notes"}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <a href={`mailto:${lead.email}`}>
-                              <Mail className="mr-2 h-4 w-4" />
-                              Send Email
-                            </a>
-                          </DropdownMenuItem>
-                          {lead.phone && (
-                            <DropdownMenuItem asChild>
-                              <a href={`tel:${lead.phone}`}>
-                                <Phone className="mr-2 h-4 w-4" />
-                                Call
-                              </a>
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => {
-                              setLeadToDelete(lead);
-                              setDeleteDialogOpen(true);
-                            }}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
-
-        {filteredLeads.length === 0 && (
-          <div className="text-center py-12">
-            <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">
-              {searchQuery || statusFilter !== "all"
-                ? "No leads match your filters."
-                : "No leads yet. Share your contact form to start receiving inquiries!"}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Delete Confirmation Dialog */}
-      <ConfirmDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        title="Delete Lead"
-        description={`Are you sure you want to delete the lead from "${leadToDelete?.name}"? This action cannot be undone.`}
-        confirmText="Delete"
-        variant="destructive"
-        onConfirm={handleDelete}
-      />
-
-      {/* Notes Dialog */}
-      <Dialog open={notesDialogOpen} onOpenChange={setNotesDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {selectedLead?.notes ? "Edit Notes" : "Add Notes"} - {selectedLead?.name}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              value={editNotes}
-              onChange={(e) => setEditNotes(e.target.value)}
-              placeholder="Add notes about this lead..."
-              rows={6}
+      {isLoading ? (
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : filteredLeads.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="No leads found"
+          description={search ? "Try adjusting your search criteria" : "Start capturing leads to build your sales pipeline"}
+          primaryAction={{
+            label: "Add Lead",
+            onClick: () => setIsSheetOpen(true),
+            icon: Plus
+          }}
+        />
+      ) : (
+        <div className="flex-1 overflow-hidden">
+          {view === "board" ? (
+            <LeadPipeline
+              leads={filteredLeads}
+              onLeadMove={handleDragMove}
+              onLeadClick={(lead) => { setSelectedLead(lead); setIsSheetOpen(true); }}
             />
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setNotesDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button variant="gold" onClick={handleSaveNotes}>
-                Save Notes
-              </Button>
+          ) : (
+            <div className="border rounded-md bg-white">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Service</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredLeads.map((lead) => (
+                    <TableRow key={lead.id} className="cursor-pointer hover:bg-muted/50" onClick={() => { setSelectedLead(lead); setIsSheetOpen(true); }}>
+                      <TableCell className="font-medium">{lead.name}</TableCell>
+                      <TableCell>{lead.service}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="capitalize">{lead.status}</Badge>
+                      </TableCell>
+                      <TableCell>{format(new Date(lead.created_at), "MMM d, yyyy")}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm">View</Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          )}
+        </div>
+      )}
+
+      <LeadDetailSheet
+        lead={selectedLead}
+        open={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+        onSave={(updated) => updateMutation.mutate(updated)}
+        onDelete={(id) => deleteMutation.mutate(id)}
+      />
     </div>
   );
-};
-
-export default AdminLeads;
+}

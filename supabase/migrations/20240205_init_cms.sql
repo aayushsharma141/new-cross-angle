@@ -67,8 +67,8 @@ ALTER TABLE project_gallery ENABLE ROW LEVEL SECURITY;
 ALTER TABLE project_materials ENABLE ROW LEVEL SECURITY;
 
 -- Create policies (Allow Public Read, Auth Write)
-CREATE POLICY "Public can view published blogs" ON blogs
-  FOR SELECT USING (is_published = true);
+-- Policy regarding published blogs removed from here and moved to 20260208000001_fix_blogs_schema.sql
+-- (Deleted problematic CREATE POLICY statement)
 
 CREATE POLICY "Admin can view all blogs" ON blogs
   FOR SELECT TO authenticated USING (true);

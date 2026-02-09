@@ -17,6 +17,14 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 interface BlogPost {
   id: string;
@@ -25,7 +33,7 @@ interface BlogPost {
   excerpt: string | null;
   content: string | null;
   cover_image: string | null;
-  published: boolean;
+  is_published: boolean;
   published_at: string | null;
   created_at: string;
 }
@@ -41,7 +49,7 @@ const AdminBlogs = () => {
     excerpt: "",
     content: "",
     cover_image: "",
-    published: false
+    is_published: false
   });
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -85,7 +93,7 @@ const AdminBlogs = () => {
       excerpt: post.excerpt || "",
       content: post.content || "",
       cover_image: post.cover_image || "",
-      published: post.published
+      is_published: post.is_published
     });
     setIsDialogOpen(true);
   };
@@ -120,8 +128,8 @@ const AdminBlogs = () => {
         excerpt: formData.excerpt,
         content: formData.content,
         cover_image: formData.cover_image || null,
-        published: formData.published,
-        published_at: formData.published ? new Date().toISOString() : null
+        is_published: formData.is_published,
+        published_at: formData.is_published ? new Date().toISOString() : null
       };
 
       if (editingPost) {
@@ -149,7 +157,7 @@ const AdminBlogs = () => {
         excerpt: "",
         content: "",
         cover_image: "",
-        published: false
+        is_published: false
       });
       fetchPosts();
     } catch (error: any) {
@@ -171,7 +179,7 @@ const AdminBlogs = () => {
       excerpt: "",
       content: "",
       cover_image: "",
-      published: false
+      is_published: false
     });
     setIsDialogOpen(true);
   };
@@ -186,6 +194,18 @@ const AdminBlogs = () => {
 
   return (
     <div className="space-y-8">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Blogs</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-3xl font-bold">Blog Posts</h1>
@@ -198,61 +218,127 @@ const AdminBlogs = () => {
               New Post
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingPost ? "Edit Post" : "New Blog Post"}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input
-                  value={formData.title}
-                  onChange={(e) => handleTitleChange(e.target.value)}
-                  required
-                />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid gap-6 md:grid-cols-3">
+                {/* Main Content Column */}
+                <div className="md:col-span-2 space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label>Title</Label>
+                      <span className={`text-xs ${formData.title.length > 60 ? "text-red-500" : "text-muted-foreground"}`}>
+                        {formData.title.length}/60
+                      </span>
+                    </div>
+                    <Input
+                      value={formData.title}
+                      onChange={(e) => handleTitleChange(e.target.value)}
+                      required
+                      placeholder="Enter a catchy title..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Slug</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={formData.slug}
+                        onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                        required
+                        className="font-mono text-sm"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setFormData(prev => ({ ...prev, slug: generateSlug(prev.title) }))}
+                        title="Regenerate from title"
+                      >
+                        <Loader2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Content</Label>
+                    <Textarea
+                      value={formData.content}
+                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                      rows={12}
+                      className="font-mono text-sm resize-y min-h-[300px]"
+                      placeholder="Write your post content here (Markdown supported)..."
+                    />
+                  </div>
+                </div>
+
+                {/* Sidebar Column */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label>Excerpt</Label>
+                      <span className={`text-xs ${formData.excerpt.length > 160 ? "text-red-500" : "text-muted-foreground"}`}>
+                        {formData.excerpt.length}/160
+                      </span>
+                    </div>
+                    <Textarea
+                      value={formData.excerpt}
+                      onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                      rows={5}
+                      placeholder="Short summary for SEO and previews..."
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Cover Image</Label>
+                    <div className="border-2 border-dashed rounded-lg p-4 text-center hover:bg-muted/50 transition-colors">
+                      {formData.cover_image ? (
+                        <div className="relative group">
+                          <img src={formData.cover_image} alt="Cover" className="h-32 w-full object-cover rounded-md" />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => setFormData({ ...formData, cover_image: "" })}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="py-4 text-muted-foreground text-sm">
+                          <Input
+                            value={formData.cover_image}
+                            onChange={(e) => setFormData({ ...formData, cover_image: e.target.value })}
+                            placeholder="https://..."
+                            className="mt-2"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-muted/30 p-4 rounded-lg space-y-4 border">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="publish-switch" className="flex flex-col gap-1 cursor-pointer">
+                        <span>Publish Status</span>
+                        <span className="text-xs text-muted-foreground font-normal">
+                          {formData.is_published ? "Visible to public" : "Draft mode"}
+                        </span>
+                      </Label>
+                      <Switch
+                        id="publish-switch"
+                        checked={formData.is_published}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_published: checked })}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Slug</Label>
-                <Input
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Excerpt</Label>
-                <Textarea
-                  value={formData.excerpt}
-                  onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                  rows={2}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Content</Label>
-                <Textarea
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  rows={8}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Cover Image URL</Label>
-                <Input
-                  value={formData.cover_image}
-                  onChange={(e) => setFormData({ ...formData, cover_image: e.target.value })}
-                  placeholder="https://..."
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={formData.published}
-                  onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
-                />
-                <Label>Publish immediately</Label>
-              </div>
-              <div className="flex justify-end gap-2">
+
+              <div className="flex justify-end gap-2 pt-4 border-t">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
@@ -279,13 +365,13 @@ const AdminBlogs = () => {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      {post.published ? (
+                      {post.is_published ? (
                         <Eye className="w-4 h-4 text-green-500" />
                       ) : (
                         <EyeOff className="w-4 h-4 text-muted-foreground" />
                       )}
-                      <span className={`text-xs ${post.published ? 'text-green-500' : 'text-muted-foreground'}`}>
-                        {post.published ? 'Published' : 'Draft'}
+                      <span className={`text-xs ${post.is_published ? 'text-green-500' : 'text-muted-foreground'}`}>
+                        {post.is_published ? 'Published' : 'Draft'}
                       </span>
                     </div>
                     <h3 className="font-semibold text-lg mb-1">{post.title}</h3>

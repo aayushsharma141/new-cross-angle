@@ -263,4 +263,39 @@
   .surface-hover:hover {
     border-color: hsl(352 78% 31%);
   }
+
+  /* =========================
+     ADMIN PANEL – MODERN LIGHT THEME
+  ========================= */
+  .admin-theme {
+    /* Base Colors */
+    --admin-bg: 210 20% 98%;
+    /* #F8FAFC - Very Light Slate */
+    --admin-card: 0 0% 100%;
+    /* #FFFFFF */
+    --admin-sidebar: 0 0% 100%;
+    /* #FFFFFF */
+    --admin-border: 214 15% 91%;
+    /* #E2E8F0 */
+
+    /* Text Colors */
+    --admin-foreground: 222 15% 20%;
+    /* #1E293B */
+    --admin-muted: 215 14% 34%;
+    /* #64748B */
+
+    /* Brand Accent */
+    --brand-primary: 25 76% 31%;
+    /* #8B4513 - Saddle Brown */
+    --brand-secondary: 46 65% 52%;
+    /* #D4AF37 - Gold */
+
+    /* Status Colors */
+    --status-success: 142 71% 45%;
+    /* #10B981 */
+    --status-warning: 38 92% 50%;
+    /* #F59E0B */
+    --status-error: 0 84% 60%;
+    /* #EF4444 */
+  }
 }

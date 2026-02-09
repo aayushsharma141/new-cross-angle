@@ -1,5 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
@@ -33,6 +34,8 @@ import AdminPortfolio from "./pages/admin/AdminPortfolio";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminMedia from "./pages/admin/AdminMedia";
+import AdminTestimonials from "./pages/admin/AdminTestimonials";
+import AdminUsers from "./pages/admin/AdminUsers";
 
 import { ProjectProvider } from "./context/ProjectContext";
 
@@ -69,6 +72,8 @@ const AnimatedRoutes = () => {
             <Route path="leads" element={<AdminLeads />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="media" element={<AdminMedia />} />
+            <Route path="testimonials" element={<AdminTestimonials />} />
+            <Route path="users" element={<AdminUsers />} />
           </Route>
         </Routes>
       ) : (
@@ -140,18 +145,20 @@ const App = () => (
     />
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <ProjectProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true,
-            }}
-          >
-            <AnimatedRoutes />
-          </BrowserRouter>
-        </ProjectProvider>
+        <AuthProvider>
+          <ProjectProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true,
+              }}
+            >
+              <AnimatedRoutes />
+            </BrowserRouter>
+          </ProjectProvider>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   </HelmetProvider>

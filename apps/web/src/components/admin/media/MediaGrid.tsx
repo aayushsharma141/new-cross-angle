@@ -52,16 +52,19 @@ export const MediaGrid = ({
 
     if (files.length === 0) {
         return (
-            <div className="text-center py-12 text-muted-foreground">
-                <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                <p>No files found</p>
+            <div className="text-center py-16 text-muted-foreground bg-muted/20 rounded-xl border-2 border-dashed border-muted">
+                <div className="bg-muted p-4 rounded-full inline-block mb-3">
+                    <ImageIcon className="w-8 h-8 opacity-40" />
+                </div>
+                <p className="font-medium">No files found</p>
+                <p className="text-sm mt-1">Try adjusting your filters or upload new files.</p>
             </div>
         );
     }
 
     if (viewMode === "grid") {
         return (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {files.map((file, index) => (
                     <motion.div
                         key={file.id}
@@ -69,36 +72,49 @@ export const MediaGrid = ({
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.02 }}
                     >
-                        <Card className={`group overflow-hidden relative ${selectedFiles.has(file.id) ? 'ring-2 ring-primary' : ''}`}>
-                            <div className="absolute top-2 left-2 z-10">
+                        <Card
+                            className={`group overflow-hidden relative transition-all duration-200 hover:shadow-lg border-muted ${selectedFiles.has(file.id)
+                                    ? 'ring-2 ring-primary border-primary shadow-md'
+                                    : 'hover:border-primary/50'
+                                }`}
+                        >
+                            <div className="absolute top-2 left-2 z-20">
                                 <Checkbox
                                     checked={selectedFiles.has(file.id)}
                                     onCheckedChange={() => onToggleSelection(file.id)}
-                                    className="bg-background/80"
+                                    className="bg-background/90 border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary shadow-sm"
                                 />
                             </div>
-                            <div className="aspect-square relative bg-secondary cursor-pointer" onClick={() => onPreview(file)}>
+
+                            <div className="aspect-square relative bg-secondary/50 cursor-pointer overflow-hidden" onClick={() => onPreview(file)}>
                                 <img
                                     src={file.url}
                                     alt={file.name}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     loading="lazy"
                                 />
-                                <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                                    <Button size="icon" variant="outline" onClick={(e) => { e.stopPropagation(); onPreview(file); }}>
-                                        <Maximize2 className="w-4 h-4" />
-                                    </Button>
-                                    <Button size="icon" variant="outline" onClick={(e) => { e.stopPropagation(); onCopyUrl(file.url); }}>
-                                        {copiedUrl === file.url ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                                    </Button>
-                                    <Button size="icon" variant="outline" onClick={(e) => { e.stopPropagation(); onDelete(file); }}>
-                                        <Trash2 className="w-4 h-4 text-destructive" />
-                                    </Button>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end p-3">
+                                    <div className="flex items-center justify-center gap-2 mb-2">
+                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-white/90 hover:bg-white text-black shadow-sm" onClick={(e) => { e.stopPropagation(); onPreview(file); }} title="Preview">
+                                            <Maximize2 className="w-3.5 h-3.5" />
+                                        </Button>
+                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-white/90 hover:bg-white text-black shadow-sm" onClick={(e) => { e.stopPropagation(); onCopyUrl(file.url); }} title="Copy URL">
+                                            {copiedUrl === file.url ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+                                        </Button>
+                                        <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full shadow-sm" onClick={(e) => { e.stopPropagation(); onDelete(file); }} title="Delete">
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </Button>
+                                    </div>
+                                    <p className="text-white text-[10px] truncate opacity-80">{formatFileSize(file.size)}</p>
                                 </div>
                             </div>
-                            <CardContent className="p-2">
-                                <p className="text-xs truncate" title={file.name}>{file.name}</p>
-                                <p className="text-xs text-muted-foreground capitalize">{file.folder}</p>
+                            <CardContent className="p-3">
+                                <p className="text-xs font-medium truncate mb-1" title={file.name}>{file.name}</p>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-secondary-foreground capitalize">
+                                        {file.folder}
+                                    </span>
+                                </div>
                             </CardContent>
                         </Card>
                     </motion.div>
@@ -112,31 +128,38 @@ export const MediaGrid = ({
             {files.map((file) => (
                 <div
                     key={file.id}
-                    className={`flex items-center gap-4 p-3 border rounded-lg hover:bg-accent/50 transition-colors ${selectedFiles.has(file.id) ? 'ring-2 ring-primary' : ''}`}
+                    className={`flex items-center gap-4 p-3 border rounded-lg hover:bg-accent/30 transition-all duration-200 group ${selectedFiles.has(file.id) ? 'ring-1 ring-primary border-primary bg-primary/5' : 'border-border'
+                        }`}
                 >
                     <Checkbox
                         checked={selectedFiles.has(file.id)}
                         onCheckedChange={() => onToggleSelection(file.id)}
                     />
                     <div
-                        className="w-12 h-12 rounded bg-secondary overflow-hidden flex-shrink-0 cursor-pointer"
+                        className="w-12 h-12 rounded-md bg-secondary overflow-hidden flex-shrink-0 cursor-pointer border relative"
                         onClick={() => onPreview(file)}
                     >
                         <img src={file.url} alt={file.name} className="w-full h-full object-cover" loading="lazy" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{file.name}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{file.folder} • {formatFileSize(file.size)}</p>
+                        <p className="font-medium text-sm truncate">{file.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs text-muted-foreground capitalize flex items-center gap-1">
+                                {file.folder}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">•</span>
+                            <span className="text-xs text-muted-foreground">{formatFileSize(file.size)}</span>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Button size="sm" variant="outline" onClick={() => onPreview(file)}>
-                            <Maximize2 className="w-4 h-4" />
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity px-2">
+                        <Button size="sm" variant="ghost" onClick={() => onPreview(file)} className="h-8 w-8 p-0">
+                            <Maximize2 className="w-4 h-4 text-muted-foreground" />
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => onCopyUrl(file.url)}>
-                            {copiedUrl === file.url ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                        <Button size="sm" variant="ghost" onClick={() => onCopyUrl(file.url)} className="h-8 w-8 p-0">
+                            {copiedUrl === file.url ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => onDelete(file)}>
-                            <Trash2 className="w-4 h-4 text-destructive" />
+                        <Button size="sm" variant="ghost" onClick={() => onDelete(file)} className="h-8 w-8 p-0 hover:text-destructive">
+                            <Trash2 className="w-4 h-4" />
                         </Button>
                     </div>
                 </div>

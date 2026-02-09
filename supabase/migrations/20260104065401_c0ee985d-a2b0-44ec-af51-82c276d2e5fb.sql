@@ -2,6 +2,17 @@
 -- Public can read (needed for portfolio images displayed on public site)
 -- Only authenticated admins/editors can upload, update, delete
 
+-- Ensure helper function exists (extracted from 20260103 dump)
+CREATE OR REPLACE FUNCTION public.is_admin_or_editor(_user_id uuid) RETURNS boolean
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = _user_id AND role IN ('admin', 'editor')
+  )
+$$;
+
 -- First, enable RLS on storage.objects if not already enabled
 -- Note: This applies to the existing 'media' bucket
 

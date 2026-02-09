@@ -1,65 +1,74 @@
-import { useRef, useCallback, useState } from "react";
-import { Upload, Loader2 } from "lucide-react";
+import { useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import { Upload, Loader2, FileImage, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface MediaUploadZoneProps {
-    onUpload: (files: FileList | null) => Promise<void>;
+    onUpload: (files: File[]) => Promise<void>;
     isUploading: boolean;
     selectedFolder: string;
+    errorMessage?: string | null;
 }
 
-export const MediaUploadZone = ({ onUpload, isUploading, selectedFolder }: MediaUploadZoneProps) => {
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const dropZoneRef = useRef<HTMLDivElement>(null);
-    const [isDragging, setIsDragging] = useState(false);
-
-    const handleDragOver = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(true);
-    }, []);
-
-    const handleDragLeave = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-    }, []);
-
-    const handleDrop = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-        onUpload(e.dataTransfer.files);
+export const MediaUploadZone = ({ onUpload, isUploading, selectedFolder, errorMessage }: MediaUploadZoneProps) => {
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+        if (acceptedFiles.length > 0) {
+            onUpload(acceptedFiles);
+        }
     }, [onUpload]);
 
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+        onDrop,
+        accept: {
+            'image/*': [],
+            'video/*': []
+        },
+        disabled: isUploading,
+        multiple: true
+    });
+
     return (
-        <>
-            <div className="flex justify-end mb-4">
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={(e) => onUpload(e.target.files)}
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                />
-                <Button variant="gold" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
-                    Upload
-                </Button>
-            </div>
+        <div className="space-y-4">
+            {errorMessage && (
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Upload Error</AlertTitle>
+                    <AlertDescription>{errorMessage}</AlertDescription>
+                </Alert>
+            )}
 
             <div
-                ref={dropZoneRef}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${isDragging ? "border-primary bg-primary/5" : "border-border"
-                    }`}
+                {...getRootProps()}
+                className={`border-2 border-dashed rounded-xl p-10 text-center transition-all duration-200 cursor-pointer ${isDragActive ? "border-primary bg-primary/5 scale-[1.01]" : "border-border hover:border-primary/50 hover:bg-muted/50"
+                    } ${isUploading ? "opacity-50 cursor-not-allowed" : ""} ${errorMessage ? "border-destructive/50 bg-destructive/5" : ""}`}
             >
-                <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-                <p className="text-muted-foreground">Drag and drop files here, or click Upload</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                    Uploading to: <span className="font-medium capitalize">{selectedFolder === "all" ? "general" : selectedFolder}</span>
-                </p>
+                <input {...getInputProps()} />
+                <div className="flex flex-col items-center justify-center gap-4">
+                    <div className={`p-4 rounded-full ${isDragActive ? "bg-primary/10" : "bg-muted"}`}>
+                        {isUploading ? (
+                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        ) : (
+                            <Upload className={`w-8 h-8 ${isDragActive ? "text-primary" : "text-muted-foreground"}`} />
+                        )}
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold">
+                            {isUploading ? "Uploading files..." : isDragActive ? "Drop files here" : "Drag & drop files here"}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+                            Or click to select files. Supports JPG, PNG, WebP, and MP4.
+                        </p>
+                    </div>
+
+                    {!isUploading && (
+                        <div className="mt-2 text-xs px-3 py-1 bg-secondary rounded-full inline-flex items-center gap-2">
+                            <FileImage className="w-3 h-3" />
+                            Uploading to: <span className="font-medium capitalize text-primary">{selectedFolder === "all" ? "general" : selectedFolder}</span>
+                        </div>
+                    )}
+                </div>
             </div>
-        </>
+        </div>
     );
 };
