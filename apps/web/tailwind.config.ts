@@ -63,34 +63,34 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Brand Wine Colors
+				// Brand Primary Colors (Updated to Red)
 				wine: {
-					DEFAULT: "#8E1225",
+					DEFAULT: "#C30000",
 					50: "#FCE8EB",
 					100: "#F8C5CC",
-					200: "#E8919C",
+					200: "#EFA0A0",      // Light Pink (User provided)
 					300: "#D85D6D",
-					400: "#C41E3A",      // Rose Highlight
-					500: "#8E1225",      // Brand Primary
-					600: "#73101D",      // Hover State
-					700: "#5C0C17",      // Active State
+					400: "#A90913",      // Darker Red (User provided)
+					500: "#C30000",      // Brand Primary (User provided)
+					600: "#A90913",      // Hover State (User provided)
+					700: "#7A0000",
 					800: "#450912",
 					900: "#2E060C",
 					950: "#170305",
 				},
-				// Antique Gold (use sparingly)
+				// Luxury Gold (Updated)
 				gold: {
-					DEFAULT: "#C9A227",
-					50: "#FCF8E8",
-					100: "#F7EEC4",
-					200: "#EFDC8A",
-					300: "#E5C64D",
-					400: "#C9A227",
-					500: "#A6841D",
-					600: "#836615",
-					700: "#61490F",
-					800: "#3F2E0A",
-					900: "#1E1504",
+					DEFAULT: "#FFC300",
+					50: "#FFF9E6",
+					100: "#FFEDB3",
+					200: "#FFE180",
+					300: "#FFD54D",
+					400: "#FFC300",      // User Provided
+					500: "#E6B000",
+					600: "#BF9200",
+					700: "#997500",
+					800: "#735800",
+					900: "#4D3B00",
 				},
 				// Deep Teal (commercial sections only)
 				teal: {

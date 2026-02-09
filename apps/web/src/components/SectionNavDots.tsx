@@ -8,9 +8,11 @@ interface Section {
 
 const sections: Section[] = [
   { id: "home", label: "Home" },
-  { id: "services", label: "Services" },
-  { id: "portfolio", label: "Portfolio" },
   { id: "about", label: "About" },
+  { id: "services", label: "Services" },
+  { id: "process", label: "Process" },
+  { id: "portfolio", label: "Portfolio" },
+  { id: "trust", label: "Why Us" },
   { id: "testimonials", label: "Testimonials" },
   { id: "contact", label: "Contact" },
 ];
@@ -80,7 +82,7 @@ const SectionNavDots = () => {
               aria-label={`Navigate to ${section.label}`}
               aria-current={activeSection === section.id ? "true" : undefined}
             />
-            
+
             {/* Tooltip */}
             <span
               className={cn(

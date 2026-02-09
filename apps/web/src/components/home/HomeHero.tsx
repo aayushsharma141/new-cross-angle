@@ -99,7 +99,7 @@ const HomeHero = () => {
       </div>
 
       {/* Background Image with Parallax Effect */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0 z-0"
         style={{ y: backgroundY }}
       >
@@ -139,7 +139,7 @@ const HomeHero = () => {
       </div>
 
       {/* Content */}
-      <motion.div 
+      <motion.div
         className="container mx-auto px-4 relative z-10 pt-20"
         style={{ y: contentY, opacity }}
       >
@@ -156,7 +156,7 @@ const HomeHero = () => {
               <Sparkles className="w-4 h-4" />
             </span>
           </motion.div>
-          
+
           {/* Split-text headline */}
           <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-primary-foreground leading-[1.05] mb-8">
             <span className="block overflow-hidden">
@@ -194,7 +194,7 @@ const HomeHero = () => {
               ))}
             </span>
           </h1>
-          
+
           <motion.p
             className="text-primary-foreground/85 text-xl md:text-2xl mb-10 leading-relaxed font-light max-w-2xl"
             initial={{ opacity: 0, y: 30 }}
@@ -213,19 +213,19 @@ const HomeHero = () => {
             transition={{ duration: 0.6, delay: 1.2 }}
           >
             <Link to="/contact-us">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="group text-lg px-8 py-7 shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-500 hover:-translate-y-1 rounded-xl"
               >
                 Start Your Project
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-2" />
               </Button>
             </Link>
-            <Button 
-              size="lg" 
-              variant="outline" 
+            <Button
+              size="lg"
+              variant="outline"
               onClick={() => setIsVideoOpen(true)}
-              className="bg-primary-foreground/5 backdrop-blur-md border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground text-lg px-8 py-7 group transition-all duration-500 hover:-translate-y-1 rounded-xl"
+              className="bg-primary-foreground/5 backdrop-blur-md border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-primary text-lg px-8 py-7 group transition-all duration-500 hover:-translate-y-1 rounded-xl"
             >
               <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
               Watch Showreel
@@ -260,7 +260,7 @@ const HomeHero = () => {
       </motion.div>
 
       {/* Interactive Scroll Indicator */}
-      <motion.button 
+      <motion.button
         onClick={handleScrollToServices}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 group cursor-pointer"
         style={{ opacity }}
@@ -272,12 +272,12 @@ const HomeHero = () => {
           <span className="text-xs tracking-widest uppercase font-medium group-hover:text-primary transition-colors">
             Discover More
           </span>
-          <motion.div 
+          <motion.div
             className="w-10 h-14 border-2 border-primary-foreground/30 rounded-full flex flex-col items-center justify-start pt-2 backdrop-blur-sm group-hover:border-primary group-hover:bg-primary/10 transition-all duration-300"
             animate={{ y: [0, 5, 0] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <motion.div 
+            <motion.div
               className="w-1.5 h-3 bg-primary rounded-full"
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
@@ -288,9 +288,9 @@ const HomeHero = () => {
       </motion.button>
 
       {/* Video Modal */}
-      <VideoModal 
-        isOpen={isVideoOpen} 
-        onClose={() => setIsVideoOpen(false)} 
+      <VideoModal
+        isOpen={isVideoOpen}
+        onClose={() => setIsVideoOpen(false)}
       />
     </section>
   );

@@ -1,26 +1,17 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-    Upload,
-    Trash2,
     Loader2,
-    Image as ImageIcon,
-    Copy,
-    Check,
     Search,
     FolderOpen,
     Grid,
     List,
-    X,
     CheckSquare,
     Square,
-    Download,
-    Maximize2
+    Trash2
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
     Select,
     SelectContent,
@@ -28,15 +19,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { MediaGrid } from "@/components/admin/media/MediaGrid";
+import { MediaUploadZone } from "@/components/admin/media/MediaUploadZone";
+import { MediaPreviewDialog } from "@/components/admin/media/MediaPreviewDialog";
 
 interface MediaFile {
     id: string;
@@ -58,17 +46,13 @@ const AdminMedia = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
-    const [isDragging, setIsDragging] = useState(false);
 
-    // New state for bulk select and preview
     const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
     const [previewFile, setPreviewFile] = useState<MediaFile | null>(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
     const [fileToDelete, setFileToDelete] = useState<MediaFile | null>(null);
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const dropZoneRef = useRef<HTMLDivElement>(null);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -198,35 +182,11 @@ const AdminMedia = () => {
         }
     };
 
-    const handleDragOver = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(true);
-    }, []);
-
-    const handleDragLeave = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-    }, []);
-
-    const handleDrop = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-        handleUpload(e.dataTransfer.files);
-    }, [selectedFolder]);
-
     const filteredFiles = files.filter((file) => {
         const matchesFolder = selectedFolder === "all" || file.folder === selectedFolder;
         const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesFolder && matchesSearch;
     });
-
-    const formatFileSize = (bytes: number) => {
-        if (bytes === 0) return "0 B";
-        const k = 1024;
-        const sizes = ["B", "KB", "MB", "GB"];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-    };
 
     const isSelectionMode = selectedFiles.size > 0;
 
@@ -244,20 +204,6 @@ const AdminMedia = () => {
                 <div>
                     <h1 className="font-display text-3xl font-bold">Media Library</h1>
                     <p className="text-muted-foreground mt-1">Manage images and files</p>
-                </div>
-                <div className="flex items-center gap-2">
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={(e) => handleUpload(e.target.files)}
-                        accept="image/*"
-                        multiple
-                        className="hidden"
-                    />
-                    <Button variant="gold" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                        {isUploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
-                        Upload
-                    </Button>
                 </div>
             </div>
 
@@ -349,142 +295,29 @@ const AdminMedia = () => {
             </div>
 
             {/* Drop Zone */}
-            <div
-                ref={dropZoneRef}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${isDragging ? "border-primary bg-primary/5" : "border-border"
-                    }`}
-            >
-                <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-                <p className="text-muted-foreground">Drag and drop files here, or click Upload</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                    Uploading to: <span className="font-medium capitalize">{selectedFolder === "all" ? "general" : selectedFolder}</span>
-                </p>
-            </div>
+            <MediaUploadZone
+                onUpload={handleUpload}
+                isUploading={isUploading}
+                selectedFolder={selectedFolder}
+            />
 
             {/* Files Grid/List */}
-            {viewMode === "grid" ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    {filteredFiles.map((file, index) => (
-                        <motion.div
-                            key={file.id}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.02 }}
-                        >
-                            <Card className={`group overflow-hidden relative ${selectedFiles.has(file.id) ? 'ring-2 ring-primary' : ''}`}>
-                                {/* Selection checkbox */}
-                                <div className="absolute top-2 left-2 z-10">
-                                    <Checkbox
-                                        checked={selectedFiles.has(file.id)}
-                                        onCheckedChange={() => toggleFileSelection(file.id)}
-                                        className="bg-background/80"
-                                    />
-                                </div>
-                                <div className="aspect-square relative bg-secondary cursor-pointer" onClick={() => setPreviewFile(file)}>
-                                    <img
-                                        src={file.url}
-                                        alt={file.name}
-                                        className="w-full h-full object-cover"
-                                        loading="lazy"
-                                    />
-                                    <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                                        <Button size="icon" variant="outline" onClick={(e) => { e.stopPropagation(); setPreviewFile(file); }}>
-                                            <Maximize2 className="w-4 h-4" />
-                                        </Button>
-                                        <Button size="icon" variant="outline" onClick={(e) => { e.stopPropagation(); copyToClipboard(file.url); }}>
-                                            {copiedUrl === file.url ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                                        </Button>
-                                        <Button size="icon" variant="outline" onClick={(e) => { e.stopPropagation(); setFileToDelete(file); setDeleteDialogOpen(true); }}>
-                                            <Trash2 className="w-4 h-4 text-destructive" />
-                                        </Button>
-                                    </div>
-                                </div>
-                                <CardContent className="p-2">
-                                    <p className="text-xs truncate" title={file.name}>{file.name}</p>
-                                    <p className="text-xs text-muted-foreground capitalize">{file.folder}</p>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    ))}
-                </div>
-            ) : (
-                <div className="space-y-2">
-                    {filteredFiles.map((file) => (
-                        <div
-                            key={file.id}
-                            className={`flex items-center gap-4 p-3 border rounded-lg hover:bg-accent/50 transition-colors ${selectedFiles.has(file.id) ? 'ring-2 ring-primary' : ''}`}
-                        >
-                            <Checkbox
-                                checked={selectedFiles.has(file.id)}
-                                onCheckedChange={() => toggleFileSelection(file.id)}
-                            />
-                            <div
-                                className="w-12 h-12 rounded bg-secondary overflow-hidden flex-shrink-0 cursor-pointer"
-                                onClick={() => setPreviewFile(file)}
-                            >
-                                <img src={file.url} alt={file.name} className="w-full h-full object-cover" loading="lazy" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="font-medium truncate">{file.name}</p>
-                                <p className="text-xs text-muted-foreground capitalize">{file.folder} • {formatFileSize(file.size)}</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Button size="sm" variant="outline" onClick={() => setPreviewFile(file)}>
-                                    <Maximize2 className="w-4 h-4" />
-                                </Button>
-                                <Button size="sm" variant="outline" onClick={() => copyToClipboard(file.url)}>
-                                    {copiedUrl === file.url ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                                </Button>
-                                <Button size="sm" variant="outline" onClick={() => { setFileToDelete(file); setDeleteDialogOpen(true); }}>
-                                    <Trash2 className="w-4 h-4 text-destructive" />
-                                </Button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {filteredFiles.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                    <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                    <p>No files found</p>
-                </div>
-            )}
+            <MediaGrid
+                files={filteredFiles}
+                viewMode={viewMode}
+                selectedFiles={selectedFiles}
+                onToggleSelection={toggleFileSelection}
+                onPreview={setPreviewFile}
+                onDelete={(file) => { setFileToDelete(file); setDeleteDialogOpen(true); }}
+                onCopyUrl={copyToClipboard}
+                copiedUrl={copiedUrl}
+            />
 
             {/* Image Preview Modal */}
-            <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
-                <DialogContent className="max-w-4xl max-h-[90vh] p-0">
-                    <DialogHeader className="p-4 border-b">
-                        <DialogTitle className="flex items-center justify-between">
-                            <span className="truncate pr-4">{previewFile?.name}</span>
-                            <div className="flex items-center gap-2">
-                                <Button size="sm" variant="outline" onClick={() => previewFile && copyToClipboard(previewFile.url)}>
-                                    <Copy className="w-4 h-4 mr-2" />
-                                    Copy URL
-                                </Button>
-                                <a href={previewFile?.url} target="_blank" rel="noopener noreferrer" download>
-                                    <Button size="sm" variant="outline">
-                                        <Download className="w-4 h-4 mr-2" />
-                                        Download
-                                    </Button>
-                                </a>
-                            </div>
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="flex items-center justify-center p-4 bg-secondary/30 min-h-[400px]">
-                        {previewFile && (
-                            <img
-                                src={previewFile.url}
-                                alt={previewFile.name}
-                                className="max-w-full max-h-[70vh] object-contain"
-                            />
-                        )}
-                    </div>
-                </DialogContent>
-            </Dialog>
+            <MediaPreviewDialog
+                file={previewFile}
+                onClose={() => setPreviewFile(null)}
+            />
 
             {/* Single Delete Confirmation */}
             <ConfirmDialog

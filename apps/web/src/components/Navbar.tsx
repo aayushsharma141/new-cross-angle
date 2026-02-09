@@ -5,25 +5,9 @@ import { Button } from "@/components/ui/button";
 import logoIcon from "@/assets/logo-icon.png";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { CostCalculator } from "@/components/CostCalculator";
 import { services } from "@/config/site-content";
 
-const servicesMenu = {
-  residential: [
-    { name: "Living Room Design", href: "/services/residential/living-room", description: "Elegant spaces for daily living", icon: Sofa },
-    { name: "Bedroom Interior", href: "/services/residential/bedroom", description: "Peaceful sanctuaries for rest", icon: Home },
-    { name: "Kitchen & Dining", href: "/services/residential/kitchen", description: "Heart of your home", icon: UtensilsCrossed },
-  ],
-  commercial: [
-    { name: "Office Design", href: "/services/commercial/office", description: "Productive work environments", icon: Building2 },
-    { name: "Retail Spaces", href: "/services/commercial/retail", description: "Engaging customer experiences", icon: Building2 },
-    { name: "Restaurant & Cafe", href: "/services/commercial/hospitality", description: "Memorable dining atmospheres", icon: UtensilsCrossed },
-  ],
-  specialized: [
-    { name: "Modular Kitchen", href: "/services/specialized/modular-kitchens", description: "Factory-finished, quick install", icon: UtensilsCrossed, badge: "Popular" },
-    { name: "False Ceiling", href: "/services/specialized/ceilings", description: "Architectural elegance", icon: Lamp },
-  ],
-};
+import { servicesMenu, navLinks } from "@/config/navigation";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +15,6 @@ const Navbar = () => {
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const [isHoveringInterior, setIsHoveringInterior] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
-  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const location = useLocation();
 
   // Restart animation every 2 seconds
@@ -52,13 +35,7 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Services", href: "/services", hasMegaMenu: true },
-    { name: "Projects", href: "/gallery" },
-    { name: "About", href: "/about-us" },
-    { name: "Blog", href: "/blog" },
-  ];
+
 
   const isHomePage = location.pathname === "/";
   const showTransparent = isHomePage && !isScrolled;
@@ -139,7 +116,8 @@ const Navbar = () => {
                   className={cn(
                     "relative font-medium transition-all duration-300 hover:text-primary group flex items-center gap-1 py-4",
                     showTransparent ? 'text-primary-foreground/90' : 'text-muted-foreground',
-                    location.pathname === link.href && 'text-primary'
+                    location.pathname === link.href && 'text-primary',
+                    link.name === "Get Estimate" && "text-primary font-bold"
                   )}
                 >
                   {link.name}
@@ -282,17 +260,15 @@ const Navbar = () => {
                             <p className="text-sm text-muted-foreground">
                               Planning your budget? Get a quick cost estimate.
                             </p>
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                setIsMegaMenuOpen(false);
-                                setIsCalculatorOpen(true);
-                              }}
-                              className="shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all gap-2"
-                            >
-                              <Calculator className="w-4 h-4" />
-                              Get Free Estimate
-                            </Button>
+                            <Link to="/estimate" onClick={() => setIsMegaMenuOpen(false)}>
+                              <Button
+                                size="sm"
+                                className="shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all gap-2"
+                              >
+                                <Calculator className="w-4 h-4" />
+                                Get Free Estimate
+                              </Button>
+                            </Link>
                           </div>
                         </div>
                       </motion.div>
@@ -372,7 +348,8 @@ const Navbar = () => {
                           "transition-colors duration-300 font-medium text-lg py-3 px-4 rounded-xl block",
                           location.pathname === link.href
                             ? 'text-primary bg-primary/10'
-                            : 'text-foreground hover:text-primary hover:bg-accent/50'
+                            : 'text-foreground hover:text-primary hover:bg-accent/50',
+                          link.name === "Get Estimate" && "text-primary font-bold"
                         )}
                         onClick={() => setIsOpen(false)}
                       >
@@ -407,12 +384,6 @@ const Navbar = () => {
           )}
         </AnimatePresence>
       </nav>
-
-      {/* Cost Calculator Modal */}
-      <CostCalculator
-        isOpen={isCalculatorOpen}
-        onClose={() => setIsCalculatorOpen(false)}
-      />
     </header>
   );
 };

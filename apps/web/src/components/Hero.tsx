@@ -1,7 +1,6 @@
 import { ArrowRight, Calculator, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WaterRippleEffect from "./WaterRippleEffect";
-import { CostCalculator as CostCalculatorModal } from "./CostCalculator";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, HeroContent } from "@/lib/api";
@@ -9,7 +8,6 @@ import { api, HeroContent } from "@/lib/api";
 const Hero = () => {
   const [scrollY, setScrollY] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [heroContent, setHeroContent] = useState<HeroContent>({
     badgeText: "Premier Interior Design Studio",
@@ -140,15 +138,16 @@ const Hero = () => {
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => setIsCalculatorOpen(true)}
-              className="bg-primary-foreground/5 backdrop-blur-md border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground text-base md:text-lg px-6 md:px-8 py-5 md:py-6 group transition-all duration-300"
-            >
-              <Calculator className="mr-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
-              Estimate Your Cost
-            </Button>
+            <Link to="/quiz">
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-primary-foreground/5 backdrop-blur-md border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-primary text-base md:text-lg px-6 md:px-8 py-5 md:py-6 group transition-all duration-300 w-full sm:w-auto"
+              >
+                <Sparkles className="mr-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
+                Discover Your Aesthetic
+              </Button>
+            </Link>
           </div>
 
           {/* Trust Badges - Social Proof Bar */}
@@ -185,9 +184,6 @@ const Hero = () => {
           </div>
         </div>
       </button>
-
-      {/* Cost Calculator Modal */}
-      <CostCalculatorModal isOpen={isCalculatorOpen} onClose={() => setIsCalculatorOpen(false)} />
     </section>
   );
 };

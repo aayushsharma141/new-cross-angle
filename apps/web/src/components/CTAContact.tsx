@@ -101,7 +101,7 @@ const CTAContact = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground text-base md:text-lg px-6 py-5 md:py-6 group transition-all duration-300"
+                  className="w-full bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-primary text-base md:text-lg px-6 py-5 md:py-6 group transition-all duration-300"
                 >
                   <MessageCircle className="mr-2 h-5 w-5" />
                   WhatsApp Us

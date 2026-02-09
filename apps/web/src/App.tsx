@@ -17,6 +17,8 @@ import GalleryPage from "./pages/GalleryPage";
 import BlogPage from "./pages/BlogPage";
 import ContactPage from "./pages/ContactPage";
 import ProjectPage from "./pages/ProjectPage";
+import PriceEstimator from "./pages/PriceEstimator";
+import StyleQuizPage from "./pages/StyleQuizPage";
 import NotFound from "./pages/NotFound";
 import PageTransition from "./components/PageTransition";
 // Admin Pages
@@ -78,6 +80,8 @@ const AnimatedRoutes = () => {
             <Route path="/gallery" element={<PageTransition><GalleryPage /></PageTransition>} />
             <Route path="/blog" element={<PageTransition><BlogPage /></PageTransition>} />
             <Route path="/contact-us" element={<PageTransition><ContactPage /></PageTransition>} />
+            <Route path="/estimate" element={<PageTransition><PriceEstimator /></PageTransition>} />
+            <Route path="/quiz" element={<PageTransition><StyleQuizPage /></PageTransition>} />
             <Route path="/portfolio/:slug" element={<PageTransition><ProjectPage /></PageTransition>} />
             {/* Redirect routes for common variations */}
             <Route path="/about" element={<Navigate to="/about-us" replace />} />

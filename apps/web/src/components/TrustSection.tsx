@@ -127,39 +127,24 @@ const TrustSection = () => {
 
           {/* Marquee Container */}
           <div className="relative overflow-hidden py-4">
-            {/* Gradient Masks */}
-            <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-r from-foreground to-transparent z-10" />
-            <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-l from-foreground to-transparent z-10" />
+            {/* Gradient Masks - matched to section background */}
+            <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-r from-background to-transparent z-10" />
+            <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-l from-background to-transparent z-10" />
 
             {/* Marquee Track */}
             <div className="flex animate-marquee">
-              {/* First set */}
-              {brandPartners.map((partner, index) => (
+              {[...brandPartners, ...brandPartners].map((partner, index) => (
                 <div
-                  key={`first-${index}`}
-                  className="flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 mx-3 md:mx-4 rounded-xl bg-primary-foreground/5 border border-primary-foreground/10 whitespace-nowrap"
+                  key={`${partner.name}-${index}`}
+                  className="flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 mx-3 md:mx-4 rounded-xl bg-white/5 border border-white/10 whitespace-nowrap min-w-[200px]"
                 >
-                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-bold text-sm md:text-base">{partner.name.charAt(0)}</span>
+                  {/* Placeholder for Logo - Using colored initials/text for now as explicit logos needed */}
+                  <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shrink-0">
+                    <span className="text-black font-bold text-lg">{partner.name.charAt(0)}</span>
                   </div>
                   <div>
-                    <span className="font-semibold text-primary-foreground text-sm md:text-base">{partner.name}</span>
-                    <span className="block text-xs text-primary-foreground/50">{partner.tagline}</span>
-                  </div>
-                </div>
-              ))}
-              {/* Duplicate set for seamless loop */}
-              {brandPartners.map((partner, index) => (
-                <div
-                  key={`second-${index}`}
-                  className="flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 mx-3 md:mx-4 rounded-xl bg-primary-foreground/5 border border-primary-foreground/10 whitespace-nowrap"
-                >
-                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-bold text-sm md:text-base">{partner.name.charAt(0)}</span>
-                  </div>
-                  <div>
-                    <span className="font-semibold text-primary-foreground text-sm md:text-base">{partner.name}</span>
-                    <span className="block text-xs text-primary-foreground/50">{partner.tagline}</span>
+                    <span className="font-bold text-white text-base md:text-lg tracking-tight">{partner.name}</span>
+                    <span className="block text-xs text-white/50 font-medium">{partner.tagline}</span>
                   </div>
                 </div>
               ))}

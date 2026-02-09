@@ -43,10 +43,9 @@ const ContactPage = () => {
               {/* Info Section - Sticky on Desktop */}
               <div className="lg:sticky lg:top-24 space-y-8">
                 <div className="hidden lg:block mb-6">
-                  <h3 className="text-2xl font-serif font-bold text-foreground">Get in Touch</h3>
-                  <p className="text-muted-foreground mt-2">
+                  <h3 className="text-2xl font-serif font-bold text-foreground">
                     Visit our studio or contact us directly. We're here to help.
-                  </p>
+                  </h3>
                 </div>
                 <ContactInfo />
               </div>
