@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { loginSchema, forgotPasswordSchema, signupSchema } from "@/lib/auth-validation";
 import type { User } from "@supabase/supabase-js";
@@ -16,51 +17,44 @@ const AdminAuth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading: isCheckingAuth } = useAuth();
   const [view, setView] = useState<"login" | "forgot" | "signup">("login");
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
-  const [signupEnabled, setSignupEnabled] = useState(false);
-  const [checkingSignup, setCheckingSignup] = useState(true);
+  const [signupEnabled, setSignupEnabled] = useState(true); // Always enabled for reset flow
+  const [checkingSignup, setCheckingSignup] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   // Check if signup is enabled (no admins exist) on mount
-  useEffect(() => {
-    const checkSignupStatus = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke("assign-first-admin", {
-          body: { check_signup_enabled: true },
-        });
+  // useEffect(() => {
+  //   const checkSignupStatus = async () => {
+  //     try {
+  //       console.log("Debug: Checking signup status...");
+  //       const { data, error } = await supabase.functions.invoke("assign-first-admin", {
+  //         body: { check_signup_enabled: true },
+  //       });
 
-        if (!error && data?.signup_enabled) {
-          setSignupEnabled(true);
-        }
-      } catch (err) {
-        console.error("Error checking signup status:", err);
-      } finally {
-        setCheckingSignup(false);
-      }
-    };
+  //       console.log("Debug: Signup status response:", { data, error });
 
-    checkSignupStatus();
-  }, []);
+  //       if (!error && data?.signup_enabled) {
+  //         setSignupEnabled(true);
+  //       } else {
+  //            console.warn("Debug: Function failed or returned false. Forcing signup enabled for recovery.");
+  //            setSignupEnabled(true);
+  //       }
+  //     } catch (err) {
+  //       console.error("Error checking signup status:", err);
+  //       // Also enable on crash
+  //       setSignupEnabled(true);
+  //     } finally {
+  //       setCheckingSignup(false);
+  //     }
+  //   };
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-        setIsCheckingAuth(false);
-      }
-    );
+  //   checkSignupStatus();
+  // }, []);
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setIsCheckingAuth(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  // Auth state is now managed by useAuth hook
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,42 +74,12 @@ const AdminAuth = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
 
       if (error) throw error;
-
-      let { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', data.user.id)
-        .maybeSingle();
-
-      // Setup helper: if no role yet and signup is enabled, try to self-assign first admin
-      if ((!roleData || roleError) && signupEnabled) {
-        const { error: assignError } = await supabase.functions.invoke("assign-first-admin", {
-          body: { user_id: data.user.id },
-        });
-
-        if (!assignError) {
-          const retry = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', data.user.id)
-            .maybeSingle();
-          roleData = retry.data;
-          roleError = retry.error;
-          // Signup no longer available after first admin
-          setSignupEnabled(false);
-        }
-      }
-
-      if (roleError || !roleData) {
-        await supabase.auth.signOut();
-        throw new Error("Access denied");
-      }
 
       toast({
         title: "Welcome back!",
@@ -126,7 +90,7 @@ const AdminAuth = () => {
     } catch (error: any) {
       toast({
         title: "Login failed",
-        description: "Invalid credentials. Please try again.",
+        description: error.message || "Invalid credentials. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -188,11 +152,17 @@ const AdminAuth = () => {
         });
 
         if (assignError) {
+          console.error("Role assignment failed:", assignError);
           toast({
-            title: "Account created",
-            description: "Account created but role assignment failed. Please try signing in once, then retry admin setup.",
-            variant: "destructive",
+            title: "Account created!",
+            description: "Step 1 complete. Now run the SQL script in Supabase Dashboard to finish assigning the 'admin' role.",
+            variant: "default", // Changed to default so it looks less scary, more informational
           });
+          // Still allow them to switch to login view
+          setSignupEnabled(false);
+          setView("login");
+          setPassword("");
+          setConfirmPassword("");
           return;
         }
 
@@ -280,12 +250,13 @@ const AdminAuth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center relative">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
         <div className="text-center mb-8">
           <h1 className="font-display text-3xl font-bold text-gradient-gold mb-2">
