@@ -19,6 +19,9 @@ import {
   Award,
   ChevronDown,
   Menu,
+  PenSquare,
+  UserPlus,
+  ImagePlus,
 } from "lucide-react";
 import {
   Sidebar,
@@ -57,7 +60,7 @@ const AdminLayout = () => {
       items: [
         {
           title: "Dashboard",
-          url: "/admin/dashboard",
+          url: "/admin",
           icon: LayoutDashboard,
         },
       ],
@@ -68,13 +71,8 @@ const AdminLayout = () => {
       collapsible: true,
       items: [
         {
-          title: "Hero Section",
-          url: "/admin/hero",
-          icon: Image,
-        },
-        {
-          title: "About Section",
-          url: "/admin/about",
+          title: "Site Content",
+          url: "/admin/content",
           icon: FileText,
         },
         {
@@ -83,8 +81,8 @@ const AdminLayout = () => {
           icon: Briefcase,
         },
         {
-          title: "Projects/Portfolio",
-          url: "/admin/projects",
+          title: "Portfolio",
+          url: "/admin/portfolio",
           icon: FolderKanban,
         },
         {
@@ -93,14 +91,31 @@ const AdminLayout = () => {
           icon: MessageSquare,
         },
         {
-          title: "Team Members",
-          url: "/admin/team",
-          icon: Users,
+          title: "Blogs",
+          url: "/admin/blogs",
+          icon: PenSquare,
         },
         {
-          title: "Gallery",
-          url: "/admin/gallery",
-          icon: Image,
+          title: "Media Library",
+          url: "/admin/media",
+          icon: ImagePlus,
+        },
+      ],
+    },
+    {
+      label: "CRM & Users",
+      id: "crm",
+      collapsible: true,
+      items: [
+        {
+          title: "Leads",
+          url: "/admin/leads",
+          icon: Mail,
+        },
+        {
+          title: "Users",
+          url: "/admin/users",
+          icon: Users,
         },
       ],
     },
@@ -110,24 +125,9 @@ const AdminLayout = () => {
       collapsible: true,
       items: [
         {
-          title: "Site Settings",
+          title: "Settings",
           url: "/admin/settings",
           icon: Settings,
-        },
-        {
-          title: "Contact Info",
-          url: "/admin/contact",
-          icon: Mail,
-        },
-        {
-          title: "Theme & Style",
-          url: "/admin/theme",
-          icon: Palette,
-        },
-        {
-          title: "Certifications",
-          url: "/admin/certifications",
-          icon: Award,
         },
       ],
     },
@@ -179,8 +179,8 @@ const AdminLayout = () => {
                               <SidebarMenuItem key={item.title}>
                                 <SidebarMenuButton
                                   asChild
-                                  isActive={location.pathname === item.url}
-                                  className={`${location.pathname === item.url
+                                  isActive={item.url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.url)}
+                                  className={`${(item.url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.url))
                                     ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
                                     : "hover:bg-[hsl(var(--sidebar-accent))] text-[hsl(var(--admin-foreground))]"
                                     } rounded-lg transition-all duration-200 my-0.5`}
@@ -209,8 +209,8 @@ const AdminLayout = () => {
                             <SidebarMenuItem key={item.title}>
                               <SidebarMenuButton
                                 asChild
-                                isActive={location.pathname === item.url}
-                                className={`${location.pathname === item.url
+                                isActive={item.url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.url)}
+                                className={`${(item.url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.url))
                                   ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
                                   : "hover:bg-[hsl(var(--sidebar-accent))] text-[hsl(var(--admin-foreground))]"
                                   } rounded-lg transition-all duration-200 my-0.5`}
@@ -257,7 +257,7 @@ const AdminLayout = () => {
                 <h1 className="text-2xl font-bold text-[hsl(var(--admin-foreground))]">
                   {menuSections
                     .flatMap((s) => s.items)
-                    .find((item) => item.url === location.pathname)?.title || "Dashboard"}
+                    .find((item) => item.url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.url))?.title || "Dashboard"}
                 </h1>
                 <p className="text-sm text-[hsl(var(--admin-muted))]">Manage your interior design website content</p>
               </div>
