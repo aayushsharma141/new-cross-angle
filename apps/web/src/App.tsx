@@ -64,6 +64,7 @@ const AnimatedRoutes = () => {
       {isAdmin ? (
         <Routes>
           <Route path="/admin/auth" element={<AdminAuth />} />
+          <Route path="/admin/login" element={<Navigate to="/admin/auth" replace />} />
           <Route path="/admin/reset-password" element={<AdminResetPassword />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
@@ -147,7 +148,7 @@ const App = () => (
       }}
     />
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <TooltipProvider>
           <AuthProvider>
             <ProjectProvider>

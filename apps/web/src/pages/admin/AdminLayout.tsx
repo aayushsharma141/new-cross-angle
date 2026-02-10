@@ -44,7 +44,7 @@ const AdminLayout = () => {
   if (isLoading) return null;
 
   if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/admin/auth" replace />;
   }
 
   const toggleSection = (section: string) => {

@@ -1,33 +1,17 @@
-import { useState, useEffect } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
 
 export const useAdminAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const auth = localStorage.getItem("adminAuthenticated");
-    if (auth === "true") {
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
-  }, []);
+  const isAuthenticated = !!user;
+  const isLoading = loading;
 
-  const login = (password: string) => {
-    if (password === "admin123") {
-      localStorage.setItem("adminAuthenticated", "true");
-      setIsAuthenticated(true);
-      return true;
-    }
-    return false;
+  const logout = async () => {
+    await signOut();
+    navigate("/admin/auth");
   };
 
-  const logout = () => {
-    localStorage.removeItem("adminAuthenticated");
-    setIsAuthenticated(false);
-    navigate("/admin/login");
-  };
-
-  return { isAuthenticated, isLoading, login, logout };
+  return { isAuthenticated, isLoading, logout };
 };
