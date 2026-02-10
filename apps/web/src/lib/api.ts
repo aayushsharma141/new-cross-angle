@@ -130,7 +130,7 @@ export const api = {
     const { data, error } = await supabase
       .from('blogs')
       .select('*')
-      .eq('published', true)
+      .eq('is_published', true)
       .order('published_at', { ascending: false });
 
     if (error) {

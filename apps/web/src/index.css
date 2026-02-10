@@ -265,7 +265,7 @@
   }
 
   /* =========================
-     ADMIN PANEL – MODERN LIGHT THEME
+     ADMIN PANEL – MODERN LIGHT THEME (Default)
   ========================= */
   .admin-theme {
     /* Base Colors */
@@ -273,16 +273,23 @@
     /* #F8FAFC - Very Light Slate */
     --admin-card: 0 0% 100%;
     /* #FFFFFF */
-    --admin-sidebar: 0 0% 100%;
-    /* #FFFFFF */
     --admin-border: 214 15% 91%;
     /* #E2E8F0 */
-
-    /* Text Colors */
     --admin-foreground: 222 15% 20%;
     /* #1E293B */
     --admin-muted: 215 14% 34%;
     /* #64748B */
+
+    /* Map Sidebar Variables to Light Theme */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 25 76% 31%;
+    /* Brand Highlight */
 
     /* Brand Accent */
     --brand-primary: 25 76% 31%;
@@ -297,5 +304,35 @@
     /* #F59E0B */
     --status-error: 0 84% 60%;
     /* #EF4444 */
+  }
+
+  /* Dark Theme Overrides */
+  .dark .admin-theme,
+  .admin-theme.dark {
+    /* Base Colors */
+    --admin-bg: 222 47% 11%;
+    /* #0F172A - Slate 900 */
+    --admin-card: 217 33% 17%;
+    /* #1E293B - Slate 800 */
+    --admin-border: 215 25% 27%;
+    /* #334155 - Slate 700 */
+    --admin-foreground: 210 40% 98%;
+    /* #F1F5F9 - Slate 100 */
+    --admin-muted: 215 20% 65%;
+    /* #94A3B8 - Slate 400 */
+
+    /* Map Sidebar Variables to Dark Theme */
+    --sidebar-background: 217 33% 17%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 25 76% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 215 25% 27%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 25% 27%;
+
+    /* Brand Accent */
+    --brand-primary: 25 76% 50%;
+    /* Brighter for dark mode */
+    --brand-secondary: 46 65% 60%;
   }
 }

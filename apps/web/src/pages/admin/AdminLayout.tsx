@@ -1,78 +1,289 @@
-import { useState, useEffect } from "react";
-import { Outlet, Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
-import { TopBar } from "@/components/admin/TopBar";
-import { Sidebar } from "@/components/admin/Sidebar";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
-// Create a client
-const queryClient = new QueryClient();
+import { useState } from "react";
+import { Outlet, Link, useLocation, Navigate } from "react-router-dom";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { Button } from "@/components/ui/button";
+import {
+  LayoutDashboard,
+  FolderKanban,
+  LogOut,
+  Home,
+  Settings,
+  Image,
+  Users,
+  MessageSquare,
+  FileText,
+  Briefcase,
+  Mail,
+  Palette,
+  Award,
+  ChevronDown,
+  Menu,
+} from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { CommandMenu } from "@/components/admin/layout/CommandMenu";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const AdminLayout = () => {
-  const { user, loading } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { isAuthenticated, isLoading, logout } = useAdminAuth();
   const location = useLocation();
+  const [openSections, setOpenSections] = useState<string[]>(["content"]);
 
-  // Close sidebar on route change (mobile)
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, [location.pathname]);
+  if (isLoading) return null;
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--admin-bg))]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+  if (!isAuthenticated) {
+    return <Navigate to="/admin/login" replace />;
   }
 
-  if (!user) {
-    return <Navigate to="/admin/auth" replace />;
-  }
+  const toggleSection = (section: string) => {
+    setOpenSections((prev) => (prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]));
+  };
+
+  const menuSections = [
+    {
+      label: "Overview",
+      items: [
+        {
+          title: "Dashboard",
+          url: "/admin/dashboard",
+          icon: LayoutDashboard,
+        },
+      ],
+    },
+    {
+      label: "Content Management",
+      id: "content",
+      collapsible: true,
+      items: [
+        {
+          title: "Hero Section",
+          url: "/admin/hero",
+          icon: Image,
+        },
+        {
+          title: "About Section",
+          url: "/admin/about",
+          icon: FileText,
+        },
+        {
+          title: "Services",
+          url: "/admin/services",
+          icon: Briefcase,
+        },
+        {
+          title: "Projects/Portfolio",
+          url: "/admin/projects",
+          icon: FolderKanban,
+        },
+        {
+          title: "Testimonials",
+          url: "/admin/testimonials",
+          icon: MessageSquare,
+        },
+        {
+          title: "Team Members",
+          url: "/admin/team",
+          icon: Users,
+        },
+        {
+          title: "Gallery",
+          url: "/admin/gallery",
+          icon: Image,
+        },
+      ],
+    },
+    {
+      label: "Site Management",
+      id: "site",
+      collapsible: true,
+      items: [
+        {
+          title: "Site Settings",
+          url: "/admin/settings",
+          icon: Settings,
+        },
+        {
+          title: "Contact Info",
+          url: "/admin/contact",
+          icon: Mail,
+        },
+        {
+          title: "Theme & Style",
+          url: "/admin/theme",
+          icon: Palette,
+        },
+        {
+          title: "Certifications",
+          url: "/admin/certifications",
+          icon: Award,
+        },
+      ],
+    },
+  ];
+
+  type MenuSection = typeof menuSections[number];
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-[hsl(var(--admin-bg))] font-sans admin-theme">
-        <div className="flex h-screen overflow-hidden">
-          {/* Sidebar */}
-          <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-
-          {/* Main Content Wrapper */}
-          <div className="flex flex-1 flex-col overflow-hidden">
-            <TopBar />
-
-            {/* Mobile Menu Toggle (Visible only on small screens, floated over content if needed, or part of topbar) */}
-            <div className="lg:hidden fixed bottom-4 right-4 z-50">
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-[hsl(var(--admin-bg))] admin-theme">
+        <Sidebar className="border-r border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))]">
+          <SidebarContent>
+            <div className="p-6 border-b border-[hsl(var(--admin-border))]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white font-bold text-lg">
+                  CA
+                </div>
+                <div>
+                  <h2 className="font-bold text-lg text-[hsl(var(--admin-foreground))]">Crossangle Interior</h2>
+                  <p className="text-xs text-[hsl(var(--admin-muted))]">Admin Panel</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto py-4">
+              {menuSections.map((section) => (
+                <SidebarGroup key={section.label} className="px-3 mb-2">
+                  {section.collapsible ? (
+                    <Collapsible
+                      open={section.id ? openSections.includes(section.id) : false}
+                      onOpenChange={() => section.id && toggleSection(section.id)}
+                    >
+                      <CollapsibleTrigger className="w-full">
+                        <SidebarGroupLabel className="flex items-center justify-between hover:bg-[hsl(var(--sidebar-accent))] rounded-md px-2 py-1.5 cursor-pointer transition-colors">
+                          <span className="text-xs font-semibold text-[hsl(var(--admin-muted))] uppercase tracking-wider">
+                            {section.label}
+                          </span>
+                          {section.id ? (
+                            <ChevronDown
+                              className={`w-4 h-4 text-[hsl(var(--admin-muted))] transition-transform ${openSections.includes(section.id) ? "rotate-180" : ""
+                                }`}
+                            />
+                          ) : null}
+                        </SidebarGroupLabel>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarGroupContent className="mt-1">
+                          <SidebarMenu>
+                            {section.items.map((item) => (
+                              <SidebarMenuItem key={item.title}>
+                                <SidebarMenuButton
+                                  asChild
+                                  isActive={location.pathname === item.url}
+                                  className={`${location.pathname === item.url
+                                    ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
+                                    : "hover:bg-[hsl(var(--sidebar-accent))] text-[hsl(var(--admin-foreground))]"
+                                    } rounded-lg transition-all duration-200 my-0.5`}
+                                >
+                                  <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
+                                    <item.icon className="w-4 h-4" />
+                                    <span className="text-sm font-medium">{item.title}</span>
+                                  </Link>
+                                </SidebarMenuButton>
+                              </SidebarMenuItem>
+                            ))}
+                          </SidebarMenu>
+                        </SidebarGroupContent>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ) : (
+                    <>
+                      <SidebarGroupLabel className="px-2 mb-2">
+                        <span className="text-xs font-semibold text-[hsl(var(--admin-muted))] uppercase tracking-wider">
+                          {section.label}
+                        </span>
+                      </SidebarGroupLabel>
+                      <SidebarGroupContent>
+                        <SidebarMenu>
+                          {section.items.map((item) => (
+                            <SidebarMenuItem key={item.title}>
+                              <SidebarMenuButton
+                                asChild
+                                isActive={location.pathname === item.url}
+                                className={`${location.pathname === item.url
+                                  ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
+                                  : "hover:bg-[hsl(var(--sidebar-accent))] text-[hsl(var(--admin-foreground))]"
+                                  } rounded-lg transition-all duration-200 my-0.5`}
+                              >
+                                <Link to={item.url} className="flex items-center gap-3 px-3 py-2.5">
+                                  <item.icon className="w-5 h-5" />
+                                  <span className="text-sm font-medium">{item.title}</span>
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          ))}
+                        </SidebarMenu>
+                      </SidebarGroupContent>
+                    </>
+                  )}
+                </SidebarGroup>
+              ))}
+            </div>
+            <div className="border-t border-[hsl(var(--admin-border))] p-4 space-y-2">
+              <Button variant="outline" className="w-full justify-start hover:bg-[hsl(var(--sidebar-accent))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-foreground))]" asChild>
+                <Link to="/">
+                  <Home className="mr-2 h-4 w-4" />
+                  View Website
+                </Link>
+              </Button>
               <Button
-                size="icon"
-                className="rounded-full shadow-lg bg-[hsl(var(--brand-primary))]"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
+                variant="destructive"
+                className="w-full justify-start bg-red-500 hover:bg-red-600"
+                onClick={logout}
               >
-                <Menu className="text-white" />
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
               </Button>
             </div>
-
-            {/* Mobile Sidebar Overlay */}
-            {sidebarOpen && (
-              <div
-                className="fixed inset-0 z-30 bg-black/50 lg:hidden backdrop-blur-sm"
-                onClick={() => setSidebarOpen(false)}
-              />
-            )}
-
-            {/* Main Content Area */}
-            <main className="flex-1 overflow-y-auto p-4 md:p-8">
-              <div className="mx-auto max-w-7xl animate-in fade-in duration-500">
-                <Outlet />
+          </SidebarContent>
+        </Sidebar>
+        <main className="flex-1 flex flex-col overflow-hidden">
+          <header className="bg-[hsl(var(--admin-card))] border-b border-[hsl(var(--admin-border))] px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger className="lg:hidden text-[hsl(var(--admin-foreground))]">
+                <Menu className="w-5 h-5" />
+              </SidebarTrigger>
+              <div>
+                <h1 className="text-2xl font-bold text-[hsl(var(--admin-foreground))]">
+                  {menuSections
+                    .flatMap((s) => s.items)
+                    .find((item) => item.url === location.pathname)?.title || "Dashboard"}
+                </h1>
+                <p className="text-sm text-[hsl(var(--admin-muted))]">Manage your interior design website content</p>
               </div>
-            </main>
+            </div>
+            <div className="flex items-center gap-3">
+              <CommandMenu />
+              <ModeToggle />
+              <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-[hsl(var(--admin-border))] rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white text-sm font-semibold">
+                  A
+                </div>
+                <div className="text-sm">
+                  <p className="font-medium text-[hsl(var(--admin-foreground))]">Admin</p>
+                  <p className="text-xs text-[hsl(var(--admin-muted))]">Administrator</p>
+                </div>
+              </div>
+            </div>
+          </header>
+          <div className="flex-1 overflow-auto p-6">
+            <div className="max-w-7xl mx-auto">
+              <Outlet />
+            </div>
           </div>
-        </div>
+        </main>
       </div>
-    </QueryClientProvider>
+    </SidebarProvider>
   );
 };
 

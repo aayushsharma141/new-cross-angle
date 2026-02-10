@@ -25,6 +25,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { RichTextEditor } from "@/components/admin/blogs/RichTextEditor";
+import { MediaPicker } from "@/components/admin/media/MediaPicker";
+import { Image as ImageIcon } from "lucide-react";
 
 interface BlogPost {
   id: string;
@@ -85,18 +88,6 @@ const AdminBlogs = () => {
     });
   };
 
-  const handleEdit = (post: BlogPost) => {
-    setEditingPost(post);
-    setFormData({
-      title: post.title,
-      slug: post.slug,
-      excerpt: post.excerpt || "",
-      content: post.content || "",
-      cover_image: post.cover_image || "",
-      is_published: post.is_published
-    });
-    setIsDialogOpen(true);
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this post?')) return;
@@ -146,19 +137,16 @@ const AdminBlogs = () => {
       }
 
       toast({
-        title: editingPost ? "Post updated!" : "Post created!",
+        title: editingPost ? "Post updated!" : "Post updated!",
       });
+
+      // Clear draft
+      const draftKey = editingPost ? `admin_blog_draft_${editingPost.id}` : "admin_blog_draft_new";
+      localStorage.removeItem(draftKey);
 
       setIsDialogOpen(false);
       setEditingPost(null);
-      setFormData({
-        title: "",
-        slug: "",
-        excerpt: "",
-        content: "",
-        cover_image: "",
-        is_published: false
-      });
+      resetForm();
       fetchPosts();
     } catch (error: any) {
       toast({
@@ -171,8 +159,78 @@ const AdminBlogs = () => {
     }
   };
 
+  // Auto-save draft logic
+  useEffect(() => {
+    if (!isDialogOpen) return;
+
+    const saveDraft = setTimeout(() => {
+      const draftKey = editingPost ? `admin_blog_draft_${editingPost.id}` : "admin_blog_draft_new";
+      // Only save if there's actual content to save
+      if (formData.title || formData.content || formData.excerpt) {
+        localStorage.setItem(draftKey, JSON.stringify(formData));
+      }
+    }, 1000);
+
+    return () => clearTimeout(saveDraft);
+  }, [formData, editingPost, isDialogOpen]);
+
   const handleNewPost = () => {
     setEditingPost(null);
+    const savedDraft = localStorage.getItem("admin_blog_draft_new");
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft);
+        setFormData(parsed);
+        toast({
+          title: "Draft Restored",
+          description: "We found an unsaved draft and restored it for you.",
+        });
+      } catch (e) {
+        console.error("Failed to parse draft", e);
+        resetForm();
+      }
+    } else {
+      resetForm();
+    }
+    setIsDialogOpen(true);
+  };
+
+  const handleEdit = (post: BlogPost) => {
+    setEditingPost(post);
+    const savedDraft = localStorage.getItem(`admin_blog_draft_${post.id}`);
+
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft);
+        setFormData(parsed);
+        toast({
+          title: "Draft Restored",
+          description: "Restored your unsaved changes for this post.",
+        });
+      } catch (e) {
+        setFormData({
+          title: post.title,
+          slug: post.slug,
+          excerpt: post.excerpt || "",
+          content: post.content || "",
+          cover_image: post.cover_image || "",
+          is_published: post.is_published
+        });
+      }
+    } else {
+      setFormData({
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt || "",
+        content: post.content || "",
+        cover_image: post.cover_image || "",
+        is_published: post.is_published
+      });
+    }
+    setIsDialogOpen(true);
+  };
+
+  const resetForm = () => {
     setFormData({
       title: "",
       slug: "",
@@ -181,7 +239,6 @@ const AdminBlogs = () => {
       cover_image: "",
       is_published: false
     });
-    setIsDialogOpen(true);
   };
 
   if (isLoading) {
@@ -264,12 +321,10 @@ const AdminBlogs = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Content</Label>
-                    <Textarea
-                      value={formData.content}
-                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      rows={12}
-                      className="font-mono text-sm resize-y min-h-[300px]"
-                      placeholder="Write your post content here (Markdown supported)..."
+                    <RichTextEditor
+                      content={formData.content || ""}
+                      onChange={(content) => setFormData({ ...formData, content })}
+                      className="min-h-[400px]"
                     />
                   </div>
                 </div>
@@ -308,9 +363,19 @@ const AdminBlogs = () => {
                           </Button>
                         </div>
                       ) : (
-                        <div className="py-4 text-muted-foreground text-sm">
+                        <div className="py-4 text-muted-foreground text-sm flex flex-col items-center gap-2">
+                          <MediaPicker
+                            onSelect={(url) => setFormData({ ...formData, cover_image: url })}
+                            trigger={
+                              <Button type="button" variant="outline" className="gap-2">
+                                <ImageIcon className="w-4 h-4" />
+                                Select from Library
+                              </Button>
+                            }
+                          />
+                          <span className="text-xs text-muted-foreground">or paste URL</span>
                           <Input
-                            value={formData.cover_image}
+                            value={formData.cover_image || ""}
                             onChange={(e) => setFormData({ ...formData, cover_image: e.target.value })}
                             placeholder="https://..."
                             className="mt-2"

@@ -4,17 +4,9 @@ import path from "path";
 
 export default defineConfig(async ({ mode, command }) => {
     const plugins: any[] = [react()];
-    
-    // Only load lovable-tagger in dev server mode (not during build)
-    if (mode === "development" && command === "serve") {
-        try {
-            const { componentTagger } = await import("lovable-tagger");
-            plugins.push(componentTagger());
-        } catch {
-            // Ignore if not available
-        }
-    }
-    
+
+
+
     return {
         server: {
             host: "::",

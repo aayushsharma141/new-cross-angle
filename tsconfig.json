@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
@@ -19,13 +23,27 @@
     "strictNullChecks": false,
     "allowJs": true,
     "paths": {
-      "@/*": ["./apps/web/src/*"],
-      "@repo/ui": ["./packages/ui/src/index.ts"],
-      "@repo/ui/*": ["./packages/ui/src/*"],
-      "@repo/types": ["./packages/types/src/index.ts"],
-      "@repo/types/*": ["./packages/types/src/*"],
-      "@repo/utils": ["./packages/utils/src/index.ts"],
-      "@repo/utils/*": ["./packages/utils/src/*"]
+      "@/*": [
+        "./apps/web/src/*"
+      ],
+      "@repo/ui": [
+        "./packages/ui/src/index.ts"
+      ],
+      "@repo/ui/*": [
+        "./packages/ui/src/*"
+      ],
+      "@repo/types": [
+        "./packages/types/src/index.ts"
+      ],
+      "@repo/types/*": [
+        "./packages/types/src/*"
+      ],
+      "@repo/utils": [
+        "./packages/utils/src/index.ts"
+      ],
+      "@repo/utils/*": [
+        "./packages/utils/src/*"
+      ]
     }
   },
   "include": [
@@ -37,6 +55,7 @@
     "node_modules",
     "apps/admin/**/*",
     "apps/web/my-project/**/*",
-    "apps/web/crossangle-cms/**/*"
+    "apps/web/crossangle-cms/**/*",
+    "supabase/**/*"
   ]
 }

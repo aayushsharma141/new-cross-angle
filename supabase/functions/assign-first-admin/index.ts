@@ -1,9 +1,9 @@
-// Lovable Cloud Function: assign-first-admin
+// Cloud Function: assign-first-admin
 // Purpose: During initial setup, allow creating exactly one admin role when there are no admins yet.
 // Security: 
 // - If an admin already exists, only authenticated admins can assign roles.
 // - If no admin exists, allow the first authenticated user to self-assign admin.
-// - CORS is restricted to known domains (Lovable apps and localhost for development)
+// - CORS is restricted to localhost (dev) and explicit origins
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
@@ -27,17 +27,16 @@ const getAllowedOrigins = (): string[] => {
 const getCorsHeaders = (req: Request): Record<string, string> => {
   const origin = req.headers.get("origin") || "";
   const allowedOrigins = getAllowedOrigins();
-  
+
   // Check if origin is allowed:
-  // - Lovable preview domains (*.lovable.app)
   // - localhost for development
   // - Explicitly allowed origins from env
-  const isAllowed = !origin || 
-    origin.endsWith(".lovable.app") || 
+  const isAllowed = !origin ||
+
     origin.includes("localhost") ||
     origin.includes("127.0.0.1") ||
     allowedOrigins.some(allowed => origin === allowed);
-  
+
   return {
     "Access-Control-Allow-Origin": isAllowed ? (origin || "*") : "",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -46,7 +45,7 @@ const getCorsHeaders = (req: Request): Record<string, string> => {
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
-  
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -73,11 +72,11 @@ serve(async (req) => {
     if (countError) throw countError;
 
     const body = (await req.json().catch(() => ({}))) as Body;
-    
+
     // If client is just checking if signup is available, return status
     if (body.check_signup_enabled) {
-      return new Response(JSON.stringify({ 
-        signup_enabled: (adminCount ?? 0) === 0 
+      return new Response(JSON.stringify({
+        signup_enabled: (adminCount ?? 0) === 0
       } satisfies Json), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

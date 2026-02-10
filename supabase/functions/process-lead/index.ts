@@ -13,17 +13,13 @@ const getAllowedOrigins = (): string[] => {
 const getCorsHeaders = (req: Request): Record<string, string> => {
   const origin = req.headers.get("origin") || "";
   const allowedOrigins = getAllowedOrigins();
-  
+
   // Check if origin is allowed:
-  // - Lovable preview domains (*.lovable.app)
-  // - localhost for development
-  // - Explicitly allowed origins from env
-  const isAllowed = !origin || 
-    origin.endsWith(".lovable.app") || 
-    origin.includes("localhost") ||
+
+  origin.includes("localhost") ||
     origin.includes("127.0.0.1") ||
     allowedOrigins.some(allowed => origin === allowed);
-  
+
   return {
     "Access-Control-Allow-Origin": isAllowed ? (origin || "*") : "",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -160,7 +156,7 @@ async function syncToGoogleSheets(lead: { name: string; email: string; phone?: s
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
-  
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -237,20 +233,20 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     // Send WhatsApp notification
-    await sendWhatsAppNotification({ 
-      name: sanitizedName, 
-      email, 
-      phone: sanitizedPhone, 
-      message: sanitizedMessage 
+    await sendWhatsAppNotification({
+      name: sanitizedName,
+      email,
+      phone: sanitizedPhone,
+      message: sanitizedMessage
     });
 
     // Sync to Google Sheets
-    await syncToGoogleSheets({ 
-      name: sanitizedName, 
-      email, 
-      phone: sanitizedPhone, 
-      message: sanitizedMessage, 
-      category 
+    await syncToGoogleSheets({
+      name: sanitizedName,
+      email,
+      phone: sanitizedPhone,
+      message: sanitizedMessage,
+      category
     });
 
     if (!LOVABLE_API_KEY) {

@@ -1,3 +1,5 @@
+
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Users,
@@ -6,9 +8,7 @@ import {
   MessageSquare,
   Plus,
   TrendingUp,
-  ArrowRight,
-  Download,
-  Loader2
+  Download
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatCard } from "@/components/admin/StatCard";
@@ -16,69 +16,108 @@ import { QuickActionButton } from "@/components/admin/QuickActions";
 import { Button } from "@/components/ui/button";
 import { TrafficChart } from "@/components/admin/analytics/TrafficChart";
 import { ConversionFunnel } from "@/components/admin/analytics/ConversionFunnel";
+import { RecentActivityFeed } from "@/components/admin/dashboard/RecentActivityFeed";
+import { CalendarDateRangePicker } from "@/components/ui/date-range-picker";
 import { useToast } from "@/hooks/use-toast";
-import { formatDistanceToNow } from "date-fns";
+import { DateRange } from "react-day-picker";
+import { subDays, endOfDay } from "date-fns";
 
 const AdminDashboard = () => {
   const { toast } = useToast();
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 30),
+    to: new Date(),
+  });
 
   // Fetch real stats from database
   const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ["admin-stats"],
+    queryKey: ["admin-stats", date],
     queryFn: async () => {
+      let projectsQuery = supabase.from("projects").select("*", { count: "exact", head: true });
+      let leadsQuery = supabase.from("leads").select("*", { count: "exact", head: true });
+      let testimonialsQuery = supabase.from("testimonials").select("*", { count: "exact", head: true });
+
+      if (date?.from) {
+        const fromIso = date.from.toISOString();
+        projectsQuery = projectsQuery.gte("created_at", fromIso);
+        leadsQuery = leadsQuery.gte("created_at", fromIso);
+        testimonialsQuery = testimonialsQuery.gte("created_at", fromIso);
+      }
+
+      if (date?.to) {
+        const toIso = endOfDay(date.to).toISOString();
+        projectsQuery = projectsQuery.lte("created_at", toIso);
+        leadsQuery = leadsQuery.lte("created_at", toIso);
+        testimonialsQuery = testimonialsQuery.lte("created_at", toIso);
+      }
+
+      // Parallel execution
       const [projectsRes, leadsRes, testimonialsRes] = await Promise.all([
-        supabase.from("projects").select("*", { count: "exact", head: true }),
-        supabase.from("leads").select("*", { count: "exact", head: true }),
-        supabase.from("testimonials").select("*", { count: "exact", head: true })
+        projectsQuery,
+        leadsQuery,
+        testimonialsQuery
       ]);
+
+      // Views logic
+      let viewsCount = 0;
+      if (date?.from || date?.to) {
+        // If filtered, use analytics table
+        let analyticsQuery = supabase.from("content_analytics").select("*", { count: "exact", head: true }).eq("event_type", "view");
+
+        if (date?.from) analyticsQuery = analyticsQuery.gte("created_at", date.from.toISOString());
+        if (date?.to) analyticsQuery = analyticsQuery.lte("created_at", endOfDay(date.to).toISOString());
+
+        const { count } = await analyticsQuery;
+        viewsCount = count || 0;
+      } else {
+        // If all time (no date selected), sum up blog counters
+        const { data: blogs } = await supabase.from("blogs").select("views_count");
+        viewsCount = blogs?.reduce((acc, curr) => acc + (curr.views_count || 0), 0) || 0;
+      }
 
       return {
         projects: projectsRes.count || 0,
         leads: leadsRes.count || 0,
-        views: "12.5k", // TODO: Replace with analytics_events when available
+        views: viewsCount,
         testimonials: testimonialsRes.count || 0
       };
     }
   });
 
-  // Fetch real recent activity
-  const { data: recentActivity = [] } = useQuery({
-    queryKey: ["recent-activity"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("lead_activities")
-        .select("*, leads(name)")
-        .order("created_at", { ascending: false })
-        .limit(5);
-
-      return data || [];
-    }
-  });
-
-  // Download Report function
+  // Download Report function (Filtered)
   const handleDownloadReport = async () => {
     try {
-      const [projects, leads, testimonials] = await Promise.all([
-        supabase.from("projects").select("title, category, status, created_at"),
-        supabase.from("leads").select("name, email, status, created_at"),
-        supabase.from("testimonials").select("name, role, created_at")
-      ]);
+      let projectsQuery = supabase.from("projects").select("title, category, status, created_at");
+      let leadsQuery = supabase.from("leads").select("name, email, status, created_at");
+
+      if (date?.from) {
+        projectsQuery = projectsQuery.gte("created_at", date.from.toISOString());
+        leadsQuery = leadsQuery.gte("created_at", date.from.toISOString());
+      }
+      if (date?.to) {
+        projectsQuery = projectsQuery.lte("created_at", endOfDay(date.to).toISOString());
+        leadsQuery = leadsQuery.lte("created_at", endOfDay(date.to).toISOString());
+      }
+
+      const [projects, leads] = await Promise.all([projectsQuery, leadsQuery]);
 
       const csvData = [
-        ["Dashboard Report - " + new Date().toLocaleDateString()],
+        ["Dashboard Report", date?.from ? `From ${date.from.toLocaleDateString()}` : "All Time"],
+        ["Generated", new Date().toLocaleString()],
         [""],
         ["Summary"],
-        ["Total Projects", stats?.projects || 0],
-        ["Active Leads", stats?.leads || 0],
-        ["Testimonials", stats?.testimonials || 0],
+        ["New Projects", stats?.projects || 0],
+        ["New Leads", stats?.leads || 0],
+        ["New Testimonials", stats?.testimonials || 0],
+        ["Views", stats?.views || 0],
         [""],
         ["Projects"],
         ["Title", "Category", "Status", "Created"],
-        ...(projects.data?.map(p => [p.title, p.category, p.status, p.created_at]) || []),
+        ...(projects.data?.map(p => [p.title || "", p.category || "", p.status || "", new Date(p.created_at).toLocaleString()]) || []),
         [""],
         ["Leads"],
         ["Name", "Email", "Status", "Created"],
-        ...(leads.data?.map(l => [l.name, l.email, l.status, l.created_at]) || [])
+        ...(leads.data?.map(l => [l.name, l.email, l.status, new Date(l.created_at).toLocaleString()]) || [])
       ];
 
       const csv = csvData.map(row => row.join(",")).join("\n");
@@ -86,66 +125,67 @@ const AdminDashboard = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `dashboard-report-${new Date().toISOString().split("T")[0]}.csv`;
+      a.download = `report-${new Date().toISOString().split("T")[0]}.csv`;
       a.click();
       URL.revokeObjectURL(url);
 
       toast({ title: "Report downloaded successfully!" });
     } catch (error) {
+      console.error(error);
       toast({ title: "Failed to generate report", variant: "destructive" });
     }
   };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-3xl font-display font-bold text-[hsl(var(--admin-foreground))]">Dashboard</h2>
           <p className="text-[hsl(var(--admin-muted))]">Overview of your business performance.</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleDownloadReport}>
+        <div className="flex flex-col sm:flex-row gap-2 items-center w-full md:w-auto">
+          <CalendarDateRangePicker date={date} setDate={setDate} className="w-full sm:w-auto" />
+          <Button variant="outline" size="sm" onClick={handleDownloadReport} className="w-full sm:w-auto">
             <Download className="w-4 h-4 mr-2" />
-            Download Report
+            Export
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Total Projects"
+          title={date ? "New Projects" : "Total Projects"}
           value={statsLoading ? "..." : stats?.projects.toString() || "0"}
           icon={Briefcase}
           gradient="from-blue-500 to-blue-600"
           bgGradient="from-blue-500/10 to-blue-500/5"
           shadowColor="shadow-blue-500/50"
-          trend={{ value: 12, label: "this month", isPositive: true }}
+          trend={undefined} // Remove trend if custom range, or calculate properly? For now remove to avoid confusion
           className="admin-card-hover"
           link="/admin/portfolio"
         />
         <StatCard
-          title="Active Leads"
+          title={date ? "New Leads" : "Active Leads"}
           value={statsLoading ? "..." : stats?.leads.toString() || "0"}
           icon={Users}
           gradient="from-green-500 to-green-600"
           bgGradient="from-green-500/10 to-green-500/5"
           shadowColor="shadow-green-500/50"
-          trend={{ value: 12, label: "vs last month", isPositive: true }}
+          trend={undefined}
           className="admin-card-hover"
           link="/admin/leads"
         />
         <StatCard
-          title="Total Views"
-          value={stats?.views || "0"}
+          title="Views"
+          value={stats?.views.toString() || "0"}
           icon={Eye}
           gradient="from-purple-500 to-purple-600"
           bgGradient="from-purple-500/10 to-purple-500/5"
           shadowColor="shadow-purple-500/50"
-          trend={{ value: 5.2, label: "vs last month", isPositive: true }}
           className="admin-card-hover"
         />
         <StatCard
-          title="Testimonials"
+          title={date ? "New Testimonials" : "Testimonials"}
           value={statsLoading ? "..." : stats?.testimonials.toString() || "0"}
           icon={MessageSquare}
           gradient="from-orange-500 to-orange-600"
@@ -165,37 +205,15 @@ const AdminDashboard = () => {
           </div>
 
           {/* Recent Activity Section - Real Data */}
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-            <div className="flex flex-col space-y-1.5 p-6">
+          <div className="rounded-lg border bg-card text-card-foreground shadow-sm h-full">
+            <div className="flex flex-col space-y-1.5 p-6 border-b">
               <h3 className="font-semibold leading-none tracking-tight">Recent Activity</h3>
+              <p className="text-sm text-muted-foreground">
+                {date ? "Actions in selected period" : "Latest actions across the platform"}
+              </p>
             </div>
-            <div className="p-6 pt-0">
-              <div className="space-y-4">
-                {recentActivity.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
-                      <TrendingUp className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                    <p className="text-sm font-medium text-foreground mb-1">No recent activity</p>
-                    <p className="text-xs text-muted-foreground">Activity will appear here as you work</p>
-                  </div>
-                ) : (
-                  recentActivity.map((activity: any) => (
-                    <div key={activity.id} className="flex items-center gap-4 border-b pb-4 last:border-0 last:pb-0">
-                      <div className="h-2 w-2 rounded-full bg-green-500" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{activity.description || "Activity logged"}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(activity.created_at))} ago
-                        </p>
-                      </div>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))
-                )}
-              </div>
+            <div className="p-6">
+              <RecentActivityFeed dateRange={date} />
             </div>
           </div>
         </div>

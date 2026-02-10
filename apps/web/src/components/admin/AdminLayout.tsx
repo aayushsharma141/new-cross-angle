@@ -32,6 +32,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { CommandMenu } from "@/components/admin/layout/CommandMenu";
 
 const AdminLayout = () => {
   const { isAuthenticated, isLoading, logout } = useAdminAuth();
@@ -163,9 +164,8 @@ const AdminLayout = () => {
                           </span>
                           {section.id ? (
                             <ChevronDown
-                              className={`w-4 h-4 text-gray-500 transition-transform ${
-                                openSections.includes(section.id) ? "rotate-180" : ""
-                              }`}
+                              className={`w-4 h-4 text-gray-500 transition-transform ${openSections.includes(section.id) ? "rotate-180" : ""
+                                }`}
                             />
                           ) : null}
                         </SidebarGroupLabel>
@@ -178,11 +178,10 @@ const AdminLayout = () => {
                                 <SidebarMenuButton
                                   asChild
                                   isActive={location.pathname === item.url}
-                                  className={`${
-                                    location.pathname === item.url
-                                      ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
-                                      : "hover:bg-gray-100 text-gray-700"
-                                  } rounded-lg transition-all duration-200 my-0.5`}
+                                  className={`${location.pathname === item.url
+                                    ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
+                                    : "hover:bg-gray-100 text-gray-700"
+                                    } rounded-lg transition-all duration-200 my-0.5`}
                                 >
                                   <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
                                     <item.icon className="w-4 h-4" />
@@ -209,11 +208,10 @@ const AdminLayout = () => {
                               <SidebarMenuButton
                                 asChild
                                 isActive={location.pathname === item.url}
-                                className={`${
-                                  location.pathname === item.url
-                                    ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
-                                    : "hover:bg-gray-100 text-gray-700"
-                                } rounded-lg transition-all duration-200 my-0.5`}
+                                className={`${location.pathname === item.url
+                                  ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
+                                  : "hover:bg-gray-100 text-gray-700"
+                                  } rounded-lg transition-all duration-200 my-0.5`}
                               >
                                 <Link to={item.url} className="flex items-center gap-3 px-3 py-2.5">
                                   <item.icon className="w-5 h-5" />
@@ -263,6 +261,7 @@ const AdminLayout = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <CommandMenu />
               <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white text-sm font-semibold">
                   A

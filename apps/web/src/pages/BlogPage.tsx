@@ -74,14 +74,14 @@ const BlogPage = () => {
                   <div className="text-center py-10 text-muted-foreground">No blog posts found.</div>
                 ) : (
                   blogPosts.map((post) => (
-                    <article key={post.id} className="bg-card rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-                      <div className="aspect-[16/9] overflow-hidden">
+                    <article key={post.id} className="bg-card rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
+                      <Link to={`/blog/${post.slug || post.id}`} className="block overflow-hidden aspect-[16/9]">
                         <img
                           src={post.image || "/placeholder.svg"}
                           alt={post.title}
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                         />
-                      </div>
+                      </Link>
                       <div className="p-6">
                         <div className="flex items-center gap-4 mb-4">
                           <span className="bg-primary/10 text-primary text-sm font-medium px-3 py-1 rounded-full">
@@ -89,11 +89,15 @@ const BlogPage = () => {
                           </span>
                           <span className="text-muted-foreground text-sm">{post.date}</span>
                         </div>
-                        <h2 className="font-serif text-xl font-semibold text-foreground mb-3 hover:text-primary transition-colors cursor-pointer">
-                          {post.title}
-                        </h2>
-                        <p className="text-muted-foreground mb-4">{post.excerpt}</p>
-                        <Button variant="outline">Read More</Button>
+                        <Link to={`/blog/${post.slug || post.id}`}>
+                          <h2 className="font-serif text-xl font-semibold text-foreground mb-3 hover:text-primary transition-colors cursor-pointer">
+                            {post.title}
+                          </h2>
+                        </Link>
+                        <p className="text-muted-foreground mb-4 line-clamp-3">{post.excerpt}</p>
+                        <Button variant="outline" asChild>
+                          <Link to={`/blog/${post.slug || post.id}`}>Read More</Link>
+                        </Button>
                       </div>
                     </article>
                   ))
@@ -128,7 +132,7 @@ const BlogPage = () => {
                   </h3>
                   <div className="space-y-4">
                     {blogPosts.slice(0, 4).map((post) => (
-                      <div key={post.id} className="flex gap-4 cursor-pointer group">
+                      <Link to={`/blog/${post.slug || post.id}`} key={post.id} className="flex gap-4 cursor-pointer group">
                         <img
                           src={post.image || "/placeholder.svg"}
                           alt={post.title}
@@ -140,7 +144,7 @@ const BlogPage = () => {
                           </h4>
                           <span className="text-xs text-muted-foreground">{post.date}</span>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </div>

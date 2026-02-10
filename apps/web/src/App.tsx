@@ -8,6 +8,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import { SchemaMarkup } from "./components/SchemaMarkup";
+import { ThemeProvider } from "./components/theme-provider";
 // Public Pages
 import Index from "./pages/Index";
 import AboutPage from "./pages/AboutPage";
@@ -16,6 +17,7 @@ import ServiceCategoryPage from "./pages/ServiceCategoryPage";
 import ServiceDetailPage from "./pages/ServiceDetailPage";
 import GalleryPage from "./pages/GalleryPage";
 import BlogPage from "./pages/BlogPage";
+import BlogDetailPage from "./pages/BlogDetailPage";
 import ContactPage from "./pages/ContactPage";
 import ProjectPage from "./pages/ProjectPage";
 import PriceEstimator from "./pages/PriceEstimator";
@@ -84,6 +86,7 @@ const AnimatedRoutes = () => {
             <Route path="/services" element={<PageTransition><ServicesPage /></PageTransition>} />
             <Route path="/gallery" element={<PageTransition><GalleryPage /></PageTransition>} />
             <Route path="/blog" element={<PageTransition><BlogPage /></PageTransition>} />
+            <Route path="/blog/:slug" element={<PageTransition><BlogDetailPage /></PageTransition>} />
             <Route path="/contact-us" element={<PageTransition><ContactPage /></PageTransition>} />
             <Route path="/estimate" element={<PageTransition><PriceEstimator /></PageTransition>} />
             <Route path="/quiz" element={<PageTransition><StyleQuizPage /></PageTransition>} />
@@ -144,22 +147,24 @@ const App = () => (
       }}
     />
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <ProjectProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter
-              future={{
-                v7_startTransition: true,
-                v7_relativeSplatPath: true,
-              }}
-            >
-              <AnimatedRoutes />
-            </BrowserRouter>
-          </ProjectProvider>
-        </AuthProvider>
-      </TooltipProvider>
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <TooltipProvider>
+          <AuthProvider>
+            <ProjectProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter
+                future={{
+                  v7_startTransition: true,
+                  v7_relativeSplatPath: true,
+                }}
+              >
+                <AnimatedRoutes />
+              </BrowserRouter>
+            </ProjectProvider>
+          </AuthProvider>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   </HelmetProvider>
 );

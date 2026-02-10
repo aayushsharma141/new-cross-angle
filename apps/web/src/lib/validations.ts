@@ -71,7 +71,7 @@ export type PortfolioFormData = z.infer<typeof portfolioSchema>;
 // ==========================================
 // LEAD VALIDATION
 // ==========================================
-export const leadStatusOptions = ["new", "contacted", "qualified", "closed", "lost"] as const;
+export const leadStatusOptions = ["new", "contacted", "qualified", "proposal", "negotiation", "closed", "lost"] as const;
 export type LeadStatus = typeof leadStatusOptions[number];
 
 export const leadSchema = z.object({
