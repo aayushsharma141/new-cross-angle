@@ -1,5 +1,5 @@
 import { Project } from "@/data/projects";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { ServiceDetail, ProcessStep, FAQItem } from "@repo/types";
 
 export interface HeroContent {

@@ -30,10 +30,17 @@ const routes = [
   '/gallery',
   '/blog',
   '/contact-us',
+  '/quiz',
+  '/discovery',
+  '/estimate',
   ...projectSlugs.map(s => `/portfolio/${s}`),
 ];
 
 const indexHtml = fs.readFileSync(indexPath, 'utf8');
+
+// Write 200.html for Surge SPA support
+fs.writeFileSync(path.join(distDir, '200.html'), indexHtml, 'utf8');
+console.log('Wrote 200.html for Surge SPA support');
 
 routes.forEach((r) => {
   const targetDir = path.join(distDir, r.replace(/^\//, ''));

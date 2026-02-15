@@ -14,7 +14,9 @@ import {
     Briefcase,
     FileText,
     Image,
-    Users
+    Users,
+    Calculator,
+    Percent
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 
@@ -30,6 +32,8 @@ const navItems = [
     { name: "Testimonials", href: "/admin/testimonials", icon: MessageSquare },
     { name: "Media", href: "/admin/media", icon: Image },
     { name: "Team", href: "/admin/users", icon: Users },
+    { name: "Cost Estimates", href: "/admin/estimate-leads", icon: Calculator },
+    { name: "Rate Config", href: "/admin/estimate-rates", icon: Percent },
     { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 

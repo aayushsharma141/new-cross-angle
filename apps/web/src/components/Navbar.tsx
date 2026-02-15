@@ -13,19 +13,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
-  const [isHoveringInterior, setIsHoveringInterior] = useState(false);
-  const [animationKey, setAnimationKey] = useState(0);
   const location = useLocation();
-
-  // Restart animation every 2 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isHoveringInterior) {
-        setAnimationKey(prev => prev + 1);
-      }
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [isHoveringInterior]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,9 +43,9 @@ const Navbar = () => {
             to="/"
             className="flex items-center gap-4 group"
           >
-            {/* Logo Icon - Larger with more breathing room */}
+            {/* Logo Icon */}
             <div className="relative">
-              <motion.img
+              <img
                 src={logoIcon}
                 alt="Cross Angle Interior"
                 className={cn(
@@ -65,39 +53,17 @@ const Navbar = () => {
                   isScrolled ? "h-12 md:h-14" : "h-14 md:h-16"
                 )}
                 style={{ imageRendering: 'crisp-edges' }}
-                whileHover={{ scale: 1.05 }}
               />
             </div>
-            {/* Animated Brand Text with Shimmer - Bolder */}
-            <div className="font-serif text-xl md:text-2xl lg:text-[1.7rem] font-bold transition-all duration-500 group-hover:tracking-wider">
-              <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] bg-clip-text text-transparent animate-text-shimmer font-extrabold">
-                Crossangle
-              </span>
+            {/* Brand Text */}
+            <div className="font-serif text-xl md:text-2xl lg:text-3xl font-bold transition-all duration-500 group-hover:tracking-wider">
+              <span className="text-primary">Crossangle</span>
               {" "}
-              <span
-                className={cn(
-                  "transition-all duration-300 font-semibold inline-flex cursor-pointer",
-                  showTransparent ? 'text-primary-foreground' : 'text-foreground',
-                  isHoveringInterior && 'scale-105'
-                )}
-                onMouseEnter={() => setIsHoveringInterior(true)}
-                onMouseLeave={() => setIsHoveringInterior(false)}
-              >
-                {"Interior".split('').map((letter, i) => (
-                  <span
-                    key={`${animationKey}-${i}`}
-                    className={cn(
-                      "inline-block",
-                      !isHoveringInterior && "animate-[magnetic-bounce_600ms_ease-out_forwards]"
-                    )}
-                    style={{
-                      animationDelay: `${i * 80}ms`,
-                      animationPlayState: isHoveringInterior ? 'paused' : 'running'
-                    }}
-                  >
-                    {letter}
-                  </span>
-                ))}
+              <span className={cn(
+                "transition-all duration-300",
+                showTransparent ? 'text-primary-foreground' : 'text-foreground'
+              )}>
+                Interior
               </span>
             </div>
           </Link>

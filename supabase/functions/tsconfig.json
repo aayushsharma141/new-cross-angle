@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "lib": [
+            "ESNext"
+        ],
+        "strict": true,
+        "noImplicitAny": true
+    },
+    "include": [
+        "**/*.ts"
+    ]
+}

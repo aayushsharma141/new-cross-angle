@@ -1,245 +1,242 @@
-import { useState } from "react";
+/* ═══════════════════════════════════════════════
+   Interior Cost Estimator — Main Orchestrator
+   Fixed 3-panel split layout (Discovery-style)
+   Left 30%: Info  |  10%: Progress  |  60%: Content
+   ═══════════════════════════════════════════════ */
+
+import { useEffect, useRef } from "react";
+import { useCalculatorStore } from "./hooks/useCalculatorStore";
+import { StepPropertyType } from "./steps/StepPropertyType";
+import { StepPropertyDetails } from "./steps/StepPropertyDetails";
+import { StepLocation } from "./steps/StepLocation";
+import { StepBudget } from "./steps/StepBudget";
+import { StepServices } from "./steps/StepServices";
+import { StepAddons } from "./steps/StepAddons";
+import { StepTimeline } from "./steps/StepTimeline";
+import { StepResults } from "./steps/StepResults";
+import { THEME } from "./data/pricing-config";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { Check, ChevronRight, Calculator, RefreshCcw } from "lucide-react";
-import { LeadCaptureDialog } from "@/components/LeadCaptureDialog";
 
-// Types
-type RoomType = "living" | "kitchen" | "bedroom" | "bathroom" | "full_home";
-type QualityTier = "essential" | "premium" | "luxury";
+const STEP_LABELS = ["Type", "Details", "Location", "Investment", "Services", "Bespoke", "Timeline"];
 
-interface EstimateState {
-    roomType: RoomType;
-    area: number;
-    quality: QualityTier;
-}
+const STEP_DESCRIPTIONS: Record<number, { title: string; subtitle: string }> = {
+    0: { title: "Property Type", subtitle: "Tell us about the kind of space you want to transform." },
+    1: { title: "Property Details", subtitle: "Help us understand the size and specifications of your space." },
+    2: { title: "Location", subtitle: "Where your project is located affects material and labour costs." },
+    3: { title: "Investment Scope", subtitle: "Define your comfort zone — we tailor recommendations to your capital." },
+    4: { title: "Service Level", subtitle: "Choose the level of white-glove involvement you need." },
+    5: { title: "Bespoke Commissions", subtitle: "Enhance your residence with signature bespoke inclusions." },
+    6: { title: "Timeline & Contact", subtitle: "When do you plan to start, and how can we reach you?" },
+};
 
-const ROOM_TYPES: { id: RoomType; label: string; icon: string; baseRate: number }[] = [
-    { id: "full_home", label: "Full Home", icon: "🏠", baseRate: 1200 },
-    { id: "kitchen", label: "Kitchen", icon: "🍳", baseRate: 1800 },
-    { id: "living", label: "Living Room", icon: "🛋️", baseRate: 900 },
-    { id: "bedroom", label: "Bedroom", icon: "🛏️", baseRate: 1100 },
-    { id: "bathroom", label: "Bathroom", icon: "🚿", baseRate: 2500 },
-];
+const navBtnStyle = "px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-widest transition-all active:scale-[0.98]";
 
-const QUALITY_TIERS: { id: QualityTier; label: string; multiplier: number; desc: string }[] = [
-    { id: "essential", label: "Essential", multiplier: 1, desc: "Functional & durable. Laminates, standard fittings." },
-    { id: "premium", label: "Premium", multiplier: 1.4, desc: "Stylish & refined. Acrylics, branded fittings, soft-close." },
-    { id: "luxury", label: "Luxury", multiplier: 1.9, desc: "Top-tier opulence. Veneers, Italian marble, smart automation." },
-];
+export function CostEstimator() {
+    const {
+        formData, currentStep, showResults, estimate,
+        canProceed, isSaving,
+        updateField, updateFields, nextStep, prevStep, goToStep,
+        reset, saveLead,
+    } = useCalculatorStore();
 
-export const CostEstimator = () => {
-    const [step, setStep] = useState(1);
-    const [state, setState] = useState<EstimateState>({
-        roomType: "full_home",
-        area: 1000,
-        quality: "premium",
-    });
+    useEffect(() => {
+        if (showResults && estimate) {
+            saveLead();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showResults]);
 
-    const calculateEstimate = () => {
-        const selectedRoom = ROOM_TYPES.find((r) => r.id === state.roomType);
-        const selectedQuality = QUALITY_TIERS.find((q) => q.id === state.quality);
+    // Refs for dynamic progress bar styles
+    const largeProgressBarRef = useRef<HTMLDivElement>(null);
+    const smallProgressBarRef = useRef<HTMLDivElement>(null);
 
-        if (!selectedRoom || !selectedQuality) return { min: 0, max: 0 };
+    useEffect(() => {
+        const pct = ((currentStep + 1) / STEP_LABELS.length) * 100;
+        if (largeProgressBarRef.current) {
+            largeProgressBarRef.current.style.setProperty("--progress", `${pct}%`);
+        }
+        if (smallProgressBarRef.current) {
+            smallProgressBarRef.current.style.setProperty("--progress", `${pct}%`);
+        }
+    }, [currentStep]);
 
-        const baseCost = state.area * selectedRoom.baseRate * selectedQuality.multiplier;
-        // Return a range +/- 10%
-        return {
-            min: Math.round((baseCost * 0.9) / 1000) * 1000,
-            max: Math.round((baseCost * 1.1) / 1000) * 1000,
-        };
-    };
+    const stepInfo = STEP_DESCRIPTIONS[currentStep] ?? STEP_DESCRIPTIONS[0];
 
-    const estimate = calculateEstimate();
+    /* ── Results mode: full-width, no side panels ── */
+    if (showResults) {
+        return (
+            <div className="w-full h-screen bg-zinc-950 overflow-y-auto font-sans">
+                <div className="max-w-4xl mx-auto px-6 py-10 lg:py-16">
+                    <StepResults
+                        formData={formData}
+                        estimate={estimate}
+                        onReset={reset}
+                        onBack={prevStep}
+                    />
+                </div>
+            </div>
+        );
+    }
 
-    const nextStep = () => setStep((s) => Math.min(s + 1, 3));
-    const prevStep = () => setStep((s) => Math.max(s - 1, 1));
-    const reset = () => {
-        setStep(1);
-        setState({ roomType: "full_home", area: 1000, quality: "premium" });
-    };
-
-    const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            maximumSignificantDigits: 3,
-        }).format(val);
-    };
-
+    /* ── Steps mode: 3-panel split layout ── */
     return (
-        <div className="w-full max-w-4xl mx-auto p-4">
-            <Card className="border-0 shadow-2xl bg-card/50 backdrop-blur-sm overflow-hidden">
-                <div className="bg-primary/5 p-6 border-b border-primary/10 flex justify-between items-center">
-                    <div>
-                        <h2 className="text-2xl font-display font-bold text-primary flex items-center gap-2">
-                            <Calculator className="w-6 h-6" />
-                            Smart Estimator
-                        </h2>
-                        <p className="text-muted-foreground text-sm">Get a ballpark cost in 30 seconds</p>
+        <div className="flex flex-col lg:flex-row w-full h-screen bg-zinc-950 font-sans overflow-hidden">
+
+            {/* ═══ LEFT PANEL ═══ */}
+            <div
+                className="hidden lg:flex lg:w-[30%] min-w-[300px] h-full flex-col justify-between border-r border-white/5 p-12 relative overflow-hidden shrink-0 bg-gradient-to-b from-[#1a1a1a] to-zinc-950"
+            >
+                {/* Subtle dot pattern overlay */}
+                <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle,_#fff_1px,_transparent_1px)] bg-[length:20px_20px]" />
+
+                <div className="relative z-10">
+                    <div className="text-[10px] text-red-500 font-black uppercase tracking-[0.4em] mb-4">
+                        Cost Estimator
                     </div>
-                    <div className="text-xs font-mono bg-secondary/20 text-secondary-foreground px-3 py-1 rounded-full">
-                        Step {step} of 3
-                    </div>
+                    <h2 className="text-3xl font-black text-white leading-tight tracking-tighter mb-6">
+                        {stepInfo.title}
+                    </h2>
+                    <p className="text-gray-400 text-sm leading-relaxed max-w-[240px]">
+                        {stepInfo.subtitle}
+                    </p>
                 </div>
 
-                <CardContent className="p-0">
-                    <div className="p-6 min-h-[400px] flex flex-col justify-center">
+                <div className="relative z-10">
+                    <div className="w-10 h-0.5 bg-red-600/40 mb-6" />
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] leading-relaxed max-w-[200px]">
+                        Transparent pricing with no hidden costs or surprises.
+                    </p>
+                </div>
+            </div>
+
+            {/* ═══ MIDDLE PANEL ═══ */}
+            <div className="flex lg:flex-col lg:w-20 w-full h-auto lg:h-full items-center justify-between lg:justify-center border-b lg:border-b-0 lg:border-r border-white/5 bg-zinc-900/50 p-4 lg:p-0 relative shrink-0">
+                <div className="hidden lg:block absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px bg-white/5" />
+                <div
+                    ref={largeProgressBarRef}
+                    className="hidden lg:block absolute top-0 left-1/2 -translate-x-1/2 w-px bg-red-600 transition-all duration-700 ease-out shadow-[0_0_15px_rgba(220,38,38,0.5)] h-[var(--progress)]"
+                />
+                <div className="lg:hidden absolute bottom-0 left-0 right-0 h-[2px] bg-white/5">
+                    <div
+                        ref={smallProgressBarRef}
+                        className="h-full bg-red-600 transition-all duration-700 ease-out shadow-[0_0_10px_rgba(220,38,38,0.5)] w-[var(--progress)]"
+                    />
+                </div>
+
+                <div className="flex lg:flex-col items-center justify-between lg:justify-around lg:h-[85%] w-full relative z-10 px-4 lg:px-0">
+                    {STEP_LABELS.map((label, i) => {
+                        const done = i < currentStep;
+                        const active = i === currentStep;
+                        return (
+                            <button
+                                key={i}
+                                onClick={() => i < currentStep && goToStep(i)}
+                                title={label}
+                                className={`group flex flex-col items-center gap-1.5 transition-all outline-none ${i <= currentStep ? "cursor-pointer" : "cursor-default opacity-40"}`}
+                            >
+                                <div className={`
+                                    w-7 h-7 lg:w-8 lg:h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all duration-300
+                                    ${done ? "bg-red-600 text-white" : active ? "bg-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.4)]" : "bg-zinc-800 text-gray-500 border border-white/10"}
+                                    ${active ? "scale-110 ring-4 ring-red-600/20" : "scale-100"}
+                                `}>
+                                    {done ? "✓" : i + 1}
+                                </div>
+                                <span className={`
+                                    hidden lg:block text-[8px] font-black uppercase tracking-widest transition-colors duration-300
+                                    ${active ? "text-red-500" : done ? "text-gray-400" : "text-gray-600"}
+                                `}>
+                                    {label}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* ═══ RIGHT PANEL ═══ */}
+            <div className="flex-1 flex flex-col h-full relative overflow-hidden">
+                <div className="lg:hidden p-6 border-b border-white/5 bg-zinc-950/80 backdrop-blur-md">
+                    <div className="text-[9px] text-red-500 font-black uppercase tracking-[0.3em] mb-1">
+                        {labelForStep(currentStep)}
+                    </div>
+                    <h2 className="text-xl font-black text-white tracking-tight">
+                        {stepInfo.title}
+                    </h2>
+                </div>
+
+                <div className="flex-1 overflow-y-auto px-6 py-8 lg:px-16 lg:py-16 pb-32">
+                    <div className="max-w-2xl mx-auto">
                         <AnimatePresence mode="wait">
-                            {step === 1 && (
-                                <motion.div
-                                    key="step1"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    className="space-y-6"
-                                >
-                                    <h3 className="text-xl font-medium text-center mb-8">What are you planning to design?</h3>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                        {ROOM_TYPES.map((type) => (
-                                            <button
-                                                key={type.id}
-                                                onClick={() => setState({ ...state, roomType: type.id })}
-                                                className={`p-6 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-3 hover:border-primary/50 hover:bg-primary/5 ${state.roomType === type.id
-                                                    ? "border-primary bg-primary/10 shadow-[0_0_20px_rgba(195,0,0,0.1)]"
-                                                    : "border-border bg-card"
-                                                    }`}
-                                            >
-                                                <span className="text-4xl filter drop-shadow-sm">{type.icon}</span>
-                                                <span className="font-medium">{type.label}</span>
-                                                {state.roomType === type.id && (
-                                                    <div className="absolute top-2 right-2 text-primary">
-                                                        <Check className="w-4 h-4" />
-                                                    </div>
-                                                )}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </motion.div>
-                            )}
-
-                            {step === 2 && (
-                                <motion.div
-                                    key="step2"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    className="space-y-12 max-w-2xl mx-auto w-full"
-                                >
-                                    <div className="text-center space-y-2">
-                                        <h3 className="text-xl font-medium">Define your space size</h3>
-                                        <p className="text-muted-foreground">Adjust the slider to match your carpet area</p>
-                                    </div>
-
-                                    <div className="space-y-8">
-                                        <div className="flex justify-between items-end">
-                                            <span className="text-sm text-muted-foreground">Area (Sq. Ft.)</span>
-                                            <span className="text-4xl font-bold text-primary">{state.area} <span className="text-lg text-muted-foreground font-normal">sq.ft</span></span>
-                                        </div>
-
-                                        <Slider
-                                            value={[state.area]}
-                                            min={100}
-                                            max={5000}
-                                            step={50}
-                                            onValueChange={(val) => setState({ ...state, area: val[0] })}
-                                            className="py-4"
-                                        />
-
-                                        <div className="flex justify-between text-xs text-muted-foreground font-mono">
-                                            <span>100 sq.ft</span>
-                                            <span>5000 sq.ft</span>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            )}
-
-                            {step === 3 && (
-                                <motion.div
-                                    key="step3"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    className="space-y-8"
-                                >
-                                    <h3 className="text-xl font-medium text-center">Select your finish quality</h3>
-                                    <div className="grid md:grid-cols-3 gap-6">
-                                        {QUALITY_TIERS.map((tier) => (
-                                            <button
-                                                key={tier.id}
-                                                onClick={() => setState({ ...state, quality: tier.id })}
-                                                className={`relative p-6 rounded-xl border-2 text-left transition-all duration-200 hover:border-primary/50 ${state.quality === tier.id
-                                                    ? "border-primary bg-primary/5 shadow-lg scale-[1.02]"
-                                                    : "border-border bg-card group"
-                                                    }`}
-                                            >
-                                                <div className="space-y-3">
-                                                    <div className="flex justify-between items-center">
-                                                        <span className="font-bold text-lg">{tier.label}</span>
-                                                        {state.quality === tier.id && <Check className="w-5 h-5 text-primary" />}
-                                                    </div>
-                                                    <p className="text-sm text-muted-foreground leading-relaxed">{tier.desc}</p>
-                                                </div>
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    <div className="mt-8 p-6 bg-gradient-to-r from-background to-secondary/10 rounded-2xl border border-secondary/20">
-                                        <div className="text-center space-y-2">
-                                            <p className="text-muted-foreground uppercase tracking-widest text-xs">Estimated Project Cost</p>
-                                            <div className="text-3xl md:text-5xl font-display font-bold text-primary">
-                                                {formatCurrency(estimate.min)} - {formatCurrency(estimate.max)}
-                                            </div>
-                                            <p className="text-xs text-muted-foreground mt-2">*This is a ballpark estimate. Final quote varies by material selection.</p>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            )}
+                            <motion.div
+                                key={currentStep}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                            >
+                                {currentStep === 0 && <StepPropertyType formData={formData} updateField={updateField} />}
+                                {currentStep === 1 && <StepPropertyDetails formData={formData} updateField={updateField} updateFields={updateFields} />}
+                                {currentStep === 2 && <StepLocation formData={formData} updateField={updateField} updateFields={updateFields} />}
+                                {currentStep === 3 && <StepBudget formData={formData} updateField={updateField} />}
+                                {currentStep === 4 && <StepServices formData={formData} updateField={updateField} />}
+                                {currentStep === 5 && <StepAddons formData={formData} updateField={updateField} />}
+                                {currentStep === 6 && <StepTimeline formData={formData} updateField={updateField} />}
+                            </motion.div>
                         </AnimatePresence>
                     </div>
-                </CardContent>
-
-                <div className="p-6 bg-muted/30 border-t flex justify-between items-center">
-                    {step === 3 ? (
-                        <Button variant="outline" onClick={reset} className="gap-2">
-                            <RefreshCcw className="w-4 h-4" /> Start Over
-                        </Button>
-                    ) : (
-                        <Button
-                            variant="ghost"
-                            onClick={prevStep}
-                            disabled={step === 1}
-                            className={step === 1 ? "invisible" : ""}
-                        >
-                            Back
-                        </Button>
-                    )}
-
-                    {step < 3 ? (
-                        <Button onClick={nextStep} className="gap-2 btn-brand">
-                            Next Step <ChevronRight className="w-4 h-4" />
-                        </Button>
-                    ) : (
-                        <LeadCaptureDialog
-                            source="Cost Estimator"
-                            metadata={{
-                                estimateMin: estimate.min,
-                                estimateMax: estimate.max,
-                                config: state
-                            }}
-                            title="Save Your Estimate"
-                            description="Enter your details to save this estimate and book a free consultation with our experts."
-                            defaultMessage={`I'm interested in a ${state.roomType} design (${state.area} sqft, ${state.quality} finish). Estimate: ${formatCurrency(estimate.min)} - ${formatCurrency(estimate.max)}`}
-                        >
-                            <Button className="gap-2 btn-brand shadow-lg shadow-primary/25">
-                                Book Free Consultation
-                            </Button>
-                        </LeadCaptureDialog>
-                    )}
                 </div>
-            </Card>
+
+                <div className="absolute bottom-0 left-0 right-0 border-t border-white/5 bg-zinc-950/90 backdrop-blur-2xl p-4 lg:px-16 lg:py-6 flex justify-between items-center z-20">
+                    <button
+                        onClick={prevStep}
+                        disabled={currentStep === 0}
+                        className={`
+                            ${navBtnStyle} text-gray-400 border border-white/10 hover:text-white hover:border-white/20
+                            ${currentStep === 0 ? "opacity-0 pointer-events-none" : "opacity-100"}
+                        `}
+                    >
+                        Back
+                    </button>
+
+                    <div className="hidden sm:flex flex-col items-center">
+                        <div className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1.5 grayscale opacity-50">
+                            Progress
+                        </div>
+                        <div className="flex gap-1">
+                            {STEP_LABELS.map((_, i) => (
+                                <div
+                                    key={i}
+                                    className={`w-4 h-1 rounded-full transition-all duration-500 ${i <= currentStep ? "bg-red-600" : "bg-white/5"}`}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={nextStep}
+                        disabled={!canProceed || isSaving}
+                        className={`
+                            ${navBtnStyle} min-w-[140px] shadow-lg
+                            ${canProceed ? "bg-red-600 text-white hover:bg-red-500 shadow-red-900/20" : "bg-zinc-800 text-gray-500 cursor-not-allowed"}
+                        `}
+                    >
+                        {isSaving ? (
+                            <span className="flex items-center gap-2">
+                                <span className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                Please wait
+                            </span>
+                        ) : currentStep === STEP_LABELS.length - 1 ? (
+                            "Get Estimate →"
+                        ) : (
+                            "Continue →"
+                        )}
+                    </button>
+                </div>
+            </div>
         </div>
     );
-};
+}
+
+function labelForStep(step: number) {
+    return STEP_LABELS[step] || "Step";
+}

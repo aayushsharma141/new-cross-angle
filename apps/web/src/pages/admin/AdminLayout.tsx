@@ -22,6 +22,8 @@ import {
   PenSquare,
   UserPlus,
   ImagePlus,
+  Calculator,
+  DollarSign,
 } from "lucide-react";
 import {
   Sidebar,
@@ -116,6 +118,23 @@ const AdminLayout = () => {
           title: "Users",
           url: "/admin/users",
           icon: Users,
+        },
+      ],
+    },
+    {
+      label: "Estimator",
+      id: "estimator",
+      collapsible: true,
+      items: [
+        {
+          title: "Estimate Leads",
+          url: "/admin/estimate-leads",
+          icon: Calculator,
+        },
+        {
+          title: "Rate Config",
+          url: "/admin/estimate-rates",
+          icon: DollarSign,
         },
       ],
     },

@@ -70,9 +70,23 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
       />
 
       <motion.div style={{ y, opacity, scale }} className="relative z-10 container mx-auto px-4">
+        {/* Background Kinetic Text Marquee */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03] select-none flex flex-col justify-around overflow-hidden">
+          {[1, -1, 1].map((dir, i) => (
+            <motion.div
+              key={i}
+              className="whitespace-nowrap font-serif text-[10vh] font-bold"
+              animate={{ x: dir > 0 ? ["0%", "-50%"] : ["-50%", "0%"] }}
+              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+            >
+              CROSS ANGLE INTERIOR • ESTD 2010 • EXCELLENCE IN DESIGN • CROSS ANGLE INTERIOR • ESTD 2010 • EXCELLENCE IN DESIGN •
+            </motion.div>
+          ))}
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Content Side */}
-          <div>
+          <div className="relative z-10">
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -82,68 +96,74 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
             >
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium tracking-wider">
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                ABOUT US
+                ABOUT THE STUDIO
               </span>
             </motion.div>
 
-            {/* Title */}
-            <motion.h1
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight"
-            >
-              Cross Angle
-              <br />
-              <span className="text-primary">Interior</span>
-            </motion.h1>
-
-            {/* Animated line */}
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: 80 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="h-1 bg-primary mb-8"
-            />
+            {/* Kinetic Title */}
+            <div className="mb-6 overflow-hidden">
+              <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[1.1]">
+                {"Cross Angle".split("").map((char, i) => (
+                  <motion.span
+                    key={i}
+                    initial={{ y: "100%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.8, delay: i * 0.03, ease: [0.22, 1, 0.36, 1] }}
+                    className="inline-block"
+                  >
+                    {char === " " ? "\u00A0" : char}
+                  </motion.span>
+                ))}
+                <br />
+                <span className="text-primary italic">
+                  {"Interior".split("").map((char, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ y: "100%", opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ duration: 0.8, delay: 0.4 + i * 0.03, ease: [0.22, 1, 0.36, 1] }}
+                      className="inline-block"
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </span>
+              </h1>
+            </div>
 
             {/* Description */}
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-muted-foreground text-lg md:text-xl leading-relaxed mb-6"
-            >
-              At Cross Angle Interior, we bring over a decade of expertise to every project,
-              transforming spaces into stunning, functional environments.
-            </motion.p>
-
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="text-muted-foreground text-lg leading-relaxed mb-8"
-            >
-              Based in Jamshedpur, our passion for design and attention to detail
-              have earned us a reputation for excellence across Jharkhand and beyond.
-            </motion.p>
-
-            {/* Stats Row */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="flex flex-wrap gap-8"
+              className="space-y-6"
+            >
+              <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-lg">
+                For over <span className="text-foreground font-semibold">15 years</span>, we've been crafting immersive environments that blend artistic vision with functional precision.
+              </p>
+
+              <p className="text-muted-foreground text-lg leading-relaxed max-w-lg">
+                Based in Jamshedpur, our studio has become a benchmark for luxury interior design across Jharkhand.
+              </p>
+            </motion.div>
+
+            {/* Glassmorphism Stats Cards */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+              className="mt-12 p-8 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl grid grid-cols-3 gap-8"
             >
               {[
                 { value: "15+", label: "Years" },
                 { value: "500+", label: "Projects" },
-                { value: "98%", label: "Satisfaction" },
+                { value: "98%", label: "Clients" },
               ].map((stat, index) => (
-                <div key={index} className="text-center">
-                  <p className="text-3xl md:text-4xl font-serif font-bold text-primary">
+                <div key={index} className="text-center group">
+                  <p className="text-2xl md:text-3xl font-serif font-bold text-primary group-hover:scale-110 transition-transform duration-500">
                     {stat.value}
                   </p>
-                  <p className="text-muted-foreground text-sm uppercase tracking-wider">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mt-1">
                     {stat.label}
                   </p>
                 </div>

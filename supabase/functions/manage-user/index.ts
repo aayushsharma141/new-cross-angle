@@ -13,7 +13,7 @@ const corsHeaders = {
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-serve(async (req) => {
+serve(async (req: Request) => {
     if (req.method === "OPTIONS") {
         return new Response("ok", { headers: corsHeaders });
     }
@@ -63,7 +63,10 @@ serve(async (req) => {
         }
 
         // 3. Process Request
-        const { action, userId } = await req.json();
+        const { action, userId } = (await req.json()) as {
+            action: string;
+            userId: string
+        };
 
         if (!userId) {
             return new Response(JSON.stringify({ error: "User ID is required" }), {

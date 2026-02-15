@@ -235,14 +235,15 @@ const ProjectPage = () => {
                   <p className="text-primary-foreground/80 text-sm mb-4 relative z-10">
                     Get a free consultation for your project
                   </p>
-                  <Link to="/contact-us">
-                    <Button
-                      variant="secondary"
-                      className="w-full bg-background text-foreground hover:bg-background/90"
-                    >
+                  <Button
+                    asChild
+                    variant="secondary"
+                    className="w-full bg-background text-foreground hover:bg-background/90 relative z-10"
+                  >
+                    <Link to="/contact-us">
                       Get Free Consultation
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </motion.div>
               </div>
             </div>

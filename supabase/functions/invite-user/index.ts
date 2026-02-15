@@ -12,7 +12,7 @@ const corsHeaders = {
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-serve(async (req) => {
+serve(async (req: Request) => {
     if (req.method === "OPTIONS") {
         return new Response("ok", { headers: corsHeaders });
     }
@@ -62,7 +62,10 @@ serve(async (req) => {
         }
 
         // 3. Process invite request
-        const { email, role = "editor" } = await req.json();
+        const { email, role = "editor" } = (await req.json()) as {
+            email: string;
+            role?: string
+        };
 
         if (!email) {
             return new Response(JSON.stringify({ error: "Email is required" }), {

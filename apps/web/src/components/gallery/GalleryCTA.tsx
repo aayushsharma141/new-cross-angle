@@ -8,7 +8,7 @@ const GalleryCTA = () => {
     <section className="relative py-24 overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-accent/5 to-background" />
-      
+
       {/* Floating accent elements */}
       <motion.div
         className="absolute top-20 left-10 w-20 h-20 rounded-full bg-primary/10 blur-2xl"
@@ -78,7 +78,7 @@ const GalleryCTA = () => {
             transition={{ delay: 0.6, duration: 0.6 }}
             className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto"
           >
-            Let's create something extraordinary together. Schedule a free consultation 
+            Let's create something extraordinary together. Schedule a free consultation
             and let our expert designers bring your vision to life.
           </motion.p>
 
@@ -90,11 +90,12 @@ const GalleryCTA = () => {
             transition={{ delay: 0.8, duration: 0.6 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link to="/contact">
-              <Button 
-                size="lg" 
-                className="group relative overflow-hidden px-8"
-              >
+            <Button
+              asChild
+              size="lg"
+              className="group relative overflow-hidden px-8"
+            >
+              <Link to="/contact-us">
                 <span className="relative z-10 flex items-center gap-2">
                   Get Free Consultation
                   <motion.span
@@ -111,11 +112,11 @@ const GalleryCTA = () => {
                   transition={{ duration: 3, repeat: Infinity }}
                   style={{ opacity: 0.1 }}
                 />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
             <Link to="/services">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 variant="outline"
                 className="px-8"
               >

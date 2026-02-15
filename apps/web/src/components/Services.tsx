@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -30,51 +31,71 @@ const Services = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
           {serviceCategories.map((category, index) => {
             const Icon = category.icon;
+            // Define asymmetric spans
+            const spans = [
+              "md:col-span-8 md:row-span-2 min-h-[400px]", // Large featured
+              "md:col-span-4 md:row-span-1 min-h-[300px]", // Smaller
+              "md:col-span-4 md:row-span-1 min-h-[300px]", // Smaller
+            ];
 
             return (
-              <Link
+              <motion.div
                 key={category.id}
-                to={`/services/${category.slug}`}
-                className="block"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className={cn(spans[index] || "md:col-span-4")}
               >
-                <article
-                  className={cn(
-                    "group relative bg-card/40 backdrop-blur-sm border border-border/30 rounded-xl p-6 md:p-8",
-                    "hover:border-primary/40 hover:bg-card/60 transition-all duration-500 hover:shadow-xl hover:shadow-primary/5",
-                    "cursor-pointer h-full overflow-hidden"
-                  )}
-                  onMouseEnter={() => setHoveredCard(index)}
-                  onMouseLeave={() => setHoveredCard(null)}
+                <Link
+                  to={`/services/${category.slug}`}
+                  className="block h-full group relative overflow-hidden rounded-3xl border border-white/10"
                 >
-                  {/* Hover Gradient Background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  {/* Background Image with Parallax-ready zoom */}
+                  <div className="absolute inset-0 z-0 transition-transform duration-700 group-hover:scale-110">
+                    <img
+                      src={category.heroImage}
+                      alt={category.title}
+                      className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                  </div>
 
-                  {/* Number */}
-                  <span className="absolute top-4 left-6 text-5xl font-serif font-bold text-foreground/5 group-hover:text-primary/10 transition-colors duration-500">
-                    0{index + 1}
-                  </span>
-
-                  <div className="relative z-10 mt-6">
-                    <div className="w-14 h-14 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:border-primary transition-all duration-500">
-                      <Icon className="w-7 h-7 text-primary group-hover:text-primary-foreground transition-colors duration-500" />
+                  {/* Content Overlay */}
+                  <div className="absolute inset-0 z-10 p-6 md:p-10 flex flex-col justify-end">
+                    {/* Floating Icon */}
+                    <div className="mb-6 w-12 h-12 rounded-2xl bg-primary/20 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all duration-500">
+                      <Icon className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="font-serif text-xl md:text-2xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors duration-300">
-                      {category.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm md:text-base leading-relaxed mb-4 group-hover:text-foreground/80 transition-colors">
-                      {category.description}
-                    </p>
 
-                    <div className="flex items-center text-primary font-medium text-sm opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                      Explore {category.title}
-                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                      <span className="text-primary font-mono text-xs tracking-widest uppercase mb-2 block">
+                        0{index + 1}
+                      </span>
+                      <h3 className="font-serif text-2xl md:text-4xl font-bold text-white mb-3">
+                        {category.title}
+                      </h3>
+                      <p className="text-white/70 text-sm md:text-base max-w-sm line-clamp-2 md:line-clamp-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                        {category.description}
+                      </p>
+                    </div>
+
+                    {/* Button-like Link */}
+                    <div className="mt-6 flex items-center text-white font-medium text-sm opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                      <span className="border-b border-primary pb-1">Explore Services</span>
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-2 transition-transform" />
                     </div>
                   </div>
-                </article>
-              </Link>
+
+                  {/* Glass Shimmer Effect */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-700">
+                    <div className="absolute inset-[-100%] bg-gradient-to-tr from-white/0 via-white/5 to-white/0 transform rotate-45 animate-[shimmer_3s_infinite]" />
+                  </div>
+                </Link>
+              </motion.div>
             );
           })}
         </div>

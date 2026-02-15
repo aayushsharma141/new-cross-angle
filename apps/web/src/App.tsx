@@ -8,7 +8,9 @@ import { HelmetProvider } from "react-helmet-async";
 import { AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import { SchemaMarkup } from "./components/SchemaMarkup";
+import { LanguageProvider } from "./hooks/useLanguage";
 import { ThemeProvider } from "./components/theme-provider";
+import { ScrollManager } from "./components/layout/ScrollManager";
 // Public Pages
 import Index from "./pages/Index";
 import AboutPage from "./pages/AboutPage";
@@ -21,7 +23,7 @@ import BlogDetailPage from "./pages/BlogDetailPage";
 import ContactPage from "./pages/ContactPage";
 import ProjectPage from "./pages/ProjectPage";
 import PriceEstimator from "./pages/PriceEstimator";
-import StyleQuizPage from "./pages/StyleQuizPage";
+import DiscoveryPage from "./pages/DiscoveryPage";
 import NotFound from "./pages/NotFound";
 import PageTransition from "./components/PageTransition";
 // Admin Pages
@@ -90,7 +92,7 @@ const AnimatedRoutes = () => {
             <Route path="/blog/:slug" element={<PageTransition><BlogDetailPage /></PageTransition>} />
             <Route path="/contact-us" element={<PageTransition><ContactPage /></PageTransition>} />
             <Route path="/estimate" element={<PageTransition><PriceEstimator /></PageTransition>} />
-            <Route path="/quiz" element={<PageTransition><StyleQuizPage /></PageTransition>} />
+            <Route path="/quiz" element={<PageTransition><DiscoveryPage /></PageTransition>} />
             <Route path="/portfolio/:slug" element={<PageTransition><ProjectPage /></PageTransition>} />
             {/* Redirect routes for common variations */}
             <Route path="/about" element={<Navigate to="/about-us" replace />} />
@@ -149,19 +151,22 @@ const App = () => (
     />
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <ScrollManager />
         <TooltipProvider>
           <AuthProvider>
             <ProjectProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter
-                future={{
-                  v7_startTransition: true,
-                  v7_relativeSplatPath: true,
-                }}
-              >
-                <AnimatedRoutes />
-              </BrowserRouter>
+              <LanguageProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter
+                  future={{
+                    v7_startTransition: true,
+                    v7_relativeSplatPath: true,
+                  }}
+                >
+                  <AnimatedRoutes />
+                </BrowserRouter>
+              </LanguageProvider>
             </ProjectProvider>
           </AuthProvider>
         </TooltipProvider>
