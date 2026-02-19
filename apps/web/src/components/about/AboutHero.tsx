@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { Play, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { KineticText } from "@/components/ui/kinetic-text";
 
 interface AboutHeroProps {
   onPlayVideo?: () => void;
@@ -63,10 +64,7 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
 
       {/* Noise texture */}
       <div
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-        }}
+        className="absolute inset-0 opacity-[0.02] bg-noise"
       />
 
       <motion.div style={{ y, opacity, scale }} className="relative z-10 container mx-auto px-4">
@@ -103,31 +101,14 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
             {/* Kinetic Title */}
             <div className="mb-6 overflow-hidden">
               <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[1.1]">
-                {"Cross Angle".split("").map((char, i) => (
-                  <motion.span
-                    key={i}
-                    initial={{ y: "100%", opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.8, delay: i * 0.03, ease: [0.22, 1, 0.36, 1] }}
-                    className="inline-block"
-                  >
-                    {char === " " ? "\u00A0" : char}
-                  </motion.span>
-                ))}
-                <br />
-                <span className="text-primary italic">
-                  {"Interior".split("").map((char, i) => (
-                    <motion.span
-                      key={i}
-                      initial={{ y: "100%", opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ duration: 0.8, delay: 0.4 + i * 0.03, ease: [0.22, 1, 0.36, 1] }}
-                      className="inline-block"
-                    >
-                      {char}
-                    </motion.span>
-                  ))}
-                </span>
+                <KineticText preset="char-reveal" stagger={0.03} duration={0.8}>
+                  Cross Angle
+                </KineticText>
+                <div className="text-primary italic">
+                  <KineticText preset="char-reveal" stagger={0.03} delay={0.4} duration={0.8}>
+                    Interior
+                  </KineticText>
+                </div>
               </h1>
             </div>
 
@@ -139,11 +120,11 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
               className="space-y-6"
             >
               <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-lg">
-                For over <span className="text-foreground font-semibold">15 years</span>, we've been crafting immersive environments that blend artistic vision with functional precision.
+                We believe true design transcends the ornamental; it is the <span className="text-foreground font-semibold italic">curation of atmosphere</span>.
               </p>
 
               <p className="text-muted-foreground text-lg leading-relaxed max-w-lg">
-                Based in Jamshedpur, our studio has become a benchmark for luxury interior design across Jharkhand.
+                For over <span className="text-foreground font-semibold">15 years</span>, our studio has been the silent architect of Jamshedpur's most prestigious environments—dedicated to the <span className="text-primary font-medium">Architecture of Anticipation</span>.
               </p>
             </motion.div>
 

@@ -1,11 +1,12 @@
-import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Sparkles } from "lucide-react";
+import { motion, useInView } from "framer-motion";
+import { KineticText } from "../ui/kinetic-text";
 
 const ContactHero = () => {
   const containerRef = useRef<HTMLElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(textRef, { once: true });
+  const isInView = useInView(containerRef, { once: true, amount: 0.2 });
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -49,12 +50,10 @@ const ContactHero = () => {
         />
         <motion.div
           className="absolute w-[400px] h-[400px] rounded-full opacity-20 blur-[80px]"
-          style={{
+          animate={{
             background: 'radial-gradient(circle, hsl(var(--secondary)) 0%, transparent 70%)',
             bottom: '10%',
             right: '20%',
-          }}
-          animate={{
             x: mousePosition.x * -1,
             y: mousePosition.y * -1,
             scale: [1.1, 1, 1.1],
@@ -68,14 +67,7 @@ const ContactHero = () => {
       </div>
 
       {/* Grid pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px),
-                           linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px'
-        }}
-      />
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" />
 
       {/* Floating shapes */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -107,43 +99,15 @@ const ContactHero = () => {
             </span>
           </motion.div>
 
-          {/* Split-text headline */}
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight mb-6">
-            <span className="block overflow-hidden">
-              {headline.split("").map((char, index) => (
-                <motion.span
-                  key={index}
-                  className="inline-block"
-                  initial={{ y: 80, opacity: 0 }}
-                  animate={isInView ? { y: 0, opacity: 1 } : {}}
-                  transition={{
-                    duration: 0.4,
-                    delay: index * 0.02,
-                    ease: [0.215, 0.61, 0.355, 1]
-                  }}
-                >
-                  {char === " " ? "\u00A0" : char}
-                </motion.span>
-              ))}
-            </span>
-            <span className="block overflow-hidden mt-2">
-              {headline2.split("").map((char, index) => (
-                <motion.span
-                  key={index}
-                  className="inline-block bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent"
-                  initial={{ y: 80, opacity: 0 }}
-                  animate={isInView ? { y: 0, opacity: 1 } : {}}
-                  transition={{
-                    duration: 0.4,
-                    delay: 0.4 + index * 0.025,
-                    ease: [0.215, 0.61, 0.355, 1]
-                  }}
-                >
-                  {char === " " ? "\u00A0" : char}
-                </motion.span>
-              ))}
-            </span>
-          </h1>
+          {/* Kinetic Typography headline */}
+          <div className="mb-6">
+            <KineticText className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight">
+              Let's Create Something
+            </KineticText>
+            <KineticText className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary leading-tight mt-2">
+              Beautiful Together
+            </KineticText>
+          </div>
 
           <motion.p
             className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto"

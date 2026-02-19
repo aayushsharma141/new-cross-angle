@@ -14,6 +14,20 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DateRange } from "react-day-picker";
 
+interface ActivityItem {
+    id: string;
+    action: string;
+    entity_type: string;
+    created_at: string;
+    user_id?: string;
+    details?: {
+        invited_by?: string;
+        email?: string;
+        role?: string;
+        [key: string]: any;
+    };
+}
+
 export function RecentActivityFeed({ dateRange }: { dateRange?: DateRange }) {
     const { data: activities, isLoading } = useQuery({
         queryKey: ["recent-activity", dateRange],
@@ -47,7 +61,7 @@ export function RecentActivityFeed({ dateRange }: { dateRange?: DateRange }) {
             const { data, error } = await query;
 
             if (error) throw error;
-            return data;
+            return data as unknown as ActivityItem[];
         },
         refetchInterval: 30000,
     });
@@ -77,7 +91,7 @@ export function RecentActivityFeed({ dateRange }: { dateRange?: DateRange }) {
         );
     }
 
-    const getIcon = (item: any) => {
+    const getIcon = (item: ActivityItem) => {
         // Handle specific actions first
         if (item.action === "USER_INVITED") return <UserPlus className="h-4 w-4" />;
 
@@ -93,24 +107,20 @@ export function RecentActivityFeed({ dateRange }: { dateRange?: DateRange }) {
 
     const getBadges = (action: string) => {
         const act = action.toLowerCase();
-        if (act.includes("create") || act.includes("invited")) return "bg-green-100 text-green-700 border-green-200";
-        if (act.includes("update")) return "bg-blue-100 text-blue-700 border-blue-200";
-        if (act.includes("delete")) return "bg-red-100 text-red-700 border-red-200";
-        return "bg-gray-100 text-gray-700 border-gray-200";
+        if (act.includes("create") || act.includes("invited")) return "bg-admin-success/10 text-admin-success border-admin-success/20";
+        if (act.includes("update")) return "bg-admin-info/10 text-admin-info border-admin-info/20";
+        if (act.includes("delete")) return "bg-admin-danger/10 text-admin-danger border-admin-danger/20";
+        return "bg-admin-surface text-admin-muted border-admin-border";
     };
 
-    const formatActionLabel = (item: any) => {
+    const formatActionLabel = (item: ActivityItem) => {
         if (item.action === "USER_INVITED") return "User Invited";
-
-        // Format: "Blog Created", "Lead Updated"
-        const entity = item.entity_type?.replace(/s$/, "") || "Item"; // remove plural 's'
+        const entity = item.entity_type?.replace(/s$/, "") || "Item";
         const action = item.action || "Modified";
-
         return `${entity.charAt(0).toUpperCase() + entity.slice(1)} ${action.charAt(0).toUpperCase() + action.slice(1)}`;
     };
 
-    // Helper to safely get email or user identifier from details
-    const getUserLabel = (item: any) => {
+    const getUserLabel = (item: ActivityItem) => {
         if (item.details?.invited_by) return "Admin";
         if (item.user_id) return "User";
         return "System";
@@ -118,34 +128,33 @@ export function RecentActivityFeed({ dateRange }: { dateRange?: DateRange }) {
 
     return (
         <ScrollArea className="h-[400px] pr-4">
-            <div className="space-y-4">
+            <div className="space-y-3">
                 {activities.map((activity) => (
-                    <div key={activity.id} className="flex gap-4 group items-start border-b pb-4 last:border-0">
-                        <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background shadow-sm ${getBadges(activity.action).split(" ")[0]} border`}>
+                    <div key={activity.id} className="flex gap-4 group items-start border-b border-admin-border/50 pb-4 last:border-0 hover:bg-admin-surface/30 p-2 rounded-lg transition-colors">
+                        <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${getBadges(activity.action)}`}>
                             {getIcon(activity)}
                         </div>
                         <div className="flex flex-col gap-1 min-w-0 flex-1">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium leading-none">
+                                <span className="text-sm font-medium leading-none text-admin-foreground">
                                     {formatActionLabel(activity)}
                                 </span>
-                                <span className="text-[10px] text-muted-foreground tabular-nums">
+                                <span className="text-[10px] text-admin-muted tabular-nums">
                                     {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                                 </span>
                             </div>
 
-                            <div className="text-xs text-muted-foreground flex gap-2 items-center mt-1">
-                                <span className={`px-1.5 py-0.5 rounded-full text-[10px] border ${getBadges(activity.action)}`}>
+                            <div className="text-xs text-admin-muted flex gap-2 items-center mt-1">
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] border ${getBadges(activity.action)}`}>
                                     {activity.action.toUpperCase()}
                                 </span>
                                 <span>
-                                    • by {getUserLabel(activity)}
+                                    • by <span className="text-admin-gold">{getUserLabel(activity)}</span>
                                 </span>
                             </div>
 
                             {activity.details && typeof activity.details === 'object' && Object.keys(activity.details).length > 0 && (
-                                <div className="mt-1.5 text-xs bg-muted/50 p-2 rounded border font-mono truncate max-w-[300px] text-muted-foreground">
-                                    {/* Show relevant detail based on type */}
+                                <div className="mt-1.5 text-xs bg-admin-surface p-2 rounded border border-admin-border font-mono truncate max-w-[300px] text-admin-muted/80">
                                     {activity.action === "USER_INVITED" ? (
                                         `Invited: ${activity.details.email} as ${activity.details.role}`
                                     ) : (

@@ -3,6 +3,7 @@ import { Home, Ruler, Palette, Hammer, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion } from "framer-motion";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -83,16 +84,6 @@ const Process = () => {
     const mm = gsap.matchMedia();
 
     mm.add("(min-width: 768px)", () => {
-      // Pinning the left section
-      ScrollTrigger.create({
-        trigger: containerRef.current,
-        start: "top top+=100",
-        end: "bottom bottom-=200",
-        pin: leftRef.current,
-        pinSpacing: false,
-        scrub: true,
-      });
-
       // Update active step based on scroll
       steps.forEach((_, index) => {
         ScrollTrigger.create({
@@ -113,27 +104,31 @@ const Process = () => {
   }, []);
 
   return (
-    <section id="process" className="py-20 md:py-32 relative overflow-hidden bg-background">
+    <section id="process" className="py-20 md:py-32 relative bg-background">
       <div className="container mx-auto px-4">
-        {/* Section Header */}
-        <div className="mb-16 md:mb-24">
-          <span className="text-primary font-mono text-sm tracking-[0.3em] uppercase block mb-4">
-            How We Work
-          </span>
-          <h2 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold text-white max-w-2xl">
-            A Journey of <span className="text-primary italic">Transformation</span>
-          </h2>
-        </div>
+        <div ref={containerRef} className="flex flex-col md:flex-row items-start gap-12 md:gap-20 relative">
+          {/* Left Side: Pinned Visuals (Desktop) / Header (Mobile) */}
+          <div ref={leftRef} className="w-full md:w-1/3 md:sticky md:top-32 h-fit">
+            {/* Section Header */}
+            <div className="mb-12">
+              <span className="text-primary font-mono text-sm tracking-[0.3em] uppercase block mb-4">
+                How We Work
+              </span>
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-6">
+                A Journey of <span className="text-primary italic">Transformation</span>
+              </h2>
+            </div>
 
-        <div ref={containerRef} className="flex flex-col md:flex-row gap-0 md:gap-20 relative">
-          {/* Left Side: Pinned Visuals (Desktop) */}
-          <div ref={leftRef} className="hidden md:block w-1/3 h-[400px]">
-            <div className="relative h-full flex items-center justify-center">
+            {/* Timeline Icons - Hidden on mobile, sticky with header on desktop */}
+            <div className="hidden md:flex relative h-full flex-col items-center justify-center py-10">
               {/* Progress Line */}
               <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/10 -translate-x-1/2" />
-              <div
-                className="absolute left-1/2 top-0 w-px bg-primary -translate-x-1/2 transition-all duration-700 ease-out"
-                style={{ height: `${(activeStep / (steps.length - 1)) * 100}%` }}
+
+
+              <motion.div
+                className="absolute left-1/2 top-0 w-px bg-primary -translate-x-1/2"
+                animate={{ height: `${(activeStep / (steps.length - 1)) * 100}%` }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
               />
 
               {/* Step Icons Ring */}

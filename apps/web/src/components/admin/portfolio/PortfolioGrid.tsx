@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 interface PortfolioItem {
     id: string;
     title: string;
-    category: string | null;
-    hero_image: string | null;
+    category_id: string | null;
+    project_categories?: { name: string };
+    cover_image_url: string | null;
     status?: string;
 }
 
@@ -38,9 +39,9 @@ export function PortfolioGrid({ items, onEdit, onDelete }: PortfolioGridProps) {
                 >
                     <Card className="bg-card border-border overflow-hidden group hover:shadow-lg transition-all duration-300">
                         <div className="aspect-[4/3] relative overflow-hidden">
-                            {item.hero_image ? (
+                            {item.cover_image_url ? (
                                 <img
-                                    src={item.hero_image}
+                                    src={item.cover_image_url}
                                     alt={item.title}
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
@@ -64,11 +65,16 @@ export function PortfolioGrid({ items, onEdit, onDelete }: PortfolioGridProps) {
                                     <h3 className="font-semibold text-lg line-clamp-1">{item.title}</h3>
                                     <div className="flex gap-2 mt-1">
                                         <p className="text-xs text-muted-foreground capitalize px-2 py-0.5 bg-muted rounded-full inline-block">
-                                            {item.category || "Uncategorized"}
+                                            {item.project_categories?.name || "Uncategorized"}
                                         </p>
                                         {(item.status === 'draft' || !item.status) && (
                                             <p className="text-xs text-amber-700 bg-amber-100 capitalize px-2 py-0.5 rounded-full inline-block border border-amber-200">
                                                 Draft
+                                            </p>
+                                        )}
+                                        {item.status === 'live' && (
+                                            <p className="text-xs text-green-700 bg-green-100 capitalize px-2 py-0.5 rounded-full inline-block border border-green-200">
+                                                Live
                                             </p>
                                         )}
                                     </div>

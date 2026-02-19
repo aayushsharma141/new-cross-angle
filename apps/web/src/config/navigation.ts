@@ -1,4 +1,4 @@
-import { Home, Building2, Sofa, UtensilsCrossed, Lamp } from "lucide-react";
+import { Home, Building2, Sofa, UtensilsCrossed, Lamp, Calculator } from "lucide-react";
 
 export const servicesMenu = {
   residential: [
@@ -14,6 +14,7 @@ export const servicesMenu = {
   specialized: [
     { name: "Modular Kitchen", href: "/services/specialized/modular-kitchens", description: "Factory-finished, quick install", icon: UtensilsCrossed, badge: "Popular" },
     { name: "False Ceiling", href: "/services/specialized/ceilings", description: "Architectural elegance", icon: Lamp },
+    { name: "Design Calculators", href: "/calculators", description: "Plan your budget & lighting", icon: Calculator, badge: "New" },
   ],
 };
 

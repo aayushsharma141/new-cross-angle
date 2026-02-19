@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Outlet, Link, useLocation, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -73,9 +72,9 @@ const AdminLayout = () => {
       collapsible: true,
       items: [
         {
-          title: "Site Content",
-          url: "/admin/content",
-          icon: FileText,
+          title: "Page Sections",
+          url: "/admin/page-sections",
+          icon: LayoutDashboard,
         },
         {
           title: "Services",
@@ -83,9 +82,14 @@ const AdminLayout = () => {
           icon: Briefcase,
         },
         {
+          title: "Team Members",
+          url: "/admin/team",
+          icon: Users,
+        },
+        {
           title: "Portfolio",
           url: "/admin/portfolio",
-          icon: FolderKanban,
+          icon: Image,
         },
         {
           title: "Testimonials",
@@ -159,14 +163,15 @@ const AdminLayout = () => {
       <div className="min-h-screen flex w-full bg-[hsl(var(--admin-bg))] admin-theme">
         <Sidebar className="border-r border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))]">
           <SidebarContent>
-            <div className="p-6 border-b border-[hsl(var(--admin-border))]">
+            <div className="p-6 border-b border-admin-border">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white font-bold text-lg">
+                {/* Logo Icon (Gold Geometric) */}
+                <div className="w-8 h-8 rounded bg-gradient-to-br from-admin-gold to-admin-gold-dim flex items-center justify-center text-admin-bg font-bold text-lg font-display">
                   CA
                 </div>
                 <div>
-                  <h2 className="font-bold text-lg text-[hsl(var(--admin-foreground))]">Crossangle Interior</h2>
-                  <p className="text-xs text-[hsl(var(--admin-muted))]">Admin Panel</p>
+                  <h2 className="font-display font-semibold text-xl tracking-wide text-admin-foreground">Crossangle</h2>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-admin-gold">Intelligence</p>
                 </div>
               </div>
             </div>
@@ -198,11 +203,10 @@ const AdminLayout = () => {
                               <SidebarMenuItem key={item.title}>
                                 <SidebarMenuButton
                                   asChild
-                                  isActive={item.url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.url)}
                                   className={`${(item.url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.url))
-                                    ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
-                                    : "hover:bg-[hsl(var(--sidebar-accent))] text-[hsl(var(--admin-foreground))]"
-                                    } rounded-lg transition-all duration-200 my-0.5`}
+                                    ? "bg-gradient-to-r from-admin-gold/10 to-transparent text-admin-gold border-l-2 border-admin-gold"
+                                    : "hover:bg-admin-surface text-admin-foreground border-l-2 border-transparent hover:text-admin-gold transition-colors"
+                                    } rounded-none px-3 py-2 transition-all duration-200 my-0.5 group`}
                                 >
                                   <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
                                     <item.icon className="w-4 h-4" />
@@ -228,11 +232,10 @@ const AdminLayout = () => {
                             <SidebarMenuItem key={item.title}>
                               <SidebarMenuButton
                                 asChild
-                                isActive={item.url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.url)}
                                 className={`${(item.url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.url))
-                                  ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700"
-                                  : "hover:bg-[hsl(var(--sidebar-accent))] text-[hsl(var(--admin-foreground))]"
-                                  } rounded-lg transition-all duration-200 my-0.5`}
+                                  ? "bg-gradient-to-r from-admin-gold/10 to-transparent text-admin-gold border-l-2 border-admin-gold"
+                                  : "hover:bg-admin-surface text-admin-foreground border-l-2 border-transparent hover:text-admin-gold transition-colors"
+                                  } rounded-none px-3 py-2 transition-all duration-200 my-0.5 group`}
                               >
                                 <Link to={item.url} className="flex items-center gap-3 px-3 py-2.5">
                                   <item.icon className="w-5 h-5" />
@@ -267,31 +270,37 @@ const AdminLayout = () => {
           </SidebarContent>
         </Sidebar>
         <main className="flex-1 flex flex-col overflow-hidden">
-          <header className="bg-[hsl(var(--admin-card))] border-b border-[hsl(var(--admin-border))] px-6 py-4 flex items-center justify-between">
+          <header className="bg-admin-card border-b border-admin-border px-8 py-5 flex items-center justify-between sticky top-0 z-30">
             <div className="flex items-center gap-4">
-              <SidebarTrigger className="lg:hidden text-[hsl(var(--admin-foreground))]">
+              <SidebarTrigger className="lg:hidden text-admin-foreground hover:bg-admin-surface hover:text-admin-gold transition-colors">
                 <Menu className="w-5 h-5" />
               </SidebarTrigger>
               <div>
-                <h1 className="text-2xl font-bold text-[hsl(var(--admin-foreground))]">
-                  {menuSections
-                    .flatMap((s) => s.items)
-                    .find((item) => item.url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.url))?.title || "Dashboard"}
-                </h1>
-                <p className="text-sm text-[hsl(var(--admin-muted))]">Manage your interior design website content</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-display font-medium text-admin-foreground tracking-tight">
+                    {menuSections
+                      .flatMap((s) => s.items)
+                      .find((item) => item.url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(item.url))?.title || "Design Intelligence"}
+                  </h1>
+                  <span className="px-2 py-0.5 rounded-full bg-admin-gold/10 text-admin-gold text-[10px] font-bold tracking-wider uppercase border border-admin-gold/20">
+                    Studio
+                  </span>
+                </div>
+                <p className="text-xs text-admin-muted font-sans tracking-wide">Manage your interior design digital presence</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <CommandMenu />
-              <ModeToggle />
-              <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-[hsl(var(--admin-border))] rounded-lg">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white text-sm font-semibold">
+              <div className="h-8 w-px bg-admin-border mx-2" />
+              <div className="hidden md:flex items-center gap-3 pl-2 pr-4 py-1.5 bg-admin-surface border border-admin-border rounded-full hover:border-admin-gold/30 transition-colors group cursor-pointer">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-admin-gold to-admin-gold-dim flex items-center justify-center text-admin-bg text-sm font-bold shadow-lg shadow-admin-gold/20 group-hover:shadow-admin-gold/40 transition-shadow">
                   A
                 </div>
                 <div className="text-sm">
-                  <p className="font-medium text-[hsl(var(--admin-foreground))]">Admin</p>
-                  <p className="text-xs text-[hsl(var(--admin-muted))]">Administrator</p>
+                  <p className="font-medium text-admin-foreground group-hover:text-admin-gold transition-colors">Admin User</p>
+                  <p className="text-[10px] text-admin-muted uppercase tracking-wider">Administrator</p>
                 </div>
+                <ChevronDown className="w-4 h-4 text-admin-muted group-hover:text-admin-gold transition-colors" />
               </div>
             </div>
           </header>

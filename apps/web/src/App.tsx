@@ -24,6 +24,7 @@ import ContactPage from "./pages/ContactPage";
 import ProjectPage from "./pages/ProjectPage";
 import PriceEstimator from "./pages/PriceEstimator";
 import DiscoveryPage from "./pages/DiscoveryPage";
+import CalculatorsPage from "./pages/CalculatorsPage";
 import NotFound from "./pages/NotFound";
 import PageTransition from "./components/PageTransition";
 // Admin Pages
@@ -31,7 +32,7 @@ import AdminAuth from "./pages/admin/AdminAuth";
 import AdminResetPassword from "./pages/admin/AdminResetPassword";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminContent from "./pages/admin/AdminContent";
+import AdminPageSections from "./pages/admin/AdminPageSections";
 import AdminBlogs from "./pages/admin/AdminBlogs";
 import AdminServices from "./pages/admin/AdminServices";
 import AdminPortfolio from "./pages/admin/AdminPortfolio";
@@ -40,8 +41,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminMedia from "./pages/admin/AdminMedia";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
 import AdminUsers from "./pages/admin/AdminUsers";
-
-import { ProjectProvider } from "./context/ProjectContext";
+import AdminTeam from "./pages/admin/AdminTeam";
 
 const queryClient = new QueryClient();
 
@@ -70,7 +70,7 @@ const AnimatedRoutes = () => {
           <Route path="/admin/reset-password" element={<AdminResetPassword />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
-            <Route path="content" element={<AdminContent />} />
+            <Route path="page-sections" element={<AdminPageSections />} />
             <Route path="blogs" element={<AdminBlogs />} />
             <Route path="services" element={<AdminServices />} />
             <Route path="portfolio" element={<AdminPortfolio />} />
@@ -79,6 +79,7 @@ const AnimatedRoutes = () => {
             <Route path="media" element={<AdminMedia />} />
             <Route path="testimonials" element={<AdminTestimonials />} />
             <Route path="users" element={<AdminUsers />} />
+            <Route path="team" element={<AdminTeam />} />
           </Route>
         </Routes>
       ) : (
@@ -93,6 +94,7 @@ const AnimatedRoutes = () => {
             <Route path="/contact-us" element={<PageTransition><ContactPage /></PageTransition>} />
             <Route path="/estimate" element={<PageTransition><PriceEstimator /></PageTransition>} />
             <Route path="/quiz" element={<PageTransition><DiscoveryPage /></PageTransition>} />
+            <Route path="/calculators" element={<PageTransition><CalculatorsPage /></PageTransition>} />
             <Route path="/portfolio/:slug" element={<PageTransition><ProjectPage /></PageTransition>} />
             {/* Redirect routes for common variations */}
             <Route path="/about" element={<Navigate to="/about-us" replace />} />
@@ -154,20 +156,18 @@ const App = () => (
         <ScrollManager />
         <TooltipProvider>
           <AuthProvider>
-            <ProjectProvider>
-              <LanguageProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter
-                  future={{
-                    v7_startTransition: true,
-                    v7_relativeSplatPath: true,
-                  }}
-                >
-                  <AnimatedRoutes />
-                </BrowserRouter>
-              </LanguageProvider>
-            </ProjectProvider>
+            <LanguageProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter
+                future={{
+                  v7_startTransition: true,
+                  v7_relativeSplatPath: true,
+                }}
+              >
+                <AnimatedRoutes />
+              </BrowserRouter>
+            </LanguageProvider>
           </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>

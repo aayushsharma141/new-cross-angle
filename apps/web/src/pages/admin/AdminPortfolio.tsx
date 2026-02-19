@@ -26,8 +26,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-const categories = ["All", "Residential", "Commercial", "Hospitality", "Retail", "Office"];
-
 export default function AdminPortfolio() {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
@@ -40,12 +38,26 @@ export default function AdminPortfolio() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Fetch Categories for Filter
+  const { data: categories = [] } = useQuery({
+    queryKey: ["project_categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('project_categories')
+        .select('id, name')
+        .order('display_order');
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
+      // Join project_categories to get category name
       const { data, error } = await supabase
         .from("projects")
-        .select("*")
+        .select("*, project_categories(name)")
         .order("display_order", { ascending: true })
         .order("created_at", { ascending: false });
 
@@ -56,9 +68,19 @@ export default function AdminPortfolio() {
 
   const filteredProjects = projects.filter((project) => {
     const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase()) ||
-      project.client?.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = categoryFilter === "All" || project.category === categoryFilter;
-    const matchesStatus = statusFilter === "all" || (project.status || "draft") === statusFilter;
+      project.client_name?.toLowerCase().includes(search.toLowerCase()); // client -> client_name
+
+    // category is now category_id, so we match by ID or if "All"
+    // But UI might want to filter by Name? Or ID?
+    // Let's assume categoryFilter is ID, or 'All'.
+    // BUT wait, existing code used Name strings. I requested fetching categories.
+    // Let's use ID for filtering if selected from dropdown.
+    const matchesCategory = categoryFilter === "All" || project.category_id === categoryFilter;
+
+    // Status mapping: DB has 'live'/'draft'. Filter has 'published'/'draft'/'all'.
+    // Map 'published' -> 'live'
+    const statusToCheck = statusFilter === 'published' ? 'live' : statusFilter;
+    const matchesStatus = statusFilter === "all" || (project.status || "draft") === statusToCheck;
 
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -128,8 +150,9 @@ export default function AdminPortfolio() {
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              {categories.map(cat => (
-                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              <SelectItem value="All">All Categories</SelectItem>
+              {categories.map((cat: any) => (
+                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>

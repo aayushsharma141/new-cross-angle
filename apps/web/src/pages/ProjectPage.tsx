@@ -13,10 +13,15 @@ import ProjectHero from "@/components/project/ProjectHero";
 import ProjectStats from "@/components/project/ProjectStats";
 import ProjectGallery from "@/components/project/ProjectGallery";
 import BeforeAfterSlider from "@/components/project/BeforeAfterSlider";
-import { useProjects } from "@/context/ProjectContext";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
 const ProjectPage = () => {
-  const { projects } = useProjects();
+  const { data: projects = [], isLoading } = useQuery({
+    queryKey: ['projects'],
+    queryFn: api.getProjects
+  });
+
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
@@ -37,8 +42,14 @@ const ProjectPage = () => {
         }
       }
     };
-    trackView();
+    if (project?.id) {
+      trackView();
+    }
   }, [project?.id]);
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>;
+  }
 
   if (!project) {
     return (

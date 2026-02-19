@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
+import typography from "@tailwindcss/typography";
 
 // Add marquee animation for TrustSection
 
@@ -223,41 +224,11 @@ export default {
 				'2xl': 'var(--shadow-2xl)'
 			},
 			fontFamily: {
-				display: ['"Playfair Display"', 'Georgia', 'serif'],
-				sans: [
-					'Roboto',
-					'ui-sans-serif',
-					'system-ui',
-					'-apple-system',
-					'BlinkMacSystemFont',
-					'Segoe UI',
-					'Helvetica Neue',
-					'Arial',
-					'Noto Sans',
-					'sans-serif'
-				],
-				serif: [
-					'Playfair Display',
-					'ui-serif',
-					'Georgia',
-					'Cambria',
-					'Times New Roman',
-					'Times',
-					'serif'
-				],
-				mono: [
-					'Roboto Mono',
-					'ui-monospace',
-					'SFMono-Regular',
-					'Menlo',
-					'Monaco',
-					'Consolas',
-					'Liberation Mono',
-					'Courier New',
-					'monospace'
-				]
+				sans: ["DM Sans", "sans-serif"],
+				display: ["Cormorant Garamond", "Playfair Display", "serif"],
+				mono: ["JetBrains Mono", "monospace"],
 			}
 		}
 	},
-	plugins: [tailwindcssAnimate, require("@tailwindcss/typography")],
+	plugins: [tailwindcssAnimate, typography],
 } satisfies Config;

@@ -21,6 +21,7 @@ const Footer = () => {
     { name: "Consultation", href: "/services" },
     { name: "Turnkey Project", href: "/services" },
     { name: "Miniature Model", href: "/services" },
+    { name: "Design Calculators", href: "/calculators" },
   ];
 
   const socialLinks = [
@@ -32,8 +33,7 @@ const Footer = () => {
 
   return (
     <footer
-      className="text-foreground relative overflow-hidden border-t border-wine-600/30"
-      style={{ background: '#0A0A0A' }}
+      className="text-foreground relative overflow-hidden border-t border-wine-600/30 bg-[#0A0A0A]"
     >
       {/* Subtle wine overlay pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(352_78%_31%/0.05)_0%,transparent_50%)]" />
@@ -46,8 +46,7 @@ const Footer = () => {
               <img
                 src={logoIcon}
                 alt="Cross Angle Interior"
-                className="h-[68px] w-auto opacity-90"
-                style={{ imageRendering: 'crisp-edges' }}
+                className="h-[68px] w-auto opacity-90 [image-rendering:crisp-edges]"
               />
               <span className="font-serif text-2xl font-bold">
                 <span className="text-foreground">Crossangle</span>{" "}

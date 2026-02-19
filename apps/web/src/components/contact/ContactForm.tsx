@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import Magnetic from "../ui/magnetic";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Send, CheckCircle, Loader2 } from "lucide-react";
@@ -46,9 +47,12 @@ interface FloatingInputProps {
   onChange: (value: string) => void;
   required?: boolean;
   delay?: number;
+  id?: string;
+  title?: string;
+  placeholder?: string;
 }
 
-const FloatingInput = ({ label, type = "text", value, onChange, required, delay = 0 }: FloatingInputProps) => {
+const FloatingInput = ({ label, type = "text", value, onChange, required, delay = 0, id, title, placeholder }: FloatingInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const hasValue = value.length > 0;
 
@@ -60,8 +64,10 @@ const FloatingInput = ({ label, type = "text", value, onChange, required, delay 
       transition={{ delay, duration: 0.4 }}
     >
       <input
+        id={id}
         type={type}
         value={value}
+        title={title}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
@@ -76,9 +82,10 @@ const FloatingInput = ({ label, type = "text", value, onChange, required, delay 
             ? 'border-primary shadow-[0_0_20px_hsl(var(--primary)/0.15)]'
             : 'border-border hover:border-border/80'}
         `}
-        placeholder=" "
+        placeholder={placeholder || " "}
       />
       <label
+        htmlFor={id}
         className={`
           absolute left-4 transition-all duration-300 pointer-events-none
           ${isFocused || hasValue
@@ -103,11 +110,15 @@ interface FloatingTextareaProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  required?: boolean;
   rows?: number;
   delay?: number;
+  id?: string;
+  title?: string;
+  placeholder?: string;
 }
 
-const FloatingTextarea = ({ label, value, onChange, rows = 4, delay = 0 }: FloatingTextareaProps) => {
+const FloatingTextarea = ({ label, value, onChange, required, rows = 4, delay = 0, id, title, placeholder }: FloatingTextareaProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const hasValue = value.length > 0;
 
@@ -119,10 +130,13 @@ const FloatingTextarea = ({ label, value, onChange, rows = 4, delay = 0 }: Float
       transition={{ delay, duration: 0.4 }}
     >
       <textarea
+        id={id}
         value={value}
+        title={title}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
+        required={required}
         rows={rows}
         className={`
           peer w-full pt-6 pb-3 px-4 
@@ -134,9 +148,10 @@ const FloatingTextarea = ({ label, value, onChange, rows = 4, delay = 0 }: Float
             ? 'border-primary shadow-[0_0_20px_hsl(var(--primary)/0.15)]'
             : 'border-border hover:border-border/80'}
         `}
-        placeholder=" "
+        placeholder={placeholder || " "}
       />
       <label
+        htmlFor={id}
         className={`
           absolute left-4 transition-all duration-300 pointer-events-none
           ${isFocused || hasValue
@@ -145,6 +160,7 @@ const FloatingTextarea = ({ label, value, onChange, rows = 4, delay = 0 }: Float
         `}
       >
         {label}
+        {required && <span className="text-primary ml-1">*</span>}
       </label>
     </motion.div>
   );
@@ -156,9 +172,11 @@ interface FloatingSelectProps {
   value: string;
   onChange: (value: string) => void;
   delay?: number;
+  id?: string;
+  title?: string;
 }
 
-const FloatingSelect = ({ label, options, value, onChange, delay = 0 }: FloatingSelectProps) => {
+const FloatingSelect = ({ label, options, value, onChange, delay = 0, id, title }: FloatingSelectProps) => {
   const hasValue = value.length > 0;
 
   return (
@@ -170,34 +188,32 @@ const FloatingSelect = ({ label, options, value, onChange, delay = 0 }: Floating
     >
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger
+          id={id}
+          title={title}
           className={`
             w-full pt-6 pb-3 px-4 h-auto
             bg-card border-2 rounded-xl
             text-foreground
             transition-all duration-300
             focus:ring-0 focus:ring-offset-0
-            data-[state=open]:border-primary data-[state=open]:shadow-[0_0_20px_hsl(var(--primary)/0.15)]
-            ${hasValue ? 'border-border' : 'border-border'}
+            ${value ? 'border-primary' : 'border-border hover:border-border/80'}
           `}
         >
-          <SelectValue placeholder="" />
+          <SelectValue placeholder=" " />
         </SelectTrigger>
-        <SelectContent className="bg-card border border-border rounded-xl shadow-xl">
+        <SelectContent className="bg-card border-border">
           {options.map((option) => (
-            <SelectItem
-              key={option}
-              value={option}
-              className="py-3 focus:bg-primary/10 cursor-pointer"
-            >
+            <SelectItem key={option} value={option} className="focus:bg-primary/10">
               {option}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
       <label
+        htmlFor={id}
         className={`
           absolute left-4 transition-all duration-300 pointer-events-none z-10
-          ${hasValue
+          ${value
             ? 'top-2 text-xs font-medium text-primary'
             : 'top-1/2 -translate-y-1/2 text-muted-foreground'}
         `}
@@ -365,13 +381,6 @@ const ContactForm = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <FloatingSelect
-              label="Type of Project"
-              options={projectTypes}
-              value={formData.projectType}
-              onChange={(value) => setFormData({ ...formData, projectType: value })}
-              delay={0.25}
-            />
-            <FloatingSelect
               label="Approx. Area"
               options={areaOptions}
               value={formData.area}
@@ -380,72 +389,96 @@ const ContactForm = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <FloatingSelect
-              label="Estimated Budget"
-              options={budgetOptions}
-              value={formData.budget}
-              onChange={(value) => setFormData({ ...formData, budget: value })}
-              delay={0.35}
-            />
-            <FloatingInput
-              label="City / Location"
-              value={formData.city}
-              onChange={(value) => setFormData({ ...formData, city: value })}
-              delay={0.4}
-            />
+          <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.35 }}
+            >
+              <label className="text-sm font-medium text-foreground/80 mb-3 block">
+                Project Type
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {projectTypes.map((type, idx) => (
+                  <motion.button
+                    key={type}
+                    type="button"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{
+                      delay: 0.35 + idx * 0.05,
+                      duration: 0.3,
+                      ease: "easeOut"
+                    }}
+                    onClick={() => setFormData({ ...formData, projectType: type })}
+                    className={`
+                      px-4 py-3 rounded-xl border text-sm font-medium transition-all duration-300
+                      ${formData.projectType === type
+                        ? 'border-primary bg-primary/5 text-primary shadow-sm'
+                        : 'border-border/40 bg-card/20 text-muted-foreground hover:border-primary/40 hover:bg-card/40'}
+                    `}
+                  >
+                    {type}
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45, duration: 0.4 }}
+            >
+              <FloatingTextarea
+                id="message"
+                label="Tell us about your project"
+                required
+                title="Your Message"
+                placeholder="Describe your vision..."
+                rows={4}
+                value={formData.message}
+                onChange={(value) => setFormData({ ...formData, message: value })}
+              />
+            </motion.div>
           </div>
-
-          <FloatingSelect
-            label="Project Stage"
-            options={projectStages}
-            value={formData.projectStage}
-            onChange={(value) => setFormData({ ...formData, projectStage: value })}
-            delay={0.45}
-          />
-
-          <FloatingTextarea
-            label="Tell us about your project..."
-            value={formData.message}
-            onChange={(value) => setFormData({ ...formData, message: value })}
-            rows={4}
-            delay={0.5}
-          />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.55, duration: 0.4 }}
+            className="flex justify-center"
           >
-            <Button
-              type="submit"
-              size="lg"
-              className={`
-                w-full py-7 text-lg rounded-xl
-                shadow-lg transition-all duration-500
-                ${isSubmitted
-                  ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-500/30'
-                  : 'bg-wine-600 hover:bg-wine-700 text-white shadow-wine-500/30 hover:shadow-xl hover:shadow-wine-500/40 hover:-translate-y-0.5'}
-              `}
-              disabled={isSubmitting || isSubmitted}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Sending...
-                </>
-              ) : isSubmitted ? (
-                <>
-                  <CheckCircle className="mr-2 h-5 w-5" />
-                  Message Sent!
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-5 w-5" />
-                  Send Message
-                </>
-              )}
-            </Button>
+            <Magnetic strength={0.1}>
+              <Button
+                type="submit"
+                size="lg"
+                className={`
+                  w-full min-w-[200px] py-7 text-lg rounded-xl
+                  shadow-lg transition-all duration-500
+                  ${isSubmitted
+                    ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-500/30'
+                    : 'bg-wine-600 hover:bg-wine-700 text-white shadow-wine-500/30 hover:shadow-xl hover:shadow-wine-500/40 hover:-translate-y-0.5'}
+                `}
+                disabled={isSubmitting || isSubmitted}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Sending...
+                  </>
+                ) : isSubmitted ? (
+                  <>
+                    <CheckCircle className="mr-2 h-5 w-5" />
+                    Message Sent!
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-5 w-5" />
+                    Send Message
+                  </>
+                )}
+              </Button>
+            </Magnetic>
           </motion.div>
         </form>
       </motion.div>

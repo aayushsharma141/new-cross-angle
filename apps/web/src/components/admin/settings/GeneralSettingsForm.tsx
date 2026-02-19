@@ -50,26 +50,27 @@ export function GeneralSettingsForm() {
         try {
             setIsFetching(true);
             const { data, error } = await supabase
-                .from("site_content")
+                .from("site_settings")
                 .select("*")
-                .eq("section_key", "settings")
-                .single();
+                .limit(1)
+                .maybeSingle();
 
-            if (error && error.code !== "PGRST116") { // PGRST116 is "Row not found"
+            if (error) {
                 throw error;
             }
 
             if (data) {
+                const socialLinks = data.social_links as Record<string, string> || {};
                 form.reset({
-                    site_name: data.title || "",
-                    site_description: data.content || "",
-                    contact_email: (data.metadata as any)?.contact_email || "",
-                    contact_phone: (data.metadata as any)?.contact_phone || "",
-                    address: (data.metadata as any)?.address || "",
-                    social_facebook: (data.metadata as any)?.social_facebook || "",
-                    social_instagram: (data.metadata as any)?.social_instagram || "",
-                    social_twitter: (data.metadata as any)?.social_twitter || "",
-                    social_linkedin: (data.metadata as any)?.social_linkedin || "",
+                    site_name: data.studio_name || "",
+                    site_description: data.seo_description || "",
+                    contact_email: data.email || "",
+                    contact_phone: data.phone || "",
+                    address: data.address || "",
+                    social_facebook: socialLinks.facebook || "",
+                    social_instagram: socialLinks.instagram || "",
+                    social_twitter: socialLinks.twitter || "",
+                    social_linkedin: socialLinks.linkedin || "",
                 });
             }
         } catch (error) {
@@ -88,29 +89,51 @@ export function GeneralSettingsForm() {
         try {
             setIsLoading(true);
 
-            const { data: userData } = await supabase.auth.getUser();
-
-            const metadata = {
-                contact_email: values.contact_email,
-                contact_phone: values.contact_phone,
-                address: values.address,
-                social_facebook: values.social_facebook,
-                social_instagram: values.social_instagram,
-                social_twitter: values.social_twitter,
-                social_linkedin: values.social_linkedin,
+            const socialLinks = {
+                facebook: values.social_facebook,
+                instagram: values.social_instagram,
+                twitter: values.social_twitter,
+                linkedin: values.social_linkedin,
             };
 
-            // Check if exists first (upsert)
-            const { error } = await supabase
-                .from("site_content")
-                .upsert({
-                    section_key: "settings",
-                    title: values.site_name,
-                    content: values.site_description,
-                    metadata: metadata,
-                    updated_by: userData.user?.id,
-                    updated_at: new Date().toISOString(),
-                }, { onConflict: "section_key" });
+            // Check if a row exists to decide between insert and update, 
+            // but since it's a singleton with a unique index, we can just upsert if we had a fixed ID or constraint.
+            // However, the unique index is on ((TRUE)).
+            // Let's first check if we have an ID from fetching.
+            // Actually, simpler to just get the existing row again or assume one exists if we seeded it.
+            // The migration adds a constraint so there is only one row.
+
+            // We can just update if it exists, or insert if not.
+            const { data: existingData } = await supabase.from("site_settings").select("id").limit(1).maybeSingle();
+
+            let error;
+            if (existingData) {
+                const { error: updateError } = await supabase
+                    .from("site_settings")
+                    .update({
+                        studio_name: values.site_name,
+                        seo_description: values.site_description,
+                        email: values.contact_email,
+                        phone: values.contact_phone,
+                        address: values.address,
+                        social_links: socialLinks,
+                        updated_at: new Date().toISOString(),
+                    })
+                    .eq("id", existingData.id);
+                error = updateError;
+            } else {
+                const { error: insertError } = await supabase
+                    .from("site_settings")
+                    .insert({
+                        studio_name: values.site_name,
+                        seo_description: values.site_description,
+                        email: values.contact_email,
+                        phone: values.contact_phone,
+                        address: values.address,
+                        social_links: socialLinks,
+                    });
+                error = insertError;
+            }
 
             if (error) throw error;
 

@@ -1,6 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Sans:opsz,wght@9..40,100..1000&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -190,8 +188,8 @@
   /* Glass Effect */
   .glass {
     background: hsl(0 0% 4% / 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
   }
 
   .glass-border {
@@ -267,98 +265,123 @@
   /* =========================
      ADMIN PANEL – MODERN LIGHT THEME (Default)
   ========================= */
+  /* ── ADMIN PANEL SPEC (DESIGN INTELLIGENCE STUDIO) ── */
   .admin-theme {
-    /* Base Colors */
-    --admin-bg: 210 20% 98%;
-    /* #F8FAFC */
-    --admin-card: 0 0% 100%;
-    /* #FFFFFF */
-    --admin-border: 214 15% 91%;
-    /* #E2E8F0 */
-    --admin-foreground: 222 15% 20%;
-    /* #1E293B */
-    --admin-muted: 215 14% 34%;
-    /* #64748B */
+    /* Base Colors - HSL for Tailwind Utility Support */
+    --admin-bg: 220 10% 6%;
+    /* #0d0e10 */
+    --admin-surface: 220 13% 9%;
+    /* #14161a */
+    --admin-card: 225 13% 12%;
+    /* #1a1c22 */
+    --admin-border: 225 12% 16%;
+    /* #25282f */
 
     /* Brand Colors */
-    --brand-primary: 25 76% 31%;
-    /* Saddle Brown */
-    --brand-secondary: 46 65% 52%;
-    /* Gold */
+    --admin-gold: 40 46% 61%;
+    /* #c9a96e */
+    --admin-gold-dim: 38 35% 40%;
+    /* #8a6f42 */
+    --admin-gold-glow: 40 46% 61%;
 
-    /* OVERRIDE Standard Variables for Shadcn Components */
-    --background: var(--admin-bg);
-    --foreground: var(--admin-foreground);
-    --card: var(--admin-card);
-    --card-foreground: var(--admin-foreground);
-    --popover: var(--admin-card);
-    --popover-foreground: var(--admin-foreground);
-
-    /* Map Primary to Brand Primary */
-    --primary: var(--brand-primary);
-    --primary-foreground: 0 0% 98%;
-
-    /* Muted/Accents */
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: var(--admin-muted);
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: var(--admin-border);
-    --input: var(--admin-border);
-    --ring: var(--brand-primary);
-
-    /* Sidebar Variables */
-    --sidebar-background: var(--admin-card);
-    --sidebar-foreground: var(--admin-foreground);
-    --sidebar-primary: var(--brand-primary);
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 210 40% 96.1%;
-    /* Matches --accent */
-    --sidebar-accent-foreground: 222 47.4% 11.2%;
-    --sidebar-border: var(--admin-border);
-    --sidebar-ring: var(--brand-primary);
+    /* Typography */
+    --admin-text: 40 15% 88%;
+    /* #e8e4dc */
+    --admin-muted: 38 4% 46%;
+    /* #7a7670 */
 
     /* Status Colors */
-    --status-success: 142 71% 45%;
-    --status-warning: 38 92% 50%;
-    --status-error: 0 84% 60%;
+    --admin-danger: 6 45% 55%;
+    /* #c06b5a */
+    --admin-success: 148 29% 55%;
+    /* #6aad8a */
+    --admin-info: 214 43% 55%;
+    /* #5a87c0 */
+
+    /* Mappings to Tailwind Standard Vars */
+    --background: var(--admin-bg);
+    --foreground: var(--admin-text);
+    --card: var(--admin-card);
+    --card-foreground: var(--admin-text);
+    --popover: var(--admin-surface);
+    --popover-foreground: var(--admin-text);
+    --primary: var(--admin-gold);
+    --primary-foreground: 220 10% 6%;
+    --secondary: var(--admin-surface);
+    --secondary-foreground: var(--admin-text);
+    --muted: var(--admin-surface);
+    --muted-foreground: var(--admin-muted);
+    --accent: var(--admin-surface);
+    --accent-foreground: var(--admin-gold);
+    --destructive: var(--admin-danger);
+    --destructive-foreground: 220 10% 6%;
+    --border: var(--admin-border);
+    --input: var(--admin-border);
+    --ring: var(--admin-gold);
+
+    /* Grain Texture */
+    --admin-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
   }
 
-  /* Dark Theme Overrides */
+  /* Dark Theme Overrides - LUXURY GOLD ALIGNMENT */
   .dark .admin-theme,
   .admin-theme.dark {
-    /* Base Colors - Slate Dark */
-    --admin-bg: 222 47% 11%;
-    /* #0F172A */
-    --admin-card: 217 33% 17%;
-    /* #1E293B */
-    --admin-border: 215 25% 27%;
-    /* #334155 */
-    --admin-foreground: 210 40% 98%;
-    /* #F1F5F9 */
-    --admin-muted: 215 20% 65%;
-    /* #94A3B8 */
+    /* Base Colors - Deep Luxury Dark */
+    --admin-bg: 0 0% 4%;
+    /* #0A0A0A */
+    --admin-card: 0 0% 8%;
+    /* #141414 */
+    --admin-border: 0 0% 16%;
+    /* #292929 */
+    --admin-foreground: 36 26% 97%;
+    /* #FAF8F5 */
+    --admin-muted: 0 0% 30%;
+    /* #4D4D4D */
 
-    /* Brand Colors - Brighter for Dark Mode */
-    --brand-primary: 25 76% 50%;
-    --brand-secondary: 46 65% 60%;
+    /* Brand Colors - Gold & Wine */
+    --brand-primary: 0 100% 38%;
+    /* Wine Red */
+    --brand-secondary: 46 100% 50%;
+    /* Gold */
 
     /* Update Secondary/Muted for Dark Mode */
-    --secondary: 217 19% 27%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 19% 27%;
-    --accent: 217 19% 27%;
-    --accent-foreground: 210 40% 98%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 46 100% 50%;
+    /* Gold Text */
+    --muted: 0 0% 12%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 46 100% 50%;
+    /* Gold Text */
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-    /* Sidebar Overrides (mapped to admin variables, but ensuring consistency) */
-    --sidebar-accent: 217 19% 27%;
+    /* Sidebar - Deepest Black */
+    --sidebar-background: 0 0% 3%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 46 100% 50%;
+    /* Gold Selection */
+    --sidebar-primary-foreground: 0 0% 0%;
+    /* Black Text on Gold */
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 46 100% 50%;
+    --sidebar-border: 0 0% 10%;
+    --sidebar-ring: 46 100% 50%;
+  }
+}
+
+@layer utilities {
+  .crisp-edges {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: pixelated;
+  }
+
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  .bg-grid-pattern {
+    background-image: linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px);
+    background-size: 100px 100px;
   }
 }

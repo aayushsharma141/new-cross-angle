@@ -114,7 +114,7 @@ const ProjectGallery = ({ gallery, title }: ProjectGalleryProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/98 backdrop-blur-xl flex items-center justify-center"
+            className="fixed inset-0 z-[9999] bg-background/98 backdrop-blur-xl flex items-center justify-center"
             onClick={closeLightbox}
           >
             {/* Close Button */}
@@ -194,6 +194,7 @@ const ProjectGallery = ({ gallery, title }: ProjectGalleryProps) => {
                       ? "ring-2 ring-primary scale-110"
                       : "opacity-50 hover:opacity-100"
                   )}
+                  aria-label={`View ${item.room} image`}
                 >
                   <Image
                     src={item.image}

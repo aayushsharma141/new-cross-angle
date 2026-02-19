@@ -11,6 +11,7 @@ import AboutStats from "@/components/about/AboutStats";
 import AboutTimeline from "@/components/about/AboutTimeline";
 import AboutCTA from "@/components/about/AboutCTA";
 import AboutVideoModal from "@/components/about/AboutVideoModal";
+import AboutTeam from "@/components/about/AboutTeam";
 import { AppBreadcrumb } from "@/components/AppBreadcrumb";
 
 const AboutPage = () => {
@@ -49,6 +50,9 @@ const AboutPage = () => {
 
         {/* Timeline with Scroll Animation */}
         <AboutTimeline />
+
+        {/* The Visionaries - Team Section */}
+        <AboutTeam />
 
         {/* CTA Section */}
         <AboutCTA />

@@ -18,7 +18,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ServiceDetail, Feature, ProcessStep, FAQItem } from "@repo/types";
+import { ServiceDetail } from "@repo/types";
 import { FeaturesEditor, ProcessEditor, FAQEditor } from "@/components/admin/ServiceFormFields";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
 import {
@@ -66,15 +66,57 @@ const AdminServices = () => {
     }, []);
 
     const fetchServices = async () => {
+        setIsLoading(true);
+        // Fetch services with their related steps and faqs
         const { data, error } = await supabase
             .from('services')
-            .select('*')
+            .select(`
+                *,
+                service_steps (*),
+                service_faqs (*)
+            `)
             .order('display_order', { ascending: true });
 
+        if (error) {
+            console.error("Error fetching services:", error);
+            toast({
+                title: "Error fetching services",
+                description: error.message,
+                variant: "destructive",
+            });
+            setIsLoading(false);
+            return;
+        }
+
         if (data) {
-            // Need to ensure JSON fields are parsed if Supabase returns them as strings (though pg usually handles this)
-            // But we cast to ServiceDetail[] assuming the API/Supabase client types are aligned or raw data matches
-            setServices(data as unknown as ServiceDetail[]);
+            const mappedServices: ServiceDetail[] = data.map((item: any) => {
+                const descJson = typeof item.description === 'string'
+                    ? JSON.parse(item.description)
+                    : item.description || {};
+
+                return {
+                    id: item.id,
+                    created_at: item.created_at,
+                    title: item.name, // Mapping 'name' to 'title'
+                    slug: item.slug,
+                    category_id: descJson.category_id || "residential", // Storing category in description or fallback
+                    // Start: Schema mapping
+                    description: descJson.content || item.short_description || "",
+                    hero_image: item.icon_url || "", // Using icon_url for hero image for now, or we store it in desc
+                    icon: descJson.icon || "Home",
+                    tag: item.short_tag || "",
+                    features: descJson.features || [],
+                    process_steps: item.service_steps?.sort((a: any, b: any) => a.step_number - b.step_number).map((step: any) => ({
+                        title: step.title,
+                        description: step.description
+                    })) || [],
+                    faq: item.service_faqs?.sort((a: any, b: any) => a.display_order - b.display_order).map((f: any) => ({
+                        question: f.question,
+                        answer: f.answer
+                    })) || []
+                };
+            });
+            setServices(mappedServices);
         }
         setIsLoading(false);
     };
@@ -124,30 +166,74 @@ const AdminServices = () => {
         setIsSaving(true);
 
         try {
-            const serviceData = {
-                title: formData.title,
-                slug: formData.slug || generateSlug(formData.title || ""),
-                description: formData.description,
-                hero_image: formData.hero_image,
-                category_id: formData.category_id,
-                icon: formData.icon,
-                tag: formData.tag || null,
+            // Prepare the JSONB description object
+            const descriptionData = {
+                content: formData.description,
                 features: formData.features,
-                process_steps: formData.process_steps,
-                faq: formData.faq
+                icon: formData.icon,
+                category_id: formData.category_id
             };
+
+            const servicePayload = {
+                name: formData.title,
+                slug: formData.slug || generateSlug(formData.title || ""),
+                description: descriptionData,
+                icon_url: formData.hero_image, // Storing hero image in icon_url or maybe distinct column? DB has icon_url.
+                short_tag: formData.tag || null,
+                display_order: services.length + 1,
+                active: true
+            };
+
+            let serviceId = editingService?.id;
 
             if (editingService) {
                 const { error } = await supabase
                     .from('services')
-                    .update(serviceData)
+                    .update(servicePayload)
                     .eq('id', editingService.id);
                 if (error) throw error;
             } else {
-                const { error } = await supabase
+                const { data, error } = await supabase
                     .from('services')
-                    .insert([{ ...serviceData, display_order: services.length + 1 }]);
+                    .insert([servicePayload])
+                    .select()
+                    .single();
                 if (error) throw error;
+                serviceId = data.id;
+            }
+
+            if (serviceId) {
+                // Handle Steps
+                // First delete existing steps for this service
+                await supabase.from('service_steps').delete().eq('service_id', serviceId);
+
+                // Insert new steps
+                if (formData.process_steps && formData.process_steps.length > 0) {
+                    const stepsPayload = formData.process_steps.map((step, index) => ({
+                        service_id: serviceId,
+                        step_number: index + 1,
+                        title: step.title,
+                        description: step.description
+                    }));
+                    const { error: stepsError } = await supabase.from('service_steps').insert(stepsPayload);
+                    if (stepsError) throw stepsError;
+                }
+
+                // Handle FAQs
+                // First delete existing faqs
+                await supabase.from('service_faqs').delete().eq('service_id', serviceId);
+
+                // Insert new faqs
+                if (formData.faq && formData.faq.length > 0) {
+                    const faqPayload = formData.faq.map((f, index) => ({
+                        service_id: serviceId,
+                        display_order: index + 1,
+                        question: f.question,
+                        answer: f.answer
+                    }));
+                    const { error: faqError } = await supabase.from('service_faqs').insert(faqPayload);
+                    if (faqError) throw faqError;
+                }
             }
 
             toast({

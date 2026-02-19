@@ -11,12 +11,17 @@ import {
   Download
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { StatCard } from "@/components/admin/StatCard";
+import { StatCard } from "@/components/admin/StatCard"; // Keeping for reference if needed elsewhere, or remove if unused.
+import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
 import { QuickActionButton } from "@/components/admin/QuickActions";
 import { Button } from "@/components/ui/button";
-import { TrafficChart } from "@/components/admin/analytics/TrafficChart";
-import { ConversionFunnel } from "@/components/admin/analytics/ConversionFunnel";
+import { ProjectPipelineChart } from "@/components/admin/analytics/ProjectPipelineChart";
+import { DesignPhasesChart } from "@/components/admin/analytics/DesignPhasesChart";
+import { MaterialSpendChart } from "@/components/admin/analytics/MaterialSpendChart";
 import { RecentActivityFeed } from "@/components/admin/dashboard/RecentActivityFeed";
+import { LeadsBySourceChart } from "@/components/admin/analytics/LeadsBySourceChart";
+import { ProjectsByServiceChart } from "@/components/admin/analytics/ProjectsByServiceChart";
+import { LeadsByCityList } from "@/components/admin/analytics/LeadsByCityList";
 import { CalendarDateRangePicker } from "@/components/ui/date-range-picker";
 import { useToast } from "@/hooks/use-toast";
 import { DateRange } from "react-day-picker";
@@ -152,47 +157,39 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Premium KPI Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title={date ? "New Projects" : "Total Projects"}
+        <AdminKPI
+          title="Active Projects"
           value={statsLoading ? "..." : stats?.projects.toString() || "0"}
+          change="+12% from last month"
+          trend="up"
           icon={Briefcase}
-          gradient="from-blue-500 to-blue-600"
-          bgGradient="from-blue-500/10 to-blue-500/5"
-          shadowColor="shadow-blue-500/50"
-          trend={undefined} // Remove trend if custom range, or calculate properly? For now remove to avoid confusion
-          className="admin-card-hover"
-          link="/admin/portfolio"
+          variant="gold"
         />
-        <StatCard
-          title={date ? "New Leads" : "Active Leads"}
+        <AdminKPI
+          title="New Leads"
           value={statsLoading ? "..." : stats?.leads.toString() || "0"}
+          change="+5 this week"
+          trend="up"
           icon={Users}
-          gradient="from-green-500 to-green-600"
-          bgGradient="from-green-500/10 to-green-500/5"
-          shadowColor="shadow-green-500/50"
-          trend={undefined}
-          className="admin-card-hover"
-          link="/admin/leads"
+          variant="secondary"
         />
-        <StatCard
-          title="Views"
-          value={stats?.views.toString() || "0"}
+        <AdminKPI
+          title="Total Views"
+          value={statsLoading ? "..." : stats?.views.toLocaleString() || "0"}
+          change="+8.4% growth"
+          trend="up"
           icon={Eye}
-          gradient="from-purple-500 to-purple-600"
-          bgGradient="from-purple-500/10 to-purple-500/5"
-          shadowColor="shadow-purple-500/50"
-          className="admin-card-hover"
+          variant="accent"
         />
-        <StatCard
-          title={date ? "New Testimonials" : "Testimonials"}
+        <AdminKPI
+          title="Testimonials"
           value={statsLoading ? "..." : stats?.testimonials.toString() || "0"}
+          change="4.8/5.0 avg score"
+          trend="neutral"
           icon={MessageSquare}
-          gradient="from-orange-500 to-orange-600"
-          bgGradient="from-orange-500/10 to-orange-500/5"
-          shadowColor="shadow-orange-500/50"
-          className="admin-card-hover"
-          link="/admin/testimonials"
+          variant="gold"
         />
       </div>
 
@@ -200,8 +197,17 @@ const AdminDashboard = () => {
         <div className="space-y-8">
           {/* Main Charts Area */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <TrafficChart />
-            <ConversionFunnel />
+            <LeadsBySourceChart />
+            <ProjectsByServiceChart />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2">
+              <ProjectPipelineChart />
+            </div>
+            <div className="md:col-span-1 h-full">
+              <LeadsByCityList />
+            </div>
           </div>
 
           {/* Recent Activity Section - Real Data */}
@@ -224,27 +230,27 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-2 gap-3">
               <QuickActionButton
                 icon={Plus}
-                label="New Project"
+                label="New Proposal"
                 href="/admin/portfolio"
-                gradient="from-blue-500 to-blue-600"
+                gradient="bg-admin-card border border-admin-gold/20 hover:border-admin-gold text-admin-foreground hover:bg-admin-surface"
               />
               <QuickActionButton
                 icon={Users}
-                label="Add Lead"
+                label="Register Client"
                 href="/admin/leads"
-                gradient="from-green-500 to-green-600"
+                gradient="bg-admin-card border border-admin-info/20 hover:border-admin-info text-admin-foreground hover:bg-admin-surface"
               />
               <QuickActionButton
                 icon={MessageSquare}
-                label="Testimonial"
+                label="Client Review"
                 href="/admin/testimonials"
-                gradient="from-purple-500 to-purple-600"
+                gradient="bg-admin-card border border-admin-success/20 hover:border-admin-success text-admin-foreground hover:bg-admin-surface"
               />
               <QuickActionButton
                 icon={TrendingUp}
-                label="Media"
+                label="Studio Assets"
                 href="/admin/media"
-                gradient="from-orange-500 to-orange-600"
+                gradient="bg-admin-card border border-amber-500/20 hover:border-amber-500 text-admin-foreground hover:bg-admin-surface"
               />
             </div>
           </div>

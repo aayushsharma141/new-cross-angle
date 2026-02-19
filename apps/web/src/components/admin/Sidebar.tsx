@@ -16,7 +16,8 @@ import {
     Image,
     Users,
     Calculator,
-    Percent
+    Percent,
+    Shield
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 
@@ -31,7 +32,8 @@ const navItems = [
     // Ah, I can just append it and see.
     { name: "Testimonials", href: "/admin/testimonials", icon: MessageSquare },
     { name: "Media", href: "/admin/media", icon: Image },
-    { name: "Team", href: "/admin/users", icon: Users },
+    { name: "Team Management", href: "/admin/team", icon: Users },
+    { name: "System Users", href: "/admin/users", icon: Shield },
     { name: "Cost Estimates", href: "/admin/estimate-leads", icon: Calculator },
     { name: "Rate Config", href: "/admin/estimate-rates", icon: Percent },
     { name: "Settings", href: "/admin/settings", icon: Settings },

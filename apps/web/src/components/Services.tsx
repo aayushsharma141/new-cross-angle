@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { serviceCategories } from "@/config/site-content";
+import { ServicesHorizontalScroll } from "./services/ServicesHorizontalScroll";
 
 const Services = () => {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
@@ -31,16 +32,11 @@ const Services = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+        {/* Mobile View: Vertical Stack */}
+        <div className="md:hidden grid grid-cols-1 gap-4">
           {serviceCategories.map((category, index) => {
+            // ... keep existing mapping logic ...
             const Icon = category.icon;
-            // Define asymmetric spans
-            const spans = [
-              "md:col-span-8 md:row-span-2 min-h-[400px]", // Large featured
-              "md:col-span-4 md:row-span-1 min-h-[300px]", // Smaller
-              "md:col-span-4 md:row-span-1 min-h-[300px]", // Smaller
-            ];
-
             return (
               <motion.div
                 key={category.id}
@@ -48,13 +44,12 @@ const Services = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className={cn(spans[index] || "md:col-span-4")}
+                className="col-span-1 min-h-[300px]"
               >
                 <Link
                   to={`/services/${category.slug}`}
                   className="block h-full group relative overflow-hidden rounded-3xl border border-white/10"
                 >
-                  {/* Background Image with Parallax-ready zoom */}
                   <div className="absolute inset-0 z-0 transition-transform duration-700 group-hover:scale-110">
                     <img
                       src={category.heroImage}
@@ -64,40 +59,34 @@ const Services = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                   </div>
 
-                  {/* Content Overlay */}
-                  <div className="absolute inset-0 z-10 p-6 md:p-10 flex flex-col justify-end">
-                    {/* Floating Icon */}
-                    <div className="mb-6 w-12 h-12 rounded-2xl bg-primary/20 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all duration-500">
-                      <Icon className="w-6 h-6 text-white" />
+                  <div className="absolute inset-0 z-10 p-6 flex flex-col justify-end">
+                    <div className="mb-4 w-10 h-10 rounded-xl bg-primary/20 backdrop-blur-md border border-white/20 flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
 
-                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                      <span className="text-primary font-mono text-xs tracking-widest uppercase mb-2 block">
+                    <div>
+                      <span className="text-primary font-mono text-[10px] tracking-widest uppercase mb-1 block">
                         0{index + 1}
                       </span>
-                      <h3 className="font-serif text-2xl md:text-4xl font-bold text-white mb-3">
+                      <h3 className="font-serif text-2xl font-bold text-white mb-2">
                         {category.title}
                       </h3>
-                      <p className="text-white/70 text-sm md:text-base max-w-sm line-clamp-2 md:line-clamp-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                        {category.description}
-                      </p>
                     </div>
 
-                    {/* Button-like Link */}
-                    <div className="mt-6 flex items-center text-white font-medium text-sm opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                      <span className="border-b border-primary pb-1">Explore Services</span>
-                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-2 transition-transform" />
+                    <div className="mt-4 flex items-center text-white font-medium text-xs">
+                      <span className="border-b border-primary pb-0.5">Explore</span>
+                      <ArrowRight className="ml-2 w-3 h-3" />
                     </div>
-                  </div>
-
-                  {/* Glass Shimmer Effect */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-700">
-                    <div className="absolute inset-[-100%] bg-gradient-to-tr from-white/0 via-white/5 to-white/0 transform rotate-45 animate-[shimmer_3s_infinite]" />
                   </div>
                 </Link>
               </motion.div>
             );
           })}
+        </div>
+
+        {/* Desktop View: Horizontal Scroll Pinned Section */}
+        <div className="hidden md:block -mx-[calc(50vw-50%)]">
+          <ServicesHorizontalScroll />
         </div>
 
         {/* CTA */}

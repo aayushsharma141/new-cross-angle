@@ -174,7 +174,10 @@ export const DiscoveryEngine = () => {
     const archetype = getArchetype(scores);
 
     return (
-        <div className="w-full h-screen bg-background text-foreground relative overflow-hidden flex flex-col lg:flex-row">
+        <div className={cn(
+            "w-full bg-background text-foreground relative flex flex-col lg:flex-row",
+            stage > Stage.Welcome && stage < Stage.Results ? "h-screen overflow-hidden" : "min-h-screen"
+        )}>
             {/* Cinematic wipe overlay */}
             <AnimatePresence>
                 {showWipe && (
@@ -231,8 +234,8 @@ export const DiscoveryEngine = () => {
 
             {/* Right Panel / Main Area */}
             <main className={cn(
-                "flex-1 relative overflow-hidden flex flex-col",
-                stage > Stage.Welcome && stage < Stage.Results ? "lg:h-full" : "w-full h-full"
+                "flex-1 relative flex flex-col",
+                stage > Stage.Welcome && stage < Stage.Results ? "lg:h-full overflow-hidden" : "w-full min-h-screen"
             )}>
                 {/* Magic UI Background Pattern (Full screen behind main content) */}
                 <DotPattern
@@ -252,12 +255,19 @@ export const DiscoveryEngine = () => {
                 )}
 
                 {/* Scrollable Stage Content */}
-                <div className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth scrollbar-hide">
+                <div className={cn(
+                    "flex-1",
+                    stage > Stage.Welcome && stage < Stage.Results ? "overflow-y-auto overflow-x-hidden scroll-smooth scrollbar-hide" : ""
+                )}>
                     <div className={cn(
                         "min-h-full flex flex-col items-center",
                         stage === Stage.Welcome || stage === Stage.Results ? "justify-center" : "justify-start py-20 lg:py-32"
                     )}>
-                        <div className="w-full relative z-10 transition-all duration-500 max-w-7xl mx-auto px-6">
+                        <div className={cn(
+                            "w-full relative z-10 transition-all duration-500 mx-auto",
+                            // Remove max-width and padding for Welcome/Results to allow full-width designs
+                            stage === Stage.Welcome || stage === Stage.Results ? "max-w-none px-0" : "max-w-7xl px-6"
+                        )}>
                             <AnimatePresence mode="wait">
                                 {stage === Stage.Welcome && <WelcomeScreen key="welcome" onStart={handleStart} />}
                                 {stage === Stage.Reflection && <ReflectionPrompt key="reflection" onComplete={handleReflectionComplete} />}

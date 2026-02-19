@@ -1,8 +1,9 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Sparkles, Clock, Heart, Eye, Palette, Lightbulb, Sun } from "lucide-react";
+import { Sparkles, Clock, Heart, Eye, Palette, Lightbulb, Sun, Home } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Lang } from "@/i18n/translations";
 import { useRef, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import BlurFade from "@/components/magicui/blur-fade";
 
 // Background images for cycling mosaic
@@ -40,7 +41,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [bgIndex, setBgIndex] = useState(0);
 
-  const { scrollYProgress } = useScroll({ target: containerRef });
+  const { scrollYProgress } = useScroll();
   const bgY = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
   // Cycle background images
@@ -70,12 +71,20 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
 
   return (
     <motion.div
-      ref={containerRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="flex flex-col items-center relative w-full overflow-x-hidden"
     >
+      {/* Home Button */}
+      <Link
+        to="/"
+        className="absolute top-4 left-4 z-20 flex items-center justify-center w-8 h-8 md:w-10 md:h-10 bg-background/50 backdrop-blur-md border border-border/50 rounded-full shadow-sm text-muted-foreground hover:text-foreground hover:bg-background transition-all duration-300"
+        aria-label="Return to Home"
+      >
+        <Home size={16} className="md:w-[18px] md:h-[18px]" />
+      </Link>
+
       {/* Language Toggle - Moved to be unobtrusive */}
       <div className="absolute top-4 right-4 z-20 flex items-center bg-background/50 backdrop-blur-md border border-border/50 rounded-full overflow-hidden shadow-sm">
         <button
@@ -101,7 +110,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
       {/* Hero Section with cycling background */}
       <div className="relative flex flex-col items-center justify-center min-h-[90vh] px-6 w-full">
         {/* Cycling background images - Confined to Hero */}
-        <div className="absolute inset-0 overflow-hidden rounded-3xl m-4 opacity-50">
+        <div className="absolute inset-0 overflow-hidden opacity-50">
           {bgImages.map((src, i) => (
             <motion.div
               key={i}
@@ -110,7 +119,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
               animate={{ opacity: bgIndex === i ? 0.4 : 0, scale: bgIndex === i ? 1.05 : 1 }}
               transition={{ duration: 2, ease: "easeInOut" }}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-transpose to-background/20 z-10" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/20 z-10" />
               <img src={src} alt="" className="w-full h-full object-cover grayscale-[0.3]" />
             </motion.div>
           ))}
@@ -122,8 +131,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
         ))}
 
         {/* Radial glow */}
-        <div className="absolute w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-          style={{ background: "radial-gradient(circle, hsla(var(--primary) / 0.15) 0%, transparent 70%)" }}
+        <div className="absolute w-[500px] h-[500px] rounded-full pointer-events-none z-0 bg-[radial-gradient(circle,hsla(var(--primary)/0.15)_0%,transparent_70%)]"
         />
 
         <motion.p
@@ -278,8 +286,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
           </button>
           <motion.button
             onClick={() => onStart("deep")}
-            className="relative flex flex-col items-center gap-1.5 px-8 py-5 bg-primary text-primary-foreground font-medium tracking-wide text-sm hover:opacity-90 transition-all duration-300 shimmer"
-            style={{ animation: "pulse-glow 3s ease-in-out infinite" }}
+            className="relative flex flex-col items-center gap-1.5 px-8 py-5 bg-primary text-primary-foreground font-medium tracking-wide text-sm hover:opacity-90 transition-all duration-300 shimmer animate-logo-pulse-glow"
           >
             <span className="flex items-center gap-2">
               <Clock size={16} />

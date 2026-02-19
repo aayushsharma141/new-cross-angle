@@ -5,45 +5,49 @@ import FloatingParticles from "./FloatingParticles";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { categories } from "@/data/projects";
-import { useProjects } from "@/context/ProjectContext";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Image } from "@/components/ui/image";
+import { motion } from "framer-motion";
+import Magnetic from "./ui/magnetic";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
 const Portfolio = () => {
-  const { projects } = useProjects();
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: api.getProjects
+  });
+
   const [activeFilter, setActiveFilter] = useState("All");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const filteredProjects = activeFilter === "All"
-    ? projects
-    : projects.filter(p => p.category === activeFilter);
+  const filteredProjects = projects.filter(
+    (project) => activeFilter === "All" || project.category === activeFilter
+  );
 
   const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
     setLightboxOpen(true);
   };
 
-  const navigateLightbox = useCallback((direction: "prev" | "next") => {
-    if (direction === "prev") {
-      setCurrentImageIndex(prev => (prev === 0 ? filteredProjects.length - 1 : prev - 1));
-    } else {
-      setCurrentImageIndex(prev => (prev === filteredProjects.length - 1 ? 0 : prev + 1));
-    }
-  }, [filteredProjects.length]);
+  const navigateLightbox = useCallback(
+    (direction: "next" | "prev") => {
+      if (direction === "next") {
+        setCurrentImageIndex((prev) => (prev + 1) % filteredProjects.length);
+      } else {
+        setCurrentImageIndex((prev) => (prev - 1 + filteredProjects.length) % filteredProjects.length);
+      }
+    },
+    [filteredProjects.length]
+  );
 
-  // Keyboard navigation for lightbox
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!lightboxOpen) return;
-
-      if (e.key === "ArrowLeft") {
-        navigateLightbox("prev");
-      } else if (e.key === "ArrowRight") {
-        navigateLightbox("next");
-      } else if (e.key === "Escape") {
-        setLightboxOpen(false);
-      }
+      if (e.key === "ArrowRight") navigateLightbox("next");
+      if (e.key === "ArrowLeft") navigateLightbox("prev");
+      if (e.key === "Escape") setLightboxOpen(false);
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -51,29 +55,34 @@ const Portfolio = () => {
   }, [lightboxOpen, navigateLightbox]);
 
   return (
-    <section id="portfolio" className="py-32 relative overflow-hidden bg-background">
-      {/* Dark overlay matching hero */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,hsl(352_78%_31%/0.1)_0%,transparent_50%)] z-0" />
-
-      {/* Interactive Floating Particles */}
-      <FloatingParticles count={15} />
-
-      {/* Decorative Elements */}
-      <div className="absolute top-20 left-20 w-32 h-32 border border-wine-500/10 rounded-full z-[1]" />
-      <div className="absolute bottom-20 right-20 w-48 h-48 border border-wine-500/10 rounded-full z-[1]" />
+    <section className="py-24 bg-background relative overflow-hidden" id="portfolio">
+      <FloatingParticles />
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div className="max-w-2xl">
-            <span className="inline-block text-primary font-medium tracking-[0.2em] uppercase text-sm mb-4 border-b-2 border-primary pb-2">
-              Our Work
-            </span>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mt-4 mb-6">
-              Featured <span className="text-primary">Projects</span>
-            </h2>
-            <p className="text-primary-foreground/70 text-lg md:text-xl leading-relaxed">
-              Explore our portfolio of stunning interior transformations that
-              showcase our commitment to excellence and attention to detail.
+            <VisuallyHidden>
+              <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary-foreground mb-6">
+                Curated Excellence
+              </h2>
+            </VisuallyHidden>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="mb-8"
+            >
+              {/* High-end Signature Placeholder */}
+              <img
+                src="https://images.unsplash.com/photo-1635405074683-96d6921a2a2c?auto=format&fit=crop&q=80&w=400&h=150"
+                alt="Curated Excellence Signature"
+                className="h-20 md:h-28 w-auto object-contain brightness-0 invert opacity-80"
+              />
+            </motion.div>
+            <p className="text-lg text-primary-foreground/60 leading-relaxed">
+              Explore our portfolio of ultra-luxury residences and high-value commercial environments
+              that redefine the boundaries of spatial anticipation.
             </p>
           </div>
           <Link
@@ -86,36 +95,53 @@ const Portfolio = () => {
         </div>
 
         {/* Category Filters */}
-        <div className="flex flex-wrap gap-3 mb-12" role="group" aria-label="Project category filters">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveFilter(category)}
-              className={cn(
-                "px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
-                activeFilter === category
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
-                  : "bg-primary-foreground/10 text-primary-foreground/70 hover:bg-primary-foreground/20 hover:text-primary-foreground"
-              )}
-              aria-pressed={activeFilter === category}
-            >
-              {category}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-4 mb-12" aria-label="Project category filters">
+          {categories.map((category) => {
+            const isSelected = activeFilter === category;
+            return (
+              <Magnetic key={category} strength={0.2}>
+                {isSelected ? (
+                  <button
+                    onClick={() => setActiveFilter(category)}
+                    aria-pressed="true"
+                    className={cn(
+                      "px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
+                      "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                    )}
+                  >
+                    {category}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setActiveFilter(category)}
+                    aria-pressed="false"
+                    className={cn(
+                      "px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
+                      "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    )}
+                  >
+                    {category}
+                  </button>
+                )}
+              </Magnetic>
+            );
+          })}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProjects.map((project, index) => (
-            <article
+            <div
               key={project.id}
-              className="group cursor-pointer animate-fade-in"
-              role="button"
-              tabIndex={0}
-              onClick={() => openLightbox(index)}
-              onKeyDown={(e) => e.key === "Enter" && openLightbox(index)}
-              aria-label={`View ${project.title} project`}
+              className="group relative animate-fade-in"
             >
-              <div className="relative overflow-hidden rounded-2xl mb-6">
+              <div
+                className="relative overflow-hidden rounded-xl aspect-[4/3] mb-4 cursor-pointer"
+                onClick={() => openLightbox(index)}
+                onKeyDown={(e) => e.key === "Enter" && openLightbox(index)}
+                role="button"
+                tabIndex={0}
+                aria-label={`View ${project.title} project`}
+              >
                 <div className="aspect-[4/5] overflow-hidden">
                   <Image
                     src={project.heroImage}
@@ -147,29 +173,23 @@ const Portfolio = () => {
                 </div>
               </div>
 
-              <div className="px-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="w-8 h-px bg-primary" />
-                  <span className="text-primary text-sm font-medium uppercase tracking-wider">
-                    {project.category}
-                  </span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-primary uppercase tracking-wider">{project.category}</span>
                 </div>
-                <h3 className="font-serif text-2xl font-semibold text-primary-foreground mb-3 group-hover:text-primary transition-colors duration-300">
-                  {project.title}
-                </h3>
+                <h3 className="text-xl font-display font-bold">{project.title}</h3>
                 <p className="text-primary-foreground/60 leading-relaxed mb-4">
                   {project.brief.substring(0, 100)}...
                 </p>
                 <Link
                   to={`/portfolio/${project.slug}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all"
+                  className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all focus:outline-none focus:ring-2 focus:ring-primary rounded"
                 >
                   View Full Project
                   <ArrowUpRight className="w-4 h-4" />
                 </Link>
               </div>
-            </article>
+            </div>
           ))}
         </div>
 
@@ -188,7 +208,7 @@ const Portfolio = () => {
 
       {/* Lightbox Dialog */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent className="max-w-5xl bg-foreground/95 backdrop-blur-xl border-primary-foreground/10 p-2 md:p-4">
+        <DialogContent className="max-w-5xl bg-background/95 backdrop-blur-xl border-primary/20 p-2 md:p-4 max-h-[85vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-primary/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-primary/40">
           <VisuallyHidden>
             <DialogTitle>Project Preview: {filteredProjects[currentImageIndex]?.title}</DialogTitle>
           </VisuallyHidden>
@@ -196,10 +216,10 @@ const Portfolio = () => {
             {/* Close button */}
             <button
               onClick={() => setLightboxOpen(false)}
-              className="absolute top-4 right-4 z-20 p-2 rounded-full bg-foreground/80 hover:bg-foreground transition-colors"
+              className="absolute top-4 right-4 z-20 p-2 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
               aria-label="Close lightbox"
             >
-              <X className="w-5 h-5 text-primary-foreground" />
+              <X className="w-5 h-5" />
             </button>
 
             {/* Navigation Arrows */}
@@ -253,7 +273,12 @@ const Portfolio = () => {
             </div>
 
             {/* Thumbnails */}
-            <div className="flex gap-2 px-4 pb-4 overflow-x-auto">
+            <div
+              className="flex gap-2 px-4 pb-4 overflow-x-auto focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-lg"
+              role="region"
+              aria-label="Project thumbnails"
+              tabIndex={0}
+            >
               {filteredProjects.map((project, index) => (
                 <button
                   key={project.id}

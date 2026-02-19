@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ChevronDown } from "lucide-react";
+import { KineticText } from "@/components/ui/kinetic-text";
 
 const ServicesHero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -70,19 +71,13 @@ const ServicesHero = () => {
       </div>
 
       {/* Noise texture overlay */}
-      <div 
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-        }}
-      />
+      <div className="absolute inset-0 opacity-[0.03] bg-noise" />
 
       {/* Grid lines */}
       <div className="absolute inset-0 opacity-[0.02]">
-        <div className="h-full w-full" style={{
-          backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
-          backgroundSize: '100px 100px'
-        }} />
+        <div
+          className="h-full w-full bg-grid-pattern"
+        />
       </div>
 
       <motion.div style={{ y, opacity }} className="relative z-10 container mx-auto px-4">
@@ -101,24 +96,23 @@ const ServicesHero = () => {
 
         {/* Main Title with staggered animation */}
         <div className="text-center mb-8">
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight">
-            {titleWords.map((word, index) => (
-              <motion.span
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.6,
-                  delay: index * 0.1,
-                  ease: [0.25, 0.46, 0.45, 0.94],
-                }}
-                className={`inline-block mx-2 ${
-                  word === "Design" ? "text-primary italic" : "text-foreground"
-                }`}
-              >
-                {word}
-              </motion.span>
-            ))}
+          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight flex flex-wrap justify-center gap-x-4 gap-y-2">
+            <KineticText preset="word-reveal" delay={0.1}>
+              You Dream It.
+            </KineticText>
+            <span className="flex gap-x-4">
+              <KineticText preset="word-reveal" delay={0.4}>
+                We
+              </KineticText>
+              <span className="text-primary italic">
+                <KineticText preset="word-reveal" delay={0.5}>
+                  Design
+                </KineticText>
+              </span>
+              <KineticText preset="word-reveal" delay={0.6}>
+                It.
+              </KineticText>
+            </span>
           </h1>
         </div>
 

@@ -49,10 +49,9 @@ const Navbar = () => {
                 src={logoIcon}
                 alt="Cross Angle Interior"
                 className={cn(
-                  "w-auto transition-all duration-500",
+                  "w-auto transition-all duration-500 crisp-edges",
                   isScrolled ? "h-12 md:h-14" : "h-14 md:h-16"
                 )}
-                style={{ imageRendering: 'crisp-edges' }}
               />
             </div>
             {/* Brand Text */}

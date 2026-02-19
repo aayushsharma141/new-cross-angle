@@ -65,7 +65,10 @@ export function CostEstimator() {
     /* ── Results mode: full-width, no side panels ── */
     if (showResults) {
         return (
-            <div className="w-full h-screen bg-zinc-950 overflow-y-auto font-sans">
+            <div className="w-full h-screen bg-zinc-950 overflow-y-auto font-sans relative">
+                <a href="/" className="absolute top-6 left-6 z-50 inline-flex items-center gap-2 px-4 py-2 bg-zinc-900/50 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest text-white hover:bg-red-600 transition-all border border-white/10">
+                    <span>←</span> Home
+                </a>
                 <div className="max-w-4xl mx-auto px-6 py-10 lg:py-16">
                     <StepResults
                         formData={formData}
@@ -103,9 +106,15 @@ export function CostEstimator() {
 
                 <div className="relative z-10">
                     <div className="w-10 h-0.5 bg-red-600/40 mb-6" />
+                    <h3 className="hidden lg:block text-xl font-serif font-bold text-white mb-2">Estimate Your Dream Space</h3>
                     <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] leading-relaxed max-w-[200px]">
-                        Transparent pricing with no hidden costs or surprises.
+                        Get a transparent, instant estimate for your interior design project. No hidden costs, just honest pricing.
                     </p>
+                    {currentStep === 0 && (
+                        <a href="/" className="inline-flex items-center gap-2 mt-6 text-xs font-bold uppercase tracking-widest text-white hover:text-red-500 transition-colors">
+                            <span className="text-lg">←</span> Home
+                        </a>
+                    )}
                 </div>
             </div>
 

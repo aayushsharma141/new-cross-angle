@@ -1,5 +1,6 @@
 import { ArrowRight, Calculator, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import WaterRippleEffect from "./WaterRippleEffect";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -70,11 +71,9 @@ const Hero = () => {
       <WaterRippleEffect />
 
       {/* Background Video with optimized Parallax */}
-      <div
+      <motion.div
         className="absolute inset-0 z-0"
-        style={{
-          transform: isMobile ? 'none' : `translateY(${parallaxBg}px)`,
-        }}
+        style={{ y: isMobile ? 0 : parallaxBg }}
       >
         <video
           autoPlay
@@ -91,14 +90,14 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/90 via-transparent to-[#0A0A0A]/30" />
         {/* Subtle wine tint overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(352_78%_31%/0.08)_0%,transparent_60%)]" />
-      </div>
+      </motion.div>
 
       {/* Content */}
-      <div
+      <motion.div
         className="container mx-auto px-4 relative z-10 pt-20"
         style={{
-          transform: isMobile ? 'none' : `translateY(${-parallaxContent}px)`,
-          opacity
+          y: isMobile ? 0 : -parallaxContent,
+          opacity: opacity
         }}
       >
         <div className="max-w-4xl mx-4 md:mx-[20px] px-4 md:px-[30px]">
@@ -168,13 +167,13 @@ const Hero = () => {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Interactive Scroll Indicator */}
-      <button
+      <motion.button
         onClick={handleScrollToServices}
         className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-10 group cursor-pointer"
-        style={{ opacity }}
+        style={{ opacity: opacity }}
       >
         <div className={`flex flex-col items-center gap-2 text-primary-foreground/50 transition-all duration-700 delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <span className="text-xs tracking-widest uppercase font-medium group-hover:text-primary transition-colors">Discover More</span>
@@ -183,7 +182,7 @@ const Hero = () => {
             <ChevronDown className="w-3 h-3 md:w-4 md:h-4 text-primary mt-1 animate-pulse" />
           </div>
         </div>
-      </button>
+      </motion.button>
     </section>
   );
 };

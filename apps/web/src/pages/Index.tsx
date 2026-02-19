@@ -34,21 +34,21 @@ const Index = () => {
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/" />
       </Helmet>
-      
+
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg"
       >
         Skip to main content
       </a>
-      
+
       <ScrollProgress />
       <WelcomePrompt />
+      <Navbar />
       <main id="main-content" className="min-h-screen relative z-10">
         <FixedSocialBar />
         <SectionNavDots />
         <WhatsAppButton />
-        <Navbar />
         <Hero />
         <About />
         <Services />
@@ -58,8 +58,8 @@ const Index = () => {
         <BeforeAfterShowcase />
         <Testimonials />
         <CTAContact />
-        <Footer />
       </main>
+      <Footer />
     </>
   );
 };

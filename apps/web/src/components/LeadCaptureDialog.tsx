@@ -11,7 +11,7 @@ import { toast } from "sonner";
 interface LeadCaptureDialogProps {
     children: React.ReactNode;
     source: string;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
     title?: string;
     description?: string;
     onSuccess?: () => void;
@@ -60,7 +60,7 @@ export const LeadCaptureDialog = ({
             // Reset form
             setFormData({ name: "", email: "", phone: "", message: defaultMessage });
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error submitting lead:", error);
             toast.error("Something went wrong. Please try again.");
         } finally {
