@@ -41,7 +41,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { EstimateStatsRow } from "@/components/admin/estimates/EstimateStatsRow";
-import { EstimateLeadDetailSheet } from "@/components/admin/estimates/EstimateLeadDetailSheet";
+import { EstimateLeadDetailSheet, EstimateLead } from "@/components/admin/estimates/EstimateLeadDetailSheet";
 
 type SortField = "created_at" | "lead_score" | "estimate_total_max" | "area" | "name";
 type SortDir = "asc" | "desc";
@@ -68,7 +68,7 @@ export default function AdminEstimateLeads() {
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [sortField, setSortField] = useState<SortField>("created_at");
     const [sortDir, setSortDir] = useState<SortDir>("desc");
-    const [selectedLead, setSelectedLead] = useState<any | null>(null);
+    const [selectedLead, setSelectedLead] = useState<EstimateLead | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
 
     const { toast } = useToast();
@@ -90,7 +90,7 @@ export default function AdminEstimateLeads() {
 
     // Update mutation
     const updateMutation = useMutation({
-        mutationFn: async ({ id, ...updates }: any) => {
+        mutationFn: async ({ id, ...updates }: Partial<EstimateLead> & { id: string }) => {
             const { error } = await supabase
                 .from("estimate_leads")
                 .update({ ...updates, updated_at: new Date().toISOString() })
@@ -102,7 +102,7 @@ export default function AdminEstimateLeads() {
             toast({ title: "Lead Updated", description: "Changes saved successfully." });
             setIsSheetOpen(false);
         },
-        onError: (err: any) => {
+        onError: (err: Error) => {
             toast({ variant: "destructive", title: "Error", description: err.message });
         },
     });
@@ -127,7 +127,7 @@ export default function AdminEstimateLeads() {
         if (search) {
             const q = search.toLowerCase();
             result = result.filter(
-                (l: any) =>
+                (l: EstimateLead) =>
                     l.name?.toLowerCase().includes(q) ||
                     l.email?.toLowerCase().includes(q) ||
                     l.city?.toLowerCase().includes(q) ||
@@ -136,20 +136,23 @@ export default function AdminEstimateLeads() {
         }
 
         if (categoryFilter !== "all") {
-            result = result.filter((l: any) => l.lead_category === categoryFilter);
+            result = result.filter((l: EstimateLead) => l.lead_category === categoryFilter);
         }
 
         if (statusFilter !== "all") {
-            result = result.filter((l: any) => l.status === statusFilter);
+            result = result.filter((l: EstimateLead) => l.status === statusFilter);
         }
 
-        result.sort((a: any, b: any) => {
-            const aVal = a[sortField] ?? 0;
-            const bVal = b[sortField] ?? 0;
-            if (typeof aVal === "string") {
+        result.sort((a: EstimateLead, b: EstimateLead) => {
+            const aVal = a[sortField as keyof EstimateLead] ?? 0;
+            const bVal = b[sortField as keyof EstimateLead] ?? 0;
+            if (typeof aVal === "string" && typeof bVal === "string") {
                 return sortDir === "asc" ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
             }
-            return sortDir === "asc" ? aVal - bVal : bVal - aVal;
+            if (typeof aVal === "number" && typeof bVal === "number") {
+                return sortDir === "asc" ? aVal - bVal : bVal - aVal;
+            }
+            return 0;
         });
 
         return result;
@@ -158,11 +161,11 @@ export default function AdminEstimateLeads() {
     // Stats
     const stats = useMemo(() => {
         const total = leads.length;
-        const hot = leads.filter((l: any) => l.lead_category === "HOT").length;
-        const converted = leads.filter((l: any) => l.status === "converted").length;
+        const hot = leads.filter((l: EstimateLead) => l.lead_category === "HOT").length;
+        const converted = leads.filter((l: EstimateLead) => l.status === "converted").length;
         const avgEstimate =
             total > 0
-                ? leads.reduce((sum: number, l: any) => sum + ((l.estimate_total_min + l.estimate_total_max) / 2 || 0), 0) / total
+                ? leads.reduce((sum: number, l: EstimateLead) => sum + ((l.estimate_total_min + l.estimate_total_max) / 2 || 0), 0) / total
                 : 0;
         const conversionRate = total > 0 ? (converted / total) * 100 : 0;
         return { total, hot, avgEstimate, conversionRate };
@@ -180,7 +183,7 @@ export default function AdminEstimateLeads() {
     const handleExport = () => {
         const csvContent = [
             ["Name", "Email", "Phone", "City", "Area", "Budget", "Design Package", "Timeline", "Est Min", "Est Max", "Score", "Category", "Status", "Date"],
-            ...leads.map((l: any) => [
+            ...leads.map((l: EstimateLead) => [
                 l.name, l.email, l.phone, l.city, l.area, l.budget, l.design_package, l.timeline,
                 l.estimate_total_min, l.estimate_total_max, l.lead_score, l.lead_category, l.status,
                 l.created_at,
@@ -341,7 +344,7 @@ export default function AdminEstimateLeads() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {filteredLeads.map((lead: any) => {
+                            {filteredLeads.map((lead: EstimateLead) => {
                                 const cat = categoryConfig[lead.lead_category as keyof typeof categoryConfig] || categoryConfig.COLD;
                                 const CatIcon = cat.icon;
                                 return (

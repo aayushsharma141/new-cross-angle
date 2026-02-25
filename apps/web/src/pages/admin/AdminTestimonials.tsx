@@ -83,7 +83,7 @@ export default function AdminTestimonials() {
 
     // Delete mutation
     const deleteMutation = useMutation({
-        mutationFn: async (id: number) => {
+        mutationFn: async (id: string) => {
             const { error } = await supabase.from("testimonials").delete().eq("id", id);
             if (error) throw error;
         },
@@ -98,6 +98,7 @@ export default function AdminTestimonials() {
         mutation.mutate({ ...formData, id: editingId ?? undefined });
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleEdit = (item: any) => {
         setEditingId(item.id);
         setFormData({
@@ -211,7 +212,7 @@ export default function AdminTestimonials() {
                 />
             ) : (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {testimonials?.map((item: any) => (
+                    {testimonials?.map((item: { id: string; author_name: string; role: string; rating: number; content: string }) => (
                         <Card key={item.id} className="relative group overflow-hidden border-[hsl(var(--admin-border))]">
                             <CardHeader className="pb-3">
                                 <div className="flex justify-between items-start">

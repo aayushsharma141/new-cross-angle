@@ -31,6 +31,22 @@ const ActivityIcon = ({ type }: { type: string }) => {
     }
 };
 
+interface LeadActivity {
+    id: string;
+    lead_id: string;
+    activity_type: string;
+    description?: string;
+    metadata?: Record<string, unknown>;
+    old_status?: string;
+    new_status?: string;
+    notes?: string;
+    created_at: string;
+    profiles?: {
+        full_name: string | null;
+        avatar_url: string | null;
+    } | null;
+}
+
 export function LeadTimeline({ leadId }: LeadTimelineProps) {
     const { data: activities, isLoading } = useQuery({
         queryKey: ['lead-timeline', leadId],
@@ -48,7 +64,7 @@ export function LeadTimeline({ leadId }: LeadTimelineProps) {
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
-            return data;
+            return data as LeadActivity[];
         }
     });
 
@@ -60,7 +76,7 @@ export function LeadTimeline({ leadId }: LeadTimelineProps) {
 
     return (
         <div className="space-y-6 pl-2">
-            {activities.map((activity: any, index: number) => (
+            {activities.map((activity: LeadActivity, index: number) => (
                 <div key={activity.id} className="relative flex gap-4">
                     {/* Vertical Line */}
                     {index !== activities.length - 1 && (

@@ -70,6 +70,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete }: 
         }
     }, [lead]);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const logActivity = async (type: string, description: string, metadata: any = {}) => {
         if (!formData?.id) return;
 
@@ -100,11 +101,11 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete }: 
     const processTemplate = (templateBody: string, templateSubject: string) => {
         if (!formData) return { body: "", subject: "" };
 
-        let body = templateBody
+        const body = templateBody
             .replace(/{{name}}/g, formData.name || "there")
             .replace(/{{service}}/g, formData.service || "your project");
 
-        let subject = templateSubject
+        const subject = templateSubject
             .replace(/{{service}}/g, formData.service || "Project");
 
         return { body, subject };

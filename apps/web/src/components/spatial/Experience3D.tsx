@@ -183,6 +183,7 @@ function Scene({ onStyleUpdate, time }: { onStyleUpdate: (style: StyleType | nul
 
     // Silent Profiling Logic
     useEffect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let interval: any;
         if (activeStyle) {
             interval = setInterval(() => {

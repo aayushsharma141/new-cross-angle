@@ -195,7 +195,7 @@ export function CostEstimator() {
                     </div>
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 border-t border-white/5 bg-zinc-950/90 backdrop-blur-2xl p-4 lg:px-16 lg:py-6 flex justify-between items-center z-20">
+                <div className="absolute bottom-0 left-0 right-0 border-t border-white/5 bg-zinc-950/90 backdrop-blur-2xl p-4 pb-6 lg:px-16 lg:py-6 flex justify-between items-center z-20">
                     <button
                         onClick={prevStep}
                         disabled={currentStep === 0}

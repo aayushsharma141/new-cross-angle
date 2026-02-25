@@ -37,7 +37,7 @@ const EmotionalMapping = ({ onComplete }: Props) => {
     const warmth = values[0];
     // Shift from cool blue (220) to warm amber (30)
     return 220 - (warmth / 100) * 190;
-  }, [values[0]]);
+  }, [values]);
 
   const confirm = () => {
     const scores: Partial<AestheticScores> = {};
@@ -65,9 +65,9 @@ const EmotionalMapping = ({ onComplete }: Props) => {
       />
 
       <div className="relative z-10 w-full max-w-lg bg-card/90 backdrop-blur-sm p-8 md:p-12 rounded-lg shadow-sm border border-border/30">
-        <h2 className="font-serif-display text-2xl md:text-3xl mb-2 text-center">Emotional Environment</h2>
+        <h2 className="font-serif-display text-2xl md:text-3xl mb-2 text-center">Your Personal Space</h2>
         <p className="text-muted-foreground mb-10 text-center text-sm">
-          Adjust the atmosphere to match your ideal state of being.
+          Move each slider to match what feels right to you.
         </p>
 
         <div className="space-y-10">
@@ -91,6 +91,8 @@ const EmotionalMapping = ({ onComplete }: Props) => {
                   type="range"
                   min={0}
                   max={100}
+                  title={`${s.left} to ${s.right} slider`}
+                  aria-label={`${s.left} to ${s.right} preference`}
                   value={values[i]}
                   onChange={(e) => handleChange(i, Number(e.target.value))}
                   className="w-full h-[2px] bg-border appearance-none cursor-pointer
@@ -115,7 +117,7 @@ const EmotionalMapping = ({ onComplete }: Props) => {
           onClick={confirm}
           className="mt-10 w-full py-4 bg-primary text-primary-foreground text-sm font-medium tracking-wide hover:opacity-90 transition-opacity"
         >
-          LOCK IN ATMOSPHERE
+          SAVE MY PREFERENCES
         </button>
       </div>
     </motion.div>

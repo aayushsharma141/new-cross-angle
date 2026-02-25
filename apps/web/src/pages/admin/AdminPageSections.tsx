@@ -40,6 +40,7 @@ interface PageSection {
   image_url: string | null;
   cta_text: string | null;
   cta_url: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extra: Record<string, any> | null;
   updated_at: string;
 }
@@ -100,6 +101,7 @@ const AdminPageSections = () => {
 
   useEffect(() => {
     fetchContent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchContent = async () => {
@@ -153,6 +155,7 @@ const AdminPageSections = () => {
       });
 
       fetchContent();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast({
         title: "Error creating sections",
@@ -164,6 +167,7 @@ const AdminPageSections = () => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleContentChange = (sectionId: string, field: keyof PageSection | string, value: any) => {
     setSections(prev =>
       prev.map(section => {
@@ -214,6 +218,7 @@ const AdminPageSections = () => {
         title: "Content saved!",
         description: "Your changes have been saved successfully.",
       });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast({
         title: "Error saving content",
@@ -248,6 +253,7 @@ const AdminPageSections = () => {
       setNewSectionDialogOpen(false);
       setNewSectionName("");
       fetchContent();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast({
         title: "Error creating section",

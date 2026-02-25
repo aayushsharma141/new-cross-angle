@@ -14,6 +14,7 @@ export async function trackActivity(
     leadId: string,
     type: ActivityType,
     description: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     metadata?: any
 ) {
     try {

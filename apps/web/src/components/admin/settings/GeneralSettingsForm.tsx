@@ -44,6 +44,7 @@ export function GeneralSettingsForm() {
 
     useEffect(() => {
         fetchSettings();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchSettings = async () => {
@@ -141,12 +142,13 @@ export function GeneralSettingsForm() {
                 title: "Settings saved",
                 description: "Your site settings have been updated successfully.",
             });
-        } catch (error: any) {
-            console.error("Error saving settings:", error);
+        } catch (error) {
+            const err = error as Error;
+            console.error("Error saving settings:", err);
             toast({
                 variant: "destructive",
                 title: "Error",
-                description: error.message || "Failed to save settings.",
+                description: err.message || "Failed to save settings.",
             });
         } finally {
             setIsLoading(false);

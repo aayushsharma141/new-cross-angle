@@ -196,7 +196,50 @@ export default {
 				'marquee': {
 					'0%': { transform: 'translateX(0)' },
 					'100%': { transform: 'translateX(-50%)' }
-				}
+				},
+				'meteor-effect': {
+					'0%': { transform: 'rotate(215deg) translateX(0)', opacity: '1' },
+					'70%': { opacity: '1' },
+					'100%': {
+						transform: 'rotate(215deg) translateX(-600px)',
+						opacity: '0'
+					}
+				},
+				'sparkle-spin': {
+					'0%': { transform: 'rotate(0deg) scale(0)', opacity: '0' },
+					'50%': { transform: 'rotate(90deg) scale(1)', opacity: '1' },
+					'100%': { transform: 'rotate(180deg) scale(0)', opacity: '0' }
+				},
+				'animate-grid': {
+					'0%': { transform: 'translateY(-50%)' },
+					'100%': { transform: 'translateY(0)' }
+				},
+				'slide': {
+					'0%': { transform: 'translateY(-100%)' },
+					'100%': { transform: 'translateY(100%)' }
+				},
+				'spin-around': {
+					'0%': { transform: 'translateZ(0) rotate(0)' },
+					'15%, 35%': { transform: 'translateZ(0) rotate(90deg)' },
+					'65%, 85%': { transform: 'translateZ(0) rotate(270deg)' },
+					'100%': { transform: 'translateZ(0) rotate(360deg)' }
+				},
+				'rainbow': {
+					'0%': { '--angle': '0deg' },
+					'100%': { '--angle': '360deg' }
+				},
+				'ripple': {
+					'0%': { transform: 'scale(1)', opacity: '0.6' },
+					'100%': { transform: 'scale(40)', opacity: '0' }
+				},
+				'border-beam': {
+					'100%': { 'offset-distance': '100%' },
+				},
+				'shine-pulse': {
+					'0%': { 'background-position': '0% 0%' },
+					'50%': { 'background-position': '100% 100%' },
+					'100%': { 'background-position': '0% 0%' },
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -208,7 +251,16 @@ export default {
 				'logo-pulse-glow': 'logo-pulse-glow 2.5s ease-in-out infinite',
 				'logo-breathe': 'logo-breathe 3s ease-in-out infinite',
 				'text-shimmer': 'text-shimmer 4s ease-in-out infinite',
-				'marquee': 'marquee 60s linear infinite'
+				'marquee': 'marquee 60s linear infinite',
+				'meteor-effect': 'meteor-effect linear infinite',
+				'sparkle-spin': 'sparkle-spin 1.8s ease-in-out forwards',
+				'animate-grid': 'animate-grid 15s linear infinite',
+				'slide': 'slide 2s ease-in-out infinite alternate',
+				'spin-around': 'spin-around calc(var(--speed)*2) infinite linear',
+				'rainbow': 'rainbow calc(var(--speed,4s)) infinite linear',
+				'ripple': 'ripple 0.7s ease-out forwards',
+				'border-beam': 'border-beam calc(var(--duration)*1s) infinite linear',
+				'shine-pulse': 'shine-pulse 3s ease-in-out infinite',
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

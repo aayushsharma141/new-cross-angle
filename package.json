@@ -1,6 +1,7 @@
 {
   "name": "cross-angle-monorepo",
   "private": true,
+  "type": "module",
   "workspaces": [
     "apps/*",
     "packages/*"

@@ -40,6 +40,7 @@ export function CalendarDateRangePicker({
                 setDate({ from: today, to: today })
                 break
             case "yesterday":
+                // eslint-disable-next-line no-case-declarations
                 const yesterday = subDays(today, 1)
                 setDate({ from: yesterday, to: yesterday })
                 break

@@ -2,14 +2,22 @@ import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 interface DotPatternProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     width?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     height?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     x?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     y?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cx?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cy?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cr?: any;
     className?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
 }
 

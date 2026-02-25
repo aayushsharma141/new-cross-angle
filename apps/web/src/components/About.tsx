@@ -82,10 +82,18 @@ const About = () => {
           {/* Horizontal Stats Bar */}
           <div className="mb-16">
             <div className="relative bg-card/40 backdrop-blur-sm border border-border/20 rounded-2xl overflow-hidden">
-              {/* Stats Grid - Horizontal on all screens */}
-              <div className="flex overflow-x-auto md:overflow-visible scrollbar-hide snap-x snap-mandatory md:grid md:grid-cols-4 divide-x divide-white/5">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4">
                 {stats.map((stat, index) => (
-                  <div key={index} className="min-w-[50%] md:min-w-0 snap-center">
+                  <div
+                    key={index}
+                    className={`
+                      ${index % 2 !== 0 ? 'border-l border-white/5' : ''} 
+                      ${index < 2 ? 'border-b border-white/5' : ''}
+                      md:border-b-0
+                      ${index > 0 ? 'md:border-l md:border-white/5' : 'md:border-l-0'}
+                    `}
+                  >
                     <StatCard stat={stat} index={index} />
                   </div>
                 ))}

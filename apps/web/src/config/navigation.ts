@@ -13,8 +13,7 @@ export const servicesMenu = {
   ],
   specialized: [
     { name: "Modular Kitchen", href: "/services/specialized/modular-kitchens", description: "Factory-finished, quick install", icon: UtensilsCrossed, badge: "Popular" },
-    { name: "False Ceiling", href: "/services/specialized/ceilings", description: "Architectural elegance", icon: Lamp },
-    { name: "Design Calculators", href: "/calculators", description: "Plan your budget & lighting", icon: Calculator, badge: "New" },
+    { name: "False Ceiling", href: "/services/specialized/ceilings", description: "Architectural elegance", icon: Lamp }
   ],
 };
 

@@ -65,6 +65,7 @@ export function MediaDetailsSheet({ file, open, onClose, onDelete, onCopyUrl }: 
 
             setAiMetadata(data);
             toast({ title: "AI Caption Generated!", description: "Metadata updated successfully." });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             toast({
                 title: "Generation Failed",

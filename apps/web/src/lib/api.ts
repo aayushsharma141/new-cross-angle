@@ -1,4 +1,4 @@
-import { Project } from "@/data/projects";
+import { Project, projects as dummyProjects } from "@/data/projects";
 import { supabase } from "@/integrations/supabase/client";
 import { ServiceDetail } from "@repo/types";
 
@@ -9,12 +9,77 @@ export interface HeroContent {
   subtitle: string;
 }
 
+interface SupabaseGalleryItem {
+  room_name?: string;
+  image_url: string;
+}
+
+interface SupabaseMaterialItem {
+  name: string;
+  details?: string;
+}
+
+interface SupabaseProcessStep {
+  step_number: number;
+  title: string;
+  description: string;
+}
+
+interface SupabaseFAQ {
+  display_order: number;
+  question: string;
+  answer: string;
+}
+
+export interface SupabaseItem {
+  id: string;
+  slug?: string;
+  title?: string;
+  name?: string;
+  client_name?: string;
+  client?: string;
+  location?: string;
+  type?: string;
+  project_categories?: { name: string };
+  category?: string;
+  area?: string;
+  budget?: string;
+  duration?: string;
+  style?: string;
+  year_completed?: string | number;
+  year?: string | number;
+  cover_image_url?: string;
+  hero_image?: string;
+  project_gallery?: SupabaseGalleryItem[];
+  brief?: string;
+  approach?: string;
+  project_materials?: SupabaseMaterialItem[];
+  testimonial_quote?: string;
+  testimonial_author?: string;
+  testimonial_role?: string;
+  excerpt?: string;
+  cover_image?: string;
+  created_at?: string;
+  content?: string;
+  description?: string | { content?: string; icon?: string; category_id?: string; features?: string[] };
+  icon?: string;
+  short_tag?: string;
+  tag?: string;
+  icon_url?: string;
+  category_id?: string;
+  features?: string[];
+  service_steps?: SupabaseProcessStep[];
+  process_steps?: SupabaseProcessStep[];
+  service_faqs?: SupabaseFAQ[];
+  faq?: SupabaseFAQ[];
+}
+
 // Helper to map Supabase Project to Project interface
-const mapSupabaseToProject = (item: any): Project => {
+const mapSupabaseToProject = (item: SupabaseItem): Project => {
   // Group gallery items by room
   const galleryMap = new Map<string, string[]>();
   if (item.project_gallery && Array.isArray(item.project_gallery)) {
-    item.project_gallery.forEach((g: any) => {
+    item.project_gallery.forEach((g: SupabaseGalleryItem) => {
       const room = g.room_name || "General";
       if (!galleryMap.has(room)) {
         galleryMap.set(room, []);
@@ -29,7 +94,7 @@ const mapSupabaseToProject = (item: any): Project => {
   }));
 
   // Map materials
-  const materials = item.project_materials?.map((m: any) => ({
+  const materials = item.project_materials?.map((m: SupabaseMaterialItem) => ({
     name: m.name,
     details: m.details || ""
   })) || [];
@@ -46,7 +111,7 @@ const mapSupabaseToProject = (item: any): Project => {
     budget: item.budget || "-",
     duration: item.duration || "-",
     style: item.style || "-", // Check if style_tags is used instead
-    year: item.year_completed || item.year || new Date().getFullYear(),
+    year: Number(item.year_completed || item.year || new Date().getFullYear()),
     heroImage: item.cover_image_url || item.hero_image || "",
     gallery: gallery,
     brief: item.brief || "",
@@ -61,6 +126,7 @@ const mapSupabaseToProject = (item: any): Project => {
 };
 
 export interface Blog {
+  // ... existing blog map code below ...
   id: string;
   title: string;
   excerpt: string;
@@ -74,7 +140,7 @@ export interface Blog {
 // Re-export or use from @repo/types
 export type { ServiceDetail };
 
-const mapSupabaseToBlog = (item: any): Blog => {
+const mapSupabaseToBlog = (item: SupabaseItem): Blog => {
   return {
     id: item.id,
     title: item.title,
@@ -87,7 +153,7 @@ const mapSupabaseToBlog = (item: any): Blog => {
   };
 };
 
-const mapSupabaseToServiceDetail = (item: any): ServiceDetail => {
+const mapSupabaseToServiceDetail = (item: SupabaseItem): ServiceDetail => {
   // Parse description if it's a string (JSONB)
   const descJson = typeof item.description === 'string'
     ? JSON.parse(item.description)
@@ -104,12 +170,12 @@ const mapSupabaseToServiceDetail = (item: any): ServiceDetail => {
     hero_image: item.icon_url || item.hero_image || "",
     category_id: descJson.category_id || item.category_id || "residential",
     // Handle JSONB fields safely and joined relations
-    features: descJson.features || item.features || [],
-    process_steps: (item.service_steps || item.process_steps || []).sort((a: any, b: any) => a.step_number - b.step_number).map((s: any) => ({
+    features: (descJson && typeof descJson !== 'string' ? descJson.features : undefined) || item.features || [],
+    process_steps: (item.service_steps || item.process_steps || []).sort((a: SupabaseProcessStep, b: SupabaseProcessStep) => a.step_number - b.step_number).map((s: SupabaseProcessStep) => ({
       title: s.title,
       description: s.description
     })),
-    faq: (item.service_faqs || item.faq || []).sort((a: any, b: any) => a.display_order - b.display_order).map((f: any) => ({
+    faq: (item.service_faqs || item.faq || []).sort((a: SupabaseFAQ, b: SupabaseFAQ) => a.display_order - b.display_order).map((f: SupabaseFAQ) => ({
       question: f.question,
       answer: f.answer
     }))
@@ -118,7 +184,9 @@ const mapSupabaseToServiceDetail = (item: any): ServiceDetail => {
 
 export const api = {
   getProjects: async (): Promise<Project[]> => {
-    if (!supabase) return [];
+    if (!supabase) return dummyProjects;
+
+    // Check if we can reach supabase
     const { data, error } = await supabase
       .from('projects')
       .select(`
@@ -130,11 +198,16 @@ export const api = {
       .order('display_order', { ascending: true });
 
     if (error) {
-      console.error('Error fetching projects:', error);
-      return [];
+      console.warn('Error fetching projects, falling back to static data:', error);
+      return dummyProjects;
     }
 
-    return (data || []).map(mapSupabaseToProject);
+    // If no data is returned from Supabase, return dummy data to avoid blank portfolio sections
+    if (!data || data.length === 0) {
+      return dummyProjects;
+    }
+
+    return data.map(mapSupabaseToProject);
   },
 
   getBlogs: async (): Promise<Blog[]> => {

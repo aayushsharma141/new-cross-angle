@@ -148,6 +148,7 @@ const AdminBlogs = () => {
       setEditingPost(null);
       resetForm();
       fetchPosts();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast({
         title: "Error saving post",

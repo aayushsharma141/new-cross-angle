@@ -5,23 +5,21 @@ import {
   Users,
   Briefcase,
   Eye,
-  MessageSquare,
+  Star,
   Plus,
   TrendingUp,
-  Download
+  Download,
+  MessageSquare,
+  Zap,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { StatCard } from "@/components/admin/StatCard"; // Keeping for reference if needed elsewhere, or remove if unused.
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
 import { QuickActionButton } from "@/components/admin/QuickActions";
 import { Button } from "@/components/ui/button";
 import { ProjectPipelineChart } from "@/components/admin/analytics/ProjectPipelineChart";
-import { DesignPhasesChart } from "@/components/admin/analytics/DesignPhasesChart";
-import { MaterialSpendChart } from "@/components/admin/analytics/MaterialSpendChart";
+import { LeadFunnelChart } from "@/components/admin/analytics/LeadFunnelChart";
+import { LeadSourceChart } from "@/components/admin/analytics/LeadSourceChart";
 import { RecentActivityFeed } from "@/components/admin/dashboard/RecentActivityFeed";
-import { LeadsBySourceChart } from "@/components/admin/analytics/LeadsBySourceChart";
-import { ProjectsByServiceChart } from "@/components/admin/analytics/ProjectsByServiceChart";
-import { LeadsByCityList } from "@/components/admin/analytics/LeadsByCityList";
 import { CalendarDateRangePicker } from "@/components/ui/date-range-picker";
 import { useToast } from "@/hooks/use-toast";
 import { DateRange } from "react-day-picker";
@@ -34,103 +32,156 @@ const AdminDashboard = () => {
     to: new Date(),
   });
 
-  // Fetch real stats from database
+  // Fetch real aggregated stats from database
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["admin-stats", date],
     queryFn: async () => {
-      let projectsQuery = supabase.from("projects").select("*", { count: "exact", head: true });
-      let leadsQuery = supabase.from("leads").select("*", { count: "exact", head: true });
-      let testimonialsQuery = supabase.from("testimonials").select("*", { count: "exact", head: true });
+      const fromIso = date?.from?.toISOString();
+      const toIso = date?.to ? endOfDay(date.to).toISOString() : undefined;
 
-      if (date?.from) {
-        const fromIso = date.from.toISOString();
-        projectsQuery = projectsQuery.gte("created_at", fromIso);
-        leadsQuery = leadsQuery.gte("created_at", fromIso);
-        testimonialsQuery = testimonialsQuery.gte("created_at", fromIso);
-      }
+      // --- Projects ---
+      let projectsQuery = supabase
+        .from("projects")
+        .select("id, status, views", { count: "exact" });
+      if (fromIso) projectsQuery = projectsQuery.gte("created_at", fromIso);
+      if (toIso) projectsQuery = projectsQuery.lte("created_at", toIso);
 
-      if (date?.to) {
-        const toIso = endOfDay(date.to).toISOString();
-        projectsQuery = projectsQuery.lte("created_at", toIso);
-        leadsQuery = leadsQuery.lte("created_at", toIso);
-        testimonialsQuery = testimonialsQuery.lte("created_at", toIso);
-      }
+      // --- Leads ---
+      let leadsQuery = supabase
+        .from("leads")
+        .select("id, status", { count: "exact" });
+      if (fromIso) leadsQuery = leadsQuery.gte("created_at", fromIso);
+      if (toIso) leadsQuery = leadsQuery.lte("created_at", toIso);
 
-      // Parallel execution
-      const [projectsRes, leadsRes, testimonialsRes] = await Promise.all([
+      // --- Testimonials ---
+      let testimonialsQuery = supabase
+        .from("testimonials")
+        .select("id, rating", { count: "exact" })
+        .eq("active", true);
+      if (fromIso) testimonialsQuery = testimonialsQuery.gte("updated_at", fromIso);
+
+      // --- Estimate Leads (high-value) ---
+      let estimateQuery = supabase
+        .from("estimate_leads")
+        .select("estimate_total_min, estimate_total_max", { count: "exact" });
+      if (fromIso) estimateQuery = estimateQuery.gte("created_at", fromIso);
+      if (toIso) estimateQuery = estimateQuery.lte("created_at", toIso);
+
+      const [projectsRes, leadsRes, testimonialsRes, estimateRes] = await Promise.all([
         projectsQuery,
         leadsQuery,
-        testimonialsQuery
+        testimonialsQuery,
+        estimateQuery,
       ]);
 
-      // Views logic
-      let viewsCount = 0;
-      if (date?.from || date?.to) {
-        // If filtered, use analytics table
-        let analyticsQuery = supabase.from("content_analytics").select("*", { count: "exact", head: true }).eq("event_type", "view");
+      // Total views from projects
+      const totalViews = (projectsRes.data || []).reduce(
+        (acc, p) => acc + (p.views || 0),
+        0
+      );
 
-        if (date?.from) analyticsQuery = analyticsQuery.gte("created_at", date.from.toISOString());
-        if (date?.to) analyticsQuery = analyticsQuery.lte("created_at", endOfDay(date.to).toISOString());
+      // Won leads count
+      const wonLeads = (leadsRes.data || []).filter((l) => l.status === "won").length;
 
-        const { count } = await analyticsQuery;
-        viewsCount = count || 0;
-      } else {
-        // If all time (no date selected), sum up blog counters
-        const { data: blogs } = await supabase.from("blogs").select("views_count");
-        viewsCount = blogs?.reduce((acc, curr) => acc + (curr.views_count || 0), 0) || 0;
-      }
+      // Conversion rate
+      const totalLeads = leadsRes.count || 0;
+      const conversionRate = totalLeads > 0
+        ? Math.round((wonLeads / totalLeads) * 100)
+        : 0;
+
+      // Avg rating
+      const ratings = (testimonialsRes.data || [])
+        .map((t) => t.rating)
+        .filter((r): r is number => typeof r === "number");
+      const avgRating =
+        ratings.length > 0
+          ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)
+          : "—";
+
+      // Average estimate value
+      const estimates = estimateRes.data || [];
+      const totalEstimateValue = estimates.reduce((acc, e) => {
+        const mid = ((e.estimate_total_min || 0) + (e.estimate_total_max || 0)) / 2;
+        return acc + mid;
+      }, 0);
+      const avgEstimate = estimates.length > 0
+        ? Math.round(totalEstimateValue / estimates.length)
+        : 0;
 
       return {
         projects: projectsRes.count || 0,
-        leads: leadsRes.count || 0,
-        views: viewsCount,
-        testimonials: testimonialsRes.count || 0
+        leads: totalLeads,
+        views: totalViews,
+        estimateLeads: estimateRes.count || 0,
+        conversionRate,
+        avgRating,
+        avgEstimate,
       };
-    }
+    },
   });
 
-  // Download Report function (Filtered)
   const handleDownloadReport = async () => {
     try {
-      let projectsQuery = supabase.from("projects").select("title, category, status, created_at");
-      let leadsQuery = supabase.from("leads").select("name, email, status, created_at");
+      const fromIso = date?.from?.toISOString();
+      const toIso = date?.to ? endOfDay(date.to).toISOString() : undefined;
 
-      if (date?.from) {
-        projectsQuery = projectsQuery.gte("created_at", date.from.toISOString());
-        leadsQuery = leadsQuery.gte("created_at", date.from.toISOString());
+      let projectsQuery = supabase
+        .from("projects")
+        .select("title, status, created_at");
+      let leadsQuery = supabase
+        .from("leads")
+        .select("name, email, status, lead_source, lead_type, city, created_at");
+
+      if (fromIso) {
+        projectsQuery = projectsQuery.gte("created_at", fromIso);
+        leadsQuery = leadsQuery.gte("created_at", fromIso);
       }
-      if (date?.to) {
-        projectsQuery = projectsQuery.lte("created_at", endOfDay(date.to).toISOString());
-        leadsQuery = leadsQuery.lte("created_at", endOfDay(date.to).toISOString());
+      if (toIso) {
+        projectsQuery = projectsQuery.lte("created_at", toIso);
+        leadsQuery = leadsQuery.lte("created_at", toIso);
       }
 
       const [projects, leads] = await Promise.all([projectsQuery, leadsQuery]);
 
       const csvData = [
-        ["Dashboard Report", date?.from ? `From ${date.from.toLocaleDateString()}` : "All Time"],
+        ["Crossangle Dashboard Report", date?.from ? `From ${date.from.toLocaleDateString()}` : "All Time"],
         ["Generated", new Date().toLocaleString()],
         [""],
         ["Summary"],
-        ["New Projects", stats?.projects || 0],
-        ["New Leads", stats?.leads || 0],
-        ["New Testimonials", stats?.testimonials || 0],
-        ["Views", stats?.views || 0],
+        ["Projects", stats?.projects || 0],
+        ["Leads", stats?.leads || 0],
+        ["Estimate Enquiries", stats?.estimateLeads || 0],
+        ["Conversion Rate", `${stats?.conversionRate || 0}%`],
+        ["Avg Estimate Value", stats?.avgEstimate ? `₹${stats.avgEstimate.toLocaleString()}` : "—"],
+        ["Avg Rating", stats?.avgRating || "—"],
         [""],
         ["Projects"],
-        ["Title", "Category", "Status", "Created"],
-        ...(projects.data?.map(p => [p.title || "", p.category || "", p.status || "", new Date(p.created_at).toLocaleString()]) || []),
+        ["Title", "Status", "Created"],
+        ...(projects.data?.map((p) => [
+          p.title || "",
+          p.status || "",
+          new Date(p.created_at ?? "").toLocaleString(),
+        ]) || []),
         [""],
         ["Leads"],
-        ["Name", "Email", "Status", "Created"],
-        ...(leads.data?.map(l => [l.name, l.email, l.status, new Date(l.created_at).toLocaleString()]) || [])
+        ["Name", "Email", "Status", "Source", "Type", "City", "Created"],
+        ...(leads.data?.map((l) => [
+          l.name,
+          l.email,
+          l.status,
+          l.lead_source || "",
+          l.lead_type || "",
+          l.city || "",
+          new Date(l.created_at ?? "").toLocaleString(),
+        ]) || []),
       ];
 
-      const csv = csvData.map(row => row.join(",")).join("\n");
+      const csv = csvData.map((row) => row.join(",")).join("\n");
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `report-${new Date().toISOString().split("T")[0]}.csv`;
+      a.download = `crossangle-report-${new Date().toISOString().split("T")[0]}.csv`;
       a.click();
       URL.revokeObjectURL(url);
 
@@ -141,77 +192,83 @@ const AdminDashboard = () => {
     }
   };
 
+  const fmt = (n: number | undefined | null) =>
+    n === undefined || n === null ? "…" : n.toLocaleString();
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-display font-bold text-[hsl(var(--admin-foreground))]">Dashboard</h2>
-          <p className="text-[hsl(var(--admin-muted))]">Overview of your business performance.</p>
+          <h2 className="text-3xl font-display font-bold text-[hsl(var(--admin-foreground))]">
+            Intelligence Hub
+          </h2>
+          <p className="text-[hsl(var(--admin-muted))]">
+            Real-time business performance overview
+          </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 items-center w-full md:w-auto">
           <CalendarDateRangePicker date={date} setDate={setDate} className="w-full sm:w-auto" />
-          <Button variant="outline" size="sm" onClick={handleDownloadReport} className="w-full sm:w-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadReport}
+            className="w-full sm:w-auto"
+          >
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
         </div>
       </div>
 
-      {/* Premium KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* KPI Grid — all database-driven */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <AdminKPI
-          title="Active Projects"
-          value={statsLoading ? "..." : stats?.projects.toString() || "0"}
-          change="+12% from last month"
+          title="Portfolio Projects"
+          value={statsLoading ? "…" : fmt(stats?.projects)}
+          change="In selected period"
           trend="up"
           icon={Briefcase}
           variant="gold"
         />
         <AdminKPI
-          title="New Leads"
-          value={statsLoading ? "..." : stats?.leads.toString() || "0"}
-          change="+5 this week"
-          trend="up"
+          title="Total Leads"
+          value={statsLoading ? "…" : fmt(stats?.leads)}
+          change={`${stats?.conversionRate ?? 0}% converted`}
+          trend={stats?.conversionRate && stats.conversionRate > 10 ? "up" : "neutral"}
           icon={Users}
           variant="secondary"
         />
         <AdminKPI
-          title="Total Views"
-          value={statsLoading ? "..." : stats?.views.toLocaleString() || "0"}
-          change="+8.4% growth"
+          title="Estimate Enquiries"
+          value={statsLoading ? "…" : fmt(stats?.estimateLeads)}
+          change={stats?.avgEstimate ? `Avg ₹${(stats.avgEstimate / 100000).toFixed(1)}L` : "No data yet"}
           trend="up"
-          icon={Eye}
+          icon={Zap}
           variant="accent"
         />
         <AdminKPI
-          title="Testimonials"
-          value={statsLoading ? "..." : stats?.testimonials.toString() || "0"}
-          change="4.8/5.0 avg score"
+          title="Portfolio Views"
+          value={statsLoading ? "…" : fmt(stats?.views)}
+          change={stats?.avgRating !== "—" ? `${stats?.avgRating}/5 avg rating` : "No ratings yet"}
           trend="neutral"
-          icon={MessageSquare}
+          icon={Eye}
           variant="gold"
         />
       </div>
 
+      {/* Charts + Sidebar */}
       <div className="grid lg:grid-cols-[1fr_300px] gap-8">
         <div className="space-y-8">
-          {/* Main Charts Area */}
+          {/* Main Charts */}
+          <ProjectPipelineChart />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <LeadsBySourceChart />
-            <ProjectsByServiceChart />
+            <LeadFunnelChart />
+            <LeadSourceChart />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2">
-              <ProjectPipelineChart />
-            </div>
-            <div className="md:col-span-1 h-full">
-              <LeadsByCityList />
-            </div>
-          </div>
-
-          {/* Recent Activity Section - Real Data */}
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm h-full">
+          {/* Recent Activity */}
+          <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
             <div className="flex flex-col space-y-1.5 p-6 border-b">
               <h3 className="font-semibold leading-none tracking-tight">Recent Activity</h3>
               <p className="text-sm text-muted-foreground">
@@ -224,49 +281,83 @@ const AdminDashboard = () => {
           </div>
         </div>
 
+        {/* Right Sidebar */}
         <div className="space-y-6">
           <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
             <h3 className="font-semibold mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-3">
               <QuickActionButton
                 icon={Plus}
-                label="New Proposal"
+                label="New Project"
                 href="/admin/portfolio"
                 gradient="bg-admin-card border border-admin-gold/20 hover:border-admin-gold text-admin-foreground hover:bg-admin-surface"
               />
               <QuickActionButton
                 icon={Users}
-                label="Register Client"
+                label="Add Lead"
                 href="/admin/leads"
                 gradient="bg-admin-card border border-admin-info/20 hover:border-admin-info text-admin-foreground hover:bg-admin-surface"
               />
               <QuickActionButton
                 icon={MessageSquare}
-                label="Client Review"
+                label="Testimonials"
                 href="/admin/testimonials"
                 gradient="bg-admin-card border border-admin-success/20 hover:border-admin-success text-admin-foreground hover:bg-admin-surface"
               />
               <QuickActionButton
                 icon={TrendingUp}
-                label="Studio Assets"
+                label="Media"
                 href="/admin/media"
                 gradient="bg-admin-card border border-amber-500/20 hover:border-amber-500 text-admin-foreground hover:bg-admin-surface"
               />
             </div>
           </div>
 
+          {/* Conversion Insight */}
+          <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6 space-y-4">
+            <h3 className="font-semibold">Conversion Snapshot</h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Lead Conversion</span>
+                <span className="font-medium text-emerald-500">
+                  {statsLoading ? "…" : `${stats?.conversionRate ?? 0}%`}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Avg Estimate</span>
+                <span className="font-medium">
+                  {statsLoading
+                    ? "…"
+                    : stats?.avgEstimate
+                      ? `₹${(stats.avgEstimate / 100000).toFixed(1)}L`
+                      : "—"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Avg Rating</span>
+                <span className="font-medium">
+                  {statsLoading ? "…" : stats?.avgRating ?? "—"}
+                  {stats?.avgRating && stats.avgRating !== "—" ? (
+                    <Star className="inline w-3 h-3 ml-1 text-amber-400 fill-amber-400" />
+                  ) : null}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* System Status */}
           <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
             <h3 className="font-semibold mb-4">System Status</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
                 <span>Database</span>
                 <span className="text-green-600 font-medium">Healthy</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between">
                 <span>Storage</span>
-                <span className="text-green-600 font-medium">45% used</span>
+                <span className="text-green-600 font-medium">Active</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between">
                 <span>API</span>
                 <span className="text-green-600 font-medium">Operational</span>
               </div>

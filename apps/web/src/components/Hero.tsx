@@ -113,7 +113,7 @@ const Hero = () => {
           </div>
 
           <h1
-            className={`font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-primary-foreground leading-[1.05] mb-6 md:mb-8 transition-all duration-700 delay-100 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`font-serif text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-primary-foreground leading-[1.05] mb-6 md:mb-8 transition-all duration-700 delay-100 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
           >
             {heroContent.headlineLine1}
@@ -123,7 +123,7 @@ const Hero = () => {
           </h1>
 
           <p
-            className={`text-primary-foreground/85 text-lg md:text-xl lg:text-2xl mb-8 md:mb-10 leading-relaxed font-light max-w-2xl transition-all duration-700 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`text-primary-foreground/85 text-base md:text-xl lg:text-2xl mb-8 md:mb-10 leading-relaxed font-light max-w-2xl transition-all duration-700 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
           >
             {heroContent.subtitle}
@@ -132,9 +132,9 @@ const Hero = () => {
           {/* CTA Buttons */}
           <div className={`flex flex-col sm:flex-row gap-3 md:gap-4 mb-10 md:mb-12 transition-all duration-700 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
             <Link to="/contact-us">
-              <Button size="lg" className="group text-base md:text-lg px-6 md:px-8 py-5 md:py-6 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all duration-300 w-full sm:w-auto">
+              <Button size="lg" className="group text-sm md:text-lg px-4 md:px-8 py-5 md:py-6 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all duration-300 w-full sm:w-auto">
                 Book Free Consultation
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Link>
             <Link to="/quiz">

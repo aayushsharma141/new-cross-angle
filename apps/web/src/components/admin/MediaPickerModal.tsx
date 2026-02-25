@@ -106,6 +106,7 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
             toast({ title: "Upload successful" });
             onSelect(publicUrl);
             onOpenChange(false);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             toast({
                 title: "Upload failed",

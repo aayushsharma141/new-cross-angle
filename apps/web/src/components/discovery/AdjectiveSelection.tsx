@@ -9,14 +9,6 @@ interface AdjectiveSelectionProps {
   onComplete: (partial: Partial<AestheticScores>, adjectives: string[], freeText: string) => void;
 }
 
-// Varying sizes for organic word cloud feel
-const wordSizes: Record<string, string> = {
-  Calm: "text-base", Structured: "text-sm", Bold: "text-lg", Playful: "text-base",
-  Elegant: "text-lg", Moody: "text-sm", Warm: "text-lg", Minimal: "text-base",
-  Eclectic: "text-sm", Soft: "text-base", Grounded: "text-sm", Luxurious: "text-lg",
-  Organic: "text-base", Modern: "text-sm", Timeless: "text-lg",
-};
-
 const AdjectiveSelection = ({ onComplete }: AdjectiveSelectionProps) => {
   const { t } = useLanguage();
   const [selected, setSelected] = useState<string[]>([]);
@@ -58,56 +50,81 @@ const AdjectiveSelection = ({ onComplete }: AdjectiveSelectionProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex h-full flex-col items-center justify-center px-6 py-20"
+      className="flex h-full flex-col items-center justify-center px-6 py-12"
     >
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex items-center gap-2 mb-4">
-        <Pen size={14} className="text-muted-foreground" />
-        <p className="tracking-premium text-muted-foreground">{t("adjective_subtitle")}</p>
+      {/* Eyebrow */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="flex items-center gap-2 mb-4"
+      >
+        <Pen size={13} className="text-white/30" />
+        <p className="text-[10px] uppercase tracking-[0.25em] font-mono text-white/30">
+          {t("adjective_subtitle")}
+        </p>
       </motion.div>
 
+      {/* Title */}
       <motion.h2
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="font-serif-display text-3xl md:text-4xl font-medium text-center max-w-lg leading-tight mb-4"
+        className="font-serif-display text-3xl md:text-4xl font-normal text-white/90 text-center max-w-lg leading-tight mb-3"
       >
         {t("adjective_title")}
       </motion.h2>
 
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-muted-foreground text-center max-w-md mb-10">
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="text-white/40 text-center max-w-md text-sm mb-10"
+      >
         {t("adjective_desc")}
       </motion.p>
 
-      {/* Organic word cloud */}
+      {/* 4-column word grid — no orphaned words */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="flex flex-wrap justify-center items-center gap-3 max-w-xl mb-6"
+        className="grid grid-cols-4 gap-2 max-w-2xl w-full mb-6"
       >
         {ADJECTIVE_OPTIONS.map((adj, i) => {
           const isActive = selected.includes(adj);
-          const sizeClass = wordSizes[adj] || "text-sm";
           return (
             <motion.button
               key={adj}
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4 + i * 0.03 }}
               onClick={() => toggle(adj)}
-              className={`relative px-5 py-2.5 ${sizeClass} font-medium tracking-wide border transition-all duration-300 overflow-hidden ${isActive
-                  ? "text-primary-foreground border-primary"
-                  : "border-border text-foreground hover:border-foreground/30 hover:bg-accent"
-                }`}
+              className={`
+                relative py-3 px-3 text-sm font-light tracking-wide border
+                transition-all duration-300 overflow-hidden text-center
+                ${isActive
+                  ? "border-amber-400/60 text-white"
+                  : "border-white/10 text-white/50 hover:border-white/25 hover:text-white/75"
+                }
+              `}
             >
-              {/* Ink bleed background */}
+              {/* Amber ink-bleed background on select */}
               {isActive && (
                 <motion.div
-                  className="absolute inset-0 bg-primary"
+                  className="absolute inset-0 bg-amber-400/10"
                   initial={{ scale: 0, borderRadius: "50%" }}
-                  animate={{ scale: 2, borderRadius: "0%" }}
+                  animate={{ scale: 3, borderRadius: "0%" }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
                   style={{ transformOrigin: "center" }}
+                />
+              )}
+              {/* Left accent line */}
+              {isActive && (
+                <motion.div
+                  initial={{ scaleY: 0 }}
+                  animate={{ scaleY: 1 }}
+                  className="absolute left-0 top-0 bottom-0 w-[2px] bg-amber-400 origin-center"
                 />
               )}
               <span className="relative z-10">{adj}</span>
@@ -123,47 +140,62 @@ const AdjectiveSelection = ({ onComplete }: AdjectiveSelectionProps) => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="flex flex-wrap justify-center gap-2 mb-8 py-3 px-4 border-t border-b border-border/50"
+            className="flex flex-wrap justify-center gap-2 mb-8 py-3 px-4 border-t border-b border-white/[0.08] w-full max-w-2xl"
           >
-            <span className="text-xs tracking-premium text-muted-foreground mr-2 self-center">YOUR WORDS</span>
+            <span className="text-[9px] tracking-[0.2em] uppercase font-mono text-white/25 mr-2 self-center">
+              Your Words
+            </span>
             {selected.map((adj) => (
               <motion.span
                 key={adj}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="font-serif-display text-base italic text-foreground"
+                className="font-serif-display text-sm italic text-amber-200/80"
               >
                 {adj}
-                {selected.indexOf(adj) < selected.length - 1 && <span className="text-muted-foreground mx-1">·</span>}
+                {selected.indexOf(adj) < selected.length - 1 && (
+                  <span className="text-white/20 mx-1">·</span>
+                )}
               </motion.span>
             ))}
           </motion.div>
         )}
       </AnimatePresence>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="w-full max-w-md mb-10">
-        <label className="block text-sm text-muted-foreground mb-2">{t("adjective_freetext")}</label>
+      {/* Free text input */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="w-full max-w-2xl mb-8"
+      >
+        <label className="block text-[10px] uppercase tracking-[0.2em] font-mono text-white/25 mb-2">
+          {t("adjective_freetext")}
+        </label>
         <input
           type="text"
           value={freeText}
           onChange={(e) => setFreeText(e.target.value)}
           placeholder={t("adjective_placeholder")}
-          className="w-full border-b border-border bg-transparent py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-foreground transition-colors font-serif-display italic"
+          className="w-full border-b border-white/15 bg-transparent py-3 text-white/80 placeholder:text-white/20
+            focus:outline-none focus:border-white/40 transition-colors font-serif-display italic text-sm"
         />
       </motion.div>
 
+      {/* CTA — warm cream */}
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
         onClick={handleSubmit}
         disabled={selected.length < 3 && !freeText}
-        className="px-10 py-4 bg-primary text-primary-foreground font-medium tracking-wide text-sm hover:opacity-90 transition-opacity disabled:opacity-40"
+        className="px-12 py-4 bg-white/90 text-[#0D0A08] text-xs font-medium tracking-[0.2em] uppercase
+          hover:bg-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
         {t("adjective_continue")}
       </motion.button>
 
-      <p className="mt-4 text-xs text-muted-foreground">
+      <p className="mt-4 text-[9px] font-mono text-white/20 uppercase tracking-widest">
         {selected.length}/5 {t("adjective_count")}
       </p>
     </motion.div>

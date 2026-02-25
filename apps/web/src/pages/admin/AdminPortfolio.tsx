@@ -32,6 +32,7 @@ export default function AdminPortfolio() {
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [editingItem, setEditingItem] = useState<any | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -100,6 +101,7 @@ export default function AdminPortfolio() {
     },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEdit = (item: any) => {
     setEditingItem(item);
     setIsFormOpen(true);
@@ -151,7 +153,7 @@ export default function AdminPortfolio() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">All Categories</SelectItem>
-              {categories.map((cat: any) => (
+              {categories.map((cat: { id: string; name: string }) => (
                 <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
               ))}
             </SelectContent>

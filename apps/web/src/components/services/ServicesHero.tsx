@@ -95,12 +95,12 @@ const ServicesHero = () => {
         </motion.div>
 
         {/* Main Title with staggered animation */}
-        <div className="text-center mb-8">
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight flex flex-wrap justify-center gap-x-4 gap-y-2">
+        <div className="text-center mb-8 px-2">
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight flex flex-wrap justify-center gap-x-2 sm:gap-x-4 gap-y-2">
             <KineticText preset="word-reveal" delay={0.1}>
               You Dream It.
             </KineticText>
-            <span className="flex gap-x-4">
+            <span className="flex gap-x-2 sm:gap-x-4">
               <KineticText preset="word-reveal" delay={0.4}>
                 We
               </KineticText>
@@ -132,7 +132,7 @@ const ServicesHero = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1 }}
-          className="flex flex-wrap justify-center gap-8 md:gap-16 mt-16"
+          className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-8 md:gap-16 mt-12 md:mt-16"
         >
           {[
             { label: "HUMAN CREATIVITY.", value: "" },
@@ -141,10 +141,10 @@ const ServicesHero = () => {
           ].map((stat, index) => (
             <motion.div
               key={index}
-              className="text-center"
+              className="text-center bg-card/10 backdrop-blur-sm sm:bg-transparent px-4 py-3 sm:px-0 sm:py-0 rounded-lg sm:rounded-none border border-border/10 sm:border-none"
               whileHover={{ scale: 1.05 }}
             >
-              <span className="text-sm md:text-base font-medium tracking-widest text-muted-foreground">
+              <span className="text-[11px] sm:text-sm md:text-base font-medium tracking-widest text-muted-foreground whitespace-nowrap">
                 {stat.label}
               </span>
             </motion.div>

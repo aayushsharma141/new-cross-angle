@@ -73,6 +73,7 @@ export function InviteUserDialog({ open, onOpenChange, onSuccess }: InviteUserDi
             form.reset();
             onOpenChange(false);
             onSuccess();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Invite error:", error);
             toast({

@@ -29,7 +29,7 @@ const BlogDetailPage = () => {
     const { toast } = useToast();
     const [post, setPost] = useState<BlogPost | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [hasTrackedView, setHasTrackedView] = useState(false);
+    const hasTrackedView = React.useRef(false);
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -46,9 +46,9 @@ const BlogDetailPage = () => {
                 setPost(data);
 
                 // Track view once per session/load
-                if (data && !hasTrackedView) {
+                if (data && !hasTrackedView.current) {
                     await supabase.rpc("track_blog_view", { blog_id: data.id });
-                    setHasTrackedView(true);
+                    hasTrackedView.current = true;
                 }
             } catch (error) {
                 console.error("Error fetching blog post:", error);

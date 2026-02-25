@@ -42,6 +42,7 @@ export const ZoomPanel: React.FC<ZoomPanelProps> = ({ material }) => {
                 ].map((btn) => (
                     <button
                         key={btn.id}
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         onClick={() => setLevel(btn.id as any)}
                         className={cn(
                             "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-bold uppercase transition-all",

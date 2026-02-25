@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { lightOptions } from "@/constants/discovery";
 import { AestheticScores } from "@/types/discovery";
 import { Moon, CloudSun, Sun, Zap } from "lucide-react";
@@ -10,25 +10,26 @@ interface Props {
   onComplete: (scores: Partial<AestheticScores>, lightName?: string) => void;
 }
 
+// Warm ambient glow colours per light level (dark-on-dark, no mint)
+const ambientGlows = [
+  "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(20,12,4,0.98) 0%, #0D0A08 80%)", // low light – deep amber ember
+  "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(28,18,8,0.97) 0%, #0D0A08 80%)", // soft light
+  "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(24,20,14,0.97) 0%, #0D0A08 80%)", // bright natural
+  "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(12,14,20,0.97) 0%, #0D0A08 80%)", // crisp cool
+];
+
+// Warm tint on card per level (subtle, never mint)
+const cardTints = [
+  "rgba(255, 160, 60, 0.06)",   // ember
+  "rgba(255, 200, 120, 0.04)",  // warm soft
+  "rgba(255, 255, 240, 0.03)",  // clean daylight
+  "rgba(160, 200, 255, 0.04)",  // cool clear
+];
+
 const LightCalibration = ({ onComplete }: Props) => {
   const [selected, setSelected] = useState(50);
   const activeIndex = Math.min(Math.floor(selected / 25), 3);
   const opt = lightOptions[activeIndex];
-
-  // Compute light temperature for gradient layers
-  const lightGradient = useMemo(() => {
-    const t = selected / 100;
-    const warmHue = 40 + (1 - t) * 10; // amber
-    const coolHue = 200 + t * 20; // blue
-    const hue = warmHue * (1 - t) + coolHue * t;
-    const sat = 30 + Math.abs(t - 0.5) * 40;
-    const light = 85 + (1 - Math.abs(t - 0.5)) * 10;
-    return {
-      bg: `radial-gradient(ellipse at 50% 30%, hsl(${hue} ${sat}% ${light}%) 0%, hsl(${hue} ${sat * 0.5}% ${light - 15}%) 100%)`,
-      rayOpacity: 0.05 + t * 0.1,
-      rayAngle: -30 + t * 60,
-    };
-  }, [selected]);
 
   const confirm = () => {
     onComplete(opt.scores, opt.name);
@@ -39,100 +40,103 @@ const LightCalibration = ({ onComplete }: Props) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="relative flex h-full flex-col items-center justify-center px-6 overflow-hidden"
-      style={{ background: lightGradient.bg, transition: "background 0.8s ease" }}
+      className="relative flex h-full w-full flex-col items-center justify-center px-6 overflow-hidden"
+      style={{ background: ambientGlows[activeIndex], transition: "background 0.8s ease" }}
     >
-      {/* Animated light rays */}
-      {[0, 1, 2].map((i) => (
-        <motion.div
-          key={i}
-          className="absolute pointer-events-none"
-          style={{
-            width: "2px",
-            height: "120vh",
-            top: "-10vh",
-            left: `${30 + i * 20}%`,
-            background: `linear-gradient(to bottom, transparent, hsl(var(--gold) / ${lightGradient.rayOpacity}), transparent)`,
-            transformOrigin: "top center",
-          }}
-          animate={{
-            rotate: lightGradient.rayAngle + i * 15,
-            opacity: [0.3, 0.7, 0.3],
-          }}
-          transition={{
-            rotate: { duration: 0.8, ease: "easeOut" },
-            opacity: { duration: 3, repeat: Infinity, delay: i * 0.5 },
-          }}
-        />
-      ))}
+      {/* Subtle animated ambient orb — matches the light temperature */}
+      <motion.div
+        key={activeIndex}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: activeIndex < 2
+            ? "radial-gradient(ellipse 45% 35% at 50% 55%, rgba(255,165,60,0.08) 0%, transparent 70%)"
+            : activeIndex === 2
+              ? "radial-gradient(ellipse 45% 35% at 50% 55%, rgba(255,240,200,0.07) 0%, transparent 70%)"
+              : "radial-gradient(ellipse 45% 35% at 50% 55%, rgba(160,200,255,0.07) 0%, transparent 70%)",
+        }}
+      />
 
-      <div className="relative z-10 w-full max-w-md bg-card/80 backdrop-blur-md p-8 md:p-12 rounded-lg shadow-lg border border-border/20 text-center">
-        <div className="relative h-12 w-full mb-2 flex justify-center items-center">
+      {/* Card */}
+      <div
+        className="relative z-10 w-full max-w-md p-10 md:p-14 text-center border border-white/[0.07] backdrop-blur-md shadow-2xl"
+        style={{
+          background: `rgba(16,12,10,0.88)`,
+          boxShadow: `0 0 80px ${cardTints[activeIndex]}, inset 0 1px 0 rgba(255,255,255,0.05)`,
+        }}
+      >
+        {/* Animated icon */}
+        <div className="relative h-12 w-full mb-4 flex justify-center items-center">
           {icons.map((Icon, i) => (
             <motion.div
               key={i}
               className="absolute"
               initial={false}
-              animate={{
-                opacity: i === activeIndex ? 1 : 0,
-                scale: i === activeIndex ? 1 : 0.5,
-              }}
+              animate={{ opacity: i === activeIndex ? 1 : 0, scale: i === activeIndex ? 1 : 0.5 }}
               transition={{ duration: 0.3 }}
             >
-              <Icon size={28} className="text-foreground/70" />
+              <Icon size={26} className={i === activeIndex ? "text-white/70" : "text-white/20"} />
             </motion.div>
           ))}
         </div>
 
+        {/* Light name */}
         <motion.h2
           key={opt.name}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="font-serif-display text-2xl md:text-3xl mb-2"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="font-serif-display text-2xl md:text-3xl text-white/90 mb-2"
         >
           {opt.name}
         </motion.h2>
+
+        {/* Description */}
         <motion.p
           key={opt.description}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="text-muted-foreground text-sm mb-8"
-          style={{ textShadow: `0 0 20px hsl(var(--gold) / 0.1)` }}
+          className="text-white/40 text-sm mb-10 italic"
         >
           {opt.description}
         </motion.p>
 
+        {/* Slider */}
         <input
           type="range"
           min={0}
           max={100}
+          title="Light preference slider"
+          aria-label="Light preference slider"
           value={selected}
           onChange={(e) => setSelected(Number(e.target.value))}
-          className="w-full h-[2px] bg-border/50 appearance-none cursor-pointer mb-4
-            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-foreground [&::-webkit-slider-thumb]:shadow-[0_0_12px_hsl(var(--gold)/0.5)]"
+          className="w-full h-[1px] bg-white/10 appearance-none cursor-pointer mb-6
+            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
+            [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white
+            [&::-webkit-slider-thumb]:shadow-[0_0_14px_rgba(255,255,255,0.3)]"
         />
 
-        <div className="flex justify-between px-2 mb-8">
+        {/* Icon strip */}
+        <div className="flex justify-between px-1 mb-10">
           {icons.map((Icon, i) => (
             <motion.div
               key={i}
-              animate={{
-                scale: i === activeIndex ? 1.3 : 1,
-                opacity: i === activeIndex ? 1 : 0.3,
-              }}
+              animate={{ scale: i === activeIndex ? 1.25 : 1, opacity: i === activeIndex ? 0.9 : 0.2 }}
               transition={{ type: "spring", stiffness: 200 }}
             >
-              <Icon size={18} />
+              <Icon size={16} className="text-white" />
             </motion.div>
           ))}
         </div>
 
+        {/* CTA — warm cream, not red */}
         <button
           onClick={confirm}
-          className="w-full py-4 bg-primary text-primary-foreground text-sm font-medium tracking-wide hover:opacity-90 transition-opacity shimmer"
+          className="w-full py-4 bg-white/90 text-[#0D0A08] text-xs font-medium tracking-[0.2em] uppercase hover:bg-white transition-colors"
         >
-          THIS FEELS RIGHT
+          This is my choice
         </button>
       </div>
     </motion.div>

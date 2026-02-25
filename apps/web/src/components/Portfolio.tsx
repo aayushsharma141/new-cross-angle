@@ -61,24 +61,16 @@ const Portfolio = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div className="max-w-2xl">
-            <VisuallyHidden>
-              <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary-foreground mb-6">
-                Curated Excellence
-              </h2>
-            </VisuallyHidden>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="mb-8"
+              className="mb-6 block"
             >
-              {/* High-end Signature Placeholder */}
-              <img
-                src="https://images.unsplash.com/photo-1635405074683-96d6921a2a2c?auto=format&fit=crop&q=80&w=400&h=150"
-                alt="Curated Excellence Signature"
-                className="h-20 md:h-28 w-auto object-contain brightness-0 invert opacity-80"
-              />
+              <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary-foreground">
+                Curated Excellence
+              </h2>
             </motion.div>
             <p className="text-lg text-primary-foreground/60 leading-relaxed">
               Explore our portfolio of ultra-luxury residences and high-value commercial environments

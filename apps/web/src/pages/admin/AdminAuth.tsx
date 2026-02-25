@@ -74,6 +74,7 @@ const AdminAuth = () => {
     setIsLoading(true);
 
     try {
+      if (!supabase) throw new Error('Supabase client is not initialized.');
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
@@ -87,6 +88,7 @@ const AdminAuth = () => {
       });
 
       navigate("/admin");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast({
         title: "Login failed",
@@ -126,6 +128,7 @@ const AdminAuth = () => {
     setIsLoading(true);
 
     try {
+      if (!supabase) throw new Error('Supabase client is not initialized.');
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
@@ -178,6 +181,7 @@ const AdminAuth = () => {
         setPassword("");
         setConfirmPassword("");
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast({
         title: "Signup failed",
@@ -205,6 +209,7 @@ const AdminAuth = () => {
       const redirectUrl = `${window.location.origin}/admin/reset-password`;
       console.log("Sending password reset with redirect URL:", redirectUrl);
 
+      if (!supabase) throw new Error('Supabase client is not initialized.');
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: redirectUrl,
       });
@@ -218,6 +223,7 @@ const AdminAuth = () => {
 
       setView("login");
       setEmail("");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Forgot password error:", error);
       toast({

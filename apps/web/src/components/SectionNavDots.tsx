@@ -60,7 +60,7 @@ const SectionNavDots = () => {
   return (
     <nav
       className={cn(
-        "fixed right-4 md:right-8 top-1/2 -translate-y-1/2 z-50",
+        "hidden md:block fixed right-4 md:right-8 top-1/2 -translate-y-1/2 z-50",
         "transition-all duration-500",
         isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
       )}

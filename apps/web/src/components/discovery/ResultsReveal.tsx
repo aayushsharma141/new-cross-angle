@@ -1,14 +1,19 @@
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import { useCallback, useRef, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useCallback, useRef, useState, useMemo, useEffect, useLayoutEffect } from "react";
+import html2canvas from "html2canvas";
+import gsap from "gsap";
 import { AestheticScores, Archetype, AIAestheticResult } from "@/types/discovery";
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
-import { Download, RotateCcw, Sun, Layers, LayoutGrid, Zap, Lightbulb, Palette, Move, Wind, ArrowRight, Share2 } from "lucide-react";
+import { visualImages } from "@/constants/discovery";
+import { Download, RotateCcw, Share2, Sun, Layers, LayoutGrid, Zap } from "lucide-react";
 import { toast } from "sonner";
-import MoodBoard from "./MoodBoard";
 import { useLanguage } from "@/hooks/useLanguage";
-import WordRotate from "@/components/magicui/word-rotate";
-import { LeadCaptureDialog } from "@/components/LeadCaptureDialog";
-import { Button } from "@/components/ui/button";
+import logoIcon from "@/assets/logo-icon.png";
+
+// MagicUI imports
+import AnimatedShinyText from "@/components/magicui/animated-shiny-text";
+import { Confetti } from "@/components/magicui/confetti";
+import { BorderBeam } from "@/components/magicui/border-beam";
+import ShimmerButton from "@/components/magicui/shimmer-button";
 
 interface Props {
   scores: AestheticScores;
@@ -17,140 +22,45 @@ interface Props {
   onRetake?: () => void;
 }
 
-// Count-up animation hook
-const useCountUp = (target: number, duration = 1200, delay = 0) => {
-  const [val, setVal] = useState(0);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-
-  useEffect(() => {
-    if (!isInView) return;
-    const timeout = setTimeout(() => {
-      const start = Date.now();
-      const step = () => {
-        const elapsed = Date.now() - start;
-        const progress = Math.min(1, elapsed / duration);
-        const eased = 1 - Math.pow(1 - progress, 3); // cubic ease out
-        setVal(Math.round(eased * target));
-        if (progress < 1) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    }, delay);
-    return () => clearTimeout(timeout);
-  }, [isInView, target, duration, delay]);
-
-  return { val, ref };
-};
-
-// Animated progress ring with gradient and count-up
-const ProgressRing = ({ value, label, desc, delay = 0 }: { value: number; label: string; desc: string; delay?: number }) => {
-  const { val, ref } = useCountUp(value, 1200, delay);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
-  const circumference = 2 * Math.PI * 36;
-  const offset = circumference - (value / 10) * circumference;
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: delay / 1000 }}
-      className="flex flex-col items-center text-center"
-    >
-      <div className="relative w-24 h-24 mb-3">
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r="36" fill="none" stroke="hsl(var(--border))" strokeWidth="3" />
-          <defs>
-            <linearGradient id={`ring-grad-${label}`} x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="hsl(var(--gold-dark))" />
-              <stop offset="100%" stopColor="hsl(var(--gold-light))" />
-            </linearGradient>
-          </defs>
-          <motion.circle
-            cx="40" cy="40" r="36" fill="none"
-            stroke={`url(#ring-grad-${label})`}
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            initial={{ strokeDashoffset: circumference }}
-            animate={isInView ? { strokeDashoffset: offset } : {}}
-            transition={{ duration: 1.5, ease: "easeOut", delay: delay / 1000 + 0.3 }}
-          />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="font-serif-display text-xl font-medium">{val}</span>
-          <span className="text-xs text-muted-foreground mt-1">/10</span>
-        </div>
-      </div>
-      <p className="tracking-premium text-muted-foreground mb-1">{label}</p>
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={isInView ? { opacity: 1 } : {}}
-        transition={{ delay: delay / 1000 + 1.5 }}
-        className="text-xs text-muted-foreground leading-relaxed max-w-[140px]"
-      >
-        {desc}
-      </motion.p>
-    </motion.div>
-  );
-};
-
-// Animated liquid-fill sensory bar
-const SensoryBar = ({ label, value, icon: Icon, delay }: { label: string; value: string; icon: any; delay: number }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, rotateY: 90 }}
-      whileInView={{ opacity: 1, rotateY: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay, duration: 0.6, ease: "easeOut" }}
-      style={{ perspective: 800 }}
-      className="glass-card p-4 flex items-start gap-3"
-    >
-      <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
-        <Icon size={16} className="text-foreground" />
-      </div>
-      <div className="flex-1">
-        <p className="tracking-premium text-muted-foreground text-[0.65rem] mb-1">{label}</p>
-        <p className="text-sm font-medium leading-snug">{value}</p>
-        <motion.div
-          className="h-0.5 rounded-full mt-2 origin-left"
-          style={{ background: "linear-gradient(90deg, hsl(var(--gold-dark)), hsl(var(--gold)))" }}
-          initial={{ scaleX: 0 }}
-          animate={isInView ? { scaleX: 1 } : {}}
-          transition={{ duration: 0.8, delay: delay + 0.2 }}
-        />
-      </div>
-    </motion.div>
-  );
-};
-
-const strategyIcons: Record<string, any> = {
-  LIGHTING: Lightbulb, MATERIALS: Layers, "COLOR PALETTE": Palette, LAYOUT: Move, ATMOSPHERE: Wind,
-};
+/* ── Inline SVG Radar helpers ── */
+const radarLabels = ["Warmth", "Novelty", "Social", "Structure", "Minimal"];
+const radarAngles = radarLabels.map((_, i) => (Math.PI * 2 * i) / 5 - Math.PI / 2);
+const toXY = (angle: number, r: number) => ({ x: 120 + Math.cos(angle) * r, y: 105 + Math.sin(angle) * r });
+const ringRadii = [60, 45, 30, 15];
 
 const ResultsReveal = ({ scores, archetype, aiResult, onRetake }: Props) => {
   const { t } = useLanguage();
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 100]);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [capturing, setCapturing] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(true);
 
+  // Dismiss confetti after 3s
+  useEffect(() => {
+    const timer = setTimeout(() => setShowConfetti(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // GSAP Entrance Animations
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        ".gsap-fade",
+        { opacity: 0, y: 30, scale: 0.98 },
+        { opacity: 1, y: 0, scale: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.2 }
+      );
+    }, cardRef);
+    return () => ctx.revert();
+  }, []);
+
+  // ── Data derivation ──
   const displayName = aiResult?.identityName || archetype.name;
   const displayTagline = aiResult?.tagline || archetype.tagline;
   const displayTraits = aiResult?.traits || archetype.traits;
   const displayMaterialBias = aiResult?.materialBias || archetype.materialBias;
-
-  const radarData = [
-    { subject: "Warmth", value: scores.warmth },
-    { subject: "Minimalism", value: scores.minimalism },
-    { subject: "Social", value: scores.social },
-    { subject: "Structure", value: scores.structure },
-    { subject: "Novelty", value: scores.novelty },
-  ];
+  const displayStrategy = aiResult?.designStrategy
+    ? `${aiResult.designStrategy.lighting} ${aiResult.designStrategy.materials} ${aiResult.designStrategy.colorPalette}`
+    : archetype.strategy;
+  const narrative = aiResult?.narrative || displayStrategy;
 
   const sensoryMap = aiResult?.sensoryMap
     ? [
@@ -161,415 +71,505 @@ const ResultsReveal = ({ scores, archetype, aiResult, onRetake }: Props) => {
     ]
     : [
       { label: "LIGHT", value: scores.warmth > 6 ? "Soft & Indirect" : scores.warmth > 3 ? "Balanced & Natural" : "Crisp & Direct", icon: Sun },
-      { label: "MATERIAL", value: archetype.materialBias === "Wood" ? "Textile & Wood" : archetype.materialBias === "Linen" ? "Linen & Textile" : `${archetype.materialBias} & Stone`, icon: Layers },
-      { label: "LAYOUT", value: scores.social > 6 ? "Open & Flowing" : scores.structure > 6 ? "Structured & Zoned" : "Intimate & Zoned", icon: LayoutGrid },
-      { label: "ENERGY", value: scores.warmth > 6 ? "Warm & Intentional" : scores.minimalism > 6 ? "Calm & Focused" : "Dynamic & Bold", icon: Zap },
+      { label: "MATERIAL", value: `${displayMaterialBias} & Stone`, icon: Layers },
+      { label: "LAYOUT", value: scores.social > 6 ? "Open & Flowing" : "Structured & Zoned", icon: LayoutGrid },
+      { label: "ENERGY", value: scores.warmth > 6 ? "Warm & Intentional" : "Calm & Focused", icon: Zap },
     ];
 
-  const displayStrategy = aiResult?.designStrategy
-    ? `${aiResult.designStrategy.lighting} ${aiResult.designStrategy.materials} ${aiResult.designStrategy.colorPalette} ${aiResult.designStrategy.layout} ${aiResult.designStrategy.atmosphere}`
-    : archetype.strategy;
+  // SVG radar polygon points string
+  const radarPointsStr = useMemo(() => {
+    // Radar data (normalized 0-1)
+    const values = [
+      scores.warmth / 10,
+      scores.novelty / 10,
+      scores.social / 10,
+      scores.structure / 10,
+      scores.minimalism / 10,
+    ];
+    return values.map((v, i) => {
+      const pt = toXY(radarAngles[i], Math.max(0.1, v) * 60);
+      return `${pt.x},${pt.y}`;
+    }).join(" ");
+  }, [scores]);
 
-  const handleDownload = useCallback(() => {
-    const text = `
-═══════════════════════════════════════
-  YOUR SPATIAL PERSONALITY
-  ${displayName}
-═══════════════════════════════════════
+  // Top 3 ranked images from quiz selections
+  const rankedImages = useMemo(() => {
+    return [...visualImages]
+      .map((img) => {
+        let relevance = 0;
+        for (const [k, v] of Object.entries(img.tags)) {
+          relevance += (v || 0) * (scores[k as keyof AestheticScores] / 10);
+        }
+        return { ...img, relevance };
+      })
+      .sort((a, b) => b.relevance - a.relevance)
+      .slice(0, 3);
+  }, [scores]);
 
-"${displayTagline}"
-${aiResult?.narrative ? `\n${aiResult.narrative}\n` : ""}
-AESTHETIC DNA
-─────────────
-Warmth:     ${"█".repeat(scores.warmth)}${"░".repeat(10 - scores.warmth)} ${scores.warmth}/10
-Minimalism: ${"█".repeat(scores.minimalism)}${"░".repeat(10 - scores.minimalism)} ${scores.minimalism}/10
-Social:     ${"█".repeat(scores.social)}${"░".repeat(10 - scores.social)} ${scores.social}/10
-Structure:  ${"█".repeat(scores.structure)}${"░".repeat(10 - scores.structure)} ${scores.structure}/10
-Novelty:    ${"█".repeat(scores.novelty)}${"░".repeat(10 - scores.novelty)} ${scores.novelty}/10
+  // Stat chips
+  const statChips = [
+    { label: sensoryMap[2].value, tag: "LAYOUT" },
+    { label: sensoryMap[0].value, tag: "LIGHT" },
+    { label: sensoryMap[1].value, tag: "MATERIAL" },
+    { label: `${scores.novelty}/10`, tag: "OPENNESS", highlight: true },
+  ];
 
-KEY TRAITS
-──────────
-${displayTraits.map((t) => `• ${t}`).join("\n")}
+  // Cognitive profile
+  const cognitiveItems = [
+    { value: scores.novelty, label: "OPENNESS", desc: scores.novelty > 6 ? "Seeks the unexpected" : "Open with anchors" },
+    { value: 10 - scores.minimalism, label: "DETAIL", desc: scores.minimalism > 6 ? "Clarity over complexity" : "Rich maximalism" },
+    { value: scores.warmth, label: "EMOTIONAL", desc: scores.warmth > 6 ? "Warm & inviting" : "Precise & crisp" },
+    { value: scores.structure, label: "THINKING", desc: scores.structure > 6 ? "Intentional & symbolic" : "Intuitive & fluid" },
+  ];
 
-MATERIAL BIAS: ${displayMaterialBias}
+  const radarPointsZero = "120,105 120,105 120,105 120,105 120,105";
 
-DESIGN STRATEGY
-───────────────
-${displayStrategy}
-    `.trim();
+  /* ── Download as image ── */
+  const handleDownloadImage = useCallback(async () => {
+    if (!cardRef.current) return;
+    setCapturing(true);
 
-    const blob = new Blob([text], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `aesthetic-profile-${displayName.toLowerCase().replace(/\s+/g, "-")}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success("Profile downloaded!");
-  }, [scores, displayName, displayTagline, displayTraits, displayMaterialBias, displayStrategy, aiResult]);
+    await new Promise((r) => setTimeout(r, 200));
 
-  // Typewriter tagline
-  const [taglineText, setTaglineText] = useState("");
-  useEffect(() => {
-    const delay = 0.6 + displayName.length * 0.05;
-    const timeout = setTimeout(() => {
-      let i = 0;
-      const interval = setInterval(() => {
-        setTaglineText(displayTagline.slice(0, i + 1));
-        i++;
-        if (i >= displayTagline.length) clearInterval(interval);
-      }, 25);
-      return () => clearInterval(interval);
-    }, delay * 1000);
-    return () => clearTimeout(timeout);
-  }, [displayTagline, displayName.length]);
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#000000",
+        width: window.innerWidth,
+        height: window.innerHeight,
+        logging: false,
+      });
+
+      const link = document.createElement("a");
+      link.download = `design-dna-${displayName.toLowerCase().replace(/\s+/g, "-")}.png`;
+      link.href = canvas.toDataURL("image/png", 1.0);
+      link.click();
+      toast.success("Design DNA card downloaded!");
+    } catch (err) {
+      console.error("Download failed:", err);
+      toast.error("Download failed — try again.");
+    }
+
+    setCapturing(false);
+  }, [displayName]);
+
+  /* ── Share ── */
+  const handleShare = useCallback(() => {
+    if (navigator.share) {
+      navigator.share({
+        title: `My Design DNA — ${displayName}`,
+        text: `"${displayTagline}"`,
+        url: window.location.href,
+      }).catch(() => { });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
+    }
+  }, [displayName, displayTagline]);
+
+  // ── Split name for styled rendering ──
+  const nameParts = displayName.split(" ");
+  const firstWord = nameParts.length > 2 ? `${nameParts[0]} ` : "";
+  const styledWord = nameParts.length > 2 ? nameParts[1] : nameParts[0];
+  const restWords = nameParts.length > 2 ? ` ${nameParts.slice(2).join(" ")}` : ` ${nameParts.slice(1).join(" ")}`;
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full noise-overlay">
-      {/* ═══ HERO SECTION with parallax ═══ */}
-      <div ref={heroRef} className="relative min-h-[85vh] flex flex-col items-center justify-center px-6 overflow-hidden" style={{ background: "hsl(var(--result-bg))", color: "hsl(var(--result-fg))" }}>
-        {/* Decorative floating elements */}
-        <motion.div
-          className="absolute pointer-events-none"
-          style={{ y: heroY }}
-        >
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, hsl(var(--gold) / 0.12) 0%, transparent 60%)" }} />
-        </motion.div>
+    <>
+      {/* Confetti on mount */}
+      {showConfetti && <Confetti onMount count={80} />}
 
-        {/* Floating geometric decorations */}
-        {[0, 1, 2].map((i) => (
+      {/* Download overlay */}
+      <AnimatePresence>
+        {capturing && (
           <motion.div
-            key={i}
-            className="absolute w-px pointer-events-none"
-            style={{
-              height: "80px",
-              background: `linear-gradient(to bottom, transparent, hsl(var(--gold) / 0.2), transparent)`,
-              left: `${20 + i * 30}%`,
-              top: `${15 + i * 20}%`,
-            }}
-            animate={{ y: [0, -15, 0], opacity: [0.2, 0.5, 0.2] }}
-            transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut" }}
-          />
-        ))}
-
-        {/* Small diamond shapes */}
-        {[0, 1].map((i) => (
-          <motion.div
-            key={`diamond-${i}`}
-            className="absolute w-2 h-2 rotate-45 pointer-events-none"
-            style={{
-              border: "1px solid hsl(var(--gold) / 0.2)",
-              right: `${15 + i * 15}%`,
-              bottom: `${20 + i * 25}%`,
-            }}
-            animate={{ y: [0, -10, 0], rotate: [45, 50, 45] }}
-            transition={{ duration: 5, delay: i * 2, repeat: Infinity }}
-          />
-        ))}
-
-        <WordRotate
-          words={[t("results_identity"), "YOUR SPATIAL SOUL", "YOUR DESIGN DNA"]}
-          className="tracking-premium mb-6 text-sm font-medium"
-          framerProps={{
-            initial: { opacity: 0, y: 10 },
-            animate: { opacity: 1, y: 0 },
-            transition: { delay: 0.2 },
-            style: { color: "hsl(var(--gold) / 0.7)" }
-          }}
-        />
-
-        {/* Gold unveil line + letter-by-letter name */}
-        <div className="relative mb-6">
-          <div className="flex flex-wrap justify-center gap-x-[0.08em]">
-            {displayName.split("").map((char, i) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + i * 0.05, duration: 0.5, ease: "easeOut" }}
-                className="font-serif-display text-4xl md:text-6xl lg:text-7xl font-medium"
-              >
-                {char === " " ? "\u00A0" : char}
-              </motion.span>
-            ))}
-          </div>
-          {/* Gold sweep line */}
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 + displayName.length * 0.05, ease: "easeInOut" }}
-            className="absolute -bottom-2 left-0 right-0 h-px origin-left"
-            style={{ background: "linear-gradient(90deg, transparent, hsl(var(--gold)), transparent)" }}
-          />
-        </div>
-
-        {/* Typewriter tagline */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="max-w-xl mx-auto italic font-serif-display text-lg md:text-xl text-center"
-          style={{ color: "hsl(var(--result-fg) / 0.7)" }}
-        >
-          "{taglineText}"
-          {taglineText.length < displayTagline.length && (
-            <span className="inline-block w-0.5 h-5 bg-current ml-0.5 animate-pulse" />
-          )}
-        </motion.p>
-
-        {/* Animated gold divider */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: 1.2, duration: 0.8, ease: "easeOut" }}
-          className="w-24 h-px mt-8"
-          style={{ background: "linear-gradient(90deg, transparent, hsl(var(--gold)), transparent)" }}
-        />
-      </div>
-
-      {/* ═══ AI NARRATIVE ═══ */}
-      {aiResult?.narrative && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-3xl mx-auto px-6 py-16 text-center"
-        >
-          <p className="text-foreground/80 leading-relaxed italic font-serif-display text-base md:text-lg">
-            {aiResult.narrative}
-          </p>
-        </motion.div>
-      )}
-
-      {/* ═══ SENSORY BLUEPRINT + MOOD BOARD ═══ */}
-      <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-5 gap-10">
-        <div className="md:col-span-2 space-y-4">
-          <motion.h3
             initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="font-serif-display text-2xl mb-6"
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-[#000000]/85 flex flex-col items-center justify-center gap-4"
           >
-            {t("results_sensory")}
-          </motion.h3>
-          {sensoryMap.map((item, i) => (
-            <SensoryBar key={item.label} label={item.label} value={item.value} icon={item.icon} delay={i * 0.15} />
-          ))}
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="glass-card p-5 mt-6"
-          >
-            <h4 className="font-serif-display text-base font-medium mb-2">{t("results_why")}</h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">{t("results_why_text")}</p>
+            <div className="w-10 h-10 border border-[#FFC300]/30 border-t-[#FFC300] rounded-full animate-spin" />
+            <span className="text-[11px] tracking-[0.25em] uppercase text-[#FFC300] font-[DM_Sans]">
+              Capturing your design DNA...
+            </span>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ═══════════════════════════════════════════
+           MAIN RESULT CARD — 100vh CSS Grid
+          ═══════════════════════════════════════════ */}
+      <div
+        ref={cardRef}
+        className="relative w-full overflow-hidden"
+        style={{
+          height: "100vh",
+          display: "grid",
+          gridTemplateColumns: "1fr 1px 1fr",
+          gridTemplateRows: "auto 1px 1fr 1px auto",
+          background: "#0A0A0A",
+          fontFamily: "'DM Sans', sans-serif",
+          color: "#FAF8F5",
+        }}
+      >
+        {/* Noise grain overlay for texture */}
+        {!capturing && (
+          <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.03]"
+            style={{
+              backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E\")",
+            }}
+          />
+        )}
+
+        {/* Ambient red & gold glow (original website theme) */}
+        <div className="pointer-events-none absolute top-[-20%] left-[30%] w-[40%] h-[60%] z-0"
+          style={{ background: "radial-gradient(ellipse, rgba(195,0,0,0.06) 0%, transparent 60%)" }}
+        />
+        <div className="pointer-events-none absolute bottom-[-10%] right-[10%] w-[30%] h-[50%] z-0"
+          style={{ background: "radial-gradient(ellipse, rgba(255,195,0,0.04) 0%, transparent 60%)" }}
+        />
+
+        {/* Watermark logo */}
+        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.02] z-0">
+          <img src={logoIcon} alt="" className="w-[60vh] h-[60vh] object-contain grayscale" />
         </div>
 
-        <div className="md:col-span-3">
-          <MoodBoard scores={scores} archetype={archetype} />
+        {/* ────── HERO HEADER ────── */}
+        <div
+          className="relative z-10 gsap-fade"
+          style={{ gridColumn: "1 / -1", padding: "2.5vh 5vw 1.5vh", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}
+        >
+          {/* Left logo mark */}
+          <div style={{ minWidth: 100 }} className="flex flex-col items-start gap-2">
+            <img src={logoIcon} alt="Crossangle Logo" className="h-7 w-auto object-contain drop-shadow-lg" />
+            <div className="text-[9px] tracking-[0.2em] uppercase text-[#FFC300]/80">Design Profile</div>
+          </div>
+
+          {/* Center — hero content */}
+          <div className="text-center flex-1 max-w-xl mx-auto">
+            <AnimatedShinyText className="text-[10px] tracking-[0.35em] uppercase text-[#FFC300]/90 mb-2 block font-medium shadow-sm">
+              ✦ YOUR DESIGN DNA ✦
+            </AnimatedShinyText>
+
+            <h1
+              className="leading-[0.95] mb-3"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: "clamp(32px, 5vw, 64px)",
+                fontWeight: 300,
+                color: "#FAF8F5",
+                letterSpacing: "-0.02em",
+                textShadow: "0 4px 20px rgba(0,0,0,0.4)"
+              }}
+            >
+              {firstWord}<em className="italic text-[#FFC300]">{styledWord}</em>{restWords}
+            </h1>
+
+            <p
+              className="mx-auto mb-3"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontStyle: "italic",
+                fontSize: "clamp(12px, 1.2vw, 16px)",
+                color: "#D4D4D4",
+                maxWidth: 460,
+                lineHeight: 1.6,
+              }}
+            >
+              "{displayTagline}"
+            </p>
+
+            {/* Stat chips */}
+            <div className="flex gap-2 justify-center flex-wrap mt-2">
+              {statChips.map((chip, i) => (
+                <div
+                  key={i}
+                  className="px-3 py-1 backdrop-blur-sm"
+                  style={{
+                    border: `1px solid ${chip.highlight ? "rgba(255,195,0,0.4)" : "rgba(255,195,0,0.15)"}`,
+                    borderRadius: 2,
+                    fontSize: "clamp(8px, 0.7vw, 10px)",
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase" as const,
+                    color: chip.highlight ? "#FFC300" : "#D4D4D4",
+                    background: chip.highlight ? "rgba(255,195,0,0.05)" : "rgba(255,255,255,0.02)",
+                  }}
+                >
+                  {chip.label}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right meta */}
+          <div className="text-right flex flex-col items-end gap-1" style={{ minWidth: 100 }}>
+            <div className="text-[9px] tracking-[0.2em] uppercase text-[#A19D94]">
+              {new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+            </div>
+            <div className="text-[12px] tracking-[0.1em] text-[#C30000] mt-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Spatial Blueprint</div>
+          </div>
         </div>
-      </div>
 
-      {/* ═══ AESTHETIC DNA + DESIGN STRATEGY ═══ */}
-      <div className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Radar */}
-        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-          <h3 className="font-serif-display text-2xl mb-1 border-b border-border pb-2">{t("results_dna")}</h3>
-          <div className="h-72 mt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={radarData} cx="50%" cy="50%">
-                <defs>
-                  <linearGradient id="radarGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(35 50% 55%)" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="hsl(24 10% 10%)" stopOpacity={0.15} />
-                  </linearGradient>
-                </defs>
-                <PolarGrid stroke="hsl(24 6% 88%)" />
-                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: "hsl(24 5% 45%)" }} />
-                <Radar dataKey="value" stroke="hsl(35 50% 55%)" fill="url(#radarGrad)" />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-6 grid grid-cols-2 gap-6">
-            <div>
-              <p className="tracking-premium text-muted-foreground mb-2">{t("results_traits")}</p>
-              <ul className="space-y-1.5">
-                {displayTraits.map((tr) => (
-                  <li key={tr} className="text-sm flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: "hsl(var(--gold))" }} />
-                    {tr}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p className="tracking-premium text-muted-foreground mb-2">{t("results_material")}</p>
-              <p className="text-sm font-medium">{displayMaterialBias}</p>
-            </div>
-          </div>
-        </motion.div>
+        {/* H divider */}
+        <div style={{ gridColumn: "1 / -1", background: "linear-gradient(to right, transparent, rgba(255,195,0,0.3) 20%, rgba(255,195,0,0.3) 80%, transparent)" }} />
 
-        {/* Strategy - alternating slide-in */}
-        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-          <h3 className="font-serif-display text-2xl mb-1 border-b border-border pb-2">{t("results_strategy")}</h3>
-          <div className="mt-4 space-y-3">
-            {aiResult?.designStrategy ? (
-              [
-                { label: "LIGHTING", value: aiResult.designStrategy.lighting },
-                { label: "MATERIALS", value: aiResult.designStrategy.materials },
-                { label: "COLOR PALETTE", value: aiResult.designStrategy.colorPalette },
-                { label: "LAYOUT", value: aiResult.designStrategy.layout },
-                { label: "ATMOSPHERE", value: aiResult.designStrategy.atmosphere },
-              ].map((item, i) => {
-                const Icon = strategyIcons[item.label] || Lightbulb;
-                return (
-                  <motion.div
-                    key={item.label}
-                    initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="glass-card p-4 border-l-2 transition-all duration-300 hover:shadow-md group"
-                    style={{ borderLeftColor: "hsl(var(--gold) / 0.3)" }}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <motion.div
-                        initial={{ rotate: 0 }}
-                        whileInView={{ rotate: 360 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: i * 0.1, duration: 0.6 }}
-                      >
-                        <Icon size={14} className="text-muted-foreground" />
-                      </motion.div>
-                      <p className="tracking-premium text-muted-foreground text-[0.65rem]">{item.label}</p>
-                    </div>
-                    <p className="text-sm leading-relaxed">{item.value}</p>
-                    {/* Gold bottom border on hover */}
-                    <motion.div
-                      className="h-px mt-3 origin-left"
-                      style={{ background: "hsl(var(--gold) / 0.3)" }}
-                      initial={{ scaleX: 0 }}
-                      whileHover={{ scaleX: 1 }}
-                      transition={{ duration: 0.3 }}
+        {/* ────── LEFT PANEL ────── */}
+        <div
+          className="relative z-10 flex flex-col gap-[1.5vh] overflow-hidden gsap-fade"
+          style={{ padding: "1.5vh 3vw 1.5vh 5vw" }}
+        >
+          {/* Mood Board */}
+          <div className="flex-1 min-h-0">
+            <div className="text-[9px] tracking-[0.3em] uppercase text-[#FFC300] mb-[0.6vh]">Your Mood Board</div>
+            <div className="relative flex-1 h-[calc(100%-18px)]">
+              <BorderBeam colorFrom="#FFC300" colorTo="#C30000" duration={4} size={150} />
+              <div className="h-full bg-[#0A0A0A] rounded-[3px] overflow-hidden p-[2px]">
+                <div className="grid h-full gap-[3px]" style={{ gridTemplateColumns: "1.4fr 1fr", gridTemplateRows: "1fr 1fr" }}>
+                  <div className="row-span-2 overflow-hidden">
+                    <img
+                      src={rankedImages[0]?.url}
+                      alt="Primary mood"
+                      className="w-full h-full object-cover"
+                      style={{ filter: "saturate(0.9) contrast(1.05)" }}
+                      crossOrigin="anonymous"
                     />
-                  </motion.div>
-                );
-              })
-            ) : (
-              <div className="glass-card p-5 border-l-2" style={{ borderLeftColor: "hsl(var(--gold) / 0.3)" }}>
-                <p className="text-sm leading-relaxed text-foreground">{archetype.strategy}</p>
+                  </div>
+                  <div className="overflow-hidden">
+                    <img
+                      src={rankedImages[1]?.url}
+                      alt="Secondary mood"
+                      className="w-full h-full object-cover"
+                      style={{ filter: "saturate(0.9) contrast(1.05)" }}
+                      crossOrigin="anonymous"
+                    />
+                  </div>
+                  <div className="overflow-hidden">
+                    <img
+                      src={rankedImages[2]?.url}
+                      alt="Tertiary mood"
+                      className="w-full h-full object-cover"
+                      style={{ filter: "saturate(0.9) contrast(1.05)" }}
+                      crossOrigin="anonymous"
+                    />
+                  </div>
+                </div>
               </div>
+            </div>
+          </div>
+
+          {/* Sensory Profile */}
+          <div>
+            <div className="text-[9px] tracking-[0.3em] uppercase text-[#FFC300] mb-[0.6vh]">Sensory Profile</div>
+            <div className="grid grid-cols-2 gap-[6px]">
+              {sensoryMap.map((item) => (
+                <div
+                  key={item.label}
+                  className="px-3 py-2 transition-colors relative overflow-hidden"
+                  style={{ border: "1px solid rgba(255,195,0,0.15)", borderRadius: 2, background: "rgba(255,255,255,0.02)" }}
+                >
+                  <div className="text-[7px] tracking-[0.25em] uppercase text-[#FFC300]/80 mb-[2px]">{item.label}</div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(12px, 1.1vw, 15px)", color: "#FAF8F5" }}>
+                    {item.value}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* V divider */}
+        <div style={{ background: "linear-gradient(to bottom, transparent, rgba(255,195,0,0.3) 20%, rgba(255,195,0,0.3) 80%, transparent)" }} />
+
+        {/* ────── RIGHT PANEL ────── */}
+        <div
+          className="relative z-10 flex flex-col gap-[1.5vh] overflow-hidden gsap-fade"
+          style={{ padding: "1.5vh 5vw 1.5vh 3vw" }}
+        >
+          {/* Key Traits */}
+          <div>
+            <div className="text-[9px] tracking-[0.3em] uppercase text-[#FFC300] mb-[0.6vh]">Key Traits</div>
+            <div className="flex flex-wrap gap-[6px]">
+              {displayTraits.slice(0, 6).map((trait) => (
+                <span
+                  key={trait}
+                  className="px-3 py-1.5 text-[clamp(9px,0.75vw,11px)] tracking-[0.08em] shadow-sm"
+                  style={{ border: "1px solid rgba(255,195,0,0.25)", borderRadius: 2, color: "#FAF8F5", background: "rgba(255,195,0,0.03)" }}
+                >
+                  {trait}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Design Approach */}
+          <div>
+            <div className="text-[9px] tracking-[0.3em] uppercase text-[#FFC300] mb-[0.6vh]">Design Approach</div>
+            <p
+              className="leading-relaxed"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontStyle: "italic",
+                fontSize: "clamp(12px, 1.1vw, 15px)",
+                color: "rgba(250,248,245,0.8)",
+              }}
+            >
+              {narrative}
+            </p>
+            {displayTraits[0] && (
+              <span className="text-[9px] tracking-[0.25em] uppercase text-[#C30000] mt-1.5 block">
+                {displayTraits[0]} · {displayTraits[1] || "Expressive"}
+              </span>
             )}
           </div>
-        </motion.div>
-      </div>
 
-      {/* ═══ LEARNING PROFILE ═══ */}
-      <div className="max-w-5xl mx-auto px-6 py-16">
-        <motion.h3
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="font-serif-display text-2xl mb-10 text-center"
-        >
-          {t("results_learning")}
-        </motion.h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <ProgressRing
-            value={scores.novelty}
-            label={t("results_novelty")}
-            desc={scores.novelty > 6 ? "High — you seek the unexpected" : scores.novelty > 3 ? "Moderate — open with anchors" : "Low — you prefer the familiar"}
-            delay={0}
-          />
-          <ProgressRing
-            value={10 - scores.minimalism}
-            label={t("results_density")}
-            desc={scores.minimalism > 6 ? "Low — clarity over complexity" : scores.minimalism > 3 ? "Moderate — curated layers" : "High — rich maximalism"}
-            delay={200}
-          />
-          <ProgressRing
-            value={scores.warmth}
-            label={t("results_tone")}
-            desc={scores.warmth > 6 ? "Warm — organic and inviting" : scores.warmth > 3 ? "Balanced — adaptable warmth" : "Cool — precise and crisp"}
-            delay={400}
-          />
-          <ProgressRing
-            value={scores.structure}
-            label={t("results_depth")}
-            desc={scores.structure > 6 ? "Deep — intentional and symbolic" : scores.structure > 3 ? "Moderate — functional beauty" : "Light — intuitive and fluid"}
-            delay={600}
-          />
-        </div>
-      </div>
-
-      {/* Confidence */}
-      {aiResult?.confidence != null && (
-        <div className="max-w-5xl mx-auto px-6 text-center pb-8">
-          <p className="text-xs text-muted-foreground">Analysis confidence: {Math.round(aiResult.confidence * 100)}%</p>
-        </div>
-      )}
-
-      {/* ═══ CTA FOOTER ═══ */}
-      <div className="relative overflow-hidden" style={{ background: "hsl(var(--result-bg))", color: "hsl(var(--result-fg))" }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at bottom, hsl(var(--gold) / 0.15) 0%, transparent 70%)" }} />
-        <div className="relative py-20 px-6 text-center">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="font-serif-display text-2xl md:text-3xl italic mb-4"
-          >
-            {t("results_conscious")}
-          </motion.h2>
-          <p className="max-w-lg mx-auto text-sm mb-10" style={{ color: "hsl(var(--result-fg) / 0.6)" }}>
-            {t("results_conscious_text")}
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <LeadCaptureDialog
-              source="Aesthetic Discovery"
-              metadata={{
-                archetype: archetype.name,
-                scores: scores,
-                aiCalculated: !!aiResult,
-                identity: displayName
-              }}
-              title="Get Your Full Design Blueprint"
-              description="Receive a detailed PDF of your spatial identity, including custom material specifications and a lighting guide."
-              defaultMessage={`I just discovered my aesthetic is ${displayName}! I'd love to get the full blueprint and discuss a project.`}
-            >
-              <Button size="lg" className="h-14 px-8 text-base shadow-2xl shadow-primary/20 gap-3 group">
-                Request Full Blueprint
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </Button>
-            </LeadCaptureDialog>
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleDownload}
-                className="flex items-center justify-center w-14 h-14 border transition-all duration-300 hover:bg-foreground/5"
-                style={{ borderColor: "hsl(var(--result-fg) / 0.2)", color: "hsl(var(--result-fg))" }}
-                title={t("results_download")}
-              >
-                <Download size={20} />
-              </button>
-
-              {onRetake && (
-                <button
-                  onClick={onRetake}
-                  className="flex items-center gap-2 px-6 py-3 border text-sm font-medium tracking-wide transition-colors duration-300 hover:bg-[hsl(var(--result-fg)/0.1)]"
-                  style={{ borderColor: "hsl(var(--result-fg) / 0.2)", color: "hsl(var(--result-fg))" }}
+          {/* Radar Chart (inline SVG) */}
+          <div className="flex-1 min-h-0 flex flex-col">
+            <div className="text-[9px] tracking-[0.3em] uppercase text-[#FFC300] mb-[0.4vh]">Aesthetic DNA</div>
+            <div className="flex-1 flex items-center justify-center min-h-0">
+              <svg viewBox="0 0 240 200" className="w-full max-h-[18vh]" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="radarGradSingle" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#FFC300" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#FFC300" stopOpacity={0.05} />
+                  </radialGradient>
+                </defs>
+                <g transform="translate(120,105)">
+                  {/* Background rings */}
+                  {ringRadii.map((r) => (
+                    <polygon
+                      key={r}
+                      points={radarAngles.map((a) => `${Math.cos(a) * r},${Math.sin(a) * r}`).join(" ")}
+                      fill="none"
+                      stroke="rgba(255,195,0,0.15)"
+                      strokeWidth={1}
+                    />
+                  ))}
+                  {/* Axes */}
+                  {radarAngles.map((a, i) => (
+                    <line key={i} x1={0} y1={0} x2={Math.cos(a) * 60} y2={Math.sin(a) * 60} stroke="rgba(255,195,0,0.2)" strokeWidth={1} />
+                  ))}
+                </g>
+                {/* Data polygon */}
+                <polygon
+                  points={radarPointsStr}
+                  fill="url(#radarGradSingle)"
+                  stroke="#FFC300"
+                  strokeWidth={2}
+                  strokeLinejoin="round"
+                  opacity={0}
+                  className="radar-anim"
                 >
-                  <RotateCcw size={16} />
-                  {t("results_retake")}
-                </button>
-              )}
+                  <animate attributeName="points" from={radarPointsZero} to={radarPointsStr} dur="1.2s" begin="1.5s" fill="freeze" calcMode="spline" keySplines="0.4 0 0.2 1" />
+                  <animate attributeName="opacity" from="0" to="1" dur="1s" begin="1.5s" fill="freeze" />
+                </polygon>
+                {/* Labels */}
+                {radarLabels.map((label, i) => {
+                  const pt = toXY(radarAngles[i], 75);
+                  return (
+                    <text
+                      key={label}
+                      x={pt.x}
+                      y={pt.y}
+                      textAnchor="middle"
+                      fill="rgba(250,248,245,0.7)"
+                      fontSize={8.5}
+                      fontFamily="DM Sans"
+                      letterSpacing={1.2}
+                      fontWeight="600"
+                    >
+                      {label.toUpperCase()}
+                    </text>
+                  );
+                })}
+              </svg>
+            </div>
+          </div>
+
+          {/* Cognitive Profile */}
+          <div>
+            <div className="text-[9px] tracking-[0.3em] uppercase text-[#FFC300] mb-[0.6vh]">Cognitive Profile</div>
+            <div className="grid grid-cols-4 gap-[6px]">
+              {cognitiveItems.map((item) => (
+                <div
+                  key={item.label}
+                  className="text-center py-2 px-1 transition-colors"
+                  style={{ border: "1px solid rgba(255,195,0,0.15)", borderRadius: 2, background: "rgba(255,255,255,0.02)" }}
+                >
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(20px, 2.2vw, 32px)", fontWeight: 400, color: "#FFC300", lineHeight: 1 }}>
+                    {item.value}<span className="text-[9px] text-[#A19D94] align-super">/10</span>
+                  </div>
+                  <div className="text-[7px] tracking-[0.2em] uppercase text-[#D4D4D4] mt-1.5">{item.label}</div>
+                  <div className="text-[8px] text-[#A19D94] mt-[3px] leading-tight">{item.desc}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
+
+        {/* H divider */}
+        <div style={{ gridColumn: "1 / -1", background: "linear-gradient(to right, transparent, rgba(255,195,0,0.3) 20%, rgba(255,195,0,0.3) 80%, transparent)" }} />
+
+        {/* ────── FOOTER ────── */}
+        <div
+          className="relative z-10 gsap-fade"
+          style={{ gridColumn: "1 / -1", padding: "1.2vh 5vw", display: "flex", alignItems: "center", justifyContent: "space-between" }}
+        >
+          <div className="flex items-center gap-3 text-[clamp(8px,0.65vw,10px)] tracking-[0.15em] uppercase text-[#A19D94]">
+            <img src={logoIcon} alt="" className="h-4 opacity-70 grayscale" />
+            <span>Crossangle Interior · Spatial Blueprint · 2026</span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Share */}
+            <button
+              onClick={handleShare}
+              title="Share Result"
+              aria-label="Share Result"
+              className="flex items-center justify-center w-[34px] h-[34px] transition-colors hover:bg-[#FFC300]/10"
+              style={{ border: "1px solid rgba(255,195,0,0.3)", borderRadius: 2, background: "rgba(255,255,255,0.02)", color: "#FAF8F5", cursor: "pointer" }}
+            >
+              <Share2 size={14} />
+            </button>
+
+            {/* Start Over */}
+            {onRetake && (
+              <button
+                onClick={onRetake}
+                className="flex items-center gap-1.5 px-5 py-2.5 transition-colors hover:bg-[#FFC300]/10"
+                style={{
+                  border: "1px solid rgba(255,195,0,0.3)",
+                  borderRadius: 2,
+                  background: "rgba(255,255,255,0.02)",
+                  color: "#FAF8F5",
+                  fontSize: "clamp(9px, 0.75vw, 11px)",
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase" as const,
+                  cursor: "pointer",
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                <RotateCcw size={12} />
+                Start Over
+              </button>
+            )}
+
+            {/* Download Card — shimmer effect */}
+            <ShimmerButton
+              shimmerColor="rgba(255,255,255,0.4)"
+              shimmerDuration="2.5s"
+              borderRadius="2px"
+              background="#C30000"
+              className="flex items-center gap-2 px-6 py-2.5 text-[clamp(9px,0.75vw,11px)] tracking-[0.15em] uppercase font-medium shadow-lg hover:brightness-110 transition-all"
+              onClick={handleDownloadImage}
+            >
+              <Download size={13} className="text-[#FAF8F5]" />
+              <span className="text-[#FAF8F5]">Download Card</span>
+            </ShimmerButton>
+          </div>
+        </div>
       </div>
-    </motion.div>
+    </>
   );
 };
 

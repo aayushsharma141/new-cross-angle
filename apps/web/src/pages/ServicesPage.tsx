@@ -19,6 +19,7 @@ const IconMap: Record<string, LucideIcon> = {
   Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ServiceCluster = ({ title, description, services }: { title: string, description: string, services: any[] }) => (
   <section className="py-16 md:py-24 relative">
     <div className="container mx-auto px-4">

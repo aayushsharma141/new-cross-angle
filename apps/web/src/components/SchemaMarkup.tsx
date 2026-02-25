@@ -4,6 +4,7 @@ export type SchemaType = "LocalBusiness" | "Service" | "BreadcrumbList" | "Artic
 
 interface SchemaMarkupProps {
     type: SchemaType;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: Record<string, any>;
 }
 

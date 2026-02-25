@@ -32,7 +32,16 @@ import {
     Trash2,
 } from "lucide-react";
 
-interface EstimateLead {
+export interface EstimateBreakdown {
+    designFee?: { min: number; max: number };
+    executionCost?: { min: number; max: number };
+    supervisionFee?: number;
+    extraVisitsCost?: number;
+    contingency?: { min: number; max: number };
+    [key: string]: unknown;
+}
+
+export interface EstimateLead {
     id: string;
     created_at: string;
     name: string;
@@ -50,7 +59,7 @@ interface EstimateLead {
     site_visits: number;
     estimate_total_min: number;
     estimate_total_max: number;
-    estimate_breakdown: Record<string, any>;
+    estimate_breakdown: EstimateBreakdown;
     lead_score: number;
     lead_category: "HOT" | "WARM" | "COLD";
     status: "new" | "contacted" | "converted" | "archived";
@@ -272,7 +281,7 @@ export function EstimateLeadDetailSheet({
                     <div className="space-y-4">
                         <div>
                             <label className="text-sm font-semibold mb-2 block">Status</label>
-                            <Select value={status} onValueChange={(v) => setStatus(v as any)}>
+                            <Select value={status} onValueChange={(v) => setStatus(v as EstimateLead["status"])}>
                                 <SelectTrigger>
                                     <SelectValue />
                                 </SelectTrigger>

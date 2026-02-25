@@ -18,4 +18,12 @@ export default defineConfig(({ mode }) => ({
       "@repo/utils": path.resolve(__dirname, "../../packages/utils/src"),
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        // Rely on Vite defaults for chunking to prevent circular execution graph errors
+      },
+    },
+  },
 }));

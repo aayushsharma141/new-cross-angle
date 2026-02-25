@@ -9,11 +9,13 @@ export enum Stage {
   LightCalibration = 7,
   PatternPreview = 8,
   Analysis = 9,
-  Results = 10,
+  LeadCapture = 10,
+  Results = 11,
 }
 
 export interface LifestyleOption {
   label: string;
+  description: string;
   image: string;
   scores: Partial<AestheticScores>;
 }

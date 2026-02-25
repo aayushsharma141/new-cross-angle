@@ -62,6 +62,7 @@ export default function AdminUsers() {
         },
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filteredUsers = users.filter((user: any) =>
         user.email?.toLowerCase().includes(search.toLowerCase()) ||
         user.full_name?.toLowerCase().includes(search.toLowerCase())
@@ -83,6 +84,7 @@ export default function AdminUsers() {
                 description: `User ${actionUser.action}ed successfully.`
             });
             refetch();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             toast({
                 title: "Error",
@@ -159,7 +161,7 @@ export default function AdminUsers() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {filteredUsers.map((user: any) => (
+                            {filteredUsers.map((user: { id: string; avatar_url?: string; full_name?: string; email?: string; role?: string; status?: string; created_at?: string; last_sign_in_at?: string }) => (
                                 <TableRow key={user.id}>
                                     <TableCell>
                                         <div className="flex items-center gap-3">

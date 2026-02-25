@@ -13,5 +13,5 @@ export const useAdminAuth = () => {
     navigate("/admin/auth");
   };
 
-  return { isAuthenticated, isLoading, logout };
+  return { isAuthenticated, isLoading, logout, user };
 };

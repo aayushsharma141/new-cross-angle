@@ -21,7 +21,6 @@ const Footer = () => {
     { name: "Consultation", href: "/services" },
     { name: "Turnkey Project", href: "/services" },
     { name: "Miniature Model", href: "/services" },
-    { name: "Design Calculators", href: "/calculators" },
   ];
 
   const socialLinks = [

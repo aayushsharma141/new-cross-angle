@@ -134,6 +134,7 @@ const AdminMedia = () => {
 
                     if (error) throw error;
                     successCount++;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 } catch (err: any) {
                     console.error(`Error uploading ${file.name}:`, err);
                     errors.push(`${file.name}: ${err.message}`);
@@ -153,6 +154,7 @@ const AdminMedia = () => {
                     variant: "destructive",
                 });
             }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             setUploadError(error.message);
             toast({

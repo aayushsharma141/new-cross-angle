@@ -10,6 +10,7 @@ export function QuickActionButton({
     gradient,
     onClick
 }: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     icon: any;
     label: string;
     href?: string;

@@ -83,7 +83,7 @@ const Process = () => {
   useEffect(() => {
     const mm = gsap.matchMedia();
 
-    mm.add("(min-width: 768px)", () => {
+    mm.add("all", () => {
       // Update active step based on scroll
       steps.forEach((_, index) => {
         ScrollTrigger.create({

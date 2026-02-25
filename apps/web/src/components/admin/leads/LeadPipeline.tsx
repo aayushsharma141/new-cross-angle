@@ -140,6 +140,7 @@ export function LeadPipeline({ leads, onLeadMove, onLeadClick }: LeadPipelinePro
         let newStatus = over.id as string;
 
         // If dropped on another lead, find that lead's status
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (!columns.includes(newStatus as any)) {
             const overLead = leads.find((l) => l.id === over.id);
             if (overLead) {
@@ -147,6 +148,7 @@ export function LeadPipeline({ leads, onLeadMove, onLeadClick }: LeadPipelinePro
             }
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (activeLead.status !== newStatus && columns.includes(newStatus as any)) {
             onLeadMove(activeLead.id, newStatus);
         }

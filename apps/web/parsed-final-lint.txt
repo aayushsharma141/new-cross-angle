@@ -1,0 +1,68 @@
+[
+  {
+    "file": "EstimateLeadDetailSheet.tsx",
+    "messages": [
+      "53:40 Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)"
+    ]
+  },
+  {
+    "file": "AuthProvider.tsx",
+    "messages": [
+      "19:14 Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components. (react-refresh/only-export-components)"
+    ]
+  },
+  {
+    "file": "badge.tsx",
+    "messages": [
+      "29:17 Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components. (react-refresh/only-export-components)"
+    ]
+  },
+  {
+    "file": "button.tsx",
+    "messages": [
+      "47:18 Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components. (react-refresh/only-export-components)"
+    ]
+  },
+  {
+    "file": "form.tsx",
+    "messages": [
+      "129:10 Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components. (react-refresh/only-export-components)"
+    ]
+  },
+  {
+    "file": "navigation-menu.tsx",
+    "messages": [
+      "111:3 Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components. (react-refresh/only-export-components)"
+    ]
+  },
+  {
+    "file": "sidebar.tsx",
+    "messages": [
+      "636:3 Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components. (react-refresh/only-export-components)"
+    ]
+  },
+  {
+    "file": "sonner.tsx",
+    "messages": [
+      "27:19 Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components. (react-refresh/only-export-components)"
+    ]
+  },
+  {
+    "file": "toggle.tsx",
+    "messages": [
+      "37:18 Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components. (react-refresh/only-export-components)"
+    ]
+  },
+  {
+    "file": "theme-provider.tsx",
+    "messages": [
+      "66:14 Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components. (react-refresh/only-export-components)"
+    ]
+  },
+  {
+    "file": "useLanguage.tsx",
+    "messages": [
+      "27:14 Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components. (react-refresh/only-export-components)"
+    ]
+  }
+]

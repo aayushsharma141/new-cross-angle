@@ -37,6 +37,19 @@ const CATEGORIES = [
     { id: "specialized", label: "Specialized" }
 ];
 
+interface ServiceRecord {
+    id: string;
+    created_at: string;
+    name: string;
+    slug: string;
+    description: string | Record<string, unknown>;
+    icon_url?: string;
+    short_description?: string;
+    short_tag?: string;
+    service_steps?: { step_number: number; title: string; description: string }[];
+    service_faqs?: { display_order: number; question: string; answer: string }[];
+}
+
 const AdminServices = () => {
     const [services, setServices] = useState<ServiceDetail[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -63,6 +76,7 @@ const AdminServices = () => {
 
     useEffect(() => {
         fetchServices();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchServices = async () => {
@@ -89,10 +103,10 @@ const AdminServices = () => {
         }
 
         if (data) {
-            const mappedServices: ServiceDetail[] = data.map((item: any) => {
+            const mappedServices: ServiceDetail[] = data.map((item: ServiceRecord) => {
                 const descJson = typeof item.description === 'string'
                     ? JSON.parse(item.description)
-                    : item.description || {};
+                    : (item.description as Record<string, unknown>) || {};
 
                 return {
                     id: item.id,
@@ -106,11 +120,11 @@ const AdminServices = () => {
                     icon: descJson.icon || "Home",
                     tag: item.short_tag || "",
                     features: descJson.features || [],
-                    process_steps: item.service_steps?.sort((a: any, b: any) => a.step_number - b.step_number).map((step: any) => ({
+                    process_steps: item.service_steps?.sort((a, b) => a.step_number - b.step_number).map((step) => ({
                         title: step.title,
                         description: step.description
                     })) || [],
-                    faq: item.service_faqs?.sort((a: any, b: any) => a.display_order - b.display_order).map((f: any) => ({
+                    faq: item.service_faqs?.sort((a, b) => a.display_order - b.display_order).map((f) => ({
                         question: f.question,
                         answer: f.answer
                     })) || []
@@ -243,11 +257,12 @@ const AdminServices = () => {
             setIsDialogOpen(false);
             setEditingService(null);
             fetchServices();
-        } catch (error: any) {
-            console.error(error);
+        } catch (error) {
+            const err = error as Error;
+            console.error(err);
             toast({
                 title: "Error saving service",
-                description: error.message,
+                description: err.message,
                 variant: "destructive",
             });
         } finally {

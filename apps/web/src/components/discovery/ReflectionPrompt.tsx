@@ -1,10 +1,9 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Feather, ArrowLeft, ArrowRight, Sunrise, Sun, Sunset, Moon, Users, Leaf, Brain, Flame } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sunrise, Sun, Sunset, Moon, Users, Leaf, Brain, Flame } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import ChipOption from "@/components/reflection/ChipOption";
 import ImageOption from "@/components/reflection/ImageOption";
-import SectionProgress from "@/components/reflection/SectionProgress";
 
 // Morning images
 import imgMorningSilence from "@/assets/discovery/reflect-morning-silence.jpg";
@@ -51,19 +50,17 @@ interface QuestionDef {
   section: number;
 }
 
-// Section icons mapped by index
 const sectionIcons = [Sunrise, Sun, Sunset, Moon, Users, Leaf, Brain, Flame];
 
-// Ambient gradient colors per section
 const sectionGradients = [
-  "radial-gradient(ellipse at top, hsl(40 60% 95% / 0.5) 0%, transparent 60%)", // Morning - warm
-  "radial-gradient(ellipse at top, hsl(45 50% 93% / 0.5) 0%, transparent 60%)", // Midday - bright
-  "radial-gradient(ellipse at top, hsl(25 40% 90% / 0.5) 0%, transparent 60%)", // Evening - amber
-  "radial-gradient(ellipse at top, hsl(230 20% 88% / 0.5) 0%, transparent 60%)", // Night - cool
-  "radial-gradient(ellipse at top, hsl(30 30% 92% / 0.4) 0%, transparent 60%)", // Social
-  "radial-gradient(ellipse at top, hsl(120 15% 92% / 0.4) 0%, transparent 60%)", // Sensory
-  "radial-gradient(ellipse at top, hsl(260 10% 92% / 0.4) 0%, transparent 60%)", // Deeper
-  "radial-gradient(ellipse at top, hsl(15 40% 90% / 0.4) 0%, transparent 60%)", // Identity
+  "radial-gradient(ellipse at top, hsl(40 60% 95% / 0.5) 0%, transparent 60%)",
+  "radial-gradient(ellipse at top, hsl(45 50% 93% / 0.5) 0%, transparent 60%)",
+  "radial-gradient(ellipse at top, hsl(25 40% 90% / 0.5) 0%, transparent 60%)",
+  "radial-gradient(ellipse at top, hsl(230 20% 88% / 0.5) 0%, transparent 60%)",
+  "radial-gradient(ellipse at top, hsl(30 30% 92% / 0.4) 0%, transparent 60%)",
+  "radial-gradient(ellipse at top, hsl(120 15% 92% / 0.4) 0%, transparent 60%)",
+  "radial-gradient(ellipse at top, hsl(260 10% 92% / 0.4) 0%, transparent 60%)",
+  "radial-gradient(ellipse at top, hsl(15 40% 90% / 0.4) 0%, transparent 60%)",
 ];
 
 const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
@@ -112,7 +109,6 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
       const result = questions.map((q) => ({ question: t(q.key), answer: answers[q.key] ? t(answers[q.key]) : "" }));
       onComplete(result);
     } else {
-      // Color wash transition
       setShowWash(true);
       setTimeout(() => {
         setCurrentSection((s) => s + 1);
@@ -141,32 +137,52 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
     const imageOptions = hasImages
       ? q.optionKeys.map((k, i) => ({ key: k, label: optionLabels[i], img: q.images![i] })).filter((o) => o.img)
       : [];
-    const chipOnlyOptions = hasImages
-      ? q.optionKeys.map((k, i) => ({ key: k, label: optionLabels[i], img: q.images![i] })).filter((o) => !o.img)
-      : q.optionKeys.map((k, i) => ({ key: k, label: optionLabels[i], img: undefined }));
+    const chipOptions = !hasImages
+      ? q.optionKeys.map((k, i) => ({ key: k, label: optionLabels[i] }))
+      : [];
 
     return (
       <motion.div
         key={q.key}
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: idx * 0.15 }}
-        className="space-y-4"
+        transition={{ delay: idx * 0.08 }}
+        className="flex flex-col h-full"
       >
-        <h3 className="font-serif-display text-lg md:text-xl text-foreground leading-snug">
+        {/* Question label — 20–22px, no underline, top border separator */}
+        <h3 className="text-xl xl:text-2xl font-normal text-white/80 mb-5 pb-4 leading-snug max-w-sm no-underline border-t border-white/[0.08] pt-3">
           {t(q.key)}
         </h3>
+
+        {/* Image grid — smart layout, fills column height */}
         {imageOptions.length > 0 && (
-          <div className={`grid gap-3 ${imageOptions.length <= 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>
+          <div className={`flex-1 min-h-0 grid gap-2 content-start ${imageOptions.length <= 3 ? "grid-cols-3" :
+            imageOptions.length === 4 ? "grid-cols-2" :
+              "grid-cols-3"
+            }`}>
             {imageOptions.map((o) => (
-              <ImageOption key={o.key} label={o.label} imageSrc={o.img!} isActive={answers[q.key] === o.key} onClick={() => selectAnswer(q.key, o.key)} />
+              <ImageOption
+                key={o.key}
+                label={o.label}
+                imageSrc={o.img!}
+                isActive={answers[q.key] === o.key}
+                onClick={() => selectAnswer(q.key, o.key)}
+              />
             ))}
           </div>
         )}
-        {chipOnlyOptions.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {chipOnlyOptions.map((o) => (
-              <ChipOption key={o.key} label={o.label} isActive={answers[q.key] === o.key} onClick={() => selectAnswer(q.key, o.key)} />
+
+        {/* Option rows — full-width, stacked, luxury list */}
+        {chipOptions.length > 0 && (
+          <div className="flex-1 min-h-0 flex flex-col border-t border-white/[0.06]">
+            {chipOptions.map((o, i) => (
+              <ChipOption
+                key={o.key}
+                label={o.label}
+                index={i}
+                isActive={answers[q.key] === o.key}
+                onClick={() => selectAnswer(q.key, o.key)}
+              />
             ))}
           </div>
         )}
@@ -179,7 +195,7 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="relative flex h-full flex-col items-center justify-start px-6 pt-12 pb-24"
+      className="relative flex h-full w-full flex-col overflow-hidden"
     >
       {/* Ambient background gradient */}
       <motion.div
@@ -191,7 +207,7 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
         style={{ background: sectionGradients[currentSection] }}
       />
 
-      {/* Color wash overlay */}
+      {/* Color wash transition overlay */}
       <AnimatePresence>
         {showWash && (
           <motion.div
@@ -204,82 +220,105 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 flex flex-col items-center w-full">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 mb-3">
-          <Feather size={14} className="text-muted-foreground" />
-          <p className="tracking-premium text-muted-foreground">{t("reflection_subtitle")}</p>
-        </motion.div>
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="font-serif-display text-3xl md:text-4xl font-medium text-center max-w-lg leading-tight mb-3"
-        >
-          {t("reflection_title")}
-        </motion.h2>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="text-muted-foreground text-center max-w-md mb-8"
-        >
-          {t("reflection_desc")}
-        </motion.p>
-
-        <SectionProgress current={currentSection} total={totalSections} labels={sectionLabels} />
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSection}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.3 }}
-            className="w-full max-w-lg space-y-10"
-          >
-            {/* Section header with animated icon */}
-            <div className="flex flex-col items-center gap-2">
-              <motion.div
-                initial={{ scale: 0, rotate: -20 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 200 }}
-              >
-                <SectionIcon size={24} className="text-foreground/50" />
-              </motion.div>
-              <h2 className="font-serif-display text-2xl text-center text-foreground">
+      {/* ── HEADER: bold section context ── */}
+      <div className="relative z-10 shrink-0 px-8 xl:px-12 pt-6 pb-5 border-b border-white/[0.06]">
+        <div className="flex items-start justify-between gap-8">
+          {/* Left: eyebrow + large serif title + amber accent */}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[13px] uppercase tracking-[0.3em] font-mono text-white/35">
+              Daily Habits
+              <span className="mx-2 text-white/15">·</span>
+              {String(currentSection + 1).padStart(2, "0")}/{totalSections}
+            </span>
+            <div className="flex items-center gap-3">
+              {/* Thin amber left accent — replaces icon */}
+              <div className="w-[3px] h-10 bg-amber-400/60 rounded-full shrink-0" />
+              <h2 className="font-serif-display text-4xl xl:text-5xl font-normal text-white/95 leading-none">
                 {sectionLabels[currentSection]}
               </h2>
             </div>
-            {sectionQuestions.map((q, i) => renderQuestion(q, i))}
+          </div>
+
+          {/* Right: step progress — bigger, labeled, amber fill */}
+          <div className="flex flex-col items-end gap-2 shrink-0 pt-1">
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalSections }).map((_, i) => (
+                <div
+                  key={i}
+                  style={{ width: i === currentSection ? 20 : 8 }}
+                  className={`h-[4px] rounded-full transition-all duration-400 ${i === currentSection
+                    ? "bg-amber-400"
+                    : i < currentSection
+                      ? "bg-amber-400/40"
+                      : "bg-white/10"
+                    }`}
+                />
+              ))}
+            </div>
+            <span className="text-[13px] font-mono text-white/35 tracking-widest">
+              Step {currentSection + 1} of {totalSections}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MAIN CONTENT: fills all remaining space ── */}
+      <div className="relative z-10 flex-1 overflow-hidden px-4 xl:px-8 pt-3 pb-12">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSection}
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -24 }}
+            transition={{ duration: 0.25 }}
+            className={`h-full ${sectionQuestions.length >= 2
+              ? "grid grid-cols-1 md:grid-cols-2 gap-0"
+              : "flex flex-col"
+              }`}
+          >
+            {sectionQuestions.length >= 2
+              ? sectionQuestions.map((q, i) => (
+                <div
+                  key={q.key}
+                  className={`flex flex-col h-full ${i === 0
+                    ? "pr-5 border-r border-white/[0.06]"
+                    : "pl-5"
+                    }`}
+                >
+                  {renderQuestion(q, i)}
+                </div>
+              ))
+              : sectionQuestions.map((q, i) => renderQuestion(q, i))
+            }
           </motion.div>
         </AnimatePresence>
+      </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-12 flex items-center gap-4"
-        >
+      {/* ── FIXED CTA FOOTER ── */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between px-5 xl:px-8 py-2.5 border-t border-border/10 bg-background/70 backdrop-blur-sm">
+        {/* Zone 6: Skip text — 12px, readable, centered-ish, with icon */}
+        <p className="flex items-center gap-1.5 text-[12px] text-white/50">
+          <span className="inline-block rotate-90 opacity-60">↓</span>
+          {t("reflection_skip")}
+        </p>
+        <div className="flex items-center gap-2.5">
           {currentSection > 0 && (
-            <button onClick={goBack} className="flex items-center gap-2 px-6 py-3 border border-border text-foreground text-sm font-medium hover:bg-secondary/50 transition-colors rounded-sm">
-              <ArrowLeft size={14} />
-              {t("reflection_prev_section")}
+            <button
+              onClick={goBack}
+              className="flex items-center gap-1 px-3 py-1.5 border border-border/30 text-foreground/60 text-[9px] xl:text-[10px] font-medium uppercase tracking-widest hover:bg-secondary/30 transition-colors"
+            >
+              <ArrowLeft size={10} />
+              Back
             </button>
           )}
-          <button onClick={goNext} className="flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity rounded-sm">
-            {isLastSection ? t("reflection_continue") : t("reflection_next_section")}
-            {!isLastSection && <ArrowRight size={14} />}
+          <button
+            onClick={goNext}
+            className="flex items-center gap-1.5 px-5 py-1.5 bg-white/90 text-[#0D0A08] text-[9px] xl:text-[10px] font-medium uppercase tracking-widest hover:bg-white transition-colors"
+          >
+            {isLastSection ? t("reflection_continue") : "Next"}
+            {!isLastSection && <ArrowRight size={10} />}
           </button>
-        </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-4 text-xs text-muted-foreground"
-        >
-          {t("reflection_skip")}
-        </motion.p>
+        </div>
       </div>
     </motion.div>
   );

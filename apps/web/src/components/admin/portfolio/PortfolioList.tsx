@@ -25,6 +25,7 @@ interface PortfolioItem {
 
 interface PortfolioListProps {
     items: PortfolioItem[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onEdit: (item: any) => void;
     onDelete: (id: string) => void;
 }

@@ -69,7 +69,7 @@ const MaterialResonance = ({ onComplete }: Props) => {
         animate={{ opacity: 1, y: 0 }}
         className="font-serif-display text-3xl md:text-4xl mb-2 text-center"
       >
-        Material Resonance
+        Material Feel
       </motion.h2>
       <motion.p
         initial={{ opacity: 0 }}
@@ -77,7 +77,7 @@ const MaterialResonance = ({ onComplete }: Props) => {
         transition={{ delay: 0.2 }}
         className="text-muted-foreground mb-12 text-center text-sm"
       >
-        Without thinking, which texture calls to your hand?
+        Which texture feels most natural and appealing to you?
       </motion.p>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-3xl mb-8">
@@ -93,8 +93,8 @@ const MaterialResonance = ({ onComplete }: Props) => {
           >
             <motion.div
               className={`relative w-24 h-24 md:w-28 md:h-28 rounded-xl overflow-hidden transition-all duration-500 ${selected === i
-                  ? "scale-110 ring-2 ring-[hsl(var(--gold))] ring-offset-2 ring-offset-background"
-                  : "opacity-70 group-hover:opacity-100 group-hover:scale-105"
+                ? "scale-110 ring-2 ring-[hsl(var(--gold))] ring-offset-2 ring-offset-background"
+                : "opacity-70 group-hover:opacity-100 group-hover:scale-105"
                 }`}
               style={texturePatterns[mat.name]}
               animate={selected === i ? { boxShadow: "0 8px 30px hsl(var(--gold) / 0.3)" } : { boxShadow: "none" }}
@@ -143,11 +143,11 @@ const MaterialResonance = ({ onComplete }: Props) => {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
         className={`px-10 py-4 text-sm font-medium tracking-wide transition-all duration-300 ${selected !== null
-            ? "bg-primary text-primary-foreground hover:opacity-90"
-            : "text-muted-foreground cursor-not-allowed"
+          ? "bg-primary text-primary-foreground hover:opacity-90"
+          : "text-muted-foreground cursor-not-allowed"
           }`}
       >
-        TRUST YOUR TOUCH
+        THIS IS MY CHOICE
       </motion.button>
     </motion.div>
   );

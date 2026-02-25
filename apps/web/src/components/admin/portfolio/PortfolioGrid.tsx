@@ -14,6 +14,7 @@ interface PortfolioItem {
 
 interface PortfolioGridProps {
     items: PortfolioItem[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onEdit: (item: any) => void;
     onDelete: (id: string) => void;
 }

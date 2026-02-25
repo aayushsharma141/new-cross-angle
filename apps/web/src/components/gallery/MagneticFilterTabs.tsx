@@ -9,11 +9,11 @@ interface MagneticFilterTabsProps {
   counts?: Record<string, number>;
 }
 
-const MagneticFilterTabs = ({ 
-  categories, 
-  activeCategory, 
+const MagneticFilterTabs = ({
+  categories,
+  activeCategory,
   onCategoryChange,
-  counts 
+  counts
 }: MagneticFilterTabsProps) => {
   const [isSticky, setIsSticky] = useState(false);
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
@@ -57,17 +57,17 @@ const MagneticFilterTabs = ({
       ref={containerRef}
       className={cn(
         "py-6 transition-all duration-300 z-40",
-        isSticky 
-          ? "sticky top-20 bg-background/80 backdrop-blur-xl border-b border-border/50" 
+        isSticky
+          ? "sticky top-20 bg-background/80 backdrop-blur-xl border-b border-border/50"
           : "bg-transparent"
       )}
     >
       <div className="container mx-auto px-4">
-        <div className="flex flex-wrap justify-center gap-3 md:gap-4">
+        <div className="flex flex-nowrap overflow-x-auto scrollbar-hide justify-start md:justify-center gap-3 md:gap-4 pb-2 -mx-4 px-4 md:mx-0 md:px-0">
           {categories.map((category) => {
             const isActive = activeCategory === category;
             const isHovered = hoveredTab === category;
-            
+
             return (
               <motion.button
                 key={category}
@@ -86,8 +86,8 @@ const MagneticFilterTabs = ({
                     : "bg-card/50 text-foreground border-border/50 hover:border-primary/50"
                 )}
                 style={{
-                  transform: isHovered 
-                    ? `translate(${magneticPosition.x}px, ${magneticPosition.y}px)` 
+                  transform: isHovered
+                    ? `translate(${magneticPosition.x}px, ${magneticPosition.y}px)`
                     : 'translate(0, 0)'
                 }}
                 whileTap={{ scale: 0.95 }}
@@ -110,8 +110,8 @@ const MagneticFilterTabs = ({
                   {counts && counts[category] !== undefined && (
                     <span className={cn(
                       "px-2 py-0.5 rounded-full text-xs",
-                      isActive 
-                        ? "bg-primary-foreground/20 text-primary-foreground" 
+                      isActive
+                        ? "bg-primary-foreground/20 text-primary-foreground"
                         : "bg-muted text-muted-foreground"
                     )}>
                       {counts[category]}

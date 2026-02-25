@@ -14,8 +14,9 @@ const ImageOption = ({ label, imageSrc, isActive, onClick }: ImageOptionProps) =
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
 
-  const rotateX = useTransform(mouseY, [0, 1], [8, -8]);
-  const rotateY = useTransform(mouseX, [0, 1], [-8, 8]);
+  const rotateX = useTransform(mouseY, [0, 1], [4, -4]);
+  const rotateY = useTransform(mouseX, [0, 1], [-4, 4]);
+
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!ref.current) return;
@@ -37,19 +38,19 @@ const ImageOption = ({ label, imageSrc, isActive, onClick }: ImageOptionProps) =
       onMouseLeave={handleMouseLeave}
       whileTap={{ scale: 0.97 }}
       style={{
-        perspective: 600,
+        perspective: 800,
         rotateX,
         rotateY,
         transformStyle: "preserve-3d",
       }}
-      className="group relative flex flex-col items-center gap-2 w-full"
+      className="group relative flex flex-col items-center w-full focus:outline-none"
     >
       <div
         className={`
-          relative w-full aspect-square rounded-lg overflow-hidden border-2 transition-all duration-300
+          relative w-full aspect-[4/3] rounded-sm overflow-hidden border transition-all duration-300
           ${isActive
-            ? "border-primary shadow-lg ring-2 ring-primary/20"
-            : "border-transparent hover:border-border"
+            ? "border-amber-400/70 shadow-[0_0_16px_rgba(251,191,36,0.25)] ring-2 ring-amber-400/30"
+            : "border-border/20 hover:border-border/60"
           }
         `}
       >
@@ -59,25 +60,30 @@ const ImageOption = ({ label, imageSrc, isActive, onClick }: ImageOptionProps) =
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
+        {/* Gradient overlay at bottom for caption */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
         <AnimatePresence>
           {isActive && (
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
-              className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md"
-              style={{ background: "hsl(var(--gold))" }}
+              className="absolute top-1.5 right-1.5 w-4 h-4 rounded-sm flex items-center justify-center"
+              style={{ background: 'rgba(251,191,36,0.9)' }}
             >
-              <Check size={14} className="text-white" />
+              <Check size={9} className="text-black" strokeWidth={3} />
             </motion.div>
           )}
         </AnimatePresence>
-        {/* Overlay gradient on hover */}
-        <div className={`absolute inset-0 transition-opacity duration-300 ${isActive ? 'bg-primary/5' : 'bg-transparent group-hover:bg-foreground/5'}`} />
+        {/* Caption inside image */}
+        <div className="absolute bottom-0 left-0 right-0 p-2">
+          <span className={`text-[9px] xl:text-[10px] leading-tight font-medium text-left block ${isActive ? 'text-white' : 'text-white/80'}`}>
+            {label}
+          </span>
+        </div>
+        {/* Active overlay - subtle gold tint */}
+        <div className={`absolute inset-0 transition-opacity duration-300 ${isActive ? 'bg-amber-400/8' : 'bg-transparent group-hover:bg-foreground/5'}`} />
       </div>
-      <span className={`text-xs text-center leading-tight transition-colors ${isActive ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
-        {label}
-      </span>
     </motion.button>
   );
 };

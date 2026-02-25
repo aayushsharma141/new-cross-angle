@@ -43,27 +43,21 @@ export const REFLECTION_PROMPTS = [
 
 export const lifestyleQuestions: LifestyleQuestion[] = [
   {
-    question: "How do you prefer to spend your evenings?",
+    question: "How do you prefer to begin your mornings?",
     options: [
-      { label: "Solitary, with a book", image: lifestyle1, scores: { minimalism: 2, social: -2, novelty: 0 } },
-      { label: "Hosting a dinner party", image: lifestyle2, scores: { social: 3, warmth: 1, novelty: 2 } },
-      { label: "Focused creative work", image: lifestyle3, scores: { structure: 1, minimalism: 1, novelty: 1 } },
+      { label: "Slow Morning", description: "Slowly, in silence, with natural light", image: lifestyle1, scores: { warmth: 2, minimalism: 1, novelty: 0 } },
+      { label: "Active Morning", description: "With movement — workout or stretching", image: lifestyle2, scores: { social: 1, structure: 2, novelty: 1 } },
+      { label: "Productive Morning", description: "Immediately productive, diving into work", image: lifestyle3, scores: { structure: 3, minimalism: 2, warmth: -1 } },
+      { label: "Social Morning", description: "Surrounded by family or conversation", image: lifestyle4, scores: { social: 3, warmth: 1, structure: -1 } },
     ],
   },
   {
-    question: "What feeling should your home evoke first?",
+    question: "What kind of morning environment feels right to you?",
     options: [
-      { label: "Calm retreat", image: lifestyle4, scores: { minimalism: 2, warmth: 1, novelty: 0 } },
-      { label: "Energetic gathering", image: lifestyle5, scores: { social: 3, warmth: 2, novelty: 2 } },
-      { label: "Curated gallery", image: lifestyle6, scores: { structure: 2, minimalism: -1, novelty: 3 } },
-    ],
-  },
-  {
-    question: "Your ideal weekend morning?",
-    options: [
-      { label: "Slow coffee ritual", image: lifestyle7, scores: { warmth: 2, minimalism: 1, novelty: 0 } },
-      { label: "Active and outdoors", image: lifestyle8, scores: { social: 1, structure: -1, novelty: 2 } },
-      { label: "Organizing and planning", image: lifestyle9, scores: { structure: 3, minimalism: 1, novelty: -1 } },
+      { label: "Natural Environment", description: "Fresh breeze, warm nature", image: lifestyle5, scores: { minimalism: 2, social: -1, novelty: 0 } },
+      { label: "Clean Environment", description: "Clean, clutter-free", image: lifestyle6, scores: { social: 3, warmth: 2, novelty: 2 } },
+      { label: "Analog Environment", description: "Warm, analog, accompanied by music", image: lifestyle7, scores: { warmth: 3, structure: 1, social: -1 } },
+      { label: "Lively Environment", description: "Bustling, lively, focused on people", image: lifestyle8, scores: { novelty: 2, minimalism: 1, structure: 1 } },
     ],
   },
 ];
@@ -116,34 +110,34 @@ export const lightOptions = [
 export const archetypes: Archetype[] = [
   {
     name: "The Quiet Curator",
-    tagline: "Your space is a sanctuary of carefully chosen stillness. Every object earns its place through meaning, not trend.",
-    traits: ["Intentional", "Restrained", "Thoughtful"],
-    materialBias: "Stone",
-    strategy: "Use gallery walls and directional spot lighting to highlight your unique pieces. Embrace negative space as a design element.",
+    tagline: "You prefer calm, simple, and thoughtfully arranged spaces. Every object earns its place through meaning, not trend. Peace and clarity are at the heart of your home.",
+    traits: ["Intentional", "Restrained", "Thoughtful", "Peaceful"],
+    materialBias: "Stone & Linen",
+    strategy: "Embrace negative space as a design element — less is always more. Use soft, natural lighting and a few carefully chosen objects. Gallery-style display and calm, neutral tones will feel most like home.",
     match: (s) => s.minimalism + (10 - s.social) + s.structure + (5 - s.novelty),
   },
   {
     name: "The Social Minimalist",
-    tagline: "You create spaces that breathe — open, welcoming, and effortlessly elegant for gathering.",
-    traits: ["Open", "Warm", "Effortless"],
-    materialBias: "Linen",
-    strategy: "Design flexible zones that transition from intimate to communal. Use warm lighting and modular furniture.",
+    tagline: "You like clean, open spaces that are easy to move through and welcoming for others. Your home is both simple and warm — a place where people feel comfortable gathering.",
+    traits: ["Open", "Welcoming", "Effortless", "Adaptable"],
+    materialBias: "Linen & Timber",
+    strategy: "Design flexible zones that shift easily from quiet time to social gatherings. Use warm lighting, open layouts, and modular furniture that invites people in without feeling cluttered.",
     match: (s) => s.social + s.minimalism + (10 - s.structure) + s.novelty,
   },
   {
     name: "The Warm Modernist",
-    tagline: "You blend clean architecture with organic warmth. Structure meets soul in your space.",
-    traits: ["Balanced", "Grounded", "Refined"],
-    materialBias: "Wood",
-    strategy: "Layer natural materials over structured layouts. Diffused lighting and tactile textiles bring your spaces to life.",
+    tagline: "You enjoy modern, structured design but also want your space to feel warm and comfortable. You balance clean lines with natural materials and soft textures.",
+    traits: ["Balanced", "Grounded", "Refined", "Comfortable"],
+    materialBias: "Timber & Stone",
+    strategy: "Layer natural materials — wood, stone, linen — over clean, modern layouts. Use diffused, indirect lighting and tactile textiles to add warmth without losing the sense of order.",
     match: (s) => s.warmth + s.structure + s.minimalism + (5 - s.novelty),
   },
   {
     name: "The Expressive Collector",
-    tagline: "Your home is a canvas for your life. You embrace layers, memories, and bold statements over perfect symmetry.",
-    traits: ["Bold", "Sentimental", "Dynamic"],
-    materialBias: "Wood",
-    strategy: "Use gallery walls and directional spot lighting to highlight your unique pieces.",
+    tagline: "You love spaces full of personality, color, and meaningful objects. Your home tells the story of your life — bold, layered, and full of character.",
+    traits: ["Bold", "Expressive", "Warm", "Story-driven"],
+    materialBias: "Mixed Textures",
+    strategy: "Arrange collections and personal items in gallery-style displays. Use layered lighting — ambient, accent, and task — to highlight what you love. Don't be afraid of color, contrast, and mixing old with new.",
     match: (s) => s.warmth + s.social + (10 - s.minimalism) + s.novelty,
   },
 ];

@@ -1,7 +1,8 @@
 import { useRef, useState, useEffect } from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Home } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { KineticText } from "../ui/kinetic-text";
+import { Link } from "react-router-dom";
 
 const ContactHero = () => {
   const containerRef = useRef<HTMLElement>(null);
@@ -83,6 +84,17 @@ const ContactHero = () => {
         />
       </div>
 
+      {/* Navigation - Home Button */}
+      <div className="absolute top-24 left-4 lg:left-12 z-20">
+        <Link
+          to="/"
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-muted-foreground hover:text-primary hover:bg-white/10 transition-all group"
+        >
+          <Home className="w-4 h-4 group-hover:scale-110 transition-transform" />
+          <span className="text-xs font-medium uppercase tracking-widest hidden sm:inline-block">Home</span>
+        </Link>
+      </div>
+
       {/* Content */}
       <div className="container mx-auto px-4 relative z-10" ref={textRef}>
         <div className="text-center max-w-4xl mx-auto">
@@ -100,11 +112,11 @@ const ContactHero = () => {
           </motion.div>
 
           {/* Kinetic Typography headline */}
-          <div className="mb-6">
-            <KineticText className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight">
+          <div className="mb-6 px-2">
+            <KineticText className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight">
               Let's Create Something
             </KineticText>
-            <KineticText className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary leading-tight mt-2">
+            <KineticText className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary leading-tight mt-2">
               Beautiful Together
             </KineticText>
           </div>
