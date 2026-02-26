@@ -1,0 +1,12 @@
+# Ralph Loop Progress Log
+# Cross Angle Interior — crossangleinterior.com
+# FORMAT: [TIMESTAMP] | [TASK-ID] | [STATUS] | [SUMMARY]
+# RULES: NEVER delete or edit lines. ONLY append. Ralph reads this to skip completed tasks.
+# STATUS VALUES: COMPLETED | SKIPPED | FAILED | BLOCKED
+
+# ============================================================
+# SESSION INITIALIZED
+# Agent must read PRD.md first, find the first unchecked [ ] task,
+# complete it, then append ONE line below in the format above.
+# ============================================================
+
