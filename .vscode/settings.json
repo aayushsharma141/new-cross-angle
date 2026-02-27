@@ -15,5 +15,8 @@
     ],
     "deno.unstable": true,
     "deno.lint": true,
-    "ralphLoop.defaultMode": "Planning"
+    "ralphLoop.defaultMode": "Planning",
+    "go.toolsEnvVars": {
+        "GOTOOLCHAIN": "auto"
+    }
 }
