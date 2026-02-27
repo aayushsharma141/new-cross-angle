@@ -305,8 +305,3 @@ export const leadRepo = new SupabaseLeadRepo();
 - [x] **TASK-038** Create `apps/web/src/components/calculators/TactileInvestmentEngine.tsx`. Material comparison calculator. Define MATERIALS constant (Italian Marble pricePerSqFt:850 wastageFactor:1.12 yearlyMaintenance:4000 valuePremiumPct:18 / Indian Granite 280 1.10 1500 10 / Vitrified Tiles 120 1.08 500 5 / Hardwood Flooring 450 1.15 3000 14 / Engineered Wood 220 1.10 1800 9 / Luxury Vinyl 95 1.05 600 4). Inputs: area (sqft), two material dropdowns. For each: show gross area with wastage, initial cost ₹, 10yr maintenance, lifecycle total, value premium %. Side-by-side layout.
 
 - [x] **TASK-039** Create `apps/web/src/components/calculators/DesignEquityForecaster.tsx`. ROI calculator. Inputs: investment ₹, room type (Kitchen=0.85 / Master Bath=0.75 / Living Room=0.65 / Bedroom=0.50 recovery multiplier), neighborhood (Premium=0.08 / Mid-tier=0.05 / Developing=0.03 annual appreciation). Formulas: `immediateRecovery = investment * roiMultiplier`, `year5 = investment * Math.pow(1+rate, 5)`, `year10 = investment * Math.pow(1+rate, 10)`, `recoverabilityIndex = (immediateRecovery/investment)*100`. Show: projection table (Today/5yr/10yr), Recoverability Index badge (green>75 yellow 50–75 red<50). Print button via `window.print()`.
-
-
-
-
-
