@@ -21,37 +21,37 @@
 
 - [x] **TASK-001** Open `apps/web/src/pages/Index.tsx` only. Wrap the main page content (everything below the Navbar and above the Footer) in a `<main>` element. Save.
 
-- [ ] **TASK-002** Open `apps/web/src/components/Navbar.tsx` only. Ensure the nav container is a `<nav>` element. Add `aria-label="Main navigation"` to it. Save.
+- [x] **TASK-002** Open `apps/web/src/components/Navbar.tsx` only. Ensure the nav container is a `<nav>` element. Add `aria-label="Main navigation"` to it. Save.
 
-- [ ] **TASK-003** Open `apps/web/src/components/Footer.tsx` only. Wrap the outermost div in a `<footer>` semantic element. Save.
+- [x] **TASK-003** Open `apps/web/src/components/Footer.tsx` only. Wrap the outermost div in a `<footer>` semantic element. Save.
 
-- [ ] **TASK-004** Open `apps/web/src/pages/AboutPage.tsx` only. Wrap page body content in `<main>`. Save.
+- [x] **TASK-004** Open `apps/web/src/pages/AboutPage.tsx` only. Wrap page body content in `<main>`. Save.
 
-- [ ] **TASK-005** Open `apps/web/src/pages/ServicesPage.tsx` only. Wrap page body content in `<main>`. Save.
+- [x] **TASK-005** Open `apps/web/src/pages/ServicesPage.tsx` only. Wrap page body content in `<main>`. Save.
 
-- [ ] **TASK-006** Open `apps/web/src/pages/GalleryPage.tsx` only. Wrap page body content in `<main>`. Save.
+- [x] **TASK-006** Open `apps/web/src/pages/GalleryPage.tsx` only. Wrap page body content in `<main>`. Save.
 
-- [ ] **TASK-007** Open `apps/web/src/pages/BlogPage.tsx` only. Wrap page body content in `<main>`. Save.
+- [x] **TASK-007** Open `apps/web/src/pages/BlogPage.tsx` only. Wrap page body content in `<main>`. Save.
 
-- [ ] **TASK-008** Open `apps/web/src/pages/ContactPage.tsx` only. Wrap page body content in `<main>`. Save.
+- [x] **TASK-008** Open `apps/web/src/pages/ContactPage.tsx` only. Wrap page body content in `<main>`. Save.
 
-- [ ] **TASK-009** Open `apps/web/src/pages/ProjectPage.tsx` only. Wrap page body content in `<main>`. Save.
+- [x] **TASK-009** Open `apps/web/src/pages/ProjectPage.tsx` only. Wrap page body content in `<main>`. Save.
 
 ---
 
 ## Phase 2 — Aria Labels for Icon Buttons
 
-- [ ] **TASK-010** Open `apps/web/src/components/Navbar.tsx` only. Find every `<button>` containing only an icon with no visible text. Add `aria-label="descriptive action"` to each one (e.g. `aria-label="Open menu"`, `aria-label="Close menu"`). Save.
+- [x] **TASK-010** Open `apps/web/src/components/Navbar.tsx` only. Find every `<button>` containing only an icon with no visible text. Add `aria-label="descriptive action"` to each one (e.g. `aria-label="Open menu"`, `aria-label="Close menu"`). Save.
 
-- [ ] **TASK-011** Open `apps/web/src/pages/admin/AdminLayout.tsx` only. Find every icon-only `<button>`. Add a descriptive `aria-label` to each. Save.
+- [x] **TASK-011** Open `apps/web/src/pages/admin/AdminLayout.tsx` only. Find every icon-only `<button>`. Add a descriptive `aria-label` to each. Save.
 
-- [ ] **TASK-012** Open `apps/web/src/pages/admin/AdminDashboard.tsx` only. Find every icon-only `<button>` and add `aria-label`. Find any `<img>` tags missing `alt` and add descriptive alt text. Save.
+- [x] **TASK-012** Open `apps/web/src/pages/admin/AdminDashboard.tsx` only. Find every icon-only `<button>` and add `aria-label`. Find any `<img>` tags missing `alt` and add descriptive alt text. Save.
 
 ---
 
 ## Phase 3 — Fix Missing Admin Route
 
-- [ ] **TASK-013** Create the file `apps/web/src/pages/admin/AdminEstimateLeads.tsx` with this content:
+- [x] **TASK-013** Create the file `apps/web/src/pages/admin/AdminEstimateLeads.tsx` with this content:
 
 ```tsx
 import { useQuery } from '@tanstack/react-query';
