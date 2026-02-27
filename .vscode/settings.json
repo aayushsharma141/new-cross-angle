@@ -14,5 +14,6 @@
         "supabase/functions"
     ],
     "deno.unstable": true,
-    "deno.lint": true
+    "deno.lint": true,
+    "ralphLoop.defaultMode": "Planning"
 }

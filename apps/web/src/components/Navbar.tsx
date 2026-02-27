@@ -37,7 +37,7 @@ const Navbar = () => {
           : 'bg-background/95 backdrop-blur-lg shadow-lg py-3 border-b border-border/50'
       )}
     >
-      <nav className="container mx-auto px-4">
+      <nav className="container mx-auto px-4" aria-label="Main navigation">
         <div className="flex items-center justify-between">
           <Link
             to="/"
@@ -282,7 +282,7 @@ const Navbar = () => {
                 : 'text-foreground hover:bg-accent'
             )}
             onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
+            aria-label={isOpen ? "Close menu" : "Open menu"}
           >
             {isOpen ? <X size={28} /> : <Menu size={28} />}
           </button>

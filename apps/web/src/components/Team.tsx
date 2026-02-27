@@ -162,8 +162,8 @@ const TeamCard = ({ member, index, isInView }: { member: TeamMember; index: numb
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
-        transform: isHovered 
-          ? `perspective(1000px) rotateX(${-mousePosition.y}deg) rotateY(${mousePosition.x}deg)` 
+        transform: isHovered
+          ? `perspective(1000px) rotateX(${-mousePosition.y}deg) rotateY(${mousePosition.x}deg)`
           : 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
         transition: 'transform 0.3s ease-out',
       }}
@@ -174,16 +174,17 @@ const TeamCard = ({ member, index, isInView }: { member: TeamMember; index: numb
           <motion.img
             src={member.image}
             alt={member.name}
+            loading="lazy"
             className="w-full h-full object-cover transition-all duration-700"
             style={{
               filter: isHovered ? 'grayscale(0%)' : 'grayscale(100%)',
               scale: isHovered ? 1.1 : 1,
             }}
           />
-          
+
           {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/20 to-transparent" />
-          
+
           {/* Social Links - Slide up on hover */}
           <motion.div
             className="absolute bottom-0 left-0 right-0 flex justify-center gap-4 p-4"
@@ -195,6 +196,7 @@ const TeamCard = ({ member, index, isInView }: { member: TeamMember; index: numb
               href={member.social.linkedin}
               className="w-10 h-10 rounded-full bg-primary-foreground/10 backdrop-blur-md border border-primary-foreground/20 flex items-center justify-center text-primary-foreground hover:bg-primary hover:border-primary transition-all duration-300"
               onClick={(e) => e.stopPropagation()}
+              aria-label={`${member.name} LinkedIn`}
             >
               <Linkedin className="w-4 h-4" />
             </a>
@@ -202,6 +204,7 @@ const TeamCard = ({ member, index, isInView }: { member: TeamMember; index: numb
               href={member.social.instagram}
               className="w-10 h-10 rounded-full bg-primary-foreground/10 backdrop-blur-md border border-primary-foreground/20 flex items-center justify-center text-primary-foreground hover:bg-primary hover:border-primary transition-all duration-300"
               onClick={(e) => e.stopPropagation()}
+              aria-label={`${member.name} Instagram`}
             >
               <Instagram className="w-4 h-4" />
             </a>
@@ -209,6 +212,7 @@ const TeamCard = ({ member, index, isInView }: { member: TeamMember; index: numb
               href={`mailto:${member.social.email}`}
               className="w-10 h-10 rounded-full bg-primary-foreground/10 backdrop-blur-md border border-primary-foreground/20 flex items-center justify-center text-primary-foreground hover:bg-primary hover:border-primary transition-all duration-300"
               onClick={(e) => e.stopPropagation()}
+              aria-label={`Email ${member.name}`}
             >
               <Mail className="w-4 h-4" />
             </a>
@@ -238,8 +242,8 @@ const TeamCard = ({ member, index, isInView }: { member: TeamMember; index: numb
         <motion.div
           className="absolute inset-0 rounded-2xl pointer-events-none"
           style={{
-            boxShadow: isHovered 
-              ? '0 0 40px hsl(var(--primary) / 0.2), inset 0 0 0 1px hsl(var(--primary) / 0.1)' 
+            boxShadow: isHovered
+              ? '0 0 40px hsl(var(--primary) / 0.2), inset 0 0 0 1px hsl(var(--primary) / 0.1)'
               : 'none',
           }}
           transition={{ duration: 0.3 }}

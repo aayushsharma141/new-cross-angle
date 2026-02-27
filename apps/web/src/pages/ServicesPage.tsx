@@ -95,9 +95,9 @@ const ServicesPage = () => {
 
       <FloatingParticles count={25} />
 
+      <Navbar />
       <main className="min-h-screen relative z-10 bg-background">
         <FixedSocialBar />
-        <Navbar />
 
         <ServicesHero />
 
@@ -141,10 +141,9 @@ const ServicesPage = () => {
         <ServicesWhyUs />
         <ServicesProcess />
         <ServicesCTA />
-
-        <Footer />
-        <ScrollToTop />
       </main>
+      <Footer />
+      <ScrollToTop />
     </>
   );
 };

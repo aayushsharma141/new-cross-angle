@@ -22,7 +22,7 @@ const AdminResetPassword = () => {
 
   useEffect(() => {
     // Check if we have a valid recovery session
-    const checkSession = async () => {
+    const checkSession = async (): Promise<void> => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast({
@@ -33,10 +33,10 @@ const AdminResetPassword = () => {
         navigate("/admin/auth");
       }
     };
-    checkSession();
+    void checkSession();
   }, [navigate, toast]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setErrors({});
 
@@ -68,8 +68,8 @@ const AdminResetPassword = () => {
       setTimeout(() => {
         navigate("/admin/auth");
       }, 2000);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as Error;
       toast({
         title: "Error",
         description: "Failed to update password. Please try again.",

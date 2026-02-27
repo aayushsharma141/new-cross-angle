@@ -49,6 +49,7 @@ const FOLDERS = ["portfolio", "services", "blogs", "general"];
 const BUCKET_NAME = "media";
 
 const AdminMedia = () => {
+    const { toast } = useToast();
     const [files, setFiles] = useState<MediaFile[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
@@ -64,104 +65,56 @@ const AdminMedia = () => {
     const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
     const [fileToDelete, setFileToDelete] = useState<MediaFile | null>(null);
 
-    const { toast } = useToast();
+    const [uploadError, setUploadError] = useState<string | null>(null);
+
+    const fetchFiles = async () => {
+        try {
+            setIsLoading(true);
+            const { data, error } = await supabase.storage.from(BUCKET_NAME).list('', {
+                limit: 1000,
+                sortBy: { column: 'created_at', order: 'desc' }
+            });
+            if (error) throw error;
+
+            const formattedFiles: MediaFile[] = data.map(file => ({
+                id: file.id,
+                name: file.name,
+                url: supabase.storage.from(BUCKET_NAME).getPublicUrl(file.name).data.publicUrl,
+                folder: file.name.split('/')[0] || 'general',
+                size: file.metadata?.size || 0,
+                created_at: file.created_at,
+            }));
+            setFiles(formattedFiles);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            toast({ title: "Error", description: error.message, variant: "destructive" });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
         fetchFiles();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const fetchFiles = async () => {
-        setIsLoading(true);
-        const allFiles: MediaFile[] = [];
-
-        for (const folder of FOLDERS) {
-            const { data, error } = await supabase.storage
-                .from(BUCKET_NAME)
-                .list(folder, { limit: 100, sortBy: { column: "created_at", order: "desc" } });
-
-            if (data && !error) {
-                const folderFiles = data
-                    .filter((file) => file.name !== ".emptyFolderPlaceholder")
-                    .map((file) => {
-                        const { data: { publicUrl } } = supabase.storage
-                            .from(BUCKET_NAME)
-                            .getPublicUrl(`${folder}/${file.name}`);
-
-                        // Extract metadata
-                        const metadata = file.metadata || {};
-
-                        return {
-                            id: file.id || `${folder}-${file.name}`,
-                            name: file.name,
-                            url: publicUrl,
-                            folder,
-                            size: metadata.size || 0,
-                            created_at: file.created_at || new Date().toISOString(),
-                            alt: metadata.alt || "",
-                            caption: metadata.caption || ""
-                        };
-                    });
-                allFiles.push(...folderFiles);
-            }
-        }
-
-        setFiles(allFiles);
-        setIsLoading(false);
-    };
-
-    const [uploadError, setUploadError] = useState<string | null>(null);
-
-    const handleUpload = async (uploadFiles: File[]) => {
-        if (!uploadFiles || uploadFiles.length === 0) return;
-
-        setIsUploading(true);
-        setUploadError(null);
-        const folder = selectedFolder === "all" ? "general" : selectedFolder;
-
+    const handleUpload = async (files: File[]) => {
         try {
-            const errors: string[] = [];
-            let successCount = 0;
+            setIsUploading(true);
+            setUploadError(null);
 
-            for (const file of uploadFiles) {
-                try {
-                    const fileExt = file.name.split(".").pop();
-                    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-                    const filePath = `${folder}/${fileName}`;
-
-                    const { error } = await supabase.storage
-                        .from(BUCKET_NAME)
-                        .upload(filePath, file);
-
-                    if (error) throw error;
-                    successCount++;
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } catch (err: any) {
-                    console.error(`Error uploading ${file.name}:`, err);
-                    errors.push(`${file.name}: ${err.message}`);
-                }
+            for (const file of files) {
+                const path = selectedFolder === 'all' ? file.name : `${selectedFolder}/${file.name}`;
+                const { error } = await supabase.storage.from(BUCKET_NAME).upload(path, file);
+                if (error) throw error;
             }
 
-            if (successCount > 0) {
-                toast({ title: `${successCount} file(s) uploaded successfully` });
-                fetchFiles();
-            }
-
-            if (errors.length > 0) {
-                setUploadError(`Failed to upload ${errors.length} file(s). ${errors[0]}`);
-                toast({
-                    title: "Partially failed",
-                    description: "Some files failed to upload. See details above.",
-                    variant: "destructive",
-                });
-            }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            toast({ title: "Success", description: `${files.length} file(s) uploaded successfully` });
+            fetchFiles();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             setUploadError(error.message);
-            toast({
-                title: "Upload failed",
-                description: error.message,
-                variant: "destructive",
-            });
+            toast({ title: "Error", description: error.message, variant: "destructive" });
         } finally {
             setIsUploading(false);
         }
@@ -169,65 +122,59 @@ const AdminMedia = () => {
 
     const handleSingleDelete = async () => {
         if (!fileToDelete) return;
+        try {
+            const { error } = await supabase.storage.from(BUCKET_NAME).remove([fileToDelete.name]);
+            if (error) throw error;
 
-        const { error } = await supabase.storage
-            .from(BUCKET_NAME)
-            .remove([`${fileToDelete.folder}/${fileToDelete.name}`]);
-
-        if (error) {
-            toast({ title: "Delete failed", description: error.message, variant: "destructive" });
-        } else {
-            toast({ title: "File deleted" });
-            setFiles((prev) => prev.filter((f) => f.id !== fileToDelete.id));
+            toast({ title: "Success", description: "File deleted successfully" });
+            setPreviewFile(null);
+            fetchFiles();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            toast({ title: "Error", description: error.message, variant: "destructive" });
+        } finally {
+            setDeleteDialogOpen(false);
+            setFileToDelete(null);
         }
-        setFileToDelete(null);
     };
 
     const handleBulkDelete = async () => {
-        const filesToDelete = files.filter(f => selectedFiles.has(f.id));
-        const paths = filesToDelete.map(f => `${f.folder}/${f.name}`);
+        if (selectedFiles.size === 0) return;
+        try {
+            const filesToRemove = Array.from(selectedFiles).map(id => files.find(f => f.id === id)?.name).filter(Boolean) as string[];
+            const { error } = await supabase.storage.from(BUCKET_NAME).remove(filesToRemove);
+            if (error) throw error;
 
-        const { error } = await supabase.storage
-            .from(BUCKET_NAME)
-            .remove(paths);
-
-        if (error) {
-            toast({ title: "Delete failed", description: error.message, variant: "destructive" });
-        } else {
-            toast({ title: `${filesToDelete.length} files deleted` });
-            setFiles((prev) => prev.filter((f) => !selectedFiles.has(f.id)));
+            toast({ title: "Success", description: "Files deleted successfully" });
             setSelectedFiles(new Set());
+            fetchFiles();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            toast({ title: "Error", description: error.message, variant: "destructive" });
+        } finally {
+            setBulkDeleteDialogOpen(false);
         }
     };
 
-    const copyToClipboard = (url: string) => {
-        navigator.clipboard.writeText(url);
+    const toggleFileSelection = (id: string) => {
+        setSelectedFiles(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const copyToClipboard = async (url: string) => {
+        await navigator.clipboard.writeText(url);
         setCopiedUrl(url);
-        toast({ title: "URL copied to clipboard" });
+        toast({ title: "Copied", description: "URL copied to clipboard" });
         setTimeout(() => setCopiedUrl(null), 2000);
     };
 
-    const toggleFileSelection = (fileId: string) => {
-        const newSelected = new Set(selectedFiles);
-        if (newSelected.has(fileId)) {
-            newSelected.delete(fileId);
-        } else {
-            newSelected.add(fileId);
-        }
-        setSelectedFiles(newSelected);
-    };
-
-    const toggleSelectAll = () => {
-        if (selectedFiles.size === filteredFiles.length) {
-            setSelectedFiles(new Set());
-        } else {
-            setSelectedFiles(new Set(filteredFiles.map(f => f.id)));
-        }
-    };
-
-    const filteredFiles = files.filter((file) => {
-        const matchesFolder = selectedFolder === "all" || file.folder === selectedFolder;
+    const filteredFiles = files.filter(file => {
         const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesFolder = selectedFolder === "all" || file.folder === selectedFolder;
 
         let matchesType = true;
         if (selectedType === "image") {
@@ -238,6 +185,14 @@ const AdminMedia = () => {
 
         return matchesFolder && matchesSearch && matchesType;
     });
+
+    const toggleSelectAll = () => {
+        if (selectedFiles.size === filteredFiles.length && filteredFiles.length > 0) {
+            setSelectedFiles(new Set());
+        } else {
+            setSelectedFiles(new Set(filteredFiles.map(f => f.id)));
+        }
+    };
 
     const isSelectionMode = selectedFiles.size > 0;
 

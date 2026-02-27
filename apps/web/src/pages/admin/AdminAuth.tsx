@@ -51,12 +51,7 @@ const AdminAuth = () => {
   //     }
   //   };
 
-  //   checkSignupStatus();
-  // }, []);
-
-
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setErrors({});
 
@@ -88,8 +83,8 @@ const AdminAuth = () => {
       });
 
       navigate("/admin");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as Error;
       toast({
         title: "Login failed",
         description: error.message || "Invalid credentials. Please try again.",
@@ -100,7 +95,7 @@ const AdminAuth = () => {
     }
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setErrors({});
 
@@ -159,9 +154,8 @@ const AdminAuth = () => {
           toast({
             title: "Account created!",
             description: "Step 1 complete. Now run the SQL script in Supabase Dashboard to finish assigning the 'admin' role.",
-            variant: "default", // Changed to default so it looks less scary, more informational
+            variant: "default",
           });
-          // Still allow them to switch to login view
           setSignupEnabled(false);
           setView("login");
           setPassword("");
@@ -169,7 +163,6 @@ const AdminAuth = () => {
           return;
         }
 
-        // Signup no longer available after first admin
         setSignupEnabled(false);
 
         toast({
@@ -181,8 +174,8 @@ const AdminAuth = () => {
         setPassword("");
         setConfirmPassword("");
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as Error;
       toast({
         title: "Signup failed",
         description: error.message || "Could not create account. Please try again.",
@@ -193,7 +186,7 @@ const AdminAuth = () => {
     }
   };
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
+  const handleForgotPassword = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setErrors({});
 
@@ -207,8 +200,6 @@ const AdminAuth = () => {
 
     try {
       const redirectUrl = `${window.location.origin}/admin/reset-password`;
-      console.log("Sending password reset with redirect URL:", redirectUrl);
-
       if (!supabase) throw new Error('Supabase client is not initialized.');
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: redirectUrl,
@@ -223,8 +214,8 @@ const AdminAuth = () => {
 
       setView("login");
       setEmail("");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as Error;
       console.error("Forgot password error:", error);
       toast({
         title: "Error requesting reset",
@@ -236,7 +227,7 @@ const AdminAuth = () => {
     }
   };
 
-  const resetForm = () => {
+  const resetForm = (): void => {
     setEmail("");
     setPassword("");
     setConfirmPassword("");
@@ -254,6 +245,7 @@ const AdminAuth = () => {
   if (user) {
     return <Navigate to="/admin" replace />;
   }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center relative">

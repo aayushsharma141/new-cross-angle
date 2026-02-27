@@ -148,9 +148,9 @@ const GalleryPage = () => {
         <GalleryParticles />
         <GalleryScrollIndicator />
 
-        <main className="min-h-screen relative z-10">
-          <FixedSocialBar />
-          <Navbar />
+        <FixedSocialBar />
+        <Navbar />
+        <main className="min-h-screen relative z-10 text-foreground">
 
           {/* Immersive Hero */}
           <GalleryHero />
@@ -198,9 +198,9 @@ const GalleryPage = () => {
             onIndexChange={handleIndexChange}
           />
 
-          <Footer />
-          <ScrollToTop />
         </main>
+        <Footer />
+        <ScrollToTop />
       </CursorSpotlight>
     </>
   );

@@ -76,9 +76,9 @@ export default function AdminTeam() {
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
-    const { data: members = [], isLoading, error } = useQuery({
+    const { data: members = [], isLoading, error } = useQuery<TeamMember[]>({
         queryKey: ["team-members"],
-        queryFn: async () => {
+        queryFn: async (): Promise<TeamMember[]> => {
             const { data, error } = await supabase
                 .from("team_members")
                 .select("*")
@@ -154,7 +154,7 @@ export default function AdminTeam() {
         m.role.toLowerCase().includes(search.toLowerCase())
     );
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const member: Partial<TeamMember> = {

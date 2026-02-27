@@ -104,7 +104,7 @@ const AdminPageSections = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchContent = async () => {
+  const fetchContent = async (): Promise<void> => {
     setIsLoading(true);
     const { data, error } = await supabase
       .from('page_sections')
@@ -127,7 +127,7 @@ const AdminPageSections = () => {
     setIsLoading(false);
   };
 
-  const seedDefaultSections = async () => {
+  const seedDefaultSections = async (): Promise<void> => {
     setIsSeeding(true);
     try {
       for (const section of DEFAULT_SECTIONS) {
@@ -154,9 +154,9 @@ const AdminPageSections = () => {
         description: "You can now edit the content for each section.",
       });
 
-      fetchContent();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+      void fetchContent();
+    } catch (err) {
+      const error = err as Error;
       toast({
         title: "Error creating sections",
         description: error.message,
@@ -168,7 +168,7 @@ const AdminPageSections = () => {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleContentChange = (sectionId: string, field: keyof PageSection | string, value: any) => {
+  const handleContentChange = (sectionId: string, field: keyof PageSection | string, value: string | Record<string, any> | null): void => {
     setSections(prev =>
       prev.map(section => {
         if (section.id === sectionId) {
@@ -193,7 +193,7 @@ const AdminPageSections = () => {
     );
   };
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<void> => {
     setIsSaving(true);
     try {
       for (const section of sections) {
@@ -218,8 +218,8 @@ const AdminPageSections = () => {
         title: "Content saved!",
         description: "Your changes have been saved successfully.",
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as Error;
       toast({
         title: "Error saving content",
         description: error.message,
@@ -230,7 +230,7 @@ const AdminPageSections = () => {
     }
   };
 
-  const handleCreateSection = async () => {
+  const handleCreateSection = async (): Promise<void> => {
     if (!newSectionName.trim()) return;
 
     try {
@@ -252,9 +252,9 @@ const AdminPageSections = () => {
       toast({ title: "Section created!" });
       setNewSectionDialogOpen(false);
       setNewSectionName("");
-      fetchContent();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+      void fetchContent();
+    } catch (err) {
+      const error = err as Error;
       toast({
         title: "Error creating section",
         description: error.message,
@@ -263,7 +263,7 @@ const AdminPageSections = () => {
     }
   };
 
-  const handleDeleteSection = async () => {
+  const handleDeleteSection = async (): Promise<void> => {
     if (!sectionToDelete) return;
 
     const { error } = await supabase
@@ -285,12 +285,12 @@ const AdminPageSections = () => {
     setSectionToDelete(null);
   };
 
-  const openMediaPicker = (sectionId: string, field: string) => {
+  const openMediaPicker = (sectionId: string, field: string): void => {
     setActiveImageField({ sectionId, field });
     setMediaPickerOpen(true);
   };
 
-  const handleImageSelect = (url: string) => {
+  const handleImageSelect = (url: string): void => {
     if (activeImageField) {
       handleContentChange(activeImageField.sectionId, activeImageField.field, url);
     }

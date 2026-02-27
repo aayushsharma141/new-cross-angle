@@ -15,7 +15,9 @@ import { api } from "@/lib/api";
 const Portfolio = () => {
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
-    queryFn: api.getProjects
+    queryFn: api.getProjects,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000
   });
 
   const [activeFilter, setActiveFilter] = useState("All");
@@ -138,6 +140,7 @@ const Portfolio = () => {
                   <Image
                     src={project.heroImage}
                     alt={project.title}
+                    loading="lazy"
                     imageClassName="transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
                   />
                 </div>
@@ -235,6 +238,7 @@ const Portfolio = () => {
               <Image
                 src={filteredProjects[currentImageIndex]?.heroImage}
                 alt={filteredProjects[currentImageIndex]?.title}
+                loading="lazy"
               />
             </div>
 
@@ -281,7 +285,7 @@ const Portfolio = () => {
                   )}
                   aria-label={`View ${project.title}`}
                 >
-                  <Image src={project.heroImage} alt={project.title} />
+                  <Image src={project.heroImage} alt={project.title} loading="lazy" />
                 </button>
               ))}
             </div>

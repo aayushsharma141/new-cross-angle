@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, JSX } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Users,
@@ -25,7 +24,17 @@ import { useToast } from "@/hooks/use-toast";
 import { DateRange } from "react-day-picker";
 import { subDays, endOfDay } from "date-fns";
 
-const AdminDashboard = () => {
+interface DashboardStats {
+  projects: number;
+  leads: number;
+  views: number;
+  estimateLeads: number;
+  conversionRate: number;
+  avgRating: string;
+  avgEstimate: number;
+}
+
+const AdminDashboard = (): JSX.Element => {
   const { toast } = useToast();
   const [date, setDate] = useState<DateRange | undefined>({
     from: subDays(new Date(), 30),
@@ -35,7 +44,7 @@ const AdminDashboard = () => {
   // Fetch real aggregated stats from database
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["admin-stats", date],
-    queryFn: async () => {
+    queryFn: async (): Promise<DashboardStats> => {
       const fromIso = date?.from?.toISOString();
       const toIso = date?.to ? endOfDay(date.to).toISOString() : undefined;
 
@@ -58,7 +67,8 @@ const AdminDashboard = () => {
         .from("testimonials")
         .select("id, rating", { count: "exact" })
         .eq("active", true);
-      if (fromIso) testimonialsQuery = testimonialsQuery.gte("updated_at", fromIso);
+      if (fromIso)
+        testimonialsQuery = testimonialsQuery.gte("updated_at", fromIso);
 
       // --- Estimate Leads (high-value) ---
       let estimateQuery = supabase
@@ -67,12 +77,13 @@ const AdminDashboard = () => {
       if (fromIso) estimateQuery = estimateQuery.gte("created_at", fromIso);
       if (toIso) estimateQuery = estimateQuery.lte("created_at", toIso);
 
-      const [projectsRes, leadsRes, testimonialsRes, estimateRes] = await Promise.all([
-        projectsQuery,
-        leadsQuery,
-        testimonialsQuery,
-        estimateQuery,
-      ]);
+      const [projectsRes, leadsRes, testimonialsRes, estimateRes] =
+        await Promise.all([
+          projectsQuery,
+          leadsQuery,
+          testimonialsQuery,
+          estimateQuery,
+        ]);
 
       // Total views from projects
       const totalViews = (projectsRes.data || []).reduce(
@@ -81,13 +92,14 @@ const AdminDashboard = () => {
       );
 
       // Won leads count
-      const wonLeads = (leadsRes.data || []).filter((l) => l.status === "won").length;
+      const wonLeads = (leadsRes.data || []).filter(
+        (l) => l.status === "won"
+      ).length;
 
       // Conversion rate
       const totalLeads = leadsRes.count || 0;
-      const conversionRate = totalLeads > 0
-        ? Math.round((wonLeads / totalLeads) * 100)
-        : 0;
+      const conversionRate =
+        totalLeads > 0 ? Math.round((wonLeads / totalLeads) * 100) : 0;
 
       // Avg rating
       const ratings = (testimonialsRes.data || [])
@@ -101,12 +113,14 @@ const AdminDashboard = () => {
       // Average estimate value
       const estimates = estimateRes.data || [];
       const totalEstimateValue = estimates.reduce((acc, e) => {
-        const mid = ((e.estimate_total_min || 0) + (e.estimate_total_max || 0)) / 2;
+        const mid =
+          ((e.estimate_total_min || 0) + (e.estimate_total_max || 0)) / 2;
         return acc + mid;
       }, 0);
-      const avgEstimate = estimates.length > 0
-        ? Math.round(totalEstimateValue / estimates.length)
-        : 0;
+      const avgEstimate =
+        estimates.length > 0
+          ? Math.round(totalEstimateValue / estimates.length)
+          : 0;
 
       return {
         projects: projectsRes.count || 0,
@@ -120,7 +134,7 @@ const AdminDashboard = () => {
     },
   });
 
-  const handleDownloadReport = async () => {
+  const handleDownloadReport = async (): Promise<void> => {
     try {
       const fromIso = date?.from?.toISOString();
       const toIso = date?.to ? endOfDay(date.to).toISOString() : undefined;
@@ -144,7 +158,10 @@ const AdminDashboard = () => {
       const [projects, leads] = await Promise.all([projectsQuery, leadsQuery]);
 
       const csvData = [
-        ["Crossangle Dashboard Report", date?.from ? `From ${date.from.toLocaleDateString()}` : "All Time"],
+        [
+          "Crossangle Dashboard Report",
+          date?.from ? `From ${date.from.toLocaleDateString()}` : "All Time",
+        ],
         ["Generated", new Date().toLocaleString()],
         [""],
         ["Summary"],
@@ -152,7 +169,10 @@ const AdminDashboard = () => {
         ["Leads", stats?.leads || 0],
         ["Estimate Enquiries", stats?.estimateLeads || 0],
         ["Conversion Rate", `${stats?.conversionRate || 0}%`],
-        ["Avg Estimate Value", stats?.avgEstimate ? `₹${stats.avgEstimate.toLocaleString()}` : "—"],
+        [
+          "Avg Estimate Value",
+          stats?.avgEstimate ? `₹${stats.avgEstimate.toLocaleString()}` : "—",
+        ],
         ["Avg Rating", stats?.avgRating || "—"],
         [""],
         ["Projects"],
@@ -181,7 +201,8 @@ const AdminDashboard = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `crossangle-report-${new Date().toISOString().split("T")[0]}.csv`;
+      a.download = `crossangle-report-${new Date().toISOString().split("T")[0]
+        }.csv`;
       a.click();
       URL.revokeObjectURL(url);
 
@@ -192,7 +213,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const fmt = (n: number | undefined | null) =>
+  const fmt = (n: number | undefined | null): string =>
     n === undefined || n === null ? "…" : n.toLocaleString();
 
   return (
@@ -208,7 +229,11 @@ const AdminDashboard = () => {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 items-center w-full md:w-auto">
-          <CalendarDateRangePicker date={date} setDate={setDate} className="w-full sm:w-auto" />
+          <CalendarDateRangePicker
+            date={date}
+            setDate={setDate}
+            className="w-full sm:w-auto"
+          />
           <Button
             variant="outline"
             size="sm"
@@ -235,14 +260,22 @@ const AdminDashboard = () => {
           title="Total Leads"
           value={statsLoading ? "…" : fmt(stats?.leads)}
           change={`${stats?.conversionRate ?? 0}% converted`}
-          trend={stats?.conversionRate && stats.conversionRate > 10 ? "up" : "neutral"}
+          trend={
+            stats?.conversionRate && stats.conversionRate > 10
+              ? "up"
+              : "neutral"
+          }
           icon={Users}
           variant="secondary"
         />
         <AdminKPI
           title="Estimate Enquiries"
           value={statsLoading ? "…" : fmt(stats?.estimateLeads)}
-          change={stats?.avgEstimate ? `Avg ₹${(stats.avgEstimate / 100000).toFixed(1)}L` : "No data yet"}
+          change={
+            stats?.avgEstimate
+              ? `Avg ₹${(stats.avgEstimate / 100000).toFixed(1)}L`
+              : "No data yet"
+          }
           trend="up"
           icon={Zap}
           variant="accent"
@@ -250,7 +283,11 @@ const AdminDashboard = () => {
         <AdminKPI
           title="Portfolio Views"
           value={statsLoading ? "…" : fmt(stats?.views)}
-          change={stats?.avgRating !== "—" ? `${stats?.avgRating}/5 avg rating` : "No ratings yet"}
+          change={
+            stats?.avgRating !== "—"
+              ? `${stats?.avgRating}/5 avg rating`
+              : "No ratings yet"
+          }
           trend="neutral"
           icon={Eye}
           variant="gold"
@@ -270,9 +307,13 @@ const AdminDashboard = () => {
           {/* Recent Activity */}
           <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
             <div className="flex flex-col space-y-1.5 p-6 border-b">
-              <h3 className="font-semibold leading-none tracking-tight">Recent Activity</h3>
+              <h3 className="font-semibold leading-none tracking-tight">
+                Recent Activity
+              </h3>
               <p className="text-sm text-muted-foreground">
-                {date ? "Actions in selected period" : "Latest actions across the platform"}
+                {date
+                  ? "Actions in selected period"
+                  : "Latest actions across the platform"}
               </p>
             </div>
             <div className="p-6">

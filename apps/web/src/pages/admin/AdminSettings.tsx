@@ -38,7 +38,7 @@ const AdminSettings = () => {
   const [passwordStrength, setPasswordStrength] = useState(0);
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
+    const fetchUserInfo = async (): Promise<void> => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserEmail(user.email || "");
@@ -54,14 +54,14 @@ const AdminSettings = () => {
         }
       }
     };
-    fetchUserInfo();
+    void fetchUserInfo();
   }, []);
 
   useEffect(() => {
     calculatePasswordStrength(newPassword);
   }, [newPassword]);
 
-  const calculatePasswordStrength = (password: string) => {
+  const calculatePasswordStrength = (password: string): void => {
     let strength = 0;
     if (password.length >= 8) strength += 25;
     if (password.match(/[A-Z]/)) strength += 25;
@@ -70,14 +70,14 @@ const AdminSettings = () => {
     setPasswordStrength(strength);
   };
 
-  const getStrengthColor = (score: number) => {
+  const getStrengthColor = (score: number): string => {
     if (score <= 25) return "bg-red-500";
     if (score <= 50) return "bg-orange-500";
     if (score <= 75) return "bg-yellow-500";
     return "bg-green-500";
   };
 
-  const getStrengthLabel = (score: number) => {
+  const getStrengthLabel = (score: number): string => {
     if (score === 0) return "";
     if (score <= 25) return "Weak";
     if (score <= 50) return "Fair";
@@ -85,7 +85,7 @@ const AdminSettings = () => {
     return "Strong";
   };
 
-  const handleChangePassword = async (e: React.FormEvent) => {
+  const handleChangePassword = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setErrors({});
 
@@ -140,8 +140,8 @@ const AdminSettings = () => {
       setNewPassword("");
       setConfirmNewPassword("");
       setPasswordStrength(0);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as Error;
       toast({
         title: "Error",
         description: "Failed to update password. Please try again.",

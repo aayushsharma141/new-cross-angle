@@ -71,6 +71,8 @@ const Testimonials = () => {
       }
       return data as Testimonial[];
     },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   // Fallback data if DB is empty to maintain UI

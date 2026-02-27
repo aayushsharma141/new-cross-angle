@@ -43,7 +43,7 @@ const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   "/admin": { title: "Intelligence Hub", subtitle: "Real-time business performance overview" },
   "/admin/portfolio": { title: "Portfolio", subtitle: "Manage your project showcase" },
   "/admin/services": { title: "Services", subtitle: "Configure your service offerings" },
-  "/admin/team": { title: "Team Members", subtitle: "Manage your studio team" },
+  "/admin/team-members": { title: "Team Members", subtitle: "Manage your studio team" },
   "/admin/testimonials": { title: "Testimonials", subtitle: "Client reviews & ratings" },
   "/admin/blogs": { title: "Blog", subtitle: "Publish thought leadership content" },
   "/admin/media": { title: "Media Library", subtitle: "Centralized asset management" },
@@ -55,7 +55,7 @@ const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   "/admin/settings": { title: "Settings", subtitle: "Site-wide configuration" },
 };
 
-const AdminLayout = () => {
+const AdminLayout = (): JSX.Element | null => {
   const { isAuthenticated, isLoading, logout, user } = useAdminAuth();
   const location = useLocation();
   const [openSections, setOpenSections] = useState<string[]>(["content"]);
@@ -63,7 +63,7 @@ const AdminLayout = () => {
   // Live new-leads count badge
   const { data: newLeadsCount = 0 } = useQuery({
     queryKey: ["new-leads-count"],
-    queryFn: async () => {
+    queryFn: async (): Promise<number> => {
       const { count } = await supabase
         .from("leads")
         .select("id", { count: "exact", head: true })
@@ -77,7 +77,7 @@ const AdminLayout = () => {
   if (isLoading) return null;
   if (!isAuthenticated) return <Navigate to="/admin/auth" replace />;
 
-  const toggleSection = (section: string) => {
+  const toggleSection = (section: string): void => {
     setOpenSections((prev) =>
       prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]
     );
@@ -114,7 +114,7 @@ const AdminLayout = () => {
       items: [
         { title: "Page Sections", url: "/admin/page-sections", icon: LayoutDashboard },
         { title: "Services", url: "/admin/services", icon: Briefcase },
-        { title: "Team", url: "/admin/team", icon: Users },
+        { title: "Team Members", url: "/admin/team-members", icon: Users },
         { title: "Portfolio", url: "/admin/portfolio", icon: Image },
         { title: "Testimonials", url: "/admin/testimonials", icon: MessageSquare },
         { title: "Blog", url: "/admin/blogs", icon: PenSquare },
@@ -149,10 +149,10 @@ const AdminLayout = () => {
     },
   ];
 
-  const isActive = (url: string) =>
+  const isActive = (url: string): boolean =>
     url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(url);
 
-  const NavItem = ({ item }: { item: { title: string; url: string; icon: React.ElementType; badge?: number } }) => (
+  const NavItem = ({ item }: { item: { title: string; url: string; icon: React.ElementType; badge?: number } }): JSX.Element => (
     <SidebarMenuItem>
       <SidebarMenuButton
         asChild
@@ -280,7 +280,10 @@ const AdminLayout = () => {
           {/* Topbar */}
           <header className="bg-admin-card border-b border-admin-border px-6 py-4 flex items-center justify-between sticky top-0 z-30">
             <div className="flex items-center gap-4">
-              <SidebarTrigger className="lg:hidden text-admin-foreground hover:bg-admin-surface hover:text-admin-gold transition-colors">
+              <SidebarTrigger
+                className="lg:hidden text-admin-foreground hover:bg-admin-surface hover:text-admin-gold transition-colors"
+                aria-label="Toggle sidebar"
+              >
                 <Menu className="w-5 h-5" />
               </SidebarTrigger>
               <div>

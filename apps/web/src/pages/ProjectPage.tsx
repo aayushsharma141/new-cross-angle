@@ -83,12 +83,11 @@ const ProjectPage = () => {
       </Helmet>
 
       <Navbar />
-      <div className="pt-24">
-        <AppBreadcrumb />
-      </div>
-      <WhatsAppButton />
-
       <main className="bg-background">
+        <div className="pt-24">
+          <AppBreadcrumb />
+        </div>
+        <WhatsAppButton />
 
         {/* Immersive Hero */}
         <ProjectHero

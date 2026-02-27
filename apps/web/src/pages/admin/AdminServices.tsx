@@ -79,7 +79,7 @@ const AdminServices = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const fetchServices = async () => {
+    const fetchServices = async (): Promise<void> => {
         setIsLoading(true);
         // Fetch services with their related steps and faqs
         const { data, error } = await supabase
@@ -103,7 +103,7 @@ const AdminServices = () => {
         }
 
         if (data) {
-            const mappedServices: ServiceDetail[] = data.map((item: ServiceRecord) => {
+            const mappedServices: ServiceDetail[] = (data as ServiceRecord[]).map((item: ServiceRecord) => {
                 const descJson = typeof item.description === 'string'
                     ? JSON.parse(item.description)
                     : (item.description as Record<string, unknown>) || {};
@@ -135,7 +135,7 @@ const AdminServices = () => {
         setIsLoading(false);
     };
 
-    const handleEdit = (service: ServiceDetail) => {
+    const handleEdit = (service: ServiceDetail): void => {
         setEditingService(service);
         setFormData({
             title: service.title,
@@ -152,7 +152,7 @@ const AdminServices = () => {
         setIsDialogOpen(true);
     };
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (id: string): Promise<void> => {
         if (!confirm('Are you sure you want to delete this service?')) return;
 
         const { error } = await supabase
@@ -163,19 +163,20 @@ const AdminServices = () => {
         if (error) {
             toast({
                 title: "Error deleting service",
+                description: error.message,
                 variant: "destructive",
             });
         } else {
             toast({ title: "Service deleted successfully" });
-            fetchServices();
+            void fetchServices();
         }
     };
 
-    const generateSlug = (title: string) => {
+    const generateSlug = (title: string): string => {
         return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         setIsSaving(true);
 
@@ -256,7 +257,7 @@ const AdminServices = () => {
 
             setIsDialogOpen(false);
             setEditingService(null);
-            fetchServices();
+            void fetchServices();
         } catch (error) {
             const err = error as Error;
             console.error(err);
@@ -270,7 +271,7 @@ const AdminServices = () => {
         }
     };
 
-    const handleNewService = () => {
+    const handleNewService = (): void => {
         setEditingService(null);
         setFormData({
             title: "",

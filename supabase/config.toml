@@ -1,19 +1,4 @@
 project_id = "ulsfahhephmugsdensaa"
-:of
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 [functions.assign-first-admin]
 verify_jwt = false

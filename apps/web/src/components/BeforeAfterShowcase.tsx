@@ -105,6 +105,7 @@ export const BeforeAfterShowcase = () => {
                 <img
                   src={item.afterImage}
                   alt=""
+                  loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 {/* Overlay */}

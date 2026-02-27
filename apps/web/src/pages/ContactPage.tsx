@@ -23,10 +23,9 @@ const ContactPage = () => {
         <link rel="canonical" href="https://crossangleinterior.com/contact-us" />
       </Helmet>
       <FloatingParticles count={25} />
+      <FixedSocialBar />
+      <Navbar />
       <main className="min-h-screen relative z-10 bg-background">
-        <FixedSocialBar />
-        <Navbar />
-
         <ContactHero />
 
         {/* Contact Form Section */}
@@ -52,10 +51,9 @@ const ContactPage = () => {
             </div>
           </div>
         </section>
-
-        <Footer />
-        <ScrollToTop />
       </main>
+      <Footer />
+      <ScrollToTop />
     </>
   );
 };

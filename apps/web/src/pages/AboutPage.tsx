@@ -33,9 +33,9 @@ const AboutPage = () => {
 
       <FloatingParticles count={25} />
 
-      <main className="min-h-screen relative z-10">
+      <Navbar />
+      <main id="main-content" className="min-h-screen relative z-10">
         <FixedSocialBar />
-        <Navbar />
 
         {/* Immersive Hero with Video */}
         <AboutHero onPlayVideo={() => setIsVideoOpen(true)} />
@@ -56,10 +56,9 @@ const AboutPage = () => {
 
         {/* CTA Section */}
         <AboutCTA />
-
-        <Footer />
-        <ScrollToTop />
       </main>
+      <Footer />
+      <ScrollToTop />
 
       {/* Video Modal */}
       <AboutVideoModal

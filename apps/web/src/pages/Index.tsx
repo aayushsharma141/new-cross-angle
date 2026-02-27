@@ -33,6 +33,7 @@ const Index = () => {
         <meta property="og:description" content="Transform your vision into exquisite living spaces. Award-winning interior design in Jamshedpur & Kolkata." />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/" />
+        <link rel="preload" as="image" href="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1920" fetchPriority="high" />
       </Helmet>
 
       <a

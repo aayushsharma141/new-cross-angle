@@ -113,29 +113,29 @@ export default function AdminEstimateLeads() {
 }
 ```
 
-- [ ] **TASK-014** Open `apps/web/src/App.tsx` only. Add at the top imports: `import AdminEstimateLeads from './pages/admin/AdminEstimateLeads';`. Add route: `<Route path="/admin/estimate-leads" element={<AdminEstimateLeads />} />` inside the admin routes block. Save.
+- [x] **TASK-014** Open `apps/web/src/App.tsx` only. Add at the top imports: `import AdminEstimateLeads from './pages/admin/AdminEstimateLeads';`. Add route: `<Route path="/admin/estimate-leads" element={<AdminEstimateLeads />} />` inside the admin routes block. Save.
 
-- [ ] **TASK-015** Open `apps/web/src/pages/admin/AdminLayout.tsx` only. Add a sidebar navigation item for "Estimate Leads" linking to `/admin/estimate-leads`. Use `Calculator` icon from lucide-react. Save.
+- [x] **TASK-015** Open `apps/web/src/pages/admin/AdminLayout.tsx` only. Add a sidebar navigation item for "Estimate Leads" linking to `/admin/estimate-leads`. Use `Calculator` icon from lucide-react. Save.
 
 ---
 
 ## Phase 4 — Live Dashboard KPIs
 
-- [ ] **TASK-016** Open `apps/web/src/pages/admin/AdminDashboard.tsx` only. Find the Total Leads KPI card. Replace mock value with: `const { data: leadsCount } = useQuery({ queryKey: ['leads-count'], queryFn: async () => { const { count } = await supabase.from('leads').select('id', { count: 'exact', head: true }); return count; } });`. Display `leadsCount ?? '—'`. Add `<Skeleton className="h-8 w-16" />` while loading. Save.
+- [x] **TASK-016** Open `apps/web/src/pages/admin/AdminDashboard.tsx` only. Find the Total Leads KPI card. Replace mock value with: `const { data: leadsCount } = useQuery({ queryKey: ['leads-count'], queryFn: async () => { const { count } = await supabase.from('leads').select('id', { count: 'exact', head: true }); return count; } });`. Display `leadsCount ?? '—'`. Add `<Skeleton className="h-8 w-16" />` while loading. Save.
 
-- [ ] **TASK-017** Open `apps/web/src/pages/admin/AdminDashboard.tsx` only. Find the Leads This Month KPI card. Compute `const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();`. Add query: `supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', monthStart)`. Display count. Add skeleton. Save.
+- [x] **TASK-017** Open `apps/web/src/pages/admin/AdminDashboard.tsx` only. Find the Leads This Month KPI card. Compute `const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();`. Add query: `supabase.from('leads').select('id', { count: 'exact', head: true }).gte('created_at', monthStart)`. Display count. Add skeleton. Save.
 
-- [ ] **TASK-018** Open `apps/web/src/pages/admin/AdminDashboard.tsx` only. Find the leads-by-source widget. Replace mock with: `supabase.from('leads').select('lead_source')`. Group in queryFn: `data.reduce((acc, r) => { acc[r.lead_source] = (acc[r.lead_source]||0)+1; return acc; }, {})`. Pass to chart. Save.
+- [x] **TASK-018** Open `apps/web/src/pages/admin/AdminDashboard.tsx` only. Find the leads-by-source widget. Replace mock with: `supabase.from('leads').select('lead_source')`. Group in queryFn: `data.reduce((acc, r) => { acc[r.lead_source] = (acc[r.lead_source]||0)+1; return acc; }, {})`. Pass to chart. Save.
 
-- [ ] **TASK-019** Open `apps/web/src/pages/admin/AdminDashboard.tsx` only. Find the leads-by-city widget. Replace mock with: `supabase.from('leads').select('city')`. Group by city, take top 5. Render. Save.
+- [x] **TASK-019** Open `apps/web/src/pages/admin/AdminDashboard.tsx` only. Find the leads-by-city widget. Replace mock with: `supabase.from('leads').select('city')`. Group by city, take top 5. Render. Save.
 
-- [ ] **TASK-020** Open `apps/web/src/pages/admin/AdminDashboard.tsx` only. Find the leads-by-budget widget. Replace mock with: `supabase.from('leads').select('budget_range')`. Group by budget_range. Render with skeleton and error fallback `"—"`. Save.
+- [x] **TASK-020** Open `apps/web/src/pages/admin/AdminDashboard.tsx` only. Find the leads-by-budget widget. Replace mock with: `supabase.from('leads').select('budget_range')`. Group by budget_range. Render with skeleton and error fallback `"—"`. Save.
 
 ---
 
 ## Phase 5 — Database Migrations
 
-- [ ] **TASK-021** Create `supabase/migrations/20260226120000_add_lead_indexes.sql`:
+- [x] **TASK-021** Create `supabase/migrations/20260226120000_add_lead_indexes.sql`:
 
 ```sql
 -- Performance indexes for lead queries
@@ -145,7 +145,7 @@ CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status);
 CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at DESC);
 ```
 
-- [ ] **TASK-022** Create `supabase/migrations/20260226120100_add_project_indexes.sql`:
+- [x] **TASK-022** Create `supabase/migrations/20260226120100_add_project_indexes.sql`:
 
 ```sql
 -- Performance indexes for portfolio queries
@@ -154,7 +154,7 @@ CREATE INDEX IF NOT EXISTS idx_projects_slug ON projects(slug);
 CREATE INDEX IF NOT EXISTS idx_projects_tags ON projects USING GIN(tags);
 ```
 
-- [ ] **TASK-023** Create `supabase/migrations/20260226120200_city_normalise_trigger.sql`:
+- [x] **TASK-023** Create `supabase/migrations/20260226120200_city_normalise_trigger.sql`:
 
 ```sql
 -- Normalise city casing to prevent duplicates like "mumbai" vs "Mumbai"
@@ -174,7 +174,7 @@ CREATE TRIGGER trg_normalise_city
   FOR EACH ROW EXECUTE FUNCTION normalise_city();
 ```
 
-- [ ] **TASK-024** Create `supabase/migrations/20260226120300_rls_leads.sql`:
+- [x] **TASK-024** Create `supabase/migrations/20260226120300_rls_leads.sql`:
 
 ```sql
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
@@ -187,7 +187,7 @@ CREATE POLICY "auth_all_leads"
   USING (true) WITH CHECK (true);
 ```
 
-- [ ] **TASK-025** Create `supabase/migrations/20260226120400_rls_estimate_leads.sql`:
+- [x] **TASK-025** Create `supabase/migrations/20260226120400_rls_estimate_leads.sql`:
 
 ```sql
 ALTER TABLE estimate_leads ENABLE ROW LEVEL SECURITY;
@@ -200,7 +200,7 @@ CREATE POLICY "auth_all_estimate_leads"
   USING (true) WITH CHECK (true);
 ```
 
-- [ ] **TASK-026** Create `supabase/migrations/20260226120500_rls_public_tables.sql`:
+- [x] **TASK-026** Create `supabase/migrations/20260226120500_rls_public_tables.sql`:
 
 ```sql
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
@@ -224,31 +224,31 @@ CREATE POLICY "auth_all_testimonials" ON testimonials FOR ALL TO authenticated U
 
 ## Phase 6 — CMS Feature Parity
 
-- [ ] **TASK-027** Create `apps/web/src/pages/admin/AdminTeamMembers.tsx`. Build a CRUD page for `team_members` table using `useQuery` and `useMutation`. Table columns: Name, Designation, Display Order, Published toggle. Dialog form fields: `name`, `designation`, `bio` (textarea), `photo_url`, `display_order` (number), `is_published` (checkbox). Add, Edit, Delete operations. Call `queryClient.invalidateQueries(['team_members'])` after each mutation.
+- [x] **TASK-027** Create `apps/web/src/pages/admin/AdminTeamMembers.tsx`. Build a CRUD page for `team_members` table using `useQuery` and `useMutation`. Table columns: Name, Designation, Display Order, Published toggle. Dialog form fields: `name`, `designation`, `bio` (textarea), `photo_url`, `display_order` (number), `is_published` (checkbox). Add, Edit, Delete operations. Call `queryClient.invalidateQueries(['team_members'])` after each mutation.
 
-- [ ] **TASK-028** Open `apps/web/src/App.tsx` only. Add import and route for AdminTeamMembers: `import AdminTeamMembers from './pages/admin/AdminTeamMembers'` and `<Route path="/admin/team-members" element={<AdminTeamMembers />} />`. Save.
+- [x] **TASK-028** Open `apps/web/src/App.tsx` only. Add import and route for AdminTeamMembers: `import AdminTeamMembers from './pages/admin/AdminTeamMembers'` and `<Route path="/admin/team-members" element={<AdminTeamMembers />} />`. Save.
 
-- [ ] **TASK-029** Open `apps/web/src/pages/admin/AdminLayout.tsx` only. Add sidebar link for Team Members → `/admin/team-members`. Use `Users` icon from lucide-react. Save.
+- [x] **TASK-029** Open `apps/web/src/pages/admin/AdminLayout.tsx` only. Add sidebar link for Team Members → `/admin/team-members`. Use `Users` icon from lucide-react. Save.
 
-- [ ] **TASK-030** Create `apps/web/src/pages/admin/AdminTestimonials.tsx`. CRUD page for `testimonials` table. Table: name, role, rating (n/5), city, active. Dialog fields: `name`, `role`, `content` (textarea), `rating` (number 1–5), `city`, `active` (boolean). Full CRUD with query invalidation.
+- [x] **TASK-030** Create `apps/web/src/pages/admin/AdminTestimonials.tsx`. CRUD page for `testimonials` table. Table: name, role, rating (n/5), city, active. Dialog fields: `name`, `role`, `content` (textarea), `rating` (number 1–5), `city`, `active` (boolean). Full CRUD with query invalidation.
 
-- [ ] **TASK-031** Open `apps/web/src/App.tsx` only. Add import and route for AdminTestimonials. Save.
+- [x] **TASK-031** Open `apps/web/src/App.tsx` only. Add import and route for AdminTestimonials. Save.
 
-- [ ] **TASK-032** Open `apps/web/src/pages/admin/AdminLayout.tsx` only. Add sidebar link for Testimonials → `/admin/testimonials`. Use `Star` icon. Save.
+- [x] **TASK-032** Open `apps/web/src/pages/admin/AdminLayout.tsx` only. Add sidebar link for Testimonials → `/admin/testimonials`. Use `Star` icon. Save.
 
 ---
 
 ## Phase 7 — Performance
 
-- [ ] **TASK-033** Open `apps/web/src/components/Portfolio.tsx` only. Add `staleTime: 5 * 60 * 1000` and `gcTime: 30 * 60 * 1000` to all `useQuery` calls. Add `loading="lazy"` to all portfolio `<img>` tags. Save.
+- [x] **TASK-033** Open `apps/web/src/components/Portfolio.tsx` only. Add `staleTime: 5 * 60 * 1000` and `gcTime: 30 * 60 * 1000` to all `useQuery` calls. Add `loading="lazy"` to all portfolio `<img>` tags. Save.
 
-- [ ] **TASK-034** Open `apps/web/src/pages/Index.tsx` only. Add `staleTime: 5 * 60 * 1000` and `gcTime: 30 * 60 * 1000` to all `useQuery` calls. Add `loading="eager"` `fetchpriority="high"` to the hero image. Add `loading="lazy"` to all below-fold images. Save.
+- [x] **TASK-034** Open `apps/web/src/pages/Index.tsx` only. Add `staleTime: 5 * 60 * 1000` and `gcTime: 30 * 60 * 1000` to all `useQuery` calls. Add `loading="eager"` `fetchpriority="high"` to the hero image. Add `loading="lazy"` to all below-fold images. Save.
 
 ---
 
 ## Phase 8 — Repository Pattern
 
-- [ ] **TASK-035** Create `apps/web/src/repositories/interfaces/LeadRepository.ts`:
+- [x] **TASK-035** Create `apps/web/src/repositories/interfaces/LeadRepository.ts`:
 
 ```typescript
 export interface LeadPayload {
@@ -272,7 +272,7 @@ export interface LeadRepository {
 }
 ```
 
-- [ ] **TASK-036** Create `apps/web/src/repositories/SupabaseLeadRepo.ts`:
+- [x] **TASK-036** Create `apps/web/src/repositories/SupabaseLeadRepo.ts`:
 
 ```typescript
 import { supabase } from '@/integrations/supabase/client';
@@ -300,8 +300,13 @@ export const leadRepo = new SupabaseLeadRepo();
 
 ## Phase 9 — Digital Intelligence Studio
 
-- [ ] **TASK-037** Create `apps/web/src/components/calculators/AtmosphereOrchestrator.tsx`. Lighting cost calculator. State: mood (Warm/Neutral/Cool/Dramatic), intensity (0–100 slider), area (number input). Mood multipliers: `{Warm:1.2, Neutral:1.0, Cool:0.9, Dramatic:1.5}`. Formula: `lux = intensity * moodMultiplier * (area/10)`, `wattage = Math.ceil(lux/50)*40`, `monthlyCostINR = ((wattage*8*30)/1000)*8`. Show: Recommended Lux, Total Wattage, Monthly Cost ₹. Use `useState` only. No API calls.
+- [x] **TASK-037** Create `apps/web/src/components/calculators/AtmosphereOrchestrator.tsx`. Lighting cost calculator. State: mood (Warm/Neutral/Cool/Dramatic), intensity (0–100 slider), area (number input). Mood multipliers: `{Warm:1.2, Neutral:1.0, Cool:0.9, Dramatic:1.5}`. Formula: `lux = intensity * moodMultiplier * (area/10)`, `wattage = Math.ceil(lux/50)*40`, `monthlyCostINR = ((wattage*8*30)/1000)*8`. Show: Recommended Lux, Total Wattage, Monthly Cost ₹. Use `useState` only. No API calls.
 
-- [ ] **TASK-038** Create `apps/web/src/components/calculators/TactileInvestmentEngine.tsx`. Material comparison calculator. Define MATERIALS constant (Italian Marble pricePerSqFt:850 wastageFactor:1.12 yearlyMaintenance:4000 valuePremiumPct:18 / Indian Granite 280 1.10 1500 10 / Vitrified Tiles 120 1.08 500 5 / Hardwood Flooring 450 1.15 3000 14 / Engineered Wood 220 1.10 1800 9 / Luxury Vinyl 95 1.05 600 4). Inputs: area (sqft), two material dropdowns. For each: show gross area with wastage, initial cost ₹, 10yr maintenance, lifecycle total, value premium %. Side-by-side layout.
+- [x] **TASK-038** Create `apps/web/src/components/calculators/TactileInvestmentEngine.tsx`. Material comparison calculator. Define MATERIALS constant (Italian Marble pricePerSqFt:850 wastageFactor:1.12 yearlyMaintenance:4000 valuePremiumPct:18 / Indian Granite 280 1.10 1500 10 / Vitrified Tiles 120 1.08 500 5 / Hardwood Flooring 450 1.15 3000 14 / Engineered Wood 220 1.10 1800 9 / Luxury Vinyl 95 1.05 600 4). Inputs: area (sqft), two material dropdowns. For each: show gross area with wastage, initial cost ₹, 10yr maintenance, lifecycle total, value premium %. Side-by-side layout.
 
-- [ ] **TASK-039** Create `apps/web/src/components/calculators/DesignEquityForecaster.tsx`. ROI calculator. Inputs: investment ₹, room type (Kitchen=0.85 / Master Bath=0.75 / Living Room=0.65 / Bedroom=0.50 recovery multiplier), neighborhood (Premium=0.08 / Mid-tier=0.05 / Developing=0.03 annual appreciation). Formulas: `immediateRecovery = investment * roiMultiplier`, `year5 = investment * Math.pow(1+rate, 5)`, `year10 = investment * Math.pow(1+rate, 10)`, `recoverabilityIndex = (immediateRecovery/investment)*100`. Show: projection table (Today/5yr/10yr), Recoverability Index badge (green>75 yellow 50–75 red<50). Print button via `window.print()`.
+- [x] **TASK-039** Create `apps/web/src/components/calculators/DesignEquityForecaster.tsx`. ROI calculator. Inputs: investment ₹, room type (Kitchen=0.85 / Master Bath=0.75 / Living Room=0.65 / Bedroom=0.50 recovery multiplier), neighborhood (Premium=0.08 / Mid-tier=0.05 / Developing=0.03 annual appreciation). Formulas: `immediateRecovery = investment * roiMultiplier`, `year5 = investment * Math.pow(1+rate, 5)`, `year10 = investment * Math.pow(1+rate, 10)`, `recoverabilityIndex = (immediateRecovery/investment)*100`. Show: projection table (Today/5yr/10yr), Recoverability Index badge (green>75 yellow 50–75 red<50). Print button via `window.print()`.
+
+
+
+
+

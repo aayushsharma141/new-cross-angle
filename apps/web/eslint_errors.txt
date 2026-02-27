@@ -1,0 +1,27 @@
+﻿
+C:\Users\aayus\Desktop\main\apps\web\src\components\calculators\TactileInvestmentEngine.tsx
+  46:72  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminBlogs.tsx
+  71:6  warning  React Hook useEffect has a missing dependency: 'fetchPosts'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminEstimateLeads.tsx
+  39:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminEstimateRates.tsx
+  100:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminMedia.tsx
+  75:1  error  Parsing error: ',' expected
+
+C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminPageSections.tsx
+  170:117  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminTeamMembers.tsx
+  70:62  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminUsers.tsx
+  113:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Γ£û 8 problems (7 errors, 1 warning)
+

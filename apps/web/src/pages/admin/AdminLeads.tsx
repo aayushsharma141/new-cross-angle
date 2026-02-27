@@ -76,8 +76,7 @@ export default function AdminLeads() {
   const [view, setView] = useState<"board" | "list">("board");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [selectedLead, setSelectedLead] = useState<any | null>(null);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const { toast } = useToast();
@@ -86,7 +85,7 @@ export default function AdminLeads() {
   // Fetch Leads
   const { data: leads = [], isLoading } = useQuery({
     queryKey: ["leads"],
-    queryFn: async () => {
+    queryFn: async (): Promise<Lead[]> => {
       const { data, error } = await supabase
         .from("leads")
         .select("*")
@@ -115,39 +114,38 @@ export default function AdminLeads() {
 
   // Update Lead Mutation
   const updateMutation = useMutation({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mutationFn: async ({ id, ...updates }: any) => {
+    mutationFn: async ({ id, ...updates }: Partial<Lead> & { id: string }): Promise<void> => {
       const { error } = await supabase.from("leads").update(updates).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      void queryClient.invalidateQueries({ queryKey: ["leads"] });
       toast({ title: "Lead Updated", description: "Changes saved successfully." });
       setIsSheetOpen(false);
     },
-    onError: (err) => {
+    onError: (err: Error) => {
       toast({ variant: "destructive", title: "Error", description: err.message });
     },
   });
 
   // Delete Lead Mutation
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (id: string): Promise<void> => {
       const { error } = await supabase.from("leads").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      void queryClient.invalidateQueries({ queryKey: ["leads"] });
       toast({ title: "Lead Deleted", description: "Lead removed permanently." });
       setIsSheetOpen(false);
     },
   });
 
-  const handleDragMove = (leadId: string, newStatus: string) => {
+  const handleDragMove = (leadId: string, newStatus: string): void => {
     updateMutation.mutate({ id: leadId, status: newStatus });
   };
 
-  const handleExport = () => {
+  const handleExport = (): void => {
     const csvContent = [
       ["Name", "Email", "Phone", "Status", "Source", "Type", "City", "Budget", "Score", "Date"],
       ...leads.map((l) => {
@@ -157,14 +155,10 @@ export default function AdminLeads() {
           l.email,
           l.phone || "",
           l.status,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          SOURCE_LABELS[(l as any).lead_source] || "",
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          TYPE_LABELS[(l as any).lead_type] || "",
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (l as any).city || "",
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (l as any).budget || "",
+          SOURCE_LABELS[l.lead_source || ""] || l.lead_source || "",
+          TYPE_LABELS[l.lead_type || ""] || l.lead_type || "",
+          l.city || "",
+          l.budget || "",
           `${l.score || 0} (${temp.label})`,
           format(new Date(l.created_at || ""), "yyyy-MM-dd"),
         ];
@@ -314,8 +308,6 @@ export default function AdminLeads() {
                     {filteredLeads.map((lead) => {
                       const score = lead.score || 0;
                       const temp = getLeadTemperature(score);
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      const l = lead as any;
                       return (
                         <TableRow
                           key={lead.id}
@@ -333,20 +325,20 @@ export default function AdminLeads() {
                           {/* Lead Type */}
                           <TableCell>
                             <span className="text-xs text-admin-muted">
-                              {TYPE_LABELS[l.lead_type] || l.lead_type || "—"}
+                              {TYPE_LABELS[lead.lead_type || ""] || lead.lead_type || "—"}
                             </span>
                           </TableCell>
 
                           {/* Lead Source */}
                           <TableCell>
                             <span className="text-xs text-admin-muted">
-                              {SOURCE_LABELS[l.lead_source] || l.lead_source || "—"}
+                              {SOURCE_LABELS[lead.lead_source || ""] || lead.lead_source || "—"}
                             </span>
                           </TableCell>
 
                           {/* City */}
                           <TableCell>
-                            <span className="text-xs text-admin-muted">{l.city || "—"}</span>
+                            <span className="text-xs text-admin-muted">{lead.city || "—"}</span>
                           </TableCell>
 
                           {/* Score with temperature */}

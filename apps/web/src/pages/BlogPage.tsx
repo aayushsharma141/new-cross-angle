@@ -42,9 +42,9 @@ const BlogPage = () => {
         <link rel="canonical" href="https://crossangleinterior.com/blog" />
       </Helmet>
       <FloatingParticles count={30} />
-      <main className="min-h-screen relative z-10">
+      <Navbar />
+      <main id="main-content" className="min-h-screen relative z-10">
         <FixedSocialBar />
-        <Navbar />
 
         {/* Hero Section */}
         <section className="pt-32 pb-20 relative bg-gradient-to-b from-background to-accent/5">
@@ -173,10 +173,9 @@ const BlogPage = () => {
             </div>
           </div>
         </section>
-
-        <Footer />
-        <ScrollToTop />
       </main>
+      <Footer />
+      <ScrollToTop />
     </>
   );
 };

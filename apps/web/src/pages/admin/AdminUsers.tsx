@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, JSX } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -46,34 +46,60 @@ import {
 import { MoreHorizontal, Trash2, Ban, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-export default function AdminUsers() {
+interface AdminUser {
+    id: string;
+    avatar_url: string | null;
+    full_name: string | null;
+    email: string | null;
+    role: string | null;
+    status: string | null;
+    created_at: string | null;
+    last_sign_in_at: string | null;
+}
+
+type UserAction = "suspend" | "unsuspend" | "delete";
+
+interface ActionTarget {
+    id: string;
+    name: string;
+    action: UserAction;
+}
+
+export default function AdminUsers(): JSX.Element {
     const [search, setSearch] = useState("");
     const [inviteOpen, setInviteOpen] = useState(false);
-    const [actionUser, setActionUser] = useState<{ id: string, name: string, action: 'suspend' | 'unsuspend' | 'delete' } | null>(null);
+    const [actionUser, setActionUser] = useState<ActionTarget | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
     const { toast } = useToast();
 
-    const { data: users = [], isLoading, refetch } = useQuery({
+    const {
+        data: users = [],
+        isLoading,
+        refetch,
+    } = useQuery({
         queryKey: ["admin-users"],
-        queryFn: async () => {
+        queryFn: async (): Promise<AdminUser[]> => {
             const { data, error } = await supabase.rpc("get_admin_users");
             if (error) throw error;
-            return data;
+            return (data as unknown as AdminUser[]) || [];
         },
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const filteredUsers = users.filter((user: any) =>
-        user.email?.toLowerCase().includes(search.toLowerCase()) ||
-        user.full_name?.toLowerCase().includes(search.toLowerCase())
-    );
+    const filteredUsers = useMemo(() => {
+        const searchTerm = search.toLowerCase();
+        return users.filter(
+            (user) =>
+                user.email?.toLowerCase().includes(searchTerm) ||
+                user.full_name?.toLowerCase().includes(searchTerm)
+        );
+    }, [users, search]);
 
-    const handleAction = async () => {
+    const handleAction = async (): Promise<void> => {
         if (!actionUser) return;
         setActionLoading(true);
         try {
-            const { data, error } = await supabase.functions.invoke('manage-user', {
-                body: { action: actionUser.action, userId: actionUser.id }
+            const { data, error } = await supabase.functions.invoke("manage-user", {
+                body: { action: actionUser.action, userId: actionUser.id },
             });
 
             if (error) throw error;
@@ -81,7 +107,7 @@ export default function AdminUsers() {
 
             toast({
                 title: "Success",
-                description: `User ${actionUser.action}ed successfully.`
+                description: `User ${actionUser.action}ed successfully.`,
             });
             refetch();
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,7 +115,7 @@ export default function AdminUsers() {
             toast({
                 title: "Error",
                 description: error.message || "Failed to perform action",
-                variant: "destructive"
+                variant: "destructive",
             });
         } finally {
             setActionLoading(false);
@@ -113,8 +139,12 @@ export default function AdminUsers() {
 
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-display font-bold text-[hsl(var(--admin-foreground))]">Users</h2>
-                    <p className="text-[hsl(var(--admin-muted))]">Manage team access and permissions.</p>
+                    <h2 className="text-3xl font-display font-bold text-[hsl(var(--admin-foreground))]">
+                        Users
+                    </h2>
+                    <p className="text-[hsl(var(--admin-muted))]">
+                        Manage team access and permissions.
+                    </p>
                 </div>
                 <Button onClick={() => setInviteOpen(true)}>
                     <UserPlus className="mr-2 h-4 w-4" /> Invite User
@@ -141,11 +171,15 @@ export default function AdminUsers() {
                 <EmptyState
                     icon={Users}
                     title="No users found"
-                    description={search ? "Try adjusting your search criteria" : "Invite team members to collaborate on your projects"}
+                    description={
+                        search
+                            ? "Try adjusting your search criteria"
+                            : "Invite team members to collaborate on your projects"
+                    }
                     primaryAction={{
                         label: "Invite User",
                         onClick: () => setInviteOpen(true),
-                        icon: UserPlus
+                        icon: UserPlus,
                     }}
                 />
             ) : (
@@ -161,18 +195,22 @@ export default function AdminUsers() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {filteredUsers.map((user: { id: string; avatar_url?: string; full_name?: string; email?: string; role?: string; status?: string; created_at?: string; last_sign_in_at?: string }) => (
+                            {filteredUsers.map((user) => (
                                 <TableRow key={user.id}>
                                     <TableCell>
                                         <div className="flex items-center gap-3">
                                             <Avatar>
-                                                <AvatarImage src={user.avatar_url} />
+                                                <AvatarImage src={user.avatar_url ?? undefined} />
                                                 <AvatarFallback className="bg-primary/10 text-primary">
-                                                    {(user.full_name || user.email || "U").substring(0, 2).toUpperCase()}
+                                                    {(user.full_name || user.email || "U")
+                                                        .substring(0, 2)
+                                                        .toUpperCase()}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="flex flex-col">
-                                                <span className="font-medium">{user.full_name || "Unknown"}</span>
+                                                <span className="font-medium">
+                                                    {user.full_name || "Unknown"}
+                                                </span>
                                                 <div className="flex items-center text-xs text-muted-foreground">
                                                     <Mail className="mr-1 h-3 w-3" />
                                                     {user.email || "N/A"}
@@ -188,14 +226,22 @@ export default function AdminUsers() {
                                     </TableCell>
                                     <TableCell>
                                         <Badge
-                                            variant={user.status === 'suspended' ? 'destructive' : 'secondary'}
-                                            className={user.status === 'active' ? "bg-green-100 text-green-700 hover:bg-green-100" : ""}
+                                            variant={
+                                                user.status === "suspended" ? "destructive" : "secondary"
+                                            }
+                                            className={
+                                                user.status === "active"
+                                                    ? "bg-green-100 text-green-700 hover:bg-green-100"
+                                                    : ""
+                                            }
                                         >
-                                            {user.status === 'suspended' ? 'Suspended' : 'Active'}
+                                            {user.status === "suspended" ? "Suspended" : "Active"}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>
-                                        {user.created_at ? format(new Date(user.created_at), "MMM d, yyyy") : "N/A"}
+                                        {user.created_at
+                                            ? format(new Date(user.created_at), "MMM d, yyyy")
+                                            : "N/A"}
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
@@ -207,28 +253,48 @@ export default function AdminUsers() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.id)}>
+                                                <DropdownMenuItem
+                                                    onClick={() => navigator.clipboard.writeText(user.id)}
+                                                >
                                                     Copy ID
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                {user.status === 'suspended' ? (
+                                                {user.status === "suspended" ? (
                                                     <DropdownMenuItem
                                                         className="text-green-600"
-                                                        onClick={() => setActionUser({ id: user.id, name: user.full_name || user.email, action: 'unsuspend' })}
+                                                        onClick={() =>
+                                                            setActionUser({
+                                                                id: user.id,
+                                                                name: user.full_name || user.email || "Unknown",
+                                                                action: "unsuspend",
+                                                            })
+                                                        }
                                                     >
                                                         <CheckCircle className="mr-2 h-4 w-4" /> Unsuspend
                                                     </DropdownMenuItem>
                                                 ) : (
                                                     <DropdownMenuItem
                                                         className="text-orange-600"
-                                                        onClick={() => setActionUser({ id: user.id, name: user.full_name || user.email, action: 'suspend' })}
+                                                        onClick={() =>
+                                                            setActionUser({
+                                                                id: user.id,
+                                                                name: user.full_name || user.email || "Unknown",
+                                                                action: "suspend",
+                                                            })
+                                                        }
                                                     >
                                                         <Ban className="mr-2 h-4 w-4" /> Suspend
                                                     </DropdownMenuItem>
                                                 )}
                                                 <DropdownMenuItem
                                                     className="text-red-600 focus:text-red-600"
-                                                    onClick={() => setActionUser({ id: user.id, name: user.full_name || user.email, action: 'delete' })}
+                                                    onClick={() =>
+                                                        setActionUser({
+                                                            id: user.id,
+                                                            name: user.full_name || user.email || "Unknown",
+                                                            action: "delete",
+                                                        })
+                                                    }
                                                 >
                                                     <Trash2 className="mr-2 h-4 w-4" /> Delete
                                                 </DropdownMenuItem>
@@ -248,24 +314,38 @@ export default function AdminUsers() {
                 onSuccess={() => refetch()}
             />
 
-            <AlertDialog open={!!actionUser} onOpenChange={(open) => !open && setActionUser(null)}>
+            <AlertDialog
+                open={!!actionUser}
+                onOpenChange={(open) => !open && setActionUser(null)}
+            >
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
                             This will {actionUser?.action} <b>{actionUser?.name}</b>.
-                            {actionUser?.action === 'delete' && " This action cannot be undone."}
-                            {actionUser?.action === 'suspend' && " They will be unable to log in until unsuspended."}
+                            {actionUser?.action === "delete" &&
+                                " This action cannot be undone."}
+                            {actionUser?.action === "suspend" &&
+                                " They will be unable to log in until unsuspended."}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={actionLoading}>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                            onClick={(e) => { e.preventDefault(); handleAction(); }}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleAction();
+                            }}
                             disabled={actionLoading}
-                            className={actionUser?.action === 'delete' || actionUser?.action === 'suspend' ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+                            className={
+                                actionUser?.action === "delete" || actionUser?.action === "suspend"
+                                    ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    : ""
+                            }
                         >
-                            {actionLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            {actionLoading ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : null}
                             Confirm {actionUser?.action}
                         </AlertDialogAction>
                     </AlertDialogFooter>

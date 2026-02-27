@@ -41,12 +41,21 @@ interface BlogPost {
   created_at: string;
 }
 
+interface BlogFormData {
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  cover_image: string;
+  is_published: boolean;
+}
+
 const AdminBlogs = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BlogFormData>({
     title: "",
     slug: "",
     excerpt: "",
@@ -59,28 +68,36 @@ const AdminBlogs = () => {
 
   useEffect(() => {
     fetchPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (): Promise<void> => {
     const { data, error } = await supabase
       .from('blogs')
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (data) {
+    if (error) {
+      console.error("Error fetching posts:", error);
+      toast({
+        title: "Error fetching posts",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else if (data) {
       setPosts(data);
     }
     setIsLoading(false);
   };
 
-  const generateSlug = (title: string) => {
+  const generateSlug = (title: string): string => {
     return title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
   };
 
-  const handleTitleChange = (title: string) => {
+  const handleTitleChange = (title: string): void => {
     setFormData({
       ...formData,
       title,
@@ -89,7 +106,7 @@ const AdminBlogs = () => {
   };
 
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string): Promise<void> => {
     if (!confirm('Are you sure you want to delete this post?')) return;
 
     const { error } = await supabase
@@ -100,15 +117,16 @@ const AdminBlogs = () => {
     if (error) {
       toast({
         title: "Error deleting post",
+        description: error.message,
         variant: "destructive",
       });
     } else {
       toast({ title: "Post deleted successfully" });
-      fetchPosts();
+      void fetchPosts();
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setIsSaving(true);
 
@@ -137,7 +155,7 @@ const AdminBlogs = () => {
       }
 
       toast({
-        title: editingPost ? "Post updated!" : "Post updated!",
+        title: editingPost ? "Post updated!" : "Post created!",
       });
 
       // Clear draft
@@ -147,9 +165,9 @@ const AdminBlogs = () => {
       setIsDialogOpen(false);
       setEditingPost(null);
       resetForm();
-      fetchPosts();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+      void fetchPosts();
+    } catch (err) {
+      const error = err as Error;
       toast({
         title: "Error saving post",
         description: error.message,
@@ -175,7 +193,7 @@ const AdminBlogs = () => {
     return () => clearTimeout(saveDraft);
   }, [formData, editingPost, isDialogOpen]);
 
-  const handleNewPost = () => {
+  const handleNewPost = (): void => {
     setEditingPost(null);
     const savedDraft = localStorage.getItem("admin_blog_draft_new");
     if (savedDraft) {
@@ -196,7 +214,7 @@ const AdminBlogs = () => {
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (post: BlogPost) => {
+  const handleEdit = (post: BlogPost): void => {
     setEditingPost(post);
     const savedDraft = localStorage.getItem(`admin_blog_draft_${post.id}`);
 
@@ -231,7 +249,7 @@ const AdminBlogs = () => {
     setIsDialogOpen(true);
   };
 
-  const resetForm = () => {
+  const resetForm = (): void => {
     setFormData({
       title: "",
       slug: "",

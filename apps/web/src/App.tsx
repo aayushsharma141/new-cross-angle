@@ -41,6 +41,8 @@ import AdminMedia from "./pages/admin/AdminMedia";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTeam from "./pages/admin/AdminTeam";
+import AdminEstimateLeads from "./pages/admin/AdminEstimateLeads";
+import AdminTeamMembers from "./pages/admin/AdminTeamMembers";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +81,9 @@ const AnimatedRoutes = () => {
             <Route path="testimonials" element={<AdminTestimonials />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="team" element={<AdminTeam />} />
+            <Route path="estimate-leads" element={<AdminEstimateLeads />} />
+            <Route path="team-members" element={<AdminTeamMembers />} />
+            <Route path="testimonials" element={<AdminTestimonials />} />
           </Route>
         </Routes>
       ) : (

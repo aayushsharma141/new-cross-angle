@@ -33,9 +33,9 @@ export default function AdminEstimateRates() {
     const [hasChanges, setHasChanges] = useState(false);
 
     // Fetch current config
-    const { data: rateData, isLoading } = useQuery({
+    const { data: rateData, isLoading } = useQuery<{ id?: string; config: PricingConfig; updated_at?: string } | null>({
         queryKey: ["estimate-rates"],
-        queryFn: async () => {
+        queryFn: async (): Promise<{ id?: string; config: PricingConfig; updated_at?: string } | null> => {
             const { data, error } = await supabase
                 .from("estimate_rates")
                 .select("*")
@@ -48,20 +48,14 @@ export default function AdminEstimateRates() {
                 if (error.code === 'PGRST116') return null;
                 throw error;
             }
-            return data;
+            return data as unknown as { id?: string; config: PricingConfig; updated_at?: string };
         },
     });
 
     useEffect(() => {
         if (rateData?.config) {
-            // Merge with default to ensure new fields are present if old config is loaded
-            // But types are strict, so we might need to cast or carefully merge
-            // For now, assume config structure updates are manual or we overwrite with default if structure is broken
-            // A deep merge would be better, but let's trust the type for now or fallback
-            const loadedConfig = rateData.config as unknown as PricingConfig;
-            // Ensure all top-level keys exist (basic migration)
+            const loadedConfig = rateData.config;
             const merged = { ...DEFAULT_PRICING_CONFIG, ...loadedConfig };
-            // Ensure sub-objects exist too if needed, but simplistic merge for now
             setConfig(merged);
             setHasChanges(false);
         }
@@ -69,10 +63,10 @@ export default function AdminEstimateRates() {
 
     // Save mutation
     const saveMutation = useMutation({
-        mutationFn: async () => {
+        mutationFn: async (): Promise<void> => {
             // Upsert mechanism: if id exists update, else insert
             const payload = {
-                config: config as unknown,
+                config: config as unknown as Record<string, unknown>,
                 updated_at: new Date().toISOString(),
             };
 
@@ -90,7 +84,7 @@ export default function AdminEstimateRates() {
             }
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["estimate-rates"] });
+            void queryClient.invalidateQueries({ queryKey: ["estimate-rates"] });
             setHasChanges(false);
             toast({ title: "Rates Updated", description: "Pricing configuration saved successfully." });
         },
@@ -100,10 +94,11 @@ export default function AdminEstimateRates() {
     });
 
     // Helper to update nested config
-    const updateConfig = (path: string[], value: number) => {
+    const updateConfig = (path: string[], value: number): void => {
         setConfig((prev) => {
-            const next = JSON.parse(JSON.stringify(prev));
-            let obj = next;
+            const next = JSON.parse(JSON.stringify(prev)) as PricingConfig;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let obj: any = next;
             for (let i = 0; i < path.length - 1; i++) {
                 if (!obj[path[i]]) obj[path[i]] = {}; // Safety init
                 obj = obj[path[i]];
@@ -114,9 +109,9 @@ export default function AdminEstimateRates() {
         setHasChanges(true);
     };
 
-    const handleReset = () => {
+    const handleReset = (): void => {
         if (rateData?.config) {
-            const loadedConfig = rateData.config as unknown as PricingConfig;
+            const loadedConfig = rateData.config;
             setConfig({ ...DEFAULT_PRICING_CONFIG, ...loadedConfig });
         } else {
             setConfig(DEFAULT_PRICING_CONFIG);
@@ -129,7 +124,7 @@ export default function AdminEstimateRates() {
         const dummyData: CalculatorFormData = {
             area: 1500,
             city: "Metro",
-            propertyType: "Apartment",
+            propertyType: "apartment",
             bhk: "3 BHK",
             stage: "new_build",
             floors: 1,
@@ -149,12 +144,8 @@ export default function AdminEstimateRates() {
             startTiming: "1-3 Months",
             extraVisits: 5,
 
-            budget: 3000000,
-            timeline: "1-3 Months",
-            scope: "Full Home",
-            scopes: ["Turnkey Execution", "3D Design"], // Approximation
-            designPackage: "standard_3d",
-            roomRequirements: [],
+            budgetAmount: 3000000,
+            budgetPreset: "Premium",
             name: "Preview User",
             email: "preview@example.com",
             phone: "9999999999",
@@ -164,8 +155,7 @@ export default function AdminEstimateRates() {
             smartHome: false,
             customFurniture: false,
             premiumLighting: false,
-            siteVisits: 8,
-        };
+        } as unknown as CalculatorFormData;
         // Just use the engine!
         return calculateEstimate(dummyData, config);
     })();
@@ -428,7 +418,7 @@ export default function AdminEstimateRates() {
                             <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Design Fee</span>
                                 <span className="font-medium">
-                                    {formatCurrency(sampleEstimate.designFee.min)} - {formatCurrency(sampleEstimate.designFee.max)}
+                                    {formatCurrency(sampleEstimate.designCost.min)} - {formatCurrency(sampleEstimate.designCost.max)}
                                 </span>
                             </div>
                             <div className="flex justify-between text-sm">
@@ -439,7 +429,7 @@ export default function AdminEstimateRates() {
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Add-ons</span>
-                                <span className="font-medium">{formatCurrency(sampleEstimate.addonCost.min)}</span>
+                                <span className="font-medium">{formatCurrency(sampleEstimate.addonCost)}</span>
                             </div>
                             <div className="flex justify-between text-xs text-muted-foreground pt-1">
                                 <span>Includes GST ({config.logic.gst_pct}%) on Design</span>

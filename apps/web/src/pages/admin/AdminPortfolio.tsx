@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, JSX } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PortfolioGrid } from "@/components/admin/portfolio/PortfolioGrid";
@@ -25,15 +25,22 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import type { Database } from "@/integrations/supabase/types";
 
-export default function AdminPortfolio() {
+type Project = Database["public"]["Tables"]["projects"]["Row"];
+type Category = Database["public"]["Tables"]["project_categories"]["Row"];
+
+interface ProjectWithCategory extends Project {
+  project_categories: { name: string } | null;
+}
+
+export default function AdminPortfolio(): JSX.Element {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [editingItem, setEditingItem] = useState<ProjectWithCategory | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const { toast } = useToast();
@@ -42,20 +49,19 @@ export default function AdminPortfolio() {
   // Fetch Categories for Filter
   const { data: categories = [] } = useQuery({
     queryKey: ["project_categories"],
-    queryFn: async () => {
+    queryFn: async (): Promise<Pick<Category, "id" | "name">[]> => {
       const { data, error } = await supabase
-        .from('project_categories')
-        .select('id, name')
-        .order('display_order');
+        .from("project_categories")
+        .select("id, name")
+        .order("display_order");
       if (error) throw error;
-      return data;
-    }
+      return data || [];
+    },
   });
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ["projects"],
-    queryFn: async () => {
-      // Join project_categories to get category name
+    queryFn: async (): Promise<ProjectWithCategory[]> => {
       const { data, error } = await supabase
         .from("projects")
         .select("*, project_categories(name)")
@@ -63,28 +69,27 @@ export default function AdminPortfolio() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return (data as unknown as ProjectWithCategory[]) || [];
     },
   });
 
-  const filteredProjects = projects.filter((project) => {
-    const matchesSearch = project.title.toLowerCase().includes(search.toLowerCase()) ||
-      project.client_name?.toLowerCase().includes(search.toLowerCase()); // client -> client_name
+  const filteredProjects = useMemo(() => {
+    return projects.filter((project) => {
+      const searchTerm = search.toLowerCase();
+      const matchesSearch =
+        project.title.toLowerCase().includes(searchTerm) ||
+        (project.client_name?.toLowerCase().includes(searchTerm) ?? false);
 
-    // category is now category_id, so we match by ID or if "All"
-    // But UI might want to filter by Name? Or ID?
-    // Let's assume categoryFilter is ID, or 'All'.
-    // BUT wait, existing code used Name strings. I requested fetching categories.
-    // Let's use ID for filtering if selected from dropdown.
-    const matchesCategory = categoryFilter === "All" || project.category_id === categoryFilter;
+      const matchesCategory =
+        categoryFilter === "All" || project.category_id === categoryFilter;
 
-    // Status mapping: DB has 'live'/'draft'. Filter has 'published'/'draft'/'all'.
-    // Map 'published' -> 'live'
-    const statusToCheck = statusFilter === 'published' ? 'live' : statusFilter;
-    const matchesStatus = statusFilter === "all" || (project.status || "draft") === statusToCheck;
+      const statusToCheck = statusFilter === "published" ? "live" : statusFilter;
+      const matchesStatus =
+        statusFilter === "all" || (project.status || "draft") === statusToCheck;
 
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
+      return matchesSearch && matchesCategory && matchesStatus;
+    });
+  }, [projects, search, categoryFilter, statusFilter]);
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -96,18 +101,17 @@ export default function AdminPortfolio() {
       toast({ title: "Project Deleted", description: "Project has been removed." });
       setDeleteId(null);
     },
-    onError: (err) => {
+    onError: (err: Error) => {
       toast({ variant: "destructive", title: "Error", description: err.message });
     },
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: ProjectWithCategory): void => {
     setEditingItem(item);
     setIsFormOpen(true);
   };
 
-  const handleCreate = () => {
+  const handleCreate = (): void => {
     setEditingItem(null);
     setIsFormOpen(true);
   };
@@ -128,7 +132,9 @@ export default function AdminPortfolio() {
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-display font-bold text-[hsl(var(--admin-foreground))]">Portfolio</h2>
+          <h2 className="text-3xl font-display font-bold text-[hsl(var(--admin-foreground))]">
+            Portfolio
+          </h2>
           <p className="text-[hsl(var(--admin-muted))]">Manage your project showcase.</p>
         </div>
         <Button onClick={handleCreate}>
@@ -153,13 +159,19 @@ export default function AdminPortfolio() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">All Categories</SelectItem>
-              {categories.map((cat: { id: string; name: string }) => (
-                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-[300px]">
+          <Tabs
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+            className="w-[300px]"
+          >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="published">Published</TabsTrigger>
@@ -170,8 +182,12 @@ export default function AdminPortfolio() {
 
         <Tabs value={view} onValueChange={(v) => setView(v as "grid" | "list")}>
           <TabsList>
-            <TabsTrigger value="grid"><LayoutGrid className="mr-2 h-4 w-4" /> Grid</TabsTrigger>
-            <TabsTrigger value="list"><ListIcon className="mr-2 h-4 w-4" /> List</TabsTrigger>
+            <TabsTrigger value="grid">
+              <LayoutGrid className="mr-2 h-4 w-4" /> Grid
+            </TabsTrigger>
+            <TabsTrigger value="list">
+              <ListIcon className="mr-2 h-4 w-4" /> List
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>

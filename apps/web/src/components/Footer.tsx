@@ -32,6 +32,7 @@ const Footer = () => {
 
   return (
     <footer
+      role="contentinfo"
       className="text-foreground relative overflow-hidden border-t border-wine-600/30 bg-[#0A0A0A]"
     >
       {/* Subtle wine overlay pattern */}
