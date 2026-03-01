@@ -40,20 +40,20 @@ interface ProjectRow {
     id: string;
     title: string;
     slug: string;
-    short_description?: string;
-    category_id?: string;
-    client_name?: string;
-    location?: string;
-    area?: string;
-    budget?: string;
-    duration?: string;
-    style_tags?: string[];
-    year_completed?: number;
-    cover_image_url?: string;
-    description?: ProjectDescription | string | null;
-    featured?: boolean;
-    status?: string;
-    published_at?: string;
+    short_description?: string | null;
+    category_id?: string | null;
+    client_name?: string | null;
+    location?: string | null;
+    area?: string | null;
+    budget?: string | null;
+    duration?: string | null;
+    style_tags?: string[] | null;
+    year_completed?: number | null;
+    cover_image_url?: string | null;
+    description?: unknown;
+    featured?: boolean | null;
+    status?: string | null;
+    published_at?: string | null;
 }
 
 interface PortfolioFormDialogProps {

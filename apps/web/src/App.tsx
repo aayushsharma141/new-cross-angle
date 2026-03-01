@@ -26,6 +26,7 @@ import PriceEstimator from "./pages/PriceEstimator";
 import DiscoveryPage from "./pages/DiscoveryPage";
 import NotFound from "./pages/NotFound";
 import PageTransition from "./components/PageTransition";
+import BlueprintPage from "./pages/BlueprintPage";
 // Admin Pages
 import AdminAuth from "./pages/admin/AdminAuth";
 import AdminResetPassword from "./pages/admin/AdminResetPassword";
@@ -97,7 +98,8 @@ const AnimatedRoutes = () => {
             <Route path="/blog/:slug" element={<PageTransition><BlogDetailPage /></PageTransition>} />
             <Route path="/contact-us" element={<PageTransition><ContactPage /></PageTransition>} />
             <Route path="/estimate" element={<PageTransition><PriceEstimator /></PageTransition>} />
-            <Route path="/quiz" element={<PageTransition><DiscoveryPage /></PageTransition>} />
+            <Route path="/spatial-identity-os" element={<PageTransition><DiscoveryPage /></PageTransition>} />
+            <Route path="/blueprint" element={<PageTransition><BlueprintPage /></PageTransition>} />
             <Route path="/portfolio/:slug" element={<PageTransition><ProjectPage /></PageTransition>} />
             {/* Redirect routes for common variations */}
             <Route path="/about" element={<Navigate to="/about-us" replace />} />

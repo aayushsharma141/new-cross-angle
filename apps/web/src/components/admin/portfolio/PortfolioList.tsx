@@ -9,24 +9,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Image as ImageIcon } from "lucide-react";
-import { format } from "date-fns";
-
-interface PortfolioItem {
-    id: string;
-    title: string;
-    category: string | null;
-    type: string | null;
-    year: number | null;
-    is_featured: boolean | null;
-    hero_image: string | null;
-    created_at: string;
-    status?: string;
-}
+import type { ProjectWithCategory } from "@/pages/admin/AdminPortfolio";
 
 interface PortfolioListProps {
-    items: PortfolioItem[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onEdit: (item: any) => void;
+    items: ProjectWithCategory[];
+    onEdit: (item: ProjectWithCategory) => void;
     onDelete: (id: string) => void;
 }
 
@@ -58,9 +45,9 @@ export function PortfolioList({ items, onEdit, onDelete }: PortfolioListProps) {
                         <TableRow key={item.id} className="hover:bg-muted/50">
                             <TableCell>
                                 <div className="w-12 h-12 rounded bg-muted overflow-hidden relative">
-                                    {item.hero_image ? (
+                                    {item.cover_image_url ? (
                                         <img
-                                            src={item.hero_image}
+                                            src={item.cover_image_url}
                                             alt={item.title}
                                             className="w-full h-full object-cover"
                                         />
@@ -73,14 +60,13 @@ export function PortfolioList({ items, onEdit, onDelete }: PortfolioListProps) {
                             </TableCell>
                             <TableCell className="font-medium">
                                 {item.title}
-                                <div className="text-xs text-muted-foreground capitalize">{item.type}</div>
                             </TableCell>
                             <TableCell>
                                 <Badge variant="outline" className="capitalize">
-                                    {item.category || "Uncategorized"}
+                                    {item.project_categories?.name || "Uncategorized"}
                                 </Badge>
                             </TableCell>
-                            <TableCell>{item.year || "N/A"}</TableCell>
+                            <TableCell>{item.year_completed || "N/A"}</TableCell>
                             <TableCell>
                                 {(item.status === 'draft' || !item.status) ? (
                                     <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
@@ -93,7 +79,7 @@ export function PortfolioList({ items, onEdit, onDelete }: PortfolioListProps) {
                                 )}
                             </TableCell>
                             <TableCell>
-                                {item.is_featured && (
+                                {item.featured && (
                                     <Badge variant="secondary" className="bg-purple-100 text-purple-700 hover:bg-purple-100 border-purple-200">
                                         Featured
                                     </Badge>

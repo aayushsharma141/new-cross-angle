@@ -27,10 +27,10 @@ import {
 } from "@/components/ui/breadcrumb";
 import type { Database } from "@/integrations/supabase/types";
 
-type Project = Database["public"]["Tables"]["projects"]["Row"];
-type Category = Database["public"]["Tables"]["project_categories"]["Row"];
+export type Project = Database["public"]["Tables"]["projects"]["Row"];
+export type Category = Database["public"]["Tables"]["project_categories"]["Row"];
 
-interface ProjectWithCategory extends Project {
+export interface ProjectWithCategory extends Project {
   project_categories: { name: string } | null;
 }
 

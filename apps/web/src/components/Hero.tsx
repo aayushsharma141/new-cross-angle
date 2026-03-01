@@ -137,7 +137,7 @@ const Hero = () => {
                 <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Link to="/quiz">
+            <Link to="/spatial-identity-os">
               <Button
                 size="lg"
                 variant="outline"
