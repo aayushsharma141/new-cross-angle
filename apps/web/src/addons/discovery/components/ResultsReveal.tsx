@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import '../pages/BlueprintPage.css';
-import { Link } from "react-router-dom";
 import { AestheticScores, Archetype, AIAestheticResult } from "@/types/discovery";
 import { visualImages } from "@/constants/discovery";
 

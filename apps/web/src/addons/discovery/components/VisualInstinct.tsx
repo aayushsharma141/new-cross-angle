@@ -3,17 +3,28 @@ import { useState } from "react";
 import { visualImages } from "@/constants/discovery";
 import { VISUAL_WEIGHTS } from "../core/weights";
 import { AestheticScores } from "@/types/discovery";
+import { track } from "../infrastructure/analytics/tracker";
 
 interface Props {
+  sessionId: string | null;
   onComplete: (scores: Partial<AestheticScores>, selectedIds?: number[]) => void;
 }
 
-const VisualInstinct = ({ onComplete }: Props) => {
+const VisualInstinct = ({ sessionId, onComplete }: Props) => {
   const [selected, setSelected] = useState<number[]>([]);
   const [loaded, setLoaded] = useState<Set<number>>(new Set());
   const MAX = 6;
 
   const toggle = (id: number) => {
+    const isSelecting = !selected.includes(id);
+    if (isSelecting && selected.length < MAX && sessionId) {
+      const img = visualImages.find(i => i.id === id);
+      track("image_selected", {
+        imageId: id,
+        tags: img?.tags || {},
+        sessionId
+      });
+    }
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : prev.length < MAX ? [...prev, id] : prev
     );

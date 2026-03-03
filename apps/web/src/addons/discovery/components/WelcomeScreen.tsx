@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Lang } from "@/i18n/translations";
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import { Home, Lamp, Leaf, BookOpen, Layers, Sun } from "lucide-react";
 
 // MagicUI Components
@@ -14,8 +13,11 @@ import { AnimatedBeam } from "@/components/magicui/animated-beam";
 import ShimmerButton from "@/components/magicui/shimmer-button";
 import { RetroGrid } from "@/components/magicui/retro-grid";
 
+import type { DiscoveryConfig } from "./DiscoveryEngine";
+
 interface WelcomeScreenProps {
   onStart: (mode: "quick" | "deep") => void;
+  config?: DiscoveryConfig;
 }
 
 // ── Section 2 nodes ───────────────────────────────────────────────
@@ -108,14 +110,14 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
     >
       {/* ── Global Nav ───────────────────────────────────────────── */}
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4">
-        <Link
-          to="/"
+        <a
+          href="/"
           className="flex items-center justify-center w-9 h-9 border border-white/10 bg-white/[0.03]
             backdrop-blur-md text-white/50 hover:text-white hover:border-white/25 transition-all duration-300"
           aria-label="Return to Home"
         >
           <Home size={15} />
-        </Link>
+        </a>
         <div className="flex items-center border border-white/10 bg-white/[0.03] backdrop-blur-md overflow-hidden">
           {(["en", "hi"] as Lang[]).map((l) => (
             <button

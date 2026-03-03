@@ -1,5 +1,7 @@
 # PRD: Discovery Engine — Architecture Sprint
+
 # CrossAngle Interior | v2.1 → v3.0
+
 # Sprint Duration: 14 Days
 
 ## Overview
@@ -12,11 +14,12 @@ Completion marker: ralph-done-discovery-arch-sprint
 
 ---
 
-## Task 1: Delete UI Duplication — discovery/components/ui/
+## Task 1: [x] Delete UI Duplication — discovery/components/ui/
 
 The folder `discovery/components/ui/` contains 49 duplicated shadcn component files. This is a full copy of the shared design system that already exists at `@/components/ui`. Delete the entire folder and replace all imports across discovery files to use the shared path.
 
 Steps:
+
 - Search the entire discovery folder for all import paths containing `../ui/`, `./ui/`, or `discovery/components/ui/`
 - Record every file that uses a local UI import
 - Update every such import to use `@/components/ui/button`, `@/components/ui/input`, etc.
@@ -27,13 +30,14 @@ Success signal: Build passes. No file inside `discovery/components/` references 
 
 ---
 
-## Task 2: Create core/normalization.ts — Extract normalizeScore()
+## Task 2: [x] Create core/normalization.ts — Extract normalizeScore()
 
 The function `normalizeScore()` is currently defined as an inline function inside `DiscoveryEngine.tsx`, a React component. This is pure math with no React dependency and must be extracted to a dedicated core file.
 
 The function takes a raw score (0–10) and returns a normalized value (1–9) using: centered = (raw - 5) / 5, compressed = centered × 0.7, output = 5 + compressed × 5, clamped to max(1, min(9, output)).
 
 Steps:
+
 - Create the folder `addons/discovery/core/` if it does not exist
 - Create `addons/discovery/core/normalization.ts`
 - Move the normalizeScore function into it as a named export
@@ -45,11 +49,12 @@ Success signal: `core/normalization.ts` exists with zero React imports. `Discove
 
 ---
 
-## Task 3: Create core/weights.ts — Extract All Score Weight Maps
+## Task 3: [x] Create core/weights.ts — Extract All Score Weight Maps
 
 Six UI components contain hardcoded score weight maps that define how user inputs translate to aesthetic score changes. These maps are business logic and must not live inside presentation components.
 
 The components and their weight maps to extract:
+
 - `AdjectiveSelection.tsx` — word-to-score map (Calm, Warm, Bold, Organic, Luxurious, etc.)
 - `EmotionalMapping.tsx` — slider position to score delta conversion
 - `MaterialResonance.tsx` — material choice to score delta
@@ -58,6 +63,7 @@ The components and their weight maps to extract:
 - `VisualInstinct.tsx` — any inline weight logic not already in constants/discovery
 
 Steps:
+
 - Create `addons/discovery/core/weights.ts`
 - Export each weight map as a named constant: ADJECTIVE_WEIGHTS, MATERIAL_WEIGHTS, LIGHT_WEIGHTS, LIFESTYLE_WEIGHTS, SLIDER_WEIGHTS, VISUAL_WEIGHTS (if applicable)
 - Update each of the 6 components to import their weights from `core/weights.ts`
@@ -68,11 +74,12 @@ Success signal: `core/weights.ts` exists with zero React imports. None of the 6 
 
 ---
 
-## Task 4: Create core/archetype.ts — Move getArchetype()
+## Task 4: [x] Create core/archetype.ts — Move getArchetype()
 
 The function `getArchetype()` currently lives in `constants/discovery`. It is the final classification step that takes normalized AestheticScores and returns an Archetype object. This is core IP and belongs in the core layer.
 
 Steps:
+
 - Create `addons/discovery/core/archetype.ts`
 - Move the `getArchetype` function and any archetype definition data it requires
 - Export `getArchetype` as a named export
@@ -83,11 +90,12 @@ Success signal: `core/archetype.ts` exists with zero React imports. `getArchetyp
 
 ---
 
-## Task 5: Create core/scoring.ts — Central Score Accumulation
+## Task 5: [x] Create core/scoring.ts — Central Score Accumulation
 
 Create a canonical scoring module that provides the additive score accumulation logic with boundary enforcement.
 
 Steps:
+
 - Create `addons/discovery/core/scoring.ts`
 - Export the `addScores` function that takes current AestheticScores and a partial AestheticScores delta, returns updated scores clamped to 0–10 on each axis
 - Export the `initialScores` constant (all axes set to 5)
@@ -99,11 +107,12 @@ Success signal: `core/scoring.ts` exists with zero React imports. `DiscoveryEngi
 
 ---
 
-## Task 6: Create flow/session.ts and flow/transitions.ts — Clean Flow Controller
+## Task 6: [x] Create flow/session.ts and flow/transitions.ts — Clean Flow Controller
 
 `DiscoveryEngine.tsx` currently manages state, transitions, normalization, routing, and renders the full UI shell simultaneously. Extract flow concerns into dedicated files.
 
 Steps:
+
 - Create the folder `addons/discovery/flow/`
 - Create `flow/session.ts` — exports SessionState type, initialSession constant, resetSession function
 - Create `flow/transitions.ts` — exports a `getNextStage(currentStage: Stage, mode: 'quick' | 'deep'): Stage` pure function that encapsulates all Quick vs Deep branching logic
@@ -115,11 +124,12 @@ Success signal: `flow/session.ts` and `flow/transitions.ts` exist with zero Reac
 
 ---
 
-## Task 7: Create infrastructure/analytics/tracker.ts — Analytics Foundation
+## Task 7: [x] Create infrastructure/analytics/tracker.ts — Analytics Foundation
 
 Zero event tracking exists. Create the analytics infrastructure and wire 9 events across the engine.
 
 Steps:
+
 - Create `addons/discovery/infrastructure/analytics/tracker.ts`
 - Export `track(eventName: string, payload: Record<string, unknown>)` — async, wrapped in try-catch, never throws, never blocks rendering, writes to Supabase `addon_events` table
 - Export `startSession(mode: 'quick' | 'deep'): string` — generates UUID, inserts into `addon_sessions` table (id, started_at, mode, is_completed: false), returns sessionId
@@ -140,11 +150,12 @@ Success signal: tracker.ts exists and never throws. Engine completes fully with 
 
 ---
 
-## Task 8: Create DiscoveryAddon.tsx — Mountable Entry Point
+## Task 8: [x] Create DiscoveryAddon.tsx — Mountable Entry Point
 
 Create a self-contained mountable entry point for the engine so it can be deployed anywhere without router dependencies.
 
 Steps:
+
 - Create `addons/discovery/DiscoveryAddon.tsx`
 - Props: `config` (object: firmName string, availableModes 'quick' | 'deep' | 'both') and `onComplete` callback
 - Internally renders DiscoveryEngine with provided config
@@ -162,6 +173,7 @@ Success signal: DiscoveryAddon.tsx renders the full engine when mounted. No disc
 Add a MiniResult stage between Analysis and LeadCapture so users see a preview before the contact form.
 
 Steps:
+
 - Add `MiniResult` to the Stage enum between Analysis and LeadCapture
 - Create `addons/discovery/components/MiniResultPreview.tsx`
 - Props: archetype and normalizedScores
@@ -183,6 +195,7 @@ Success signal: After Analysis, users see archetype name, 3 traits, and radar ch
 ResultsReveal.tsx (1,112 lines) and BlueprintPage.tsx (1,074 lines) load on every page visit. Lazy load both.
 
 Steps:
+
 - In `DiscoveryEngine.tsx`, convert ResultsReveal to React.lazy() with a Suspense boundary using a dark skeleton fallback
 - In `DiscoveryPage.tsx`, convert BlueprintPage to React.lazy() with a Suspense boundary
 - Add preload trigger: call `import('./components/ResultsReveal')` when user enters PatternPreview (Deep mode) or when AnalysisPhase begins (Quick mode)

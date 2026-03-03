@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,8 @@ import { normalizeScore } from "../core/normalization";
 import { initialScores, addScores } from "../core/scoring";
 import { initialSignals, resetSession } from "../flow/session";
 import { getNextStage } from "../flow/transitions";
+import { track, startSession, completeSession } from "../infrastructure/analytics/tracker";
+import WelcomeScreen from "./WelcomeScreen";
 import ReflectionPrompt from "./ReflectionPrompt";
 import LifestyleReflection from "./LifestyleReflection";
 import VisualInstinct from "./VisualInstinct";
@@ -20,16 +22,8 @@ import PatternPreview from "./PatternPreview";
 import AnalysisPhase from "./AnalysisPhase";
 import LeadGatePhase from "./LeadGatePhase";
 import ResultsReveal from "./ResultsReveal";
+import ProgressBar from "./ProgressBar";
 import DotPattern from "@/components/magicui/dot-pattern";
-import AnimatedShinyText from "@/components/magicui/animated-shiny-text";
-
-// initialScores imported from core/scoring.ts
-
-const initialSignals: UserSignals = {
-    reflectionAnswers: [], lifestyleChoices: [], selectedImageIds: [], selectedImageTags: [],
-    selectedAdjectives: [], freeTextReflection: "", sliderValues: [], materialChoice: "", lightPreference: "",
-    scores: initialScores,
-};
 
 // Dot-nav stage map for the compact sidebar
 const DOT_NAV_STAGES: { stage: Stage; label: string }[] = [
@@ -44,22 +38,40 @@ const DOT_NAV_STAGES: { stage: Stage; label: string }[] = [
     { stage: Stage.Analysis, label: "Analysis" },
 ];
 
-export const DiscoveryEngine = () => {
+export interface DiscoveryConfig {
+    firmName?: string;
+    availableModes?: ("quick" | "deep" | "both")[];
+}
+
+export interface DiscoveryEngineProps {
+    config?: DiscoveryConfig;
+    onComplete?: (result: any) => void;
+}
+
+export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {}) => {
     const [stage, setStage] = useState<Stage>(Stage.Welcome);
     const [mode, setMode] = useState<"quick" | "deep">("deep");
     const [scores, setScores] = useState<AestheticScores>(initialScores);
     const [signals, setSignals] = useState<UserSignals>(initialSignals);
     const [aiResult, setAiResult] = useState<AIAestheticResult | null>(null);
     const [showWipe, setShowWipe] = useState(false);
+    const [sessionId, setSessionId] = useState<string | null>(null);
+    const [startTime, setStartTime] = useState<number>(Date.now());
+
+    const archetype = useMemo(() => getArchetype(scores), [scores]);
 
     const handleRetake = useCallback(() => {
+        if (sessionId && aiResult) {
+            track("restart_clicked", { sessionId, archetypeShown: aiResult.identityName });
+        }
         const defaultSession = resetSession();
         setScores(defaultSession.scores);
         setSignals(defaultSession.signals);
         setAiResult(defaultSession.aiResult);
         setMode(defaultSession.mode);
         setStage(defaultSession.stage);
-    }, []);
+        setSessionId(null);
+    }, [sessionId, aiResult]);
 
     const transitionToStage = useCallback((nextStage: Stage) => {
         setShowWipe(true);
@@ -71,91 +83,117 @@ export const DiscoveryEngine = () => {
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: "smooth" });
-    }, [stage]);
+        if (sessionId) {
+            track("step_viewed", { stepName: Stage[stage], sessionId });
+        }
+    }, [stage, sessionId]);
 
     const updateScores = useCallback((partial: Partial<AestheticScores>) => {
         setScores((prev) => addScores(prev, partial));
     }, []);
 
-    const handleStart = useCallback((m: "quick" | "deep") => {
+    const handleStart = useCallback(async (m: "quick" | "deep") => {
         setMode(m);
+        const sid = await startSession(m);
+        setSessionId(sid);
+        setStartTime(Date.now());
+        track("start_session", { mode: m, sessionId: sid });
         transitionToStage(getNextStage(Stage.Welcome, m));
-    }, [mode, transitionToStage]);
+    }, [transitionToStage]);
 
     const handleReflectionComplete = useCallback(
         (answers: { question: string; answer: string }[]) => {
+            if (sessionId) track("step_completed", { stepName: "Reflection", sessionId });
             setSignals((prev) => ({ ...prev, reflectionAnswers: answers }));
             transitionToStage(getNextStage(Stage.Reflection, mode));
-        }, [mode, transitionToStage]
+        }, [mode, transitionToStage, sessionId]
     );
 
     const handleLifestyleComplete = useCallback(
         (partial: Partial<AestheticScores>, labels?: string[]) => {
+            if (sessionId) track("step_completed", { stepName: "Lifestyle", sessionId });
             updateScores(partial);
             if (labels) {
                 setSignals((prev) => ({ ...prev, lifestyleChoices: [...prev.lifestyleChoices, ...labels] }));
             }
             transitionToStage(getNextStage(Stage.Lifestyle, mode));
-        }, [mode, transitionToStage]
+        }, [mode, transitionToStage, sessionId, updateScores]
     );
 
     const handleVisualComplete = useCallback(
         (partial: Partial<AestheticScores>, selectedIds?: number[]) => {
+            if (sessionId) track("step_completed", { stepName: "VisualInstinct", sessionId });
             updateScores(partial);
             if (selectedIds) {
                 const tags = selectedIds.map((id) => visualImages.find((i) => i.id === id)?.tags).filter(Boolean) as Partial<AestheticScores>[];
                 setSignals((prev) => ({ ...prev, selectedImageIds: selectedIds, selectedImageTags: tags }));
             }
             transitionToStage(getNextStage(Stage.VisualInstinct, mode));
-        }, [mode, transitionToStage]
+        }, [mode, transitionToStage, sessionId, updateScores]
     );
 
     const handleAdjectiveComplete = useCallback(
         (partial: Partial<AestheticScores>, adjectives: string[], freeText: string) => {
+            if (sessionId) track("step_completed", { stepName: "AdjectiveSelection", sessionId });
             updateScores(partial);
             setSignals((prev) => ({ ...prev, selectedAdjectives: adjectives, freeTextReflection: freeText }));
             transitionToStage(getNextStage(Stage.AdjectiveSelection, mode));
-        }, [mode, transitionToStage]
+        }, [mode, transitionToStage, sessionId, updateScores]
     );
 
     const handleEmotionalComplete = useCallback(
         (partial: Partial<AestheticScores>, sliderValues?: { label: string; value: number }[]) => {
+            if (sessionId) track("step_completed", { stepName: "EmotionalMapping", sessionId });
             updateScores(partial);
             if (sliderValues) setSignals((prev) => ({ ...prev, sliderValues }));
             transitionToStage(getNextStage(Stage.EmotionalMapping, mode));
-        }, [mode, transitionToStage]
+        }, [mode, transitionToStage, sessionId, updateScores]
     );
 
     const handleMaterialComplete = useCallback(
         (partial: Partial<AestheticScores>, materialName?: string) => {
+            if (sessionId) track("step_completed", { stepName: "MaterialResonance", sessionId });
             updateScores(partial);
             if (materialName) setSignals((prev) => ({ ...prev, materialChoice: materialName }));
             transitionToStage(getNextStage(Stage.MaterialResonance, mode));
-        }, [mode, transitionToStage]
+        }, [mode, transitionToStage, sessionId, updateScores]
     );
 
     const handleLightComplete = useCallback(
         (partial: Partial<AestheticScores>, lightName?: string) => {
+            if (sessionId) track("step_completed", { stepName: "LightCalibration", sessionId });
             updateScores(partial);
             if (lightName) setSignals((prev) => ({ ...prev, lightPreference: lightName }));
             transitionToStage(getNextStage(Stage.LightCalibration, mode));
-        }, [mode, transitionToStage]
+        }, [mode, transitionToStage, sessionId, updateScores]
     );
 
     const handlePatternComplete = useCallback(() => {
+        if (sessionId) track("step_completed", { stepName: "PatternPreview", sessionId });
         transitionToStage(getNextStage(Stage.PatternPreview, mode));
-    }, [mode, transitionToStage]);
+    }, [mode, transitionToStage, sessionId]);
 
     const handleAnalysisComplete = useCallback(
         (result?: AIAestheticResult) => {
+            if (sessionId) track("step_completed", { stepName: "Analysis", sessionId });
             if (result) setAiResult(result);
             setStage(getNextStage(Stage.Analysis, mode));
-        }, []
+        }, [mode, sessionId]
     );
 
     const handleLeadCaptureComplete = useCallback(() => {
+        if (sessionId) {
+            const totalSeconds = Math.floor((Date.now() - startTime) / 1000);
+            track("session_completed", {
+                sessionId,
+                mode,
+                archetype: archetype.name,
+                totalTimeSeconds: totalSeconds
+            });
+            completeSession(sessionId, archetype.name, totalSeconds);
+        }
         setStage(getNextStage(Stage.LeadCapture, mode));
-    }, []);
+    }, [sessionId, mode, archetype.name, startTime]);
 
     const normalizedScores: AestheticScores = {
         minimalism: normalizeScore(scores.minimalism),
@@ -166,7 +204,6 @@ export const DiscoveryEngine = () => {
     };
 
     const currentSignals: UserSignals = { ...signals, scores: normalizedScores };
-    const archetype = getArchetype(scores);
 
     const isQuizStage = stage > Stage.Welcome && stage < Stage.Results;
     const isResultsStage = stage === Stage.Results;
@@ -290,18 +327,47 @@ export const DiscoveryEngine = () => {
                                 : "h-full max-w-none px-0"
                         )}>
                             <AnimatePresence mode="wait">
-                                {stage === Stage.Welcome && <WelcomeScreen key="welcome" onStart={handleStart} />}
-                                {stage === Stage.Reflection && <ReflectionPrompt key="reflection" onComplete={handleReflectionComplete} />}
-                                {stage === Stage.Lifestyle && <LifestyleReflection key="lifestyle" onComplete={handleLifestyleComplete} />}
-                                {stage === Stage.VisualInstinct && <VisualInstinct key="visual" onComplete={handleVisualComplete} />}
-                                {stage === Stage.AdjectiveSelection && <AdjectiveSelection key="adjective" onComplete={handleAdjectiveComplete} />}
-                                {stage === Stage.EmotionalMapping && <EmotionalMapping key="emotional" onComplete={handleEmotionalComplete} />}
-                                {stage === Stage.MaterialResonance && <MaterialResonance key="material" onComplete={handleMaterialComplete} />}
-                                {stage === Stage.LightCalibration && <LightCalibration key="light" onComplete={handleLightComplete} />}
-                                {stage === Stage.PatternPreview && <PatternPreview key="pattern" scores={scores} signals={currentSignals} onComplete={handlePatternComplete} />}
-                                {stage === Stage.Analysis && <AnalysisPhase key="analysis" userSignals={currentSignals} fallbackArchetype={archetype} onComplete={handleAnalysisComplete} />}
-                                {stage === Stage.LeadCapture && <LeadGatePhase key="lead-gate" scores={normalizedScores} archetype={archetype} signals={currentSignals} onComplete={handleLeadCaptureComplete} />}
-                                {stage === Stage.Results && <ResultsReveal key="results" scores={normalizedScores} archetype={archetype} aiResult={aiResult} onRetake={handleRetake} />}
+                                {stage === Stage.Welcome && <WelcomeScreen key="welcome" onStart={handleStart} config={config} />}
+                                {stage === Stage.Reflection && (
+                                    <ReflectionPrompt key="reflection" onComplete={handleReflectionComplete} />
+                                )}
+                                {stage === Stage.Lifestyle && (
+                                    <LifestyleReflection key="lifestyle" onComplete={handleLifestyleComplete} />
+                                )}
+                                {stage === Stage.VisualInstinct && (
+                                    <VisualInstinct key="visual" sessionId={sessionId} onComplete={handleVisualComplete} />
+                                )}
+                                {stage === Stage.AdjectiveSelection && (
+                                    <AdjectiveSelection key="adjectives" sessionId={sessionId} onComplete={handleAdjectiveComplete} />
+                                )}
+                                {stage === Stage.EmotionalMapping && (
+                                    <EmotionalMapping key="emotional" sessionId={sessionId} onComplete={handleEmotionalComplete} />
+                                )}
+                                {stage === Stage.MaterialResonance && (
+                                    <MaterialResonance key="material" sessionId={sessionId} onComplete={handleMaterialComplete} />
+                                )}
+                                {stage === Stage.LightCalibration && (
+                                    <LightCalibration key="light" sessionId={sessionId} onComplete={handleLightComplete} />
+                                )}
+                                {stage === Stage.PatternPreview && (
+                                    <PatternPreview key="pattern" onComplete={handlePatternComplete} />
+                                )}
+                                {stage === Stage.Analysis && (
+                                    <AnalysisPhase key="analysis" onComplete={(res) => transitionToStage(Stage.Gate)} />
+                                )}
+                                {stage === Stage.Gate && (
+                                    <LeadGatePhase key="gate" sessionId={sessionId} onComplete={handleLeadCaptureComplete} />
+                                )}
+                                {stage === Stage.Results && aiResult && (
+                                    <ResultsReveal
+                                        key="results"
+                                        scores={normalizedScores}
+                                        archetype={archetype}
+                                        aiResult={aiResult}
+                                        onRetake={handleRetake}
+                                        onComplete={onComplete ? () => onComplete({ scores: normalizedScores, signals: currentSignals, aiResult }) : undefined}
+                                    />
+                                )}
                             </AnimatePresence>
                         </div>
                     </div>

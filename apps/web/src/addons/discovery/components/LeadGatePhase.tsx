@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,19 +6,27 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { UserSignals, AestheticScores, Archetype } from "@/types/discovery";
+import { track } from "../infrastructure/analytics/tracker";
 
 interface Props {
+    sessionId: string | null;
     scores: AestheticScores;
     archetype: Archetype;
     signals: UserSignals;
     onComplete: () => void;
 }
 
-const LeadGatePhase = ({ scores, archetype, signals, onComplete }: Props) => {
+const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Props) => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (sessionId) {
+            track("gate_viewed", { sessionId, archetype: archetype.name });
+        }
+    }, [sessionId, archetype.name]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,6 +65,9 @@ const LeadGatePhase = ({ scores, archetype, signals, onComplete }: Props) => {
                 }
             } else {
                 toast.success("Profile saved successfully.");
+                if (sessionId) {
+                    track("gate_submitted", { sessionId, email });
+                }
             }
 
             onComplete();

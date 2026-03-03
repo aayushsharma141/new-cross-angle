@@ -5,17 +5,23 @@ import { AestheticScores } from "@/types/discovery";
 import { Pen } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { ADJECTIVE_WEIGHTS } from "../core/weights";
+import { track } from "../infrastructure/analytics/tracker";
 
 interface AdjectiveSelectionProps {
+  sessionId: string | null;
   onComplete: (partial: Partial<AestheticScores>, adjectives: string[], freeText: string) => void;
 }
 
-const AdjectiveSelection = ({ onComplete }: AdjectiveSelectionProps) => {
+const AdjectiveSelection = ({ sessionId, onComplete }: AdjectiveSelectionProps) => {
   const { t } = useLanguage();
   const [selected, setSelected] = useState<string[]>([]);
   const [freeText, setFreeText] = useState("");
 
   const toggle = (adj: string) => {
+    const isSelecting = !selected.includes(adj);
+    if (isSelecting && selected.length < 5 && sessionId) {
+      track("adjective_selected", { adjective: adj, sessionId });
+    }
     setSelected((prev) =>
       prev.includes(adj) ? prev.filter((a) => a !== adj) : prev.length < 5 ? [...prev, adj] : prev
     );

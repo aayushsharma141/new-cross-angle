@@ -1,4 +1,4 @@
-import { DiscoveryEngine } from "@/addons/discovery/components/DiscoveryEngine";
+import { DiscoveryAddon } from "@/addons/discovery";
 import { Helmet } from "react-helmet-async";
 
 import { Link } from "react-router-dom";
@@ -20,7 +20,7 @@ const DiscoveryPage = () => {
                 <img src="/logo.png" alt="CrossAngle Logo" className="h-8 md:h-10 w-auto" />
             </Link>
 
-            <DiscoveryEngine />
+            <DiscoveryAddon />
         </div>
     );
 }
