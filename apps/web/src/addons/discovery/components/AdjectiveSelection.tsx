@@ -4,6 +4,7 @@ import { ADJECTIVE_OPTIONS } from "@/constants/discovery";
 import { AestheticScores } from "@/types/discovery";
 import { Pen } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { ADJECTIVE_WEIGHTS } from "../core/weights";
 
 interface AdjectiveSelectionProps {
   onComplete: (partial: Partial<AestheticScores>, adjectives: string[], freeText: string) => void;
@@ -21,24 +22,15 @@ const AdjectiveSelection = ({ onComplete }: AdjectiveSelectionProps) => {
   };
 
   const handleSubmit = () => {
-    const scoreMap: Record<string, Partial<AestheticScores>> = {
-      Calm: { warmth: 1, social: -1 }, Structured: { structure: 2 },
-      Bold: { social: 1, minimalism: -1 }, Playful: { social: 1, warmth: 1 },
-      Elegant: { structure: 1, minimalism: 1 }, Moody: { warmth: -1, minimalism: 1 },
-      Warm: { warmth: 2 }, Minimal: { minimalism: 2 },
-      Eclectic: { minimalism: -2, social: 1 }, Soft: { warmth: 1, structure: -1 },
-      Grounded: { warmth: 1, structure: 1 }, Luxurious: { structure: 1, warmth: 1 },
-      Organic: { warmth: 2, minimalism: -1 }, Modern: { minimalism: 1, structure: 1 },
-      Timeless: { structure: 2, minimalism: 1 },
-    };
-
     const combined: Partial<AestheticScores> = {};
     for (const adj of selected) {
-      const s = scoreMap[adj];
+      const s = ADJECTIVE_WEIGHTS[adj];
       if (s) {
         for (const [k, v] of Object.entries(s)) {
-          const key = k as keyof AestheticScores;
-          combined[key] = (combined[key] || 0) + v;
+          if (v !== undefined) {
+            const key = k as keyof AestheticScores;
+            combined[key] = (combined[key] || 0) + v;
+          }
         }
       }
     }

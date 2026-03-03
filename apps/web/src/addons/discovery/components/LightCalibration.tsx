@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { lightOptions } from "@/constants/discovery";
+import { LIGHT_WEIGHTS } from "../core/weights";
 import { AestheticScores } from "@/types/discovery";
 import { Moon, CloudSun, Sun, Zap } from "lucide-react";
 
@@ -32,7 +33,7 @@ const LightCalibration = ({ onComplete }: Props) => {
   const opt = lightOptions[activeIndex];
 
   const confirm = () => {
-    onComplete(opt.scores, opt.name);
+    onComplete(LIGHT_WEIGHTS[opt.name] || {}, opt.name);
   };
 
   return (

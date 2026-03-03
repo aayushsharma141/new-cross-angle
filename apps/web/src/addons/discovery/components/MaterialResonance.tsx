@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { materialOptions } from "@/constants/discovery";
+import { MATERIAL_WEIGHTS } from "../core/weights";
 import { AestheticScores } from "@/types/discovery";
 
 interface Props {
@@ -54,7 +55,8 @@ const MaterialResonance = ({ onComplete }: Props) => {
 
   const confirm = () => {
     if (selected === null) return;
-    onComplete(materialOptions[selected].scores, materialOptions[selected].name);
+    const name = materialOptions[selected].name;
+    onComplete(MATERIAL_WEIGHTS[name] || {}, name);
   };
 
   return (

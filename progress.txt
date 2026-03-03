@@ -16,3 +16,9 @@
 [2026-03-03 19.56] Completed: Task 2 - Create core/normalization.ts
 
 
+[2026-03-03 20:00] Started: Task 3 - Create core/weights.ts
+[2026-03-03 20:00] Extracted weight maps for Adjectives, Sliders, Materials, Lighting, Lifestyle, and Visuals to core/weights.ts. Updated UI components to use imported constants and removed inline maps.
+[2026-03-03 20:00] Completed: Task 3 - Create core/weights.ts
+
+
+[2026-03-03 20:00] Started: Task 4 - Create core/archetype.ts

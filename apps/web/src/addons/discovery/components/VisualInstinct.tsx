@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { visualImages } from "@/constants/discovery";
+import { VISUAL_WEIGHTS } from "../core/weights";
 import { AestheticScores } from "@/types/discovery";
 
 interface Props {
@@ -25,11 +26,13 @@ const VisualInstinct = ({ onComplete }: Props) => {
   const confirm = () => {
     const scores: Partial<AestheticScores> = {};
     for (const id of selected) {
-      const img = visualImages.find((i) => i.id === id);
-      if (img) {
-        for (const [k, v] of Object.entries(img.tags)) {
-          const key = k as keyof AestheticScores;
-          scores[key] = (scores[key] || 0) + v;
+      const weights = VISUAL_WEIGHTS[id];
+      if (weights) {
+        for (const [k, v] of Object.entries(weights)) {
+          if (v !== undefined) {
+            const key = k as keyof AestheticScores;
+            scores[key] = (scores[key] || 0) + v;
+          }
         }
       }
     }

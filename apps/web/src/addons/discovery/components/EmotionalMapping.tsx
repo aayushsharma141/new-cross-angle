@@ -2,15 +2,17 @@ import { motion } from "framer-motion";
 import { useState, useMemo } from "react";
 import { AestheticScores } from "@/types/discovery";
 
+import { SLIDER_WEIGHTS } from "../core/weights";
+
 interface Props {
   onComplete: (scores: Partial<AestheticScores>, sliderValues?: { label: string; value: number }[]) => void;
 }
 
 const sliders = [
-  { left: "CALM & STILL", right: "ENERGIZED & ACTIVE", key: "warmth" as keyof AestheticScores, invert: false },
-  { left: "PRIVATE SANCTUARY", right: "SOCIAL HUB", key: "social" as keyof AestheticScores, invert: false },
-  { left: "MINIMAL & CLEAN", right: "LAYERED & RICH", key: "minimalism" as keyof AestheticScores, invert: true },
-  { left: "ORGANIC FLOW", right: "STRUCTURED ORDER", key: "structure" as keyof AestheticScores, invert: false },
+  { left: "CALM & STILL", right: "ENERGIZED & ACTIVE", ...SLIDER_WEIGHTS[0] },
+  { left: "PRIVATE SANCTUARY", right: "SOCIAL HUB", ...SLIDER_WEIGHTS[1] },
+  { left: "MINIMAL & CLEAN", right: "LAYERED & RICH", ...SLIDER_WEIGHTS[2] },
+  { left: "ORGANIC FLOW", right: "STRUCTURED ORDER", ...SLIDER_WEIGHTS[3] },
 ];
 
 // Dynamic mid-labels based on slider position

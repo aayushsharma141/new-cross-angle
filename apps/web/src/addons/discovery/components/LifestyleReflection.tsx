@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { lifestyleQuestions } from "@/constants/discovery";
+import { LIFESTYLE_WEIGHTS } from "../core/weights";
 import { AestheticScores } from "@/types/discovery";
 import { ArrowRight, Check } from "lucide-react";
 
@@ -23,9 +24,13 @@ const LifestyleReflection = ({ onComplete }: Props) => {
       const qIndex = parseInt(qIndexStr);
       const opt = lifestyleQuestions[qIndex].options[optIndex];
       finalLabels.push(opt.label);
-      for (const [k, v] of Object.entries(opt.scores)) {
-        const key = k as keyof AestheticScores;
-        finalScores[key] = (finalScores[key] || 0) + v;
+
+      const scores = LIFESTYLE_WEIGHTS[qIndex]?.[optIndex] || {};
+      for (const [k, v] of Object.entries(scores)) {
+        if (v !== undefined) {
+          const key = k as keyof AestheticScores;
+          finalScores[key] = (finalScores[key] || 0) + v;
+        }
       }
     });
 
@@ -105,8 +110,8 @@ const LifestyleReflection = ({ onComplete }: Props) => {
                       >
                         <div
                           className={`relative w-full overflow-hidden rounded-sm transition-all duration-300 ${isSelected
-                              ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
-                              : "ring-1 ring-border/20 hover:ring-border/60"
+                            ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
+                            : "ring-1 ring-border/20 hover:ring-border/60"
                             }`}
                           style={{ aspectRatio: "4/3" }}
                         >
@@ -157,8 +162,8 @@ const LifestyleReflection = ({ onComplete }: Props) => {
           onClick={handleNext}
           disabled={!allSelected}
           className={`flex items-center gap-2 px-5 py-2 text-[10px] font-medium uppercase tracking-widest transition-all duration-300 ${allSelected
-              ? "bg-[#D32F2F] text-white hover:bg-[#B71C1C]"
-              : "bg-muted/40 text-muted-foreground/40 cursor-not-allowed"
+            ? "bg-[#D32F2F] text-white hover:bg-[#B71C1C]"
+            : "bg-muted/40 text-muted-foreground/40 cursor-not-allowed"
             }`}
         >
           Next <ArrowRight className="w-3 h-3" />
