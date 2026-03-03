@@ -11,3 +11,8 @@
 [2026-03-03 19.16] Completed: Task 1 - Delete UI Duplication
 
 
+[2026-03-03 19.56] Started: Task 2 - Create core/normalization.ts
+[2026-03-03 19.56] Created src/addons/discovery/core/normalization.ts and moved normalizeScore() out of DiscoveryEngine.tsx
+[2026-03-03 19.56] Completed: Task 2 - Create core/normalization.ts
+
+

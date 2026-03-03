@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 import { Stage, AestheticScores, UserSignals, AIAestheticResult } from "@/types/discovery";
 import { getArchetype, visualImages } from "@/constants/discovery";
+import { normalizeScore } from "../core/normalization";
 import ProgressBar from "./ProgressBar";
 import WelcomeScreen from "./WelcomeScreen";
 import ReflectionPrompt from "./ReflectionPrompt";
@@ -161,12 +162,6 @@ export const DiscoveryEngine = () => {
     const handleLeadCaptureComplete = useCallback(() => {
         setStage(Stage.Results);
     }, []);
-
-    const normalizeScore = (raw: number): number => {
-        const centered = (raw - 5) / 5;
-        const compressed = centered * 0.7;
-        return Math.round(Math.max(1, Math.min(9, 5 + compressed * 5)));
-    };
 
     const normalizedScores: AestheticScores = {
         minimalism: normalizeScore(scores.minimalism),
