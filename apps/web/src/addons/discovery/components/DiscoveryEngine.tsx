@@ -3,7 +3,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 import { Stage, AestheticScores, UserSignals, AIAestheticResult } from "@/types/discovery";
-import { getArchetype, visualImages } from "@/constants/discovery";
+import { visualImages } from "@/constants/discovery";
+import { getArchetype } from "../core/archetype";
 import { normalizeScore } from "../core/normalization";
 import ProgressBar from "./ProgressBar";
 import WelcomeScreen from "./WelcomeScreen";
