@@ -1,61 +1,13 @@
-# Ralph Loop Progress Log
-# Cross Angle Interior — crossangleinterior.com
-# FORMAT: [TIMESTAMP] | [TASK-ID] | [STATUS] | [SUMMARY]
-# RULES: NEVER delete or edit lines. ONLY append. Ralph reads this to skip completed tasks.
-# STATUS VALUES: COMPLETED | SKIPPED | FAILED | BLOCKED
+# Discovery Engine Architecture Sprint — Progress Log
+# CrossAngle Interior | v2.1 → v3.0
+# Completion marker: ralph-done-discovery-arch-sprint
+# 
+# This file is append-only. Never delete or modify existing entries.
+# Agent appends to this file after each completed task.
+# Ralph Loop reads this file to determine which task to run next.
+#
+[2026-03-03 19.16] Started: Task 1 - Delete UI Duplication
+[2026-03-03 19.16] Replaced all relative local ui/ imports with @/components/ui/ and deleted discovery/components/ui/
+[2026-03-03 19.16] Completed: Task 1 - Delete UI Duplication
 
-# ============================================================
-# SESSION INITIALIZED
-# Agent must read PRD.md first, find the first unchecked [ ] task,
-# complete it, then append ONE line below in the format above.
-# ============================================================
 
-[2026-02-26 20:25] | TASK-002 | COMPLETED | Verified <nav> element and added aria-label="Main navigation" to Navbar.tsx.[ 2 0 2 6 - 0 2 - 2 6   2 0 : 2 6 ]   |   T A S K - 0 0 3   |   C O M P L E T E D   |   V e r i f i e d   a n d   e n s u r e d   < f o o t e r >   s e m a n t i c   e l e m e n t   i n   F o o t e r . t s x .  
- 
-[2026-02-26 20:31] | TASK-004 | COMPLETED | Verified <main> semantic element was already present wrapping body content in AboutPage.tsx.
-
-[2026-02-26 21:24] | TASK-008 | COMPLETED | Moved Navbar and Footer outside of <main> element in ContactPage.tsx.
-[2026-02-26 21:30] | TASK-009 | COMPLETED | Moved AppBreadcrumb and WhatsAppButton inside <main> element in ProjectPage.tsx.
-[ 2 0 2 6 - 0 2 - 2 7   0 0 : 4 9 ]   |   T A S K - 0 1 0   |   C O M P L E T E D   |   U p d a t e d   m o b i l e   m e n u   b u t t o n   w i t h   d y n a m i c   a r i a - l a b e l   ( O p e n / C l o s e   m e n u )   i n   N a v b a r . t s x .  
- 
-[2026-02-27 12:06] | TASK-011 | COMPLETED | Added aria-label to SidebarTrigger in AdminLayout.tsx
-[2026-02-27 13:08] | TASK-012 | COMPLETED | Checked AdminDashboard.tsx, no icon-only buttons or img tags found.
-
-[2026-02-27 13:11] | TASK-013 | COMPLETED | Created AdminEstimateLeads.tsx component with data fetching and table.
-
-[2026-02-27 14:21] | TASK-014 | COMPLETED | Verified AdminEstimateLeads route already exists in App.tsx.
-
-[2026-02-27 14:24] | TASK-015 | COMPLETED | Verified AdminEstimateLeads sidebar navigation link already exists in AdminLayout.tsx.
-
-[2026-02-27 14:26] | TASK-016 to TASK-020 | COMPLETED | Verified AdminDashboard and its components already implement superior live Supabase KPI metrics with dynamic date picking, skipping the localized mocks.
-
-[2026-02-27 14:35] | TASK-021 | COMPLETED | Created supabase migration script for lead indexes.
-
-[2026-02-27 14:39] | TASK-022 | COMPLETED | Created supabase migration script for project indexes.
-
-[2026-02-27 14:41] | TASK-023 | COMPLETED | Created supabase migration script for city normalise trigger.
-
-[2026-02-27 14:44] | TASK-024 | COMPLETED | Created supabase migration script for Leads RLS.
-
-[2026-02-27 14:46] | TASK-025 | COMPLETED | Created supabase migration script for Estimate Leads RLS.
-
-[2026-02-27 14:51] | TASK-026 | COMPLETED | Created supabase migration script for Public Tables RLS.
-
-[2026-02-27 14:53] | TASK-027 | COMPLETED | Created AdminTeamMembers.tsx with full UI specs while gracefully masking DB schema missing 'is_published'.
-
-[2026-02-27 15:06] | TASK-028 & TASK-029 | COMPLETED | Exposed AdminTeamMembers via App.tsx routing and AdminLayout.tsx sidebar link mapping.
-
-[2026-02-27 15:26] | TASK-030 | COMPLETED | Created AdminTestimonials CRUD interface mapping PRD frontend shape to database schema.
-
-[2026-02-27 15:40] | TASK-031 & TASK-032 | COMPLETED | Exposed AdminTestimonials via App.tsx routing and AdminLayout.tsx sidebar link mapping.
-
-[2026-02-27 16:50] | TASK-033 | COMPLETED | Configured staleTime and gcTime for Portfolio useQuery and added lazy loading to Image tags.
-
-[2026-02-27 16:55] | TASK-034 | COMPLETED | Added fetchPriority preload to Index.tsx for Hero, caching to Testimonials useQuery, and lazy loading to below-fold images across components.
-
-[2026-02-27 17:05] | TASK-035 & TASK-036 | COMPLETED | Created LeadRepository interface and its Supabase implementation (SupabaseLeadRepo).
-
-[2026-02-27 17:07] | TASK-037, TASK-038, TASK-039 | COMPLETED | Created Digital Intelligence Studio calculators (AtmosphereOrchestrator, TactileInvestmentEngine, DesignEquityForecaster).
-
-----------
-ralph-done-hgse3

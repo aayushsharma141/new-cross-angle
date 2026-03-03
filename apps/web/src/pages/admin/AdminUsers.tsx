@@ -110,11 +110,11 @@ export default function AdminUsers(): JSX.Element {
                 description: `User ${actionUser.action}ed successfully.`,
             });
             refetch();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Failed to perform action";
             toast({
                 title: "Error",
-                description: error.message || "Failed to perform action",
+                description: errorMessage,
                 variant: "destructive",
             });
         } finally {

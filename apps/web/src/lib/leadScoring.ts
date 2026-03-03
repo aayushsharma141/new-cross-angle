@@ -18,6 +18,10 @@ export interface Lead {
     visit_count?: number;
     downloaded_brochure?: boolean;
     source?: string;
+    // Add fields matches Database type
+    city?: string | null;
+    lead_source?: string | null;
+    lead_type?: string | null;
 }
 
 export function calculateLeadScore(lead: Partial<Lead>): number {

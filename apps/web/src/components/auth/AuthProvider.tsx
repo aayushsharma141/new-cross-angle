@@ -26,7 +26,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        console.log("Debug: AuthProvider effect triggered, supabase:", !!supabase);
         if (!supabase) {
+            console.error("Debug: Supabase client is null or undefined!");
             setLoading(false);
             return;
         }
@@ -35,6 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const getInitialSession = async () => {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
+                console.log("Debug: Initial session retrieved:", !!session);
                 setSession(session);
                 setUser(session?.user ?? null);
             } catch (error) {

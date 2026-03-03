@@ -1,8 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
+
+type EstimateLead = Database['public']['Tables']['estimate_leads']['Row'];
 
 export default function AdminEstimateLeads() {
-    const { data, isLoading, error } = useQuery({
+    const { data, isLoading, error } = useQuery<EstimateLead[]>({
         queryKey: ['estimate-leads'],
         queryFn: async () => {
             const { data, error } = await supabase
@@ -10,7 +13,7 @@ export default function AdminEstimateLeads() {
                 .select('*')
                 .order('created_at', { ascending: false });
             if (error) throw error;
-            return data;
+            return data as EstimateLead[];
         },
     });
 
@@ -36,15 +39,14 @@ export default function AdminEstimateLeads() {
                         </tr>
                     </thead>
                     <tbody>
-                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        {data?.map((lead: any) => (
+                        {data?.map((lead) => (
                             <tr key={lead.id} className="border-b hover:bg-muted/50">
                                 <td className="py-2 pr-4">{lead.name}</td>
                                 <td className="py-2 pr-4">{lead.email}</td>
                                 <td className="py-2 pr-4">{lead.phone}</td>
-                                <td className="py-2 pr-4">{lead.project_type}</td>
-                                <td className="py-2 pr-4">{lead.property_size}</td>
-                                <td className="py-2 pr-4">{lead.quality_tier}</td>
+                                <td className="py-2 pr-4">{lead.property_type}</td>
+                                <td className="py-2 pr-4">{lead.area}</td>
+                                <td className="py-2 pr-4">{lead.budget}</td>
                                 <td className="py-2 pr-4">₹{lead.estimate_total_min?.toLocaleString('en-IN')}</td>
                                 <td className="py-2 pr-4">₹{lead.estimate_total_max?.toLocaleString('en-IN')}</td>
                                 <td className="py-2 pr-4">{lead.status}</td>

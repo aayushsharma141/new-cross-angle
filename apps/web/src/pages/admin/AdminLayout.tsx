@@ -74,7 +74,17 @@ const AdminLayout = (): JSX.Element | null => {
     enabled: isAuthenticated && !!supabase,
   });
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-lg font-medium">Checking Admin Status...</p>
+          <p className="text-sm text-zinc-500 mt-2">Debug: AdminLayout isLoading is true</p>
+        </div>
+      </div>
+    );
+  }
   if (!isAuthenticated) return <Navigate to="/admin/auth" replace />;
 
   const toggleSection = (section: string): void => {

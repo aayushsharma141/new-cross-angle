@@ -40,8 +40,7 @@ interface PageSection {
   image_url: string | null;
   cta_text: string | null;
   cta_url: string | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  extra: Record<string, any> | null;
+  extra: Record<string, unknown> | null;
   updated_at: string;
 }
 
@@ -167,8 +166,7 @@ const AdminPageSections = () => {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleContentChange = (sectionId: string, field: keyof PageSection | string, value: string | Record<string, any> | null): void => {
+  const handleContentChange = (sectionId: string, field: keyof PageSection | string, value: string | Record<string, unknown> | null): void => {
     setSections(prev =>
       prev.map(section => {
         if (section.id === sectionId) {

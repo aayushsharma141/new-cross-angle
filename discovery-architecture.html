@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Discovery Engine — Architecture Map</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+
+  :root {
+    --bg: #0A0806;
+    --surface: #110E0B;
+    --surface2: #1A1510;
+    --border: rgba(255,255,255,0.07);
+    --gold: #C9953C;
+    --gold-dim: rgba(201,149,60,0.15);
+    --red: #C0392B;
+    --green: #27AE60;
+    --amber: #E67E22;
+    --blue: #2980B9;
+    --text: rgba(255,255,255,0.85);
+    --text-dim: rgba(255,255,255,0.4);
+    --text-faint: rgba(255,255,255,0.15);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .logo-mark {
+    width: 36px; height: 36px;
+    border: 1px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--gold); letter-spacing: 0.1em;
+  }
+  .header-title { font-size: 13px; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; }
+  .header-title span { color: var(--gold); }
+  .badge { font-size: 10px; background: var(--gold-dim); border: 1px solid var(--gold); color: var(--gold); padding: 3px 10px; letter-spacing: 0.1em; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0 32px;
+    gap: 2px;
+  }
+  .tab {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 12px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* PANELS */
+  .panel { display: none; padding: 32px; }
+  .panel.active { display: block; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+    max-width: 1100px;
+  }
+
+  .flow-legend { display: flex; flex-direction: column; gap: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 10px; font-size: 10px; color: var(--text-dim); letter-spacing: 0.08em; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  .flow-stages { display: flex; flex-direction: column; gap: 3px; }
+
+  .stage-row {
+    display: grid;
+    grid-template-columns: 120px 180px 1fr;
+    gap: 0;
+    align-items: stretch;
+    min-height: 52px;
+  }
+
+  .stage-label {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    display: flex;
+    align-items: center;
+    padding-right: 12px;
+    justify-content: flex-end;
+    border-right: 1px solid var(--border);
+  }
+
+  .stage-node {
+    margin: 4px 12px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .stage-node:hover { border-color: var(--gold); background: var(--gold-dim); }
+  .stage-node:hover .node-name { color: var(--gold); }
+  .stage-node.selected { border-color: var(--gold); background: var(--gold-dim); }
+  .stage-node.selected .node-name { color: var(--gold); }
+
+  .node-name { font-size: 11px; font-weight: 700; color: var(--text); }
+  .node-file { font-size: 9px; color: var(--text-faint); font-style: italic; }
+  .node-badge {
+    position: absolute; top: -8px; right: 8px;
+    font-size: 8px; padding: 1px 6px; letter-spacing: 0.1em; border: 1px solid;
+  }
+  .badge-warn { border-color: var(--red); color: var(--red); background: rgba(192,57,43,0.1); }
+  .badge-ok { border-color: var(--green); color: var(--green); background: rgba(39,174,96,0.1); }
+  .badge-mode { border-color: var(--amber); color: var(--amber); background: rgba(230,126,34,0.1); }
+
+  .stage-meta {
+    font-size: 10px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 8px;
+    flex-wrap: wrap;
+  }
+  .meta-tag {
+    font-size: 9px; padding: 2px 8px;
+    border: 1px solid var(--border);
+    letter-spacing: 0.05em;
+  }
+  .meta-tag.scoring { border-color: rgba(41,128,185,0.4); color: #5dade2; }
+  .meta-tag.ai { border-color: rgba(201,149,60,0.4); color: var(--gold); }
+  .meta-tag.db { border-color: rgba(39,174,96,0.4); color: #58d68d; }
+  .meta-tag.ui { border-color: rgba(255,255,255,0.15); color: var(--text-dim); }
+  .meta-tag.gate { border-color: rgba(192,57,43,0.4); color: #e74c3c; }
+
+  .connector {
+    grid-column: 2;
+    display: flex; align-items: center; justify-content: center;
+    height: 16px; margin: 0 12px;
+    color: var(--text-faint); font-size: 18px; position: relative;
+  }
+  .connector-line {
+    position: absolute; left: 50%; top: 0; bottom: 0;
+    width: 1px; background: var(--border);
+  }
+  .connector-arrow { position: relative; z-index: 1; background: var(--bg); padding: 0 4px; font-size: 10px; color: var(--text-faint); }
+  .connector.branch .connector-arrow { color: var(--amber); }
+
+  /* DETAIL PANEL */
+  .detail-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 20px;
+    margin-top: 24px;
+    max-width: 600px;
+  }
+  .detail-title { font-size: 14px; color: var(--gold); margin-bottom: 12px; }
+  .detail-row { display: flex; gap: 12px; margin-bottom: 8px; font-size: 10px; }
+  .detail-key { color: var(--text-faint); min-width: 120px; }
+  .detail-val { color: var(--text); flex: 1; }
+  .detail-issue { 
+    margin-top: 12px; padding: 10px 12px;
+    border-left: 2px solid var(--red); background: rgba(192,57,43,0.05);
+    font-size: 10px; color: rgba(255,255,255,0.6); line-height: 1.6;
+  }
+
+  /* ── LAYER MAP ── */
+  .layer-map { max-width: 900px; }
+  .layer {
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .layer-header {
+    padding: 12px 20px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .layer-header:hover { background: var(--surface2); }
+  .layer-num { font-size: 24px; font-family: 'Libre Baskerville', serif; color: var(--gold-dim); line-height: 1; }
+  .layer-name { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .layer-desc { font-size: 10px; color: var(--text-dim); margin-left: auto; max-width: 300px; text-align: right; }
+  .layer-body { padding: 16px 20px; display: none; }
+  .layer-body.open { display: block; }
+
+  .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin-bottom: 16px; }
+  .file-chip {
+    font-size: 9px; padding: 6px 10px;
+    border: 1px solid var(--border); background: var(--bg);
+    display: flex; align-items: center; gap: 6px; color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  .file-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+  .issue-list { list-style: none; }
+  .issue-list li {
+    padding: 8px 12px; margin-bottom: 6px;
+    border-left: 2px solid var(--red);
+    background: rgba(192,57,43,0.05);
+    font-size: 10px; color: rgba(255,255,255,0.6); line-height: 1.6;
+  }
+  .issue-list li.ok { border-left-color: var(--green); background: rgba(39,174,96,0.05); }
+
+  /* ── SCORING MAP ── */
+  .score-map { max-width: 900px; }
+  .score-table { width: 100%; border-collapse: collapse; }
+  .score-table th {
+    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-faint); padding: 8px 12px; text-align: left;
+    border-bottom: 1px solid var(--border); font-weight: 400;
+  }
+  .score-table td {
+    padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-size: 10px; vertical-align: top;
+  }
+  .score-table tr:hover td { background: var(--surface2); }
+  .component-name { color: var(--gold); font-weight: 700; }
+  .score-deltas { display: flex; flex-wrap: wrap; gap: 4px; }
+  .delta {
+    font-size: 9px; padding: 1px 7px; border: 1px solid;
+  }
+  .delta.pos { border-color: rgba(39,174,96,0.4); color: #58d68d; }
+  .delta.neg { border-color: rgba(192,57,43,0.4); color: #e74c3c; }
+  .delta.mixed { border-color: rgba(201,149,60,0.4); color: var(--gold); }
+  .source-location { font-size: 9px; color: var(--text-faint); font-style: italic; }
+
+  /* ── ISSUES ── */
+  .issues-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 1000px; }
+  .issue-card {
+    border: 1px solid var(--border);
+    padding: 18px 20px;
+    background: var(--surface2);
+  }
+  .issue-card.critical { border-left: 3px solid var(--red); }
+  .issue-card.medium { border-left: 3px solid var(--amber); }
+  .issue-card.low { border-left: 3px solid var(--blue); }
+  .issue-severity { font-size: 9px; letter-spacing: 0.12em; margin-bottom: 8px; }
+  .issue-severity.critical { color: var(--red); }
+  .issue-severity.medium { color: var(--amber); }
+  .issue-severity.low { color: var(--blue); }
+  .issue-title { font-size: 12px; color: var(--text); margin-bottom: 10px; font-weight: 700; }
+  .issue-body { font-size: 10px; color: var(--text-dim); line-height: 1.7; }
+  .fix-label { font-size: 9px; letter-spacing: 0.1em; color: var(--green); margin-top: 12px; margin-bottom: 4px; }
+  .fix-code { font-size: 9px; color: rgba(255,255,255,0.5); background: var(--bg); padding: 6px 10px; line-height: 1.6; }
+
+  /* SECTION HEADER */
+  .section-header { margin-bottom: 24px; }
+  .section-header h2 { font-family: 'Libre Baskerville', serif; font-size: 22px; font-weight: 400; color: var(--text); margin-bottom: 6px; }
+  .section-header p { font-size: 10px; color: var(--text-dim); letter-spacing: 0.05em; line-height: 1.6; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .flow-wrapper { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+  .info-panel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 20px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+  }
+  .info-panel h3 { font-size: 11px; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 14px; text-transform: uppercase; }
+  .info-placeholder { font-size: 10px; color: var(--text-faint); line-height: 1.6; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo-mark">CA</div>
+    <div class="header-title">CrossAngle — <span>Discovery Engine</span> Architecture Map</div>
+  </div>
+  <div class="badge">v2.1 · CURRENT STATE</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('flow')">Flow Diagram</button>
+  <button class="tab" onclick="showTab('layers')">Layer Analysis</button>
+  <button class="tab" onclick="showTab('scoring')">Scoring Model</button>
+  <button class="tab" onclick="showTab('issues')">Issues & Fixes</button>
+</div>
+
+<!-- ─────────────── FLOW DIAGRAM ─────────────── -->
+<div class="panel active" id="tab-flow">
+  <div class="section-header">
+    <h2>Stage Flow</h2>
+    <p>Click any stage node to see detailed breakdown. Branches show Quick vs Deep mode routing.</p>
+  </div>
+  <div class="flow-wrapper">
+    <div>
+      <div class="flow-stages">
+
+        <!-- WELCOME -->
+        <div class="stage-row">
+          <div class="stage-label">Entry</div>
+          <div class="stage-node" onclick="showDetail('welcome')">
+            <div class="node-name">Welcome Screen</div>
+            <div class="node-file">WelcomeScreen.tsx · 448 lines</div>
+          </div>
+          <div class="stage-meta">
+            <span class="meta-tag ui">Mode Select</span>
+            <span class="meta-tag ui">Quick / Deep</span>
+          </div>
+        </div>
+
+        <div class="stage-row">
+          <div class="stage-label"></div>
+          <div class="connector"><div class="connector-line"></div><div class="connector-arrow branch">⬇ BRANCH</div></div>
+          <div class="stage-meta" style="font-size:9px; color: var(--amber);">Quick → skips to Lifestyle &nbsp;|&nbsp; Deep → goes to Reflection</div>
+        </div>
+
+        <!-- REFLECTION -->
+        <div class="stage-row">
+          <div class="stage-label">Phase 1 · Deep Only</div>
+          <div class="stage-node" onclick="showDetail('reflection')">
+            <div class="node-badge badge-mode">DEEP ONLY</div>
+            <div class="node-name">Reflection Prompt</div>
+            <div class="node-file">ReflectionPrompt.tsx · 8 sections · 15 Qs</div>
+          </div>
+          <div class="stage-meta">
+            <span class="meta-tag ui">Image Cards</span>
+            <span class="meta-tag ui">Chip Selects</span>
+            <span class="meta-tag ui">Morning/Evening/Social/Identity</span>
+          </div>
+        </div>
+
+        <div class="stage-row"><div class="stage-label"></div><div class="connector"><div class="connector-line"></div><div class="connector-arrow">↓</div></div><div></div></div>
+
+        <!-- LIFESTYLE -->
+        <div class="stage-row">
+          <div class="stage-label">Phase 2</div>
+          <div class="stage-node" onclick="showDetail('lifestyle')">
+            <div class="node-name">Lifestyle Reflection</div>
+            <div class="node-file">LifestyleReflection.tsx · 4 steps</div>
+          </div>
+          <div class="stage-meta">
+            <span class="meta-tag scoring">→ AestheticScores ∆</span>
+            <span class="meta-tag ui">lifestyleChoices[]</span>
+          </div>
+        </div>
+
+        <div class="stage-row"><div class="stage-label"></div><div class="connector"><div class="connector-line"></div><div class="connector-arrow">↓</div></div><div></div></div>
+
+        <!-- VISUAL -->
+        <div class="stage-row">
+          <div class="stage-label">Phase 3</div>
+          <div class="stage-node" onclick="showDetail('visual')">
+            <div class="node-name">Visual Instinct</div>
+            <div class="node-file">VisualInstinct.tsx · Pick 5+ images</div>
+          </div>
+          <div class="stage-meta">
+            <span class="meta-tag scoring">→ scores via image tags</span>
+            <span class="meta-tag ui">selectedImageIds[]</span>
+          </div>
+        </div>
+
+        <div class="stage-row">
+          <div class="stage-label"></div>
+          <div class="connector"><div class="connector-line"></div><div class="connector-arrow branch">⬇ BRANCH</div></div>
+          <div class="stage-meta" style="font-size:9px; color: var(--amber);">Quick → LightCalibration &nbsp;|&nbsp; Deep → AdjectiveSelection</div>
+        </div>
+
+        <!-- ADJECTIVE -->
+        <div class="stage-row">
+          <div class="stage-label">Phase 4 · Deep Only</div>
+          <div class="stage-node" onclick="showDetail('adjective')">
+            <div class="node-badge badge-mode">DEEP ONLY</div>
+            <div class="node-name">Adjective Selection</div>
+            <div class="node-file">AdjectiveSelection.tsx</div>
+          </div>
+          <div class="stage-meta">
+            <span class="meta-tag scoring">→ mapped score deltas</span>
+            <span class="meta-tag ui">freeTextReflection</span>
+          </div>
+        </div>
+
+        <div class="stage-row"><div class="stage-label"></div><div class="connector"><div class="connector-line"></div><div class="connector-arrow">↓</div></div><div></div></div>
+
+        <!-- EMOTIONAL -->
+        <div class="stage-row">
+          <div class="stage-label">Phase 5 · Deep Only</div>
+          <div class="stage-node" onclick="showDetail('emotional')">
+            <div class="node-badge badge-mode">DEEP ONLY</div>
+            <div class="node-name">Emotional Mapping</div>
+            <div class="node-file">EmotionalMapping.tsx · 4 sliders</div>
+          </div>
+          <div class="stage-meta">
+            <span class="meta-tag scoring">→ sliderValues[]</span>
+            <span class="meta-tag ui">Calm↔Energy, Private↔Social</span>
+          </div>
+        </div>
+
+        <div class="stage-row"><div class="stage-label"></div><div class="connector"><div class="connector-line"></div><div class="connector-arrow">↓</div></div><div></div></div>
+
+        <!-- MATERIAL -->
+        <div class="stage-row">
+          <div class="stage-label">Phase 6</div>
+          <div class="stage-node" onclick="showDetail('material')">
+            <div class="node-name">Material Resonance</div>
+            <div class="node-file">MaterialResonance.tsx · 5 swatches</div>
+          </div>
+          <div class="stage-meta">
+            <span class="meta-tag scoring">→ materialChoice</span>
+            <span class="meta-tag ui">Single select only</span>
+          </div>
+        </div>
+
+        <div class="stage-row"><div class="stage-label"></div><div class="connector"><div class="connector-line"></div><div class="connector-arrow">↓</div></div><div></div></div>
+
+        <!-- LIGHT -->
+        <div class="stage-row">
+          <div class="stage-label">Phase 7</div>
+          <div class="stage-node" onclick="showDetail('light')">
+            <div class="node-name">Light Calibration</div>
+            <div class="node-file">LightCalibration.tsx</div>
+          </div>
+          <div class="stage-meta">
+            <span class="meta-tag scoring">→ lightPreference</span>
+          </div>
+        </div>
+
+        <div class="stage-row">
+          <div class="stage-label"></div>
+          <div class="connector"><div class="connector-line"></div><div class="connector-arrow branch">⬇ BRANCH</div></div>
+          <div class="stage-meta" style="font-size:9px; color: var(--amber);">Quick → Analysis &nbsp;|&nbsp; Deep → PatternPreview</div>
+        </div>
+
+        <!-- PATTERN -->
+        <div class="stage-row">
+          <div class="stage-label">Phase 8 · Deep Only</div>
+          <div class="stage-node" onclick="showDetail('pattern')">
+            <div class="node-badge badge-mode">DEEP ONLY</div>
+            <div class="node-name">Pattern Preview</div>
+            <div class="node-file">PatternPreview.tsx · Synthesis display</div>
+          </div>
+          <div class="stage-meta">
+            <span class="meta-tag ui">Score bars + insights</span>
+            <span class="meta-tag ui">No scoring here</span>
+          </div>
+        </div>
+
+        <div class="stage-row"><div class="stage-label"></div><div class="connector"><div class="connector-line"></div><div class="connector-arrow">↓</div></div><div></div></div>
+
+        <!-- ANALYSIS -->
+        <div class="stage-row">
+          <div class="stage-label">Phase 9 · AI</div>
+          <div class="stage-node" onclick="showDetail('analysis')">
+            <div class="node-name">Analysis Phase</div>
+            <div class="node-file">AnalysisPhase.tsx · Supabase Edge Fn</div>
+          </div>
+          <div class="stage-meta">
+            <span class="meta-tag ai">aesthetic-ai edge function</span>
+            <span class="meta-tag ai">MIN 5s display</span>
+            <span class="meta-tag ai">Fallback archetype</span>
+          </div>
+        </div>
+
+        <div class="stage-row"><div class="stage-label"></div><div class="connector"><div class="connector-line"></div><div class="connector-arrow">↓</div></div><div></div></div>
+
+        <!-- LEAD GATE -->
+        <div class="stage-row">
+          <div class="stage-label">Phase 10 · 🚨 Gate</div>
+          <div class="stage-node" onclick="showDetail('leadgate')">
+            <div class="node-badge badge-warn">FRICTION RISK</div>
+            <div class="node-name">Lead Gate</div>
+            <div class="node-file">LeadGatePhase.tsx · submit-discovery-lead</div>
+          </div>
+          <div class="stage-meta">
+            <span class="meta-tag gate">Blocks results</span>
+            <span class="meta-tag db">Supabase insert</span>
+            <span class="meta-tag ui">Name + Email + Phone</span>
+          </div>
+        </div>
+
+        <div class="stage-row"><div class="stage-label"></div><div class="connector"><div class="connector-line"></div><div class="connector-arrow">↓</div></div><div></div></div>
+
+        <!-- RESULTS -->
+        <div class="stage-row">
+          <div class="stage-label">Output</div>
+          <div class="stage-node" onclick="showDetail('results')">
+            <div class="node-name">Results Reveal</div>
+            <div class="node-file">ResultsReveal.tsx · 1,112 lines · BlueprintPage.tsx · 1,074 lines</div>
+          </div>
+          <div class="stage-meta">
+            <span class="meta-tag ai">Archetype + AI narrative</span>
+            <span class="meta-tag ui">Radar chart · Moodboard · Download Card</span>
+          </div>
+        </div>
+
+      </div><!-- end flow-stages -->
+
+      <!-- Legend -->
+      <div style="display:flex; gap:24px; margin-top:24px; flex-wrap:wrap;">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--blue);"></div> Scores updated here</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--amber);"></div> Mode branch point</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--red);"></div> Risk / Issue</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--gold);"></div> Deep mode only</div>
+      </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel" id="detail-panel">
+      <h3>Stage Inspector</h3>
+      <div class="info-placeholder">Click any stage node on the left to see its detailed breakdown — file size, scoring impact, UX role, and known issues.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────── LAYER ANALYSIS ─────────────── -->
+<div class="panel" id="tab-layers">
+  <div class="section-header">
+    <h2>Current Layer Structure</h2>
+    <p>How the engine is actually organized today — not how it should be. Click each layer to expand.</p>
+  </div>
+  <div class="layer-map">
+
+    <div class="layer">
+      <div class="layer-header" onclick="toggleLayer(this)">
+        <div class="layer-num">01</div>
+        <div>
+          <div class="layer-name" style="color:var(--red);">⚠ UI Duplication Layer</div>
+          <div style="font-size:10px; color:var(--text-dim); margin-top:2px;">discovery/components/ui/ — 49 shadcn files duplicated</div>
+        </div>
+        <div class="layer-desc">CRITICAL PROBLEM — bundle bloat, portability broken</div>
+      </div>
+      <div class="layer-body">
+        <div class="file-grid">
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>accordion.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>alert-dialog.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>button.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>carousel.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>chart.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>command.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>dialog.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>dropdown-menu.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>form.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>input.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>sidebar.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>slider.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>tabs.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>toast.tsx</div>
+          <div class="file-chip"><div class="file-dot" style="background:var(--red);"></div>+ 35 more files</div>
+        </div>
+        <ul class="issue-list">
+          <li>LeadGatePhase imports Button/Input from <strong>@/components/ui</strong> (shared) — but other components likely pull from local ui/ — two sources of truth.</li>
+          <li>49 shadcn files inside an addon = bundle inflated by ~80-120KB unnecessarily.</li>
+          <li>If shared design system is updated, local copies go stale silently.</li>
+          <li class="ok">✓ Fix: Delete discovery/components/ui/ entirely. Point all imports to @/components/ui.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-header" onclick="toggleLayer(this)">
+        <div class="layer-num">02</div>
+        <div>
+          <div class="layer-name" style="color:var(--amber);">⚡ Flow Controller (Mixed)</div>
+          <div style="font-size:10px; color:var(--text-dim); margin-top:2px;">DiscoveryEngine.tsx — everything lives here</div>
+        </div>
+        <div class="layer-desc">Stage routing + state + scoring normalization all mixed</div>
+      </div>
+      <div class="layer-body">
+        <div style="font-size:10px; color:var(--text-dim); line-height:1.8; margin-bottom:14px;">
+          <strong style="color:var(--text);">What DiscoveryEngine.tsx actually does (all at once):</strong><br/>
+          • Owns all session state (stage, mode, scores, signals, aiResult)<br/>
+          • Controls all stage transitions (transitionToStage)<br/>
+          • Applies score updates (addScores)<br/>
+          • Performs score normalization (normalizeScore function inline)<br/>
+          • Renders the full UI shell (sidebar, wipe overlay, grain texture)<br/>
+          • Routes Quick vs Deep mode branching<br/>
+          • Calls getArchetype() for archetype resolution
+        </div>
+        <ul class="issue-list">
+          <li>normalizeScore() is a pure math function living inside a React component — should be in core/scoring.ts</li>
+          <li>Stage transitions use setTimeout directly — fragile, hard to test</li>
+          <li>DOT_NAV_STAGES is UI config mixed with flow logic</li>
+          <li class="ok">✓ Fix: Extract scoring + normalization to core/. Keep DiscoveryEngine as pure orchestrator.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-header" onclick="toggleLayer(this)">
+        <div class="layer-num">03</div>
+        <div>
+          <div class="layer-name" style="color:var(--amber);">📊 Scoring Logic (Scattered)</div>
+          <div style="font-size:10px; color:var(--text-dim); margin-top:2px;">Score deltas live inside each UI component</div>
+        </div>
+        <div class="layer-desc">No central scoring model — each component owns its own weights</div>
+      </div>
+      <div class="layer-body">
+        <div style="font-size:10px; color:var(--text-dim); line-height:1.8; margin-bottom:14px;">
+          Scoring happens in 6+ different components. The <strong style="color:var(--text);">addScores()</strong> function in DiscoveryEngine receives partial score objects emitted by each child. The weight mappings are hardcoded inside those children — meaning to understand the full scoring model you must read 6 files simultaneously.
+        </div>
+        <ul class="issue-list">
+          <li>AdjectiveSelection.tsx — contains hardcoded word-to-score map (Calm, Warm, Bold, etc.)</li>
+          <li>VisualInstinct.tsx — image tags map to score deltas via constants/discovery</li>
+          <li>EmotionalMapping.tsx — slider positions emit partial scores</li>
+          <li>MaterialResonance.tsx — material choice emits score delta</li>
+          <li>LightCalibration.tsx — light type emits score delta</li>
+          <li>LifestyleReflection.tsx — lifestyle choices emit score deltas</li>
+          <li class="ok">✓ Fix: Create core/scoring.ts with all weight maps. Components only call score(key, value) — no maps inside UI.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-header" onclick="toggleLayer(this)">
+        <div class="layer-num">04</div>
+        <div>
+          <div class="layer-name" style="color:var(--green);">✓ AI + Integration Layer</div>
+          <div style="font-size:10px; color:var(--text-dim); margin-top:2px;">Supabase edge functions — reasonably isolated</div>
+        </div>
+        <div class="layer-desc">Relatively clean — two edge functions, proper error handling</div>
+      </div>
+      <div class="layer-body">
+        <div style="font-size:10px; color:var(--text-dim); line-height:1.8; margin-bottom:14px;">
+          Two Supabase edge functions:<br/>
+          • <strong style="color:var(--text);">aesthetic-ai</strong> — called by AnalysisPhase, receives full UserSignals, returns AIAestheticResult. Has fallback if AI fails (toast + fallback archetype).<br/>
+          • <strong style="color:var(--text);">submit-discovery-lead</strong> — called by LeadGatePhase, saves name/email/phone + scores to DB.
+        </div>
+        <ul class="issue-list">
+          <li class="ok">✓ AI call is cancellable (cancelled ref pattern) — good async hygiene</li>
+          <li class="ok">✓ Graceful fallback if edge function fails</li>
+          <li>Both edge functions called from UI components directly — no abstraction layer between component and API</li>
+          <li>No retry logic on network failure</li>
+          <li class="ok">✓ Fix: Create infrastructure/api.ts with callAI() and submitLead() wrappers.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-header" onclick="toggleLayer(this)">
+        <div class="layer-num">05</div>
+        <div>
+          <div class="layer-name" style="color:var(--red);">⚠ Page Coupling</div>
+          <div style="font-size:10px; color:var(--text-dim); margin-top:2px;">pages/DiscoveryPage.tsx + pages/BlueprintPage.tsx</div>
+        </div>
+        <div class="layer-desc">Engine tied to app router — not portable as addon</div>
+      </div>
+      <div class="layer-body">
+        <ul class="issue-list">
+          <li>DiscoveryPage wraps DiscoveryEngine with react-helmet-async + react-router Link — engine depends on router</li>
+          <li>BlueprintPage.tsx is 1,074 lines — massive single file with inline CSS + chart logic + archetype data all together</li>
+          <li>Engine cannot be embedded in any other site without bringing entire router + page structure</li>
+          <li class="ok">✓ Fix: Create DiscoveryAddon.tsx as pure mount point. Router/page wrapper becomes external. Engine receives config as props.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-header" onclick="toggleLayer(this)">
+        <div class="layer-num">06</div>
+        <div>
+          <div class="layer-name" style="color:var(--red);">⚠ Analytics — Does Not Exist</div>
+          <div style="font-size:10px; color:var(--text-dim); margin-top:2px;">No event tracking, no session model, no completion metrics</div>
+        </div>
+        <div class="layer-desc">Cannot measure drop rate, completion %, archetype distribution</div>
+      </div>
+      <div class="layer-body">
+        <ul class="issue-list">
+          <li>Zero event tracking in any component — no way to know where users drop</li>
+          <li>No session ID system — cannot correlate events across stages</li>
+          <li>Lead is only recorded on form submit — if user drops before gate, zero data captured</li>
+          <li>No way to measure Quick vs Deep completion rates</li>
+          <li class="ok">✓ Fix: infrastructure/analytics/tracker.ts → track(event, payload). Wrap in try/catch. Non-blocking.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─────────────── SCORING MODEL ─────────────── -->
+<div class="panel" id="tab-scoring">
+  <div class="section-header">
+    <h2>Scoring Model — Where Scores Are Updated</h2>
+    <p>5-axis model: minimalism · warmth · social · structure · novelty. All start at 5, clamped 0–10, then normalized to 1–9 on output.</p>
+  </div>
+
+  <div style="background:var(--surface2); border:1px solid var(--border); padding:14px 20px; margin-bottom:24px; max-width:700px; font-size:10px; line-height:1.8; color:var(--text-dim);">
+    <strong style="color:var(--gold);">Normalization formula</strong> (in DiscoveryEngine.tsx, inline):<br/>
+    <code style="color:rgba(255,255,255,0.6);">centered = (raw - 5) / 5 &nbsp;→&nbsp; compressed = centered × 0.7 &nbsp;→&nbsp; output = 5 + compressed × 5 &nbsp;→&nbsp; clamp(1, 9)</code><br/>
+    This compresses extreme scores toward center — prevents 0/10 outputs.
+  </div>
+
+  <table class="score-table">
+    <thead>
+      <tr>
+        <th>Component</th>
+        <th>File</th>
+        <th>Score Axes Affected</th>
+        <th>How Weights Are Defined</th>
+        <th>Location Issue</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="component-name">LifestyleReflection</span></td>
+        <td class="source-location">LifestyleReflection.tsx</td>
+        <td><div class="score-deltas">
+          <span class="delta mixed">warmth</span><span class="delta mixed">minimalism</span><span class="delta mixed">social</span><span class="delta mixed">structure</span>
+        </div></td>
+        <td style="font-size:9px; color:var(--text-dim);">Hardcoded in option objects, emitted via onComplete</td>
+        <td style="font-size:9px; color:var(--red);">Weights inside UI component</td>
+      </tr>
+      <tr>
+        <td><span class="component-name">VisualInstinct</span></td>
+        <td class="source-location">VisualInstinct.tsx + constants/discovery</td>
+        <td><div class="score-deltas">
+          <span class="delta pos">minimalism</span><span class="delta pos">warmth</span><span class="delta pos">novelty</span><span class="delta mixed">structure</span>
+        </div></td>
+        <td style="font-size:9px; color:var(--text-dim);">Image tags in constants/discovery, aggregated on selection</td>
+        <td style="font-size:9px; color:var(--amber);">Partially extracted to constants</td>
+      </tr>
+      <tr>
+        <td><span class="component-name">AdjectiveSelection</span></td>
+        <td class="source-location">AdjectiveSelection.tsx L25-32</td>
+        <td><div class="score-deltas">
+          <span class="delta pos">warmth +2</span><span class="delta neg">minimalism -2</span><span class="delta pos">structure +2</span><span class="delta pos">social +1</span><span class="delta pos">novelty ?</span>
+        </div></td>
+        <td style="font-size:9px; color:var(--text-dim);">Hardcoded word→score map object at top of file</td>
+        <td style="font-size:9px; color:var(--red);">Pure logic inside UI file</td>
+      </tr>
+      <tr>
+        <td><span class="component-name">EmotionalMapping</span></td>
+        <td class="source-location">EmotionalMapping.tsx</td>
+        <td><div class="score-deltas">
+          <span class="delta mixed">warmth</span><span class="delta mixed">social</span><span class="delta mixed">minimalism</span><span class="delta mixed">structure</span>
+        </div></td>
+        <td style="font-size:9px; color:var(--text-dim);">Slider 0–100 positions mapped to score delta on complete</td>
+        <td style="font-size:9px; color:var(--red);">Mapping logic inside UI component</td>
+      </tr>
+      <tr>
+        <td><span class="component-name">MaterialResonance</span></td>
+        <td class="source-location">MaterialResonance.tsx</td>
+        <td><div class="score-deltas">
+          <span class="delta mixed">warmth</span><span class="delta mixed">minimalism</span>
+        </div></td>
+        <td style="font-size:9px; color:var(--text-dim);">Material swatch → partial score emitted on select</td>
+        <td style="font-size:9px; color:var(--red);">Weights inside UI component</td>
+      </tr>
+      <tr>
+        <td><span class="component-name">LightCalibration</span></td>
+        <td class="source-location">LightCalibration.tsx</td>
+        <td><div class="score-deltas">
+          <span class="delta mixed">structure</span><span class="delta mixed">novelty</span><span class="delta mixed">warmth</span>
+        </div></td>
+        <td style="font-size:9px; color:var(--text-dim);">Light type → score delta emitted on complete</td>
+        <td style="font-size:9px; color:var(--red);">Weights inside UI component</td>
+      </tr>
+      <tr>
+        <td><span class="component-name">PatternPreview</span></td>
+        <td class="source-location">PatternPreview.tsx</td>
+        <td><div class="score-deltas"><span class="delta mixed">Read only</span></div></td>
+        <td style="font-size:9px; color:var(--text-dim);">Reads scores + generates insight text. No scoring.</td>
+        <td style="font-size:9px; color:var(--green);">Clean — display only</td>
+      </tr>
+      <tr>
+        <td><span class="component-name">Archetype Resolution</span></td>
+        <td class="source-location">constants/discovery → getArchetype()</td>
+        <td><div class="score-deltas"><span class="delta mixed">All 5 axes → archetype name</span></div></td>
+        <td style="font-size:9px; color:var(--text-dim);">getArchetype() called in DiscoveryEngine with raw scores</td>
+        <td style="font-size:9px; color:var(--amber);">In constants file — close but should be in core/</td>
+      </tr>
+      <tr>
+        <td><span class="component-name">Score Normalization</span></td>
+        <td class="source-location">DiscoveryEngine.tsx (inline fn)</td>
+        <td><div class="score-deltas"><span class="delta mixed">All 5 axes compressed</span></div></td>
+        <td style="font-size:9px; color:var(--text-dim);">normalizeScore() defined inside component render</td>
+        <td style="font-size:9px; color:var(--red);">Pure math inside React component — must extract</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ─────────────── ISSUES ─────────────── -->
+<div class="panel" id="tab-issues">
+  <div class="section-header">
+    <h2>Issues & Recommended Fixes</h2>
+    <p>Ordered by business impact. Fix critical issues before any hero launch.</p>
+  </div>
+  <div class="issues-grid">
+
+    <div class="issue-card critical">
+      <div class="issue-severity critical">● CRITICAL</div>
+      <div class="issue-title">UI Folder Duplicated Inside Addon</div>
+      <div class="issue-body">49 shadcn component files exist inside discovery/components/ui/ — duplicating the entire shared design system. This inflates bundle size, creates two sources of truth, and makes the addon non-portable.</div>
+      <div class="fix-label">FIX</div>
+      <div class="fix-code">Delete discovery/components/ui/<br/>Update all imports to @/components/ui<br/>Verify build still compiles</div>
+    </div>
+
+    <div class="issue-card critical">
+      <div class="issue-severity critical">● CRITICAL</div>
+      <div class="issue-title">Scoring Logic Scattered Across 6 UI Files</div>
+      <div class="issue-body">Score weight maps are hardcoded inside AdjectiveSelection, EmotionalMapping, MaterialResonance, LightCalibration, LifestyleReflection, and VisualInstinct. No single place to understand the full scoring model.</div>
+      <div class="fix-label">FIX</div>
+      <div class="fix-code">Create: core/scoring.ts<br/>Export: ADJECTIVE_WEIGHTS, MATERIAL_WEIGHTS, etc.<br/>Components only call: onComplete(score("warmth", +2))</div>
+    </div>
+
+    <div class="issue-card critical">
+      <div class="issue-severity critical">● CRITICAL</div>
+      <div class="issue-title">Lead Gate Blocks Results (Pre-Gratification)</div>
+      <div class="issue-body">Users complete 10 phases, then hit a form wall before seeing any result. This is the single highest drop-risk point. Effort already invested — but reward still blocked.</div>
+      <div class="fix-label">FIX</div>
+      <div class="fix-code">Flow: Analysis → Mini Result Preview<br/>→ "Unlock Full Blueprint" gate<br/>→ Full ResultsReveal<br/>Show archetype name + 3 traits free.</div>
+    </div>
+
+    <div class="issue-card critical">
+      <div class="issue-severity critical">● CRITICAL</div>
+      <div class="issue-title">Zero Analytics — No Drop Tracking</div>
+      <div class="issue-body">No event tracking exists anywhere in the engine. It is impossible to know where users abandon, what archetype distribution looks like, or whether Quick mode converts better than Deep.</div>
+      <div class="fix-label">FIX</div>
+      <div class="fix-code">Create: infrastructure/analytics/tracker.ts<br/>track(event, payload) — non-blocking<br/>Fire on: start, each step_viewed, submit, restart</div>
+    </div>
+
+    <div class="issue-card medium">
+      <div class="issue-severity medium">● MEDIUM</div>
+      <div class="issue-title">normalizeScore() Living Inside React Component</div>
+      <div class="issue-body">Score normalization math is defined as an inline function inside DiscoveryEngine.tsx — a React component. Pure logic has no place inside a render scope.</div>
+      <div class="fix-label">FIX</div>
+      <div class="fix-code">Move to core/scoring.ts<br/>export const normalizeScore = (raw: number): number => ...</div>
+    </div>
+
+    <div class="issue-card medium">
+      <div class="issue-severity medium">● MEDIUM</div>
+      <div class="issue-title">BlueprintPage.tsx — 1,074 Lines, Monolithic</div>
+      <div class="issue-body">The output page is a single 1,074-line file mixing archetype data, chart rendering, moodboard logic, and PDF generation. Hard to maintain and extends initial load.</div>
+      <div class="fix-label">FIX</div>
+      <div class="fix-code">Split: BlueprintHeader, BlueprintRadar, BlueprintMoodboard<br/>Lazy load: ResultsReveal and BlueprintPage<br/>Preload blueprint chunk at PatternPreview stage</div>
+    </div>
+
+    <div class="issue-card medium">
+      <div class="issue-severity medium">● MEDIUM</div>
+      <div class="issue-title">Quick Mode Gets Equal-Weight Results</div>
+      <div class="issue-body">Quick mode skips Adjective, Emotional, and PatternPreview phases — significantly fewer signals — but ResultsReveal presents output identically to Deep mode. Users can't tell the difference.</div>
+      <div class="fix-label">FIX</div>
+      <div class="fix-code">Pass mode to ResultsReveal<br/>Show: "Fast insight mode — 3 of 9 signal layers used"<br/>CTA: "Get your full Spatial Blueprint"</div>
+    </div>
+
+    <div class="issue-card medium">
+      <div class="issue-severity medium">● MEDIUM</div>
+      <div class="issue-title">No Micro Progress in Reflection (8 sections)</div>
+      <div class="issue-body">The Reflection Prompt has 8 sub-sections with 15 questions, but no visible per-section progress or estimated time. Users can't see how far they are inside the reflection phase.</div>
+      <div class="fix-label">FIX</div>
+      <div class="fix-code">SectionProgress.tsx already exists in reflection/<br/>Show: "Section 3 of 8 · ~2 min remaining"<br/>Add to sectionLabels render in ReflectionPrompt</div>
+    </div>
+
+    <div class="issue-card low">
+      <div class="issue-severity low">● LOW</div>
+      <div class="issue-title">freeTextReflection — Captured but Not Used in Results</div>
+      <div class="issue-body">User writes a free-text description of their ideal space in AdjectiveSelection. This string is stored in signals.freeTextReflection but not surfaced in ResultsReveal or the Blueprint.</div>
+      <div class="fix-label">FIX</div>
+      <div class="fix-code">In ResultsReveal: render as<br/>"You described your space: '[freeTextReflection]'"<br/>High personalization impact — low dev cost.</div>
+    </div>
+
+    <div class="issue-card low">
+      <div class="issue-severity low">● LOW</div>
+      <div class="issue-title">Engine Tied to App Router (Not Portable)</div>
+      <div class="issue-body">DiscoveryPage uses react-router Link and react-helmet-async. Engine cannot be embedded on any other site or in an iframe without bringing the router dependency.</div>
+      <div class="fix-label">FIX</div>
+      <div class="fix-code">Create: DiscoveryAddon.tsx as mountable entry<br/>{"<DiscoveryAddon config={} onComplete={} />"}<br/>Move router/helmet to consuming page only</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function toggleLayer(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+const details = {
+  welcome: {
+    title: 'WelcomeScreen.tsx',
+    size: '448 lines',
+    role: 'Entry point. User picks Quick (5-7 steps) or Deep (full 9-phase) mode. Mode choice is stored in DiscoveryEngine state and drives all branching downstream.',
+    scoring: 'None — no scores updated here',
+    issues: 'Large file (448 lines) for what is essentially a landing screen + 2 CTAs. Contains animation + copy + mode logic all together.',
+  },
+  reflection: {
+    title: 'ReflectionPrompt.tsx — Phase 1 (Deep Only)',
+    size: 'Multi-section, 15 questions, 8 sections',
+    role: 'Deep behavioral data collection. 8 sections: Morning, Daytime, Evening, Night, Social, Sensory, Emotional, Identity. Uses image-card and chip question types. Answers stored in reflectionAnswers[] — fed to AI edge function.',
+    scoring: 'Does NOT directly update AestheticScores — output goes to signals.reflectionAnswers. The AI synthesizes this. No addScores() call.',
+    issues: 'No per-section estimated time shown. SectionProgress.tsx exists in reflection/ subfolder but may not be rendered. Drop risk is high in long sections.',
+  },
+  lifestyle: {
+    title: 'LifestyleReflection.tsx — Phase 2',
+    size: '4-step flow',
+    role: 'Captures lifestyle pattern signals that translate directly to score deltas. Morning habits, daytime energy, social preferences. Both Quick and Deep modes pass through here.',
+    scoring: 'Directly updates AestheticScores via addScores(). Emits partial score object + labels[].',
+    issues: 'Overlaps thematically with ReflectionPrompt. Users experience similar questions twice in Deep mode. Needs clearer framing differentiation.',
+  },
+  visual: {
+    title: 'VisualInstinct.tsx — Phase 3',
+    size: '8+ interior photos, pick 5+',
+    role: 'Image-based preference capture. Each image has aesthetic tags in constants/discovery. Tag aggregation from selected images updates scores.',
+    scoring: 'Score update via image tag aggregation → addScores(). selectedImageIds also stored for AI and used in AnalysisPhase ghost image display.',
+    issues: 'Single-modality — only images. No ability to express degree of preference. All images equal-weighted regardless of how quickly user selected.',
+  },
+  adjective: {
+    title: 'AdjectiveSelection.tsx — Phase 4 (Deep Only)',
+    size: 'Word grid + freetext input',
+    role: 'User selects 3-5 words from a grid. Each word maps to score deltas (Warm→warmth+2, Modern→minimalism+1 etc). Free text captured for personalization.',
+    scoring: 'Score map hardcoded at top of component: { Calm: {warmth:1, social:-1}, Warm: {warmth:2}, ... }. Should be in core/scoring.ts.',
+    issues: 'freeTextReflection captured but not visibly used in ResultsReveal. Score weights inside UI file.',
+  },
+  emotional: {
+    title: 'EmotionalMapping.tsx — Phase 5 (Deep Only)',
+    size: '4 bipolar sliders',
+    role: 'Calm↔Energized, Private↔Social Hub, Minimal↔Layered, Organic↔Structured. Most nuanced scoring input — continuous rather than discrete.',
+    scoring: 'Slider positions (0-100) converted to score deltas. All 4 axes affected.',
+    issues: 'Sliders are single-select at completion — no ability to revisit. Time spent on each slider not tracked (behavioral signal lost).',
+  },
+  material: {
+    title: 'MaterialResonance.tsx — Phase 6',
+    size: '5 material swatches',
+    role: 'Warm Timber, Concrete, Slate, Linen, Steel-Blue. Single choice. materialChoice stored in signals.',
+    scoring: 'Single choice → score delta. Binary signal — limited resolution.',
+    issues: 'Single-choice only. Could offer ranked preference for richer signal. Material thumbnails rely on external assets.',
+  },
+  light: {
+    title: 'LightCalibration.tsx — Phase 7',
+    size: 'Icon cards with archetype names',
+    role: 'Lighting archetype selection (e.g. Dramatic Spotlight). Single choice. lightPreference stored in signals.',
+    scoring: 'Light type → score delta. Binary signal.',
+    issues: 'Same single-choice limitation as Material. Branch point here — Quick mode goes to Analysis, Deep to PatternPreview.',
+  },
+  pattern: {
+    title: 'PatternPreview.tsx — Phase 8 (Deep Only)',
+    size: '"Your Style Is Emerging" synthesis screen',
+    role: 'Display-only. Shows 5 bar charts (score axes) + 5 behavioral insight sentences derived from score thresholds. CTA to continue to Analysis.',
+    scoring: 'Read-only. No addScores() calls here. Insight text generated by score threshold logic (if scores.warmth > 6: "Natural materials...")',
+    issues: 'Insight sentences are threshold-based, not generative. Same user with score 6.1 vs 9 gets identical insight text. Could show score magnitude.',
+  },
+  analysis: {
+    title: 'AnalysisPhase.tsx — Phase 9',
+    size: 'Minimum 5 second display + AI call',
+    role: 'Calls aesthetic-ai Supabase edge function with full UserSignals. Minimum 5s animation (constellation + phase text). Graceful fallback if AI fails.',
+    scoring: 'No scoring here — AI receives final signals and returns AIAestheticResult (narrative, traits, etc).',
+    issues: 'AI call latency unpredictable. 5s minimum is good UX but if AI takes 15s, user waits. No streaming or partial result display.',
+  },
+  leadgate: {
+    title: 'LeadGatePhase.tsx — Phase 10 ⚠',
+    size: 'Name + Email + Phone form',
+    role: 'Captures contact info before revealing results. Submits to submit-discovery-lead edge function. Even if submit fails, onComplete() is called — user always gets through.',
+    scoring: 'No scoring. Pure lead capture.',
+    issues: '🚨 HIGHEST RISK POINT. After 10 phases of effort, user hits a form wall before seeing any reward. Drop rate here is likely the highest in the entire funnel. Should be moved post-mini-result.',
+  },
+  results: {
+    title: 'ResultsReveal.tsx + BlueprintPage.tsx',
+    size: '1,112 + 1,074 lines = 2,186 total lines',
+    role: 'Full archetype reveal, moodboard, radar chart, cognitive profile, design approach, sensory profile, download card. The premium payoff of the entire engine.',
+    scoring: 'Display of final normalized scores. No scoring here.',
+    issues: 'Two massive files — combined 2186 lines. Neither is lazy-loaded. Full blueprint loads even in Quick mode with limited signals. freeTextReflection not displayed.',
+  },
+};
+
+function showDetail(key) {
+  const d = details[key];
+  if (!d) return;
+  document.querySelectorAll('.stage-node').forEach(n => n.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('detail-panel').innerHTML = `
+    <h3>${d.title}</h3>
+    <div class="detail-row"><div class="detail-key">Size / Scope</div><div class="detail-val">${d.size}</div></div>
+    <div class="detail-row"><div class="detail-key">UX Role</div><div class="detail-val">${d.role}</div></div>
+    <div class="detail-row"><div class="detail-key">Scoring Impact</div><div class="detail-val">${d.scoring}</div></div>
+    <div class="detail-issue">⚠ Issues: ${d.issues}</div>
+  `;
+}
+</script>
+</body>
+</html>

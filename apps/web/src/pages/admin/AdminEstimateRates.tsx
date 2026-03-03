@@ -15,10 +15,10 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Save, RotateCcw, Loader2, Clock, IndianRupee, MapPin, Paintbrush, HardHat, Eye, Plug, BrainCircuit, Target } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import type { PricingConfig } from "@/components/calculators/data/types";
-import { DEFAULT_PRICING_CONFIG } from "@/components/calculators/data/pricing-config";
-import { calculateEstimate } from "@/components/calculators/data/calculation-engine";
-import type { CalculatorFormData } from "@/components/calculators/data/types";
+import type { PricingConfig } from "@/addons/calculators/components/data/types";
+import { DEFAULT_PRICING_CONFIG } from "@/addons/calculators/components/data/pricing-config";
+import { calculateEstimate } from "@/addons/calculators/components/data/calculation-engine";
+import type { CalculatorFormData } from "@/addons/calculators/components/data/types";
 
 const formatLabel = (key: string) =>
     key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());

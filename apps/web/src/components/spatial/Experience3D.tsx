@@ -242,6 +242,7 @@ function Scene({ onStyleUpdate, time }: { onStyleUpdate: (style: StyleType | nul
                     maxDepthThreshold={1.4}
                     color="#050505"
                     metalness={0.5}
+                    mirror={0}
                 />
             </mesh>
 

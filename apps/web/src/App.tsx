@@ -22,11 +22,11 @@ import BlogPage from "./pages/BlogPage";
 import BlogDetailPage from "./pages/BlogDetailPage";
 import ContactPage from "./pages/ContactPage";
 import ProjectPage from "./pages/ProjectPage";
-import PriceEstimator from "./pages/PriceEstimator";
-import DiscoveryPage from "./pages/DiscoveryPage";
+import PriceEstimator from "./addons/calculators/pages/PriceEstimator";
+import DiscoveryPage from "./addons/discovery/pages/DiscoveryPage";
 import NotFound from "./pages/NotFound";
 import PageTransition from "./components/PageTransition";
-import BlueprintPage from "./pages/BlueprintPage";
+import BlueprintPage from "./addons/discovery/pages/BlueprintPage";
 // Admin Pages
 import AdminAuth from "./pages/admin/AdminAuth";
 import AdminResetPassword from "./pages/admin/AdminResetPassword";
@@ -61,6 +61,10 @@ const ScrollToTop = () => {
 const AnimatedRoutes = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
+
+  useEffect(() => {
+    console.log("Debug: AnimatedRoutes rendered, path:", location.pathname, "isAdmin:", isAdmin);
+  }, [location.pathname, isAdmin]);
 
   return (
     <>

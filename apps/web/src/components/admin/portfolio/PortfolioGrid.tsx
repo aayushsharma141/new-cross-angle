@@ -2,20 +2,11 @@ import { motion } from "framer-motion";
 import { Pencil, Trash2, Image as ImageIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
-interface PortfolioItem {
-    id: string;
-    title: string;
-    category_id: string | null;
-    project_categories?: { name: string };
-    cover_image_url: string | null;
-    status?: string;
-}
+import { ProjectWithCategory } from "@/pages/admin/AdminPortfolio";
 
 interface PortfolioGridProps {
-    items: PortfolioItem[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onEdit: (item: any) => void;
+    items: ProjectWithCategory[];
+    onEdit: (item: ProjectWithCategory) => void;
     onDelete: (id: string) => void;
 }
 

@@ -9,7 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Image as ImageIcon } from "lucide-react";
-import type { ProjectWithCategory } from "@/pages/admin/AdminPortfolio";
+import { format } from "date-fns";
+import { ProjectWithCategory } from "@/pages/admin/AdminPortfolio";
 
 interface PortfolioListProps {
     items: ProjectWithCategory[];
