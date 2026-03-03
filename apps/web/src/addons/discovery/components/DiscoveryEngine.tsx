@@ -7,6 +7,8 @@ import { visualImages } from "@/constants/discovery";
 import { getArchetype } from "../core/archetype";
 import { normalizeScore } from "../core/normalization";
 import { initialScores, addScores } from "../core/scoring";
+import { initialSignals, resetSession } from "../flow/session";
+import { getNextStage } from "../flow/transitions";
 import ReflectionPrompt from "./ReflectionPrompt";
 import LifestyleReflection from "./LifestyleReflection";
 import VisualInstinct from "./VisualInstinct";
@@ -51,11 +53,12 @@ export const DiscoveryEngine = () => {
     const [showWipe, setShowWipe] = useState(false);
 
     const handleRetake = useCallback(() => {
-        setScores(initialScores);
-        setSignals(initialSignals);
-        setAiResult(null);
-        setMode("deep");
-        setStage(Stage.Welcome);
+        const defaultSession = resetSession();
+        setScores(defaultSession.scores);
+        setSignals(defaultSession.signals);
+        setAiResult(defaultSession.aiResult);
+        setMode(defaultSession.mode);
+        setStage(defaultSession.stage);
     }, []);
 
     const transitionToStage = useCallback((nextStage: Stage) => {
@@ -76,14 +79,14 @@ export const DiscoveryEngine = () => {
 
     const handleStart = useCallback((m: "quick" | "deep") => {
         setMode(m);
-        transitionToStage(m === "quick" ? Stage.Lifestyle : Stage.Reflection);
-    }, [transitionToStage]);
+        transitionToStage(getNextStage(Stage.Welcome, m));
+    }, [mode, transitionToStage]);
 
     const handleReflectionComplete = useCallback(
         (answers: { question: string; answer: string }[]) => {
             setSignals((prev) => ({ ...prev, reflectionAnswers: answers }));
-            transitionToStage(Stage.Lifestyle);
-        }, [transitionToStage]
+            transitionToStage(getNextStage(Stage.Reflection, mode));
+        }, [mode, transitionToStage]
     );
 
     const handleLifestyleComplete = useCallback(
@@ -92,8 +95,8 @@ export const DiscoveryEngine = () => {
             if (labels) {
                 setSignals((prev) => ({ ...prev, lifestyleChoices: [...prev.lifestyleChoices, ...labels] }));
             }
-            transitionToStage(Stage.VisualInstinct);
-        }, [transitionToStage]
+            transitionToStage(getNextStage(Stage.Lifestyle, mode));
+        }, [mode, transitionToStage]
     );
 
     const handleVisualComplete = useCallback(
@@ -103,7 +106,7 @@ export const DiscoveryEngine = () => {
                 const tags = selectedIds.map((id) => visualImages.find((i) => i.id === id)?.tags).filter(Boolean) as Partial<AestheticScores>[];
                 setSignals((prev) => ({ ...prev, selectedImageIds: selectedIds, selectedImageTags: tags }));
             }
-            transitionToStage(mode === "quick" ? Stage.LightCalibration : Stage.AdjectiveSelection);
+            transitionToStage(getNextStage(Stage.VisualInstinct, mode));
         }, [mode, transitionToStage]
     );
 
@@ -111,47 +114,47 @@ export const DiscoveryEngine = () => {
         (partial: Partial<AestheticScores>, adjectives: string[], freeText: string) => {
             updateScores(partial);
             setSignals((prev) => ({ ...prev, selectedAdjectives: adjectives, freeTextReflection: freeText }));
-            transitionToStage(Stage.EmotionalMapping);
-        }, [transitionToStage]
+            transitionToStage(getNextStage(Stage.AdjectiveSelection, mode));
+        }, [mode, transitionToStage]
     );
 
     const handleEmotionalComplete = useCallback(
         (partial: Partial<AestheticScores>, sliderValues?: { label: string; value: number }[]) => {
             updateScores(partial);
             if (sliderValues) setSignals((prev) => ({ ...prev, sliderValues }));
-            transitionToStage(Stage.MaterialResonance);
-        }, [transitionToStage]
+            transitionToStage(getNextStage(Stage.EmotionalMapping, mode));
+        }, [mode, transitionToStage]
     );
 
     const handleMaterialComplete = useCallback(
         (partial: Partial<AestheticScores>, materialName?: string) => {
             updateScores(partial);
             if (materialName) setSignals((prev) => ({ ...prev, materialChoice: materialName }));
-            transitionToStage(Stage.LightCalibration);
-        }, [transitionToStage]
+            transitionToStage(getNextStage(Stage.MaterialResonance, mode));
+        }, [mode, transitionToStage]
     );
 
     const handleLightComplete = useCallback(
         (partial: Partial<AestheticScores>, lightName?: string) => {
             updateScores(partial);
             if (lightName) setSignals((prev) => ({ ...prev, lightPreference: lightName }));
-            transitionToStage(mode === "quick" ? Stage.Analysis : Stage.PatternPreview);
+            transitionToStage(getNextStage(Stage.LightCalibration, mode));
         }, [mode, transitionToStage]
     );
 
     const handlePatternComplete = useCallback(() => {
-        transitionToStage(Stage.Analysis);
-    }, [transitionToStage]);
+        transitionToStage(getNextStage(Stage.PatternPreview, mode));
+    }, [mode, transitionToStage]);
 
     const handleAnalysisComplete = useCallback(
         (result?: AIAestheticResult) => {
             if (result) setAiResult(result);
-            setStage(Stage.LeadCapture);
+            setStage(getNextStage(Stage.Analysis, mode));
         }, []
     );
 
     const handleLeadCaptureComplete = useCallback(() => {
-        setStage(Stage.Results);
+        setStage(getNextStage(Stage.LeadCapture, mode));
     }, []);
 
     const normalizedScores: AestheticScores = {
