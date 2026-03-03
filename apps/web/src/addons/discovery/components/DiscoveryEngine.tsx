@@ -6,8 +6,7 @@ import { Stage, AestheticScores, UserSignals, AIAestheticResult } from "@/types/
 import { visualImages } from "@/constants/discovery";
 import { getArchetype } from "../core/archetype";
 import { normalizeScore } from "../core/normalization";
-import ProgressBar from "./ProgressBar";
-import WelcomeScreen from "./WelcomeScreen";
+import { initialScores, addScores } from "../core/scoring";
 import ReflectionPrompt from "./ReflectionPrompt";
 import LifestyleReflection from "./LifestyleReflection";
 import VisualInstinct from "./VisualInstinct";
@@ -22,9 +21,7 @@ import ResultsReveal from "./ResultsReveal";
 import DotPattern from "@/components/magicui/dot-pattern";
 import AnimatedShinyText from "@/components/magicui/animated-shiny-text";
 
-const initialScores: AestheticScores = {
-    minimalism: 5, warmth: 5, social: 5, structure: 5, novelty: 5,
-};
+// initialScores imported from core/scoring.ts
 
 const initialSignals: UserSignals = {
     reflectionAnswers: [], lifestyleChoices: [], selectedImageIds: [], selectedImageTags: [],
@@ -73,15 +70,8 @@ export const DiscoveryEngine = () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     }, [stage]);
 
-    const addScores = useCallback((partial: Partial<AestheticScores>) => {
-        setScores((prev) => {
-            const next = { ...prev };
-            for (const [k, v] of Object.entries(partial)) {
-                const key = k as keyof AestheticScores;
-                next[key] = Math.max(0, Math.min(10, next[key] + v));
-            }
-            return next;
-        });
+    const updateScores = useCallback((partial: Partial<AestheticScores>) => {
+        setScores((prev) => addScores(prev, partial));
     }, []);
 
     const handleStart = useCallback((m: "quick" | "deep") => {
@@ -98,55 +88,55 @@ export const DiscoveryEngine = () => {
 
     const handleLifestyleComplete = useCallback(
         (partial: Partial<AestheticScores>, labels?: string[]) => {
-            addScores(partial);
+            updateScores(partial);
             if (labels) {
                 setSignals((prev) => ({ ...prev, lifestyleChoices: [...prev.lifestyleChoices, ...labels] }));
             }
             transitionToStage(Stage.VisualInstinct);
-        }, [addScores, transitionToStage]
+        }, [transitionToStage]
     );
 
     const handleVisualComplete = useCallback(
         (partial: Partial<AestheticScores>, selectedIds?: number[]) => {
-            addScores(partial);
+            updateScores(partial);
             if (selectedIds) {
                 const tags = selectedIds.map((id) => visualImages.find((i) => i.id === id)?.tags).filter(Boolean) as Partial<AestheticScores>[];
                 setSignals((prev) => ({ ...prev, selectedImageIds: selectedIds, selectedImageTags: tags }));
             }
             transitionToStage(mode === "quick" ? Stage.LightCalibration : Stage.AdjectiveSelection);
-        }, [addScores, mode, transitionToStage]
+        }, [mode, transitionToStage]
     );
 
     const handleAdjectiveComplete = useCallback(
         (partial: Partial<AestheticScores>, adjectives: string[], freeText: string) => {
-            addScores(partial);
+            updateScores(partial);
             setSignals((prev) => ({ ...prev, selectedAdjectives: adjectives, freeTextReflection: freeText }));
             transitionToStage(Stage.EmotionalMapping);
-        }, [addScores, transitionToStage]
+        }, [transitionToStage]
     );
 
     const handleEmotionalComplete = useCallback(
         (partial: Partial<AestheticScores>, sliderValues?: { label: string; value: number }[]) => {
-            addScores(partial);
+            updateScores(partial);
             if (sliderValues) setSignals((prev) => ({ ...prev, sliderValues }));
             transitionToStage(Stage.MaterialResonance);
-        }, [addScores, transitionToStage]
+        }, [transitionToStage]
     );
 
     const handleMaterialComplete = useCallback(
         (partial: Partial<AestheticScores>, materialName?: string) => {
-            addScores(partial);
+            updateScores(partial);
             if (materialName) setSignals((prev) => ({ ...prev, materialChoice: materialName }));
             transitionToStage(Stage.LightCalibration);
-        }, [addScores, transitionToStage]
+        }, [transitionToStage]
     );
 
     const handleLightComplete = useCallback(
         (partial: Partial<AestheticScores>, lightName?: string) => {
-            addScores(partial);
+            updateScores(partial);
             if (lightName) setSignals((prev) => ({ ...prev, lightPreference: lightName }));
             transitionToStage(mode === "quick" ? Stage.Analysis : Stage.PatternPreview);
-        }, [addScores, mode, transitionToStage]
+        }, [mode, transitionToStage]
     );
 
     const handlePatternComplete = useCallback(() => {

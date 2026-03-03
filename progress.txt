@@ -21,4 +21,6 @@
 [2026-03-03 20:00] Completed: Task 3 - Create core/weights.ts
 
 
-[2026-03-03 20:00] Started: Task 4 - Create core/archetype.ts
+[2026-03-03 20:00] Completed: Task 4 - Create core/archetype.ts
+
+[2026-03-03 20:05] Started: Task 5 - Create core/scoring.ts
