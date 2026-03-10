@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Wrench, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { TrendingUp, Wrench, AlertTriangle, Check } from 'lucide-react';
 import { formatINR } from '@/lib/utils';
 import { MaterialData } from './data';
 
@@ -99,7 +99,7 @@ export const LifecycleTimeline: React.FC<LifecycleTimelineProps> = ({ material, 
             {/* Insight */}
             <div className="bg-black/40 rounded-lg p-3 flex gap-3 border border-white/5">
                 {percentageIncrease < 15 ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
                 ) : (
                     <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
                 )}

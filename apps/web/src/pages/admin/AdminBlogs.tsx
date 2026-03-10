@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,17 +18,24 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
+import { icons } from "@/design-system/tokens/icons";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { RichTextEditor } from "@/components/admin/blogs/RichTextEditor";
+import { StatusBadge } from "@/components/admin/StatusBadge";
 import { MediaPicker } from "@/components/admin/media/MediaPicker";
-import { Image as ImageIcon } from "lucide-react";
+import { Image as ImageIcon, CheckSquare } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
+
+type BlogStatus = "draft" | "published" | "archived";
 
 interface BlogPost {
   id: string;
@@ -37,6 +45,7 @@ interface BlogPost {
   content: string | null;
   cover_image: string | null;
   is_published: boolean;
+  status: BlogStatus;
   published_at: string | null;
   created_at: string;
 }
@@ -48,9 +57,14 @@ interface BlogFormData {
   content: string;
   cover_image: string;
   is_published: boolean;
+  status: BlogStatus;
 }
 
 const AdminBlogs = () => {
+  const [searchParams] = useSearchParams();
+  const editSlug = searchParams.get("edit");
+  const deepLinkHandled = useRef(false);
+
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -61,9 +75,12 @@ const AdminBlogs = () => {
     excerpt: "",
     content: "",
     cover_image: "",
-    is_published: false
+    is_published: false,
+    status: "draft",
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -86,6 +103,24 @@ const AdminBlogs = () => {
       });
     } else if (data) {
       setPosts(data);
+      // Deep-link from command palette: ?edit=<slug>
+      if (editSlug && !deepLinkHandled.current) {
+        deepLinkHandled.current = true;
+        const target = data.find((p: BlogPost) => p.slug === editSlug);
+        if (target) {
+          setEditingPost(target);
+          setFormData({
+            title: target.title,
+            slug: target.slug,
+            excerpt: target.excerpt ?? "",
+            content: target.content ?? "",
+            cover_image: target.cover_image ?? "",
+            is_published: target.is_published,
+            status: target.status,
+          });
+          setIsDialogOpen(true);
+        }
+      }
     }
     setIsLoading(false);
   };
@@ -106,6 +141,69 @@ const AdminBlogs = () => {
   };
 
 
+  const toggleSelectAll = () => {
+    if (selectedIds.size === posts.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(posts.map(p => p.id)));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    setSelectedIds(next);
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`Are you sure you want to delete ${selectedIds.size} posts?`)) return;
+
+    setIsBulkUpdating(true);
+    const { error } = await supabase
+      .from('blogs')
+      .delete()
+      .in('id', Array.from(selectedIds));
+
+    if (error) {
+      toast({ title: "Error deleting posts", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Posts deleted", description: `Successfully deleted ${selectedIds.size} posts.` });
+      setSelectedIds(new Set());
+      fetchPosts();
+    }
+    setIsBulkUpdating(false);
+  };
+
+  const handleBulkStatusUpdate = async (status: BlogStatus) => {
+    setIsBulkUpdating(true);
+
+    // Preparation for bulk update
+    const updates = Array.from(selectedIds).map(id => ({
+      id,
+      status,
+      is_published: status === 'published',
+      published_at: status === 'published' ? new Date().toISOString() : null
+    }));
+
+    const { error } = await supabase
+      .from('blogs')
+      .upsert(updates as { id: string; status: BlogStatus; is_published: boolean; published_at: string | null }[])
+      .select();
+
+    if (error) {
+      toast({ title: "Error updating status", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Status updated", description: `Successfully updated ${selectedIds.size} posts to ${status}.` });
+      setSelectedIds(new Set());
+      fetchPosts();
+    }
+    setIsBulkUpdating(false);
+  };
+
   const handleDelete = async (id: string): Promise<void> => {
     if (!confirm('Are you sure you want to delete this post?')) return;
 
@@ -121,6 +219,9 @@ const AdminBlogs = () => {
         variant: "destructive",
       });
     } else {
+      await supabase.functions.invoke('cda-api', {
+        body: { action: 'invalidate', resource: 'blogs' }
+      });
       toast({ title: "Post deleted successfully" });
       void fetchPosts();
     }
@@ -153,6 +254,13 @@ const AdminBlogs = () => {
           .insert(postData);
         if (error) throw error;
       }
+
+      await supabase.functions.invoke('cda-api', {
+        body: { action: 'invalidate', resource: 'blogs' }
+      });
+      await supabase.functions.invoke('cda-api', {
+        body: { action: 'invalidate', resource: 'blogs', slug: formData.slug }
+      });
 
       toast({
         title: editingPost ? "Post updated!" : "Post created!",
@@ -233,7 +341,8 @@ const AdminBlogs = () => {
           excerpt: post.excerpt || "",
           content: post.content || "",
           cover_image: post.cover_image || "",
-          is_published: post.is_published
+          is_published: post.is_published,
+          status: (post.status ?? (post.is_published ? "published" : "draft")) as BlogFormData["status"],
         });
       }
     } else {
@@ -243,7 +352,8 @@ const AdminBlogs = () => {
         excerpt: post.excerpt || "",
         content: post.content || "",
         cover_image: post.cover_image || "",
-        is_published: post.is_published
+        is_published: post.is_published,
+        status: (post.status ?? (post.is_published ? "published" : "draft")) as BlogFormData["status"],
       });
     }
     setIsDialogOpen(true);
@@ -256,31 +366,22 @@ const AdminBlogs = () => {
       excerpt: "",
       content: "",
       cover_image: "",
-      is_published: false
+      is_published: false,
+      status: "draft",
     });
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className={`${icons.xl} animate-spin text-primary`} />
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Blogs</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <AdminBreadcrumb items={[{ label: 'Blogs' }]} />
 
       <div className="flex items-center justify-between">
         <div>
@@ -290,7 +391,7 @@ const AdminBlogs = () => {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="gold" onClick={handleNewPost}>
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className={`${icons.sm} mr-2`} />
               New Post
             </Button>
           </DialogTrigger>
@@ -334,7 +435,7 @@ const AdminBlogs = () => {
                         onClick={() => setFormData(prev => ({ ...prev, slug: generateSlug(prev.title) }))}
                         title="Regenerate from title"
                       >
-                        <Loader2 className="w-4 h-4" />
+                        <Loader2 className={icons.sm} />
                       </Button>
                     </div>
                   </div>
@@ -378,7 +479,7 @@ const AdminBlogs = () => {
                             className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
                             onClick={() => setFormData({ ...formData, cover_image: "" })}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className={icons.sm} />
                           </Button>
                         </div>
                       ) : (
@@ -387,7 +488,7 @@ const AdminBlogs = () => {
                             onSelect={(url) => setFormData({ ...formData, cover_image: url })}
                             trigger={
                               <Button type="button" variant="outline" className="gap-2">
-                                <ImageIcon className="w-4 h-4" />
+                                <ImageIcon className={`${icons.sm} mr-2`} />
                                 Select from Library
                               </Button>
                             }
@@ -427,7 +528,7 @@ const AdminBlogs = () => {
                   Cancel
                 </Button>
                 <Button type="submit" variant="gold" disabled={isSaving}>
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  {isSaving ? <Loader2 className={`${icons.sm} animate-spin mr-2`} /> : null}
                   {editingPost ? "Update" : "Create"} Post
                 </Button>
               </div>
@@ -436,56 +537,88 @@ const AdminBlogs = () => {
         </Dialog>
       </div>
 
-      <div className="grid gap-4">
-        {posts.map((post, index) => (
-          <motion.div
-            key={post.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card className="bg-card border-border">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      {post.is_published ? (
-                        <Eye className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <EyeOff className="w-4 h-4 text-muted-foreground" />
-                      )}
-                      <span className={`text-xs ${post.is_published ? 'text-green-500' : 'text-muted-foreground'}`}>
-                        {post.is_published ? 'Published' : 'Draft'}
-                      </span>
+      <div className="rounded-md border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden mb-20">
+        <Table>
+          <TableHeader className="bg-white/5 border-b border-white/10">
+            <TableRow className="border-white/10 hover:bg-transparent text-[hsl(var(--admin-muted))]">
+              <TableHead className="w-[40px]">
+                <Checkbox
+                  checked={selectedIds.size === posts.length && posts.length > 0}
+                  onCheckedChange={toggleSelectAll}
+                />
+              </TableHead>
+              <TableHead className="w-[80px]">Cover</TableHead>
+              <TableHead>Post Title</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {posts.map((post) => (
+              <TableRow key={post.id} className="border-white/10 hover:bg-white/5 transition-colors">
+                <TableCell>
+                  <Checkbox
+                    checked={selectedIds.has(post.id)}
+                    onCheckedChange={() => toggleSelect(post.id)}
+                  />
+                </TableCell>
+                <TableCell>
+                  {post.cover_image ? (
+                    <img src={post.cover_image} alt="Cover" className="h-10 w-10 object-cover rounded-md" />
+                  ) : (
+                    <div className="h-10 w-10 bg-muted rounded-md flex items-center justify-center text-muted-foreground">
+                      <ImageIcon className={icons.sm} />
                     </div>
-                    <h3 className="font-semibold text-lg mb-1">{post.title}</h3>
-                    <p className="text-muted-foreground text-sm line-clamp-2 mb-2">
+                  )}
+                </TableCell>
+                <TableCell className="font-medium text-slate-200">
+                  {post.title}
+                  {post.excerpt && (
+                    <p className="text-xs text-slate-400 font-normal line-clamp-1 mt-1">
                       {post.excerpt}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      Created {format(new Date(post.created_at), 'MMM dd, yyyy')}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(post)}>
-                      <Pencil className="w-4 h-4" />
+                  )}
+                </TableCell>
+                <TableCell>
+                  <StatusBadge status={post.status || (post.is_published ? "published" : "draft")} />
+                </TableCell>
+                <TableCell className="text-slate-400">
+                  {format(new Date(post.created_at), 'MMM dd, yyyy')}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-white" onClick={() => handleEdit(post)}>
+                      <Pencil className={icons.sm} />
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleDelete(post.id)}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-red-400" onClick={() => handleDelete(post.id)}>
+                      <Trash2 className={icons.sm} />
                     </Button>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-
-        {posts.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            No blog posts yet. Create your first post!
-          </div>
-        )}
+                </TableCell>
+              </TableRow>
+            ))}
+            {posts.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center text-slate-400">
+                  No blog posts yet. Create your first post!
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
+
+      <BulkActionsToolbar
+        selectedCount={selectedIds.size}
+        label="blog posts"
+        onClear={() => setSelectedIds(new Set())}
+        onDelete={handleBulkDelete}
+        onPublish={() => handleBulkStatusUpdate('published')}
+        onArchive={() => handleBulkStatusUpdate('draft')}
+        isUpdating={isBulkUpdating}
+        isDeleting={isBulkUpdating}
+      />
     </div>
   );
 };

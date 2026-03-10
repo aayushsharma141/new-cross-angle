@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, Loader2, ImagePlus } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Plus, Pencil, Trash2, Loader2, ImagePlus, Briefcase } from "lucide-react";
+import { Card, CardContent } from "@/design-system/components/Card";
+import { Button } from "@/design-system/components/Button";
+import { Input } from "@/design-system/components/Input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -22,13 +21,16 @@ import { ServiceDetail } from "@repo/types";
 import { FeaturesEditor, ProcessEditor, FAQEditor } from "@/components/admin/ServiceFormFields";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/design-system/components/Table";
+import { StatusBadge } from "@/components/admin/StatusBadge";
+import { PageHeader } from "@/components/admin/layout/PageHeader";
+import { EmptyState, LoadingState } from "@/design-system/components/states";
 
 const ICONS = ["Home", "Building2", "Palette", "Lightbulb", "Sofa", "PenTool", "Lamp", "UtensilsCrossed", "Bed"];
 const CATEGORIES = [
@@ -290,34 +292,23 @@ const AdminServices = () => {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
+            <LoadingState
+                title="Loading Services"
+                description="Fetching your service offerings..."
+                size="lg"
+            />
         );
     }
 
     return (
         <div className="space-y-8">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Services</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
-
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="font-display text-3xl font-bold">Services</h1>
-                    <p className="text-muted-foreground mt-1">Manage your service offerings</p>
-                </div>
+            <PageHeader
+                title="Services"
+                description="Manage your service offerings"
+            >
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button variant="gold" onClick={handleNewService}>
+                        <Button variant="primary" onClick={handleNewService}>
                             <Plus className="w-4 h-4 mr-2" />
                             New Service
                         </Button>
@@ -341,8 +332,9 @@ const AdminServices = () => {
                                     <TabsContent value="basic" className="space-y-4 mt-4">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label>Title</Label>
+                                                <Label htmlFor="svc-title">Title</Label>
                                                 <Input
+                                                    id="svc-title"
                                                     value={formData.title}
                                                     onChange={(e) => {
                                                         const title = e.target.value;
@@ -354,8 +346,9 @@ const AdminServices = () => {
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <Label>Slug</Label>
+                                                <Label htmlFor="svc-slug">Slug</Label>
                                                 <Input
+                                                    id="svc-slug"
                                                     value={formData.slug}
                                                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                                     required
@@ -365,12 +358,12 @@ const AdminServices = () => {
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label>Category</Label>
+                                                <Label htmlFor="svc-category">Category</Label>
                                                 <Select
                                                     value={formData.category_id}
                                                     onValueChange={(value) => setFormData({ ...formData, category_id: value })}
                                                 >
-                                                    <SelectTrigger>
+                                                    <SelectTrigger id="svc-category">
                                                         <SelectValue placeholder="Select Category" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -381,12 +374,12 @@ const AdminServices = () => {
                                                 </Select>
                                             </div>
                                             <div className="space-y-2">
-                                                <Label>Icon</Label>
+                                                <Label htmlFor="svc-icon">Icon</Label>
                                                 <Select
                                                     value={formData.icon}
                                                     onValueChange={(value) => setFormData({ ...formData, icon: value })}
                                                 >
-                                                    <SelectTrigger>
+                                                    <SelectTrigger id="svc-icon">
                                                         <SelectValue placeholder="Select Icon" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -399,9 +392,10 @@ const AdminServices = () => {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label>Hero Image URL</Label>
+                                            <Label htmlFor="svc-hero">Hero Image URL</Label>
                                             <div className="flex gap-2">
                                                 <Input
+                                                    id="svc-hero"
                                                     value={formData.hero_image}
                                                     onChange={(e) => setFormData({ ...formData, hero_image: e.target.value })}
                                                     placeholder="https://..."
@@ -476,55 +470,77 @@ const AdminServices = () => {
                         </ScrollArea>
                     </DialogContent>
                 </Dialog>
-            </div>
+            </PageHeader>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {services.map((service, index) => (
-                    <motion.div
-                        key={service.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.05 }}
-                    >
-                        <Card className="bg-card border-border h-full">
-                            <CardContent className="p-6 relative">
-                                {service.tag && (
-                                    <div className="absolute top-4 right-4">
-                                        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary">
-                                            {service.tag}
-                                        </span>
+            <Card className="bg-white/5 border-white/10 backdrop-blur-sm mt-8">
+                <Table>
+                    <TableHeader>
+                        <TableRow className="border-white/10 hover:bg-white/5">
+                            <TableHead className="text-slate-300">Name & Desc</TableHead>
+                            <TableHead className="text-slate-300">Category</TableHead>
+                            <TableHead className="text-slate-300">Status</TableHead>
+                            <TableHead className="text-right text-slate-300">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {services.map((service, index) => (
+                            <TableRow
+                                key={service.id}
+                                className="border-white/10 hover:bg-white/5 transition-colors"
+                            >
+                                <TableCell className="font-medium text-slate-200">
+                                    <div className="flex items-center gap-2">
+                                        <span>{service.title}</span>
+                                        {service.tag && (
+                                            <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary">
+                                                {service.tag}
+                                            </span>
+                                        )}
                                     </div>
-                                )}
+                                    <p className="text-xs text-slate-400 font-normal line-clamp-1 mt-1">
+                                        {service.description as string}
+                                    </p>
+                                </TableCell>
+                                <TableCell className="text-slate-300 capitalize">
+                                    {service.category_id || "residential"}
+                                </TableCell>
+                                <TableCell>
+                                    <StatusBadge status={"published"} />
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-white" onClick={() => handleEdit(service)}>
+                                            <Pencil className="w-4 h-4" />
+                                        </Button>
+                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-red-400" onClick={() => handleDelete(service.id)}>
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
 
-                                <div className="mb-4">
-                                    <span className="text-sm text-muted-foreground font-mono">Icon: {service.icon}</span>
-                                </div>
-
-                                <h3 className="font-semibold text-lg mb-2">{service.title}</h3>
-                                <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                                    {service.description}
-                                </p>
-
-                                <div className="flex gap-2 mt-auto">
-                                    <Button size="sm" variant="outline" className="w-full" onClick={() => handleEdit(service)}>
-                                        <Pencil className="w-4 h-4 mr-2" />
-                                        Edit
-                                    </Button>
-                                    <Button size="sm" variant="outline" className="px-3" onClick={() => handleDelete(service.id)}>
-                                        <Trash2 className="w-4 h-4 text-destructive" />
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                ))}
-
-                {services.length === 0 && (
-                    <div className="col-span-full text-center py-12 text-muted-foreground">
-                        No services found. Add your first service above!
-                    </div>
-                )}
-            </div>
+                        {services.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={4} className="p-0">
+                                    <EmptyState
+                                        icon={Briefcase}
+                                        title="No services found"
+                                        description="You haven't added any services yet. Create one to get started."
+                                        action={
+                                            <Button onClick={() => setIsDialogOpen(true)} variant="gold">
+                                                <Plus className="w-4 h-4 mr-2" />
+                                                Add Service
+                                            </Button>
+                                        }
+                                        className="border-0 rounded-none bg-transparent"
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </Card>
         </div>
     );
 };

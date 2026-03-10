@@ -19,6 +19,23 @@ export const ScrollManager = () => {
 
         lenis.on('scroll', ScrollTrigger.update);
 
+        // Tell ScrollTrigger to use Lenis' scroll position for pinning to work correctly
+        ScrollTrigger.scrollerProxy(document.documentElement, {
+            scrollTop(value) {
+                if (value !== undefined) {
+                    lenis.scrollTo(value, { immediate: true });
+                }
+                return lenis.scroll;
+            },
+            getBoundingClientRect() {
+                return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+            },
+            pinType: document.documentElement.style.transform ? "transform" : "fixed",
+        });
+
+        // Keep Lenis in sync when ScrollTrigger refreshes
+        ScrollTrigger.addEventListener("refresh", () => lenis.resize());
+
         // Global Reveal Effects
         const revealElements = document.querySelectorAll('.gsap-reveal');
         revealElements.forEach((el) => {
@@ -59,6 +76,7 @@ export const ScrollManager = () => {
         gsap.ticker.lagSmoothing(0);
 
         return () => {
+            ScrollTrigger.removeEventListener("refresh", () => lenis.resize());
             gsap.ticker.remove((time) => lenis.raf(time * 1000));
             ScrollTrigger.getAll().forEach(t => t.kill());
             lenis.destroy();

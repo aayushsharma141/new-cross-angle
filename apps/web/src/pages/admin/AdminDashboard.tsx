@@ -23,6 +23,8 @@ import { CalendarDateRangePicker } from "@/components/ui/date-range-picker";
 import { useToast } from "@/hooks/use-toast";
 import { DateRange } from "react-day-picker";
 import { subDays, endOfDay } from "date-fns";
+import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
+import { icons } from "@/design-system/tokens/icons";
 
 interface DashboardStats {
   projects: number;
@@ -218,6 +220,7 @@ const AdminDashboard = (): JSX.Element => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+      <AdminBreadcrumb />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -240,7 +243,7 @@ const AdminDashboard = (): JSX.Element => {
             onClick={handleDownloadReport}
             className="w-full sm:w-auto"
           >
-            <Download className="w-4 h-4 mr-2" />
+            <Download className={`${icons.sm} mr-2`} />
             Export
           </Button>
         </div>
@@ -330,25 +333,25 @@ const AdminDashboard = (): JSX.Element => {
               <QuickActionButton
                 icon={Plus}
                 label="New Project"
-                href="/admin/portfolio"
+                href="/admin/cms/portfolio"
                 gradient="bg-admin-card border border-admin-gold/20 hover:border-admin-gold text-admin-foreground hover:bg-admin-surface"
               />
               <QuickActionButton
                 icon={Users}
                 label="Add Lead"
-                href="/admin/leads"
+                href="/admin/crm/leads"
                 gradient="bg-admin-card border border-admin-info/20 hover:border-admin-info text-admin-foreground hover:bg-admin-surface"
               />
               <QuickActionButton
                 icon={MessageSquare}
                 label="Testimonials"
-                href="/admin/testimonials"
+                href="/admin/cms/testimonials"
                 gradient="bg-admin-card border border-admin-success/20 hover:border-admin-success text-admin-foreground hover:bg-admin-surface"
               />
               <QuickActionButton
                 icon={TrendingUp}
                 label="Media"
-                href="/admin/media"
+                href="/admin/cms/media"
                 gradient="bg-admin-card border border-amber-500/20 hover:border-amber-500 text-admin-foreground hover:bg-admin-surface"
               />
             </div>
@@ -379,7 +382,7 @@ const AdminDashboard = (): JSX.Element => {
                 <span className="font-medium">
                   {statsLoading ? "…" : stats?.avgRating ?? "—"}
                   {stats?.avgRating && stats.avgRating !== "—" ? (
-                    <Star className="inline w-3 h-3 ml-1 text-amber-400 fill-amber-400" />
+                    <Star className={cn("inline ml-1 text-amber-400 fill-amber-400", icons.xs)} />
                   ) : null}
                 </span>
               </div>

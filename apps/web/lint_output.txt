@@ -1,0 +1,15 @@
+﻿
+C:\Users\aayus\Desktop\main\apps\web\src\addons\discovery\components\DiscoveryEngine.tsx
+  51:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\aayus\Desktop\main\apps\web\src\addons\discovery\components\MiniResultPreview.tsx
+  33:68  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\aayus\Desktop\main\apps\web\src\addons\discovery\infrastructure\analytics\tracker.ts
+  4:72  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminAuth.tsx
+  55:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Γ£û 4 problems (4 errors, 0 warnings)
+

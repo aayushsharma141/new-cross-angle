@@ -2,6 +2,8 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useState, useRef } from "react";
 import { Eye, Expand } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useImageParallax } from "@/hooks/useImageParallax";
+import { Button } from "@/components/ui/button";
 
 interface GalleryCardProps {
   image: string;
@@ -23,6 +25,8 @@ const GalleryCard = ({
   const [isHovered, setIsHovered] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  const { containerRef, imageRef } = useImageParallax({ speed: 0.12, scale: 1.15 });
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -156,13 +160,19 @@ const GalleryCard = ({
             transition={{ duration: 0.3, delay: 0.15 }}
             className="flex items-center gap-3"
           >
-            <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm hover:bg-white/20 transition-colors">
+            <Button variant="outline" className="gap-2 rounded-full bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-colors">
               <Eye className="w-4 h-4" />
               View
-            </button>
-            <button className="p-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-colors">
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-colors"
+              aria-label="Expand image"
+              title="Expand image"
+            >
               <Expand className="w-4 h-4" />
-            </button>
+            </Button>
           </motion.div>
         </div>
 

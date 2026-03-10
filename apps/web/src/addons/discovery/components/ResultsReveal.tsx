@@ -1,25 +1,496 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
-import '../pages/BlueprintPage.css';
-import { AestheticScores, Archetype, AIAestheticResult } from "@/types/discovery";
-import { visualImages } from "@/constants/discovery";
+import React, { useMemo, useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import html2canvas from 'html2canvas';
+import {
+  Sun,
+  Layers,
+  Map as MapIcon,
+  Zap,
+  Lightbulb,
+  Paintbrush,
+  Layout as LayoutIcon,
+  Wind,
+  Plus,
+  Minus,
+  Download,
+  Share2,
+  RefreshCw
+} from 'lucide-react';
+
+import { AestheticScores, Archetype, AIAestheticResult, UserSignals } from '@/types/discovery';
+import { visualImages } from '@/constants/discovery';
+import { trackResultLoaded } from '../infrastructure/analytics/tracker';
+
+const StaggeredText: React.FC<{ text: string; className?: string }> = ({ text, className }) => {
+  const charArray = text.split("");
+  return (
+    <motion.span
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: { staggerChildren: 0.05, delayChildren: 0.5 },
+        },
+      }}
+      className={className}
+    >
+      {charArray.map((char, i) => (
+        <motion.span
+          key={i}
+          variants={{
+            hidden: { opacity: 0, y: 30, filter: 'blur(8px)' },
+            visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } },
+          }}
+          style={{ display: 'inline-block', whiteSpace: 'pre' }}
+        >
+          {char}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+};
 
 interface Props {
   scores: AestheticScores;
   archetype: Archetype;
   aiResult?: AIAestheticResult | null;
+  sessionId?: string | null;
+  signals?: UserSignals;
   onRetake?: () => void;
+  onComplete?: () => void;
 }
 
-const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, onRetake }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+const SCORE_LABELS: Record<keyof AestheticScores, string> = {
+  minimalism: 'Minimalism',
+  warmth: 'Warmth',
+  social: 'Social Energy',
+  structure: 'Structure',
+  novelty: 'Novelty',
+};
+
+const ACCENT = '#C8412A';
+const GOLD = '#BFA27A';
+
+const AXIS_INTERPRETATIONS: Record<keyof AestheticScores, (v: number) => string> = {
+  minimalism: (v) => v >= 7 ? 'Strong preference for edited, uncluttered environments.' : v >= 4 ? 'Balanced approach — selective about what you keep.' : 'You embrace layering and a richness of objects.',
+  warmth: (v) => v >= 7 ? 'Warmth is your dominant axis. You gravitate toward materials and light that feel human and inviting.' : v >= 4 ? 'A moderate warmth — comfort balanced with clarity.' : 'You lean cool and precise over cozy and textural.',
+  social: (v) => v >= 7 ? 'You design for shared, communal experience.' : v >= 4 ? 'A mix of social and private spaces suits you.' : 'You design primarily for private, intimate experience.',
+  structure: (v) => v >= 7 ? 'You crave deliberate organisation and architectural clarity.' : v >= 4 ? 'Moderate structure — organic but not chaotic.' : 'Spontaneity and flow over rigid composition.',
+  novelty: (v) => v >= 7 ? 'You actively seek the new and experimental.' : v >= 4 ? 'Open to novelty when it serves the space.' : 'You value the timeless and proven over the trend-driven.',
+};
+
+const ScoreBar: React.FC<{ label: string; value: number; delay: number }> = ({ label, value, delay }) => {
+  return (
+    <div className="mb-4">
+      <div className="flex justify-between text-[10px] font-mono tracking-widest uppercase mb-2">
+        <span className="text-white/60">{label}</span>
+        <span style={{ color: GOLD }}>{value}/10</span>
+      </div>
+      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: `${(value / 10) * 100}%` }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay, ease: "easeOut" }}
+          className="h-full"
+          style={{ background: GOLD }}
+        />
+      </div>
+    </div>
+  );
+};
+
+const RadarChart: React.FC<{ scores: AestheticScores }> = ({ scores }) => {
+  const [hoveredKey, setHoveredKey] = useState<keyof AestheticScores | null>(null);
+  const size = 280;
+  const center = size / 2;
+  const radius = 100;
+  const keys = Object.keys(scores) as (keyof AestheticScores)[];
+
+  const getPoint = (index: number, r: number) => {
+    const angle = (index * (2 * Math.PI)) / keys.length - Math.PI / 2;
+    return { x: center + r * Math.cos(angle), y: center + r * Math.sin(angle) };
+  };
+
+  const scorePath = keys
+    .map((k, i) => {
+      const p = getPoint(i, (scores[k] / 10) * radius);
+      return `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`;
+    })
+    .join(' ') + ' Z';
+
+  const gridLevels = [0.25, 0.5, 0.75, 1];
+
+  return (
+    <div className="relative">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="overflow-visible mx-auto">
+        {/* Grid rings */}
+        {gridLevels.map((level, li) => {
+          const pts = keys.map((_, i) => getPoint(i, level * radius));
+          const d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z';
+          return <path key={li} d={d} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />;
+        })}
+
+        {/* Axis lines */}
+        {keys.map((_, i) => {
+          const p = getPoint(i, radius);
+          return <line key={i} x1={center} y1={center} x2={p.x} y2={p.y} stroke="rgba(255,255,255,0.08)" strokeWidth="1" />;
+        })}
+
+        {/* Score polygon */}
+        <motion.path
+          d={scorePath}
+          fill={`${GOLD}22`}
+          stroke={GOLD}
+          strokeWidth="2"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 1.8, ease: 'easeInOut' }}
+        />
+
+        {/* Axis labels */}
+        {keys.map((k, i) => {
+          const p = getPoint(i, radius + 26);
+          return (
+            <text
+              key={k}
+              x={p.x}
+              y={p.y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontSize="8"
+              fill={hoveredKey === k ? GOLD : 'rgba(255,255,255,0.35)'}
+              fontFamily="'Syne', sans-serif"
+              letterSpacing="0.1em"
+              style={{ transition: 'fill 0.2s' }}
+            >
+              {SCORE_LABELS[k].toUpperCase()}
+            </text>
+          );
+        })}
+
+        {/* Interactive score dots */}
+        {keys.map((k, i) => {
+          const p = getPoint(i, (scores[k] / 10) * radius);
+          return (
+            <g key={k}
+              onMouseEnter={() => setHoveredKey(k)}
+              onMouseLeave={() => setHoveredKey(null)}
+              style={{ cursor: 'pointer' }}
+            >
+              <circle cx={p.x} cy={p.y} r={14} fill="transparent" />
+              <motion.circle
+                cx={p.x}
+                cy={p.y}
+                r={hoveredKey === k ? 5 : 3.5}
+                fill={hoveredKey === k ? '#fff' : GOLD}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1.5 + i * 0.1, duration: 0.2 }}
+                style={{ transition: 'r 0.2s' }}
+              />
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* Tooltip */}
+      <AnimatePresence>
+        {hoveredKey && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.2 }}
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full mt-4 w-64 p-4 rounded-sm border text-center pointer-events-none"
+            style={{ background: '#0d0d0d', borderColor: `${GOLD}30`, zIndex: 10 }}
+          >
+            <p className="text-[9px] font-mono tracking-[0.3em] uppercase mb-1.5" style={{ color: GOLD }}>
+              {SCORE_LABELS[hoveredKey]} · {scores[hoveredKey].toFixed(1)}
+            </p>
+            <p className="text-[11px] text-white/60 leading-relaxed">
+              {AXIS_INTERPRETATIONS[hoveredKey](scores[hoveredKey])}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// ── Cognitive Profile ────────────────────────────────────────────────────────
+
+const COGNITIVE_TRAITS = (scores: AestheticScores) => [
+  {
+    name: 'Openness',
+    score: Math.min(10, ((scores.novelty * 0.6) + ((10 - scores.minimalism) * 0.4))),
+    summary: 'How experimental vs. classic your spatial preferences run.',
+    interpretation: (v: number) =>
+      v >= 7
+        ? 'Your design sensibility is genuinely experimental. You are drawn to spaces that challenge convention and evolve.'
+        : v >= 4
+          ? 'You balance tradition with curiosity — open to new directions when they feel considered and intentional.'
+          : 'You favour the timeless and established. Your spaces age beautifully because you design with conviction, not trend.',
+  },
+  {
+    name: 'Detail',
+    score: Math.min(10, ((scores.structure * 0.6) + (scores.minimalism * 0.4))),
+    summary: 'How much you attend to fine materiality vs. overall composition.',
+    interpretation: (v: number) =>
+      v >= 7
+        ? 'You notice what others miss — grain direction, hardware finish, the gap between skirting and wall. Spaces reveal themselves to you slowly.'
+        : v >= 4
+          ? 'You appreciate quality craftsmanship and rewarding details, but composition and atmosphere guide you first.'
+          : 'You experience a room as a whole before you notice its parts. Bold composition and atmosphere resonate more than granular craft.',
+  },
+  {
+    name: 'Emotion',
+    score: Math.min(10, ((scores.warmth * 0.7) + (scores.social * 0.3))),
+    summary: 'How emotionally driven vs. functionally driven your design decisions are.',
+    interpretation: (v: number) =>
+      v >= 7
+        ? 'You design how a space makes you feel first. Functionality follows emotional resonance — always.'
+        : v >= 4
+          ? 'A balance — spaces must feel good and work well. Neither dominates the other.'
+          : 'You design from logic outward. A space that functions perfectly is already beautiful to you.',
+  },
+  {
+    name: 'Thinking',
+    score: Math.min(10, (scores.structure * 0.5 + (10 - scores.novelty) * 0.5)),
+    summary: 'How you process spatial choices — intuitive vs. deliberate.',
+    interpretation: (v: number) =>
+      v >= 7
+        ? 'You are a deliberate decision-maker. Every object earns its place. You research, compare, and commit with conviction.'
+        : v >= 4
+          ? 'You move between intuition and analysis depending on the decision at hand.'
+          : 'Your best design decisions come quickly. Instinct outperforms deliberation for you — trust it.',
+  },
+];
+
+const CognitiveProfile: React.FC<{ scores: AestheticScores }> = ({ scores }) => {
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const traits = COGNITIVE_TRAITS(scores);
+
+  return (
+    <section className="px-6 py-24 max-w-5xl mx-auto border-t border-white/5">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+      >
+        <p className="text-[9px] font-mono tracking-[0.4em] uppercase mb-4" style={{ color: GOLD }}>
+          04 — Cognitive Profile
+        </p>
+        <h2 className="text-3xl md:text-4xl font-light mb-12 leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+          How You <em>Process Space</em>
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {traits.map((trait, i) => {
+            const isOpen = expanded === i;
+            const barPct = (trait.score / 10) * 100;
+            return (
+              <motion.div
+                key={trait.name}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="border rounded-sm cursor-pointer overflow-hidden"
+                style={{ borderColor: isOpen ? `${GOLD}50` : 'rgba(255,255,255,0.07)', background: isOpen ? 'rgba(191,162,122,0.05)' : 'rgba(255,255,255,0.02)', transition: 'border-color 0.3s, background 0.3s' }}
+                onClick={() => setExpanded(isOpen ? null : i)}
+              >
+                <div className="p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-medium text-white/80 tracking-wide">{trait.name}</span>
+                    <span className="text-[9px] font-mono" style={{ color: GOLD }}>{trait.score.toFixed(1)} / 10</span>
+                  </div>
+                  {/* Score bar */}
+                  <div className="h-px bg-white/5 relative overflow-hidden mb-3">
+                    <motion.div
+                      className="absolute inset-y-0 left-0"
+                      style={{ background: `linear-gradient(90deg, ${GOLD}60, ${GOLD})` }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${barPct}%` }}
+                      transition={{ duration: 1.2, delay: 0.3 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  </div>
+                  <p className="text-[11px] text-white/40 leading-relaxed">{trait.summary}</p>
+
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.p
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                        className="text-sm text-white/60 leading-relaxed mt-4 italic overflow-hidden"
+                      >
+                        {trait.interpretation(trait.score)}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <div className="px-5 pb-3">
+                  <span className="text-[9px] font-mono tracking-wider" style={{ color: `${GOLD}60` }}>
+                    {isOpen ? '— less' : '+ read more'}
+                  </span>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.div>
+    </section>
+  );
+};
+
+// ── Transformation Readiness ──────────────────────────────────────────────────
+
+const READINESS_NARRATIVE = (score: number) => {
+  if (score >= 85) return 'You have a clear vision and are ready to move. This is the optimal moment to begin.';
+  if (score >= 65) return 'Your vision is forming. A strategy consultation will crystallise the next steps.';
+  if (score >= 45) return "You're in an exploratory phase. Your instincts are strong — they just need a design framework.";
+  return "You're building clarity. Start with one room. Let the result inform the rest.";
+};
+
+const TransformationReadiness: React.FC<{ scores: AestheticScores }> = ({ scores }) => {
+  // Derive sub-dimension scores (all 0–100)
+  const visionClarity = Math.round(((scores.structure + scores.minimalism) / 2) * 10);
+  const investmentReadiness = Math.round(((scores.warmth + scores.social) / 2) * 10);
+  const decisionMomentum = Math.round((scores.novelty / 10) * 100);
+  const lifestyleAlignment = Math.round(((scores.minimalism + scores.warmth + scores.novelty) / 3) * 10);
+  const overall = Math.round((visionClarity + investmentReadiness + decisionMomentum + lifestyleAlignment) / 4);
+
+  const circumference = 2 * Math.PI * 52;
+  const strokeDash = (overall / 100) * circumference;
+
+  const subDimensions = [
+    { label: 'Vision Clarity', value: visionClarity },
+    { label: 'Investment Readiness', value: investmentReadiness },
+    { label: 'Decision Momentum', value: decisionMomentum },
+    { label: 'Lifestyle Alignment', value: lifestyleAlignment },
+  ];
+
+  return (
+    <section className="px-6 py-24 max-w-5xl mx-auto border-t border-white/5">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+      >
+        <p className="text-[9px] font-mono tracking-[0.4em] uppercase mb-4" style={{ color: GOLD }}>
+          05 — Transformation Readiness
+        </p>
+        <h2 className="text-3xl md:text-4xl font-light mb-12 leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+          How Close You Are to <em>Your Vision</em>
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-16 items-center">
+          {/* Circular ring */}
+          <div className="flex flex-col items-center gap-6">
+            <div className="relative w-40 h-40">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
+                {/* Track */}
+                <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                {/* Fill */}
+                <motion.circle
+                  cx="60" cy="60" r="52"
+                  fill="none"
+                  stroke={GOLD}
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  strokeDasharray={circumference}
+                  initial={{ strokeDashoffset: circumference }}
+                  whileInView={{ strokeDashoffset: circumference - strokeDash }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-3xl font-light" style={{ color: GOLD, fontFamily: "'Cormorant Garamond', serif" }}>{overall}%</span>
+                <span className="text-[8px] font-mono tracking-[0.3em] uppercase text-white/30 mt-1">Ready</span>
+              </div>
+            </div>
+            <p className="text-sm text-white/50 leading-relaxed text-center max-w-xs italic">
+              "{READINESS_NARRATIVE(overall)}"
+            </p>
+          </div>
+
+          {/* Sub-dimensions */}
+          <div className="space-y-6">
+            {subDimensions.map((dim, i) => (
+              <div key={dim.label} className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-[11px] font-mono tracking-[0.15em] uppercase text-white/50">{dim.label}</span>
+                  <span className="text-[11px] font-mono" style={{ color: GOLD }}>{dim.value}%</span>
+                </div>
+                <div className="h-px bg-white/5 relative overflow-hidden">
+                  <motion.div
+                    className="absolute inset-y-0 left-0"
+                    style={{ background: `linear-gradient(90deg, ${GOLD}50, ${GOLD})` }}
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${dim.value}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.2, delay: 0.2 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </section>
+  );
+};
+
+const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId, signals, onRetake, onComplete }) => {
 
   const displayName = aiResult?.identityName || archetype.name;
   const displayTagline = aiResult?.tagline || archetype.tagline;
+  const displayNarrative = aiResult?.narrative || archetype.strategy;
+  const displayTraits = aiResult?.traits || archetype.traits;
 
-  const alignmentScore = Math.round((scores.minimalism + scores.novelty + scores.structure) / 3 * 10);
-  const readinessValue = Math.round(50 + (scores.social * 5));
+  const sensoryMap = aiResult?.sensoryMap;
+  const designStrategy = aiResult?.designStrategy;
 
-  const rankedImages = useMemo(() => {
+  const shareCardRef = useRef<HTMLDivElement>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleDownloadShareCard = async () => {
+    if (!shareCardRef.current) return;
+    try {
+      setIsGenerating(true);
+      const canvas = await html2canvas(shareCardRef.current, {
+        scale: 2, // high res
+        backgroundColor: '#040404',
+        logging: false,
+        useCORS: true,
+      });
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      const link = document.createElement('a');
+      link.download = `my-aesthetic-dna.jpg`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Failed to generate image', err);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  useEffect(() => {
+    if (sessionId) {
+      trackResultLoaded(sessionId, displayName);
+    }
+  }, [sessionId, displayName]);
+
+  const topImages = useMemo(() => {
     return [...visualImages]
       .map((img) => {
         let relevance = 0;
@@ -32,1078 +503,592 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, onRetake 
       .slice(0, 3);
   }, [scores]);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  const visualMirrorImages = useMemo(() => {
+    if (signals?.selectedImageIds && signals.selectedImageIds.length > 0) {
+      return signals.selectedImageIds
+        .map(id => visualImages.find(img => img.id === id))
+        .filter(Boolean) as typeof visualImages;
+    }
+    return topImages;
+  }, [signals, topImages]);
 
-    // Ensure DOM is ready, then run scripts
-    const timer = setTimeout(() => {
-
-      try {
-
-        // ── CURSOR ────────────────────────────────────────────
-        const cursor = document.getElementById('cursor');
-        const ring = document.getElementById('cursor-ring');
-        let mx = 0, my = 0, rx = 0, ry = 0;
-
-        document.addEventListener('mousemove', (e: MouseEvent) => {
-          mx = e.clientX; my = e.clientY;
-          (cursor as HTMLElement).style.left = mx + 'px';
-          (cursor as HTMLElement).style.top = my + 'px';
-        });
-
-        function animRing() {
-          rx += (mx - rx) * 0.12;
-          ry += (my - ry) * 0.12;
-          ring.style.left = rx + 'px';
-          ring.style.top = ry + 'px';
-          requestAnimationFrame(animRing);
-        }
-        animRing();
-
-        document.querySelectorAll('a, button, .pillar, .bento, .stack-cell, .comp-preview, .j-step')
-          .forEach(el => {
-            el.addEventListener('mouseenter', () => {
-              cursor.style.width = '6px';
-              cursor.style.height = '6px';
-              ring.style.width = '56px';
-              ring.style.height = '56px';
-              ring.style.borderColor = 'rgba(200,65,42,0.8)';
-            });
-            el.addEventListener('mouseleave', () => {
-              cursor.style.width = '10px';
-              cursor.style.height = '10px';
-              ring.style.width = '36px';
-              ring.style.height = '36px';
-              ring.style.borderColor = 'rgba(200,65,42,0.5)';
-            });
-          });
-
-        // ── SCROLL PROGRESS ───────────────────────────────────
-        const prog = document.getElementById('progress');
-        const header = document.getElementById('header');
-        const sections = document.querySelectorAll('section[id]');
-        const navItems = document.querySelectorAll('.snav-item');
-
-        window.addEventListener('scroll', () => {
-          const max = document.body.scrollHeight - window.innerHeight;
-          (prog as HTMLElement).style.width = (window.scrollY / max * 100) + '%';
-          header.classList.toggle('scrolled', window.scrollY > 60);
-
-          // Active nav
-          sections.forEach((s, i) => {
-            const top = (s as HTMLElement).offsetTop - 200;
-            const bot = top + (s as HTMLElement).offsetHeight;
-            if (window.scrollY >= top && window.scrollY < bot) {
-              navItems.forEach(n => n.classList.remove('active'));
-              if (navItems[i]) navItems[i].classList.add('active');
-            }
-          });
-        });
-
-        // ── REVEAL ON SCROLL ──────────────────────────────────
-        const reveals = document.querySelectorAll('.reveal');
-        const obs = new IntersectionObserver(entries => {
-          entries.forEach(e => {
-            if (e.isIntersecting) e.target.classList.add('visible');
-          });
-        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-        reveals.forEach(r => obs.observe(r));
-
-        // ── PARTICLES ─────────────────────────────────────────
-        const pc = document.getElementById('particles');
-        for (let i = 0; i < 20; i++) {
-          const p = document.createElement('div');
-          p.className = 'particle';
-          const x = Math.random() * 100;
-          const dur = 6 + Math.random() * 12;
-          const delay = Math.random() * 8;
-          const drift = (Math.random() - 0.5) * 80;
-          p.style.cssText = `left:${x}%;bottom:${Math.random() * 20}%;width:${1 + Math.random() * 2}px;height:${1 + Math.random() * 2}px;animation-duration:${dur}s;animation-delay:${delay}s;--drift:${drift}px`;
-          pc.appendChild(p);
-        }
-
-        // ── BENTO TILT ───────────────────────────────────────
-        document.querySelectorAll('.bento').forEach(card => {
-          card.addEventListener('mousemove', (e: Event) => {
-            const evt = e as MouseEvent;
-            const r = card.getBoundingClientRect();
-            const x = (evt.clientX - r.left) / r.width - 0.5;
-            const y = (evt.clientY - r.top) / r.height - 0.5;
-            (card as HTMLElement).style.transform = `perspective(600px) rotateX(${-y * 4}deg) rotateY(${x * 4}deg) translateY(-3px)`;
-          });
-          card.addEventListener('mouseleave', () => {
-            (card as HTMLElement).style.transform = '';
-          });
-        });
-
-        // ── PERF METER ANIMATION ──────────────────────────────
-        const meterObs = new IntersectionObserver(entries => {
-          entries.forEach(e => {
-            if (e.isIntersecting) {
-              e.target.querySelectorAll('.perf-fill').forEach(c => {
-                const offset = parseFloat(c.getAttribute('stroke-dashoffset') || '0');
-                (c as HTMLElement).style.strokeDashoffset = '163';
-                setTimeout(() => { (c as HTMLElement).style.strokeDashoffset = offset.toString(); }, 200);
-              });
-            }
-          });
-        }, { threshold: 0.5 });
-        document.querySelectorAll('.perf-row').forEach(r => meterObs.observe(r));
-
-
-      } catch (e) {
-        console.error("Error executing blueprint scripts", e);
-      }
-
-      try {
-        const rFill = document.querySelector('.readiness-fill');
-        if (rFill) {
-          (rFill as HTMLElement).style.width = `${readinessValue}%`;
-        }
-      } catch (e) {
-        console.warn("Readiness fill error", e);
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [readinessValue]);
+  const fadeUp = {
+    initial: { opacity: 0, y: 24 },
+    animate: { opacity: 1, y: 0 },
+  };
 
   return (
-    <div className="blueprint-page-wrapper bg-[#040404] text-[#E0E0E0] min-h-screen" ref={containerRef}>
+    <div
+      className="min-h-screen w-full"
+      style={{ background: '#080808', color: '#F0EDE8', fontFamily: "'Syne', sans-serif" }}
+    >
+      {/* ── S1: IDENTITY REVEAL ─────────────────────────────────────────── */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-32 overflow-hidden bg-[#040404]">
+        {/* Cinematic Ambient glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `radial-gradient(circle at 50% 40%, ${GOLD}15 0%, transparent 60%)`,
+          }}
+        />
 
+        {/* Animated grid/lines for structure */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '100px 100px', backgroundPosition: 'center center' }} />
 
-      {/*  CURSOR  */}
-      <div id="cursor"></div>
-      <div id="cursor-ring"></div>
-      <div id="progress"></div>
+        <div className="text-center max-w-4xl relative z-10 flex flex-col items-center w-full">
+          {/* Rarity & Header */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+            className="mb-8 flex flex-col items-center"
+          >
+            <div className="px-4 py-1.5 border rounded-full text-[9px] font-mono tracking-[0.4em] uppercase shadow-[0_0_15px_rgba(191,162,122,0.15)] bg-black/40 backdrop-blur-md" style={{ borderColor: `${GOLD}40`, color: GOLD }}>
+              Aesthetic Identity
+            </div>
+          </motion.div>
 
-      {/*  SIDE NAV  */}
-      <nav id="sidenav">
-        <div className="snav-item active" onClick={(e) => e.currentTarget.classList.toggle('sel')}>
-          <span className="snav-label">Cover</span><span className="snav-dot"></span>
-        </div>
-        <div className="snav-item" onClick={(e) => e.currentTarget.classList.toggle('sel')}>
-          <span className="snav-label">Concept</span><span className="snav-dot"></span>
-        </div>
-        <div className="snav-item" onClick={(e) => e.currentTarget.classList.toggle('sel')}>
-          <span className="snav-label">Tech Stack</span><span className="snav-dot"></span>
-        </div>
-        <div className="snav-item" onClick={(e) => e.currentTarget.classList.toggle('sel')}>
-          <span className="snav-label">Components</span><span className="snav-dot"></span>
-        </div>
-        <div className="snav-item" onClick={(e) => e.currentTarget.classList.toggle('sel')}>
-          <span className="snav-label">Animations</span><span className="snav-dot"></span>
-        </div>
-        <div className="snav-item" onClick={(e) => e.currentTarget.classList.toggle('sel')}>
-          <span className="snav-label">Journey</span><span className="snav-dot"></span>
-        </div>
-        <div className="snav-item" onClick={(e) => e.currentTarget.classList.toggle('sel')}>
-          <span className="snav-label">Responsive</span><span className="snav-dot"></span>
-        </div>
-      </nav>
+          {/* Archetype Name */}
+          <h1 className="text-5xl md:text-7xl lg:text-[7rem] font-light italic mb-8 leading-[0.95] text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 w-full" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <StaggeredText text={displayName} />
+          </h1>
 
-      {/*  HEADER  */}
-      <header id="header">
-        <div className="logo-area">
-          <div className="logo-mark"></div>
-          <div className="logo-text">Crossangle <span>Interior</span></div>
-        </div>
-        <nav>
-          <a href="#concept">Concept</a>
-          <a href="#techstack">Tech Stack</a>
-          <a href="#components">Components</a>
-          <a href="#animations">Animations</a>
-          <a href="#journey">Journey</a>
-        </nav>
-        <button className="cta-btn">View Proposal</button>
-      </header>
-
-      {/*  ═══════════ COVER ═══════════  */}
-      <section id="cover">
-        <div className="particles" id="particles"></div>
-        <div className="cover-inner">
-          <div className="cover-left">
-            <div className="doc-meta">UI/UX Design Proposal — 2026</div>
-            <div className="cover-subtitle">Crossangle Interior</div>
-            <h1 className="cover-title">
-              Redesigned<br />
-              <em>with Motion</em><br />
-              in Mind
-            </h1>
-            <p className="cover-desc">
-              A comprehensive redesign proposal leveraging the most advanced animation
-              technologies to create an immersive interior design experience that converts
-              visitors into clients through storytelling, depth, and sensory delight.
+          {/* Tagline */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, delay: 1.5, ease: "easeOut" }}
+          >
+            <p className="text-lg md:text-2xl text-white/50 font-light leading-relaxed max-w-2xl mx-auto mb-12 tracking-wide">
+              "{displayTagline}"
             </p>
-            <div className="cover-tags">
-              <span className="tag">GSAP</span>
-              <span className="tag">Three.js</span>
-              <span className="tag">Framer Motion</span>
-              <span className="tag">ScrollTrigger</span>
-              <span className="tag">R3F</span>
-              <span className="tag">Lenis</span>
-              <span className="tag">Lottie</span>
-              <span className="tag">MorphSVG</span>
-              <span className="tag">Anime.js</span>
-              <span className="tag">Spline</span>
-              <span className="tag">Bento Grid</span>
-              <span className="tag">Glassmorphism</span>
-              <span className="tag">Claymorphism</span>
-              <span className="tag">Parallax</span>
-              <span className="tag">Kinetic Type</span>
-              <span className="tag">Scrollytelling</span>
-            </div>
-          </div>
-          <div className="cover-right">
-            <div className="stat-grid">
-              <div className="stat-cell">
-                <div className="stat-num">06<span className="stat-unit">+</span></div>
-                <div className="stat-label">Animation Libraries</div>
-              </div>
-              <div className="stat-cell">
-                <div className="stat-num">28<span className="stat-unit">+</span></div>
-                <div className="stat-label">Techniques Used</div>
-              </div>
-              <div className="stat-cell">
-                <div className="stat-num">3<span className="stat-unit">D</span></div>
-                <div className="stat-label">Rendering Layer</div>
-              </div>
-              <div className="stat-cell">
-                <div className="stat-num">60<span className="stat-unit">fps</span></div>
-                <div className="stat-label">Target Frame Rate</div>
-              </div>
-            </div>
-            <div className="cover-bottom">
-              <span className="version-badge">Version 1.0 — Feb 2026</span>
-              <span className="version-badge">Confidential Design Brief</span>
-            </div>
-          </div>
+          </motion.div>
+
+          {/* Traits */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, delay: 1.8 }}
+            className="flex flex-wrap justify-center gap-3 mb-16"
+          >
+            {displayTraits.slice(0, 5).map((trait, i) => (
+              <motion.span
+                key={trait}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 2 + i * 0.1 }}
+                className="px-4 py-1.5 text-[10px] tracking-[0.2em] uppercase font-medium border rounded-full backdrop-blur-sm"
+                style={{ borderColor: `${GOLD}20`, color: '#F0EDE8', background: 'rgba(255,255,255,0.03)' }}
+              >
+                {trait}
+              </motion.span>
+            ))}
+          </motion.div>
+
+          {/* Free Text Reflection Hook (if provided) */}
+          <AnimatePresence>
+            {signals?.freeTextReflection && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, delay: 2.5 }}
+                className="max-w-xl mx-auto p-6 border-l text-left bg-gradient-to-r from-white/[0.02] to-transparent relative w-full"
+                style={{ borderColor: `${GOLD}50` }}
+              >
+                <div className="absolute top-0 left-0 w-px h-full bg-gradient-to-b from-transparent to-transparent" style={{ backgroundImage: `linear-gradient(to bottom, transparent, ${GOLD}, transparent)` }}></div>
+                <p className="text-[10px] font-mono tracking-[0.3em] uppercase mb-3" style={{ color: `${GOLD}80` }}>Your Words, Reflected</p>
+                <p className="text-sm md:text-base text-white/70 italic leading-relaxed font-light">
+                  "{signals.freeTextReflection}"
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 3, duration: 1 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
+        >
+          <span className="text-[8px] font-mono tracking-[0.4em] uppercase" style={{ color: 'rgba(255,255,255,0.3)' }}>
+            Explore the Blueprint
+          </span>
+          <motion.div
+            animate={{ height: ['0%', '100%', '0%'], y: ['-100%', '0%', '100%'] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            className="w-px h-16 origin-top"
+            style={{ background: `linear-gradient(to bottom, transparent, rgba(255,255,255,0.5), transparent)` }}
+          />
+        </motion.div>
       </section>
 
-      {/*  ═══════════ CONCEPT ═══════════  */}
-      <section id="concept">
-        <div className="section-eyebrow reveal">01 — Overall Concept</div>
-        <h2 className="section-title reveal reveal-delay-1">The <em>Immersive</em><br /><strong>Design Philosophy</strong></h2>
-        <p className="section-intro reveal reveal-delay-2">
-          Transforming the current flat, image-heavy layout into a living, breathing spatial experience.
-          Every scroll triggers a new chapter of the brand story — architectural, editorial, and deeply emotive.
-        </p>
+      {/* ── S2: EMOTIONAL MIRROR ────────────────────────────────── */}
+      {visualMirrorImages.length > 0 && (
+        <section className="px-6 py-32 max-w-6xl mx-auto relative border-t border-white/5">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="flex flex-col items-center text-center mb-20">
+              <span className="text-[9px] font-mono tracking-[0.4em] uppercase mb-4" style={{ color: GOLD }}>
+                02 — Emotional Mirror
+              </span>
+              <h2 className="text-4xl md:text-5xl font-light leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                Visions That <em className="text-white/80">Resonate</em>
+              </h2>
+            </div>
 
-        <div className="concept-grid">
-          <div className="pillar-list">
-            <div className="pillar reveal">
-              <div className="pillar-num">01</div>
-              <div>
-                <div className="pillar-title">Cinematic Scroll Narrative</div>
-                <p className="pillar-desc">
-                  The page unfolds like a cinematic reel. Using GSAP ScrollTrigger paired with Lenis smooth scrolling,
-                  each section reveals itself with precision-timed entrance effects. Scroll scrubbing drives
-                  3D camera movements in Three.js scenes, making visitors feel they're walking through the spaces.
-                </p>
-              </div>
-            </div>
-            <div className="pillar reveal reveal-delay-1">
-              <div className="pillar-num">02</div>
-              <div>
-                <div className="pillar-title">Living Typography System</div>
-                <p className="pillar-desc">
-                  Kinetic typography breathes life into headlines. Service titles morph between states via MorphSVG
-                  letter animations. Cormorant Garamond serif anchors the luxury aesthetic while Syne bold
-                  handles structural callouts. Text particles scatter and reform on hover using Anime.js staggering.
-                </p>
-              </div>
-            </div>
-            <div className="pillar reveal reveal-delay-2">
-              <div className="pillar-num">03</div>
-              <div>
-                <div className="pillar-title">Spatial 3D Environments</div>
-                <p className="pillar-desc">
-                  A React Three Fiber scene greets users in the hero — a real-time rendered interior room fragment
-                  built with ambient lighting and soft shadows. Spline-authored 3D furniture pieces orbit the
-                  service cards, giving spatial context to each design category. Babylon.js handles heavy model loading.
-                </p>
-              </div>
-            </div>
-            <div className="pillar reveal reveal-delay-3">
-              <div className="pillar-num">04</div>
-              <div>
-                <div className="pillar-title">Micro-Interaction Fabric</div>
-                <p className="pillar-desc">
-                  Every surface responds. Buttons ripple with Framer Motion spring physics. Form inputs animate
-                  floating labels via Popmotion. Hover states trigger Lottie icon morphs. The cursor itself transforms
-                  contextually — expanding, contracting, and color-shifting based on interactive zones.
-                </p>
-              </div>
-            </div>
-            <div className="pillar reveal reveal-delay-4">
-              <div className="pillar-num">05</div>
-              <div>
-                <div className="pillar-title">Material & Morphism Layers</div>
-                <p className="pillar-desc">
-                  Glassmorphism overlays float above photography for service cards. Claymorphism adds tactile warmth
-                  to process steps. Bento grid layouts organize the portfolio into asymmetric, dynamic compositions.
-                  Liquid SVG morphing transitions between design categories using MorphSVG.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="concept-aside">
-            <div className="mood-card reveal">
-              <div className="mood-card-title">Color Palette</div>
-              <div className="palette-row">
-                <div className="swatch" style={{ "background": "#080808" }} data-hex="#080808"></div>
-                <div className="swatch" style={{ "background": "#0F0F0F" }} data-hex="#0F0F0F"></div>
-                <div className="swatch" style={{ "background": "#C8412A" }} data-hex="#C8412A"></div>
-                <div className="swatch" style={{ "background": "#E8956D" }} data-hex="#E8956D"></div>
-                <div className="swatch" style={{ "background": "#BFA27A" }} data-hex="#BFA27A"></div>
-                <div className="swatch" style={{ "background": "#F0EDE8" }} data-hex="#F0EDE8"></div>
-              </div>
-              <div className="typo-preview">
-                <div className="typo-sample-serif">Aa — Cormorant</div>
-                <div className="typo-sample-sans">Bb — Syne Display</div>
-                <div className="typo-sample-mono">CC — DM Mono 0123</div>
-              </div>
-            </div>
-            <div className="mood-card reveal reveal-delay-2">
-              <div className="mood-card-title">Design Direction</div>
-              <div style={{ "display": "flex", "flexDirection": "column", "gap": "12px", "marginTop": "8px" }}>
-                <div style={{ "display": "flex", "justifyContent": "space-between", "alignItems": "center" }}>
-                  <span style={{ "fontFamily": "'DM Mono',monospace", "fontSize": "9px", "letterSpacing": "0.12em", "color": "var(--muted)", "textTransform": "uppercase" }}>Minimal ←→ Maximal</span>
-                </div>
-                <div style={{ "height": "3px", "background": "var(--dim)", "borderRadius": "2px", "position": "relative" }}>
-                  <div style={{ "position": "absolute", "left": "35%", "width": "8px", "height": "8px", "borderRadius": "50%", "background": "var(--accent)", "top": "50%", "transform": "translateY(-50%)", "boxShadow": "0 0 8px var(--accent)" }}></div>
-                </div>
-                <div style={{ "display": "flex", "justifyContent": "space-between", "alignItems": "center" }}>
-                  <span style={{ "fontFamily": "'DM Mono',monospace", "fontSize": "9px", "letterSpacing": "0.12em", "color": "var(--muted)", "textTransform": "uppercase" }}>Static ←→ Kinetic</span>
-                </div>
-                <div style={{ "height": "3px", "background": "var(--dim)", "borderRadius": "2px", "position": "relative" }}>
-                  <div style={{ "position": "absolute", "left": "70%", "width": "8px", "height": "8px", "borderRadius": "50%", "background": "var(--gold)", "top": "50%", "transform": "translateY(-50%)", "boxShadow": "0 0 8px var(--gold)" }}></div>
-                </div>
-                <div style={{ "display": "flex", "justifyContent": "space-between", "alignItems": "center" }}>
-                  <span style={{ "fontFamily": "'DM Mono',monospace", "fontSize": "9px", "letterSpacing": "0.12em", "color": "var(--muted)", "textTransform": "uppercase" }}>Flat ←→ Spatial</span>
-                </div>
-                <div style={{ "height": "3px", "background": "var(--dim)", "borderRadius": "2px", "position": "relative" }}>
-                  <div style={{ "position": "absolute", "left": "75%", "width": "8px", "height": "8px", "borderRadius": "50%", "background": "var(--accent2)", "top": "50%", "transform": "translateY(-50%)", "boxShadow": "0 0 8px var(--accent2)" }}></div>
-                </div>
-              </div>
-            </div>
-            <div className="mood-card reveal reveal-delay-3">
-              <div className="mood-card-title">Target Metrics</div>
-              <div style={{ "display": "flex", "flexDirection": "column", "gap": "10px", "marginTop": "8px" }}>
-                <div style={{ "display": "flex", "justifyContent": "space-between" }}>
-                  <span style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "16px", "color": "var(--muted)" }}>Bounce Rate</span>
-                  <span style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "16px", "color": "var(--accent)" }}>&lt;35%</span>
-                </div>
-                <div style={{ "height": "1px", "background": "var(--border)" }}></div>
-                <div style={{ "display": "flex", "justifyContent": "space-between" }}>
-                  <span style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "16px", "color": "var(--muted)" }}>Avg. Session</span>
-                  <span style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "16px", "color": "var(--accent)" }}>4+ min</span>
-                </div>
-                <div style={{ "height": "1px", "background": "var(--border)" }}></div>
-                <div style={{ "display": "flex", "justifyContent": "space-between" }}>
-                  <span style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "16px", "color": "var(--muted)" }}>Inquiry Rate</span>
-                  <span style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "16px", "color": "var(--accent)" }}>+220%</span>
-                </div>
-                <div style={{ "height": "1px", "background": "var(--border)" }}></div>
-                <div style={{ "display": "flex", "justifyContent": "space-between" }}>
-                  <span style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "16px", "color": "var(--muted)" }}>LCP Score</span>
-                  <span style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "16px", "color": "var(--accent)" }}>&lt;1.8s</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/*  ═══════════ TECH STACK ═══════════  */}
-      <section id="techstack">
-        <div className="section-eyebrow reveal">02 — Technology Stack</div>
-        <h2 className="section-title reveal reveal-delay-1">Chosen <em>Technologies</em><br /><strong>& Rationale</strong></h2>
-        <p className="section-intro reveal reveal-delay-2">
-          Each library was selected for a specific responsibility within the animation system.
-          The stack is layered to avoid conflicts, optimize bundle size, and deliver 60fps across all devices.
-        </p>
-
-        <div className="stack-grid reveal">
-          <div className="stack-cell">
-            <div className="stack-layer">Animation Core</div>
-            <div className="stack-name">GSAP + ScrollTrigger</div>
-            <p className="stack-desc">The orchestration engine. Timeline-based sequences for all major entrance/exit animations. ScrollTrigger pins sections for immersive scroll-scrubbed scenes.</p>
-            <span className="stack-badge">Primary Engine</span>
-          </div>
-          <div className="stack-cell">
-            <div className="stack-layer">Animation Core</div>
-            <div className="stack-name">Framer Motion</div>
-            <p className="stack-desc">React component animations with spring physics. Handles layout animations (Flip API equivalent), shared element transitions, and gesture-driven interactions.</p>
-            <span className="stack-badge">React Layer</span>
-          </div>
-          <div className="stack-cell">
-            <div className="stack-layer">SVG & Morphing</div>
-            <div className="stack-name">GSAP MorphSVG</div>
-            <p className="stack-desc">Seamless path morphing for logo transformations, liquid transitions between service categories, and organic blob animations on section dividers.</p>
-            <span className="stack-badge">GSAP Plugin</span>
-          </div>
-          <div className="stack-cell">
-            <div className="stack-layer">3D Rendering</div>
-            <div className="stack-name">Three.js + R3F</div>
-            <p className="stack-desc">React Three Fiber wraps Three.js for declarative 3D scene construction. Ambient occlusion, PBR materials, and environment lighting render interior scenes in real time.</p>
-            <span className="stack-badge">3D Engine</span>
-          </div>
-          <div className="stack-cell">
-            <div className="stack-layer">3D Authoring</div>
-            <div className="stack-name">Spline + Blender</div>
-            <p className="stack-desc">3D furniture models authored in Blender, exported as GLTF, then interactive Spline scenes embedded for service card 3D previews with cursor-reactive lighting.</p>
-            <span className="stack-badge">3D Content</span>
-          </div>
-          <div className="stack-cell">
-            <div className="stack-layer">Micro-Animations</div>
-            <div className="stack-name">Lottie</div>
-            <p className="stack-desc">After Effects–authored icon animations for UI states (loading, success, empty), and illustrative storytelling animations in the "How We Work" process section.</p>
-            <span className="stack-badge">Icon Animation</span>
-          </div>
-          <div className="stack-cell">
-            <div className="stack-layer">Smooth Scroll</div>
-            <div className="stack-name">Lenis</div>
-            <p className="stack-desc">Silky, inertia-driven scrolling with momentum and elastic boundaries. Synchronizes with GSAP ScrollTrigger for perfectly timed scroll-linked animations.</p>
-            <span className="stack-badge">Scroll Enhancer</span>
-          </div>
-          <div className="stack-cell">
-            <div className="stack-layer">Physics & Utility</div>
-            <div className="stack-name">Anime.js + Popmotion</div>
-            <p className="stack-desc">Anime.js powers staggered particle systems and SVG draw-on animations. Popmotion handles physics-based spring animations for cursor tracking and card tilt interactions.</p>
-            <span className="stack-badge">Supplementary</span>
-          </div>
-          <div className="stack-cell">
-            <div className="stack-layer">Visual Patterns</div>
-            <div className="stack-name">Aceternity UI + Magic UI</div>
-            <p className="stack-desc">Pre-built advanced components: spotlight effects, sparkles, beam animations, border gradients, and shimmer loaders — accelerating development of premium visual details.</p>
-            <span className="stack-badge">Component Library</span>
-          </div>
-        </div>
-
-        <div className="divider"></div>
-
-        <div className="section-eyebrow reveal">Performance Targets</div>
-        <div className="perf-row">
-          <div className="perf-card reveal">
-            <div className="perf-meter">
-              <svg width="60" height="60" viewBox="0 0 60 60">
-                <circle className="perf-bg" cx="30" cy="30" r="26" strokeDasharray="163" stroke-dashoffset="0" />
-                <circle className="perf-fill" cx="30" cy="30" r="26" stroke-dashoffset="16" />
-              </svg>
-              <div className="perf-val">90</div>
-            </div>
-            <div className="perf-label">Lighthouse Score</div>
-          </div>
-          <div className="perf-card reveal reveal-delay-1">
-            <div className="perf-meter">
-              <svg width="60" height="60" viewBox="0 0 60 60">
-                <circle className="perf-bg" cx="30" cy="30" r="26" strokeDasharray="163" stroke-dashoffset="0" />
-                <circle className="perf-fill" cx="30" cy="30" r="26" stroke-dashoffset="32" style={{ "stroke": "var(--gold)" }} />
-              </svg>
-              <div className="perf-val">60</div>
-            </div>
-            <div className="perf-label">Target FPS</div>
-          </div>
-          <div className="perf-card reveal reveal-delay-2">
-            <div className="perf-meter">
-              <svg width="60" height="60" viewBox="0 0 60 60">
-                <circle className="perf-bg" cx="30" cy="30" r="26" strokeDasharray="163" stroke-dashoffset="0" />
-                <circle className="perf-fill" cx="30" cy="30" r="26" stroke-dashoffset="41" style={{ "stroke": "var(--accent2)" }} />
-              </svg>
-              <div className="perf-val">1.8</div>
-            </div>
-            <div className="perf-label">LCP (seconds)</div>
-          </div>
-          <div className="perf-card reveal reveal-delay-3">
-            <div className="perf-meter">
-              <svg width="60" height="60" viewBox="0 0 60 60">
-                <circle className="perf-bg" cx="30" cy="30" r="26" strokeDasharray="163" stroke-dashoffset="0" />
-                <circle className="perf-fill" cx="30" cy="30" r="26" stroke-dashoffset="8" />
-              </svg>
-              <div className="perf-val">95</div>
-            </div>
-            <div className="perf-label">CLS Prevention</div>
-          </div>
-        </div>
-      </section>
-
-      {/*  ═══════════ COMPONENTS ═══════════  */}
-      <section id="components">
-        <div className="section-eyebrow reveal">03 — UI Components</div>
-        <h2 className="section-title reveal reveal-delay-1">Interface <strong>Component</strong><br /><em>Architecture</em></h2>
-        <p className="section-intro reveal reveal-delay-2">
-          Each component is conceived as an animated entity — not merely a visual element,
-          but a choreographed performer within the larger page narrative.
-        </p>
-
-        <div className="comp-layout">
-
-          <div className="comp-row reveal">
-            <div className="comp-preview">
-              <div className="comp-preview-label">Hero Section</div>
-              <div style={{ "width": "85%", "textAlign": "center" }}>
-                <div style={{ "fontFamily": "'DM Mono',monospace", "fontSize": "9px", "letterSpacing": "0.2em", "color": "var(--accent)", "marginBottom": "12px", "textTransform": "uppercase" }}>Interior Excellence</div>
-                <div style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "28px", "lineHeight": "1.1", "marginBottom": "8px" }}>You Dream It.<br /><em style={{ "color": "var(--accent)" }}>We Design</em> It.</div>
-                <div style={{ "display": "flex", "gap": "8px", "justifyContent": "center", "marginTop": "20px" }}>
-                  <div style={{ "padding": "8px 20px", "background": "var(--accent)", "fontFamily": "'Syne',sans-serif", "fontSize": "9px", "fontWeight": "700", "letterSpacing": "0.1em", "textTransform": "uppercase" }}>Explore Now</div>
-                  <div style={{ "padding": "8px 20px", "border": "1px solid var(--border)", "fontFamily": "'Syne',sans-serif", "fontSize": "9px", "fontWeight": "700", "letterSpacing": "0.1em", "textTransform": "uppercase", "color": "var(--muted)" }}>View Work</div>
-                </div>
-              </div>
-            </div>
-            <div className="comp-info">
-              <div className="comp-name"><strong>Hero</strong> Section</div>
-              <p className="comp-desc">
-                A full-viewport hero with a React Three Fiber scene as background. Text staggered via Framer Motion
-                on mount. The headline uses a Kinetic Typography reveal — characters animate from blur to sharp
-                using GSAP stagger. The background 3D scene responds to cursor via Popmotion spring tracking.
-                Lenis ensures buttery smooth scroll-away transition.
-              </p>
-              <div className="comp-techs">
-                <span className="comp-tech">R3F / Three.js</span>
-                <span className="comp-tech">Framer Motion</span>
-                <span className="comp-tech">GSAP Stagger</span>
-                <span className="comp-tech">Lenis</span>
-                <span className="comp-tech">Popmotion</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="divider"></div>
-
-          <div className="comp-row reverse reveal">
-            <div className="comp-preview">
-              <div className="comp-preview-label">Service Cards — Bento Grid</div>
-              <div style={{ "display": "grid", "gridTemplateColumns": "repeat(3,1fr)", "gap": "8px", "width": "85%" }}>
-                <div style={{ "gridColumn": "span 2", "background": "var(--surface2)", "border": "1px solid var(--border)", "padding": "16px", "borderRadius": "2px", "position": "relative", "overflow": "hidden" }}>
-                  <div style={{ "position": "absolute", "inset": "0", "background": "linear-gradient(135deg,rgba(200,65,42,0.06),transparent)" }}></div>
-                  <div style={{ "fontSize": "8px", "color": "var(--accent)", "fontFamily": "'DM Mono',monospace", "letterSpacing": "0.15em", "textTransform": "uppercase", "marginBottom": "6px" }}>Living Room</div>
-                  <div style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "14px" }}>Residential Design</div>
-                  <div style={{ "marginTop": "8px", "height": "32px", "background": "linear-gradient(135deg,var(--dim),var(--surface))", "borderRadius": "2px" }}></div>
-                </div>
-                <div style={{ "background": "var(--surface2)", "border": "1px solid var(--border)", "padding": "16px", "borderRadius": "2px" }}>
-                  <div style={{ "fontSize": "8px", "color": "var(--gold)", "fontFamily": "'DM Mono',monospace", "letterSpacing": "0.15em", "textTransform": "uppercase", "marginBottom": "6px" }}>Office</div>
-                  <div style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "12px" }}>Commercial</div>
-                </div>
-                <div style={{ "background": "var(--surface2)", "border": "1px solid var(--border)", "padding": "16px", "borderRadius": "2px" }}>
-                  <div style={{ "fontSize": "8px", "color": "var(--muted)", "fontFamily": "'DM Mono',monospace", "letterSpacing": "0.15em", "textTransform": "uppercase", "marginBottom": "6px" }}>Kitchen</div>
-                  <div style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "12px" }}>Modular</div>
-                </div>
-                <div style={{ "gridColumn": "span 2", "background": "var(--accent)", "padding": "16px", "borderRadius": "2px" }}>
-                  <div style={{ "fontSize": "8px", "color": "rgba(255,255,255,0.7)", "fontFamily": "'DM Mono',monospace", "letterSpacing": "0.15em", "textTransform": "uppercase", "marginBottom": "4px" }}>Featured</div>
-                  <div style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "14px", "color": "#fff" }}>Specialized Execution</div>
-                </div>
-              </div>
-            </div>
-            <div className="comp-info">
-              <div className="comp-name"><strong>Bento</strong> Service Grid</div>
-              <p className="comp-desc">
-                Service cards arranged in an asymmetric Bento Grid layout. Each card has a Spline 3D element
-                embedded that animates on hover. GSAP Flip transitions between "browse" and "focused" states
-                when a card is selected. Glassmorphism overlay appears on hover using backdrop-filter.
-                Cards stagger-reveal using ScrollTrigger.
-              </p>
-              <div className="comp-techs">
-                <span className="comp-tech">Bento Grid</span>
-                <span className="comp-tech">GSAP Flip</span>
-                <span className="comp-tech">Spline Embed</span>
-                <span className="comp-tech">Glassmorphism</span>
-                <span className="comp-tech">ScrollTrigger</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="divider"></div>
-
-          <div className="comp-row reveal">
-            <div className="comp-preview">
-              <div className="comp-preview-label">Process — Scrollytelling</div>
-              <div style={{ "width": "80%", "display": "flex", "flexDirection": "column", "gap": "0" }}>
-                <div style={{ "display": "flex", "gap": "20px", "alignItems": "flex-start" }}>
-                  <div style={{ "display": "flex", "flexDirection": "column", "alignItems": "center" }}>
-                    <div style={{ "width": "28px", "height": "28px", "borderRadius": "50%", "background": "var(--accent)", "display": "flex", "alignItems": "center", "justifyContent": "center", "fontFamily": "'DM Mono',monospace", "fontSize": "9px", "fontWeight": "700", "flexShrink": "0" }}>01</div>
-                    <div style={{ "width": "1px", "height": "40px", "background": "linear-gradient(var(--accent),var(--dim))" }}></div>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start">
+              {/* Image 1 - Large Left */}
+              {visualMirrorImages[0] && (
+                <div className="md:col-span-7 relative group">
+                  <div className="aspect-[4/3] overflow-hidden rounded-sm border border-white/5 relative bg-white/5">
+                    <img
+                      src={visualMirrorImages[0].url}
+                      alt="Selected visual resonance 1"
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
                   </div>
-                  <div style={{ "paddingTop": "4px" }}>
-                    <div style={{ "fontSize": "12px", "fontWeight": "700", "marginBottom": "4px", "letterSpacing": "0.05em" }}>Discovery</div>
-                    <div style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "12px", "color": "var(--muted)" }}>Deep client consultation, site survey, moodboards</div>
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <p className="text-xs text-white/70 italic leading-relaxed backdrop-blur-md bg-black/40 p-4 border-l" style={{ borderColor: `${GOLD}50` }}>
+                      "A space that breathes. The interplay of light and form here speaks to your desire for structure without rigidity."
+                    </p>
                   </div>
                 </div>
-                <div style={{ "display": "flex", "gap": "20px", "alignItems": "flex-start" }}>
-                  <div style={{ "display": "flex", "flexDirection": "column", "alignItems": "center" }}>
-                    <div style={{ "width": "28px", "height": "28px", "borderRadius": "50%", "border": "1px solid var(--border)", "display": "flex", "alignItems": "center", "justifyContent": "center", "fontFamily": "'DM Mono',monospace", "fontSize": "9px", "color": "var(--muted)", "flexShrink": "0" }}>02</div>
-                    <div style={{ "width": "1px", "height": "40px", "background": "var(--dim)" }}></div>
+              )}
+
+              {/* Images 2 & 3 - Stacked Right */}
+              <div className="md:col-span-5 flex flex-col gap-8 mt-12 md:mt-0">
+                {visualMirrorImages[1] && (
+                  <div className="relative group">
+                    <div className="aspect-[3/4] md:aspect-square overflow-hidden rounded-sm border border-white/5 relative bg-white/5">
+                      <img
+                        src={visualMirrorImages[1].url}
+                        alt="Selected visual resonance 2"
+                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                    </div>
+                    <div className="absolute bottom-5 left-5 right-5 z-10">
+                      <p className="text-[11px] text-white/70 italic leading-relaxed backdrop-blur-md bg-black/40 p-3 border-l" style={{ borderColor: `${GOLD}30` }}>
+                        "Rich textures and depth anchor your spatial experience, grounding the ephemeral in the tactile."
+                      </p>
+                    </div>
                   </div>
-                  <div style={{ "paddingTop": "4px" }}>
-                    <div style={{ "fontSize": "12px", "fontWeight": "700", "marginBottom": "4px", "letterSpacing": "0.05em", "color": "var(--muted)" }}>Concept</div>
-                    <div style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "12px", "color": "var(--dim)" }}>Spatial planning, material palettes, 3D visualization</div>
+                )}
+                {visualMirrorImages[2] && (
+                  <div className="relative group md:ml-12 mt-4 md:mt-0">
+                    <div className="aspect-video overflow-hidden rounded-sm border border-white/5 relative bg-white/5">
+                      <img
+                        src={visualMirrorImages[2].url}
+                        alt="Selected visual resonance 3"
+                        className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out grayscale-[30%] hover:grayscale-0"
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
-            <div className="comp-info">
-              <div className="comp-name"><strong>Process</strong> Scrollytelling</div>
-              <p className="comp-desc">
-                The "How We Work" section becomes a pinned Scrollytelling experience. Each process step activates
-                as the user scrolls, with Lottie illustrations drawing on as the section enters.
-                GSAP timeline scrubs progress indicators. The step connector morphs via MorphSVG from dashed
-                to solid as it completes. A 3D isometric view renders the design stage in R3F.
-              </p>
-              <div className="comp-techs">
-                <span className="comp-tech">Scrollytelling</span>
-                <span className="comp-tech">GSAP Pin</span>
-                <span className="comp-tech">Lottie</span>
-                <span className="comp-tech">MorphSVG</span>
-                <span className="comp-tech">R3F Isometric</span>
-              </div>
-            </div>
-          </div>
+          </motion.div>
+        </section>
+      )}
 
-          <div className="divider"></div>
-
-          <div className="comp-row reverse reveal">
-            <div className="comp-preview">
-              <div className="comp-preview-label">Portfolio Gallery — 3D</div>
-              <div className="r3f-placeholder">
-                <div className="orbit">
-                  <div className="orbit-inner"></div>
-                </div>
-                <div style={{ "fontFamily": "'DM Mono',monospace", "fontSize": "8px", "letterSpacing": "0.15em", "color": "var(--muted)", "textTransform": "uppercase" }}>R3F / Three.js Gallery</div>
-              </div>
-            </div>
-            <div className="comp-info">
-              <div className="comp-name"><strong>Portfolio</strong> 3D Gallery</div>
-              <p className="comp-desc">
-                Projects presented as floating 3D cards in a depth-layered Three.js scene. Cards pivot with
-                perspective tracking as cursor moves across. Clicking a card triggers a GSAP Flip animation
-                expanding it to full-screen with React Three Fiber transition. PlayCanvas handles complex
-                multi-model scene management for the portfolio walk-through.
-              </p>
-              <div className="comp-techs">
-                <span className="comp-tech">Three.js</span>
-                <span className="comp-tech">GSAP Flip</span>
-                <span className="comp-tech">PlayCanvas</span>
-                <span className="comp-tech">Framer Motion</span>
-                <span className="comp-tech">Parallax</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="divider"></div>
-
-          <div className="comp-row reveal">
-            <div className="comp-preview">
-              <div className="comp-preview-label">CTA — Liquid Morphing</div>
-              <div style={{ "width": "85%", "textAlign": "center", "position": "relative" }}>
-                <div className="morph-blob" style={{ "margin": "0 auto 16px" }}></div>
-                <div style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "22px", "marginBottom": "8px" }}>Ready to Transform<br />Your Space?</div>
-                <div style={{ "padding": "10px 28px", "background": "var(--accent)", "display": "inline-block", "fontFamily": "'Syne',sans-serif", "fontSize": "9px", "fontWeight": "700", "letterSpacing": "0.15em", "textTransform": "uppercase" }}>Book Consultation</div>
-              </div>
-            </div>
-            <div className="comp-info">
-              <div className="comp-name"><strong>CTA</strong> Liquid Section</div>
-              <p className="comp-desc">
-                The conversion section uses a full-bleed liquid morph background via MorphSVG path animation —
-                organic blobs that pulse with the brand's red. The consultation form floats over with a
-                Claymorphism treatment. Button hover triggers a liquid fill via CSS clip-path animation +
-                Framer Motion spring. Magic UI spotlight adds atmospheric depth.
-              </p>
-              <div className="comp-techs">
-                <span className="comp-tech">MorphSVG Liquid</span>
-                <span className="comp-tech">Claymorphism</span>
-                <span className="comp-tech">Magic UI Spotlight</span>
-                <span className="comp-tech">Framer Motion</span>
-                <span className="comp-tech">CSS Clip-Path</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/*  ═══════════ ANIMATIONS ═══════════  */}
-      <section id="animations">
-        <div className="section-eyebrow reveal">04 — Animation & Interactivity Catalog</div>
-        <h2 className="section-title reveal reveal-delay-1"><em>Motion</em> Design<br /><strong>Reference System</strong></h2>
-        <p className="section-intro reveal reveal-delay-2">
-          A living catalog of every animation pattern deployed across the interface,
-          with interactive previews and implementation notes.
-        </p>
-
-        <div className="anim-bento reveal">
-
-          <div className="bento b1">
-            <div className="bento-title">Kinetic Typography</div>
-            <p className="bento-desc">Characters animate individually using GSAP SplitText. Each word becomes an independent timeline unit.</p>
-            <div className="bento-preview">
-              <div className="kinetic-text">Design</div>
-            </div>
-          </div>
-
-          <div className="bento b2">
-            <div className="bento-title">MorphSVG Liquid Blob</div>
-            <p className="bento-desc">Border-radius keyframe morphing as a CSS approximation; production uses MorphSVG path data.</p>
-            <div className="bento-preview">
-              <div className="morph-blob"></div>
-            </div>
-          </div>
-
-          <div className="bento b3">
-            <div className="bento-title">Liquid Ring Pulse</div>
-            <p className="bento-desc">Concentric ring pulse used as loading state and CTA emphasis. Popmotion drives amplitude.</p>
-            <div className="bento-preview">
-              <div className="liquid-ring"></div>
-            </div>
-          </div>
-
-          <div className="bento b4">
-            <div className="bento-title">Glassmorphism Service Card</div>
-            <p className="bento-desc">Frosted glass overlay with top gradient highlight. backdrop-filter: blur() layered over photography. Inner border adds refraction depth. Framer Motion layout animation handles card expansion.</p>
-            <div className="bento-preview" style={{ "background": "linear-gradient(135deg,#1a0f0a,#0f0f0f)" }}>
-              <div className="glass-card">
-                <div className="glass-title">Living Room Design</div>
-                <div className="glass-sub">Residential — Premium Tier</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bento b5">
-            <div className="bento-title">Claymorphism Process Step</div>
-            <p className="bento-desc">Tactile, puffy card treatment for the process steps. Multi-layer box-shadow creates depth illusion. Hover triggers scale + shadow shift via Framer Motion spring.</p>
-            <div className="bento-preview">
-              <div className="clay-card">
-                <div className="clay-title">Step 01 — Discovery</div>
-                <div className="clay-sub">Understanding your vision and lifestyle needs</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bento b6">
-            <div className="bento-title">Parallax Depth Layers</div>
-            <p className="bento-desc">Three independent layers float at different scroll velocities using GSAP ScrollTrigger scrub values of 0.5, 1, and 2. Creates a natural depth perception on photography.</p>
-            <div className="bento-preview">
-              <div className="parallax-layers">
-                <div className="layer l1"></div>
-                <div className="layer l2"></div>
-                <div className="layer l3"></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bento b7">
-            <div className="bento-title">Scroll Scrub</div>
-            <p className="bento-desc">Scroll-linked progress bars and 3D camera paths timed to Lenis velocity.</p>
-            <div className="bento-preview" style={{ "flexDirection": "column", "gap": "12px", "padding": "16px", "alignItems": "flex-start" }}>
-              <div className="scroll-scrub">
-                <div className="scrub-label">Section Progress</div>
-                <div className="scrub-bar"><div className="scrub-fill"></div></div>
-                <div className="scrub-label">Camera Path</div>
-                <div className="scrub-bar"><div className="scrub-fill" style={{ "animationDelay": "0.5s" }}></div></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bento b8">
-            <div className="bento-title">Micro-interactions</div>
-            <p className="bento-desc">Hover fill reveal on buttons. Popmotion spring physics on cursor proximity.</p>
-            <div className="bento-preview" style={{ "padding": "16px" }}>
-              <div className="micro-btns">
-                <button className="micro-btn"><span>Hover Me →</span></button>
-                <button className="micro-btn"><span>Explore Space</span></button>
-              </div>
-            </div>
-          </div>
-
-          <div className="bento b9">
-            <div className="bento-title">Three.js Cube</div>
-            <p className="bento-desc">Wireframe 3D geometry. Production uses PBR furniture models.</p>
-            <div className="bento-preview">
-              <div className="three-demo">
-                <div className="cube-face"></div>
-                <div className="cube-face"></div>
-                <div className="cube-face"></div>
-                <div className="cube-face"></div>
-                <div className="cube-face"></div>
-                <div className="cube-face"></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bento b10">
-            <div className="bento-title">Spline / R3F Orb</div>
-            <p className="bento-desc">Physically-shaded orb. Cursor-reactive environment mapping via Spline.</p>
-            <div className="bento-preview" style={{ "background": "#050505", "padding": "0", "overflow": "hidden" }}>
-              <div className="spline-sim">
-                <div className="spline-orb"></div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/*  ═══════════ SCROLL JOURNEY ═══════════  */}
-      <section id="journey">
-        <div className="section-eyebrow reveal">05 — Scroll Journey Map</div>
-        <h2 className="section-title reveal reveal-delay-1">Page-by-Page<br /><em>Animation</em> <strong>Choreography</strong></h2>
-        <p className="section-intro reveal reveal-delay-2">
-          A precise breakdown of every scroll-triggered event, entrance effect,
-          and interactive moment the visitor encounters from top to bottom.
-        </p>
-
-        <div className="journey-steps">
-          <div className="j-step reveal">
-            <div className="j-step-num">Zone 01 — Viewport 0–100vh</div>
-            <div className="j-step-title">Hero: Spatial Entry</div>
-            <p className="j-step-desc">
-              Page loads with a black screen. R3F scene bootstraps with fade-in (Framer Motion AnimatePresence).
-              The brand tagline performs a SplitText reveal stagger (40ms per character, ease: "power3.out").
-              Subtle cursor particles appear via Anime.js. The Lenis scroll begins, and the hero text
-              parallaxes at 0.4x scroll speed. A floating prompt arrows pulses via Lottie.
+      {/* ── DNA RADAR ──────────────────────────────────────────── */}
+      <section className="px-6 py-24 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-16 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <p className="text-[9px] font-mono tracking-[0.4em] uppercase mb-4" style={{ color: GOLD }}>
+              03 — Aesthetic DNA
             </p>
-            <div className="j-tech-list">
-              <span className="j-tech">R3F Scene Mount</span>
-              <span className="j-tech">GSAP SplitText</span>
-              <span className="j-tech">Framer AnimatePresence</span>
-              <span className="j-tech">Lenis Init</span>
-              <span className="j-tech">Anime.js Particles</span>
-              <span className="j-tech">Lottie Scroll Hint</span>
-            </div>
-          </div>
-
-          <div className="j-step reveal">
-            <div className="j-step-num">Zone 02 — Viewport 100–220vh</div>
-            <div className="j-step-title">Services: Bento Cascade</div>
-            <p className="j-step-desc">
-              ScrollTrigger fires at 80% viewport. Bento cards cascade in with staggered Y-translation
-              (Framer Motion staggerChildren: 0.12s). Each card's Spline 3D preview lazy-loads as it
-              enters the viewport. On hover, GSAP Flip captures card position and expands it to modal state.
-              MorphSVG section divider morphs from angular to organic as the section fully enters.
-            </p>
-            <div className="j-tech-list">
-              <span className="j-tech">ScrollTrigger</span>
-              <span className="j-tech">Framer Stagger</span>
-              <span className="j-tech">GSAP Flip</span>
-              <span className="j-tech">Spline Lazy Load</span>
-              <span className="j-tech">MorphSVG Divider</span>
-            </div>
-          </div>
-
-          <div className="j-step reveal">
-            <div className="j-step-num">Zone 03 — Viewport 220–380vh (Pinned)</div>
-            <div className="j-step-title">Process: Scroll-Scrubbed Storytelling</div>
-            <p className="j-step-desc">
-              The section is pinned for 160vh of scroll. A GSAP timeline scrubs progress — each step
-              activates at 33%, 66%, and 100%. Lottie animation plays frame-by-frame synced to scroll
-              position. The connector line draws via SVGator stroke-dashoffset animation. An R3F isometric
-              3D scene shows each design phase as the user scrolls. Zdog vector illustration rotates.
-            </p>
-            <div className="j-tech-list">
-              <span className="j-tech">GSAP ScrollTrigger Pin</span>
-              <span className="j-tech">Scroll Scrubbing</span>
-              <span className="j-tech">Lottie Frame Sync</span>
-              <span className="j-tech">SVGator Draw-On</span>
-              <span className="j-tech">Zdog Illustration</span>
-              <span className="j-tech">R3F Isometric</span>
-            </div>
-          </div>
-
-          <div className="j-step reveal">
-            <div className="j-step-num">Zone 04 — Viewport 380–500vh</div>
-            <div className="j-step-title">Portfolio: 3D Gallery Walk</div>
-            <p className="j-step-desc">
-              Project cards float in a Three.js depth-parallax arrangement. Mouse movement triggers
-              Popmotion spring-based perspective shifts across the entire grid. PlayCanvas manages the
-              loaded GLTF room models displayed per project. Aceternity UI's "Tracing Beam" effect
-              connects project categories vertically. Card click triggers shared element transition via
-              Framer Motion layout ID system.
-            </p>
-            <div className="j-tech-list">
-              <span className="j-tech">Three.js Parallax</span>
-              <span className="j-tech">Popmotion Spring</span>
-              <span className="j-tech">PlayCanvas GLTF</span>
-              <span className="j-tech">Aceternity Tracing Beam</span>
-              <span className="j-tech">Framer Layout ID</span>
-            </div>
-          </div>
-
-          <div className="j-step reveal">
-            <div className="j-step-num">Zone 05 — Viewport 500–560vh</div>
-            <div className="j-step-title">Excellence Stats: Counter Emphasis</div>
-            <p className="j-step-desc">
-              Statistics section animates with GSAP countUp on ScrollTrigger enter. Stats use
-              Framer Motion whileInView with spring easing for scale emphasis. Background uses
-              Magic UI "Shimmer" effect on the tagline. Team member cards reveal with GSAP stagger
-              from left. Cursor transforms to a magnifier state using CSS variable changes.
-            </p>
-            <div className="j-tech-list">
-              <span className="j-tech">GSAP CountUp</span>
-              <span className="j-tech">Framer whileInView</span>
-              <span className="j-tech">Magic UI Shimmer</span>
-              <span className="j-tech">GSAP Stagger</span>
-            </div>
-          </div>
-
-          <div className="j-step reveal">
-            <div className="j-step-num">Zone 06 — Viewport 560vh+</div>
-            <div className="j-step-title">CTA + Footer: Liquid Close</div>
-            <p className="j-step-desc">
-              The CTA section features a full-screen MorphSVG liquid blob background in crimson.
-              Headline uses a Kinetic Typography scramble effect (Anime.js). The consultation form
-              floats with Claymorphism treatment and Framer Motion AnimatePresence for field validation states.
-              Footer reveals with a perspective-tilt curtain effect via GSAP. Social icons animate via Lottie on hover.
-            </p>
-            <div className="j-tech-list">
-              <span className="j-tech">MorphSVG Background</span>
-              <span className="j-tech">Anime.js Scramble</span>
-              <span className="j-tech">Claymorphism Form</span>
-              <span className="j-tech">GSAP Curtain</span>
-              <span className="j-tech">Lottie Social Icons</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/*  ═══════════ RESPONSIVE ═══════════  */}
-      <section id="responsive">
-        <div className="section-eyebrow reveal">06 — Responsive Design</div>
-        <h2 className="section-title reveal reveal-delay-1"><strong>Adaptive</strong> Layout<br /><em>Strategy</em></h2>
-        <p className="section-intro reveal reveal-delay-2">
-          All animation systems degrade gracefully. Mobile devices receive optimized 2D fallbacks.
-          The 3D scenes switch to pre-rendered video loops. Reduced Motion preferences are fully respected.
-        </p>
-
-        <div className="resp-devices reveal">
-          <div className="device">
-            <div className="device-frame" style={{ "borderRadius": "4px" }}>
-              <div style={{ "background": "var(--surface2)", "padding": "8px 12px", "borderBottom": "1px solid var(--border)", "display": "flex", "justifyContent": "space-between", "alignItems": "center" }}>
-                <div style={{ "fontFamily": "'DM Mono',monospace", "fontSize": "7px", "color": "var(--muted)" }}>Desktop — 1440px</div>
-                <div style={{ "display": "flex", "gap": "4px" }}><div style={{ "width": "6px", "height": "6px", "borderRadius": "50%", "background": "#ff5f57" }}></div><div style={{ "width": "6px", "height": "6px", "borderRadius": "50%", "background": "#febc2e" }}></div><div style={{ "width": "6px", "height": "6px", "borderRadius": "50%", "background": "#28c840" }}></div></div>
-              </div>
-              <div className="device-screen">
-                <div className="screen-bar accent"></div>
-                <div className="screen-grid-3">
-                  <div className="screen-tile"></div>
-                  <div className="screen-tile"></div>
-                  <div className="screen-tile"></div>
-                </div>
-                <div className="screen-block"></div>
-                <div className="screen-grid-3">
-                  <div className="screen-tile" style={{ "height": "28px" }}></div>
-                  <div className="screen-tile" style={{ "height": "28px" }}></div>
-                  <div className="screen-tile" style={{ "height": "28px" }}></div>
-                </div>
-                <div className="screen-bar short"></div>
-                <div className="screen-block" style={{ "height": "32px", "background": "var(--accent)", "opacity": "0.6" }}></div>
-              </div>
-            </div>
-            <div className="device-label">Full Experience</div>
-            <div className="device-size">3D + All Animations</div>
-          </div>
-
-          <div className="device">
-            <div className="device-frame" style={{ "borderRadius": "12px", "width": "65%", "margin": "0 auto" }}>
-              <div style={{ "background": "var(--surface2)", "padding": "8px", "borderBottom": "1px solid var(--border)", "textAlign": "center" }}>
-                <div style={{ "fontFamily": "'DM Mono',monospace", "fontSize": "7px", "color": "var(--muted)" }}>Tablet — 768px</div>
-              </div>
-              <div className="device-screen" style={{ "padding": "12px" }}>
-                <div className="screen-bar accent" style={{ "width": "70%" }}></div>
-                <div className="screen-grid-2">
-                  <div className="screen-tile" style={{ "height": "40px" }}></div>
-                  <div className="screen-tile" style={{ "height": "40px" }}></div>
-                </div>
-                <div className="screen-block" style={{ "height": "36px" }}></div>
-                <div className="screen-bar short" style={{ "width": "50%" }}></div>
-                <div className="screen-block" style={{ "height": "24px", "background": "var(--accent)", "opacity": "0.6" }}></div>
-              </div>
-            </div>
-            <div className="device-label">Adaptive</div>
-            <div className="device-size">CSS 3D + Reduced GSAP</div>
-          </div>
-
-          <div className="device">
-            <div className="device-frame" style={{ "borderRadius": "20px", "width": "50%", "margin": "0 auto" }}>
-              <div style={{ "background": "var(--surface2)", "padding": "6px", "borderBottom": "1px solid var(--border)", "textAlign": "center" }}>
-                <div style={{ "fontFamily": "'DM Mono',monospace", "fontSize": "6px", "color": "var(--muted)" }}>Mobile — 375px</div>
-              </div>
-              <div className="device-screen" style={{ "padding": "10px" }}>
-                <div className="screen-bar accent" style={{ "width": "55%" }}></div>
-                <div className="screen-block" style={{ "height": "48px" }}></div>
-                <div className="screen-block" style={{ "height": "32px" }}></div>
-                <div className="screen-bar" style={{ "width": "40%", "height": "6px" }}></div>
-                <div className="screen-block" style={{ "height": "22px", "background": "var(--accent)", "opacity": "0.6" }}></div>
-              </div>
-            </div>
-            <div className="device-label">Optimized</div>
-            <div className="device-size">Framer Motion + Video</div>
-          </div>
-        </div>
-
-        <div className="divider"></div>
-
-        <div className="stack-grid reveal" style={{ "gridTemplateColumns": "repeat(3,1fr)" }}>
-          <div className="stack-cell">
-            <div className="stack-layer">prefers-reduced-motion</div>
-            <div className="stack-name">Motion Accessibility</div>
-            <p className="stack-desc">All GSAP and Framer Motion animations check the OS reduce-motion media query. 3D scenes fall back to static renders. ScrollTrigger scrubs are replaced with fade-ins.</p>
-            <span className="stack-badge">WCAG 2.1 AA</span>
-          </div>
-          <div className="stack-cell">
-            <div className="stack-layer">GPU Detection</div>
-            <div className="stack-name">Tier-Based 3D</div>
-            <p className="stack-desc">Three.js uses a performance tier detection (low/medium/high) to adjust shadow quality, geometry complexity, and draw calls. Low-tier devices skip WebGL entirely.</p>
-            <span className="stack-badge">Three.js Detect</span>
-          </div>
-          <div className="stack-cell">
-            <div className="stack-layer">Network & Bundle</div>
-            <div className="stack-name">Code Splitting</div>
-            <p className="stack-desc">Animation libraries are dynamically imported only when their target section enters the viewport. 3D assets use Draco compression and progressive loading. Core FCP is animation-free.</p>
-            <span className="stack-badge">Dynamic Import</span>
-          </div>
-        </div>
-      </section>
-
-      {/*  ═══════════ FOOTER ═══════════  */}
-      <section id="footer">
-        <div className="footer-inner">
-          <div>
-            <h2 className="footer-cta reveal">
-              Ready to Build<br />
-              <em>Something Remarkable?</em>
+            <h2 className="text-3xl md:text-4xl font-light mb-6 leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              Your Spatial<br />
+              <em>Signature</em>
             </h2>
-            <div className="footer-btns reveal reveal-delay-2">
-              <button className="btn-primary">Start the Project</button>
-              <button className="btn-secondary">View Live Demo</button>
+            <p className="text-white/40 leading-relaxed text-sm mb-8">
+              {displayNarrative}
+            </p>
+
+            {/* Score Bars */}
+            <div className="space-y-4">
+              {(Object.keys(scores) as (keyof AestheticScores)[]).map((k, i) => (
+                <ScoreBar key={k} label={SCORE_LABELS[k]} value={scores[k]} delay={0.3 + i * 0.1} />
+              ))}
             </div>
-            <div style={{ "marginTop": "40px", "paddingTop": "32px", "borderTop": "1px solid var(--border)" }}>
-              <div style={{ "fontFamily": "'DM Mono',monospace", "fontSize": "9px", "letterSpacing": "0.15em", "textTransform": "uppercase", "color": "var(--dim)" }}>
-                This proposal covers: GSAP · ScrollTrigger · Flip · MorphSVG · Framer Motion · Lenis ·
-                Lottie · SVGator · Anime.js · Popmotion · Three.js · R3F · Spline · Zdog · Babylon.js ·
-                PlayCanvas · Blender · Scrollytelling · Parallax · Kinetic Typography · Micro-interactions ·
-                Morphing · Liquid Motion · Glassmorphism · Claymorphism · Bento Grid · Magic UI · Aceternity UI
-              </div>
-            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <RadarChart scores={scores} />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── DIVIDER ─────────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
+      </div>
+
+      {/* ── S4: COGNITIVE PROFILE ───────────────────────────────── */}
+      <CognitiveProfile scores={scores} />
+
+      {/* ── S5: TRANSFORMATION READINESS ────────────────────────── */}
+      <TransformationReadiness scores={scores} />
+
+      {/* ── S8: SENSORY BLUEPRINT (Inspired by Aura Synthesizer) ────────────────── */}
+      <section className="px-6 py-32 max-w-6xl mx-auto relative">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[120px] rounded-full -z-10" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/5 blur-[150px] rounded-full -z-10" />
+        
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-20"
+        >
+          <div className="flex items-center gap-4 mb-4">
+            <div className="h-px w-12 bg-amber-500/30" />
+            <p className="text-[10px] font-mono tracking-[0.5em] uppercase text-amber-500/80">
+              08 — Sensory Configuration
+            </p>
           </div>
-          <div className="footer-meta reveal">
-            <div style={{ "textAlign": "right" }}>
-              <div className="logo-text" style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "24px", "fontWeight": "300", "marginBottom": "8px" }}>
-                Crossangle <span style={{ "color": "var(--accent)" }}>Interior</span>
+          <h2 className="text-4xl md:text-6xl font-light leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            The Sensory <br /><em className="text-white/80 italic">Blueprint</em>
+          </h2>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[
+            { 
+              label: 'Ambient Light', 
+              value: sensoryMap?.light || (scores.earthy > 70 ? 'Golden Hour' : scores.modern > 70 ? 'Digital Clarity' : 'Soft Diffusion'),
+              desc: 'The fundamental frequency of your spatial atmosphere.',
+              icon: <Sun className="w-5 h-5" />,
+              delay: 0.1
+            },
+            { 
+              label: 'Tactile Base', 
+              value: sensoryMap?.material || (scores.minimal > 70 ? 'Honest Origin' : scores.theatrical > 70 ? 'Deep Texture' : 'Natural Grain'),
+              desc: 'Physical elements that ground your sensory experience.',
+              icon: <Layers className="w-5 h-5" />,
+              delay: 0.2
+            },
+            { 
+              label: 'Spatial Flow', 
+              value: sensoryMap?.layout || 'Unified Continuity',
+              desc: 'How energy moves through your intended environment.',
+              icon: <LayoutIcon className="w-5 h-5" />,
+              delay: 0.3
+            },
+            { 
+              label: 'Resonant Energy', 
+              value: sensoryMap?.energy || (scores.emotion > 70 ? 'Serene Pulse' : 'Focused Vibration'),
+              desc: 'The psychological impact and emotional resonance of the room.',
+              icon: <Zap className="w-5 h-5" />,
+              delay: 0.4
+            }
+          ].map((item) => (
+            <motion.div
+              key={item.label}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: item.delay, duration: 0.8 }}
+              className="group p-8 rounded-sm border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-700 relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 group-hover:text-amber-500 transition-all duration-500 transform group-hover:scale-110">
+                {item.icon}
               </div>
-              <div className="footer-credit">UI/UX Design Proposal</div>
-              <div className="footer-project">Prepared February 2026</div>
-              <div style={{ "marginTop": "24px", "width": "200px", "height": "1px", "background": "linear-gradient(90deg,transparent,var(--accent))", "marginLeft": "auto" }}></div>
-              <div style={{ "marginTop": "16px", "fontFamily": "'Cormorant Garamond',serif", "fontSize": "14px", "color": "var(--dim)", "fontStyle": "italic" }}>
-                "Every space tells a story.<br />We write it with motion."
+              <p className="text-[9px] font-mono tracking-[0.3em] uppercase mb-10 text-white/30 group-hover:text-amber-500/50 transition-colors">
+                {item.label}
+              </p>
+              <p className="text-2xl font-light mb-4 tracking-tight group-hover:translate-x-1 transition-transform duration-500" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{item.value}</p>
+              <p className="text-[11px] text-white/40 leading-relaxed font-light">{item.desc}</p>
+              
+              <div className="absolute bottom-0 left-0 w-0 h-[1px] bg-amber-500 group-hover:w-full transition-all duration-1000" />
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── S9: DESIGN STRATEGY (Poetic Strategy Pillars) ───────────────────── */}
+      <section className="px-6 py-32 bg-[#080605] relative">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="grid md:grid-cols-12 gap-16 items-start"
+          >
+            <div className="md:col-span-5 sticky top-32">
+              <p className="text-[10px] font-mono tracking-[0.5em] uppercase text-amber-500/80 mb-6">
+                09 — Core Strategy
+              </p>
+              <h2 className="text-5xl md:text-7xl font-light leading-[0.9] mb-8" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                Strategic <br /><em className="italic text-white/90">Intervention</em>
+              </h2>
+              <p className="text-lg text-white/40 leading-relaxed font-light mb-12">
+                A refined methodology for transforming your current spatial reality into your decoded identity. No detail is arbitrary; every choice is a calculated resonance.
+              </p>
+              
+              <div className="flex flex-col gap-6">
+                 {[
+                   { label: 'Precision', icon: <Plus className="w-4 h-4" /> },
+                   { label: 'Complexity', icon: <Layers className="w-4 h-4" /> },
+                   { label: 'Reductive Care', icon: <Minus className="w-4 h-4" /> }
+                 ].map(badge => (
+                   <div key={badge.label} className="flex items-center gap-4 text-white/20">
+                     <span className="p-2 border border-white/10 rounded-full">{badge.icon}</span>
+                     <span className="text-[10px] uppercase tracking-[0.3em] font-mono">{badge.label}</span>
+                   </div>
+                 ))}
               </div>
             </div>
+
+            <div className="md:col-span-7 flex flex-col gap-16">
+              {[
+                {
+                  title: 'Atmospheric Lighting',
+                  strategy: designStrategy?.lighting || 'Utilize layered indirect illumination to create sanctuary-like depth.',
+                  icon: <Lightbulb className="w-6 h-6" />,
+                  num: 'I'
+                },
+                {
+                  title: 'Material Integrity',
+                  strategy: designStrategy?.materials || 'Prioritize honest, raw materials that age with dignity and narrate a story of origin.',
+                  icon: <Paintbrush className="w-6 h-6" />,
+                  num: 'II'
+                },
+                {
+                  title: 'Curated Arrangement',
+                  strategy: designStrategy?.layout || 'Balance void and volume to ensure every interaction with the room feels intentional.',
+                  icon: <LayoutIcon className="w-6 h-6" />,
+                  num: 'III'
+                }
+              ].map((pillar, idx) => (
+                <motion.div
+                  key={pillar.title}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.2 }}
+                  className="group"
+                >
+                  <div className="flex items-end gap-6 mb-6">
+                    <span className="text-6xl font-light text-white/5 leading-none transition-colors group-hover:text-amber-500/10" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{pillar.num}</span>
+                    <div className="flex items-center gap-4 mb-2">
+                      <div className="p-3 bg-white/5 rounded-sm text-amber-500/60 group-hover:text-amber-500 transition-colors">
+                        {pillar.icon}
+                      </div>
+                      <h3 className="text-2xl font-light tracking-tight">{pillar.title}</h3>
+                    </div>
+                  </div>
+                  <div className="pl-24">
+                    <p className="text-xl text-white/60 font-light leading-relaxed italic border-l border-amber-500/20 pl-8 group-hover:border-amber-500 transition-colors duration-700" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                      "{pillar.strategy}"
+                    </p>
+                    <div className="mt-8 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0 text-amber-500/60 text-[10px] font-mono uppercase tracking-widest">
+                       <span>Implementation Required</span>
+                       <div className="h-px w-24 bg-amber-500/20" />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── S6: CINEMATIC UPGRADE CTA ────────────────────────────────────── */}
+      <section className="px-6 py-40 text-center relative overflow-hidden bg-[#0D0A08]">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_#BFA27A10_0%,_transparent_70%)]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border border-white/[0.02] rounded-full animate-[spin_60s_linear_infinite]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] border border-white/[0.03] rounded-full animate-[spin_40s_linear_infinite_reverse]" />
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.2 }}
+          className="max-w-4xl mx-auto relative z-10"
+        >
+          <p className="text-[11px] font-mono tracking-[0.6em] uppercase mb-8 text-amber-500/60">
+            Final Step
+          </p>
+          <h2 className="text-5xl md:text-8xl font-light mb-12 leading-none" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            The Physical <br /><em>Manifestation</em>
+          </h2>
+          <p className="text-xl text-white/40 mb-16 leading-relaxed max-w-2xl mx-auto font-light">
+            Your results are a guide. Our designers are the architects. Let us bridge the gap between your decoded digital DNA and the sanctuary you deserve.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <motion.a
+              href="/contact-us"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="px-12 py-5 bg-amber-500 text-black text-xs font-bold tracking-[0.3em] uppercase rounded-sm hover:bg-amber-400 transition-colors shadow-[0_0_30px_rgba(245,158,11,0.2)] relative group overflow-hidden"
+            >
+              <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+              Book Final Design Review
+            </motion.a>
+            <a
+              href="/portfolio"
+              className="px-12 py-5 border border-white/10 text-white/60 text-xs font-semibold tracking-[0.3em] uppercase rounded-sm hover:border-white/30 hover:text-white transition-all"
+            >
+              View Past Masterpieces
+            </a>
+          </div>
+          
+          <p className="mt-16 text-[10px] font-mono uppercase tracking-[0.4em] text-white/20">
+            Limited slots open for Q2 2026 Manifestations
+          </p>
+        </motion.div>
+      </section>
+
+      {/* ── S7: EXPORT & SOCIAL ACTIONS ───────────────────────────────────────── */}
+      <section className="px-6 py-12 bg-[#040404] border-y border-white/5 backdrop-blur-md sticky bottom-0 z-50">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 justify-between items-center">
+          <div className="flex flex-col gap-1 items-center md:items-start">
+             <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">Identity Export</p>
+             <p className="text-sm font-light text-white/70 italic">Blueprint Version 1.0.4 - Decoded</p>
+          </div>
+
+          <div className="flex flex-wrap gap-4 justify-center">
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-3 px-8 py-3 border border-white/10 rounded-sm transition-all hover:bg-white/5 text-[10px] font-mono tracking-[0.2em] uppercase text-white/60 hover:text-white"
+            >
+              <Download className="w-4 h-4 opacity-50" />
+              Export PDF Blueprint
+            </button>
+
+            <button
+              onClick={handleDownloadShareCard}
+              disabled={isGenerating}
+              className="flex items-center gap-3 px-8 py-3 border border-amber-500/20 bg-amber-500/5 rounded-sm transition-all hover:bg-amber-500/10 text-[10px] font-mono tracking-[0.2em] uppercase text-amber-500"
+            >
+              {isGenerating ? (
+                <RefreshCw className="w-4 h-4 animate-spin text-amber-500" />
+              ) : (
+                <Share2 className="w-4 h-4" />
+              )}
+              {isGenerating ? 'Generating DNA Card...' : 'Generate Share Card'}
+            </button>
+
+            {onRetake && (
+              <button
+                onClick={onRetake}
+                className="px-8 py-3 text-[10px] font-mono uppercase tracking-[0.2em] text-white/20 hover:text-white/60 transition-colors"
+              >
+                Retake Discovery
+              </button>
+            )}
           </div>
         </div>
       </section>
 
+      {/* ── FOOTER ─────────────────────────────────────────────── */}
+      <footer className="px-6 py-16 bg-[#040404]">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-12">
+            <div className="flex flex-col items-center md:items-start">
+               <p className="text-xl font-mono tracking-[0.4em] text-amber-500 mb-2">CROSSANGLE</p>
+               <p className="text-[9px] font-mono tracking-[0.3em] uppercase text-white/20">The Interior Intelligence OS</p>
+            </div>
+            <div className="flex gap-12 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30">
+               <a href="#" className="hover:text-amber-500 transition-colors">Vision</a>
+               <a href="#" className="hover:text-amber-500 transition-colors">Manifesto</a>
+               <a href="#" className="hover:text-amber-500 transition-colors">Legal</a>
+            </div>
+          </div>
+          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] font-mono text-white/10 tracking-[0.3em] uppercase">
+            <span>Copyright 2026 Crossangle Interior. All rights reserved.</span>
+            <span>Grounding Identity in Physical Space.</span>
+          </div>
+        </div>
+      </footer>
 
+      {/* ── SHARE CARD TEMPLATE (Fixed & Enhanced High-Res) ─────────────────────────────────────── */}
+      <div
+        className="fixed top-[-9999px] left-[-9999px] w-[1080px] h-[1920px] bg-[#040404] text-white flex flex-col justify-between p-24"
+        style={{ fontFamily: "'Syne', sans-serif" }}
+        ref={shareCardRef}
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#BFA27A20] via-[#040404] to-[#040404] pointer-events-none" />
+        
+        {/* Artistic Background Text */}
+        <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-[22rem] font-bold text-white/[0.02] tracking-tighter whitespace-nowrap pointer-events-none uppercase">
+          {displayName}
+        </div>
 
+        <div className="relative z-10 flex flex-col items-center text-center mt-32">
+          <div className="px-8 py-3 border border-amber-500/40 rounded-full text-2xl font-mono tracking-[0.5em] uppercase mb-16" style={{ color: '#BFA27A' }}>
+            Aesthetic DNA Certificate
+          </div>
+          <h2 className="text-[10rem] font-light mb-12 leading-[0.85] tracking-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            {displayName}
+          </h2>
+          <div className="h-px w-24 bg-amber-500/30 mb-12" />
+          <p className="text-4xl text-white/60 font-light leading-relaxed max-w-4xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            "{displayTagline}"
+          </p>
+        </div>
+
+        <div className="relative z-10 flex-1 flex items-center justify-center -my-12">
+          <div className="relative w-full aspect-square scale-[2.2] flex items-center justify-center">
+            {/* Custom SVG Radar for High Res Share Card to avoid canvas nesting issues */}
+            <div className="p-12 bg-white/[0.02] rounded-full border border-white/5 backdrop-blur-3xl">
+               <RadarChart scores={scores} />
+            </div>
+            
+            <div className="absolute inset-0 pointer-events-none">
+               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full border border-amber-500/5 rounded-full" />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 pt-20 flex flex-col items-center w-full gap-20">
+          <div className="flex gap-8">
+            {displayTraits.slice(0, 4).map(trait => (
+              <span key={trait} className="px-8 py-4 text-xl tracking-[0.3em] uppercase font-mono border rounded-sm border-white/10 text-white/50 bg-white/[0.02]">
+                {trait}
+              </span>
+            ))}
+          </div>
+          
+          <div className="flex justify-between items-end w-full border-t border-white/10 pt-16">
+            <div className="text-left">
+              <p className="text-sm font-mono tracking-[0.4em] text-white/20 uppercase mb-2">Authenticated By</p>
+              <p className="text-3xl font-mono tracking-[0.4em] text-amber-500">CROSSANGLE</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-mono tracking-[0.4em] text-white/20 uppercase mb-2">Blueprint Type</p>
+              <p className="text-xl font-mono tracking-[0.3em] text-white/60 uppercase">Discovery OS v1.0</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AnimatePresence } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, Suspense, lazy } from "react";
 import { SchemaMarkup } from "./components/SchemaMarkup";
 import { LanguageProvider } from "./hooks/useLanguage";
 import { ThemeProvider } from "./components/theme-provider";
@@ -22,15 +22,17 @@ import BlogPage from "./pages/BlogPage";
 import BlogDetailPage from "./pages/BlogDetailPage";
 import ContactPage from "./pages/ContactPage";
 import ProjectPage from "./pages/ProjectPage";
+import PreviewPage from "./pages/PreviewPage";
 import PriceEstimator from "./addons/calculators/pages/PriceEstimator";
 import DiscoveryPage from "./addons/discovery/pages/DiscoveryPage";
 import NotFound from "./pages/NotFound";
 import PageTransition from "./components/PageTransition";
-import BlueprintPage from "./addons/discovery/pages/BlueprintPage";
+const BlueprintPage = lazy(() => import("./addons/discovery/pages/BlueprintPage"));
 // Admin Pages
 import AdminAuth from "./pages/admin/AdminAuth";
 import AdminResetPassword from "./pages/admin/AdminResetPassword";
-import AdminLayout from "./pages/admin/AdminLayout";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminHub from "./pages/admin/AdminHub";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPageSections from "./pages/admin/AdminPageSections";
 import AdminBlogs from "./pages/admin/AdminBlogs";
@@ -43,7 +45,16 @@ import AdminTestimonials from "./pages/admin/AdminTestimonials";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTeam from "./pages/admin/AdminTeam";
 import AdminEstimateLeads from "./pages/admin/AdminEstimateLeads";
+import AdminEstimateRates from "./pages/admin/AdminEstimateRates";
 import AdminTeamMembers from "./pages/admin/AdminTeamMembers";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+// Admin Module Wrappers
+import { CmsModule } from "./pages/admin/modules/CmsModule";
+import { CrmModule } from "./pages/admin/modules/CrmModule";
+import { DiscoveryModule } from "./pages/admin/modules/DiscoveryModule";
+import { EstimatorModule } from "./pages/admin/modules/EstimatorModule";
+import { SystemModule } from "./pages/admin/modules/SystemModule";
+import { RoleGuard } from "./components/admin/RoleGuard";
 
 const queryClient = new QueryClient();
 
@@ -58,9 +69,14 @@ const ScrollToTop = () => {
   return null;
 };
 
+import useLenis from "./hooks/useLenis";
+
 const AnimatedRoutes = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
+
+  // Initialize smooth scrolling for the entire app
+  useLenis();
 
   useEffect(() => {
     console.log("Debug: AnimatedRoutes rendered, path:", location.pathname, "isAdmin:", isAdmin);
@@ -75,20 +91,37 @@ const AnimatedRoutes = () => {
           <Route path="/admin/login" element={<Navigate to="/admin/auth" replace />} />
           <Route path="/admin/reset-password" element={<AdminResetPassword />} />
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="page-sections" element={<AdminPageSections />} />
-            <Route path="blogs" element={<AdminBlogs />} />
-            <Route path="services" element={<AdminServices />} />
-            <Route path="portfolio" element={<AdminPortfolio />} />
-            <Route path="leads" element={<AdminLeads />} />
-            <Route path="settings" element={<AdminSettings />} />
-            <Route path="media" element={<AdminMedia />} />
-            <Route path="testimonials" element={<AdminTestimonials />} />
-            <Route path="users" element={<AdminUsers />} />
-            <Route path="team" element={<AdminTeam />} />
-            <Route path="estimate-leads" element={<AdminEstimateLeads />} />
-            <Route path="team-members" element={<AdminTeamMembers />} />
-            <Route path="testimonials" element={<AdminTestimonials />} />
+            <Route index element={<AdminHub />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+
+            <Route path="cms" element={<RoleGuard allowedRoles={["admin", "editor", "viewer"]}><CmsModule /></RoleGuard>}>
+              <Route path="pages" element={<RoleGuard allowedRoles={["admin", "editor"]}><AdminPageSections /></RoleGuard>} />
+              <Route path="portfolio" element={<RoleGuard allowedRoles={["admin", "editor"]}><AdminPortfolio /></RoleGuard>} />
+              <Route path="services" element={<RoleGuard allowedRoles={["admin", "editor"]}><AdminServices /></RoleGuard>} />
+              <Route path="testimonials" element={<RoleGuard allowedRoles={["admin", "editor"]}><AdminTestimonials /></RoleGuard>} />
+              <Route path="team" element={<RoleGuard allowedRoles={["admin", "editor"]}><AdminTeam /></RoleGuard>} />
+              <Route path="blogs" element={<RoleGuard allowedRoles={["admin", "editor"]}><AdminBlogs /></RoleGuard>} />
+              <Route path="media" element={<RoleGuard allowedRoles={["admin", "editor", "viewer"]}><AdminMedia /></RoleGuard>} />
+            </Route>
+
+            <Route path="crm" element={<RoleGuard allowedRoles={["admin", "editor", "viewer"]}><CrmModule /></RoleGuard>}>
+              <Route path="leads" element={<AdminLeads />} />
+              <Route path="users" element={<RoleGuard allowedRoles={["admin"]}><AdminUsers /></RoleGuard>} />
+            </Route>
+
+            <Route path="discovery" element={<RoleGuard allowedRoles={["admin", "editor", "viewer"]}><DiscoveryModule /></RoleGuard>}>
+              <Route path="analytics" element={<AdminAnalytics />} />
+            </Route>
+
+            <Route path="estimator" element={<RoleGuard allowedRoles={["admin", "editor", "viewer"]}><EstimatorModule /></RoleGuard>}>
+              <Route path="leads" element={<AdminEstimateLeads />} />
+              <Route path="rates" element={<RoleGuard allowedRoles={["admin"]}><AdminEstimateRates /></RoleGuard>} />
+            </Route>
+
+            <Route path="system" element={<RoleGuard allowedRoles={["admin"]}><SystemModule /></RoleGuard>}>
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="team-members" element={<AdminTeamMembers />} />
+            </Route>
           </Route>
         </Routes>
       ) : (
@@ -100,10 +133,11 @@ const AnimatedRoutes = () => {
             <Route path="/gallery" element={<PageTransition><GalleryPage /></PageTransition>} />
             <Route path="/blog" element={<PageTransition><BlogPage /></PageTransition>} />
             <Route path="/blog/:slug" element={<PageTransition><BlogDetailPage /></PageTransition>} />
+            <Route path="/preview/:slug" element={<PageTransition><PreviewPage /></PageTransition>} />
             <Route path="/contact-us" element={<PageTransition><ContactPage /></PageTransition>} />
             <Route path="/estimate" element={<PageTransition><PriceEstimator /></PageTransition>} />
             <Route path="/spatial-identity-os" element={<PageTransition><DiscoveryPage /></PageTransition>} />
-            <Route path="/blueprint" element={<PageTransition><BlueprintPage /></PageTransition>} />
+            <Route path="/blueprint" element={<PageTransition><Suspense fallback={<div className="min-h-screen bg-[#080808] w-full" />}><BlueprintPage /></Suspense></PageTransition>} />
             <Route path="/portfolio/:slug" element={<PageTransition><ProjectPage /></PageTransition>} />
             {/* Redirect routes for common variations */}
             <Route path="/about" element={<Navigate to="/about-us" replace />} />

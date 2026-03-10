@@ -1,22 +1,35 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import Services from "@/components/Services";
-import Portfolio from "@/components/Portfolio";
-import About from "@/components/About";
-import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import FixedSocialBar from "@/components/FixedSocialBar";
 import SectionNavDots from "@/components/SectionNavDots";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import Process from "@/components/Process";
-import TrustSection from "@/components/TrustSection";
-import { BeforeAfterShowcase } from "@/components/BeforeAfterShowcase";
 import ScrollProgress from "@/components/ScrollProgress";
 import WelcomePrompt from "@/components/WelcomePrompt";
-import CTAContact from "@/components/CTAContact";
+
+// Static sections fallback
+import Hero from "@/components/Hero";
+import About from "@/components/About";
+import Services from "@/components/Services";
+import Process from "@/components/Process";
+import Portfolio from "@/components/Portfolio";
+import TrustSection from "@/components/TrustSection";
+import { BeforeAfterShowcase } from "@/components/BeforeAfterShowcase";
+import Testimonials from "@/components/Testimonials";
+
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { PageRenderer } from "@/components/cms/PageRenderer";
+import { Loader2 } from "lucide-react";
 
 const Index = () => {
+  const { data: pageData, isLoading } = useQuery({
+    queryKey: ["page", "home"],
+    queryFn: () => api.getPageBySlug("home"),
+  });
+
+  const sections = pageData?.sections || [];
+
   return (
     <>
       <Helmet>
@@ -46,19 +59,29 @@ const Index = () => {
       <ScrollProgress />
       <WelcomePrompt />
       <Navbar />
-      <main id="main-content" className="min-h-screen relative z-10">
+      <main id="main-content" className="min-h-screen relative z-10 w-full">
         <FixedSocialBar />
         <SectionNavDots />
         <WhatsAppButton />
-        <Hero />
-        <About />
-        <Services />
-        <Process />
-        <Portfolio />
-        <TrustSection />
-        <BeforeAfterShowcase />
-        <Testimonials />
-        <CTAContact />
+
+        {isLoading ? (
+          <div className="min-h-screen flex items-center justify-center bg-background">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : sections.length > 0 ? (
+          <PageRenderer sections={sections} />
+        ) : (
+          <>
+            <Hero />
+            <About />
+            <Services />
+            <Process />
+            <Portfolio />
+            <TrustSection />
+            <BeforeAfterShowcase />
+            <Testimonials />
+          </>
+        )}
       </main>
       <Footer />
     </>

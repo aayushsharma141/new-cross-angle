@@ -255,13 +255,15 @@ const AdminSettings = () => {
                         onChange={(e) => setCurrentPassword(e.target.value)}
                         className={cn(errors.currentPassword ? "border-destructive focus-visible:ring-destructive" : "")}
                       />
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
+                      </Button>
                     </div>
                     {errors.currentPassword && (
                       <p className="text-sm text-destructive flex items-center gap-1">
@@ -281,13 +283,15 @@ const AdminSettings = () => {
                           onChange={(e) => setNewPassword(e.target.value)}
                           className={cn(errors.newPassword ? "border-destructive focus-visible:ring-destructive" : "")}
                         />
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => setShowNewPassword(!showNewPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
                         >
                           {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
+                        </Button>
                       </div>
                     </div>
 
@@ -330,13 +334,15 @@ const AdminSettings = () => {
                         onChange={(e) => setConfirmNewPassword(e.target.value)}
                         className={cn(errors.confirmNewPassword ? "border-destructive focus-visible:ring-destructive" : "")}
                       />
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
+                      </Button>
                     </div>
                     {errors.confirmNewPassword && (
                       <p className="text-sm text-destructive flex items-center gap-1">

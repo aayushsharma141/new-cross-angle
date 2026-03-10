@@ -9,6 +9,8 @@ import { services } from "@/config/site-content";
 
 import { servicesMenu, navLinks } from "@/config/navigation";
 
+import { SpotlightNavContainer } from "@/components/ui/spotlight-navbar";
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -68,11 +70,15 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation - Increased gaps */}
-          <div className="hidden lg:flex items-center gap-10">
-            {navLinks.map((link) => (
+          <SpotlightNavContainer
+            className="hidden lg:flex"
+            activeIndex={Math.max(0, navLinks.findIndex(l => location.pathname === l.href))}
+          >
+            {navLinks.map((link, index) => (
               <div
                 key={link.name}
-                className="relative"
+                data-index={index}
+                className="relative flex items-center justify-center px-2"
                 onMouseEnter={() => link.hasMegaMenu && setIsMegaMenuOpen(true)}
                 onMouseLeave={() => link.hasMegaMenu && setIsMegaMenuOpen(false)}
               >
@@ -242,7 +248,7 @@ const Navbar = () => {
                 )}
               </div>
             ))}
-          </div>
+          </SpotlightNavContainer>
 
 
           {/* Phone + CTA - Enhanced */}
@@ -349,7 +355,7 @@ const Navbar = () => {
           )}
         </AnimatePresence>
       </nav>
-    </header>
+    </header >
   );
 };
 

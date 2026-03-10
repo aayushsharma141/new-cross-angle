@@ -137,7 +137,20 @@ export default function BlueprintPage() {
     <div className="blueprint-page-wrapper bg-[#040404] text-[#E0E0E0] min-h-screen" ref={containerRef}>
 
 
-      {/*  CURSOR  */}
+      
+      <BlueprintHeader />
+      <BlueprintRadar />
+      <BlueprintMoodboard />
+      <BlueprintInsights />
+</div>
+  );
+}
+
+
+function BlueprintHeader() {
+  return (
+    <>
+{/*  CURSOR  */}
       <div id="cursor"></div>
       <div id="cursor-ring"></div>
       <div id="progress"></div>
@@ -382,7 +395,15 @@ export default function BlueprintPage() {
         </div>
       </section>
 
-      {/*  ═══════════ TECH STACK ═══════════  */}
+      
+    </>
+  );
+}
+
+function BlueprintRadar() {
+  return (
+    <>
+{/*  ═══════════ TECH STACK ═══════════  */}
       <section id="techstack">
         <div className="section-eyebrow reveal">02 — Technology Stack</div>
         <h2 className="section-title reveal reveal-delay-1">Chosen <em>Technologies</em><br /><strong>& Rationale</strong></h2>
@@ -495,7 +516,15 @@ export default function BlueprintPage() {
         </div>
       </section>
 
-      {/*  ═══════════ COMPONENTS ═══════════  */}
+      
+    </>
+  );
+}
+
+function BlueprintMoodboard() {
+  return (
+    <>
+{/*  ═══════════ COMPONENTS ═══════════  */}
       <section id="components">
         <div className="section-eyebrow reveal">03 — UI Components</div>
         <h2 className="section-title reveal reveal-delay-1">Interface <strong>Component</strong><br /><em>Architecture</em></h2>
@@ -688,7 +717,15 @@ export default function BlueprintPage() {
         </div>
       </section>
 
-      {/*  ═══════════ ANIMATIONS ═══════════  */}
+      
+    </>
+  );
+}
+
+function BlueprintInsights() {
+  return (
+    <>
+{/*  ═══════════ ANIMATIONS ═══════════  */}
       <section id="animations">
         <div className="section-eyebrow reveal">04 — Animation & Interactivity Catalog</div>
         <h2 className="section-title reveal reveal-delay-1"><em>Motion</em> Design<br /><strong>Reference System</strong></h2>
@@ -1069,6 +1106,7 @@ export default function BlueprintPage() {
 
 
 
-    </div>
+    
+    </>
   );
 }

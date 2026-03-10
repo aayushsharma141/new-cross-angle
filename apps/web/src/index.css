@@ -6,137 +6,184 @@
 @layer base {
 
   /* =========================
-     MASTER – MONOCHROMATIC WINE (DEFAULT)
+     MASTER – ULTRA SHINE DARK BLACK
      Used for: Homepage, Portfolio, Brand pages
   ========================= */
   :root {
     /* Backgrounds */
     --background: 0 0% 0%;
-    /* #000000 - Pure Black */
-    --foreground: 36 26% 97%;
-    /* #FAF8F5 - Off White */
+    /* Pure Black */
+    --foreground: 0 0% 100%;
+    /* Pure White */
 
-    --card: 0 0% 10%;
-    /* Dark Surface */
-    --card-foreground: 36 26% 97%;
+    /* Cards */
+    --card: 0 0% 7%;
+    /* Dark Gray */
+    --card-foreground: 0 0% 90%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 36 26% 97%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 95%;
 
-    /* Brand Primary (Red) */
-    --primary: 0 100% 38%;
-    /* #C30000 - Brand Red */
-    --primary-foreground: 0 0% 98%;
+    /* Brand Primary (Rich Red) */
+    --primary: 355 85% 42%;
+    /* #C61022 - Flat Modern Red */
+    --primary-foreground: 0 0% 100%;
 
     /* Interaction States */
-    --primary-hover: 356 89% 35%;
-    /* #A90913 - Darker Red */
-    --primary-active: 356 90% 30%;
+    --primary-hover: 355 90% 35%;
+    --primary-active: 355 95% 30%;
 
-    /* Rose Highlight (Pink) */
-    --secondary: 0 67% 81%;
-    /* #EFA0A0 - Light Pink */
-    --secondary-foreground: 0 0% 10%;
+    /* Secondary */
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
 
     /* Muted & Subtle */
-    --muted: 0 0% 16%;
-    --muted-foreground: 0 0% 80%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 65%;
+    /* Soft text */
 
     /* Gold Accent */
-    --accent: 46 100% 50%;
-    /* #FFC300 - Gold */
+    --accent: 43 90% 55%;
+    /* Bright modern gold */
     --accent-foreground: 0 0% 10%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
     /* UI Elements */
-    --border: 0 0% 23%;
-    --input: 0 0% 20%;
-    --ring: 0 100% 38%;
+    --border: 0 0% 15%;
+    --input: 0 0% 12%;
+    --ring: 355 85% 42%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
+    /* Slightly sharper corners for modern look */
 
     /* Focus Ring */
-    --focus-ring: 0 100% 38% / 0.55;
+    --focus-ring: 355 85% 42% / 0.55;
 
     /* Sidebar (Admin) */
-    --sidebar-background: 0 0% 4%;
+    --sidebar-background: 0 0% 2%;
     --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 352 78% 31%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 16%;
+    --sidebar-primary: 355 85% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 10%;
     --sidebar-accent-foreground: 0 0% 96%;
-    --sidebar-border: 0 0% 23%;
-    --sidebar-ring: 352 78% 31%;
+    --sidebar-border: 0 0% 10%;
+    --sidebar-ring: 355 85% 42%;
 
     /* Gradients */
-    --gradient-wine: linear-gradient(135deg, hsl(352 78% 31%) 0%, hsl(350 74% 44%) 100%);
-    --gradient-gold: linear-gradient(90deg, hsl(352 78% 31%) 0%, hsl(46 70% 47%) 100%);
-    --shadow-luxury: 0 25px 50px -12px hsl(0 0% 0% / 0.8);
+    --gradient-wine: linear-gradient(135deg, hsl(355 85% 42%) 0%, hsl(355 90% 30%) 100%);
+    --gradient-gold: linear-gradient(90deg, hsl(43 90% 55%) 0%, hsl(38 90% 45%) 100%);
+    --gradient-obsidian: linear-gradient(180deg, hsl(0 0% 10%) 0%, hsl(0 0% 0%) 100%);
+    --gradient-shine: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 5%) 50%, hsl(0 0% 8%) 100%);
+    --shadow-luxury: 0 25px 50px -12px hsl(0 0% 0% / 0.9);
   }
 
   /* =========================
-     RESIDENTIAL – WINE + GOLD
-     Used for: Testimonials, Awards, Premium sections
+     RESIDENTIAL
   ========================= */
   [data-theme="residential"],
   .theme-residential {
-    --background: 0 0% 5%;
-    /* #0D0D0D */
-    --foreground: 40 33% 97%;
-    /* #FAF8F5 - Cream */
-
-    --card: 0 0% 10%;
-    /* #1A1A1A */
-    --card-foreground: 40 33% 97%;
-
-    --muted-foreground: 0 0% 72%;
-    /* #B8B8B8 */
-
-    /* Gold Accent (use sparingly - borders, icons, separators) */
-    --accent-gold: 46 70% 47%;
-    /* #C9A227 */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 95%;
+    --muted-foreground: 0 0% 65%;
+    --accent-gold: 46 80% 50%;
   }
 
   /* =========================
-     COMMERCIAL – WINE + TEAL
-     Used for: Filters, Dashboards, Interactive sections
+     COMMERCIAL
   ========================= */
   [data-theme="commercial"],
   .theme-commercial {
-    --background: 240 20% 5%;
-    /* #0A0A0F */
-    --foreground: 180 20% 95%;
-    /* #F0F4F4 */
-
-    --card: 240 12% 17%;
-    /* #252530 */
-    --card-foreground: 180 20% 95%;
-
-    --muted-foreground: 200 8% 70%;
-    /* #AEB4B8 */
-
-    /* Teal Accent */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 90%;
+    --muted-foreground: 0 0% 60%;
     --accent-teal: 180 58% 27%;
-    /* #1E6E6E */
   }
 
-  /* Legacy light mode support (minimal use) */
+  /* Legacy light mode */
   .light {
-    --background: 40 20% 97%;
-    --foreground: 0 0% 8%;
-
+    --background: 0 0% 98%;
+    --foreground: 0 0% 5%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 8%;
-
-    --primary: 352 78% 31%;
-    --primary-foreground: 0 0% 98%;
-
-    --muted: 40 10% 92%;
+    --card-foreground: 0 0% 5%;
+    --primary: 355 85% 42%;
+    --primary-foreground: 0 0% 100%;
+    --muted: 0 0% 92%;
     --muted-foreground: 0 0% 40%;
+    --border: 0 0% 85%;
+  }
 
-    --border: 40 15% 85%;
+  /* Admin Base */
+  .admin-theme {
+    --admin-bg: 0 0% 98%;
+    --admin-surface: 0 0% 96%;
+    --admin-card: 0 0% 100%;
+    --admin-border: 0 0% 90%;
+    --admin-gold: 326 50% 32%;
+    --admin-text: 220 10% 10%;
+    --admin-muted: 220 5% 40%;
+    --admin-danger: 0 84% 60%;
+    /* ── New: chart & component semantic tokens ── */
+    --admin-foreground: 220 10% 10%;
+    --admin-info: 210 100% 56%;
+    --admin-success: 142 76% 36%;
+    --admin-error: 0 72% 51%;
+    --admin-error-light: 0 80% 95%;
+    --admin-surface-muted: 0 0% 93%;
+
+    /* ── Tailwind-consumed tokens ── */
+    --surface: var(--admin-bg);
+    --surface-muted: var(--admin-surface-muted);
+    --surface-card: var(--admin-card);
+    --text-primary: var(--admin-text);
+    --text-muted: var(--admin-muted);
+    --error: var(--admin-danger);
+    --error-light: var(--admin-error-light);
+
+    --background: var(--admin-bg);
+    --foreground: var(--admin-text);
+    --card: var(--admin-card);
+    --card-foreground: var(--admin-text);
+    --popover: var(--admin-card);
+    --popover-foreground: var(--admin-text);
+    --primary: var(--admin-gold);
+    --primary-foreground: 0 0% 100%;
+    --secondary: var(--admin-surface);
+    --secondary-foreground: var(--admin-text);
+    --muted: var(--admin-surface);
+    --muted-foreground: var(--admin-muted);
+    --accent: var(--admin-surface);
+    --accent-foreground: var(--admin-gold);
+    --destructive: var(--admin-danger);
+    --destructive-foreground: 0 0% 100%;
+    --border: var(--admin-border);
+    --input: var(--admin-border);
+    --ring: var(--admin-gold);
+    --admin-grain: none;
+  }
+
+  .dark .admin-theme,
+  .admin-theme.dark {
+    --admin-bg: 0 0% 98%;
+    --admin-surface: 0 0% 95%;
+    --admin-card: 0 0% 100%;
+    --admin-border: 0 0% 90%;
+    --admin-text: 220 10% 10%;
+    --admin-muted: 220 5% 40%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 10% 10%;
+    --sidebar-primary: 326 50% 32%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 326 50% 32%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 326 50% 32%;
   }
 }
 
@@ -146,7 +193,8 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-[hsl(0_0%_0%)] text-[hsl(0_0%_100%)] font-sans antialiased;
+    /* Removed gradients for a cleaner, modern pure-black look */
   }
 
   h1,
@@ -155,7 +203,7 @@
   h4,
   h5,
   h6 {
-    @apply font-display;
+    @apply font-sans tracking-tight;
   }
 }
 
@@ -187,13 +235,27 @@
 
   /* Glass Effect */
   .glass {
-    background: hsl(0 0% 4% / 0.85);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    background: hsl(0 0% 100% / 0.04);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid hsl(0 0% 100% / 0.08);
+    box-shadow: 0 8px 32px hsl(0 0% 0% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.06);
   }
 
   .glass-border {
-    border: 1px solid hsl(352 78% 31% / 0.2);
+    border: 1px solid hsl(0 0% 100% / 0.08);
+  }
+
+  .stat-card-gold {
+    border-top: 2px solid hsl(43 85% 52%);
+    background: linear-gradient(160deg, hsl(0 0% 11%) 0%, hsl(0 0% 9%) 100%);
+  }
+
+  .stat-value {
+    font-family: 'Space Mono', 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    color: hsl(43 85% 52%);
+    text-shadow: 0 0 20px hsl(43 85% 52% / 0.4);
   }
 
   /* Brand Colors Direct Access */
@@ -237,20 +299,36 @@
 
   /* WCAG-Safe Button Hover Pattern */
   .btn-brand {
-    @apply bg-primary text-primary-foreground transition-all duration-300;
+    background: linear-gradient(135deg, hsl(352 78% 28%) 0%, hsl(352 78% 22%) 100%);
+    border: 1px solid hsl(352 78% 38% / 0.4);
+    box-shadow: 0 0 20px hsl(352 78% 28% / 0.25), inset 0 1px 0 hsl(0 0% 100% / 0.06);
+    color: hsl(36 20% 95%);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-family: 'DM Sans', sans-serif;
+    @apply transition-all duration-300;
   }
 
   .btn-brand:hover {
-    background-color: hsl(var(--primary-hover));
+    background: linear-gradient(135deg, hsl(352 80% 22%) 0%, hsl(352 82% 18%) 100%);
+    box-shadow: 0 0 25px hsl(352 78% 28% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.06);
   }
 
   .btn-brand:active {
-    background-color: hsl(var(--primary-active));
+    background: hsl(352 82% 18%);
   }
 
   .btn-brand:focus {
     @apply outline-none ring-2;
     --tw-ring-color: hsl(var(--focus-ring));
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, hsl(43 85% 52%) 0%, hsl(38 90% 44%) 100%);
+    box-shadow: 0 0 24px hsl(43 85% 52% / 0.3);
+    color: hsl(0 0% 8%);
+    @apply transition-all duration-300 font-sans uppercase tracking-[0.08em] text-xs font-semibold px-4 py-2 rounded-md;
   }
 
   /* Surface/Card Hover Pattern */
@@ -267,46 +345,42 @@
   ========================= */
   /* ── ADMIN PANEL SPEC (DESIGN INTELLIGENCE STUDIO) ── */
   .admin-theme {
-    /* Base Colors - HSL for Tailwind Utility Support */
-    --admin-bg: 220 10% 6%;
-    /* #0d0e10 */
-    --admin-surface: 220 13% 9%;
-    /* #14161a */
-    --admin-card: 225 13% 12%;
-    /* #1a1c22 */
-    --admin-border: 225 12% 16%;
-    /* #25282f */
+    /* Base Colors - Clean Light Theme */
+    --admin-bg: 0 0% 98%;
+    /* #fafafa */
+    --admin-surface: 0 0% 96%;
+    /* #f5f5f5 */
+    --admin-card: 0 0% 100%;
+    /* #ffffff */
+    --admin-border: 0 0% 90%;
+    /* #e5e5e5 */
 
-    /* Brand Colors */
-    --admin-gold: 40 46% 61%;
-    /* #c9a96e */
-    --admin-gold-dim: 38 35% 40%;
-    /* #8a6f42 */
-    --admin-gold-glow: 40 46% 61%;
+    /* Brand Colors - Plum/Magenta */
+    --admin-gold: 326 50% 32%;
+    /* #7c2957 - repurposed to plum but keeping var name */
+    --admin-gold-dim: 326 40% 40%;
+    --admin-gold-glow: 326 50% 32%;
 
     /* Typography */
-    --admin-text: 40 15% 88%;
-    /* #e8e4dc */
-    --admin-muted: 38 4% 46%;
-    /* #7a7670 */
+    --admin-text: 220 10% 10%;
+    /* #1a1c22 */
+    --admin-muted: 220 5% 40%;
+    /* #62656d */
 
     /* Status Colors */
-    --admin-danger: 6 45% 55%;
-    /* #c06b5a */
-    --admin-success: 148 29% 55%;
-    /* #6aad8a */
-    --admin-info: 214 43% 55%;
-    /* #5a87c0 */
+    --admin-danger: 0 84% 60%;
+    --admin-success: 142 71% 45%;
+    --admin-info: 214 95% 55%;
 
     /* Mappings to Tailwind Standard Vars */
     --background: var(--admin-bg);
     --foreground: var(--admin-text);
     --card: var(--admin-card);
     --card-foreground: var(--admin-text);
-    --popover: var(--admin-surface);
+    --popover: var(--admin-card);
     --popover-foreground: var(--admin-text);
     --primary: var(--admin-gold);
-    --primary-foreground: 220 10% 6%;
+    --primary-foreground: 0 0% 100%;
     --secondary: var(--admin-surface);
     --secondary-foreground: var(--admin-text);
     --muted: var(--admin-surface);
@@ -314,59 +388,35 @@
     --accent: var(--admin-surface);
     --accent-foreground: var(--admin-gold);
     --destructive: var(--admin-danger);
-    --destructive-foreground: 220 10% 6%;
+    --destructive-foreground: 0 0% 100%;
     --border: var(--admin-border);
     --input: var(--admin-border);
     --ring: var(--admin-gold);
 
     /* Grain Texture */
-    --admin-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+    --admin-grain: none;
   }
 
-  /* Dark Theme Overrides - LUXURY GOLD ALIGNMENT */
+  /* Ignore global dark mode for admin panel to keep it light 
+     Or alternatively redefine a dark variant if needed, but for now force light */
   .dark .admin-theme,
   .admin-theme.dark {
-    /* Base Colors - Deep Luxury Dark */
-    --admin-bg: 0 0% 4%;
-    /* #0A0A0A */
-    --admin-card: 0 0% 8%;
-    /* #141414 */
-    --admin-border: 0 0% 16%;
-    /* #292929 */
-    --admin-foreground: 36 26% 97%;
-    /* #FAF8F5 */
-    --admin-muted: 0 0% 30%;
-    /* #4D4D4D */
+    /* Force same light theme for consistency from Auth page to Dashboard */
+    --admin-bg: 0 0% 98%;
+    --admin-surface: 0 0% 95%;
+    --admin-card: 0 0% 100%;
+    --admin-border: 0 0% 90%;
+    --admin-text: 220 10% 10%;
+    --admin-muted: 220 5% 40%;
 
-    /* Brand Colors - Gold & Wine */
-    --brand-primary: 0 100% 38%;
-    /* Wine Red */
-    --brand-secondary: 46 100% 50%;
-    /* Gold */
-
-    /* Update Secondary/Muted for Dark Mode */
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 46 100% 50%;
-    /* Gold Text */
-    --muted: 0 0% 12%;
-    --accent: 0 0% 12%;
-    --accent-foreground: 46 100% 50%;
-    /* Gold Text */
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    /* Sidebar - Deepest Black */
-    --sidebar-background: 0 0% 3%;
-    --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 46 100% 50%;
-    /* Gold Selection */
-    --sidebar-primary-foreground: 0 0% 0%;
-    /* Black Text on Gold */
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 46 100% 50%;
-    --sidebar-border: 0 0% 10%;
-    --sidebar-ring: 46 100% 50%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 10% 10%;
+    --sidebar-primary: 326 50% 32%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 326 50% 32%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 326 50% 32%;
   }
 }
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Lock, Loader2, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { Lock, Loader2, Eye, EyeOff, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,7 +88,7 @@ const AdminResetPassword = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="text-center"
         >
-          <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
+          <Check className="w-16 h-16 text-primary mx-auto mb-4" />
           <h2 className="text-2xl font-display font-bold mb-2">Password Reset Successful</h2>
           <p className="text-muted-foreground">Redirecting to login...</p>
         </motion.div>
@@ -126,13 +126,15 @@ const AdminResetPassword = () => {
                   className={`pl-10 pr-10 ${errors.password ? "border-destructive" : ""}`}
                   required
                 />
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+                </Button>
               </div>
               {errors.password && (
                 <p className="text-sm text-destructive">{errors.password}</p>
@@ -155,13 +157,15 @@ const AdminResetPassword = () => {
                   className={`pl-10 pr-10 ${errors.confirmPassword ? "border-destructive" : ""}`}
                   required
                 />
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground"
                 >
                   {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+                </Button>
               </div>
               {errors.confirmPassword && (
                 <p className="text-sm text-destructive">{errors.confirmPassword}</p>

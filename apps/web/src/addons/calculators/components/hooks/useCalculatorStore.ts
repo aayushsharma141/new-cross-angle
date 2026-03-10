@@ -250,6 +250,20 @@ export function useCalculatorStore() {
             };
 
             await supabase.from("estimate_leads").insert(lead);
+
+            // Also insert into main leads table for CRM tracking
+            await supabase.from("leads").insert({
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                message: `Cost estimate generated. Min: ₹${estimate.total.min.toLocaleString('en-IN')}, Max: ₹${estimate.total.max.toLocaleString('en-IN')}. Area: ${formData.area} sqft, Type: ${formData.propertyType}`,
+                lead_source: 'estimator',
+                city: formData.city,
+                budget: formData.budgetAmount?.toString(),
+                service: formData.selectedService,
+                source_url: window.location.href,
+                score: score.total
+            });
         } catch (err) {
             console.error("Failed to save lead:", err);
         } finally {

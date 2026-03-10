@@ -84,16 +84,7 @@ const ContactHero = () => {
         />
       </div>
 
-      {/* Navigation - Home Button */}
-      <div className="absolute top-24 left-4 lg:left-12 z-20">
-        <Link
-          to="/"
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-muted-foreground hover:text-primary hover:bg-white/10 transition-all group"
-        >
-          <Home className="w-4 h-4 group-hover:scale-110 transition-transform" />
-          <span className="text-xs font-medium uppercase tracking-widest hidden sm:inline-block">Home</span>
-        </Link>
-      </div>
+
 
       {/* Content */}
       <div className="container mx-auto px-4 relative z-10" ref={textRef}>
@@ -114,10 +105,10 @@ const ContactHero = () => {
           {/* Kinetic Typography headline */}
           <div className="mb-6 px-2">
             <KineticText className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight">
-              Let's Create Something
+              Ready to Transform
             </KineticText>
             <KineticText className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary leading-tight mt-2">
-              Beautiful Together
+              Your Space?
             </KineticText>
           </div>
 
@@ -127,7 +118,10 @@ const ContactHero = () => {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.8, duration: 0.6 }}
           >
-            Ready to transform your space? Fill out the form below and our design experts will get back to you within 24 hours.
+            Get a free consultation and 3D design visualization.
+            <span className="block mt-2 text-primary font-medium">
+              No obligation. No hidden costs.
+            </span>
           </motion.p>
         </div>
       </div>

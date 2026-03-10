@@ -4,7 +4,7 @@ import type { CalculatorFormData, EstimateResult } from "../data/types";
 import { formatCurrency, formatRange } from "../data/format-utils";
 import { SERVICES, TIERS, THEME } from "../data/pricing-config";
 import { Link } from "react-router-dom";
-import { Home, ExternalLink, Calendar, CheckCircle2, AlertTriangle, PhoneCall } from "lucide-react";
+import { Home, ExternalLink, Calendar, Check, AlertTriangle, PhoneCall } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -180,7 +180,7 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
 
                         <div className="flex items-center gap-3 mb-8">
                             <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                                <CheckCircle2 className="w-5 h-5 text-primary" />
+                                <Check className="w-5 h-5 text-primary" />
                             </div>
                             <h3 className="text-white font-serif text-lg font-bold">Inclusions</h3>
                         </div>

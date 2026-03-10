@@ -16,77 +16,17 @@ import GalleryCTA from "@/components/gallery/GalleryCTA";
 import GalleryParticles from "@/components/gallery/GalleryParticles";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
-const categories = [
+const CATEGORIES = [
   "All",
-  "Modular-Kitchen",
-  "Bedroom-Interior",
-  "Living-Room-Interior",
-  "Commercial-Interior",
-  "Exterior-Interior"
-];
-
-const galleryItems = [
-  {
-    category: "Modular-Kitchen",
-    style: "Modern",
-    image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?q=80&w=1200",
-    title: "Modern Minimalist Kitchen"
-  },
-  {
-    category: "Modular-Kitchen",
-    style: "Luxury",
-    image: "https://images.unsplash.com/photo-1556909172-54557c7e4fb7?q=80&w=1200",
-    title: "Luxury White Kitchen"
-  },
-  {
-    category: "Modular-Kitchen",
-    style: "Contemporary",
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200",
-    title: "Contemporary Kitchen Design"
-  },
-  {
-    category: "Bedroom-Interior",
-    style: "Modern",
-    image: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1200",
-    title: "Master Bedroom Suite"
-  },
-  {
-    category: "Bedroom-Interior",
-    style: "Luxury",
-    image: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=1200",
-    title: "Cozy Modern Bedroom"
-  },
-  {
-    category: "Living-Room-Interior",
-    style: "Contemporary",
-    image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1200",
-    title: "Contemporary Living Space"
-  },
-  {
-    category: "Living-Room-Interior",
-    style: "Classic",
-    image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1200",
-    title: "Open Plan Living"
-  },
-  {
-    category: "Commercial-Interior",
-    style: "Modern",
-    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200",
-    title: "Modern Office Space"
-  },
-  {
-    category: "Commercial-Interior",
-    style: "Industrial",
-    image: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?q=80&w=1200",
-    title: "Creative Workspace"
-  },
-  {
-    category: "Exterior-Interior",
-    style: "Modern",
-    image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200",
-    title: "Modern Villa Exterior"
-  }
+  "Residential",
+  "Commercial",
+  "Modular Kitchen",
+  "Bedroom Interior",
+  "Living Room Interior",
+  "Exterior"
 ];
 
 const STYLES = ["All", "Modern", "Luxury", "Contemporary", "Classic", "Industrial"];
@@ -97,6 +37,20 @@ const GalleryPage = () => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  const { data: projects = [], isLoading } = useQuery({
+    queryKey: ['projects'],
+    queryFn: api.getProjects
+  });
+
+  // Map API projects to Gallery items
+  const galleryItems = projects.map(p => ({
+    category: p.category,
+    style: p.style,
+    image: p.heroImage,
+    title: p.title,
+    slug: p.slug,
+  }));
+
   const filteredItems = galleryItems.filter(item => {
     const matchCategory = activeCategory === "All" || item.category === activeCategory;
     const matchStyle = activeStyle === "All" || item.style === activeStyle;
@@ -104,7 +58,7 @@ const GalleryPage = () => {
   });
 
   // Calculate counts for each category
-  const categoryCounts = categories.reduce((acc, category) => {
+  const categoryCounts = CATEGORIES.reduce((acc, category) => {
     acc[category] = category === "All"
       ? galleryItems.length
       : galleryItems.filter(item => item.category === category).length;
@@ -158,7 +112,7 @@ const GalleryPage = () => {
           {/* Magnetic Filter Tabs & Style Filter */}
           <div className="container px-4 mb-12 space-y-8">
             <MagneticFilterTabs
-              categories={categories}
+              categories={CATEGORIES}
               activeCategory={activeCategory}
               onCategoryChange={setActiveCategory}
               counts={categoryCounts}

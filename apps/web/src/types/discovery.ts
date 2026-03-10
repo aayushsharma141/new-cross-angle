@@ -9,8 +9,9 @@ export enum Stage {
   LightCalibration = 7,
   PatternPreview = 8,
   Analysis = 9,
-  LeadCapture = 10,
-  Results = 11,
+  MiniResult = 10,
+  LeadCapture = 11,
+  Results = 12,
 }
 
 export interface LifestyleOption {

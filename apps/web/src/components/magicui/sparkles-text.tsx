@@ -26,10 +26,12 @@ const generateSparkle = (colors: string[]): Sparkle => ({
     color: colors[Math.floor(Math.random() * colors.length)],
 });
 
+const DEFAULT_COLORS = ["#FDE68A", "#FCD34D", "#F59E0B", "#FFFBEB"];
+
 export const SparklesText = ({
     text,
     className,
-    sparkleColors = ["#FDE68A", "#FCD34D", "#F59E0B", "#FFFBEB"],
+    sparkleColors = DEFAULT_COLORS,
     sparkleCount = 8,
 }: SparklesTextProps) => {
     const [sparkles, setSparkles] = useState<Sparkle[]>([]);

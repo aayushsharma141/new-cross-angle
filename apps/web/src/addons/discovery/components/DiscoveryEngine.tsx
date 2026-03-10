@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -9,7 +9,7 @@ import { normalizeScore } from "../core/normalization";
 import { initialScores, addScores } from "../core/scoring";
 import { initialSignals, resetSession } from "../flow/session";
 import { getNextStage } from "../flow/transitions";
-import { track, startSession, completeSession } from "../infrastructure/analytics/tracker";
+import { track, startSession, completeSession, trackQuizStarted, trackQuizCompleted } from "../infrastructure/analytics/tracker";
 import WelcomeScreen from "./WelcomeScreen";
 import ReflectionPrompt from "./ReflectionPrompt";
 import LifestyleReflection from "./LifestyleReflection";
@@ -20,10 +20,12 @@ import MaterialResonance from "./MaterialResonance";
 import LightCalibration from "./LightCalibration";
 import PatternPreview from "./PatternPreview";
 import AnalysisPhase from "./AnalysisPhase";
+import MiniResultPreview from "./MiniResultPreview";
 import LeadGatePhase from "./LeadGatePhase";
-import ResultsReveal from "./ResultsReveal";
+const ResultsReveal = lazy(() => import("./ResultsReveal"));
 import ProgressBar from "./ProgressBar";
 import DotPattern from "@/components/magicui/dot-pattern";
+import AnimatedShinyText from "@/components/magicui/animated-shiny-text";
 
 // Dot-nav stage map for the compact sidebar
 const DOT_NAV_STAGES: { stage: Stage; label: string }[] = [
@@ -36,6 +38,7 @@ const DOT_NAV_STAGES: { stage: Stage; label: string }[] = [
     { stage: Stage.LightCalibration, label: "Atmosphere" },
     { stage: Stage.PatternPreview, label: "Synthesis" },
     { stage: Stage.Analysis, label: "Analysis" },
+    { stage: Stage.MiniResult, label: "Preview" },
 ];
 
 export interface DiscoveryConfig {
@@ -45,7 +48,7 @@ export interface DiscoveryConfig {
 
 export interface DiscoveryEngineProps {
     config?: DiscoveryConfig;
-    onComplete?: (result: any) => void;
+    onComplete?: (result: Record<string, unknown>) => void;
 }
 
 export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {}) => {
@@ -74,6 +77,11 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
     }, [sessionId, aiResult]);
 
     const transitionToStage = useCallback((nextStage: Stage) => {
+        // Preload heavy results component when getting close
+        if (nextStage === Stage.PatternPreview || nextStage === Stage.Analysis) {
+            import("./ResultsReveal").catch(() => { });
+        }
+
         setShowWipe(true);
         setTimeout(() => {
             setStage(nextStage);
@@ -97,7 +105,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
         const sid = await startSession(m);
         setSessionId(sid);
         setStartTime(Date.now());
-        track("start_session", { mode: m, sessionId: sid });
+        trackQuizStarted(sid, m);
         transitionToStage(getNextStage(Stage.Welcome, m));
     }, [transitionToStage]);
 
@@ -177,19 +185,19 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
         (result?: AIAestheticResult) => {
             if (sessionId) track("step_completed", { stepName: "Analysis", sessionId });
             if (result) setAiResult(result);
-            setStage(getNextStage(Stage.Analysis, mode));
-        }, [mode, sessionId]
+            transitionToStage(getNextStage(Stage.Analysis, mode));
+        }, [mode, sessionId, transitionToStage]
     );
+
+    const handleMiniResultComplete = useCallback(() => {
+        if (sessionId) track("step_completed", { stepName: "MiniResult", sessionId });
+        transitionToStage(getNextStage(Stage.MiniResult, mode));
+    }, [sessionId, transitionToStage, mode]);
 
     const handleLeadCaptureComplete = useCallback(() => {
         if (sessionId) {
             const totalSeconds = Math.floor((Date.now() - startTime) / 1000);
-            track("session_completed", {
-                sessionId,
-                mode,
-                archetype: archetype.name,
-                totalTimeSeconds: totalSeconds
-            });
+            trackQuizCompleted(sessionId, archetype.name, totalSeconds);
             completeSession(sessionId, archetype.name, totalSeconds);
         }
         setStage(getNextStage(Stage.LeadCapture, mode));
@@ -212,8 +220,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
         <div className={cn(
             "w-full text-foreground relative flex flex-col lg:flex-row",
             // Deep warm-ink background for quiz stages and results
-            (isQuizStage || isResultsStage) ? "bg-[#0D0A08]" : "bg-background",
-            (isQuizStage || isResultsStage) ? "h-screen overflow-hidden" : "min-h-screen"
+            isQuizStage ? "bg-[#0D0A08] h-screen overflow-hidden" : isResultsStage ? "bg-[#040404] min-h-screen" : "bg-background min-h-screen"
         )}>
             {/* Cinematic wipe overlay */}
             <AnimatePresence>
@@ -292,7 +299,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
             {/* ── MAIN CONTENT AREA ── */}
             <main className={cn(
                 "flex-1 relative flex flex-col z-10",
-                (isQuizStage || isResultsStage) ? "lg:h-full overflow-hidden" : "w-full min-h-screen"
+                isQuizStage ? "lg:h-full overflow-hidden" : "w-full min-h-screen"
             )}>
                 {/* Subtle dot texture */}
                 {!isQuizStage && (
@@ -316,8 +323,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                 {/* Scrollable stage content */}
                 <div className={cn(
                     "flex-1",
-                    isQuizStage ? "overflow-y-auto overflow-x-hidden scroll-smooth scrollbar-hide" : "",
-                    isResultsStage ? "overflow-hidden h-full" : ""
+                    isQuizStage ? "overflow-y-auto overflow-x-hidden scroll-smooth scrollbar-hide" : ""
                 )}>
                     <div className="h-full flex flex-col">
                         <div className={cn(
@@ -341,32 +347,68 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                                     <AdjectiveSelection key="adjectives" sessionId={sessionId} onComplete={handleAdjectiveComplete} />
                                 )}
                                 {stage === Stage.EmotionalMapping && (
-                                    <EmotionalMapping key="emotional" sessionId={sessionId} onComplete={handleEmotionalComplete} />
+                                    <EmotionalMapping key="emotional" onComplete={handleEmotionalComplete} />
                                 )}
                                 {stage === Stage.MaterialResonance && (
-                                    <MaterialResonance key="material" sessionId={sessionId} onComplete={handleMaterialComplete} />
+                                    <MaterialResonance key="material" onComplete={handleMaterialComplete} />
                                 )}
                                 {stage === Stage.LightCalibration && (
-                                    <LightCalibration key="light" sessionId={sessionId} onComplete={handleLightComplete} />
+                                    <LightCalibration key="light" onComplete={handleLightComplete} />
                                 )}
                                 {stage === Stage.PatternPreview && (
-                                    <PatternPreview key="pattern" onComplete={handlePatternComplete} />
+                                    <PatternPreview
+                                        key="pattern"
+                                        scores={normalizedScores}
+                                        signals={currentSignals}
+                                        onComplete={handlePatternComplete}
+                                    />
                                 )}
                                 {stage === Stage.Analysis && (
-                                    <AnalysisPhase key="analysis" onComplete={(res) => transitionToStage(Stage.Gate)} />
+                                    <AnalysisPhase
+                                        key="analysis"
+                                        userSignals={currentSignals}
+                                        fallbackArchetype={archetype}
+                                        onComplete={handleAnalysisComplete}
+                                    />
                                 )}
-                                {stage === Stage.Gate && (
-                                    <LeadGatePhase key="gate" sessionId={sessionId} onComplete={handleLeadCaptureComplete} />
+                                {stage === Stage.MiniResult && (
+                                    <MiniResultPreview
+                                        key="mini-result"
+                                        archetype={archetype}
+                                        scores={normalizedScores}
+                                        onComplete={handleMiniResultComplete}
+                                    />
                                 )}
-                                {stage === Stage.Results && aiResult && (
-                                    <ResultsReveal
-                                        key="results"
+                                {stage === Stage.LeadCapture && (
+                                    <LeadGatePhase
+                                        key="gate"
+                                        sessionId={sessionId}
                                         scores={normalizedScores}
                                         archetype={archetype}
-                                        aiResult={aiResult}
-                                        onRetake={handleRetake}
-                                        onComplete={onComplete ? () => onComplete({ scores: normalizedScores, signals: currentSignals, aiResult }) : undefined}
+                                        signals={currentSignals}
+                                        onComplete={handleLeadCaptureComplete}
                                     />
+                                )}
+                                {stage === Stage.Results && (
+                                    <Suspense fallback={
+                                        <div className="w-full h-[60vh] flex items-center justify-center">
+                                            <div className="flex flex-col items-center gap-4">
+                                                <div className="w-12 h-12 rounded-full border border-white/10 border-t-amber-400 animate-spin" />
+                                                <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-mono">Loading Results...</p>
+                                            </div>
+                                        </div>
+                                    }>
+                                        <ResultsReveal
+                                            key="results"
+                                            scores={normalizedScores}
+                                            archetype={archetype}
+                                            aiResult={aiResult}
+                                            sessionId={sessionId}
+                                            signals={currentSignals}
+                                            onRetake={handleRetake}
+                                            onComplete={onComplete ? () => onComplete({ scores: normalizedScores, signals: currentSignals, aiResult }) : undefined}
+                                        />
+                                    </Suspense>
                                 )}
                             </AnimatePresence>
                         </div>

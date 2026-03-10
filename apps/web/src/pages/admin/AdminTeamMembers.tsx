@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -121,30 +122,30 @@ export default function AdminTeamMembers() {
                         </DialogHeader>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Name</label>
-                                <Input name="name" defaultValue={editingMember?.name} required />
+                                <Label htmlFor="tm-name" className="text-sm font-medium">Name</Label>
+                                <Input id="tm-name" name="name" defaultValue={editingMember?.name} required />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Designation</label>
-                                <Input name="designation" defaultValue={editingMember?.role} required />
+                                <Label htmlFor="tm-designation" className="text-sm font-medium">Designation</Label>
+                                <Input id="tm-designation" name="designation" defaultValue={editingMember?.role} required />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Bio</label>
-                                <Textarea name="bio" defaultValue={editingMember?.bio || ""} />
+                                <Label htmlFor="tm-bio" className="text-sm font-medium">Bio</Label>
+                                <Textarea id="tm-bio" name="bio" defaultValue={editingMember?.bio || ""} />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Photo URL</label>
-                                <Input name="photo_url" defaultValue={editingMember?.image_url || ""} />
+                                <Label htmlFor="tm-photo" className="text-sm font-medium">Photo URL</Label>
+                                <Input id="tm-photo" name="photo_url" defaultValue={editingMember?.image_url || ""} />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Display Order</label>
-                                <Input type="number" name="display_order" defaultValue={editingMember?.display_order || 0} />
+                                <Label htmlFor="tm-order" className="text-sm font-medium">Display Order</Label>
+                                <Input id="tm-order" type="number" name="display_order" defaultValue={editingMember?.display_order || 0} />
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Checkbox id="is_published" name="is_published" defaultChecked={true} />
-                                <label htmlFor="is_published" className="text-sm font-medium leading-none">
+                                <Label htmlFor="is_published" className="text-sm font-medium leading-none">
                                     Published
-                                </label>
+                                </Label>
                             </div>
                             <DialogFooter>
                                 <Button type="submit" disabled={upsertMutation.isPending}>

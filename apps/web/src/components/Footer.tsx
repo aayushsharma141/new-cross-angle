@@ -1,9 +1,12 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Linkedin, Twitter, Phone, Mail, MapPin } from "lucide-react";
 import logoIcon from "@/assets/logo-icon.png";
+import useScrollReveal from "@/hooks/useScrollReveal";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const footerRef = useRef<HTMLElement>(null);
 
   const quickLinks = [
     { name: "Home", href: "/" },
@@ -14,15 +17,6 @@ const Footer = () => {
     { name: "Contact Us", href: "/contact-us" },
   ];
 
-  const services = [
-    { name: "Planning", href: "/services" },
-    { name: "Interior Design", href: "/services" },
-    { name: "Exterior Design", href: "/services" },
-    { name: "Consultation", href: "/services" },
-    { name: "Turnkey Project", href: "/services" },
-    { name: "Miniature Model", href: "/services" },
-  ];
-
   const socialLinks = [
     { icon: Instagram, href: "https://www.instagram.com/crossangleinterior/", label: "Instagram" },
     { icon: Facebook, href: "https://www.facebook.com/crossangleinterior", label: "Facebook" },
@@ -30,8 +24,16 @@ const Footer = () => {
     { icon: Twitter, href: "#", label: "Twitter" },
   ];
 
+  useScrollReveal(footerRef, ".reveal-item", {
+    y: 30,
+    opacity: 0,
+    duration: 0.8,
+    stagger: 0.15,
+  });
+
   return (
     <footer
+      ref={footerRef}
       role="contentinfo"
       className="text-foreground relative overflow-hidden border-t border-wine-600/30 bg-[#0A0A0A]"
     >
@@ -39,9 +41,9 @@ const Footer = () => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(352_78%_31%/0.05)_0%,transparent_50%)]" />
 
       <div className="container mx-auto px-4 py-16 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
           {/* Brand & Contact */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 reveal-item opacity-0">
             <Link to="/" className="flex items-center gap-3">
               <img
                 src={logoIcon}
@@ -53,11 +55,8 @@ const Footer = () => {
                 <span className="text-primary">Interior</span>
               </span>
             </Link>
-            <p className="text-muted-foreground mt-4 mb-6">
-              Transforming your vision into exquisite living spaces with innovative and personalized interior design solutions.
-            </p>
 
-            <div className="space-y-3 text-sm">
+            <div className="space-y-3 text-sm mt-8">
               <a href="tel:+917909041132" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                 <Phone className="w-4 h-4 text-primary" />
                 <span>+91 7909041132</span>
@@ -78,7 +77,7 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div>
+          <div className="reveal-item opacity-0">
             <h4 className="font-semibold mb-4 text-foreground">Quick Links</h4>
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
@@ -94,25 +93,8 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Services */}
-          <div>
-            <h4 className="font-semibold mb-4 text-foreground">Our Services</h4>
-            <ul className="space-y-3">
-              {services.map((link, index) => (
-                <li key={index}>
-                  <Link
-                    to={link.href}
-                    className="text-muted-foreground hover:text-primary transition-colors duration-300"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           {/* Social & Newsletter */}
-          <div>
+          <div className="reveal-item opacity-0">
             <h4 className="font-semibold mb-4 text-foreground">Follow Us</h4>
             <div className="flex gap-3 mb-6">
               {socialLinks.map((social, index) => (

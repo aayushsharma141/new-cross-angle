@@ -2,9 +2,11 @@ import { ArrowRight, Calculator, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import WaterRippleEffect from "./WaterRippleEffect";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { api, HeroContent } from "@/lib/api";
+import { GridDistortion } from "./ReactBits";
+import useSplitHeadline from "@/hooks/useSplitHeadline";
 
 const Hero = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -17,6 +19,9 @@ const Hero = () => {
     subtitle:
       "Transforming your vision into exquisite living spaces with innovative and personalized interior design solutions.",
   });
+
+  const headlineRef = useRef<HTMLHeadingElement>(null);
+  useSplitHeadline(headlineRef, 0.2); // Start GSAP Split animation shortly after load
 
   useEffect(() => {
     const checkMobile = () => {
@@ -70,7 +75,7 @@ const Hero = () => {
       {/* Water Ripple Mouse Effect - Desktop only */}
       <WaterRippleEffect />
 
-      {/* Background Video with optimized Parallax */}
+      {/* Background Video with optimized Parallax and GridDistortion Canvas Overlay */}
       <motion.div
         className="absolute inset-0 z-0"
         style={{ y: isMobile ? 0 : parallaxBg }}
@@ -86,15 +91,22 @@ const Hero = () => {
           <source src="https://videos.pexels.com/video-files/7578546/7578546-uhd_2560_1440_30fps.mp4" type="video/mp4" />
           <source src="https://cdn.coverr.co/videos/coverr-interior-design-of-a-living-room-2679/1080p.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/95 via-[#0A0A0A]/70 to-[#0A0A0A]/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/90 via-transparent to-[#0A0A0A]/30" />
+        <div className="absolute inset-0 w-full h-full scale-105 z-10 hidden md:block mix-blend-screen opacity-60">
+          <GridDistortion
+            amplitude={0.15}
+            speed={0.12}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/95 via-[#0A0A0A]/70 to-[#0A0A0A]/40 z-20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/90 via-transparent to-[#0A0A0A]/30 z-20" />
         {/* Subtle wine tint overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(352_78%_31%/0.08)_0%,transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(352_78%_31%/0.08)_0%,transparent_60%)] z-20" />
       </motion.div>
 
       {/* Content */}
       <motion.div
-        className="container mx-auto px-4 relative z-10 pt-20"
+        className="container mx-auto px-4 relative z-20 pt-20"
         style={{
           y: isMobile ? 0 : -parallaxContent,
           opacity: opacity
@@ -113,8 +125,8 @@ const Hero = () => {
           </div>
 
           <h1
-            className={`font-serif text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-primary-foreground leading-[1.05] mb-6 md:mb-8 transition-all duration-700 delay-100 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
+            ref={headlineRef}
+            className="font-serif text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-primary-foreground leading-[1.05] mb-6 md:mb-8 clip-path-polygon-[0_0,100%_0,100%_100%,0_100%] break-words"
           >
             {heroContent.headlineLine1}
             <span className="block mt-2 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent drop-shadow-[0_0_25px_hsl(var(--primary)/0.5)]">
@@ -175,7 +187,7 @@ const Hero = () => {
         className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-10 group cursor-pointer"
         style={{ opacity: opacity }}
       >
-        <div className={`flex flex-col items-center gap-2 text-primary-foreground/50 transition-all duration-700 delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+        <div className={`flex flex-col items-center gap-2 text-primary-foreground/50 transition-all duration-700 delay-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <span className="text-xs tracking-widest uppercase font-medium group-hover:text-primary transition-colors">Discover More</span>
           <div className="w-8 h-12 md:w-10 md:h-14 border-2 border-primary-foreground/30 rounded-full flex flex-col items-center justify-start pt-2 backdrop-blur-sm group-hover:border-primary group-hover:bg-primary/10 transition-all duration-300">
             <div className="w-1.5 h-2.5 md:h-3 bg-primary rounded-full animate-bounce" />

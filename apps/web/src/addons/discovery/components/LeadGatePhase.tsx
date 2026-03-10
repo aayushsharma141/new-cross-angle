@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { UserSignals, AestheticScores, Archetype } from "@/types/discovery";
-import { track } from "../infrastructure/analytics/tracker";
+import { track, trackLeadGateSubmitted } from "../infrastructure/analytics/tracker";
 
 interface Props {
     sessionId: string | null;
@@ -66,7 +66,7 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
             } else {
                 toast.success("Profile saved successfully.");
                 if (sessionId) {
-                    track("gate_submitted", { sessionId, email });
+                    trackLeadGateSubmitted(sessionId, email);
                 }
             }
 

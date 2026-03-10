@@ -29,6 +29,7 @@ interface MediaGridProps {
     onDelete: (file: MediaFile) => void;
     onCopyUrl: (url: string) => void;
     copiedUrl: string | null;
+    isReadOnly?: boolean;
 }
 
 export const MediaGrid = ({
@@ -39,7 +40,8 @@ export const MediaGrid = ({
     onPreview,
     onDelete,
     onCopyUrl,
-    copiedUrl
+    copiedUrl,
+    isReadOnly = false
 }: MediaGridProps) => {
 
     const formatFileSize = (bytes: number) => {
@@ -74,17 +76,19 @@ export const MediaGrid = ({
                     >
                         <Card
                             className={`group overflow-hidden relative transition-all duration-200 hover:shadow-lg border-muted ${selectedFiles.has(file.id)
-                                    ? 'ring-2 ring-primary border-primary shadow-md'
-                                    : 'hover:border-primary/50'
+                                ? 'ring-2 ring-primary border-primary shadow-md'
+                                : 'hover:border-primary/50'
                                 }`}
                         >
-                            <div className="absolute top-2 left-2 z-20">
-                                <Checkbox
-                                    checked={selectedFiles.has(file.id)}
-                                    onCheckedChange={() => onToggleSelection(file.id)}
-                                    className="bg-background/90 border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary shadow-sm"
-                                />
-                            </div>
+                            {!isReadOnly && (
+                                <div className="absolute top-2 left-2 z-20">
+                                    <Checkbox
+                                        checked={selectedFiles.has(file.id)}
+                                        onCheckedChange={() => onToggleSelection(file.id)}
+                                        className="bg-background/90 border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary shadow-sm"
+                                    />
+                                </div>
+                            )}
 
                             <div className="aspect-square relative bg-secondary/50 cursor-pointer overflow-hidden" onClick={() => onPreview(file)}>
                                 <img
@@ -101,9 +105,11 @@ export const MediaGrid = ({
                                         <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-white/90 hover:bg-white text-black shadow-sm" onClick={(e) => { e.stopPropagation(); onCopyUrl(file.url); }} title="Copy URL">
                                             {copiedUrl === file.url ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
                                         </Button>
-                                        <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full shadow-sm" onClick={(e) => { e.stopPropagation(); onDelete(file); }} title="Delete">
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                        </Button>
+                                        {!isReadOnly && (
+                                            <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full shadow-sm" onClick={(e) => { e.stopPropagation(); onDelete(file); }} title="Delete">
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                            </Button>
+                                        )}
                                     </div>
                                     <p className="text-white text-[10px] truncate opacity-80">{formatFileSize(file.size)}</p>
                                 </div>
@@ -131,10 +137,12 @@ export const MediaGrid = ({
                     className={`flex items-center gap-4 p-3 border rounded-lg hover:bg-accent/30 transition-all duration-200 group ${selectedFiles.has(file.id) ? 'ring-1 ring-primary border-primary bg-primary/5' : 'border-border'
                         }`}
                 >
-                    <Checkbox
-                        checked={selectedFiles.has(file.id)}
-                        onCheckedChange={() => onToggleSelection(file.id)}
-                    />
+                    {!isReadOnly && (
+                        <Checkbox
+                            checked={selectedFiles.has(file.id)}
+                            onCheckedChange={() => onToggleSelection(file.id)}
+                        />
+                    )}
                     <div
                         className="w-12 h-12 rounded-md bg-secondary overflow-hidden flex-shrink-0 cursor-pointer border relative"
                         onClick={() => onPreview(file)}
@@ -158,9 +166,11 @@ export const MediaGrid = ({
                         <Button size="sm" variant="ghost" onClick={() => onCopyUrl(file.url)} className="h-8 w-8 p-0">
                             {copiedUrl === file.url ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => onDelete(file)} className="h-8 w-8 p-0 hover:text-destructive">
-                            <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {!isReadOnly && (
+                            <Button size="sm" variant="ghost" onClick={() => onDelete(file)} className="h-8 w-8 p-0 hover:text-destructive">
+                                <Trash2 className="w-4 h-4" />
+                            </Button>
+                        )}
                     </div>
                 </div>
             ))}

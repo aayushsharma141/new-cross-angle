@@ -1,12 +1,13 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useCallback, useState } from "react";
+import { Link } from "react-router-dom";
 import { X, ChevronLeft, ChevronRight, ZoomIn, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface GalleryLightboxProps {
   isOpen: boolean;
   currentIndex: number;
-  items: { image: string; category: string; title?: string }[];
+  items: { image: string; category: string; title?: string; slug?: string }[];
   onClose: () => void;
   onNavigate: (direction: 'prev' | 'next') => void;
   onIndexChange: (index: number) => void;
@@ -25,7 +26,7 @@ const GalleryLightbox = ({
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (!isOpen) return;
-    
+
     switch (e.key) {
       case 'Escape':
         onClose();
@@ -41,11 +42,11 @@ const GalleryLightbox = ({
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-    
+
     if (isOpen) {
       document.body.style.overflow = 'hidden';
     }
-    
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
@@ -58,10 +59,10 @@ const GalleryLightbox = ({
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!touchStart) return;
-    
+
     const touchEnd = e.changedTouches[0].clientX;
     const diff = touchStart - touchEnd;
-    
+
     if (Math.abs(diff) > 50) {
       if (diff > 0) {
         onNavigate('next');
@@ -69,7 +70,7 @@ const GalleryLightbox = ({
         onNavigate('prev');
       }
     }
-    
+
     setTouchStart(null);
   };
 
@@ -167,19 +168,29 @@ const GalleryLightbox = ({
                     {currentItem.category.replace(/-/g, " ")}
                   </span>
                   {currentItem.title && (
-                    <h3 className="text-xl font-serif font-bold text-white">
-                      {currentItem.title}
-                    </h3>
+                    <div className="space-y-2">
+                      <h3 className="text-xl font-serif font-bold text-white">
+                        {currentItem.title}
+                      </h3>
+                      {currentItem.slug && (
+                        <Link
+                          to={`/portfolio/${currentItem.slug}`}
+                          className="inline-block text-sm text-primary hover:text-primary/80 transition-colors underline underline-offset-4"
+                        >
+                          View Project Details
+                        </Link>
+                      )}
+                    </div>
                   )}
                 </div>
                 <div className="flex gap-2">
-                  <button 
+                  <button
                     onClick={() => setIsZoomed(!isZoomed)}
                     className="p-2 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors"
                   >
                     <ZoomIn className="w-5 h-5" />
                   </button>
-                  <a 
+                  <a
                     href={currentItem.image}
                     download
                     onClick={(e) => e.stopPropagation()}
@@ -207,8 +218,8 @@ const GalleryLightbox = ({
                 onClick={() => onIndexChange(index)}
                 className={cn(
                   "flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden transition-all duration-300",
-                  index === currentIndex 
-                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background" 
+                  index === currentIndex
+                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
                     : "opacity-50 hover:opacity-100"
                 )}
               >

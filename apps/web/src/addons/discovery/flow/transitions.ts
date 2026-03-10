@@ -21,7 +21,9 @@ export function getNextStage(currentStage: Stage, mode: "quick" | "deep"): Stage
         case Stage.PatternPreview:
             return Stage.Analysis;
         case Stage.Analysis:
-            return Stage.LeadCapture; // Will be updated to MiniResult in Task 9
+            return Stage.MiniResult;
+        case Stage.MiniResult:
+            return Stage.LeadCapture;
         case Stage.LeadCapture:
             return Stage.Results;
         default:

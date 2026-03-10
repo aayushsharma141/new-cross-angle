@@ -3,7 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { IridescenceGlow } from "./ReactBits";
+import useScrollReveal from "@/hooks/useScrollReveal";
 
 const contactInfo = [
   {
@@ -31,49 +34,68 @@ const contactInfo = [
 const CTAContact = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const containerRef = useRef<HTMLElement>(null);
+
+  useScrollReveal(containerRef, ".reveal-elem");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const target = e.target as HTMLFormElement;
+    const firstName = (target.elements.namedItem("firstName") as HTMLInputElement).value;
+    const lastName = (target.elements.namedItem("lastName") as HTMLInputElement).value;
+    const email = (target.elements.namedItem("email") as HTMLInputElement).value;
+    const phone = (target.elements.namedItem("phone") as HTMLInputElement).value;
+    const message = (target.elements.namedItem("message") as HTMLTextAreaElement).value;
 
-    toast({
-      title: "Message sent!",
-      description: "We'll get back to you within 24 hours.",
-    });
-    setIsSubmitting(false);
-    (e.target as HTMLFormElement).reset();
+    try {
+      const { error } = await supabase.from('leads').insert({
+        name: `${firstName} ${lastName}`.trim(),
+        email,
+        phone,
+        message,
+        lead_source: 'website_contact',
+        source_url: window.location.href
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Message sent!",
+        description: "We'll get back to you within 24 hours.",
+      });
+      target.reset();
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast({
+        title: "Something went wrong",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <section id="contact" className="py-20 md:py-32 relative overflow-hidden">
-      {/* Background */}
+    <section id="contact" ref={containerRef} className="py-20 md:py-32 relative overflow-hidden">
+      {/* Background with IridescenceGlow */}
       <div className="absolute inset-0 bg-background z-0" />
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-primary/5 z-0" />
+      <div className="absolute inset-0 z-[1] mix-blend-screen opacity-20">
+        <IridescenceGlow
+          color={[180, 100, 80]} // Wine accent color
+          speed={0.8}
+          amplitude={0.05}
+        />
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background z-[2]" />
 
       {/* Decorative elements */}
-      <div className="absolute top-10 left-10 w-64 h-64 border border-primary/10 rounded-full z-[1]" />
-      <div className="absolute bottom-10 right-10 w-48 h-48 border border-primary/10 rounded-full z-[1]" />
-      <div className="absolute top-1/2 left-1/4 w-32 h-32 bg-primary/5 rounded-full blur-3xl z-[1]" />
+      <div className="absolute top-10 left-10 w-64 h-64 border border-primary/10 rounded-full z-[3]" />
+      <div className="absolute bottom-10 right-10 w-48 h-48 border border-primary/10 rounded-full z-[3]" />
 
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-          <span className="inline-block text-primary font-medium tracking-[0.2em] uppercase text-sm mb-4 border-b-2 border-primary pb-2">
-            Get In Touch
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-primary-foreground mb-4">
-            Ready to Transform Your Space?
-          </h2>
-          <p className="text-primary-foreground/70 text-base md:text-lg">
-            Get a free consultation and 3D design visualization.
-            <span className="block mt-2 text-primary font-medium">
-              No obligation. No hidden costs.
-            </span>
-          </p>
-        </div>
+      <div className="container mx-auto px-4 relative z-10 reveal-elem">
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
           {/* Left: CTA + Contact Info */}

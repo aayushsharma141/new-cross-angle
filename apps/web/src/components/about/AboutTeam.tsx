@@ -1,62 +1,30 @@
 import { motion } from "framer-motion";
 import { Instagram, Linkedin, Mail } from "lucide-react";
 import { ScrollReveal } from "../ui/scroll-reveal";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-const team = [
-    {
-        name: "Shrikant Sharma",
-        role: "Chief Visionary Officer & Founding Principal",
-        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop",
-        bio: "Exemplifying over two decades of architectural excellence, Shrikant curates the philosophical foundation of every Cross Angle commission.",
-        social: { instagram: "#", linkedin: "#", email: "shrikant@crossangle.in" }
-    },
-    {
-        name: "Chanda Sharma",
-        role: "Director of Aesthetic Excellence",
-        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=800&auto=format&fit=crop",
-        bio: "Chanda is the vanguard of our interior philosophy, ensuring that every texture and tone resonates with the silent language of luxury.",
-        social: { instagram: "#", linkedin: "#", email: "chanda@crossangle.in" }
-    },
-    {
-        name: "Hema Kumari",
-        role: "Spatial Visualization Expert",
-        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop",
-        bio: "Hema orchestrates the transition from abstract concept to living reality, masterfully visualizing the anticipation of space.",
-        social: { instagram: "#", linkedin: "#" }
-    },
-    {
-        name: "Bhusan Kumar",
-        role: "Director of Operations & Strategic Growth",
-        image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=800&auto=format&fit=crop",
-        bio: "Architecting the operational backbone of the studio, Bhusan ensures the precision and scale of our visionary projects.",
-        social: { linkedin: "#" }
-    },
-    {
-        name: "Shubham Sharma",
-        role: "Brand Experience & Digital Strategy Lead",
-        image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format&fit=crop",
-        bio: "Defining how the digital world anticipates the Cross Angle experience through immersive brand storytelling.",
-        social: { instagram: "#", linkedin: "#" }
-    },
-    {
-        name: "Souvik Dey",
-        role: "Client Relationship & Brand Ambassador",
-        image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=800&auto=format&fit=crop",
-        bio: "The silent bridge between our studio's vision and our clients' legacy, Souvik curates the journey of anticipation.",
-        social: { linkedin: "#", email: "souvik@crossangle.in" }
-    }
-];
+interface TeamMemberData {
+    id: string;
+    name: string;
+    role: string;
+    bio: string | null;
+    image_url: string | null;
+    instagram_url: string | null;
+    linkedin_url: string | null;
+    email: string | null;
+}
 
-const TeamMember = ({ member, index }: { member: typeof team[0], index: number }) => {
+const TeamMember = ({ member, index }: { member: TeamMemberData, index: number }) => {
     return (
         <ScrollReveal animation="fade-up" delay={index * 0.1}>
-            <div className="group relative">
+            <div className="group relative h-full">
                 {/* Card Container */}
-                <div className="relative overflow-hidden rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm transition-all duration-500 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/10">
+                <div className="relative h-full overflow-hidden rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm transition-all duration-500 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/10 flex flex-col">
                     {/* Image Container */}
-                    <div className="aspect-[4/5] overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700">
+                    <div className="aspect-[4/5] overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700 shrink-0">
                         <img
-                            src={member.image}
+                            src={member.image_url || 'https://via.placeholder.com/800x1000'}
                             alt={member.name}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         />
@@ -65,7 +33,7 @@ const TeamMember = ({ member, index }: { member: typeof team[0], index: number }
                     </div>
 
                     {/* Info Content */}
-                    <div className="p-6 relative">
+                    <div className="p-6 relative flex flex-col flex-grow">
                         <div className="mb-4">
                             <h3 className="font-serif text-xl font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
                                 {member.name}
@@ -75,33 +43,39 @@ const TeamMember = ({ member, index }: { member: typeof team[0], index: number }
                             </p>
                         </div>
 
-                        <p className="text-sm text-muted-foreground leading-relaxed h-0 opacity-0 group-hover:h-auto group-hover:opacity-100 transition-all duration-500 mb-6">
-                            {member.bio}
-                        </p>
+                        {member.bio && (
+                            <p className="text-sm text-muted-foreground leading-relaxed h-0 opacity-0 group-hover:h-auto group-hover:opacity-100 transition-all duration-500 mb-6">
+                                {member.bio}
+                            </p>
+                        )}
 
                         {/* Social Links */}
-                        <div className="flex items-center gap-4 border-t border-white/5 pt-4 opacity-0 group-hover:opacity-100 transition-opacity delay-100">
-                            {member.social.instagram && (
+                        <div className="flex items-center gap-4 border-t border-white/5 pt-4 opacity-0 group-hover:opacity-100 transition-opacity delay-100 mt-auto">
+                            {member.instagram_url && (
                                 <a
-                                    href={member.social.instagram}
+                                    href={member.instagram_url}
                                     className="text-muted-foreground hover:text-primary transition-colors"
                                     aria-label={`${member.name}'s Instagram`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                 >
                                     <Instagram className="w-4 h-4" />
                                 </a>
                             )}
-                            {member.social.linkedin && (
+                            {member.linkedin_url && (
                                 <a
-                                    href={member.social.linkedin}
+                                    href={member.linkedin_url}
                                     className="text-muted-foreground hover:text-primary transition-colors"
                                     aria-label={`${member.name}'s LinkedIn`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                 >
                                     <Linkedin className="w-4 h-4" />
                                 </a>
                             )}
-                            {member.social.email && (
+                            {member.email && (
                                 <a
-                                    href={`mailto:${member.social.email}`}
+                                    href={`mailto:${member.email}`}
                                     className="text-muted-foreground hover:text-primary transition-colors"
                                     aria-label={`Email ${member.name}`}
                                 >
@@ -117,6 +91,32 @@ const TeamMember = ({ member, index }: { member: typeof team[0], index: number }
 };
 
 const AboutTeam = () => {
+    const [team, setTeam] = useState<TeamMemberData[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchTeam() {
+            try {
+                const { data, error } = await supabase
+                    .from('team_members')
+                    .select('*')
+                    .order('display_order', { ascending: true });
+
+                if (error) {
+                    console.error("Error fetching team members:", error);
+                } else {
+                    setTeam(data || []);
+                }
+            } catch (err) {
+                console.error("Failed to load team:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchTeam();
+    }, []);
+
     return (
         <section className="py-24 md:py-32 relative overflow-hidden bg-background">
             {/* Background elements */}
@@ -143,11 +143,19 @@ const AboutTeam = () => {
                     </ScrollReveal>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {team.map((member, index) => (
-                        <TeamMember key={index} member={member} index={index} />
-                    ))}
-                </div>
+                {loading ? (
+                    <div className="flex justify-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                    </div>
+                ) : team.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {team.map((member, index) => (
+                            <TeamMember key={member.id} member={member} index={index} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center text-muted-foreground">Team data not found.</div>
+                )}
             </div>
         </section>
     );

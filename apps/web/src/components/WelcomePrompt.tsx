@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 const WelcomePrompt = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,16 +34,32 @@ const WelcomePrompt = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const { error } = await supabase.from('leads').insert({
+        email,
+        phone,
+        lead_source: 'welcome_popup',
+        source_url: window.location.href
+      });
 
-    toast({
-      title: "Thank you!",
-      description: "We'll be in touch soon with exclusive design insights.",
-    });
+      if (error) throw error;
 
-    setIsSubmitting(false);
-    handleClose();
+      toast({
+        title: "Thank you!",
+        description: "We'll be in touch soon with exclusive design insights.",
+      });
+
+      handleClose();
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast({
+        title: "Something went wrong",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -50,14 +67,14 @@ const WelcomePrompt = () => {
   return (
     <div className="fixed inset-0 z-50">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-foreground/60 backdrop-blur-sm animate-fade-in"
         onClick={handleClose}
       />
 
       {/* Modal */}
       <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-        <div 
+        <div
           className={cn(
             "relative w-full max-w-md bg-background border border-border rounded-2xl shadow-2xl pointer-events-auto",
             "animate-scale-in"
@@ -117,8 +134,8 @@ const WelcomePrompt = () => {
                   className="bg-muted/50"
                 />
               </div>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full group"
                 disabled={isSubmitting}
               >

@@ -5,8 +5,7 @@ import FixedSocialBar from "@/components/FixedSocialBar";
 import FloatingParticles from "@/components/FloatingParticles";
 import ScrollToTop from "@/components/ScrollToTop";
 import ContactHero from "@/components/contact/ContactHero";
-import ContactForm from "@/components/contact/ContactForm";
-import ContactInfo from "@/components/contact/ContactInfo";
+import CTAContact from "@/components/CTAContact";
 
 const ContactPage = () => {
   return (
@@ -27,30 +26,7 @@ const ContactPage = () => {
       <Navbar />
       <main className="min-h-screen relative z-10 bg-background">
         <ContactHero />
-
-        {/* Contact Form Section */}
-        <section className="pb-24 relative overflow-hidden">
-          {/* Decorative Elements */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-wine-500/5 rounded-full blur-3xl -z-10" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-wine-500/5 rounded-full blur-3xl -z-10" />
-
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-              {/* Form Section */}
-              <ContactForm />
-
-              {/* Info Section - Sticky on Desktop */}
-              <div className="lg:sticky lg:top-24 space-y-8">
-                <div className="hidden lg:block mb-6">
-                  <h3 className="text-2xl font-serif font-bold text-foreground">
-                    Visit our studio or contact us directly. We're here to help.
-                  </h3>
-                </div>
-                <ContactInfo />
-              </div>
-            </div>
-          </div>
-        </section>
+        <CTAContact />
       </main>
       <Footer />
       <ScrollToTop />

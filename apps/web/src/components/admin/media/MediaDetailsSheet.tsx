@@ -35,9 +35,10 @@ interface MediaDetailsSheetProps {
     onClose: () => void;
     onDelete: (file: MediaFile) => void;
     onCopyUrl: (url: string) => void;
+    isReadOnly?: boolean;
 }
 
-export function MediaDetailsSheet({ file, open, onClose, onDelete, onCopyUrl }: MediaDetailsSheetProps) {
+export function MediaDetailsSheet({ file, open, onClose, onDelete, onCopyUrl, isReadOnly = false }: MediaDetailsSheetProps) {
     const { toast } = useToast();
     const [isGenerating, setIsGenerating] = useState(false);
     const [aiMetadata, setAiMetadata] = useState<{ caption: string; altText: string } | null>(
@@ -63,9 +64,19 @@ export function MediaDetailsSheet({ file, open, onClose, onDelete, onCopyUrl }: 
 
             if (error) throw error;
 
-            setAiMetadata(data);
+            const newMetadata = { caption: data.caption, altText: data.caption };
+            setAiMetadata(newMetadata);
+
+            // Persist to DB
+            const { error: updateError } = await supabase.from('media').update({
+                title: data.caption,
+                alt: data.caption
+            }).eq('id', file.id);
+
+            if (updateError) throw updateError;
+
             toast({ title: "AI Caption Generated!", description: "Metadata updated successfully." });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             toast({
                 title: "Generation Failed",
@@ -90,6 +101,7 @@ export function MediaDetailsSheet({ file, open, onClose, onDelete, onCopyUrl }: 
             <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
                 <SheetHeader className="mb-6">
                     <SheetTitle>File Details</SheetTitle>
+                    <SheetDescription className="sr-only">View file details and actions</SheetDescription>
                 </SheetHeader>
 
                 <div className="space-y-6">
@@ -138,11 +150,9 @@ export function MediaDetailsSheet({ file, open, onClose, onDelete, onCopyUrl }: 
                             <div className="font-medium uppercase">{file.name.split('.').pop() || 'Unknown'}</div>
                         </div>
                     </div>
-
                 </div>
 
-
-                <Separator />
+                <Separator className="my-6" />
 
                 {/* AI Features */}
                 <div className="space-y-4">
@@ -156,29 +166,31 @@ export function MediaDetailsSheet({ file, open, onClose, onDelete, onCopyUrl }: 
                                 <p className="text-xs text-muted-foreground">Auto-generate captions & alt text</p>
                             </div>
                         </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleGenerateCaption}
-                            disabled={isGenerating}
-                            className="h-8 border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800 transition-colors"
-                        >
-                            {isGenerating ? (
-                                <>
-                                    <Loader2 className="w-3 h-3 mr-2 animate-spin" />
-                                    Analyzing...
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles className="w-3 h-3 mr-2" />
-                                    Generate Metadata
-                                </>
-                            )}
-                        </Button>
+                        {!isReadOnly && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleGenerateCaption}
+                                disabled={isGenerating}
+                                className="h-8 border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800 transition-colors"
+                            >
+                                {isGenerating ? (
+                                    <>
+                                        <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                        Analyzing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles className="w-3 h-3 mr-2" />
+                                        Generate Metadata
+                                    </>
+                                )}
+                            </Button>
+                        )}
                     </div>
 
                     {aiMetadata ? (
-                        <div className="rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50/50 to-white p-4 space-y-4 animate-in fade-in slide-in-from-top-2 shadow-sm">
+                        <div className="rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50/50 to-white p-4 space-y-4 shadow-sm">
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-semibold text-purple-900 uppercase tracking-wider">Caption</span>
@@ -207,7 +219,7 @@ export function MediaDetailsSheet({ file, open, onClose, onDelete, onCopyUrl }: 
                     )}
                 </div>
 
-                <Separator />
+                <Separator className="my-6" />
 
                 {/* Actions */}
                 <div className="grid grid-cols-2 gap-3">
@@ -226,14 +238,16 @@ export function MediaDetailsSheet({ file, open, onClose, onDelete, onCopyUrl }: 
                         <Download className="w-4 h-4 mr-2" />
                         Download
                     </Button>
-                    <Button
-                        variant="destructive"
-                        onClick={() => { onDelete(file); onClose(); }}
-                        className="col-span-2"
-                    >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete File
-                    </Button>
+                    {!isReadOnly && (
+                        <Button
+                            variant="destructive"
+                            onClick={() => { onDelete(file); onClose(); }}
+                            className="col-span-2"
+                        >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete File
+                        </Button>
+                    )}
                 </div>
             </SheetContent>
         </Sheet>

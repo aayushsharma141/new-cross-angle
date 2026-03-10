@@ -263,6 +263,54 @@ export const api = {
     return mapSupabaseToServiceDetail(data);
   },
 
+  getPageBySlug: async (slug: string) => {
+    if (!supabase) return null;
+
+    // Attempt to hit our CDA Edge function directly. If that fails or is not present, we hit DB.
+    try {
+      const { data, error } = await supabase.functions.invoke('cda-api', {
+        body: { path: `/api/page/${slug}` }
+      });
+
+      if (data?.data) {
+        return data.data; // Edge API usually returns { data: { page, sections } }
+      }
+    } catch (err) {
+      console.warn("CDA edge function failed, falling back to standard DB query:", err)
+    }
+
+    // Direct DB fallback
+    const { data, error } = await supabase
+      .from('page_sections')
+      .select('*')
+      .eq('page', slug)
+      .eq('status', 'published')
+      .order('order_index', { ascending: true });
+
+    if (error) {
+      console.error(`Error fetching page ${slug}:`, error);
+      return null;
+    }
+    return { sections: data };
+  },
+
+  getPreviewPageBySlug: async (slug: string) => {
+    if (!supabase) return null;
+
+    // Direct DB query bypassing edge function / cache for preview
+    const { data, error } = await supabase
+      .from('page_sections')
+      .select('*')
+      .eq('page', slug)
+      .order('order_index', { ascending: true });
+
+    if (error) {
+      console.error(`Error fetching preview page ${slug}:`, error);
+      return null;
+    }
+    return { sections: data };
+  },
+
   getHeroContent: async (): Promise<HeroContent> => {
     if (!supabase) {
       return {

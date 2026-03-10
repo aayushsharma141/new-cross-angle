@@ -10,12 +10,44 @@ interface Lead {
     service?: string;
 }
 
+// Simple in-memory rate limiting
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 3;
+
+function isRateLimited(identifier: string): boolean {
+    const now = Date.now();
+    const key = identifier.toLowerCase().trim();
+    const record = rateLimitMap.get(key);
+
+    if (!record || now > record.resetTime) {
+        rateLimitMap.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+        return false;
+    }
+
+    if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
+        return true;
+    }
+
+    record.count++;
+    return false;
+}
+
 serve(async (req) => {
     if (req.method === 'OPTIONS') {
         return new Response('ok', { headers: corsHeaders })
     }
 
     try {
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+
+        if (isRateLimited(`ip:${ip}`)) {
+            return new Response(JSON.stringify({ error: "Too Many Requests" }), {
+                status: 429,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+        }
+
         const supabaseClient = createClient(
             Deno.env.get('SUPABASE_URL') ?? '',
             Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''

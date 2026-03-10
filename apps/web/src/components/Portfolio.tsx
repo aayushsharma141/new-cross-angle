@@ -11,6 +11,86 @@ import { motion } from "framer-motion";
 import Magnetic from "./ui/magnetic";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useImageParallax } from "@/hooks/useImageParallax";
+
+import { type Project } from "@/data/projects";
+
+const ProjectCard = ({
+  project,
+  index,
+  openLightbox
+}: {
+  project: Project;
+  index: number;
+  openLightbox: (index: number) => void
+}) => {
+  const { containerRef, imageRef } = useImageParallax({ speed: 0.15, scale: 1.15 });
+
+  return (
+    <div
+      className="group relative animate-fade-in"
+      ref={containerRef}
+    >
+      <div
+        className="relative overflow-hidden rounded-xl aspect-[4/3] mb-4 cursor-pointer"
+        onClick={() => openLightbox(index)}
+        onKeyDown={(e) => e.key === "Enter" && openLightbox(index)}
+        role="button"
+        tabIndex={0}
+        aria-label={`View ${project.title} project`}
+      >
+        <div className="aspect-[4/5] overflow-hidden">
+          <Image
+            ref={imageRef}
+            src={project.heroImage}
+            alt={project.title}
+            loading="lazy"
+            imageClassName="transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
+          />
+        </div>
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+
+        {/* View Button */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
+          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center transform scale-50 group-hover:scale-100 transition-transform duration-500 shadow-2xl">
+            <Eye className="w-6 h-6 text-primary-foreground" />
+          </div>
+        </div>
+
+        {/* Year Badge */}
+        <div className="absolute top-4 right-4 bg-foreground/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-medium text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          {project.year}
+        </div>
+
+        {/* Category Badge */}
+        <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+          <span className="bg-primary text-primary-foreground text-xs font-medium uppercase tracking-wider px-3 py-1.5 rounded-full">
+            {project.category}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-primary uppercase tracking-wider">{project.category}</span>
+        </div>
+        <h3 className="text-xl font-display font-bold">{project.title}</h3>
+        <p className="text-primary-foreground/60 leading-relaxed mb-4">
+          {project.brief.substring(0, 100)}...
+        </p>
+        <Link
+          to={`/portfolio/${project.slug}`}
+          className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all focus:outline-none focus:ring-2 focus:ring-primary rounded"
+        >
+          View Full Project
+          <ArrowUpRight className="w-4 h-4" />
+        </Link>
+      </div>
+    </div>
+  );
+};
 
 const Portfolio = () => {
   const { data: projects = [] } = useQuery({
@@ -124,67 +204,12 @@ const Portfolio = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProjects.map((project, index) => (
-            <div
+            <ProjectCard
               key={project.id}
-              className="group relative animate-fade-in"
-            >
-              <div
-                className="relative overflow-hidden rounded-xl aspect-[4/3] mb-4 cursor-pointer"
-                onClick={() => openLightbox(index)}
-                onKeyDown={(e) => e.key === "Enter" && openLightbox(index)}
-                role="button"
-                tabIndex={0}
-                aria-label={`View ${project.title} project`}
-              >
-                <div className="aspect-[4/5] overflow-hidden">
-                  <Image
-                    src={project.heroImage}
-                    alt={project.title}
-                    loading="lazy"
-                    imageClassName="transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
-                  />
-                </div>
-
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-
-                {/* View Button */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
-                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center transform scale-50 group-hover:scale-100 transition-transform duration-500 shadow-2xl">
-                    <Eye className="w-6 h-6 text-primary-foreground" />
-                  </div>
-                </div>
-
-                {/* Year Badge */}
-                <div className="absolute top-4 right-4 bg-foreground/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-medium text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  {project.year}
-                </div>
-
-                {/* Category Badge */}
-                <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                  <span className="bg-primary text-primary-foreground text-xs font-medium uppercase tracking-wider px-3 py-1.5 rounded-full">
-                    {project.category}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-primary uppercase tracking-wider">{project.category}</span>
-                </div>
-                <h3 className="text-xl font-display font-bold">{project.title}</h3>
-                <p className="text-primary-foreground/60 leading-relaxed mb-4">
-                  {project.brief.substring(0, 100)}...
-                </p>
-                <Link
-                  to={`/portfolio/${project.slug}`}
-                  className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all focus:outline-none focus:ring-2 focus:ring-primary rounded"
-                >
-                  View Full Project
-                  <ArrowUpRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
+              project={project}
+              index={index}
+              openLightbox={openLightbox}
+            />
           ))}
         </div>
 

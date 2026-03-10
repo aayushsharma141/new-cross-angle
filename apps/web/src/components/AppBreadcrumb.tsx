@@ -1,3 +1,4 @@
+import React from "react";
 import { useLocation, Link } from "react-router-dom";
 import {
     Breadcrumb,
@@ -45,18 +46,20 @@ export const AppBreadcrumb = () => {
                         const formattedName = formatSegment(value);
 
                         return (
-                            <BreadcrumbItem key={to}>
+                            <React.Fragment key={to}>
                                 <BreadcrumbSeparator />
-                                {isLast ? (
-                                    <BreadcrumbPage>{formattedName}</BreadcrumbPage>
-                                ) : (
-                                    <BreadcrumbLink asChild>
-                                        <Link to={to} className="hover:text-primary transition-colors">
-                                            {formattedName}
-                                        </Link>
-                                    </BreadcrumbLink>
-                                )}
-                            </BreadcrumbItem>
+                                <BreadcrumbItem>
+                                    {isLast ? (
+                                        <BreadcrumbPage>{formattedName}</BreadcrumbPage>
+                                    ) : (
+                                        <BreadcrumbLink asChild>
+                                            <Link to={to} className="hover:text-primary transition-colors">
+                                                {formattedName}
+                                            </Link>
+                                        </BreadcrumbLink>
+                                    )}
+                                </BreadcrumbItem>
+                            </React.Fragment>
                         );
                     })}
                 </BreadcrumbList>

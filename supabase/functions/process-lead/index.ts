@@ -14,9 +14,7 @@ const getCorsHeaders = (req: Request): Record<string, string> => {
   const origin = req.headers.get("origin") || "";
   const allowedOrigins = getAllowedOrigins();
 
-  // Check if origin is allowed:
-
-  origin.includes("localhost") ||
+  const isAllowed = origin.includes("localhost") ||
     origin.includes("127.0.0.1") ||
     allowedOrigins.some(allowed => origin === allowed);
 

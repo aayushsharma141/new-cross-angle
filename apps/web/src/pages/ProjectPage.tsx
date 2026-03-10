@@ -12,7 +12,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import ProjectHero from "@/components/project/ProjectHero";
 import ProjectStats from "@/components/project/ProjectStats";
 import ProjectGallery from "@/components/project/ProjectGallery";
-import BeforeAfterSlider from "@/components/project/BeforeAfterSlider";
+import { Compare } from "@/components/ui/compare";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
@@ -149,10 +149,18 @@ const ProjectPage = () => {
 
               {/* Before/After Slider */}
               {project.gallery[0]?.images?.length >= 2 && (
-                <BeforeAfterSlider
-                  beforeImage={project.gallery[0].images[0]}
-                  afterImage={project.gallery[0].images[1]}
-                />
+                <div className="space-y-4">
+                  <h3 className="text-xl font-serif font-semibold text-foreground flex items-center gap-3">
+                    <span className="w-6 h-0.5 bg-primary" />
+                    Transformation
+                  </h3>
+                  <Compare
+                    firstImage={project.gallery[0].images[0]}
+                    secondImage={project.gallery[0].images[1]}
+                    className="w-full aspect-[16/9] shadow-2xl"
+                    slideMode="hover"
+                  />
+                </div>
               )}
 
               {/* Gallery */}

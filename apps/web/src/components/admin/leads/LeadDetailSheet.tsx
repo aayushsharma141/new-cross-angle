@@ -36,6 +36,7 @@ interface LeadDetailSheetProps {
     onOpenChange: (open: boolean) => void;
     onSave: (lead: Lead) => void;
     onDelete: (id: string) => void;
+    isReadOnly?: boolean;
 }
 
 const EMAIL_TEMPLATES = [
@@ -59,7 +60,7 @@ const EMAIL_TEMPLATES = [
     }
 ];
 
-export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete }: LeadDetailSheetProps) {
+export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, isReadOnly = false }: LeadDetailSheetProps) {
     const [formData, setFormData] = useState<Lead | null>(null);
     const { toast } = useToast();
     const queryClient = useQueryClient();
@@ -165,6 +166,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete }: 
                                     <Select
                                         value={formData.status}
                                         onValueChange={(val) => setFormData({ ...formData, status: val })}
+                                        disabled={isReadOnly}
                                     >
                                         <SelectTrigger className="w-[180px] bg-background h-8">
                                             <SelectValue />
@@ -198,6 +200,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete }: 
                                             id="name"
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                            readOnly={isReadOnly}
                                         />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
@@ -207,6 +210,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete }: 
                                                 id="email"
                                                 value={formData.email || ""}
                                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                readOnly={isReadOnly}
                                             />
                                         </div>
                                         <div className="grid gap-2">
@@ -215,6 +219,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete }: 
                                                 id="phone"
                                                 value={formData.phone || ""}
                                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                                readOnly={isReadOnly}
                                             />
                                         </div>
                                     </div>
@@ -233,6 +238,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete }: 
                                             id="service"
                                             value={formData.service || ""}
                                             onChange={(e) => setFormData({ ...formData, service: e.target.value })}
+                                            readOnly={isReadOnly}
                                         />
                                     </div>
                                     <div className="grid gap-2">
@@ -254,6 +260,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete }: 
                                     placeholder="Add notes about budget, timeline, or meeting outcomes..."
                                     value={formData.notes || ""}
                                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                                    readOnly={isReadOnly}
                                 />
                             </div>
                         </TabsContent>
@@ -301,8 +308,12 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete }: 
                 </Tabs>
 
                 <SheetFooter className="px-6 py-4 border-t bg-muted/20 gap-2 shrink-0">
-                    <Button variant="destructive" onClick={() => onDelete(formData.id)} size="sm">Delete</Button>
-                    <Button onClick={handleSave} className="bg-[hsl(var(--brand-primary))]" size="sm">Save Changes</Button>
+                    {!isReadOnly && (
+                        <>
+                            <Button variant="destructive" onClick={() => onDelete(formData.id)} size="sm">Delete</Button>
+                            <Button onClick={handleSave} className="bg-[hsl(var(--brand-primary))]" size="sm">Save Changes</Button>
+                        </>
+                    )}
                 </SheetFooter>
             </SheetContent>
         </Sheet>

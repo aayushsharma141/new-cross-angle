@@ -3,7 +3,7 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import Magnetic from "../ui/magnetic";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Send, CheckCircle, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
+import { Send, Check, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -579,7 +579,7 @@ const ContactForm = () => {
                   </>
                 ) : isSubmitted ? (
                   <>
-                    <CheckCircle className="mr-2 h-4 w-4" /> Sent!
+                    <Check className="mr-2 h-4 w-4" /> Sent!
                   </>
                 ) : (
                   <>

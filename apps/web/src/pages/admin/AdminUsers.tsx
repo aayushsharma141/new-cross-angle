@@ -43,7 +43,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, Trash2, Ban, CheckCircle } from "lucide-react";
+import { MoreHorizontal, Trash2, Ban, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AdminUser {
@@ -270,7 +270,7 @@ export default function AdminUsers(): JSX.Element {
                                                             })
                                                         }
                                                     >
-                                                        <CheckCircle className="mr-2 h-4 w-4" /> Unsuspend
+                                                        <Check className="mr-2 h-4 w-4" /> Unsuspend
                                                     </DropdownMenuItem>
                                                 ) : (
                                                     <DropdownMenuItem

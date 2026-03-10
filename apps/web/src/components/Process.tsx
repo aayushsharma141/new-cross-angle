@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Home, Ruler, Palette, Hammer, CheckCircle2 } from "lucide-react";
+import { Home, Ruler, Palette, Hammer, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -61,7 +61,7 @@ const steps = [
     ]
   },
   {
-    icon: CheckCircle2,
+    icon: Check,
     title: "Handover",
     subtitle: "Final Reveal",
     duration: "1 day",
@@ -155,7 +155,7 @@ const Process = () => {
           </div>
 
           {/* Right Side: Step Contents */}
-          <div className="flex-1 space-y-32 md:space-y-[40vh] pb-32 md:pb-[20vh]">
+          <div className="flex-1 space-y-32 md:space-y-[40vh] pt-10 md:pt-[30vh] pb-32 md:pb-[20vh]">
             {steps.map((step, index) => {
               const isActive = activeStep === index;
               return (
@@ -181,7 +181,7 @@ const Process = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {step.details.map((detail, dIndex) => (
                         <div key={dIndex} className="flex items-center gap-3 text-white/50 bg-white/5 p-4 rounded-xl border border-white/5">
-                          <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                          <Check className="w-4 h-4 text-primary shrink-0" />
                           <span className="text-sm">{detail}</span>
                         </div>
                       ))}

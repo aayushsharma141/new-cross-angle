@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
     Loader2,
     Search,
@@ -25,14 +27,9 @@ import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { MediaGrid } from "@/components/admin/media/MediaGrid";
 import { MediaUploadZone } from "@/components/admin/media/MediaUploadZone";
 import { MediaDetailsSheet } from "@/components/admin/media/MediaDetailsSheet";
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
+import { icons } from "@/design-system/tokens/icons";
+import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 
 interface MediaFile {
     id: string;
@@ -50,12 +47,18 @@ const BUCKET_NAME = "media";
 
 const AdminMedia = () => {
     const { toast } = useToast();
+    const { isViewer } = useAdminAuth();
+    const [searchParams] = useSearchParams();
+    const urlSearch = searchParams.get("search");
+    const urlFile = searchParams.get("file");
+    const deepLinkHandled = useRef(false);
+
     const [files, setFiles] = useState<MediaFile[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
     const [selectedFolder, setSelectedFolder] = useState<string>("all");
     const [selectedType, setSelectedType] = useState<string>("all");
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState(urlSearch ?? "");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
 
@@ -70,24 +73,33 @@ const AdminMedia = () => {
     const fetchFiles = async () => {
         try {
             setIsLoading(true);
-            const { data, error } = await supabase.storage.from(BUCKET_NAME).list('', {
-                limit: 1000,
-                sortBy: { column: 'created_at', order: 'desc' }
-            });
+            const { data, error } = await supabase
+                .from('media')
+                .select('*')
+                .order('created_at', { ascending: false });
+
             if (error) throw error;
 
             const formattedFiles: MediaFile[] = data.map(file => ({
                 id: file.id,
-                name: file.name,
-                url: supabase.storage.from(BUCKET_NAME).getPublicUrl(file.name).data.publicUrl,
-                folder: file.name.split('/')[0] || 'general',
-                size: file.metadata?.size || 0,
+                name: file.file_name,
+                url: file.url,
+                folder: file.file_name.split('/').length > 1 ? file.file_name.split('/')[0] : 'general',
+                size: file.size_bytes || 0,
                 created_at: file.created_at,
+                alt: file.alt || undefined,
+                caption: file.title || undefined,
             }));
             setFiles(formattedFiles);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            toast({ title: "Error", description: error.message, variant: "destructive" });
+            // Deep-link from command palette: ?file=<name> or ?search=<query>
+            if (urlFile && !deepLinkHandled.current) {
+                deepLinkHandled.current = true;
+                const target = formattedFiles.find((f) => f.name === urlFile);
+                if (target) setPreviewFile(target);
+            }
+        } catch (error) {
+            const err = error as Error;
+            toast({ title: "Error", description: err.message, variant: "destructive" });
         } finally {
             setIsLoading(false);
         }
@@ -98,23 +110,47 @@ const AdminMedia = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const handleUpload = async (files: File[]) => {
+    const handleUpload = async (fileList: File[]) => {
         try {
             setIsUploading(true);
             setUploadError(null);
 
-            for (const file of files) {
+            const { data: userData } = await supabase.auth.getUser();
+
+            for (const file of fileList) {
                 const path = selectedFolder === 'all' ? file.name : `${selectedFolder}/${file.name}`;
-                const { error } = await supabase.storage.from(BUCKET_NAME).upload(path, file);
-                if (error) throw error;
+                const { error: storageError } = await supabase.storage.from(BUCKET_NAME).upload(path, file);
+
+                // If it already exists, we could just overwrite or ignore. Here we assume we want to proceed.
+                // Storage upload returns an error if already exists, unless upsert is true. Let's fallback gracefully if possible.
+                if (storageError && !storageError.message.includes('already exists')) {
+                    throw storageError;
+                }
+
+                const { data: publicUrlObj } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
+
+                // Insert into DB
+                const { error: dbError } = await supabase.from('media').insert({
+                    url: publicUrlObj.publicUrl,
+                    file_name: path,
+                    file_type: file.type,
+                    size_bytes: file.size,
+                    alt: file.name,
+                    title: file.name,
+                    uploaded_by: userData?.user?.id
+                });
+
+                if (dbError && dbError.code !== '23505') { // Ignore unique constraint if we handle it
+                    throw dbError;
+                }
             }
 
-            toast({ title: "Success", description: `${files.length} file(s) uploaded successfully` });
+            toast({ title: "Success", description: `${fileList.length} file(s) uploaded successfully` });
             fetchFiles();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            setUploadError(error.message);
-            toast({ title: "Error", description: error.message, variant: "destructive" });
+        } catch (error) {
+            const err = error as Error;
+            setUploadError(err.message);
+            toast({ title: "Error", description: err.message, variant: "destructive" });
         } finally {
             setIsUploading(false);
         }
@@ -123,15 +159,20 @@ const AdminMedia = () => {
     const handleSingleDelete = async () => {
         if (!fileToDelete) return;
         try {
-            const { error } = await supabase.storage.from(BUCKET_NAME).remove([fileToDelete.name]);
-            if (error) throw error;
+            // Delete from storage
+            const { error: storageError } = await supabase.storage.from(BUCKET_NAME).remove([fileToDelete.name]);
+            if (storageError) throw storageError;
+
+            // Delete from DB
+            const { error: dbError } = await supabase.from('media').delete().eq('id', fileToDelete.id);
+            if (dbError) throw dbError;
 
             toast({ title: "Success", description: "File deleted successfully" });
             setPreviewFile(null);
             fetchFiles();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            toast({ title: "Error", description: error.message, variant: "destructive" });
+        } catch (error) {
+            const err = error as Error;
+            toast({ title: "Error", description: err.message, variant: "destructive" });
         } finally {
             setDeleteDialogOpen(false);
             setFileToDelete(null);
@@ -142,17 +183,63 @@ const AdminMedia = () => {
         if (selectedFiles.size === 0) return;
         try {
             const filesToRemove = Array.from(selectedFiles).map(id => files.find(f => f.id === id)?.name).filter(Boolean) as string[];
-            const { error } = await supabase.storage.from(BUCKET_NAME).remove(filesToRemove);
-            if (error) throw error;
+
+            // Delete from storage
+            const { error: storageError } = await supabase.storage.from(BUCKET_NAME).remove(filesToRemove);
+            if (storageError) throw storageError;
+
+            // Delete from DB
+            const { error: dbError } = await supabase.from('media').delete().in('id', Array.from(selectedFiles));
+            if (dbError) throw dbError;
 
             toast({ title: "Success", description: "Files deleted successfully" });
             setSelectedFiles(new Set());
             fetchFiles();
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-            toast({ title: "Error", description: error.message, variant: "destructive" });
+        } catch (error) {
+            const err = error as Error;
+            toast({ title: "Error", description: err.message, variant: "destructive" });
         } finally {
             setBulkDeleteDialogOpen(false);
+        }
+    };
+
+    const handleSyncStorage = async () => {
+        try {
+            setIsLoading(true);
+            const { data: userData } = await supabase.auth.getUser();
+
+            let syncedCount = 0;
+            for (const folder of FOLDERS) {
+                const { data: storageFiles } = await supabase.storage.from(BUCKET_NAME).list(folder === 'general' ? '' : folder, { limit: 100 });
+                if (!storageFiles) continue;
+
+                for (const file of storageFiles) {
+                    if (file.name === '.emptyFolderPlaceholder' || !file.metadata) continue;
+
+                    const path = folder === 'general' ? file.name : `${folder}/${file.name}`;
+                    const { data: existing } = await supabase.from('media').select('id').eq('file_name', path).maybeSingle();
+                    if (!existing) {
+                        const { data: publicUrlObj } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
+                        await supabase.from('media').insert({
+                            url: publicUrlObj.publicUrl,
+                            file_name: path,
+                            file_type: file.metadata?.mimetype || 'unknown',
+                            size_bytes: file.metadata?.size || 0,
+                            alt: file.name,
+                            title: file.name,
+                            uploaded_by: userData?.user?.id
+                        });
+                        syncedCount++;
+                    }
+                }
+            }
+            toast({ title: "Success", description: `Synced ${syncedCount} missing files from storage` });
+            fetchFiles();
+        } catch (error) {
+            const err = error as Error;
+            toast({ title: "Error syncing", description: err.message, variant: "destructive" });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -199,62 +286,39 @@ const AdminMedia = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <Loader2 className={`${icons.xl} animate-spin text-primary`} />
             </div>
         );
     }
 
     return (
         <div className="space-y-6">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Media Library</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+            <AdminBreadcrumb items={[{ label: 'Media Library' }]} />
 
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="font-display text-3xl font-bold">Media Library</h1>
                     <p className="text-muted-foreground mt-1">Manage images and files</p>
                 </div>
+                {!isViewer && (
+                    <Button
+                        variant="outline"
+                        onClick={handleSyncStorage}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? <Loader2 className={`${icons.sm} mr-2 animate-spin`} /> : <FolderOpen className={`${icons.sm} mr-2`} />}
+                        Sync Storage
+                    </Button>
+                )}
             </div>
 
             {/* Selection Bar */}
-            {isSelectionMode && (
-                <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center justify-between bg-primary/10 border border-primary/20 rounded-lg px-4 py-3"
-                >
-                    <div className="flex items-center gap-3">
-                        <CheckSquare className="w-5 h-5 text-primary" />
-                        <span className="font-medium">{selectedFiles.size} selected</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedFiles(new Set())}
-                        >
-                            Clear
-                        </Button>
-                        <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => setBulkDeleteDialogOpen(true)}
-                        >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete Selected
-                        </Button>
-                    </div>
-                </motion.div>
-            )}
+            <BulkActionsToolbar
+                selectedCount={selectedFiles.size}
+                onClear={() => setSelectedFiles(new Set())}
+                onDelete={() => setBulkDeleteDialogOpen(true)}
+                isDeleting={false}
+            />
 
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-4">
@@ -313,12 +377,14 @@ const AdminMedia = () => {
             </div>
 
             {/* Drop Zone */}
-            <MediaUploadZone
-                onUpload={handleUpload}
-                isUploading={isUploading}
-                selectedFolder={selectedFolder}
-                errorMessage={uploadError}
-            />
+            {!isViewer && (
+                <MediaUploadZone
+                    onUpload={handleUpload}
+                    isUploading={isUploading}
+                    selectedFolder={selectedFolder}
+                    errorMessage={uploadError}
+                />
+            )}
 
             {/* Files Grid/List */}
             <MediaGrid
@@ -330,6 +396,7 @@ const AdminMedia = () => {
                 onDelete={(file) => { setFileToDelete(file); setDeleteDialogOpen(true); }}
                 onCopyUrl={copyToClipboard}
                 copiedUrl={copiedUrl}
+                isReadOnly={isViewer}
             />
 
             {/* Image Details Sheet */}
@@ -339,6 +406,7 @@ const AdminMedia = () => {
                 onClose={() => setPreviewFile(null)}
                 onDelete={(file) => { setFileToDelete(file); setDeleteDialogOpen(true); }}
                 onCopyUrl={copyToClipboard}
+                isReadOnly={isViewer}
             />
 
             {/* Single Delete Confirmation */}

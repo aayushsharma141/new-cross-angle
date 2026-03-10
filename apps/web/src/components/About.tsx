@@ -1,9 +1,10 @@
-import { Award, Users, Clock, Sparkles, ArrowRight, CheckCircle } from "lucide-react";
+import { Award, Users, Clock, Sparkles, ArrowRight, Check } from "lucide-react";
 import useCountUp from "@/hooks/useCountUp";
 import { Link } from "react-router-dom";
 import { ScrollReveal } from "./ui/scroll-reveal";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { Button } from "@/components/ui/button";
 
 const stats = [
   { icon: Award, value: 15, suffix: "+", label: "Years Experience" },
@@ -128,7 +129,7 @@ const About = () => {
                 <ScrollReveal key={index} delay={index * 0.1} animation="fade-up">
                   <div className="flex items-center gap-3 group">
                     <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary transition-all duration-300">
-                      <CheckCircle className="w-3 h-3 text-primary group-hover:text-primary-foreground transition-colors" />
+                      <Check className="w-3 h-3 text-primary group-hover:text-primary-foreground transition-colors" />
                     </div>
                     <span className="text-foreground/90 text-sm md:text-base font-medium">{feature}</span>
                   </div>
@@ -138,10 +139,12 @@ const About = () => {
 
             {/* CTA Button */}
             <Link to="/about-us">
-              <button className="group inline-flex items-center gap-3 bg-primary text-primary-foreground px-6 md:px-8 py-3 md:py-4 rounded-full font-medium hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 hover:bg-wine-600 active:bg-wine-700">
-                Learn More About Us
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              <Button asChild className="group rounded-full px-6 md:px-8 py-3 md:py-4 h-auto text-base hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 hover:bg-wine-600 active:bg-wine-700">
+                <span>
+                  Learn More About Us
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </Button>
             </Link>
           </div>
 

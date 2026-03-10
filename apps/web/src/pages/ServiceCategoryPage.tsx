@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowRight, Check, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -93,7 +93,7 @@ const ServiceCategoryPage = () => {
                                             <ul className={`space-y-2 mb-8 ${index % 2 === 1 ? 'flex flex-col items-end' : ''}`}>
                                                 {(service.features || []).slice(0, 3).map((f, i) => (
                                                     <li key={i} className="flex items-center gap-2 text-sm font-medium">
-                                                        <CheckCircle2 className="w-4 h-4 text-primary" /> {f}
+                                                        <Check className="w-4 h-4 text-primary" /> {f}
                                                     </li>
                                                 ))}
                                             </ul>
