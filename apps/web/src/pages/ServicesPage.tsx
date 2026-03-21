@@ -10,6 +10,7 @@ import ServicesProcess from "@/components/services/ServicesProcess";
 import ServicesWhyUs from "@/components/services/ServicesWhyUs";
 import ServicesCTA from "@/components/services/ServicesCTA";
 import OurApproach from "@/components/services/OurApproach";
+import ServicesEngines from "@/components/services/ServicesEngines";
 import { ArrowRight, Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed, LucideIcon, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -22,19 +23,14 @@ const IconMap: Record<string, LucideIcon> = {
   Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed
 };
 
+
 const ServicesPage = () => {
   const { data: services, isLoading } = useQuery({
     queryKey: ["services"],
     queryFn: api.getServices,
   });
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#000000]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#FF2A2A]" />
-      </div>
-    );
-  }
+
 
   const residentialRaw = (services || []).filter(s => s.category_id === 'residential');
   const commercialRaw = (services || []).filter(s => s.category_id === 'commercial');
@@ -284,6 +280,8 @@ const ServicesPage = () => {
               </div>
             </div>
           </section>
+
+        <ServicesEngines />
 
         <ServicesWhyUs />
         <ServicesProcess />
