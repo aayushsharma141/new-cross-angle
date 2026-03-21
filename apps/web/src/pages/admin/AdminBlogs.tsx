@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, RotateCcw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +27,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/design-system/components/Table";
 import { RichTextEditor } from "@/components/admin/blogs/RichTextEditor";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { MediaPicker } from "@/components/admin/media/MediaPicker";
@@ -133,11 +133,13 @@ const AdminBlogs = () => {
   };
 
   const handleTitleChange = (title: string): void => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       title,
-      slug: generateSlug(title)
-    });
+      // Only auto-generate slug for new posts — never rewrite the slug of a
+      // published post (that would break all existing inbound links).
+      ...(editingPost === null ? { slug: generateSlug(title) } : {}),
+    }));
   };
 
 
@@ -380,17 +382,17 @@ const AdminBlogs = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-7xl mx-auto space-y-8 py-4 animate-in fade-in duration-700">
       <AdminBreadcrumb items={[{ label: 'Blogs' }]} />
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-3xl font-bold">Blog Posts</h1>
-          <p className="text-muted-foreground mt-1">Manage your blog content</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-serif text-white tracking-tight">Articles</h1>
+          <p className="text-sm text-zinc-500 font-sans max-w-sm">Craft and curate your unit's strategic narratives and industry articles.</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="gold" onClick={handleNewPost}>
+            <Button variant="primary" onClick={handleNewPost} className="rounded-xl shadow-lg shadow-primary/20">
               <Plus className={`${icons.sm} mr-2`} />
               New Post
             </Button>
@@ -398,7 +400,7 @@ const AdminBlogs = () => {
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {editingPost ? "Edit Post" : "New Blog Post"}
+                {editingPost ? "Edit Article" : "New Article"}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -420,11 +422,18 @@ const AdminBlogs = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Slug</Label>
+                    <div className="flex items-center justify-between">
+                      <Label>Slug</Label>
+                      {editingPost && (
+                        <span className="text-xs text-muted-foreground">
+                          URL locked — edit manually below
+                        </span>
+                      )}
+                    </div>
                     <div className="flex gap-2">
                       <Input
                         value={formData.slug}
-                        onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                        onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
                         required
                         className="font-mono text-sm"
                       />
@@ -433,9 +442,9 @@ const AdminBlogs = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => setFormData(prev => ({ ...prev, slug: generateSlug(prev.title) }))}
-                        title="Regenerate from title"
+                        title="Regenerate slug from title"
                       >
-                        <Loader2 className={icons.sm} />
+                        <RotateCcw className={icons.sm} />
                       </Button>
                     </div>
                   </div>
@@ -523,13 +532,13 @@ const AdminBlogs = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <div className="flex justify-end gap-2 pt-4 border-t border-white/[0.05]">
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-xl border-zinc-800">
                   Cancel
                 </Button>
-                <Button type="submit" variant="gold" disabled={isSaving}>
+                <Button type="submit" variant="primary" disabled={isSaving} className="rounded-xl shadow-lg shadow-primary/20">
                   {isSaving ? <Loader2 className={`${icons.sm} animate-spin mr-2`} /> : null}
-                  {editingPost ? "Update" : "Create"} Post
+                  {editingPost ? "Update" : "Create"} Article
                 </Button>
               </div>
             </form>
@@ -537,14 +546,15 @@ const AdminBlogs = () => {
         </Dialog>
       </div>
 
-      <div className="rounded-md border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden mb-20">
+      <div className="rounded-xl border border-zinc-800/50 bg-zinc-900/30 backdrop-blur-md overflow-hidden shadow-2xl mb-20">
         <Table>
-          <TableHeader className="bg-white/5 border-b border-white/10">
-            <TableRow className="border-white/10 hover:bg-transparent text-[hsl(var(--admin-muted))]">
+          <TableHeader className="bg-zinc-900/50">
+            <TableRow className="border-zinc-800 hover:bg-transparent text-zinc-500 uppercase text-[10px] font-bold tracking-widest">
               <TableHead className="w-[40px]">
                 <Checkbox
                   checked={selectedIds.size === posts.length && posts.length > 0}
                   onCheckedChange={toggleSelectAll}
+                  className="border-zinc-700"
                 />
               </TableHead>
               <TableHead className="w-[80px]">Cover</TableHead>
@@ -556,42 +566,57 @@ const AdminBlogs = () => {
           </TableHeader>
           <TableBody>
             {posts.map((post) => (
-              <TableRow key={post.id} className="border-white/10 hover:bg-white/5 transition-colors">
+              <TableRow key={post.id} className="border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
                 <TableCell>
                   <Checkbox
                     checked={selectedIds.has(post.id)}
                     onCheckedChange={() => toggleSelect(post.id)}
+                    className="border-zinc-700 data-[state=checked]:bg-primary data-[state=checked]:text-white rounded-md transition-all"
                   />
                 </TableCell>
                 <TableCell>
-                  {post.cover_image ? (
-                    <img src={post.cover_image} alt="Cover" className="h-10 w-10 object-cover rounded-md" />
-                  ) : (
-                    <div className="h-10 w-10 bg-muted rounded-md flex items-center justify-center text-muted-foreground">
-                      <ImageIcon className={icons.sm} />
-                    </div>
-                  )}
+                  <div className="w-10 h-10 rounded overflow-hidden border border-zinc-800 bg-black/40">
+                    {post.cover_image ? (
+                      <img src={post.cover_image} alt="Cover" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImageIcon className={`${icons.sm} text-zinc-700`} />
+                      </div>
+                    )}
+                  </div>
                 </TableCell>
-                <TableCell className="font-medium text-slate-200">
-                  {post.title}
-                  {post.excerpt && (
-                    <p className="text-xs text-slate-400 font-normal line-clamp-1 mt-1">
-                      {post.excerpt}
-                    </p>
-                  )}
+                <TableCell>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-bold text-zinc-200 tracking-tight">{post.title}</span>
+                    {post.excerpt && (
+                      <p className="text-[10px] text-zinc-500 line-clamp-1 font-medium">
+                        {post.excerpt}
+                      </p>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <StatusBadge status={post.status || (post.is_published ? "published" : "draft")} />
                 </TableCell>
-                <TableCell className="text-slate-400">
+                <TableCell className="text-zinc-400 font-medium">
                   {format(new Date(post.created_at), 'MMM dd, yyyy')}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-white" onClick={() => handleEdit(post)}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 text-zinc-400 hover:text-yellow-500 hover:bg-yellow-500/5 transition-colors"
+                      onClick={() => handleEdit(post)}
+                    >
                       <Pencil className={icons.sm} />
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-red-400" onClick={() => handleDelete(post.id)}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 text-zinc-400 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                      onClick={() => handleDelete(post.id)}
+                    >
                       <Trash2 className={icons.sm} />
                     </Button>
                   </div>
@@ -600,8 +625,8 @@ const AdminBlogs = () => {
             ))}
             {posts.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-slate-400">
-                  No blog posts yet. Create your first post!
+                <TableCell colSpan={6} className="h-24 text-center text-zinc-500 font-medium">
+                  No articles yet. Create your first article!
                 </TableCell>
               </TableRow>
             )}
@@ -619,7 +644,7 @@ const AdminBlogs = () => {
         isUpdating={isBulkUpdating}
         isDeleting={isBulkUpdating}
       />
-    </div>
+    </div >
   );
 };
 

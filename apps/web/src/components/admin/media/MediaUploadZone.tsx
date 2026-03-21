@@ -40,16 +40,16 @@ export const MediaUploadZone = ({ onUpload, isUploading, selectedFolder, errorMe
 
             <div
                 {...getRootProps()}
-                className={`border-2 border-dashed rounded-xl p-10 text-center transition-all duration-200 cursor-pointer ${isDragActive ? "border-primary bg-primary/5 scale-[1.01]" : "border-border hover:border-primary/50 hover:bg-muted/50"
+                className={`border-2 border-dashed rounded-xl p-10 text-center transition-all duration-200 cursor-pointer ${isDragActive ? "-admin-primary -admin-primary/5 scale-[1.01]" : "border-border hover:-admin-primary/50 hover:bg-muted/50"
                     } ${isUploading ? "opacity-50 cursor-not-allowed" : ""} ${errorMessage ? "border-destructive/50 bg-destructive/5" : ""}`}
             >
                 <input {...getInputProps()} />
                 <div className="flex flex-col items-center justify-center gap-4">
-                    <div className={`p-4 rounded-full ${isDragActive ? "bg-primary/10" : "bg-muted"}`}>
+                    <div className={`p-4 rounded-full ${isDragActive ? "-admin-primary/10" : "bg-muted"}`}>
                         {isUploading ? (
-                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                            <Loader2 className="w-8 h-8 animate-spin -admin-primary" />
                         ) : (
-                            <Upload className={`w-8 h-8 ${isDragActive ? "text-primary" : "text-muted-foreground"}`} />
+                            <Upload className={`w-8 h-8 ${isDragActive ? "-admin-primary" : "text-muted-foreground"}`} />
                         )}
                     </div>
                     <div>
@@ -64,7 +64,7 @@ export const MediaUploadZone = ({ onUpload, isUploading, selectedFolder, errorMe
                     {!isUploading && (
                         <div className="mt-2 text-xs px-3 py-1 bg-secondary rounded-full inline-flex items-center gap-2">
                             <FileImage className="w-3 h-3" />
-                            Uploading to: <span className="font-medium capitalize text-primary">{selectedFolder === "all" ? "general" : selectedFolder}</span>
+                            Uploading to: <span className="font-medium capitalize -admin-primary">{selectedFolder === "all" ? "general" : selectedFolder}</span>
                         </div>
                     )}
                 </div>

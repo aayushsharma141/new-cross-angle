@@ -1,11 +1,17 @@
-// @ts-nocheck
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+    buildCorsHeaders,
+    handlePreflight,
+    checkRateLimit,
+    getClientId,
+    rateLimitResponse,
+    badRequestResponse,
+    serverErrorResponse,
+    okResponse,
+} from "../_lib/security.ts";
 
-const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const RATE_OPTS = { bucket: "discovery-lead", max: 10, windowMs: 60_000 };
 
 // Calculate lead score based on MVP MVP rules
 function calculateLeadScore(payload: any): number {
@@ -29,37 +35,33 @@ function calculateLeadScore(payload: any): number {
 }
 
 serve(async (req: Request) => {
-    // Handle CORS preflight requests
-    if (req.method === "OPTIONS") {
-        return new Response(null, { headers: corsHeaders });
-    }
+    const preflight = handlePreflight(req);
+    if (preflight) return preflight;
+
+    // Rate limit by IP
+    const clientId = getClientId(req);
+    const rl = await checkRateLimit(req, clientId, RATE_OPTS);
+    if (rl.limited) return rateLimitResponse(req, rl);
 
     try {
-        let body;
+        let body: Record<string, unknown>;
         try {
             body = await req.json();
         } catch {
-            return new Response(JSON.stringify({ error: "Invalid JSON" }), {
-                status: 400,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return badRequestResponse(req, "Invalid JSON");
         }
 
-        const { name, email, phone, consent, results, raw_data } = body;
+        const { name, email, phone, consent, results, raw_data } = body as {
+            name: string; email: string; phone?: string; consent?: boolean;
+            results?: Record<string, unknown>; raw_data?: unknown;
+        };
 
-        // Basic validation
-        if (!email || !email.includes('@')) {
-            return new Response(JSON.stringify({ error: "Valid email is required" }), {
-                status: 400,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+        if (!email || !String(email).includes("@")) {
+            return badRequestResponse(req, "Valid email is required");
         }
 
-        if (!name || name.trim().length === 0) {
-            return new Response(JSON.stringify({ error: "Name is required" }), {
-                status: 400,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+        if (!name || String(name).trim().length === 0) {
+            return badRequestResponse(req, "Name is required");
         }
 
         // Initialize Supabase client with Service Role to bypass RLS
@@ -92,11 +94,10 @@ serve(async (req: Request) => {
 
         if (masterError) {
             console.error("Error inserting into leads_master:", masterError);
-            // Handle unique email constraint specifically if needed
-            if (masterError.code === '23505') {
+            if (masterError.code === "23505") {
                 return new Response(JSON.stringify({ error: "Email already registered" }), {
                     status: 409,
-                    headers: { ...corsHeaders, "Content-Type": "application/json" },
+                    headers: { ...buildCorsHeaders(req), "Content-Type": "application/json" },
                 });
             }
             throw new Error(`Failed to create lead master record: ${masterError.message}`);
@@ -155,22 +156,16 @@ serve(async (req: Request) => {
             }
         }
 
-        // Return success
-        return new Response(JSON.stringify({
+        return okResponse(req, {
             success: true,
             id: leadId,
             score: leadScore,
             webhook_status: webhookStatus
-        }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        }, {}, rl, RATE_OPTS.max);
 
     } catch (error: unknown) {
         console.error("Unhandled error:", error);
         const message = error instanceof Error ? error.message : "Unknown error";
-        return new Response(JSON.stringify({ error: message }), {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return serverErrorResponse(req, message);
     }
 });

@@ -35,6 +35,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     const fetchUserRole = async (userId: string) => {
+        const cacheKey = `user_role_${userId}`;
+        const cachedRole = localStorage.getItem(cacheKey);
+
+        if (cachedRole) {
+            console.log("Auth: Using cached user role:", cachedRole);
+            return cachedRole as "admin" | "editor" | "viewer";
+        }
+
+        const start = performance.now();
         try {
             const { data, error } = await supabase
                 .from('profiles')
@@ -44,9 +53,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
             if (error) {
                 console.error("Error fetching user role:", error);
-                return "viewer"; // default fallback
+                return "viewer";
             }
-            return data?.role || "viewer";
+
+            const role = data?.role || "viewer";
+            localStorage.setItem(cacheKey, role);
+            console.log(`Auth: Role fetch took ${(performance.now() - start).toFixed(2)}ms`);
+            return role;
         } catch (error) {
             console.error("Error in fetchUserRole:", error);
             return "viewer";
@@ -54,50 +67,76 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     useEffect(() => {
+        let isMounted = true;
+
+        const timeoutId = setTimeout(() => {
+            if (isMounted && loading) {
+                console.warn("Auth: Loading timeout exceeded.");
+                setLoading(false);
+            }
+        }, 3000);
+
         if (!supabase) {
-            console.error("Debug: Supabase client is null or undefined!");
-            setLoading(false);
+            if (isMounted) setLoading(false);
             return;
         }
 
-        // Get initial session
         const getInitialSession = async () => {
+            const start = performance.now();
             try {
-                const { data: { session } } = await supabase.auth.getSession();
-                setSession(session);
-                setUser(session?.user ?? null);
+                // Use getUser() for server-side verification of the session
+                const { data: { user }, error } = await supabase.auth.getUser();
 
-                if (session?.user) {
-                    const userRole = await fetchUserRole(session.user.id);
-                    setRole(userRole as "admin" | "editor" | "viewer" | null);
+                if (error || !user) {
+                    if (isMounted) {
+                        setUser(null);
+                        setSession(null);
+                        setRole(null);
+                    }
                 } else {
-                    setRole(null);
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (isMounted) {
+                        setSession(session);
+                        setUser(user);
+                        const userRole = await fetchUserRole(user.id);
+                        setRole(userRole as "admin" | "editor" | "viewer" | null);
+                    }
                 }
+                console.log(`Auth: Initial load took ${(performance.now() - start).toFixed(2)}ms`);
             } catch (error) {
-                console.error("Error getting session:", error);
+                console.error("Auth: Error getting session:", error);
             } finally {
-                setLoading(false);
+                if (isMounted) setLoading(false);
             }
         };
 
         getInitialSession();
 
-        // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (_event, session) => {
+            async (event, session) => {
+                if (!isMounted) return;
+
+                console.log("Auth: State change event:", event);
                 setSession(session);
                 setUser(session?.user ?? null);
+
                 if (session?.user) {
                     const userRole = await fetchUserRole(session.user.id);
                     setRole(userRole as "admin" | "editor" | "viewer" | null);
                 } else {
                     setRole(null);
+                    // Clear all role caches on sign out
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.startsWith('user_role_')) localStorage.removeItem(key);
+                    });
                 }
                 setLoading(false);
             }
         );
 
         return () => {
+            isMounted = false;
+            clearTimeout(timeoutId);
             subscription.unsubscribe();
         };
     }, []);
@@ -106,6 +145,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (supabase) {
             await supabase.auth.signOut();
         }
+        localStorage.removeItem(`user_role_${user?.id}`);
         setUser(null);
         setSession(null);
         setRole(null);

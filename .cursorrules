@@ -1,0 +1,168 @@
+# ════════════════════════════════════════════════════════════════
+# CROSSANGLE — AGENT RULES
+# Antigravity reads this automatically on every session start.
+# ════════════════════════════════════════════════════════════════
+
+# ── SECTION 0 — SECURITY (always active, non-negotiable) ────────
+
+You are an expert, security-conscious senior developer.
+- Prioritize security over speed
+- Never hardcode API keys or secrets — all secrets in .env
+- Always validate and sanitize user input before DB writes
+- Use DOMPurify.sanitize() on any HTML rendered from DB (blog content = XSS risk)
+- Prefer established managed services (Supabase/Firebase) over custom auth
+- Flag insecure architectural decisions BEFORE writing code
+- Supabase anon key = public safe | service_role key = server-only, never frontend
+- Rate limiting lives in supabase/functions/rate_limiter/ — do not bypass
+
+# ── SECTION 1 — BOOT SEQUENCE (every session, every model switch) ─
+
+Before touching any file, run this sequence and output the boot report:
+
+  STEP 1 → Read .context/state.md         (what was done, which model last ran)
+  STEP 2 → Read .context/design.lock      (lock all UI decisions to this)
+  STEP 3 → Read last 10 lines of .context/decisions.log
+  STEP 4 → If state.md shows IN_PROGRESS task → resume it, do NOT restart
+  STEP 5 → Output boot report, then begin
+
+Boot report format (print this before any work):
+  ▶ BOOT: [ModelName]
+    Last agent  : [state.md → last_agent]
+    Last task   : [state.md → last_completed_task]
+    Active task : [state.md → active_task]
+    Design lock : VERIFIED ✓  /or list conflicts
+    Resuming    : [first action]
+
+On model switch ("continue" command):
+  - Chat history is gone. Files are not. state.md IS your memory.
+  - Do NOT redo completed work. Check state.md → files_modified_this_session.
+  - Do NOT restart tasks marked COMPLETE in state.md.
+
+# ── SECTION 2 — PROJECT IDENTITY ────────────────────────────────
+
+Project  : Cross Angle Interior — UHNW Luxury Interior Design Studio
+GitHub   : https://github.com/aayushsharma141/new-cross-angle
+Docs     : https://crossdocs-86hkteyq.manus.space
+Dev      : Aayush Sharma (solo)
+Root     : C:\Users\aayus\Desktop\main\
+Context  : .context\   ← session memory, never delete this folder
+
+# ── SECTION 3 — TECH STACK (locked) ─────────────────────────────
+
+Frontend : React 18 + TypeScript + Vite
+Routing  : react-router-dom  (/admin/* protected routes)
+Styling  : Tailwind CSS + CSS custom properties
+UI kit   : shadcn/ui (Radix UI)
+State    : @tanstack/react-query (useQuery + useMutation only)
+Forms    : React Hook Form + Zod
+Icons    : lucide-react
+Motion   : Framer Motion + GSAP
+i18n     : src/i18n/translations.ts
+Animated : apps/web/src/components/ReactBits/  (from tmp_react_bits/src/ts-tailwind/)
+
+Backend  : Supabase — client ONLY from src/integrations/supabase/client.ts
+Repos    : apps/web/src/repositories/  ← use these, never raw supabase in UI
+
+# ── SECTION 4 — DESIGN RULES (full spec in .context/design.lock) ─
+
+Admin UI = UHNW luxury. NOT generic SaaS. NOT Notion. NOT Linear.
+
+ALWAYS:  bg-background / bg-card (dark)  |  text-yellow-400 accent (gold)
+         backdrop-blur-md on modals/headers  |  font-display on headings
+         bg-muted animate-pulse skeletons  |  animate-in fade-in on entries
+
+NEVER:   bg-white / bg-gray-50 / bg-gray-100  |  default blue shadcn buttons
+         text-gray-900 / text-black on dark bg  |  solid white dialogs
+         bg-gray-200 skeleton loaders
+
+Before committing UI → run integrity grep from .context/design.lock
+
+# ── SECTION 5 — DB FIELD NAMES (exact — wrong = runtime errors) ──
+
+leads        : id, name, email, phone, message, status, lead_source, city, created_at
+               NOT: full_name / service / source
+projects     : id, title, slug, description, category_id, client_name, location,
+               budget, status, views, image_url, created_at
+               NOT: tags / categories
+services     : id, name, slug, description, icon_name, image_url, display_order
+               NOT: title  (it's "name")
+blogs        : id, title, slug, excerpt, content, image_url, read_time, status,
+               created_at, published_at
+testimonials : id, name, role, content, rating, active
+               NOT: author / is_active / is_featured
+profiles     : id, full_name, avatar_url, role (admin|viewer)
+               NOTE: profiles=full_name vs leads=name — different tables
+estimate_leads: id, name, email, phone, project_type, property_size, quality_tier,
+               timeline, estimate_total_min, estimate_total_max, status, created_at
+               SECURITY: min/max = server-side only, never trust client values
+
+# ── SECTION 6 — CODE PATTERNS ────────────────────────────────────
+
+## Repository pattern (mandatory):
+WRONG: const { data } = await supabase.from('leads').select(...)
+RIGHT: import { leadRepo } from '@/repositories'
+       const data = await leadRepo.getAll()
+
+Repo files  : apps/web/src/repositories/interfaces/[Name]Repository.ts
+Impls       : apps/web/src/repositories/Supabase[Name]Repo.ts
+Barrel      : apps/web/src/repositories/index.ts
+
+## React Query:
+useQuery({ queryKey: ['leads'], queryFn: () => leadRepo.getAll() })
+useMutation({ mutationFn: leadRepo.update,
+  onSuccess: () => queryClient.invalidateQueries({ queryKey: ['leads'] }) })
+
+## KPI counts — ?? 0 not || 0:
+return count ?? 0   ✓   (|| 0 breaks when count legitimately equals zero)
+
+## React Bits components:
+Copy from  : tmp_react_bits/src/ts-tailwind/[Category]/[Name]/[Name].tsx
+Place at   : apps/web/src/components/ReactBits/
+Import     : import { TiltedCard, ShinyText, CountUp } from '@/components/ReactBits'
+New comp   : follow tmp_react_bits/.context/new-component.md creation guide
+
+# ── SECTION 7 — PROHIBITED ───────────────────────────────────────
+
+Never hardcode KPI values — use live Supabase COUNT queries
+Never import supabase directly in UI — use repositories/
+Never edit past migration files — create new timestamped ones
+Never run DROP/DELETE/TRUNCATE without Aayush confirmation
+Never trust client-submitted estimate_total_min/max
+Never expose service_role key to frontend
+Never overwrite .context/decisions.log — APPEND ONLY
+Never delete .context/ folder or any file inside it
+Never skip the boot sequence
+
+# ── SECTION 8 — AFTER EVERY TASK (mandatory state update) ────────
+
+1. Rewrite .context/state.md:
+   last_agent, last_updated, active_task, last_completed_task,
+   files_modified_this_session, environment_state, notes_for_next_agent
+
+2. Append one line to .context/decisions.log:
+   [ISO timestamp] | [Model] | [ARCH/DB/UI/BUG/REVERT/BLOCK] | [Decision] | [Reason]
+
+3. Append to progress.txt:
+   [YYYY-MM-DD HH:MM] Completed: TaskName — brief note
+
+The next model's ability to continue without breaking things depends on this.
+
+# ── SECTION 9 — SKILLS ───────────────────────────────────────────
+
+Before frontend UI work    → read .agents/skills/frontend-design/SKILL.md
+Before admin dashboard     → read .agents/skills/admin-dashboard/SKILL.md
+Before new React Bits comp → read tmp_react_bits/.context/new-component.md
+Before .docx creation      → read .agents/skills/docx/SKILL.md
+Before .pptx creation      → read .agents/skills/pptx/SKILL.md
+
+Skills override general knowledge. Always prefer skill guidance over defaults.
+
+# ── SECTION 10 — REFERENCE FILES ────────────────────────────────
+
+.context/state.md       → READ FIRST on every boot (session memory)
+.context/design.lock    → design system (all exact Tailwind classes)
+.context/decisions.log  → decision history (append only)
+CROSSANGLE.md           → full schema, file map, auth flow, edge functions
+PRD.md                  → task spec (cross-ref with progress.txt for next task)
+progress.txt            → completed task log (append only)
+tmp_react_bits/.context/new-component.md → React Bits creation guide

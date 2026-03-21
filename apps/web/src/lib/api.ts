@@ -1,13 +1,10 @@
 import { Project, projects as dummyProjects } from "@/data/projects";
 import { supabase } from "@/integrations/supabase/client";
 import { ServiceDetail } from "@repo/types";
+import defaultRes from "@/assets/portfolio-bedroom.jpg";
+import defaultCom from "@/assets/portfolio-office.jpg";
 
-export interface HeroContent {
-  badgeText: string;
-  headlineLine1: string;
-  headlineLine2: string;
-  subtitle: string;
-}
+// Hero content type no longer necessary as it's hardcoded but kept for signature consistency if used elsewhere, wait, we can remove it.
 
 interface SupabaseGalleryItem {
   room_name?: string;
@@ -112,7 +109,7 @@ const mapSupabaseToProject = (item: SupabaseItem): Project => {
     duration: item.duration || "-",
     style: item.style || "-", // Check if style_tags is used instead
     year: Number(item.year_completed || item.year || new Date().getFullYear()),
-    heroImage: item.cover_image_url || item.hero_image || "",
+    heroImage: item.cover_image_url || item.hero_image || defaultRes,
     gallery: gallery,
     brief: item.brief || "",
     approach: item.approach || "",
@@ -145,10 +142,10 @@ const mapSupabaseToBlog = (item: SupabaseItem): Blog => {
     id: item.id,
     title: item.title,
     excerpt: item.excerpt || "",
-    image: item.cover_image || "",
+    image: item.cover_image || defaultRes,
     category: "Interior Design", // Default for now, as schema doesn't have category yet
-    date: new Date(item.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-    slug: item.slug,
+    date: new Date(item.created_at || new Date()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+    slug: item.slug || item.id,
     content: item.content
   };
 };
@@ -159,16 +156,19 @@ const mapSupabaseToServiceDetail = (item: SupabaseItem): ServiceDetail => {
     ? JSON.parse(item.description)
     : item.description || {};
 
+  const catId = descJson.category_id || item.category_id || "residential";
+  const defImg = catId === "commercial" ? defaultCom : defaultRes;
+
   return {
     id: item.id,
-    created_at: item.created_at,
-    title: item.name || item.title, // services table has 'name'
+    created_at: item.created_at || new Date().toISOString(),
+    title: item.name || item.title || "Unknown Service", // services table has 'name'
     slug: item.slug || item.id,
     description: descJson.content || item.description || "",
     icon: descJson.icon || item.icon || "Home",
     tag: item.short_tag || item.tag,
-    hero_image: item.icon_url || item.hero_image || "",
-    category_id: descJson.category_id || item.category_id || "residential",
+    hero_image: item.icon_url || item.hero_image || defImg,
+    category_id: catId,
     // Handle JSONB fields safely and joined relations
     features: (descJson && typeof descJson !== 'string' ? descJson.features : undefined) || item.features || [],
     process_steps: (item.service_steps || item.process_steps || []).sort((a: SupabaseProcessStep, b: SupabaseProcessStep) => a.step_number - b.step_number).map((s: SupabaseProcessStep) => ({
@@ -186,28 +186,33 @@ export const api = {
   getProjects: async (): Promise<Project[]> => {
     if (!supabase) return dummyProjects;
 
-    // Check if we can reach supabase
-    const { data, error } = await supabase
-      .from('projects')
-      .select(`
-          *,
-          project_gallery (*),
-          project_materials (*),
-          project_categories (name)
-        `)
-      .order('display_order', { ascending: true });
+    try {
+      // Check if we can reach supabase
+      const { data, error } = await supabase
+        .from('projects')
+        .select(`
+            *,
+            project_gallery (*),
+            project_materials (*),
+            project_categories (name)
+          `)
+        .order('display_order', { ascending: true });
 
-    if (error) {
-      console.warn('Error fetching projects, falling back to static data:', error);
+      if (error) {
+        console.warn('Error fetching projects, falling back to static data:', error);
+        return dummyProjects;
+      }
+
+      // If no data is returned from Supabase, return dummy data to avoid blank portfolio sections
+      if (!data || data.length === 0) {
+        return dummyProjects;
+      }
+
+      return data.map(mapSupabaseToProject);
+    } catch (e) {
+      console.warn('Exception during project fetch, falling back to static data:', e);
       return dummyProjects;
     }
-
-    // If no data is returned from Supabase, return dummy data to avoid blank portfolio sections
-    if (!data || data.length === 0) {
-      return dummyProjects;
-    }
-
-    return data.map(mapSupabaseToProject);
   },
 
   getBlogs: async (): Promise<Blog[]> => {
@@ -263,114 +268,8 @@ export const api = {
     return mapSupabaseToServiceDetail(data);
   },
 
-  getPageBySlug: async (slug: string) => {
-    if (!supabase) return null;
-
-    // Attempt to hit our CDA Edge function directly. If that fails or is not present, we hit DB.
-    try {
-      const { data, error } = await supabase.functions.invoke('cda-api', {
-        body: { path: `/api/page/${slug}` }
-      });
-
-      if (data?.data) {
-        return data.data; // Edge API usually returns { data: { page, sections } }
-      }
-    } catch (err) {
-      console.warn("CDA edge function failed, falling back to standard DB query:", err)
-    }
-
-    // Direct DB fallback
-    const { data, error } = await supabase
-      .from('page_sections')
-      .select('*')
-      .eq('page', slug)
-      .eq('status', 'published')
-      .order('order_index', { ascending: true });
-
-    if (error) {
-      console.error(`Error fetching page ${slug}:`, error);
-      return null;
-    }
-    return { sections: data };
-  },
-
-  getPreviewPageBySlug: async (slug: string) => {
-    if (!supabase) return null;
-
-    // Direct DB query bypassing edge function / cache for preview
-    const { data, error } = await supabase
-      .from('page_sections')
-      .select('*')
-      .eq('page', slug)
-      .order('order_index', { ascending: true });
-
-    if (error) {
-      console.error(`Error fetching preview page ${slug}:`, error);
-      return null;
-    }
-    return { sections: data };
-  },
-
-  getHeroContent: async (): Promise<HeroContent> => {
-    if (!supabase) {
-      return {
-        badgeText: "Premier Interior Design Studio",
-        headlineLine1: "Elevate Your Space",
-        headlineLine2: "Into Luxury",
-        subtitle: "Transforming your vision..."
-      };
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('page_sections')
-        .select('*')
-        .eq('page', 'home')
-        .eq('section_key', 'hero')
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching hero content:", error);
-        return {
-          badgeText: "Premier Interior Design Studio",
-          headlineLine1: "Elevate Your Space",
-          headlineLine2: "Into Luxury",
-          subtitle: "Transforming your vision into exquisite living spaces."
-        };
-      }
-
-      if (!data) {
-        return {
-          badgeText: "Premier Interior Design Studio",
-          headlineLine1: "Elevate Your Space",
-          headlineLine2: "Into Luxury",
-          subtitle: "Transforming your vision into exquisite living spaces."
-        };
-      }
-
-      // Safe access for extra/metadata
-      const extra = typeof data.extra === 'object' ? data.extra : {};
-
-      return {
-        badgeText: extra?.badge_text || "Premier Interior Design Studio",
-        headlineLine1: data.title || "Elevate Your Space",
-        headlineLine2: extra?.headline_line_2 || "Into Luxury",
-        subtitle: data.subtitle || data.body || "Transforming your vision into exquisite living spaces."
-      };
-    } catch (e) {
-      console.error("Exception in getHeroContent:", e);
-      return {
-        badgeText: "Premier Interior Design Studio",
-        headlineLine1: "Elevate Your Space",
-        headlineLine2: "Into Luxury",
-        subtitle: "Transforming your vision into exquisite living spaces."
-      };
-    }
-  },
-
   // Stub other methods if used by context, or leave empty
   createProject: async (_project: Omit<Project, "id">): Promise<Project> => { throw new Error("Read only"); },
   updateProject: async (_id: string, _updates: Partial<Project>): Promise<Project> => { throw new Error("Read only"); },
-  deleteProject: async (_id: string): Promise<void> => { throw new Error("Read only"); },
-  updateHeroContent: async (_content: Partial<HeroContent>): Promise<HeroContent> => { throw new Error("Read only"); }
+  deleteProject: async (_id: string): Promise<void> => { throw new Error("Read only"); }
 };

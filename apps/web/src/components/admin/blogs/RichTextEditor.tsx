@@ -1,18 +1,27 @@
-
 import { useEffect } from "react";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import HorizontalRule from '@tiptap/extension-horizontal-rule';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { createLowlight } from 'lowlight';
 import { Button } from "@/components/ui/button";
 import { MediaPicker } from "@/components/admin/media/MediaPicker";
 import {
-    Bold, Italic, Strikethrough,
+    Bold, Italic, Strikethrough, Underline as UnderlineIcon,
     Heading1, Heading2, Heading3,
     List, ListOrdered, Quote,
-    Undo, Redo, Link as LinkIcon, Image as ImageIcon
+    Undo, Redo, Link as LinkIcon, Image as ImageIcon,
+    AlignLeft, AlignCenter, AlignRight,
+    Minus, Code2, SeparatorHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const lowlight = createLowlight();
 
 interface RichTextEditorProps {
     content: string;
@@ -21,10 +30,18 @@ interface RichTextEditorProps {
     className?: string;
 }
 
-export function RichTextEditor({ content, onChange, placeholder, className }: RichTextEditorProps) {
+export function RichTextEditor({
+    content,
+    onChange,
+    placeholder = "Write your story…",
+    className,
+}: RichTextEditorProps) {
     const editor = useEditor({
         extensions: [
-            StarterKit,
+            StarterKit.configure({
+                // Disable StarterKit's built-in codeBlock so CodeBlockLowlight takes over
+                codeBlock: false,
+            }),
             Image.configure({
                 inline: true,
                 allowBase64: true,
@@ -32,11 +49,22 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
             Link.configure({
                 openOnClick: false,
                 HTMLAttributes: {
-                    class: 'text-primary underline',
+                    class: '-admin-primary underline',
                 },
             }),
+            Placeholder.configure({
+                placeholder,
+            }),
+            Underline,
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+            }),
+            HorizontalRule,
+            CodeBlockLowlight.configure({
+                lowlight,
+            }),
         ],
-        content: content,
+        content,
         editorProps: {
             attributes: {
                 class: cn(
@@ -50,28 +78,14 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
         },
     });
 
-    // Sync content prop with editor content
-    if (editor && content !== editor.getHTML()) {
-        // Only update if difference is significant to avoid cursor jumping?
-        // Actually, setting content on every render loop is bad.
-        // We should only set it if it's completely different or initial load.
-        // A better approach is usually useEffect.
-    }
-
+    // Sync external content changes (e.g. loading a saved post) without
+    // disturbing the user while they are actively typing.
     useEffect(() => {
-        if (editor && content) {
-            const currentContent = editor.getHTML();
-            if (currentContent !== content) {
-                // This check is still risky if "content" is lagging behind editor state slightly.
-                // But for "loading" a post it is necessary.
-                // A common pattern is to only set if editor is empty or drastically different?
-                // Let's assume this is mostly for initial load or external updates.
-
-                // To avoid cursor jumping, we can check if focused.
-                if (!editor.isFocused) {
-                    editor.commands.setContent(content);
-                }
-            }
+        if (!editor || editor.isDestroyed) return;
+        if (editor.isFocused) return;
+        const currentHTML = editor.getHTML();
+        if (currentHTML !== content) {
+            editor.commands.setContent(content, false);
         }
     }, [content, editor]);
 
@@ -80,12 +94,10 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
     }
 
     const setLink = () => {
-        const previousUrl = editor.getAttributes('link').href;
-        const url = window.prompt('URL', previousUrl);
+        const previousUrl = editor.getAttributes('link').href as string | undefined;
+        const url = window.prompt('Enter URL', previousUrl ?? '');
 
-        if (url === null) {
-            return;
-        }
+        if (url === null) return;
 
         if (url === '') {
             editor.chain().focus().extendMarkRange('link').unsetLink().run();
@@ -99,117 +111,183 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
         editor.chain().focus().setImage({ src: url }).run();
     };
 
+    const ToolbarBtn = ({
+        onClick,
+        disabled,
+        active,
+        title,
+        children,
+    }: {
+        onClick: () => void;
+        disabled?: boolean;
+        active?: boolean;
+        title: string;
+        children: React.ReactNode;
+    }) => (
+        <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onClick}
+            disabled={disabled}
+            className={cn(active ? 'bg-muted' : '')}
+            title={title}
+        >
+            {children}
+        </Button>
+    );
+
+    const Sep = () => <div className="w-px h-6 bg-border mx-1 self-center" />;
+
     return (
         <div className="border rounded-md overflow-hidden bg-background">
             {/* Toolbar */}
-            <div className="flex flex-wrap gap-1 p-2 border-b bg-muted/20">
-                <Button
-                    variant="ghost"
-                    size="sm"
+            <div className="flex flex-wrap gap-0.5 p-2 border-b bg-muted/20">
+                {/* Text style */}
+                <ToolbarBtn
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     disabled={!editor.can().chain().focus().toggleBold().run()}
-                    className={cn(editor.isActive('bold') ? 'bg-muted' : '')}
-                    title="Bold"
+                    active={editor.isActive('bold')}
+                    title="Bold (Ctrl+B)"
                 >
                     <Bold className="w-4 h-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
+                </ToolbarBtn>
+                <ToolbarBtn
                     onClick={() => editor.chain().focus().toggleItalic().run()}
                     disabled={!editor.can().chain().focus().toggleItalic().run()}
-                    className={cn(editor.isActive('italic') ? 'bg-muted' : '')}
-                    title="Italic"
+                    active={editor.isActive('italic')}
+                    title="Italic (Ctrl+I)"
                 >
                     <Italic className="w-4 h-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
+                </ToolbarBtn>
+                <ToolbarBtn
+                    onClick={() => editor.chain().focus().toggleUnderline().run()}
+                    disabled={!editor.can().chain().focus().toggleUnderline().run()}
+                    active={editor.isActive('underline')}
+                    title="Underline (Ctrl+U)"
+                >
+                    <UnderlineIcon className="w-4 h-4" />
+                </ToolbarBtn>
+                <ToolbarBtn
                     onClick={() => editor.chain().focus().toggleStrike().run()}
                     disabled={!editor.can().chain().focus().toggleStrike().run()}
-                    className={cn(editor.isActive('strike') ? 'bg-muted' : '')}
+                    active={editor.isActive('strike')}
                     title="Strikethrough"
                 >
                     <Strikethrough className="w-4 h-4" />
-                </Button>
+                </ToolbarBtn>
+                <ToolbarBtn
+                    onClick={() => editor.chain().focus().toggleCode().run()}
+                    active={editor.isActive('code')}
+                    title="Inline Code"
+                >
+                    <Code2 className="w-4 h-4" />
+                </ToolbarBtn>
 
-                <div className="w-px h-6 bg-border mx-1" />
+                <Sep />
 
-                <Button
-                    variant="ghost"
-                    size="sm"
+                {/* Headings */}
+                <ToolbarBtn
                     onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                    className={cn(editor.isActive('heading', { level: 1 }) ? 'bg-muted' : '')}
+                    active={editor.isActive('heading', { level: 1 })}
                     title="Heading 1"
                 >
                     <Heading1 className="w-4 h-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
+                </ToolbarBtn>
+                <ToolbarBtn
                     onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                    className={cn(editor.isActive('heading', { level: 2 }) ? 'bg-muted' : '')}
+                    active={editor.isActive('heading', { level: 2 })}
                     title="Heading 2"
                 >
                     <Heading2 className="w-4 h-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
+                </ToolbarBtn>
+                <ToolbarBtn
                     onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                    className={cn(editor.isActive('heading', { level: 3 }) ? 'bg-muted' : '')}
+                    active={editor.isActive('heading', { level: 3 })}
                     title="Heading 3"
                 >
                     <Heading3 className="w-4 h-4" />
-                </Button>
+                </ToolbarBtn>
 
-                <div className="w-px h-6 bg-border mx-1" />
+                <Sep />
 
-                <Button
-                    variant="ghost"
-                    size="sm"
+                {/* Alignment */}
+                <ToolbarBtn
+                    onClick={() => editor.chain().focus().setTextAlign('left').run()}
+                    active={editor.isActive({ textAlign: 'left' })}
+                    title="Align Left"
+                >
+                    <AlignLeft className="w-4 h-4" />
+                </ToolbarBtn>
+                <ToolbarBtn
+                    onClick={() => editor.chain().focus().setTextAlign('center').run()}
+                    active={editor.isActive({ textAlign: 'center' })}
+                    title="Align Center"
+                >
+                    <AlignCenter className="w-4 h-4" />
+                </ToolbarBtn>
+                <ToolbarBtn
+                    onClick={() => editor.chain().focus().setTextAlign('right').run()}
+                    active={editor.isActive({ textAlign: 'right' })}
+                    title="Align Right"
+                >
+                    <AlignRight className="w-4 h-4" />
+                </ToolbarBtn>
+
+                <Sep />
+
+                {/* Lists & blocks */}
+                <ToolbarBtn
                     onClick={() => editor.chain().focus().toggleBulletList().run()}
-                    className={cn(editor.isActive('bulletList') ? 'bg-muted' : '')}
+                    active={editor.isActive('bulletList')}
                     title="Bullet List"
                 >
                     <List className="w-4 h-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
+                </ToolbarBtn>
+                <ToolbarBtn
                     onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                    className={cn(editor.isActive('orderedList') ? 'bg-muted' : '')}
+                    active={editor.isActive('orderedList')}
                     title="Ordered List"
                 >
                     <ListOrdered className="w-4 h-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
+                </ToolbarBtn>
+                <ToolbarBtn
                     onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                    className={cn(editor.isActive('blockquote') ? 'bg-muted' : '')}
-                    title="Quote"
+                    active={editor.isActive('blockquote')}
+                    title="Blockquote"
                 >
                     <Quote className="w-4 h-4" />
-                </Button>
+                </ToolbarBtn>
+                <ToolbarBtn
+                    onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                    active={editor.isActive('codeBlock')}
+                    title="Code Block"
+                >
+                    <Minus className="w-4 h-4" />
+                </ToolbarBtn>
+                <ToolbarBtn
+                    onClick={() => editor.chain().focus().setHorizontalRule().run()}
+                    title="Horizontal Rule"
+                >
+                    <SeparatorHorizontal className="w-4 h-4" />
+                </ToolbarBtn>
 
-                <div className="w-px h-6 bg-border mx-1" />
+                <Sep />
 
-                <Button
-                    variant="ghost"
-                    size="sm"
+                {/* Media */}
+                <ToolbarBtn
                     onClick={setLink}
-                    className={cn(editor.isActive('link') ? 'bg-muted' : '')}
-                    title="Link"
+                    active={editor.isActive('link')}
+                    title="Insert Link"
                 >
                     <LinkIcon className="w-4 h-4" />
-                </Button>
+                </ToolbarBtn>
 
                 <MediaPicker
                     onSelect={handleImageSelect}
                     trigger={
                         <Button
+                            type="button"
                             variant="ghost"
                             size="sm"
                             title="Insert Image"
@@ -221,24 +299,21 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
 
                 <div className="flex-1" />
 
-                <Button
-                    variant="ghost"
-                    size="sm"
+                {/* History */}
+                <ToolbarBtn
                     onClick={() => editor.chain().focus().undo().run()}
                     disabled={!editor.can().chain().focus().undo().run()}
-                    title="Undo"
+                    title="Undo (Ctrl+Z)"
                 >
                     <Undo className="w-4 h-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
+                </ToolbarBtn>
+                <ToolbarBtn
                     onClick={() => editor.chain().focus().redo().run()}
                     disabled={!editor.can().chain().focus().redo().run()}
-                    title="Redo"
+                    title="Redo (Ctrl+Shift+Z)"
                 >
                     <Redo className="w-4 h-4" />
-                </Button>
+                </ToolbarBtn>
             </div>
 
             <EditorContent editor={editor} />

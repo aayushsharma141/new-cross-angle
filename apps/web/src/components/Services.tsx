@@ -27,13 +27,14 @@ const Services = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-          <span className="reveal-elem inline-block text-primary font-medium tracking-[0.2em] uppercase text-sm mb-4 border-b-2 border-primary/30 pb-2">
+          <span className="reveal-elem eyebrow justify-center mb-4">
             What We Offer
           </span>
-          <h2 className="reveal-elem font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-4 mb-4">
-            Our Design <span className="text-primary">Services</span>
+          <h2 className="reveal-elem font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-4 mb-4">
+            Design Is Emotional.{" "}
+            <em>Investment Is Strategic.</em>
           </h2>
-          <p className="reveal-elem text-muted-foreground text-base md:text-lg leading-relaxed">
+          <p className="reveal-elem text-muted-foreground text-sm md:text-base leading-relaxed max-w-2xl mx-auto">
             From concept to completion, we offer comprehensive interior design
             services tailored to bring your vision to life.
           </p>
@@ -66,23 +67,23 @@ const Services = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                   </div>
 
-                  <div className="absolute inset-0 z-10 p-6 flex flex-col justify-end">
-                    <div className="mb-4 w-10 h-10 rounded-xl bg-primary/20 backdrop-blur-md border border-white/20 flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-white" />
+                  <div className="absolute inset-0 z-10 p-8 flex flex-col justify-end">
+                    <div className="mb-6 w-11 h-11 border border-site-crimson/30 flex items-center justify-center bg-black/20 backdrop-blur-sm group-hover:bg-site-crimson/10 transition-colors">
+                      <Icon className="w-5 h-5 text-site-crimson group-hover:text-white transition-colors" />
                     </div>
 
                     <div>
-                      <span className="text-primary font-mono text-[10px] tracking-widest uppercase mb-1 block">
-                        0{index + 1}
+                      <span className="text-site-crimson font-medium tracking-[0.2em] uppercase text-[10px] mb-2 block">
+                        0{index + 1} // Intelligence Unit
                       </span>
-                      <h3 className="font-serif text-2xl font-bold text-white mb-2">
+                      <h3 className="font-display text-2xl font-bold text-white mb-3">
                         {category.title}
                       </h3>
                     </div>
 
-                    <div className="mt-4 flex items-center text-white font-medium text-xs">
-                      <span className="border-b border-primary pb-0.5">Explore</span>
-                      <ArrowRight className="ml-2 w-3 h-3" />
+                    <div className="mt-4 flex items-center text-white/70 group-hover:text-white font-medium text-xs tracking-widest uppercase transition-colors">
+                      <span className="border-b border-site-crimson/40 group-hover:border-site-crimson pb-1">Enter Unit</span>
+                      <ArrowRight className="ml-3 w-3 h-3 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
                 </Link>

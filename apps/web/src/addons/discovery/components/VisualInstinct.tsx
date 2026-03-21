@@ -72,7 +72,7 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-white/40 text-sm mb-5"
+          className="text-site-text-meta text-sm mb-5"
         >
           Pick {MAX} images that feel like &#34;home&#34; to you.
         </motion.p>
@@ -90,8 +90,8 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
                 key={i}
                 className="w-2.5 h-2.5 rounded-full border border-white/20"
                 animate={{
-                  background: i < selected.length ? "rgb(251 191 36)" : "transparent",
-                  borderColor: i < selected.length ? "rgb(251 191 36)" : "rgba(255,255,255,0.15)",
+                  background: i < selected.length ? "var(--site-crimson)" : "transparent",
+                  borderColor: i < selected.length ? "var(--site-crimson)" : "rgba(255,255,255,0.15)",
                   scale: i < selected.length ? [1, 1.25, 1] : 1,
                 }}
                 transition={{ duration: 0.35 }}
@@ -133,8 +133,8 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
                   relative w-full aspect-[4/3] overflow-hidden
                   transition-all duration-500 focus:outline-none
                   ${isSelected
-                    ? "ring-2 ring-amber-400 ring-offset-2 ring-offset-[#0D0A08]"
-                    : "ring-1 ring-white/10 hover:ring-white/25"
+                    ? "ring-2 ring-site-crimson ring-offset-2 ring-offset-site-bg"
+                    : "ring-1 border-site-border hover:border-site-crimson/50"
                   }
                   ${isMaxed ? "opacity-30 cursor-default" : "cursor-pointer"}
                 `}
@@ -160,9 +160,9 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
                   onLoad={() => markLoaded(img.id)}
                 />
 
-                {/* Subtle amber tint on selected */}
+                {/* Subtle gold tint on selected */}
                 {isSelected && (
-                  <div className="absolute inset-0 bg-amber-400/8 pointer-events-none" />
+                  <div className="absolute inset-0 bg-site-crimson/10 pointer-events-none" />
                 )}
 
                 {/* Gold corner tick — replaces heavy red circle */}
@@ -175,7 +175,7 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
                       transition={{ type: "spring", stiffness: 300 }}
                       className="absolute top-2 right-2 z-20"
                     >
-                      <div className="w-5 h-5 bg-amber-400 flex items-center justify-center shadow-lg">
+                      <div className="w-5 h-5 bg-site-crimson flex items-center justify-center shadow-lg">
                         <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                           <path d="M1 4L3.5 6.5L9 1" stroke="#0D0A08" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
@@ -190,15 +190,15 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
       </div>
 
       {/* Footer CTA */}
-      <div className="flex-none py-5 px-8 flex justify-center border-t border-white/[0.06] bg-[#0D0A08]/80 backdrop-blur-sm">
+      <div className="flex-none py-5 px-8 flex justify-center border-t border-site-border bg-site-bg/80 backdrop-blur-sm">
         <button
           onClick={confirm}
           disabled={selected.length < MAX}
           className={`
             px-12 py-4 text-xs font-medium tracking-[0.2em] uppercase transition-all duration-300
             ${selected.length === MAX
-              ? "bg-white/90 text-[#0D0A08] hover:bg-white cursor-pointer"
-              : "bg-white/10 text-white/30 cursor-not-allowed"
+              ? "bg-site-crimson text-site-bg hover:bg-site-crimson/90 cursor-pointer"
+              : "bg-site-bg-card text-site-text-meta cursor-not-allowed border border-site-border"
             }
           `}
         >

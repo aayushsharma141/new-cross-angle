@@ -21,6 +21,25 @@ serve(async (req) => {
     }
 
     try {
+        // Rate limiting
+        const kv = await Deno.openKv();
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+        const rlKey = ["rl_generate_caption", ip];
+        const rlEntry = await kv.get<[number, number]>(rlKey);
+        const now = Date.now();
+        const WINDOW_MS = 60_000; // 1 minute
+        const MAX_REQUESTS = 5;
+
+        if (!rlEntry.value || now - rlEntry.value[0] > WINDOW_MS) {
+            await kv.set(rlKey, [now, 1], { expireIn: WINDOW_MS });
+        } else if (rlEntry.value[1] >= MAX_REQUESTS) {
+            return new Response(JSON.stringify({ error: "Too Many Requests" }), {
+                status: 429,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+        } else {
+            await kv.set(rlKey, [rlEntry.value[0], rlEntry.value[1] + 1], { expireIn: WINDOW_MS });
+        }
         // Verify User Auth (prevent public abuse)
         const authHeader = req.headers.get("Authorization");
         if (!authHeader) {

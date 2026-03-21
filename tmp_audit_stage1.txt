@@ -1,0 +1,446 @@
+CROSSANGLE INTERIOR
+DEEP SYSTEM AUDIT REPORT
+Stage 1 of 3 — Repository Architecture &amp; Code Quality Analysis
+
+Audit Stage
+Stage 1: Repo Analysis (of 3)
+System
+CrossAngle Interior — new-cross-angle
+Stack
+React 18 · TypeScript · Vite · Supabase · Tailwind CSS · shadcn/ui
+Architecture
+Monorepo (apps/web + supabase + packages/types)
+Hosting
+Surge.sh (public) · Supabase (backend)
+Auditor Role
+Principal Engineer · CTO · Security Auditor · UX Lead
+Date
+March 2026
+Scope
+Architecture · Frontend · Backend · DB · Security · Performance · Maintainability
+
+ ⚠ IMPORTANT: This is a brutally honest, pre-launch engineering review. No softening. Findings are rated by actual production risk. 
+
+ EXECUTIVE SUMMARY — Overall System Health
+
+CrossAngle Interior is a React/TypeScript/Supabase monorepo for an interior design studio. It has clear ambitions — CMS, lead management, AI integration, analytics dashboard — but the execution contains significant structural, security, and architecture gaps that would prevent this from passing a professional production review.
+
+The three most critical issues that need immediate action:
+Service role key exposure risk — the architecture does not fully enforce a server-side boundary between admin-level Supabase operations and the frontend bundle.
+Monorepo structure is declared but not enforced — there is a src/ directory at root level that duplicates apps/web/src, creating a split-brain codebase.
+No CI/CD pipeline exists — the project deploys manually to Surge.sh with zero automated testing, linting, or security gates.
+
+Category
+Score
+Verdict
+Architecture &amp; Structure
+42/100
+Monorepo misconfigured, root src/ conflict, no workspace enforcement
+Code Quality
+55/100
+Good TS usage but inconsistent patterns, no tests, props drilling
+UI/UX Design System
+48/100
+Admin vs public theme mismatch, WCAG failures, hardcoded styles
+Backend / Edge Functions
+61/100
+RLS applied, CORS bug fixed, but rate limiting is in-memory only
+Database Schema
+58/100
+Reasonable schema, missing composite indexes, enum inconsistency
+Security
+50/100
+2 confirmed vulnerabilities fixed, 4 structural risks remain
+Performance
+44/100
+No code splitting, GSAP + Framer Motion together, no image CDN
+Production Readiness
+28/100
+No CI/CD, no monitoring, no error tracking, manual deploy only
+
+ STEP 1 — Full Repository Structure Audit
+
+1.1 — Declared vs Actual Structure
+The repository declares a monorepo structure with a packages/types workspace, but critically, there is a root-level src/ directory that exists alongside apps/web/src/. This is a structural landmine.
+
+CONFIRMED STRUCTURAL CONFLICT:
+Root /src exists alongside /apps/web/src — two sources of truth
+No nx.json, turbo.json, or pnpm-workspace.yaml found — monorepo is declared but not tooled
+bun.lockb present at root but package-lock.json ALSO present — dual lockfiles mean non-deterministic installs
+packages/types exists but is it actually imported anywhere? Without workspace enforcement, this package likely goes unused or gets duplicated
+.lovable directory at root — AI-generated Lovable.dev scaffolding was left in the repo. This is prototype scaffolding, not production code.
+
+1.2 — Architecture Evaluation
+What Was Found:
+apps/web: React 18 + Vite + TS — this is the core. Correctly structured internally.
+supabase/: Migrations, Edge Functions, config.toml — this is well-organized.
+packages/types: Exists but enforcement is absent. No workspace protocol in package.json workspaces field confirmed.
+index.html at root level — this is the Lovable default scaffold and conflicts with apps/web/index.html.
+vite.config.ts at root level — which app does this serve? apps/web has its own vite config? Ambiguous.
+tailwind.config.ts at root level — but apps/web should own its own. Two Tailwind configs means potential CSS conflicts.
+tsconfig.json + tsconfig.base.json — the base is fine but the root tsconfig path aliases likely do not resolve correctly when building from apps/web.
+
+1.3 — Recommended Improved Structure
+The root-level files that should NOT exist (or be moved into apps/web):
+index.html → DELETE (belongs in apps/web)
+src/ → DELETE or MERGE into apps/web/src
+vite.config.ts → DELETE root copy, confirm apps/web/vite.config.ts is canonical
+tailwind.config.ts → DELETE root copy
+package-lock.json → DELETE (use bun.lockb exclusively, or vice versa)
+.lovable/ → DELETE (leftover AI scaffold metadata)
+
+Recommended folder layout for a proper monorepo:
+new-cross-angle/
+ apps/web/ ← Full React app (pages, components, hooks, lib, integrations)
+ apps/web/src/ ← All frontend source code here ONLY
+ packages/types/ ← Shared TS types, enforced via workspace: protocol
+ supabase/ ← All backend: migrations, functions, config
+ package.json ← Root: workspaces field with [&quot;apps/*&quot;,&quot;packages/*&quot;]
+ bun.lockb ← Single lockfile (delete package-lock.json)
+ tsconfig.base.json ← Path aliases pointing to correct locations
+
+ STEP 2 — Frontend System Audit
+
+2.1 — Component Architecture
+The apps/web/src/components structure is good in intent but shows signs of organic growth without governance:
+Admin components live under src/components/admin/ — correct
+BUT: AdminTeam.tsx is implemented but unreachable because AdminLayout.tsx is missing the navigation entry. This is a confirmed defect documented in prior audits that has NOT been fixed.
+BeforeAfterShowcase.tsx and Portfolio.tsx exist as separate components with likely overlapping concerns. Are these two separate UI implementations of the same data?
+src/addons/ directory for PriceEstimator and discovery tools — this is a non-standard naming convention. Should be src/features/ following Feature-Sliced Design or standard domain folders.
+src/i18n/ custom implementation — why? react-i18next is industry standard. Custom i18n is a maintenance burden.
+
+2.2 — State Management
+TanStack Query is used for server state — this is the right choice. However:
+No global client state management (Zustand/Jotai/Redux) is visible — this is acceptable for a CMS-heavy app IF TanStack Query covers all async state. But as the app grows, client state will be needed.
+Form state via react-hook-form + zod — correct and modern.
+Animation libraries: BOTH framer-motion AND GSAP are installed. This doubles animation bundle size for no reason. Pick one. GSAP is heavier and used primarily for timeline animations; framer-motion handles React state-driven animations better. Using both is architectural debt.
+
+2.3 — Routing Architecture
+react-router-dom handles routing — standard choice. The custom SPA deployment fix via apps/web/scripts/copy-indexes.js that copies index.html to subdirectories for Surge.sh is clever but fragile:
+This script is manually maintained. Every new route added requires updating the script or routes 404 in production.
+A better solution: use a _redirects file on Netlify or configure Surge.sh with a 200.html at root (which you are doing). Verify this works for ALL dynamic routes including /admin/* protected routes.
+Admin routes at /admin/* are protected by authentication — verify these are not being indexed by bots via robots.txt or sitemap exclusions.
+
+2.4 — Admin Panel Navigation Defect
+CONFIRMED BUG: AdminTeam.tsx component is complete and functional, but the /admin/team navigation link is missing from AdminLayout.tsx. The route and component exist but are unreachable from the UI. This has been documented in multiple internal reports and remains unfixed — this is a process failure, not just a code bug.
+
+ STEP 3 — Design System Consistency Audit
+
+3.1 — Theme Fragmentation (CRITICAL UI PROBLEM)
+There are three distinct visual personalities in this codebase that feel like different products:
+Public website: Luxury interior design aesthetic — dark tones, gold accents, premium typography
+Admin dashboard: Dark blue corporate SaaS template (Tailwind Admin Template aesthetics)
+Calculator page: Pure black (#000000) dramatic style
+
+This is not a style preference — it is a brand failure. A luxury interior design studio running its business on a tool that looks like a generic SaaS admin template erodes operator confidence and professionalism.
+
+3.2 — WCAG 2.1 AA Failures (2 Critical, 2 Serious)
+Previous audit (Feb 2026) confirmed:
+Missing alt text on decorative and informational images — Critical
+Insufficient color contrast on hero text overlays — Critical
+Missing ARIA labels on interactive icon buttons — Serious
+No skip-to-main-content link for keyboard navigation — Serious
+Form input association via aria-label missing in contact form — Moderate
+
+3.3 — Design System Recommendations
+Create a single src/design-system/ folder with: tokens.ts (colors, spacing, typography), components/ (atoms), theme/ (admin theme vs public theme)
+Define CSS custom properties (--color-primary, --color-accent) that differ between admin and public contexts but derive from the same brand tokens
+Remove hardcoded color values (#000, #1A1A2E) scattered through component files — every color must reference a token
+Typography: establish a clear type scale (hero 64px → section 48px → card 32px → body 16px) and enforce it via Tailwind custom classes only
+
+ STEP 4 — CMS &amp; Admin Panel Analysis
+
+4.1 — CMS Architecture Assessment
+The CMS covers: Services, Portfolio, Testimonials, Blogs, Media Library, Leads, Users, Settings. This is a reasonable scope for a studio CMS. However:
+Dashboard analytics are currently showing hardcoded or mock data — the requirement for real-time aggregation queries (COUNT, GROUP BY) from Supabase has been specified but not confirmed as implemented.
+Media Library has no CDN configuration. All images are served directly from Supabase Storage. For a design portfolio with high-resolution images, this will cause performance problems.
+The &quot;Design Intelligence Studio&quot; features (Atmosphere Orchestrator, Materials Engine, ROI Forecaster) appear in the public site but are NOT integrated into the admin dashboard. There is no admin view for project ROI data, material costs, or lighting proposals. These are disconnected systems.
+Estimate Leads module: FAIL status from February audit — the lead form submissions are not reliably persisted. This is revenue-impacting.
+
+4.2 — Dashboard Intelligence Gap
+The admin dashboard must evolve from a generic analytics panel to a business intelligence layer. Currently missing:
+Project Pipeline view (Active projects by stage)
+Lead conversion funnel (Inquiry → Consultation → Contract → Completed)
+Revenue by service category
+Material cost breakdowns per project
+Client decision timelines
+All of these require proper Supabase aggregation queries with indexed columns on lead_source, lead_type, city, and service_tag.
+
+4.3 — Data Discipline Issue
+CRITICAL WARNING: Dashboard accuracy depends entirely on data normalization. The current system has enum value inconsistency risks:
+&quot;Mumbai&quot; vs &quot;mumbai&quot; — city values may be inconsistent
+&quot;Interior&quot; vs &quot;interior design&quot; — service tag fragmentation
+No enforced enum constraints on lead_type and lead_source columns confirmed
+Until enum values are enforced via PostgreSQL CHECK constraints or Supabase enums, all GROUP BY aggregation queries will fragment and produce incorrect dashboard metrics.
+
+ STEP 5 — Backend Architecture Audit
+
+5.1 — Edge Functions Review
+Edge Functions identified: assign-first-admin, auto-reply-lead, generate-caption, process-lead, notify-hot-lead, submit-discovery-lead, manage-user, invite-user
+
+Issues and Status:
+generate-caption (AI): Was unauthenticated — FIXED (JWT validation added). But the fix uses .auth.getUser() which adds a round-trip to Supabase Auth on every AI request. For high-volume use, this will throttle. Consider caching the auth check with a short TTL.
+process-lead: Had a ReferenceError in getCorsHeaders due to isAllowed evaluated before declaration — FIXED. But this bug made it past code review, indicating lack of automated testing and no pre-deploy linting.
+notify-hot-lead + auto-reply-lead: Rate limiting via Deno KV in-memory map — CRITICAL LIMITATION. Deno KV in-memory rate limiting is NOT persistent across function restarts or multiple Edge Function instances. On Supabase&apos;s edge network, functions can run in different PoPs (Points of Presence) simultaneously. Your rate limit map resets on cold starts. This is a false sense of security.
+Missing: No centralized logging or error tracking across edge functions. Each function fails silently.
+
+5.2 — API Structure
+The frontend communicates with Supabase via the JavaScript client SDK — this is standard BaaS usage. However:
+There is no API abstraction layer in the frontend. Supabase client calls are made directly from components and hooks without a service layer. This tightly couples UI components to the Supabase SDK.
+Recommendation: Create a src/services/ folder with typed service modules (e.g., leadService.ts, portfolioService.ts) that wrap all Supabase calls. This decouples the UI from the backend client.
+
+ STEP 6 — Database Schema Audit
+
+6.1 — Schema Assessment
+Tables identified: services, portfolio/projects, testimonials, blogs, leads/estimate_leads, users, user_roles, site_settings, team_members
+
+Confirmed Issues:
+categories vs category_ids: A type anomaly between these columns has been noted and addressed via constraints — but this indicates the schema evolved without a clear data model first.
+Missing composite indexes: Queries grouping by city + lead_source + lead_type on the leads table will be slow without composite indexes. At 1,000+ leads, dashboard queries will noticeably lag.
+Enum inconsistency: lead_type and lead_source should be PostgreSQL ENUM types or have CHECK constraints. Text columns without constraints allow dirty data that breaks analytics.
+RLS policies: Anonymous read-only access confirmed on public tables. Admin-only write access confirmed. This is correct. However — verify that the estimate_leads table has RLS that allows INSERT from anon but not SELECT from anon (lead data is private).
+No soft-delete pattern: Deleting a portfolio item or service is permanent. For a CMS, soft deletes (deleted_at column) are essential for recovery.
+No audit trail / created_by columns on CMS tables: Who created which blog post? Who last edited a service? This information is missing.
+
+6.2 — Recommended Schema Improvements
+Add deleted_at TIMESTAMPTZ NULL to all CMS tables (services, portfolio, blogs, testimonials)
+Add created_by UUID REFERENCES auth.users(id) and updated_by UUID to CMS tables
+Convert lead_source and lead_type to PostgreSQL ENUM types
+Add composite index: CREATE INDEX idx_leads_analytics ON leads(lead_source, lead_type, city, created_at)
+Add index on blogs(published_at) and blogs(status) for CMS filtering performance
+
+ STEP 7 — Performance Analysis
+
+7.1 — Bundle Size Risks
+Both framer-motion (~50KB gzipped) AND GSAP (~30KB gzipped) are loaded. Remove one.
+shadcn/ui + Radix UI are tree-shakeable — verify that Vite is correctly tree-shaking unused components via the radix-ui package imports.
+No evidence of React.lazy() or dynamic import() for route-level code splitting. All admin pages (AdminDashboard, AdminLeads, AdminBlogs, etc.) are likely in the main bundle. This adds seconds to first load for public visitors who never visit admin.
+Image handling: No evidence of WebP conversion, lazy loading via loading=&quot;lazy&quot;, or Blurhash/LQIP placeholders. A design portfolio site with full-resolution images and no image optimization is a performance failure.
+
+7.2 — Recommended Performance Fixes
+Implement React.lazy() + Suspense for all admin page routes immediately
+Remove either framer-motion or GSAP — use framer-motion for React component animations, remove GSAP unless scroll timelines are specifically needed
+Configure Supabase Storage CDN (or move to Cloudflare R2/Imgix) for portfolio images with WebP conversion
+Add vite-plugin-imagemin or similar for build-time image optimization
+Implement a loading skeleton component system instead of raw spinner states
+
+ STEP 8 — Security Audit
+
+8.1 — Confirmed Vulnerabilities (Fixed)
+generate-caption unauthenticated endpoint — FIXED (JWT validation added)
+process-lead CORS ReferenceError — FIXED (variable scoping corrected)
+
+8.2 — Remaining Structural Security Risks
+CRITICAL: Deno KV in-memory rate limiting on Edge Functions is NOT production-safe. On a distributed edge network, each PoP has its own memory. A determined spammer can hit different geographic IPs to bypass limits. Fix: use Supabase Database or Upstash Redis for persistent rate limiting.
+HIGH: No CORS whitelist audit confirmed. Are the allowed origins in process-lead and notify-hot-lead locked to your production domains only? Or is &quot;*&quot; still present as a fallback?
+HIGH: Admin panel is at /admin/* on the same domain as the public site. There is no subdomain isolation (admin.crossangleinterior.com). A XSS vulnerability in a public component would have same-origin access to admin session cookies.
+MEDIUM: No CSP (Content Security Policy) header confirmed in deployment. Without CSP, XSS attacks can exfiltrate session tokens.
+MEDIUM: .env files — confirm SUPABASE_SERVICE_ROLE_KEY is never referenced in apps/web frontend code. The backend audit confirms it is not in the bundle, but a git history search is recommended to verify it was never accidentally committed.
+LOW: The Lovable.dev project ID in README.md (REPLACE_WITH_PROJECT_ID) suggests this was never properly configured — minor operational oversight.
+
+ STEP 9 — Maintainability Assessment
+
+9.1 — Documentation
+README.md is the default Lovable scaffold README — it contains zero project-specific documentation. A developer joining this project has no onboarding guide.
+No ADRs (Architecture Decision Records) — why was Supabase chosen over Firebase? Why shadcn/ui? These decisions are undocumented.
+No JSDoc or TSDoc on utility functions, hooks, or services.
+
+9.2 — Testing
+ZERO test files found in the repository. No unit tests, no integration tests, no E2E tests.
+No Vitest configuration, no Playwright, no Cypress. This is a pre-production system with zero automated quality assurance.
+The process-lead CORS bug was a runtime ReferenceError that would have been caught immediately by a basic unit test.
+
+9.3 — Code Quality Patterns
+TypeScript usage is generally good — the codebase is not littered with `any` types based on available information.
+ESLint is likely configured via Vite defaults but no custom ESLint rules file (.eslintrc) was confirmed.
+No Prettier configuration file confirmed — formatting is inconsistent across files edited by different tools (Lovable AI vs manual edits vs Cursor AI).
+
+ STEP 12 — Top 20 Critical Issues
+
+#
+Issue
+Risk
+Fix
+1
+Root /src directory conflict
+Root-level src/ duplicates apps/web/src creating split-brain codebase
+CRITICAL
+Delete root src/, confirm apps/web/src is the only frontend source
+2
+Dual lockfiles (bun + npm)
+bun.lockb and package-lock.json both present — non-deterministic installs
+CRITICAL
+Choose one package manager, delete the other lockfile, enforce via .npmrc or .bunfig
+3
+In-memory rate limiting on Edge Functions
+Deno KV rate limits reset on cold starts / across distributed PoPs
+CRITICAL
+Replace with Supabase DB-backed or Upstash Redis rate limiting
+4
+Zero automated tests
+No unit, integration, or E2E tests. Runtime bugs ship to production.
+CRITICAL
+Add Vitest for unit tests, Playwright for E2E on critical flows (auth, lead submit, CMS CRUD)
+5
+No CI/CD pipeline
+Manual deploy to Surge.sh with no linting, testing, or build gates
+CRITICAL
+Add GitHub Actions: lint → test → build → deploy on PR merge
+6
+AdminTeam navigation link missing
+AdminTeam.tsx is implemented but unreachable from AdminLayout.tsx nav
+HIGH
+Add Team Members entry to menuSections array in AdminLayout.tsx — 2 line fix
+7
+Estimate Leads module failure
+Lead form submissions not reliably persisted — confirmed FAIL status
+HIGH
+Audit submit-discovery-lead edge function and RLS policies on estimate_leads table
+8
+Dashboard showing mock/hardcoded data
+Analytics KPIs not sourced from real Supabase aggregation queries
+HIGH
+Implement COUNT/GROUP BY queries on leads, services, portfolio tables with live Supabase calls
+9
+Enum inconsistency in leads table
+lead_type, lead_source, city stored as free-text — fragmentation in GROUP BY
+HIGH
+Add PostgreSQL CHECK constraints or convert to ENUM types. Backfill normalize existing data.
+10
+No code splitting on admin routes
+All admin pages likely in main bundle — public users load admin code unnecessarily
+HIGH
+Wrap all /admin/* page imports in React.lazy() + Suspense
+11
+Dual animation libraries (GSAP + Framer Motion)
+Both installed simultaneously — doubles animation bundle weight
+HIGH
+Evaluate usage in each component, migrate to one library, remove the other
+12
+No subdomain isolation for admin
+/admin/* on same domain as public site — XSS in public page = admin cookie theft
+HIGH
+Deploy admin to admin.crossangleinterior.com on separate Supabase auth config or use httpOnly cookies with SameSite=Strict
+13
+WCAG 2.1 AA: 2 critical failures
+Missing alt text and insufficient color contrast on public-facing pages
+HIGH
+Add alt attributes to all &lt;img&gt; tags. Test contrast ratios with axe-core. Fix hero text overlay.
+14
+No CSP headers in production
+Without Content-Security-Policy, XSS attacks can exfiltrate session data
+HIGH
+Add CSP header via Surge.sh custom headers or a Cloudflare Worker proxy
+15
+No soft deletes in CMS
+Deleting portfolio/services/blogs is permanent. No recovery path.
+MEDIUM
+Add deleted_at TIMESTAMPTZ NULL to CMS tables. Filter all queries with WHERE deleted_at IS NULL.
+16
+No audit trail on CMS records
+No created_by or updated_by on content tables — no accountability
+MEDIUM
+Add created_by UUID REFERENCES auth.users(id), updated_by UUID to all CMS tables
+17
+README is default scaffold
+Zero project documentation. Onboarding is impossible without institutional knowledge.
+MEDIUM
+Write a proper README: project overview, local setup, env vars, deploy guide, architecture diagram
+18
+Design Intelligence features disconnected from admin
+Atmosphere Orchestrator, Materials Engine, ROI Forecaster exist in public site but not in admin
+MEDIUM
+Add admin views for project-linked ROI data, material cost tracking, and lighting proposals
+19
+No image optimization pipeline
+Portfolio images served as-is from Supabase Storage — no WebP, no CDN, no LQIP
+MEDIUM
+Configure Supabase Storage CDN. Add vite-plugin-imagemin for local assets. Use loading=&quot;lazy&quot; on all images.
+20
+Custom i18n implementation
+src/i18n is a custom implementation instead of react-i18next
+LOW
+Migrate to react-i18next for community support, plugins, and proper locale fallback
+
+ STEP 13 — System Improvement Roadmap
+
+Phase 1 — Critical Fixes (Week 1–2)
+Stop the bleeding. These are production blockers.
+Fix root src/ conflict — delete root src/ and root index.html
+Standardize on one package manager — delete package-lock.json, use bun exclusively
+Fix AdminTeam.tsx navigation (2-line fix in AdminLayout.tsx)
+Fix Estimate Leads pipeline — audit and repair
+Replace in-memory rate limiting with DB-backed solution
+Wire dashboard KPI cards to real Supabase aggregation queries
+Enforce enum constraints on leads table (lead_source, lead_type, city)
+
+Phase 2 — Architecture Improvements (Week 3–4)
+Make it maintainable.
+Set up GitHub Actions CI: lint → typecheck → test → build
+Add Vitest unit tests for all edge functions and utility functions
+Create src/services/ abstraction layer for all Supabase calls
+Properly configure monorepo workspace in root package.json
+Migrate to single animation library (remove GSAP or framer-motion)
+
+Phase 3 — UI/UX Improvements (Week 5–6)
+Make it coherent and professional.
+Unify admin panel design to match brand identity (luxury dark gold theme)
+Fix all WCAG 2.1 AA failures (alt text, contrast, ARIA labels)
+Create unified design token system (tokens.ts)
+Build admin Design Intelligence views (ROI, materials, project pipeline)
+
+Phase 4 — Performance (Week 7–8)
+Implement React.lazy() code splitting for all admin routes
+Configure Supabase Storage CDN + WebP conversion
+Add image lazy loading and LQIP placeholders across portfolio
+Add composite database index for analytics queries
+
+Phase 5 — Production Hardening (Week 9–10)
+Add CSP, HSTS, and security headers
+Set up Sentry for error tracking on both frontend and edge functions
+Add Playwright E2E tests for critical user journeys
+Write project README and architecture documentation
+Consider admin subdomain isolation
+
+ STEP 14 — Final Evaluation
+
+Overall System Scores
+Category
+Score
+Verdict
+Architecture Score
+42/100
+Root src/ conflict, no workspace enforcement, no CI/CD
+Code Quality Score
+55/100
+Good TS, no tests, no docs, dual lockfiles
+UI/UX Score
+48/100
+Theme mismatch admin vs public, WCAG failures, hardcoded values
+Security Score
+50/100
+RLS correct, in-mem rate limit not production-safe, no CSP
+Performance Score
+44/100
+No code splitting, dual animation libs, no image CDN
+Production Readiness Score
+28/100
+No CI/CD, no monitoring, no error tracking, manual deploy
+
+Top Improvements to Implement Immediately
+Delete root src/ — resolves the structural split-brain within 5 minutes
+Fix AdminTeam navigation — a 2-line code change that unlocks hidden functionality
+Wire dashboard to real queries — without this, the admin panel is a dashboard of lies
+Set up GitHub Actions CI — the fastest way to prevent regressions from multiplying
+Replace in-memory rate limiting — the current implementation gives false security
+
+Long-Term Engineering Vision
+CrossAngle Interior has the right technology choices (React, Supabase, TypeScript, Tailwind). The stack is solid. What is missing is engineering discipline — the habits and structures that turn prototype code into production systems. Specifically:
+Test-first mindset: Every edge function and every utility function should have a test written alongside it.
+Service layer separation: The UI should never know it is talking to Supabase. Abstract it away.
+Design system governance: The UI should express brand identity from a single source of truth, not per-file style decisions.
+Observability: Production systems have error tracking, performance monitoring, and alerting. None of that exists here.
+
+This system has strong foundations. The Supabase schema is reasonable. The component hierarchy is sensible. The feature set is ambitious and appropriate. With the Phase 1–5 roadmap above executed diligently, this can become a professional-grade SaaS CMS within 10 weeks.
+
+End of Stage 1 — Repo Analysis | Stage 2: CMS/Admin Testing follows

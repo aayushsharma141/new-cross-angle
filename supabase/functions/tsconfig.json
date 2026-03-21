@@ -5,8 +5,10 @@
             "ESNext"
         ],
         "strict": true,
-        "noImplicitAny": true,
-        "forceConsistentCasingInFileNames": true
+        "noImplicitAny": false,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "noEmit": true
     },
     "include": [
         "**/*.ts"

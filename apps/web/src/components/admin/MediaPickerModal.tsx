@@ -184,7 +184,7 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
                 <div className="flex-1 overflow-y-auto min-h-0">
                     {isLoading ? (
                         <div className="flex items-center justify-center h-40">
-                            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                            <Loader2 className="w-6 h-6 animate-spin -admin-primary" />
                         </div>
                     ) : filteredFiles.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground">
@@ -198,8 +198,8 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
                                     key={file.id}
                                     onClick={() => handleSelect(file.url)}
                                     className={`aspect-square relative rounded-lg overflow-hidden border-2 transition-all ${selectedUrl === file.url
-                                            ? "border-primary ring-2 ring-primary/30"
-                                            : "border-transparent hover:border-primary/50"
+                                            ? "-admin-primary ring-2 -admin-primary/30"
+                                            : "border-transparent hover:-admin-primary/50"
                                         }`}
                                 >
                                     <img
@@ -209,8 +209,8 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
                                         loading="lazy"
                                     />
                                     {selectedUrl === file.url && (
-                                        <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                                            <Check className="w-8 h-8 text-primary bg-background rounded-full p-1" />
+                                        <div className="absolute inset-0 -admin-primary/20 flex items-center justify-center">
+                                            <Check className="w-8 h-8 -admin-primary bg-background rounded-full p-1" />
                                         </div>
                                     )}
                                 </button>

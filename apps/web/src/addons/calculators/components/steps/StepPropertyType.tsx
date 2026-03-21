@@ -11,10 +11,10 @@ interface Props {
 export function StepPropertyType({ formData, updateField }: Props) {
     return (
         <div>
-            <h2 className="text-2xl font-bold mb-1 text-white">
+            <h2 className="text-2xl font-bold mb-1 text-site-text-heading uppercase">
                 What type of property?
             </h2>
-            <p className="text-gray-400 mb-8 text-sm">
+            <p className="text-site-text-muted mb-8 text-sm">
                 Select the property type to get started
             </p>
 
@@ -26,26 +26,26 @@ export function StepPropertyType({ formData, updateField }: Props) {
                             key={pt.id}
                             onClick={() => updateField("propertyType", pt.id as PropertyType)}
                             className={`
-                                group border-2 rounded-xl p-5 text-center transition-all duration-300 relative overflow-hidden
+                                group border-2 rounded-none p-5 text-center transition-all duration-300 relative overflow-hidden
                                 ${selected
-                                    ? "bg-zinc-800/80 border-red-600 scale-[1.03] shadow-[0_0_30px_-5px_rgba(220,38,38,0.2)]"
-                                    : "bg-zinc-900 border-white/5 hover:border-white/10"
+                                    ? "bg-site-bg-card-hover border-site-crimson scale-[1.03] shadow-[0_0_30px_-5px_rgba(227, 83, 54,0.2)]"
+                                    : "bg-site-bg-card border-site-border hover:border-site-crimson/30"
                                 }
                             `}
                         >
                             <div className="text-4xl mb-3 filter drop-shadow-md group-hover:scale-110 transition-transform duration-300">{pt.icon}</div>
 
                             <div className="mb-1">
-                                <div className={`font-bold text-sm tracking-tight ${selected ? "text-red-400" : "text-white"}`}>
+                                <div className={`font-bold text-sm tracking-tight ${selected ? "text-site-crimson" : "text-site-text-heading"}`}>
                                     {pt.label}
                                 </div>
-                                <div className="text-gray-500 text-[10px] leading-relaxed mt-1 uppercase tracking-tighter">
+                                <div className="text-site-text-meta text-[10px] leading-relaxed mt-1 uppercase tracking-tighter">
                                     {pt.desc}
                                 </div>
                             </div>
 
                             {selected && (
-                                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-60" />
+                                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-site-crimson to-transparent opacity-60" />
                             )}
                         </button>
                     );

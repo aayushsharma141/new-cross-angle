@@ -28,6 +28,8 @@ interface Lead {
     notes?: string;
     created_at?: string;
     message?: string;
+    category?: string;
+    source?: string;
 }
 
 interface LeadDetailSheetProps {
@@ -190,7 +192,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
                             {/* Contact Info */}
                             <div className="space-y-4">
-                                <h3 className="font-semibold flex items-center gap-2 text-sm text-primary">
+                                <h3 className="font-semibold flex items-center gap-2 text-sm -admin-primary">
                                     <User className="w-4 h-4" /> Client Information
                                 </h3>
                                 <div className="grid gap-4 p-4 border rounded-lg bg-card">
@@ -228,7 +230,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
                             {/* Project Details */}
                             <div className="space-y-4">
-                                <h3 className="font-semibold flex items-center gap-2 text-sm text-primary">
+                                <h3 className="font-semibold flex items-center gap-2 text-sm -admin-primary">
                                     <FileText className="w-4 h-4" /> Project Interest
                                 </h3>
                                 <div className="grid gap-4 p-4 border rounded-lg bg-card">
@@ -252,7 +254,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
                             {/* Notes */}
                             <div className="space-y-4">
-                                <h3 className="font-semibold flex items-center gap-2 text-sm text-primary">
+                                <h3 className="font-semibold flex items-center gap-2 text-sm -admin-primary">
                                     <StickyNote className="w-4 h-4" /> Internal Notes
                                 </h3>
                                 <Textarea
@@ -277,10 +279,10 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                 {EMAIL_TEMPLATES.map(template => {
                                     const { body, subject } = processTemplate(template.body, template.subject);
                                     return (
-                                        <Card key={template.id} className="hover:border-primary transition-colors cursor-pointer group">
+                                        <Card key={template.id} className="hover:-admin-primary transition-colors cursor-pointer group">
                                             <CardContent className="p-4">
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <h4 className="font-medium text-sm text-primary">{template.name}</h4>
+                                                    <h4 className="font-medium text-sm -admin-primary">{template.name}</h4>
                                                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); copyToClipboard(body, template.name); }} title="Copy Body">
                                                             <Copy className="h-3 w-3" />

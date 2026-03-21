@@ -37,8 +37,8 @@ const AnimatedStars = ({ rating, isVisible }: { rating: number; isVisible: boole
           className={cn(
             "w-5 h-5 transition-all duration-300",
             animatedRating >= star
-              ? "text-primary fill-primary scale-110"
-              : "text-muted-foreground/30"
+              ? "text-site-crimson fill-site-crimson scale-110"
+              : "text-site-text-meta/30"
           )}
           style={{
             transitionDelay: `${star * 100}ms`,
@@ -135,20 +135,18 @@ const Testimonials = () => {
       ref={sectionRef}
       className="py-24 md:py-32 relative overflow-hidden"
     >
-      {/* Dark overlay with Gold tint */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background z-0" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(46_70%_47%/0.05)_0%,transparent_70%)] z-0" />
+      <div className="absolute inset-0 bg-site-bg-section z-0" />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <span className="text-gold text-sm uppercase tracking-[0.3em] font-medium border-b border-gold/30 pb-2">
+          <span className="text-site-crimson text-sm uppercase tracking-[0.3em] font-medium border-b border-site-crimson/30 pb-2">
             Client Reviews
           </span>
-          <h2 className="text-4xl md:text-5xl font-display font-bold mt-6 mb-6 text-gradient-gold">
+          <h2 className="text-4xl md:text-5xl font-serif font-bold mt-6 mb-6 text-site-text-heading relative inline-block after:content-[''] after:block after:w-12 after:h-px after:bg-site-crimson after:mx-auto after:mt-3">
             What Our Clients Say
           </h2>
-          <p className="max-w-2xl mx-auto text-lg text-muted-foreground font-light">
+          <p className="max-w-2xl mx-auto text-lg text-site-text-muted font-light">
             Real stories from homeowners and businesses we've had the privilege to work with.
           </p>
         </div>
@@ -160,11 +158,10 @@ const Testimonials = () => {
           onMouseLeave={() => setIsPaused(false)}
         >
           {/* Main Card */}
-          <div className="bg-card/30 backdrop-blur-md border border-white/5 rounded-2xl p-8 md:p-12 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-700" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gold/5 rounded-tr-full -ml-12 -mb-12 transition-transform group-hover:scale-110 duration-700" />
+          <div className="bg-site-bg-card backdrop-blur-md border border-site-border rounded-none p-8 md:p-12 relative overflow-hidden group">
 
-            <Quote className="absolute top-8 left-8 w-12 h-12 text-gold/20" />
+
+            <Quote className="absolute top-8 left-8 w-12 h-12 text-site-crimson/10" />
 
             <div className="relative z-10 min-h-[300px] flex items-center justify-center">
               {displayTestimonials.map((item, index) => (
@@ -184,25 +181,25 @@ const Testimonials = () => {
                     isVisible={index === activeIndex}
                   />
 
-                  <p className="text-xl md:text-2xl text-foreground/90 mt-8 mb-8 leading-relaxed italic font-light max-w-3xl">
+                  <p className="text-xl md:text-2xl text-site-text mt-8 mb-8 leading-relaxed italic font-light max-w-3xl">
                     "{item.content}"
                   </p>
 
                   <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                    <div className="w-14 h-14 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.15)]">
-                      <span className="text-gold font-bold text-lg font-serif">
+                    <div className="w-14 h-14 rounded-full bg-site-crimson/10 border border-site-crimson/20 flex items-center justify-center shadow-lg shadow-site-crimson/10">
+                      <span className="text-site-crimson font-bold text-lg font-serif">
                         {item.author_name.charAt(0)}
                       </span>
                     </div>
                     <div className="text-left">
-                      <h4 className="text-foreground font-semibold text-lg tracking-wide">
+                      <h4 className="text-site-text-heading font-semibold text-lg tracking-wide">
                         {item.author_name}
                       </h4>
-                      <p className="text-muted-foreground text-sm">
+                      <p className="text-site-text-muted text-sm">
                         {item.role}
                       </p>
                       {item.project && (
-                        <p className="text-gold/80 text-xs mt-0.5 font-medium uppercase tracking-wider">
+                        <p className="text-site-crimson/80 text-xs mt-0.5 font-medium uppercase tracking-widest">
                           {item.project}
                         </p>
                       )}
@@ -222,8 +219,8 @@ const Testimonials = () => {
                 className={cn(
                   "h-1.5 rounded-full transition-all duration-300",
                   index === activeIndex
-                    ? "w-8 bg-gold shadow-[0_0_10px_rgba(212,175,55,0.5)]"
-                    : "w-1.5 bg-muted-foreground/30 hover:bg-gold/50"
+                    ? "w-8 bg-site-crimson shadow-lg shadow-site-crimson/30"
+                    : "w-2 bg-site-text-meta/30 hover:bg-site-crimson/50"
                 )}
                 aria-label={`Go to testimonial ${index + 1}`}
               />

@@ -1,19 +1,17 @@
-import { useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { Sidebar } from "@/components/admin/layout/Sidebar";
-import { TopBar } from "@/components/admin/layout/TopBar";
+import { TopBar } from "@/components/admin/TopBar";
 
 const AdminLayout = (): JSX.Element | null => {
   const { isAuthenticated, isLoading } = useAdminAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-card text-text-primary">
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-lg font-medium">Loading Command Center...</p>
+          <p className="text-lg font-medium font-serif">CrossAngle Intelligence</p>
+          <p className="text-sm text-zinc-500 mt-2 tracking-widest uppercase">Initializing Hub...</p>
         </div>
       </div>
     );
@@ -22,31 +20,20 @@ const AdminLayout = (): JSX.Element | null => {
   if (!isAuthenticated) return <Navigate to="/admin/auth" replace />;
 
   return (
-    <div className="min-h-screen flex w-full bg-surface text-text-primary admin-theme">
-      {/* Mobile backdrop overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-          aria-hidden="true"
-        />
-      )}
+    <div className="min-h-screen flex flex-col bg-admin-bg admin-theme">
+      {/* Premium Top Navigation */}
+      <TopBar />
 
-      {/* Sidebar Navigation */}
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-
-      {/* Main Container */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
-        {/* Global Header */}
-        <TopBar onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
-
-        {/* Scrollable Content Area */}
-        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
-          <div className="mx-auto w-full max-w-7xl h-full flex flex-col">
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Page content with Luxury Padding & Max-Width */}
+        <div className="flex-1 overflow-auto p-4 sm:p-6 md:p-10">
+          <div className="max-w-7xl mx-auto w-full animate-in fade-in zoom-in-95 duration-500">
             <Outlet />
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
+
+      {/* Module Navigation Context (Optional floating hub activator could go here) */}
     </div>
   );
 };

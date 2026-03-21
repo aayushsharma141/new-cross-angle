@@ -6,16 +6,25 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import {
+    buildCorsHeaders,
+    handlePreflight,
+    checkRateLimit,
+    getClientId,
+    rateLimitResponse,
+} from "../_lib/security.ts";
 
-const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// Admin-only: credentialed=true ensures wildcard CORS is never used.
+const CORS_OPTS = { credentialed: true };
+const RATE_OPTS = { bucket: "invite-user", max: 10, windowMs: 60_000 };
 
 serve(async (req: Request) => {
-    if (req.method === "OPTIONS") {
-        return new Response("ok", { headers: corsHeaders });
-    }
+    const preflight = handlePreflight(req, CORS_OPTS);
+    if (preflight) return preflight;
+
+    const clientId = getClientId(req);
+    const rl = await checkRateLimit(req, clientId, RATE_OPTS);
+    if (rl.limited) return rateLimitResponse(req, rl, CORS_OPTS);
 
     try {
         const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
@@ -125,11 +134,12 @@ serve(async (req: Request) => {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error:", error);
-        return new Response(JSON.stringify({ error: error.message || "Unknown error" }), {
+        const msg = error instanceof Error ? error.message : "Unknown error";
+        return new Response(JSON.stringify({ error: msg }), {
             status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            headers: { ...buildCorsHeaders(req, CORS_OPTS), "Content-Type": "application/json" },
         });
     }
 });

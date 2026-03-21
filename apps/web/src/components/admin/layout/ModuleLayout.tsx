@@ -33,8 +33,8 @@ export const ModuleLayout = ({ title, description, tabs, children }: ModuleLayou
                     ]}
                 />
                 <div>
-                    <h2 className="text-3xl font-display font-bold text-white tracking-tight">{title}</h2>
-                    <p className="text-slate-400 mt-1">{description}</p>
+                    <h2 className="text-3xl font-serif text-white tracking-tight">{title}</h2>
+                    <p className="text-zinc-500 mt-1">{description}</p>
                 </div>
             </div>
 
@@ -51,10 +51,10 @@ export const ModuleLayout = ({ title, description, tabs, children }: ModuleLayou
                                     key={tab.path}
                                     to={tab.path}
                                     className={cn(
-                                        "whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors",
+                                        "whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all",
                                         isActive
-                                            ? "border-emerald-500 text-emerald-400"
-                                            : "border-transparent text-slate-400 hover:text-slate-200 hover:border-white/20"
+                                            ? "border-admin-accent text-admin-accent"
+                                            : "border-transparent text-zinc-500 hover:text-zinc-200 hover:border-white/20"
                                     )}
                                     aria-current={isActive ? "page" : undefined}
                                 >

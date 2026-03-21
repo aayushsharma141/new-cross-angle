@@ -13,7 +13,6 @@ import GalleryLightbox from "@/components/gallery/GalleryLightbox";
 import CursorSpotlight from "@/components/gallery/CursorSpotlight";
 import GalleryScrollIndicator from "@/components/gallery/GalleryScrollIndicator";
 import GalleryCTA from "@/components/gallery/GalleryCTA";
-import GalleryParticles from "@/components/gallery/GalleryParticles";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useQuery } from "@tanstack/react-query";
@@ -99,7 +98,6 @@ const GalleryPage = () => {
       </Helmet>
 
       <CursorSpotlight>
-        <GalleryParticles />
         <GalleryScrollIndicator />
 
         <FixedSocialBar />

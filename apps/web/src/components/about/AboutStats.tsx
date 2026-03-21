@@ -37,7 +37,7 @@ const StatCard = ({ stat, index }: { stat: Stat; index: number }) => {
           className="w-16 h-16 mx-auto rounded-2xl bg-muted/50 group-hover:bg-primary flex items-center justify-center mb-6 transition-all duration-500"
           whileHover={{ scale: 1.1, rotate: 5 }}
         >
-          <stat.icon className="w-8 h-8 text-muted-foreground group-hover:text-primary-foreground transition-colors duration-500" />
+          <stat.icon className="w-8 h-8 text-muted-foreground group-hover:text-white transition-colors duration-500" />
         </motion.div>
 
         {/* Value */}

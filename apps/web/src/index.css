@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Sans:opsz,wght@9..40,100..1000&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -24,14 +24,14 @@
     --popover: 0 0% 5%;
     --popover-foreground: 0 0% 95%;
 
-    /* Brand Primary (Rich Red) */
-    --primary: 355 85% 42%;
-    /* #C61022 - Flat Modern Red */
+    /* Brand Primary (Crimson) */
+    --primary: 350 83% 44%;
+    /* #C41230 - Site Crimson */
     --primary-foreground: 0 0% 100%;
 
     /* Interaction States */
-    --primary-hover: 355 90% 35%;
-    --primary-active: 355 95% 30%;
+    --primary-hover: 43 85% 48%;
+    --primary-active: 43 80% 42%;
 
     /* Secondary */
     --secondary: 0 0% 15%;
@@ -42,10 +42,9 @@
     --muted-foreground: 0 0% 65%;
     /* Soft text */
 
-    /* Gold Accent */
-    --accent: 43 90% 55%;
-    /* Bright modern gold */
-    --accent-foreground: 0 0% 10%;
+    /* Accent (Crimson) */
+    --accent: 350 83% 44%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
@@ -53,30 +52,49 @@
     /* UI Elements */
     --border: 0 0% 15%;
     --input: 0 0% 12%;
-    --ring: 355 85% 42%;
+    --ring: 350 83% 44%;
 
     --radius: 0.5rem;
     /* Slightly sharper corners for modern look */
 
     /* Focus Ring */
-    --focus-ring: 355 85% 42% / 0.55;
+    --focus-ring: 43 90% 55% / 0.55;
 
     /* Sidebar (Admin) */
     --sidebar-background: 0 0% 2%;
     --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 355 85% 42%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 43 90% 55%;
+    --sidebar-primary-foreground: 0 0% 7%;
     --sidebar-accent: 0 0% 10%;
     --sidebar-accent-foreground: 0 0% 96%;
     --sidebar-border: 0 0% 10%;
-    --sidebar-ring: 355 85% 42%;
+    --sidebar-ring: 43 90% 55%;
 
     /* Gradients */
-    --gradient-wine: linear-gradient(135deg, hsl(355 85% 42%) 0%, hsl(355 90% 30%) 100%);
-    --gradient-gold: linear-gradient(90deg, hsl(43 90% 55%) 0%, hsl(38 90% 45%) 100%);
+    --gradient-wine: linear-gradient(135deg, hsl(350 83% 44%) 0%, hsl(350 90% 30%) 100%);
+    --gradient-crimson: linear-gradient(90deg, hsl(350 83% 44%) 0%, hsl(350 83% 34%) 100%);
     --gradient-obsidian: linear-gradient(180deg, hsl(0 0% 10%) 0%, hsl(0 0% 0%) 100%);
     --gradient-shine: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 5%) 50%, hsl(0 0% 8%) 100%);
     --shadow-luxury: 0 25px 50px -12px hsl(0 0% 0% / 0.9);
+
+    /* Website Color System Tokens — Strategic Intelligence */
+    --site-bg: #000000;
+    --site-bg-section: #080604;
+    --site-bg-card: #100D0A;
+    --site-bg-card-hover: #1A1614;
+    --site-bg-light: #F5F3EF;
+    --site-bg-input: #100D0A;
+    --site-crimson: #C41230;
+    --site-crimson-90: rgba(196, 18, 48, 0.9);
+    --site-crimson-30: rgba(196, 18, 48, 0.3);
+    --site-stone: #8B8B8B;
+    --site-text: #EDEAE6;
+    --site-text-heading: #FFFFFF;
+    --site-text-muted: #A3A09C;
+    --site-text-meta: #6B6B6B;
+    --site-border: rgba(237, 234, 230, 0.08);
+    --site-border-input: rgba(237, 234, 230, 0.1);
+    --site-overlay-hero: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.75));
   }
 
   /* =========================
@@ -120,30 +138,44 @@
 
   /* Admin Base */
   .admin-theme {
-    --admin-bg: 0 0% 98%;
-    --admin-surface: 0 0% 96%;
-    --admin-card: 0 0% 100%;
-    --admin-border: 0 0% 90%;
-    --admin-gold: 326 50% 32%;
-    --admin-text: 220 10% 10%;
-    --admin-muted: 220 5% 40%;
+    /* Base Colors - Professional Dark Theme */
+    --admin-bg: 213 29% 6%;
+    /* #0B0F14 */
+    --admin-surface: 218 29% 15%;
+    /* #1A2230 */
+    --admin-card: 217 29% 10%;
+    /* #121821 */
+    --admin-border: 218 22% 21%;
+    /* #2A3342 */
+
+    /* Brand Colors - Gold/Amber Accent */
+    --admin-gold: 43 96% 56%;
+    /* #F59E0B */
+    --admin-gold-dim: 43 96% 42%;
+    --admin-gold-glow: 43 96% 56%;
+
+    /* Typography */
+    --admin-text: 220 14% 91%;
+    /* #E5E7EB */
+    --admin-muted: 218 11% 65%;
+    /* #9CA3AF */
+
+    /* Status Colors */
     --admin-danger: 0 84% 60%;
-    /* ── New: chart & component semantic tokens ── */
-    --admin-foreground: 220 10% 10%;
-    --admin-info: 210 100% 56%;
-    --admin-success: 142 76% 36%;
-    --admin-error: 0 72% 51%;
-    --admin-error-light: 0 80% 95%;
-    --admin-surface-muted: 0 0% 93%;
+    /* #EF4444 */
+    --admin-success: 142 71% 45%;
+    /* #22C55E */
+    --admin-info: 199 89% 61%;
+    /* #38BDF8 */
 
     /* ── Tailwind-consumed tokens ── */
-    --surface: var(--admin-bg);
-    --surface-muted: var(--admin-surface-muted);
+    --surface: var(--admin-surface);
+    --surface-muted: var(--admin-bg);
     --surface-card: var(--admin-card);
     --text-primary: var(--admin-text);
     --text-muted: var(--admin-muted);
     --error: var(--admin-danger);
-    --error-light: var(--admin-error-light);
+    --error-light: 0 84% 95%;
 
     --background: var(--admin-bg);
     --foreground: var(--admin-text);
@@ -155,7 +187,7 @@
     --primary-foreground: 0 0% 100%;
     --secondary: var(--admin-surface);
     --secondary-foreground: var(--admin-text);
-    --muted: var(--admin-surface);
+    --muted: var(--admin-bg);
     --muted-foreground: var(--admin-muted);
     --accent: var(--admin-surface);
     --accent-foreground: var(--admin-gold);
@@ -169,21 +201,56 @@
 
   .dark .admin-theme,
   .admin-theme.dark {
-    --admin-bg: 0 0% 98%;
-    --admin-surface: 0 0% 95%;
-    --admin-card: 0 0% 100%;
-    --admin-border: 0 0% 90%;
-    --admin-text: 220 10% 10%;
-    --admin-muted: 220 5% 40%;
+    /* Primary = Amber/Gold (the admin accent color) */
+    --admin-primary: 38 92% 50%;
+    /* #f59e0b - Amber 500 */
+    --admin-primary-hover: 38 92% 58%;
+    --admin-primary-foreground: 0 0% 0%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 220 10% 10%;
-    --sidebar-primary: 326 50% 32%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 95%;
-    --sidebar-accent-foreground: 326 50% 32%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 326 50% 32%;
+    /* Dark surface system */
+    --admin-bg: 0 0% 0%;
+    --admin-background: 0 0% 1%;
+    --admin-foreground: 0 0% 98%;
+    --admin-surface: 0 0% 7%;
+    --admin-card: 0 0% 7%;
+    --admin-card-foreground: 0 0% 98%;
+    --admin-popover: 0 0% 3%;
+    --admin-popover-foreground: 0 0% 98%;
+    --admin-border: 0 0% 13%;
+    --admin-input: 0 0% 12%;
+    --admin-text: 0 0% 100%;
+    --admin-text-muted: 240 5% 65%;
+    --admin-muted: 240 5% 65%;
+    --admin-muted-foreground: 0 0% 65%;
+
+    /* Secondary/Accent */
+    --admin-secondary: 0 0% 15%;
+    --admin-secondary-foreground: 0 0% 98%;
+    --admin-accent: 43 90% 55%;
+    /* Champagne Gold */
+    --admin-accent-foreground: 0 0% 100%;
+    --admin-ring: var(--admin-gold);
+
+    /* Supplementary branding colors (used directly by specific components) */
+    --admin-wine: 355 85% 32%;
+    --admin-wine-light: 355 85% 42%;
+    --admin-gold: 43 90% 55%;
+    --admin-gold-muted: 43 50% 45%;
+    --admin-obsidian: 0 0% 7%;
+    --admin-charcoal: 0 0% 12%;
+    --admin-stone: 0 0% 45%;
+
+    --radius: 0.5rem;
+
+    /* Sidebar tokens — use gold accent */
+    --sidebar-background: var(--admin-bg);
+    --sidebar-foreground: var(--admin-text);
+    --sidebar-primary: var(--admin-gold);
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: var(--admin-surface);
+    --sidebar-accent-foreground: var(--admin-gold);
+    --sidebar-border: var(--admin-border);
+    --sidebar-ring: var(--admin-gold);
   }
 }
 
@@ -193,8 +260,9 @@
   }
 
   body {
-    @apply bg-[hsl(0_0%_0%)] text-[hsl(0_0%_100%)] font-sans antialiased;
-    /* Removed gradients for a cleaner, modern pure-black look */
+    background-color: var(--site-bg);
+    color: var(--site-text);
+    @apply font-sans antialiased;
   }
 
   h1,
@@ -340,84 +408,6 @@
     border-color: hsl(352 78% 31%);
   }
 
-  /* =========================
-     ADMIN PANEL – MODERN LIGHT THEME (Default)
-  ========================= */
-  /* ── ADMIN PANEL SPEC (DESIGN INTELLIGENCE STUDIO) ── */
-  .admin-theme {
-    /* Base Colors - Clean Light Theme */
-    --admin-bg: 0 0% 98%;
-    /* #fafafa */
-    --admin-surface: 0 0% 96%;
-    /* #f5f5f5 */
-    --admin-card: 0 0% 100%;
-    /* #ffffff */
-    --admin-border: 0 0% 90%;
-    /* #e5e5e5 */
-
-    /* Brand Colors - Plum/Magenta */
-    --admin-gold: 326 50% 32%;
-    /* #7c2957 - repurposed to plum but keeping var name */
-    --admin-gold-dim: 326 40% 40%;
-    --admin-gold-glow: 326 50% 32%;
-
-    /* Typography */
-    --admin-text: 220 10% 10%;
-    /* #1a1c22 */
-    --admin-muted: 220 5% 40%;
-    /* #62656d */
-
-    /* Status Colors */
-    --admin-danger: 0 84% 60%;
-    --admin-success: 142 71% 45%;
-    --admin-info: 214 95% 55%;
-
-    /* Mappings to Tailwind Standard Vars */
-    --background: var(--admin-bg);
-    --foreground: var(--admin-text);
-    --card: var(--admin-card);
-    --card-foreground: var(--admin-text);
-    --popover: var(--admin-card);
-    --popover-foreground: var(--admin-text);
-    --primary: var(--admin-gold);
-    --primary-foreground: 0 0% 100%;
-    --secondary: var(--admin-surface);
-    --secondary-foreground: var(--admin-text);
-    --muted: var(--admin-surface);
-    --muted-foreground: var(--admin-muted);
-    --accent: var(--admin-surface);
-    --accent-foreground: var(--admin-gold);
-    --destructive: var(--admin-danger);
-    --destructive-foreground: 0 0% 100%;
-    --border: var(--admin-border);
-    --input: var(--admin-border);
-    --ring: var(--admin-gold);
-
-    /* Grain Texture */
-    --admin-grain: none;
-  }
-
-  /* Ignore global dark mode for admin panel to keep it light 
-     Or alternatively redefine a dark variant if needed, but for now force light */
-  .dark .admin-theme,
-  .admin-theme.dark {
-    /* Force same light theme for consistency from Auth page to Dashboard */
-    --admin-bg: 0 0% 98%;
-    --admin-surface: 0 0% 95%;
-    --admin-card: 0 0% 100%;
-    --admin-border: 0 0% 90%;
-    --admin-text: 220 10% 10%;
-    --admin-muted: 220 5% 40%;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 220 10% 10%;
-    --sidebar-primary: 326 50% 32%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 95%;
-    --sidebar-accent-foreground: 326 50% 32%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 326 50% 32%;
-  }
 }
 
 @layer utilities {
@@ -434,4 +424,84 @@
     background-image: linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px);
     background-size: 100px 100px;
   }
+}
+
+/* ===================================
+   STRATEGIC INTELLIGENCE — GLOBAL PATTERNS
+   =================================== */
+
+/* User-requested scrollPulse animation */
+@keyframes scrollPulse {
+
+  0%,
+  100% {
+    width: 36px;
+    opacity: 0.28;
+  }
+
+  50% {
+    width: 52px;
+    opacity: 0.6;
+  }
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Eyebrow label pattern (crimson dot + uppercase) */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--site-crimson);
+}
+
+.eyebrow::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--site-crimson);
+}
+
+/* Nav link hover underline */
+.nav-link-hover {
+  position: relative;
+}
+
+.nav-link-hover::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--site-crimson);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.nav-link-hover:hover::after {
+  transform: scaleX(1);
+}
+
+/* Italic crimson emphasis */
+em,
+.text-crimson-italic {
+  color: var(--site-crimson);
+  font-style: italic;
 }

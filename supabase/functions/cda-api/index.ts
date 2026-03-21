@@ -1,16 +1,23 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+    buildCorsHeaders,
+    handlePreflight,
+    checkRateLimit,
+    getClientId,
+    rateLimitResponse,
+} from "../_lib/security.ts";
 
-const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const RATE_OPTS = { bucket: "cda-api", max: 30, windowMs: 60_000 };
 
 serve(async (req) => {
-    // Handle CORS preflight
-    if (req.method === 'OPTIONS') {
-        return new Response('ok', { headers: corsHeaders });
-    }
+    const preflight = handlePreflight(req);
+    if (preflight) return preflight;
+
+    // Persistent rate limiting (KV-backed)
+    const clientId = getClientId(req);
+    const rl = await checkRateLimit(req, clientId, RATE_OPTS);
+    if (rl.limited) return rateLimitResponse(req, rl);
 
     try {
         const url = new URL(req.url);
@@ -42,7 +49,7 @@ serve(async (req) => {
             const deleted = await cache.delete(cacheKey);
             return new Response(
                 JSON.stringify({ success: true, message: `Cache invalidated for ${cachePattern}`, deleted }),
-                { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                { headers: { ...buildCorsHeaders(req), 'Content-Type': 'application/json' } }
             );
         }
 
@@ -53,7 +60,7 @@ serve(async (req) => {
             const data = await cachedResponse.json();
             return new Response(
                 JSON.stringify({ ...data, source: 'cache' }),
-                { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                { headers: { ...buildCorsHeaders(req), 'Content-Type': 'application/json' } }
             );
         }
 
@@ -125,14 +132,15 @@ serve(async (req) => {
 
         return new Response(
             JSON.stringify({ data: resultData, source: 'db' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { headers: { ...buildCorsHeaders(req), 'Content-Type': 'application/json' } }
         );
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error in CDA API:', error);
+        const msg = error instanceof Error ? error.message : 'Unknown error';
         return new Response(
-            JSON.stringify({ error: error.message }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            JSON.stringify({ error: msg }),
+            { status: 400, headers: { ...buildCorsHeaders(req), 'Content-Type': 'application/json' } }
         );
     }
 });

@@ -102,15 +102,15 @@ const AdjectiveSelection = ({ sessionId, onComplete }: AdjectiveSelectionProps) 
                 relative py-3 px-3 text-sm font-light tracking-wide border
                 transition-all duration-300 overflow-hidden text-center
                 ${isActive
-                  ? "border-amber-400/60 text-white"
-                  : "border-white/10 text-white/50 hover:border-white/25 hover:text-white/75"
+                  ? "border-site-crimson/60 text-site-text"
+                  : "border-site-border text-site-text-muted hover:border-site-crimson/50 hover:text-site-text"
                 }
               `}
             >
-              {/* Amber ink-bleed background on select */}
+              {/* Gold ink-bleed background on select */}
               {isActive && (
                 <motion.div
-                  className="absolute inset-0 bg-amber-400/10"
+                  className="absolute inset-0 bg-site-crimson/10"
                   initial={{ scale: 0, borderRadius: "50%" }}
                   animate={{ scale: 3, borderRadius: "0%" }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
@@ -122,7 +122,7 @@ const AdjectiveSelection = ({ sessionId, onComplete }: AdjectiveSelectionProps) 
                 <motion.div
                   initial={{ scaleY: 0 }}
                   animate={{ scaleY: 1 }}
-                  className="absolute left-0 top-0 bottom-0 w-[2px] bg-amber-400 origin-center"
+                  className="absolute left-0 top-0 bottom-0 w-[2px] bg-site-crimson origin-center"
                 />
               )}
               <span className="relative z-10">{adj}</span>
@@ -148,11 +148,11 @@ const AdjectiveSelection = ({ sessionId, onComplete }: AdjectiveSelectionProps) 
                 key={adj}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="font-serif-display text-sm italic text-amber-200/80"
+                className="font-serif-display text-sm italic text-site-crimson/80"
               >
                 {adj}
                 {selected.indexOf(adj) < selected.length - 1 && (
-                  <span className="text-white/20 mx-1">·</span>
+                  <span className="text-site-text-meta mx-1">·</span>
                 )}
               </motion.span>
             ))}
@@ -180,15 +180,15 @@ const AdjectiveSelection = ({ sessionId, onComplete }: AdjectiveSelectionProps) 
         />
       </motion.div>
 
-      {/* CTA — warm cream */}
+      {/* CTA — luxury gold */}
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
         onClick={handleSubmit}
         disabled={selected.length < 3 && !freeText}
-        className="px-12 py-4 bg-white/90 text-[#0D0A08] text-xs font-medium tracking-[0.2em] uppercase
-          hover:bg-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        className="px-12 py-4 bg-site-crimson text-site-bg text-xs font-medium tracking-[0.2em] uppercase
+          hover:bg-site-crimson/90 transition-colors rounded-none disabled:opacity-30 disabled:cursor-not-allowed"
       >
         {t("adjective_continue")}
       </motion.button>

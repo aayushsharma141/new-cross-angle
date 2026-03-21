@@ -5,16 +5,12 @@ import { Button } from "@/components/ui/button";
 import logoIcon from "@/assets/logo-icon.png";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { services } from "@/config/site-content";
-
-import { servicesMenu, navLinks } from "@/config/navigation";
-
+import { navLinks } from "@/config/navigation";
 import { SpotlightNavContainer } from "@/components/ui/spotlight-navbar";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -79,8 +75,6 @@ const Navbar = () => {
                 key={link.name}
                 data-index={index}
                 className="relative flex items-center justify-center px-2"
-                onMouseEnter={() => link.hasMegaMenu && setIsMegaMenuOpen(true)}
-                onMouseLeave={() => link.hasMegaMenu && setIsMegaMenuOpen(false)}
               >
                 <Link
                   to={link.href}
@@ -95,157 +89,10 @@ const Navbar = () => {
                   {link.hasMegaMenu && (
                     <ChevronDown className={cn(
                       "w-4 h-4 transition-transform duration-300",
-                      isMegaMenuOpen && "rotate-180"
                     )} />
                   )}
-                  <span className={cn(
-                    "absolute -bottom-0 left-0 h-0.5 bg-primary transition-all duration-300 rounded-full",
-                    location.pathname === link.href ? 'w-full' : 'w-0 group-hover:w-full'
-                  )} />
+
                 </Link>
-
-                {/* Mega Menu positioned under Services link */}
-                {link.hasMegaMenu && (
-                  <AnimatePresence>
-                    {isMegaMenuOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.98 }}
-                        transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-                        className="absolute left-1/2 -translate-x-1/2 z-50 pt-4"
-                      >
-                        {/* Invisible bridge to prevent gap issue */}
-                        <div className="absolute -top-8 left-0 right-0 h-8" />
-
-                        <div className="bg-background backdrop-blur-xl rounded-2xl shadow-2xl border border-border p-8 min-w-[720px] relative overflow-hidden">
-                          {/* Solid background overlay */}
-                          <div className="absolute inset-0 bg-background" />
-                          {/* Subtle gradient overlay for depth */}
-                          <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.03] to-transparent pointer-events-none" />
-
-                          <div className="grid grid-cols-3 gap-8 relative z-10">
-                            {/* Residential */}
-                            <div>
-                              <h4 className="font-semibold mb-4 text-xs uppercase tracking-widest text-primary flex items-center gap-2">
-                                <span className="w-6 h-px bg-primary/50" />
-                                Residential
-                              </h4>
-                              <ul className="space-y-1">
-                                {servicesMenu.residential.map((item) => (
-                                  <li key={item.name}>
-                                    <Link
-                                      to={item.href}
-                                      className="group/item flex items-start gap-3 p-3 rounded-xl hover:bg-accent transition-all duration-300"
-                                      onClick={() => setIsMegaMenuOpen(false)}
-                                    >
-                                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover/item:bg-primary group-hover/item:scale-110 transition-all duration-300">
-                                        <item.icon className="w-4 h-4 text-primary group-hover/item:text-primary-foreground transition-colors" />
-                                      </div>
-                                      <div>
-                                        <span className="text-foreground font-medium text-sm block group-hover/item:text-primary transition-colors">
-                                          {item.name}
-                                        </span>
-                                        <span className="text-muted-foreground text-xs">
-                                          {item.description}
-                                        </span>
-                                      </div>
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-
-                            {/* Commercial */}
-                            <div>
-                              <h4 className="font-semibold mb-4 text-xs uppercase tracking-widest text-primary flex items-center gap-2">
-                                <span className="w-6 h-px bg-primary/50" />
-                                Commercial
-                              </h4>
-                              <ul className="space-y-1">
-                                {servicesMenu.commercial.map((item) => (
-                                  <li key={item.name}>
-                                    <Link
-                                      to={item.href}
-                                      className="group/item flex items-start gap-3 p-3 rounded-xl hover:bg-accent transition-all duration-300"
-                                      onClick={() => setIsMegaMenuOpen(false)}
-                                    >
-                                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover/item:bg-primary group-hover/item:scale-110 transition-all duration-300">
-                                        <item.icon className="w-4 h-4 text-primary group-hover/item:text-primary-foreground transition-colors" />
-                                      </div>
-                                      <div>
-                                        <span className="text-foreground font-medium text-sm block group-hover/item:text-primary transition-colors">
-                                          {item.name}
-                                        </span>
-                                        <span className="text-muted-foreground text-xs">
-                                          {item.description}
-                                        </span>
-                                      </div>
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-
-                            {/* Specialized */}
-                            <div>
-                              <h4 className="font-semibold mb-4 text-xs uppercase tracking-widest text-primary flex items-center gap-2">
-                                <span className="w-6 h-px bg-primary/50" />
-                                Specialized
-                              </h4>
-                              <ul className="space-y-1">
-                                {servicesMenu.specialized.map((item) => (
-                                  <li key={item.name}>
-                                    <Link
-                                      to={item.href}
-                                      className="group/item flex items-start gap-3 p-3 rounded-xl hover:bg-accent transition-all duration-300"
-                                      onClick={() => setIsMegaMenuOpen(false)}
-                                    >
-                                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover/item:bg-primary group-hover/item:scale-110 transition-all duration-300">
-                                        <item.icon className="w-4 h-4 text-primary group-hover/item:text-primary-foreground transition-colors" />
-                                      </div>
-                                      <div className="flex-1">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-foreground font-medium text-sm group-hover/item:text-primary transition-colors">
-                                            {item.name}
-                                          </span>
-                                          {item.badge && (
-                                            <span className="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full font-medium border border-primary/20">
-                                              {item.badge}
-                                            </span>
-                                          )}
-                                        </div>
-                                        <span className="text-muted-foreground text-xs">
-                                          {item.description}
-                                        </span>
-                                      </div>
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-
-                          {/* CTA in Mega Menu */}
-                          <div className="mt-8 pt-6 border-t border-border flex items-center justify-between relative z-10">
-                            <p className="text-sm text-muted-foreground">
-                              Planning your budget? Get a quick cost estimate.
-                            </p>
-                            <Link to="/estimate" onClick={() => setIsMegaMenuOpen(false)}>
-                              <Button
-                                size="sm"
-                                className="shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all gap-2"
-                              >
-                                <Calculator className="w-4 h-4" />
-                                Get Free Estimate
-                              </Button>
-                            </Link>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                )}
               </div>
             ))}
           </SpotlightNavContainer>

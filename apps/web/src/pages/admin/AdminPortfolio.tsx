@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef, JSX } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { projectRepo } from "@/repositories";
 import { PortfolioFormDialog } from "@/components/admin/portfolio/PortfolioFormDialog";
 import { Button } from "@/design-system/components/Button";
 import { Input } from "@/design-system/components/Input";
@@ -32,14 +32,8 @@ import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
-import type { Database } from "@/integrations/supabase/types";
-
-export type Project = Database["public"]["Tables"]["projects"]["Row"];
-export type Category = Database["public"]["Tables"]["project_categories"]["Row"];
-
-export interface ProjectWithCategory extends Project {
-  project_categories: { name: string } | null;
-}
+import type { ProjectWithCategory } from "@/repositories";
+export type { Project, Category, ProjectWithCategory } from "@/repositories";
 
 export default function AdminPortfolio(): JSX.Element {
   const [searchParams] = useSearchParams();
@@ -62,28 +56,12 @@ export default function AdminPortfolio(): JSX.Element {
   // Fetch Categories for Filter
   const { data: categories = [] } = useQuery({
     queryKey: ["project_categories"],
-    queryFn: async (): Promise<Pick<Category, "id" | "name">[]> => {
-      const { data, error } = await supabase
-        .from("project_categories")
-        .select("id, name")
-        .order("display_order");
-      if (error) throw error;
-      return data || [];
-    },
+    queryFn: () => projectRepo.getCategories(),
   });
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ["projects"],
-    queryFn: async (): Promise<ProjectWithCategory[]> => {
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*, project_categories(name)")
-        .order("display_order", { ascending: true })
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return (data as unknown as ProjectWithCategory[]) || [];
-    },
+    queryFn: () => projectRepo.getProjects(),
   });
 
   // Deep-link from command palette: ?edit=<slug>
@@ -119,40 +97,30 @@ export default function AdminPortfolio(): JSX.Element {
     if (!confirm(`Are you sure you want to delete ${selectedIds.size} projects?`)) return;
 
     setIsBulkUpdating(true);
-    const { error } = await supabase
-      .from('projects')
-      .delete()
-      .in('id', Array.from(selectedIds));
-
-    if (error) {
-      toast({ title: "Error deleting projects", description: error.message, variant: "destructive" });
-    } else {
+    try {
+      await Promise.all(Array.from(selectedIds).map((id) => projectRepo.deleteProject(id)));
       toast({ title: "Projects deleted", description: `Successfully deleted ${selectedIds.size} projects.` });
       setSelectedIds(new Set());
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      void queryClient.invalidateQueries({ queryKey: ["projects"] });
+    } catch (err) {
+      toast({ title: "Error deleting projects", description: (err as Error).message, variant: "destructive" });
+    } finally {
+      setIsBulkUpdating(false);
     }
-    setIsBulkUpdating(false);
   };
 
   const handleBulkStatusUpdate = async (status: 'live' | 'draft') => {
     setIsBulkUpdating(true);
-    const updates = Array.from(selectedIds).map(id => ({
-      id,
-      status
-    }));
-
-    const { error } = await supabase
-      .from('projects')
-      .upsert(updates as { id: string; status: 'live' | 'draft' }[]);
-
-    if (error) {
-      toast({ title: "Error updating projects", description: error.message, variant: "destructive" });
-    } else {
+    try {
+      await projectRepo.bulkUpdateStatus(Array.from(selectedIds), status);
       toast({ title: "Projects updated", description: `Successfully marked ${selectedIds.size} projects as ${status === 'live' ? 'published' : 'draft'}.` });
       setSelectedIds(new Set());
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      void queryClient.invalidateQueries({ queryKey: ["projects"] });
+    } catch (err) {
+      toast({ title: "Error updating projects", description: (err as Error).message, variant: "destructive" });
+    } finally {
+      setIsBulkUpdating(false);
     }
-    setIsBulkUpdating(false);
   };
 
   const filteredProjects = useMemo(() => {
@@ -174,12 +142,9 @@ export default function AdminPortfolio(): JSX.Element {
   }, [projects, search, categoryFilter, statusFilter]);
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("projects").delete().eq("id", id);
-      if (error) throw error;
-    },
+    mutationFn: (id: string) => projectRepo.deleteProject(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      void queryClient.invalidateQueries({ queryKey: ["projects"] });
       toast({ title: "Project Deleted", description: "Project has been removed." });
       setDeleteId(null);
     },
@@ -199,33 +164,37 @@ export default function AdminPortfolio(): JSX.Element {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-8 py-4 animate-in fade-in duration-700">
       <AdminBreadcrumb items={[{ label: 'Portfolio' }]} />
-      <PageHeader
-        title="Portfolio"
-        description="Manage your project showcase."
-      >
-        <Button onClick={handleCreate} variant="primary">
-          <Plus className={`${icons.sm} mr-2`} /> Add Project
-        </Button>
-      </PageHeader>
 
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white/5 border border-white/10 backdrop-blur-sm p-4 rounded-lg">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-serif text-white tracking-tight">Portfolio</h1>
+          <p className="text-sm text-zinc-500 font-sans max-w-sm">Manage your collective project showcase and narrative.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button onClick={handleCreate} variant="primary" className="rounded-xl shadow-lg shadow-primary/20">
+            <Plus className={`${icons.sm} mr-2`} /> Add Project
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-zinc-900/40 border border-zinc-800/50 backdrop-blur-md p-4 rounded-2xl">
         <div className="flex flex-1 w-full gap-4 items-center flex-wrap">
           <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search className={`absolute left-2.5 top-2.5 ${icons.sm} text-[hsl(var(--admin-muted))]`} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
             <Input
               placeholder="Search projects..."
-              className="pl-9 bg-white/5 border-white/10 text-[hsl(var(--admin-foreground))] placeholder:text-[hsl(var(--admin-muted))]"
+              className="pl-10 bg-black/40 border-zinc-700/50 focus:border-primary/50 transition-all rounded-xl"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-[180px] bg-white/5 border-white/10 text-[hsl(var(--admin-foreground))]">
+            <SelectTrigger className="w-[180px] bg-black/40 border-zinc-700/50 rounded-xl h-10 text-zinc-300">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-zinc-900 border-zinc-800">
               <SelectItem value="All">All Categories</SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat.id} value={cat.id}>
@@ -240,10 +209,10 @@ export default function AdminPortfolio(): JSX.Element {
             onValueChange={setStatusFilter}
             className="w-[300px]"
           >
-            <TabsList className="grid w-full grid-cols-3 bg-white/5">
-              <TabsTrigger value="all" className="data-[state=active]:bg-white/10 data-[state=active]:text-[hsl(var(--admin-foreground))]">All</TabsTrigger>
-              <TabsTrigger value="published" className="data-[state=active]:bg-white/10 data-[state=active]:text-[hsl(var(--admin-foreground))]">Published</TabsTrigger>
-              <TabsTrigger value="draft" className="data-[state=active]:bg-white/10 data-[state=active]:text-[hsl(var(--admin-foreground))]">Drafts</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 bg-black/40 border border-zinc-700/50 rounded-xl p-1">
+              <TabsTrigger value="all" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-lg transition-all">All</TabsTrigger>
+              <TabsTrigger value="published" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-lg transition-all">Published</TabsTrigger>
+              <TabsTrigger value="draft" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-lg transition-all">Drafts</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -252,10 +221,10 @@ export default function AdminPortfolio(): JSX.Element {
       {isLoading ? (
         <LoadingState text="Loading projects…" />
       ) : (
-        <div className="rounded-md border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden">
+        <div className="rounded-xl border border-zinc-800/50 bg-zinc-900/30 backdrop-blur-md overflow-hidden shadow-2xl">
           <Table>
-            <TableHeader className="bg-white/5 border-b border-white/10">
-              <TableRow className="border-white/10 hover:bg-transparent text-[hsl(var(--admin-muted))]">
+            <TableHeader className="bg-zinc-900/50 border-b border-zinc-800">
+              <TableRow className="border-zinc-800 hover:bg-transparent text-zinc-500">
                 <TableHead className="w-[40px]">
                   <Checkbox
                     checked={selectedIds.size === filteredProjects.length && filteredProjects.length > 0}
@@ -291,15 +260,16 @@ export default function AdminPortfolio(): JSX.Element {
                 </TableRow>
               ) : (
                 filteredProjects.map((item) => (
-                  <TableRow key={item.id} className="border-white/10 hover:bg-white/5 transition-colors">
+                  <TableRow key={item.id} className="border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
                     <TableCell>
                       <Checkbox
                         checked={selectedIds.has(item.id)}
                         onCheckedChange={() => toggleSelect(item.id)}
+                        className="border-zinc-700 data-[state=checked]:bg-primary data-[state=checked]:text-white rounded-md transition-all"
                       />
                     </TableCell>
                     <TableCell>
-                      <div className="w-12 h-12 rounded overflow-hidden relative border border-white/10 bg-black/20">
+                      <div className="w-12 h-12 rounded overflow-hidden relative border border-zinc-800 bg-black/40">
                         {item.cover_image_url ? (
                           <img
                             src={item.cover_image_url}
@@ -308,27 +278,27 @@ export default function AdminPortfolio(): JSX.Element {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <ImageIcon className={`${icons.sm} text-white/30`} />
+                            <ImageIcon className={`${icons.sm} text-zinc-700`} />
                           </div>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
-                        <span className="font-medium text-[hsl(var(--admin-foreground))]">{item.title}</span>
+                        <span className="font-bold text-zinc-200 tracking-tight">{item.title}</span>
                         {item.client_name && (
-                          <span className="text-xs text-[hsl(var(--admin-muted))]">
+                          <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-medium">
                             {item.client_name}
                           </span>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="capitalize bg-black/20 border-white/10 text-[hsl(var(--admin-foreground))]">
+                      <Badge variant="outline" className="capitalize bg-zinc-800/50 border-zinc-700 text-zinc-400 font-bold text-[10px]">
                         {item.project_categories?.name || "Uncategorized"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-[hsl(var(--admin-foreground))]">
+                    <TableCell className="text-zinc-300 font-medium">
                       {item.year_completed || "N/A"}
                     </TableCell>
                     <TableCell>
@@ -336,11 +306,11 @@ export default function AdminPortfolio(): JSX.Element {
                     </TableCell>
                     <TableCell>
                       {item.featured ? (
-                        <Badge variant="outline" className="bg-yellow-500/10 text-yellow-400 border-yellow-500/20">
-                          <Star className={`${icons.xs} mr-1 fill-yellow-400`} /> Featured
+                        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-bold text-[10px] uppercase tracking-widest">
+                          <Star className={`${icons.xs} mr-1.5 fill-primary`} /> Featured
                         </Badge>
                       ) : (
-                        <span className="text-[hsl(var(--admin-muted))] text-xs">-</span>
+                        <span className="text-zinc-700 text-xs">-</span>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
@@ -349,7 +319,7 @@ export default function AdminPortfolio(): JSX.Element {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEdit(item)}
-                          className="hover:bg-white/10 text-[hsl(var(--admin-foreground))]"
+                          className="hover:bg-primary/10 text-zinc-400 hover:text-primary transition-colors"
                         >
                           <Pencil className={icons.sm} />
                         </Button>
@@ -357,7 +327,7 @@ export default function AdminPortfolio(): JSX.Element {
                           variant="ghost"
                           size="icon"
                           onClick={() => setDeleteId(item.id)}
-                          className="hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors"
+                          className="hover:bg-red-500/10 text-zinc-600 hover:text-red-500 transition-colors"
                         >
                           <Trash2 className={icons.sm} />
                         </Button>
@@ -395,8 +365,8 @@ export default function AdminPortfolio(): JSX.Element {
         <PortfolioFormDialog
           open={isFormOpen}
           onOpenChange={setIsFormOpen}
-          editingItem={editingItem}
-          categories={categories}
+          initialData={editingItem}
+          onSuccess={() => queryClient.invalidateQueries({ queryKey: ["projects"] })}
         />
       )}
 

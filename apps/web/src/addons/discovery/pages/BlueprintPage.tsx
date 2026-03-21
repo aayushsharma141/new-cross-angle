@@ -39,14 +39,14 @@ export default function BlueprintPage() {
               cursor.style.height = '6px';
               ring.style.width = '56px';
               ring.style.height = '56px';
-              ring.style.borderColor = 'rgba(200,65,42,0.8)';
+              ring.style.borderColor = 'rgba(227, 83, 54,0.8)';
             });
             el.addEventListener('mouseleave', () => {
               cursor.style.width = '10px';
               cursor.style.height = '10px';
               ring.style.width = '36px';
               ring.style.height = '36px';
-              ring.style.borderColor = 'rgba(200,65,42,0.5)';
+              ring.style.borderColor = 'rgba(227, 83, 54,0.5)';
             });
           });
 
@@ -98,13 +98,13 @@ export default function BlueprintPage() {
         // ── BENTO TILT ───────────────────────────────────────
         document.querySelectorAll('.bento').forEach((card) => {
           const htmlCard = card as HTMLElement;
-          card.addEventListener('mousemove', (e: MouseEvent) => {
-            const r = card.getBoundingClientRect();
+          htmlCard.addEventListener('mousemove', (e: MouseEvent) => {
+            const r = htmlCard.getBoundingClientRect();
             const x = (e.clientX - r.left) / r.width - 0.5;
             const y = (e.clientY - r.top) / r.height - 0.5;
             htmlCard.style.transform = `perspective(600px) rotateX(${-y * 4}deg) rotateY(${x * 4}deg) translateY(-3px)`;
           });
-          card.addEventListener('mouseleave', () => {
+          htmlCard.addEventListener('mouseleave', () => {
             htmlCard.style.transform = '';
           });
         });
@@ -137,12 +137,12 @@ export default function BlueprintPage() {
     <div className="blueprint-page-wrapper bg-[#040404] text-[#E0E0E0] min-h-screen" ref={containerRef}>
 
 
-      
+
       <BlueprintHeader />
       <BlueprintRadar />
       <BlueprintMoodboard />
       <BlueprintInsights />
-</div>
+    </div>
   );
 }
 
@@ -150,7 +150,7 @@ export default function BlueprintPage() {
 function BlueprintHeader() {
   return (
     <>
-{/*  CURSOR  */}
+      {/*  CURSOR  */}
       <div id="cursor"></div>
       <div id="cursor-ring"></div>
       <div id="progress"></div>
@@ -395,7 +395,7 @@ function BlueprintHeader() {
         </div>
       </section>
 
-      
+
     </>
   );
 }
@@ -403,7 +403,7 @@ function BlueprintHeader() {
 function BlueprintRadar() {
   return (
     <>
-{/*  ═══════════ TECH STACK ═══════════  */}
+      {/*  ═══════════ TECH STACK ═══════════  */}
       <section id="techstack">
         <div className="section-eyebrow reveal">02 — Technology Stack</div>
         <h2 className="section-title reveal reveal-delay-1">Chosen <em>Technologies</em><br /><strong>& Rationale</strong></h2>
@@ -516,7 +516,7 @@ function BlueprintRadar() {
         </div>
       </section>
 
-      
+
     </>
   );
 }
@@ -524,7 +524,7 @@ function BlueprintRadar() {
 function BlueprintMoodboard() {
   return (
     <>
-{/*  ═══════════ COMPONENTS ═══════════  */}
+      {/*  ═══════════ COMPONENTS ═══════════  */}
       <section id="components">
         <div className="section-eyebrow reveal">03 — UI Components</div>
         <h2 className="section-title reveal reveal-delay-1">Interface <strong>Component</strong><br /><em>Architecture</em></h2>
@@ -572,7 +572,7 @@ function BlueprintMoodboard() {
               <div className="comp-preview-label">Service Cards — Bento Grid</div>
               <div style={{ "display": "grid", "gridTemplateColumns": "repeat(3,1fr)", "gap": "8px", "width": "85%" }}>
                 <div style={{ "gridColumn": "span 2", "background": "var(--surface2)", "border": "1px solid var(--border)", "padding": "16px", "borderRadius": "2px", "position": "relative", "overflow": "hidden" }}>
-                  <div style={{ "position": "absolute", "inset": "0", "background": "linear-gradient(135deg,rgba(200,65,42,0.06),transparent)" }}></div>
+                  <div style={{ "position": "absolute", "inset": "0", "background": "linear-gradient(135deg,rgba(227, 83, 54,0.06),transparent)" }}></div>
                   <div style={{ "fontSize": "8px", "color": "var(--accent)", "fontFamily": "'DM Mono',monospace", "letterSpacing": "0.15em", "textTransform": "uppercase", "marginBottom": "6px" }}>Living Room</div>
                   <div style={{ "fontFamily": "'Cormorant Garamond',serif", "fontSize": "14px" }}>Residential Design</div>
                   <div style={{ "marginTop": "8px", "height": "32px", "background": "linear-gradient(135deg,var(--dim),var(--surface))", "borderRadius": "2px" }}></div>
@@ -717,7 +717,7 @@ function BlueprintMoodboard() {
         </div>
       </section>
 
-      
+
     </>
   );
 }
@@ -725,7 +725,7 @@ function BlueprintMoodboard() {
 function BlueprintInsights() {
   return (
     <>
-{/*  ═══════════ ANIMATIONS ═══════════  */}
+      {/*  ═══════════ ANIMATIONS ═══════════  */}
       <section id="animations">
         <div className="section-eyebrow reveal">04 — Animation & Interactivity Catalog</div>
         <h2 className="section-title reveal reveal-delay-1"><em>Motion</em> Design<br /><strong>Reference System</strong></h2>
@@ -1106,7 +1106,7 @@ function BlueprintInsights() {
 
 
 
-    
+
     </>
   );
 }

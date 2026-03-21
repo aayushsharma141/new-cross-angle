@@ -32,11 +32,11 @@ const InputNode = ({
 }) => (
   <div
     ref={nodeRef}
-    className="flex items-center gap-2.5 px-4 py-2.5 border border-white/10 bg-white/[0.03]
-      backdrop-blur-sm text-white/60 text-sm font-light tracking-wide hover:border-amber-400/30
-      hover:text-white/80 transition-all duration-300"
+    className="flex items-center gap-2.5 px-4 py-2.5 border border-site-border bg-site-bg-card/50
+      backdrop-blur-sm text-site-text-muted text-sm font-light tracking-wide hover:border-site-crimson/30
+      hover:text-site-text transition-all duration-300"
   >
-    <Icon size={14} className="text-amber-400/60 shrink-0" />
+    <Icon size={14} className="text-site-crimson/60 shrink-0" />
     {label}
   </div>
 );
@@ -106,7 +106,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col w-full overflow-x-hidden bg-[#0D0A08] text-white"
+      className="flex flex-col w-full overflow-x-hidden bg-site-bg text-site-text"
     >
       {/* ── Global Nav ───────────────────────────────────────────── */}
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4">
@@ -152,7 +152,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
           <div className="mb-6">
             <SparklesText
               text={t("welcome_subtitle") || "DESIGN DISCOVERY"}
-              className="text-[11px] font-mono tracking-[0.35em] uppercase text-amber-400/70"
+              className="text-[11px] font-mono tracking-[0.35em] uppercase text-site-crimson/70"
             />
           </div>
 
@@ -181,10 +181,10 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
             <ShimmerButton
               onClick={() => handleStart("deep")}
               background="rgba(255,255,255,0.06)"
-              shimmerColor="rgba(212,168,83,0.6)"
+              shimmerColor="rgba(227, 83, 54,0.6)"
               shimmerDuration="2.5s"
               borderRadius="0px"
-              className="px-12 py-4 text-xs font-medium tracking-[0.25em] uppercase text-white/90 border-white/10"
+              className="px-12 py-4 text-xs font-medium tracking-[0.25em] uppercase text-site-text/90 border-site-border"
             >
               Begin the Journey
             </ShimmerButton>
@@ -223,7 +223,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
             backgroundSize: "28px 28px",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0D0A08] via-transparent to-[#0D0A08] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-site-bg via-transparent to-site-bg pointer-events-none" />
 
         {/* Section label */}
         <motion.div
@@ -260,8 +260,8 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
               curvature={-30 + i * 15}
               delay={i * 0.4}
               duration={2.5 + i * 0.3}
-              gradientStartColor="#F59E0B"
-              gradientStopColor="#FDE68A"
+              gradientStartColor="#E35336"
+              gradientStopColor="#E3C488"
             />
           ))}
           <AnimatedBeam
@@ -284,21 +284,21 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
           {/* Center: YOU node */}
           <div
             ref={centerRef}
-            className="relative z-10 shrink-0 w-24 h-24 border border-amber-400/30 bg-amber-400/[0.04]
-              flex flex-col items-center justify-center gap-1 shadow-[0_0_40px_rgba(212,168,83,0.08)]"
+            className="relative z-10 shrink-0 w-24 h-24 border border-site-crimson/30 bg-site-crimson/[0.04]
+              flex flex-col items-center justify-center gap-1 shadow-[0_0_40px_rgba(227, 83, 54,0.08)]"
           >
-            <span className="text-amber-400/80 text-2xl font-serif-display">✦</span>
-            <span className="text-[9px] font-mono tracking-[0.2em] uppercase text-white/30">You</span>
+            <span className="text-site-crimson/80 text-2xl font-serif-display">✦</span>
+            <span className="text-[9px] font-mono tracking-[0.2em] uppercase text-site-text-meta/30">You</span>
           </div>
 
           {/* Right: Output node */}
           <div
             ref={outputRef}
             className="relative z-10 shrink-0 flex flex-col items-center gap-2 px-6 py-5
-              border border-white/10 bg-white/[0.03]"
+              border border-site-border bg-site-bg-card/50"
           >
-            <span className="text-[9px] font-mono tracking-[0.2em] uppercase text-amber-400/50 mb-1">Result</span>
-            <span className="font-serif-display text-lg text-white/80 text-center leading-tight">Your Style<br />Profile</span>
+            <span className="text-[9px] font-mono tracking-[0.2em] uppercase text-site-crimson/50 mb-1">Result</span>
+            <span className="font-serif-display text-lg text-site-text-heading text-center leading-tight">Your Style<br />Profile</span>
           </div>
         </motion.div>
 
@@ -382,15 +382,15 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
           className="relative z-10 mb-14 flex flex-col items-center gap-3"
         >
           <div
-            className="w-20 h-20 rounded-full border border-amber-400/20 flex items-center justify-center
-              shadow-[0_0_60px_rgba(212,168,83,0.08),inset_0_0_30px_rgba(212,168,83,0.04)]"
+            className="w-20 h-20 rounded-full border border-site-crimson/20 flex items-center justify-center
+              shadow-[0_0_60px_rgba(227, 83, 54,0.08),inset_0_0_30px_rgba(227, 83, 54,0.04)]"
             style={{
-              background: "radial-gradient(circle at 35% 35%, rgba(212,168,83,0.06) 0%, transparent 70%)",
+              background: "radial-gradient(circle at 35% 35%, rgba(227, 83, 54,0.06) 0%, transparent 70%)",
             }}
           >
-            <div className="w-10 h-10 rounded-full border border-amber-400/15"
+            <div className="w-10 h-10 rounded-full border border-site-crimson/15"
               style={{
-                background: "radial-gradient(circle at 35% 35%, rgba(212,168,83,0.04) 0%, transparent 70%)",
+                background: "radial-gradient(circle at 35% 35%, rgba(227, 83, 54,0.04) 0%, transparent 70%)",
               }}
             />
           </div>
@@ -412,10 +412,10 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
             <ShimmerButton
               onClick={() => handleStart("deep")}
               background="rgba(255,255,255,0.90)"
-              shimmerColor="rgba(212,168,83,0.5)"
+              shimmerColor="rgba(227, 83, 54,0.5)"
               shimmerDuration="2s"
               borderRadius="0px"
-              className="px-10 py-4 text-xs font-medium tracking-[0.2em] uppercase text-[#0D0A08]"
+              className="px-10 py-4 text-xs font-medium tracking-[0.2em] uppercase text-site-bg"
             >
               Full Journey · 9 Steps
             </ShimmerButton>

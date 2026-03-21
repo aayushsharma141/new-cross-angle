@@ -1,0 +1,19 @@
+# progress.txt — Cross Angle Interior
+# FORMAT: [YYYY-MM-DD HH:MM] Action: TaskName — Detail
+#
+# RULES FOR AGENTS:
+#   → APPEND ONLY — never delete, never edit past entries
+#   → One entry when you START a task
+#   → One entry when you COMPLETE a task
+#   → One entry if you hit a BLOCKER
+#   → One entry if a task is REVERTED
+#
+# COMPLETION MARKER: When ALL tasks in PRD.md are done,
+# append the Ralph Loop completion marker on its own line.
+# ─────────────────────────────────────────────────────────────
+
+[2026-03-13 00:00] System: Context system initialized — prompt.md, CROSSANGLE.md, .context/ created
+
+# ─────────────────────────────────────────────────────────────
+# TASK LOG — APPEND BELOW
+# ─────────────────────────────────────────────────────────────

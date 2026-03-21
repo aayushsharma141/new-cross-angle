@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Services — CrossAngle Interior</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ─── DESIGN TOKENS ──────────────────────────────────────────────── */
+:root {
+  --red:     #FF2A2A;
+  --red-dim: #8B1A1A;
+  --red-glow:rgba(255,42,42,0.12);
+  --off-white: #EDEDED;
+  --muted:   rgba(237,237,237,0.55);
+  --border:  rgba(237,237,237,0.1);
+  --bg:      #000000;
+  --surface: #0A0A0A;
+  --serif:   'Cormorant Garamond', Georgia, serif;
+  --sans:    'DM Sans', sans-serif;
+  --label:   'Montserrat', sans-serif;
+  --ease:    cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ─── RESET & BASE ────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--off-white);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font-family: var(--label); cursor: pointer; border: none; }
+
+/* ─── SCROLL REVEAL ──────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.85s var(--ease), transform 0.85s var(--ease);
+}
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-d1 { transition-delay: 0.1s; }
+.reveal-d2 { transition-delay: 0.2s; }
+.reveal-d3 { transition-delay: 0.3s; }
+.reveal-d4 { transition-delay: 0.4s; }
+.reveal-d5 { transition-delay: 0.5s; }
+
+/* ─── NAV ─────────────────────────────────────────────────────────── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(20px,5vw,80px); height: 72px;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(18px) saturate(1.4);
+  border-bottom: 1px solid var(--border); transition: background 0.4s;
+}
+.nav-logo {
+  font-family: var(--serif); font-style: italic; font-weight: 400;
+  font-size: clamp(1.15rem,2vw,1.5rem); letter-spacing: -0.01em; color: var(--off-white);
+}
+.nav-logo span { color: var(--red); }
+.nav-links { display: flex; align-items: center; gap: clamp(24px,3vw,44px); list-style: none; }
+.nav-links a {
+  font-family: var(--label); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(237,237,237,0.6); transition: color 0.25s;
+}
+.nav-links a:hover { color: var(--off-white); }
+.nav-links a.active { color: var(--red); }
+.nav-cta {
+  background: var(--red); color: #fff; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase; padding: 12px 28px;
+  transition: transform 0.2s, filter 0.2s;
+}
+.nav-cta:hover { transform: translateY(-1px); filter: brightness(1.1); }
+.nav-burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+.nav-burger span { display: block; width: 24px; height: 1px; background: var(--off-white); transition: 0.3s; }
+
+/* ─── HERO ────────────────────────────────────────────────────────── */
+.hero {
+  position: relative; min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 120px clamp(20px,5vw,80px) 0; overflow: hidden;
+}
+.hero-grid-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.hero-glow {
+  position: absolute; top: 25%; left: 40%;
+  transform: translate(-50%,-50%);
+  width: min(900px,100vw); height: 700px;
+  background: radial-gradient(ellipse, rgba(255,42,42,0.08) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero-inner { position: relative; z-index: 2; max-width: 1400px; margin: 0 auto; width: 100%; }
+.hero-eyebrow {
+  font-family: var(--label); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.3em; text-transform: uppercase; color: var(--red);
+  margin-bottom: 24px; display: flex; align-items: center; gap: 14px;
+}
+.hero-eyebrow::before { content: ''; width: 36px; height: 1px; background: var(--red); flex-shrink: 0; }
+.hero-title {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(3rem, 7.8vw, 8.2rem); line-height: 1.02;
+  letter-spacing: -0.02em; color: var(--off-white);
+  max-width: 20ch; margin-bottom: 36px;
+}
+.hero-title em { font-style: italic; color: var(--red); }
+.word-swap-line {
+  font-family: var(--serif); font-style: italic; font-weight: 300;
+  font-size: clamp(1.1rem,2.6vw,2rem); color: rgba(237,237,237,0.6);
+  border-left: 3px solid var(--red); padding-left: 20px; margin-bottom: 32px;
+  min-height: 2.6em; display: flex; align-items: center; gap: 0.3em; flex-wrap: wrap;
+}
+.swap-slot { position: relative; overflow: hidden; display: inline-block; }
+.swap-slot .sw { display: block; animation: swIn 0.55s var(--ease) both; }
+.swap-slot .sw.out { animation: swOut 0.45s var(--ease) both; }
+@keyframes swIn  { from { opacity:0; transform:translateY(105%); } to { opacity:1; transform:none; } }
+@keyframes swOut { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(-105%); } }
+.swap-word { color: var(--off-white); font-weight: 400; }
+.hero-desc {
+  font-size: clamp(0.95rem,1.4vw,1.12rem); font-weight: 300; line-height: 1.75;
+  color: var(--muted); max-width: 52ch; margin-bottom: 40px;
+}
+.hero-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 40px; }
+.tag {
+  font-family: var(--label); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; border: 1px solid var(--border);
+  padding: 9px 18px; color: var(--muted); transition: border-color 0.3s, color 0.3s;
+}
+.tag:hover { border-color: var(--red); color: var(--red); }
+.hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 64px; }
+.btn-primary {
+  background: var(--red); color: #fff; font-family: var(--label);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 18px 40px; transition: transform 0.25s, filter 0.25s;
+}
+.btn-primary:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.btn-ghost {
+  background: transparent; color: var(--off-white); font-family: var(--label);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 17px 40px; border: 1px solid var(--border); transition: border-color 0.25s;
+}
+.btn-ghost:hover { border-color: rgba(237,237,237,0.5); }
+
+/* Stats strip */
+.hero-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border); border-top: 1px solid var(--border);
+}
+.stat-item { background: var(--bg); padding: 28px 32px; }
+.stat-label {
+  font-family: var(--label); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--red); margin-bottom: 8px;
+}
+.stat-value {
+  font-family: var(--serif); font-style: italic;
+  font-size: clamp(1.4rem,2.5vw,2.2rem); font-weight: 400; color: var(--off-white);
+}
+.scroll-arrow {
+  position: absolute; bottom: 40px; left: clamp(20px,5vw,80px);
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--label); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+  animation: arrowBounce 2.5s ease-in-out infinite;
+}
+.scroll-arrow::before { content: ''; width: 1px; height: 44px; background: linear-gradient(to bottom, var(--red), transparent); }
+@keyframes arrowBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+
+/* ─── MARQUEE ────────────────────────────────────────────────────── */
+.marquee-wrap {
+  overflow: hidden; border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); padding: 16px 0; background: #050505;
+}
+.marquee-track { display: flex; width: max-content; animation: mScroll 32s linear infinite; }
+.marquee-track:hover { animation-play-state: paused; }
+.m-item { display: flex; align-items: center; gap: 24px; padding: 0 24px; white-space: nowrap; }
+.m-text { font-family: var(--serif); font-style: italic; font-size: 1rem; font-weight: 300; color: var(--muted); }
+.m-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+@keyframes mScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ─── SECTION BASE ────────────────────────────────────────────────── */
+.section { padding: clamp(72px,10vw,140px) clamp(20px,5vw,80px); }
+.section-inner { max-width: 1400px; margin: 0 auto; }
+.eyebrow {
+  font-family: var(--label); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.3em; text-transform: uppercase; color: var(--red);
+  margin-bottom: 16px; display: flex; align-items: center; gap: 14px;
+}
+.eyebrow::after { content: ''; width: 40px; height: 1px; background: var(--red); }
+.eyebrow.center { justify-content: center; }
+.eyebrow.center::before { content: ''; width: 40px; height: 1px; background: var(--red); }
+.sec-title {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(2.4rem,5.5vw,5.5rem);
+  line-height: 1.04; letter-spacing: -0.02em; color: var(--off-white);
+}
+.sec-title em { font-style: italic; color: var(--red); }
+.sec-title.center { text-align: center; }
+.sec-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px; margin-bottom: 56px; }
+.sec-desc { font-size: 0.92rem; color: var(--muted); max-width: 34ch; font-weight: 300; line-height: 1.7; text-align: right; }
+
+/* ─── APPROACH ────────────────────────────────────────────────────── */
+.approach-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.approach-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px,6vw,96px); align-items: start; }
+.approach-accent {
+  font-family: var(--serif); font-style: italic; font-size: clamp(1rem,1.8vw,1.3rem);
+  color: var(--red); margin: 16px 0 20px; font-weight: 300;
+}
+.approach-body { font-size: 0.95rem; font-weight: 300; color: var(--muted); line-height: 1.8; max-width: 44ch; margin-bottom: 48px; }
+.pillar {
+  padding: 26px 0; border-bottom: 1px solid var(--border);
+  display: grid; grid-template-columns: 52px 1fr; gap: 20px;
+  transition: padding-left 0.35s var(--ease);
+}
+.pillar:first-of-type { border-top: 1px solid var(--border); }
+.pillar:hover { padding-left: 10px; }
+.p-num { font-family: var(--serif); font-style: italic; font-size: 1.5rem; color: var(--red); line-height: 1; margin-top: 4px; }
+.p-title { font-family: var(--label); font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 8px; }
+.p-text { font-size: 0.88rem; color: var(--muted); line-height: 1.7; font-weight: 300; }
+/* data card */
+.dc {
+  position: relative; background: #0D0D0D; border: 1px solid var(--border);
+  padding: clamp(32px,4vw,56px); overflow: hidden;
+}
+.dc::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(255,42,42,0.09) 0%, transparent 65%);
+}
+.dc-bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; opacity: 0.07; filter: grayscale(1);
+}
+.dc-inner { position: relative; z-index: 2; }
+.dc-label {
+  font-family: var(--label); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--red);
+  border-bottom: 1px solid var(--border); padding-bottom: 18px; margin-bottom: 32px;
+}
+.dc-val { font-family: var(--serif); font-style: italic; font-size: clamp(2.4rem,4.5vw,4.4rem); font-weight: 300; line-height: 1; margin-bottom: 6px; }
+.dc-desc { font-family: var(--label); font-size: 9px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+.dc-rule { width: 40px; height: 2px; background: var(--red); margin: 28px 0; }
+
+/* ─── SERVICE CARDS ───────────────────────────────────────────────── */
+.svc-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+.svc-card { background: var(--surface); border: 1px solid var(--border); overflow: hidden; transition: border-color 0.35s; cursor: pointer; }
+.svc-card:hover { border-color: rgba(255,42,42,0.5); }
+.svc-img { position: relative; aspect-ratio: 3/4; overflow: hidden; }
+.svc-img img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: grayscale(0.75) brightness(0.72);
+  transform: scale(1.04);
+  transition: filter 0.9s var(--ease), transform 0.9s var(--ease);
+}
+.svc-card:hover .svc-img img { filter: grayscale(0) brightness(0.85); transform: scale(1.0); }
+.svc-img-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.86) 0%, transparent 52%); pointer-events: none; }
+.svc-body { padding: 18px 22px 26px; border-top: 1px solid var(--border); }
+.svc-title { font-family: var(--serif); font-style: italic; font-size: 1.45rem; font-weight: 400; margin-bottom: 8px; letter-spacing: -0.01em; }
+.svc-text { font-size: 0.82rem; color: var(--muted); line-height: 1.65; font-weight: 300; margin-bottom: 14px; }
+.svc-link {
+  font-family: var(--label); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--red);
+  display: flex; align-items: center; gap: 8px; transition: gap 0.25s;
+}
+.svc-card:hover .svc-link { gap: 14px; }
+.svc-link::after { content: '→'; }
+
+/* ─── COMMERCIAL ──────────────────────────────────────────────────── */
+.comm-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: var(--border); border: 1px solid var(--border);
+  margin-top: 56px;
+}
+.comm-card {
+  background: var(--bg); padding: clamp(28px,3vw,52px);
+  position: relative; overflow: hidden; transition: background 0.3s;
+}
+.comm-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 2px; background: var(--red);
+  transform: scaleY(0); transform-origin: bottom; transition: transform 0.4s var(--ease);
+}
+.comm-card:hover::before { transform: scaleY(1); }
+.comm-card:hover { background: #0D0D0D; }
+.comm-icon { font-size: 2.5rem; margin-bottom: 24px; filter: grayscale(1) brightness(0.55); transition: filter 0.3s; }
+.comm-card:hover .comm-icon { filter: none; }
+.comm-title { font-family: var(--serif); font-style: italic; font-size: 2rem; font-weight: 400; margin-bottom: 14px; }
+.comm-text { font-size: 0.88rem; color: var(--muted); line-height: 1.75; font-weight: 300; }
+
+/* ─── SPECIALIZED ────────────────────────────────────────────────── */
+.spec-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.spec-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; margin-top: 52px; }
+.spec-card {
+  border: 1px solid var(--border); padding: clamp(28px,3.5vw,50px);
+  background: var(--bg); transition: border-color 0.3s, background 0.3s;
+  position: relative; overflow: hidden;
+}
+.spec-card:hover { border-color: rgba(255,42,42,0.35); background: #050505; }
+.spec-glow {
+  position: absolute; top: -40px; right: -40px; width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(255,42,42,0.07) 0%, transparent 70%);
+  opacity: 0; transition: opacity 0.4s;
+}
+.spec-card:hover .spec-glow { opacity: 1; }
+.spec-ico { font-size: 2.6rem; margin-bottom: 22px; }
+.spec-title { font-family: var(--serif); font-style: italic; font-size: 1.75rem; font-weight: 400; margin-bottom: 12px; }
+.spec-text { font-size: 0.87rem; color: var(--muted); line-height: 1.7; font-weight: 300; }
+
+/* ─── WHY US ──────────────────────────────────────────────────────── */
+.why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px,7vw,96px); align-items: center; }
+.why-feats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0; border: 1px solid var(--border); margin-top: 40px;
+}
+.feat {
+  padding: 26px 22px; border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); transition: background 0.3s;
+}
+.feat:nth-child(even) { border-right: none; }
+.feat:nth-last-child(-n+2) { border-bottom: none; }
+.feat:hover { background: #0A0A0A; }
+.feat-ico { font-size: 1.2rem; margin-bottom: 10px; }
+.feat-name { font-family: var(--label); font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; }
+.feat-text { font-size: 0.78rem; color: var(--muted); line-height: 1.6; font-weight: 300; }
+.why-vis { position: relative; }
+.why-img { border: 1px solid var(--border); overflow: hidden; position: relative; }
+.why-img img { width: 100%; aspect-ratio: 4/5; object-fit: cover; filter: grayscale(0.6) brightness(0.7); transition: filter 1.2s var(--ease), transform 1.2s var(--ease); }
+.why-img:hover img { filter: grayscale(0.1) brightness(0.85); transform: scale(1.03); }
+.why-badge {
+  position: absolute; bottom: -22px; right: -22px;
+  background: var(--red); padding: clamp(18px,3vw,36px); text-align: center; min-width: 130px;
+  box-shadow: 0 20px 60px rgba(255,42,42,0.35); z-index: 2;
+}
+.why-badge-num { font-family: var(--serif); font-style: italic; font-size: clamp(1.8rem,4vw,3.2rem); font-weight: 300; color: #fff; line-height: 1; margin-bottom: 5px; }
+.why-badge-lbl { font-family: var(--label); font-size: 8px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.85); }
+.why-extra { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 52px; }
+.we-s { background: var(--bg); padding: 22px 26px; }
+.we-s-num { font-family: var(--serif); font-style: italic; font-size: 2rem; font-weight: 300; margin-bottom: 5px; }
+.we-s-lbl { font-family: var(--label); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+
+/* ─── PROCESS ────────────────────────────────────────────────────── */
+.process-section { background: #030303; border-top: 1px solid var(--border); }
+.process-inner { max-width: 780px; margin: 0 auto; }
+.steps { margin-top: 60px; position: relative; }
+.steps-line { position: absolute; left: 22px; top: 0; bottom: 0; width: 1px; background: var(--border); }
+.steps-fill { width: 100%; background: var(--red); height: 0; transition: height 1.8s var(--ease); }
+.step { position: relative; padding: 0 0 60px 76px; }
+.step:last-child { padding-bottom: 0; }
+.step-dot {
+  position: absolute; left: 16px; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--bg); border: 1.5px solid var(--red); z-index: 2;
+  transition: background 0.35s, box-shadow 0.35s;
+}
+.step:hover .step-dot { background: var(--red); box-shadow: 0 0 16px rgba(255,42,42,0.5); }
+.step-ghost {
+  font-family: var(--serif); font-style: italic;
+  font-size: clamp(4.5rem,9vw,7.5rem); font-weight: 300;
+  color: rgba(237,237,237,0.03); position: absolute; right: -10px; top: -22px;
+  line-height: 1; pointer-events: none; transition: color 0.35s; user-select: none;
+}
+.step:hover .step-ghost { color: rgba(255,42,42,0.05); }
+.step-lbl { font-family: var(--label); font-size: 8px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--red); margin-bottom: 7px; }
+.step-title { font-family: var(--serif); font-style: italic; font-size: clamp(1.5rem,3vw,2.3rem); font-weight: 400; margin-bottom: 12px; }
+.step-text { font-size: 0.93rem; color: var(--muted); line-height: 1.75; max-width: 46ch; font-weight: 300; }
+
+/* ─── CTA ─────────────────────────────────────────────────────────── */
+.cta-section {
+  position: relative; padding: clamp(80px,12vw,160px) clamp(20px,5vw,80px);
+  overflow: hidden; background: var(--red); text-align: center;
+}
+.cta-section::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.cta-inner { position: relative; z-index: 2; }
+.cta-eye { font-family: var(--label); font-size: 9px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 20px; }
+.cta-title { font-family: var(--serif); font-weight: 300; font-size: clamp(3rem,8vw,8rem); line-height: 1.02; color: #fff; letter-spacing: -0.02em; margin-bottom: 22px; }
+.cta-desc { font-size: 1.05rem; font-weight: 300; color: rgba(255,255,255,0.8); margin: 0 auto 44px; max-width: 40ch; line-height: 1.7; }
+.cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+.btn-white { background: #fff; color: var(--red); font-family: var(--label); font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 18px 44px; transition: transform 0.25s; }
+.btn-white:hover { transform: translateY(-2px); }
+.btn-wa { background: transparent; color: #fff; font-family: var(--label); font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; padding: 17px 44px; border: 1px solid rgba(255,255,255,0.5); display: flex; align-items: center; gap: 10px; transition: border-color 0.25s; }
+.btn-wa:hover { border-color: #fff; }
+.cta-note { font-size: 0.8rem; color: rgba(255,255,255,0.55); font-weight: 300; font-style: italic; }
+
+/* ─── FOOTER ─────────────────────────────────────────────────────── */
+.footer { background: var(--bg); border-top: 1px solid var(--border); padding: clamp(60px,8vw,100px) clamp(20px,5vw,80px) 40px; }
+.footer-inner { max-width: 1400px; margin: 0 auto; }
+.footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: clamp(32px,5vw,60px); padding-bottom: 52px; border-bottom: 1px solid var(--border); margin-bottom: 36px; }
+.f-logo { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 2rem; color: var(--off-white); margin-bottom: 14px; letter-spacing: -0.02em; }
+.f-logo span { color: var(--red); }
+.f-desc { font-size: 0.84rem; color: var(--muted); line-height: 1.8; font-weight: 300; max-width: 28ch; }
+.f-social { display: flex; gap: 10px; margin-top: 22px; }
+.f-soc { width: 34px; height: 34px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; color: var(--muted); transition: border-color 0.25s, color 0.25s; cursor: pointer; }
+.f-soc:hover { border-color: var(--red); color: var(--red); }
+.f-col-title { font-family: var(--serif); font-style: italic; font-size: 1.2rem; color: var(--off-white); margin-bottom: 22px; }
+.f-links { display: flex; flex-direction: column; gap: 10px; list-style: none; }
+.f-links a { font-size: 0.83rem; color: var(--muted); font-weight: 300; transition: color 0.25s; }
+.f-links a:hover { color: var(--red); }
+.f-contact { font-size: 0.83rem; color: var(--muted); line-height: 1.9; font-weight: 300; }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
+.f-copy { font-size: 0.72rem; color: rgba(237,237,237,0.22); font-family: var(--label); letter-spacing: 0.05em; }
+.f-legal { display: flex; gap: 22px; }
+.f-legal a { font-size: 0.72rem; color: rgba(237,237,237,0.22); font-family: var(--label); transition: color 0.25s; }
+.f-legal a:hover { color: var(--muted); }
+
+/* ─── RESPONSIVE ──────────────────────────────────────────────────── */
+@media (max-width: 1060px) {
+  .approach-grid { grid-template-columns: 1fr; }
+  .svc-grid { grid-template-columns: repeat(2,1fr); }
+  .comm-grid { grid-template-columns: 1fr 1fr; }
+  .why-grid { grid-template-columns: 1fr; }
+  .why-badge { position: relative; bottom: auto; right: auto; display: inline-block; margin-top: 18px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .nav-links, .nav-cta { display: none; }
+  .nav-burger { display: flex; }
+  .hero-stats { grid-template-columns: 1fr; }
+  .svc-grid { grid-template-columns: 1fr; }
+  .spec-grid { grid-template-columns: 1fr; }
+  .comm-grid { grid-template-columns: 1fr; }
+  .why-feats { grid-template-columns: 1fr; }
+  .feat:nth-child(even) { border-right: 1px solid var(--border); }
+  .feat:nth-last-child(-n+2) { border-bottom: 1px solid var(--border); }
+  .feat:last-child { border-bottom: none; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .sec-header { flex-direction: column; align-items: flex-start; }
+  .sec-desc { text-align: left; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="mainNav">
+  <a href="/" class="nav-logo">CrossAngle <span>Interior</span></a>
+  <ul class="nav-links">
+    <li><a href="#">Portfolio</a></li>
+    <li><a href="#" class="active">Services</a></li>
+    <li><a href="#">Approach</a></li>
+    <li><a href="#">Journal</a></li>
+  </ul>
+  <button class="nav-cta">Inquire</button>
+  <button class="nav-burger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow reveal">Our Services</div>
+    <h1 class="hero-title reveal reveal-d1">
+      Turnkey Interior<br/>Projects Delivered<br/>with <em>Hospitality<br/>Precision.</em>
+    </h1>
+    <div class="word-swap-line reveal reveal-d2" id="wsLine">
+      Architecture Without&nbsp;
+      <span class="swap-slot" id="ss1"><span class="sw swap-word">Intelligence</span></span>
+      &nbsp;Is&nbsp;
+      <span class="swap-slot" id="ss2"><span class="sw swap-word">Decoration</span></span>
+      .
+    </div>
+    <p class="hero-desc reveal reveal-d3">We deliver fully managed interior environments combining design intelligence, execution precision, and hospitality-grade detailing — from concept sketch to final handover.</p>
+    <div class="hero-tags reveal reveal-d4">
+      <span class="tag">Strategic ROI</span>
+      <span class="tag">Data-Driven Design</span>
+      <span class="tag">End-to-End Turnkey</span>
+    </div>
+    <div class="hero-ctas reveal reveal-d5">
+      <button class="btn-primary">Start Your Project</button>
+      <button class="btn-ghost">View Our Work</button>
+    </div>
+    <div class="hero-stats reveal">
+      <div class="stat-item"><div class="stat-label">Project Value Delivered</div><div class="stat-value">₹2–20Cr+</div></div>
+      <div class="stat-item"><div class="stat-label">Execution Match Rate</div><div class="stat-value">95%</div></div>
+      <div class="stat-item"><div class="stat-label">Project Reliability</div><div class="stat-value">On-Time Delivery</div></div>
+    </div>
+  </div>
+  <div class="scroll-arrow">Scroll to explore</div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Residential Design</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Commercial Interiors</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Modular Kitchens</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Hospitality Spaces</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Turnkey Execution</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Custom Furniture</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">False Ceiling</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Office Interiors</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Retail Environments</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Residential Design</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Commercial Interiors</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Modular Kitchens</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Hospitality Spaces</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Turnkey Execution</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Custom Furniture</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">False Ceiling</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Office Interiors</span></div>
+    <div class="m-item"><span class="m-dot"></span><span class="m-text">Retail Environments</span></div>
+  </div>
+</div>
+
+<!-- APPROACH -->
+<section class="section approach-section">
+  <div class="section-inner">
+    <div class="eyebrow reveal">Our Approach</div>
+    <h2 class="sec-title reveal reveal-d1">We Design. We Execute.<br/>We Deliver <em>Complete</em><br/>Environments.</h2>
+    <p class="approach-accent reveal reveal-d2">Not Just Atmosphere — Full Turnkey Transformation.</p>
+
+    <div class="approach-grid" style="margin-top:52px">
+      <div>
+        <p class="approach-body reveal reveal-d2">End-to-end project handling from the first concept sketch to the final furniture arrangement. A single point of accountability for every decision, supplier, and deadline.</p>
+        <div class="pillar reveal reveal-d3">
+          <span class="p-num">01</span>
+          <div><div class="p-title">Design Intelligence</div><p class="p-text">Strategic spatial planning that prioritizes human behavior and workflow efficiency before aesthetics.</p></div>
+        </div>
+        <div class="pillar reveal reveal-d4">
+          <span class="p-num">02</span>
+          <div><div class="p-title">Turnkey Execution</div><p class="p-text">End-to-end management from procurement to final handover — ensuring zero friction for the client.</p></div>
+        </div>
+        <div class="pillar reveal reveal-d5">
+          <span class="p-num">03</span>
+          <div><div class="p-title">Hospitality Detailing</div><p class="p-text">Applying the rigorous standards of five-star luxury to residential and commercial environments.</p></div>
+        </div>
+      </div>
+      <div class="reveal reveal-d2">
+        <div class="dc">
+          <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=75" alt="" class="dc-bg"/>
+          <div class="dc-inner">
+            <div class="dc-label">Performance Indicators</div>
+            <div class="dc-val">₹2–20Cr+</div>
+            <div class="dc-desc">Project Value Delivered</div>
+            <div class="dc-rule"></div>
+            <div class="dc-val">95%</div>
+            <div class="dc-desc">Execution Match Rate</div>
+            <div class="dc-rule"></div>
+            <div class="dc-val" style="font-size:clamp(1.5rem,2.8vw,2.8rem)">On-Time<br/>Delivery</div>
+            <div class="dc-desc">Focused & Guaranteed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESIDENTIAL -->
+<section class="section">
+  <div class="section-inner">
+    <div class="sec-header">
+      <div>
+        <div class="eyebrow reveal">Domain I</div>
+        <h2 class="sec-title reveal reveal-d1">Residential<br/><em>Design</em></h2>
+      </div>
+      <p class="sec-desc reveal reveal-d2">Personalized turnkey interiors crafted for lifestyle, comfort, and long-term capital value.</p>
+    </div>
+    <div class="svc-grid">
+      <div class="svc-card reveal reveal-d1">
+        <div class="svc-img">
+          <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=75" alt="Living Room Design" loading="lazy"/>
+          <div class="svc-img-overlay"></div>
+        </div>
+        <div class="svc-body">
+          <div class="svc-title">Living Room Design</div>
+          <p class="svc-text">Grand social spaces that balance aesthetic ambition with everyday livability and effortless flow.</p>
+          <span class="svc-link">Explore Service</span>
+        </div>
+      </div>
+      <div class="svc-card reveal reveal-d2">
+        <div class="svc-img">
+          <img src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=75" alt="Bedroom Interiors" loading="lazy"/>
+          <div class="svc-img-overlay"></div>
+        </div>
+        <div class="svc-body">
+          <div class="svc-title">Bedroom Interiors</div>
+          <p class="svc-text">Private sanctuary suites designed for deep rest, sensory comfort, and personal expression.</p>
+          <span class="svc-link">Explore Service</span>
+        </div>
+      </div>
+      <div class="svc-card reveal reveal-d3">
+        <div class="svc-img">
+          <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=800&q=75" alt="Kitchen and Dining" loading="lazy"/>
+          <div class="svc-img-overlay"></div>
+        </div>
+        <div class="svc-body">
+          <div class="svc-title">Kitchen & Dining</div>
+          <p class="svc-text">Culinary showcases where precision German engineering meets Italian aesthetic refinement.</p>
+          <span class="svc-link">Explore Service</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMERCIAL -->
+<section class="section" style="background:var(--surface);border-top:1px solid var(--border)">
+  <div class="section-inner">
+    <div class="sec-header">
+      <div>
+        <div class="eyebrow reveal">Domain II</div>
+        <h2 class="sec-title reveal reveal-d1">Commercial<br/><em>&amp; Office</em></h2>
+      </div>
+      <p class="sec-desc reveal reveal-d2">Strategic interior solutions that amplify productivity, brand value, and customer experience.</p>
+    </div>
+    <div class="comm-grid reveal">
+      <div class="comm-card">
+        <div class="comm-icon">🏢</div>
+        <div class="comm-title">Office Design</div>
+        <p class="comm-text">Performance-driven workspace environments for high-impact teams that value culture, collaboration, and innovation.</p>
+      </div>
+      <div class="comm-card">
+        <div class="comm-icon">🛍</div>
+        <div class="comm-title">Retail Spaces</div>
+        <p class="comm-text">Immersive brand environments that drive conversion through psychological spatial design and material intelligence.</p>
+      </div>
+      <div class="comm-card">
+        <div class="comm-icon">🍽</div>
+        <div class="comm-title">Restaurant &amp; Cafe</div>
+        <p class="comm-text">Experiential dining spaces blending seductive atmosphere with operational fluidity and authentic brand storytelling.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPECIALIZED -->
+<section class="section spec-section">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:52px">
+      <div class="eyebrow center reveal">Specialized Execution</div>
+      <h2 class="sec-title center reveal reveal-d1">Expert Solutions<br/>for Specific <em>Requirements</em></h2>
+      <p class="reveal reveal-d2" style="color:var(--muted);font-size:0.95rem;font-weight:300;max-width:46ch;margin:18px auto 0;line-height:1.8">Precision-crafted services requiring in-house manufacturing capability, specialist knowledge, and technical mastery at every stage.</p>
+    </div>
+    <div class="spec-grid">
+      <div class="spec-card reveal reveal-d1">
+        <div class="spec-glow"></div>
+        <div class="spec-ico">🔲</div>
+        <div class="spec-title">Modular Kitchens</div>
+        <p class="spec-text">German-engineered hardware meets bespoke Italian aesthetics. Custom configurations designed for every workflow and spatial footprint.</p>
+      </div>
+      <div class="spec-card reveal reveal-d2">
+        <div class="spec-glow"></div>
+        <div class="spec-ico">✦</div>
+        <div class="spec-title">False Ceiling</div>
+        <p class="spec-text">Architectural lighting integration and acoustic performance solutions tailored for every volume, atmosphere, and technical requirement.</p>
+      </div>
+      <div class="spec-card reveal reveal-d3">
+        <div class="spec-glow"></div>
+        <div class="spec-ico">🪑</div>
+        <div class="spec-title">Custom Furniture</div>
+        <p class="spec-text">Exclusive heirloom-quality pieces designed and manufactured in-house, crafted for your unique spatial DNA and lifestyle.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="section" style="background:var(--bg)">
+  <div class="section-inner">
+    <div class="why-grid">
+      <div>
+        <div class="eyebrow reveal">Why Choose Us</div>
+        <h2 class="sec-title reveal reveal-d1">We Deliver<br/><em>Excellence</em></h2>
+        <p class="reveal reveal-d2" style="color:var(--muted);font-size:0.93rem;font-weight:300;max-width:42ch;line-height:1.78;margin-top:18px">Five differentiators that set CrossAngle apart — not as marketing claims, but as proven operational standards built over 15 years.</p>
+        <div class="why-feats reveal reveal-d3">
+          <div class="feat"><div class="feat-ico">🏆</div><div class="feat-name">Award Winning Design</div><div class="feat-text">Recognized excellence in spatial creativity and execution quality.</div></div>
+          <div class="feat"><div class="feat-ico">👥</div><div class="feat-name">Professional Team</div><div class="feat-text">Architects, designers, and craftsmen working under one roof.</div></div>
+          <div class="feat"><div class="feat-ico">✦</div><div class="feat-name">Modern Aesthetics</div><div class="feat-text">Forward-thinking design rooted in timeless spatial principles.</div></div>
+          <div class="feat"><div class="feat-ico">⚡</div><div class="feat-name">Fast Delivery</div><div class="feat-text">Optimized workflows ensuring guaranteed on-time handover.</div></div>
+          <div class="feat"><div class="feat-ico">✓</div><div class="feat-name">Quality Guaranteed</div><div class="feat-text">Every millimeter systematically verified before handover.</div></div>
+          <div class="feat"><div class="feat-ico">🤝</div><div class="feat-name">After Sales Support</div><div class="feat-text">Dedicated care team available for 12 months post-handover.</div></div>
+        </div>
+      </div>
+      <div class="why-vis reveal reveal-d2">
+        <div class="why-img">
+          <img src="https://images.unsplash.com/photo-1560185007-cde436f6a4d0?auto=format&fit=crop&w=900&q=75" alt="CrossAngle Interior Project" loading="lazy"/>
+          <div class="why-badge">
+            <div class="why-badge-num">98%</div>
+            <div class="why-badge-lbl">Client Satisfaction</div>
+          </div>
+        </div>
+        <div class="why-extra reveal reveal-d4">
+          <div class="we-s"><div class="we-s-num">500+</div><div class="we-s-lbl">Projects Completed</div></div>
+          <div class="we-s" style="border-left:1px solid var(--border)"><div class="we-s-num">15+</div><div class="we-s-lbl">Years Experience</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="section process-section">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:16px">
+      <div class="eyebrow center reveal">Our Process</div>
+      <h2 class="sec-title center reveal reveal-d1"><em>How</em> We Work</h2>
+      <p class="reveal reveal-d2" style="color:var(--muted);font-size:0.93rem;font-weight:300;max-width:46ch;margin:18px auto 0;line-height:1.8">A four-stage methodology borrowed from hospitality industry standards and refined over 500+ projects across India.</p>
+    </div>
+    <div class="process-inner">
+      <div class="steps">
+        <div class="steps-line"><div class="steps-fill" id="stepsLine"></div></div>
+        <div class="step reveal reveal-d1">
+          <div class="step-dot" style="top:8px"></div>
+          <div class="step-ghost">01</div>
+          <div class="step-lbl">Phase One</div>
+          <div class="step-title">Discovery & Consultation</div>
+          <p class="step-text">Deep dive into lifestyle requirements, subconscious spatial preferences, site analysis, and budget architecture. This phase builds the strategic brief that governs every subsequent decision.</p>
+        </div>
+        <div class="step reveal reveal-d2">
+          <div class="step-dot" style="top:8px"></div>
+          <div class="step-ghost">02</div>
+          <div class="step-lbl">Phase Two</div>
+          <div class="step-title">Concept Development</div>
+          <p class="step-text">Mood boarding, material palette curation, and strategic spatial zoning. We translate the brief into a coherent visual and atmospheric language unique to your project.</p>
+        </div>
+        <div class="step reveal reveal-d3">
+          <div class="step-dot" style="top:8px"></div>
+          <div class="step-ghost">03</div>
+          <div class="step-lbl">Phase Three</div>
+          <div class="step-title">Design & Planning</div>
+          <p class="step-text">Detailed 3D renders, technical MEP drawings, precise material specifications, and procurement schedules. Every decision documented before a single nail is placed.</p>
+        </div>
+        <div class="step reveal reveal-d4">
+          <div class="step-dot" style="top:8px"></div>
+          <div class="step-ghost">04</div>
+          <div class="step-lbl">Phase Four</div>
+          <div class="step-title">Execution & Handoff</div>
+          <p class="step-text">Rigorous on-site management, systematic quality control, and comprehensive snagging. We hand over only when the space exactly matches the approved design.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-eye">Begin Your Project</div>
+    <h2 class="cta-title">Ready to Transform<br/>Your Space?</h2>
+    <p class="cta-desc">Let's discuss your project requirements and create an environment that transcends the ordinary.</p>
+    <div class="cta-btns">
+      <button class="btn-white">Start Your Project</button>
+      <button class="btn-wa">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a8.97 8.97 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 2a8 8 0 110 16A8 8 0 0112 4z"/></svg>
+        WhatsApp Us
+      </button>
+    </div>
+    <p class="cta-note">Free consultation &middot; Response within 24 hours</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="f-logo">CrossAngle<span>&nbsp;Interior</span></div>
+        <p class="f-desc">Creating architectural benchmarks through intelligence, hospitality-grade precision, and flawless turnkey execution.</p>
+        <div class="f-social">
+          <div class="f-soc">In</div>
+          <div class="f-soc">Li</div>
+          <div class="f-soc">Pi</div>
+        </div>
+      </div>
+      <div>
+        <div class="f-col-title">Navigate</div>
+        <ul class="f-links">
+          <li><a href="#">Portfolio</a></li>
+          <li><a href="#">Services</a></li>
+          <li><a href="#">Our Approach</a></li>
+          <li><a href="#">Journal</a></li>
+          <li><a href="#">About Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="f-col-title">Services</div>
+        <ul class="f-links">
+          <li><a href="#">Residential Design</a></li>
+          <li><a href="#">Commercial Interiors</a></li>
+          <li><a href="#">Modular Kitchens</a></li>
+          <li><a href="#">Custom Furniture</a></li>
+          <li><a href="#">False Ceiling</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="f-col-title">Contact</div>
+        <div class="f-contact">
+          hello@crossangleinterior.com<br/>
+          +91 98765 43210<br/>
+          <span style="opacity:0.5;font-size:0.78rem">Mon–Sat, 10:00–18:30</span>
+        </div>
+        <button class="btn-primary" style="margin-top:24px;font-size:9px;padding:13px 26px">Book Consultation</button>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="f-copy">© 2026 CrossAngle Interior. All rights reserved.</div>
+      <div class="f-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Sitemap</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── WORD SWAP ──────────────────────────────────────────────────────
+const pairs = [
+  ['Intelligence','Decoration'],
+  ['Execution',   'Incomplete'],
+  ['Experience',  'Cold'],
+];
+let wi = 0;
+function doSwap() {
+  wi = (wi + 1) % pairs.length;
+  const [a,b] = pairs[wi];
+  const s1 = document.getElementById('ss1');
+  const s2 = document.getElementById('ss2');
+  const old1 = s1.querySelector('.sw');
+  const old2 = s2.querySelector('.sw');
+  if(old1) old1.classList.add('out');
+  if(old2) old2.classList.add('out');
+  setTimeout(()=>{
+    s1.innerHTML = `<span class="sw swap-word">${a}</span>`;
+    s2.innerHTML = `<span class="sw swap-word">${b}</span>`;
+  }, 420);
+}
+setInterval(doSwap, 2900);
+
+// ── SCROLL REVEAL ──────────────────────────────────────────────────
+const revEls = document.querySelectorAll('.reveal');
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -48px 0px' });
+revEls.forEach(el => revObs.observe(el));
+
+// ── PROCESS LINE ───────────────────────────────────────────────────
+const procSec = document.querySelector('.process-section');
+const lineEl  = document.getElementById('stepsLine');
+if(procSec && lineEl) {
+  new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) lineEl.style.height = '100%'; });
+  }, { threshold: 0.1 }).observe(procSec);
+}
+
+// ── NAV SCROLL ─────────────────────────────────────────────────────
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.style.background = window.scrollY > 60 ? 'rgba(0,0,0,0.97)' : 'rgba(0,0,0,0.85)';
+}, { passive: true });
+
+// ── MOBILE NAV ─────────────────────────────────────────────────────
+const burger = document.querySelector('.nav-burger');
+const links  = document.querySelector('.nav-links');
+const cta    = document.querySelector('.nav-cta');
+let navOpen = false;
+burger.addEventListener('click', () => {
+  navOpen = !navOpen;
+  if (navOpen) {
+    links.style.cssText = 'display:flex;flex-direction:column;position:fixed;top:72px;left:0;right:0;background:#000;padding:24px 20px 32px;gap:18px;border-bottom:1px solid rgba(237,237,237,0.1);z-index:99';
+    cta.style.cssText = 'display:block;position:fixed;top:72px;right:0;z-index:100;padding:14px 22px';
+  } else {
+    links.style.cssText = '';
+    cta.style.cssText = '';
+  }
+});
+</script>
+</body>
+</html>

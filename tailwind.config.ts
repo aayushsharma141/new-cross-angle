@@ -69,6 +69,7 @@ export default {
                     DEFAULT: "hsl(38 75% 55%)",
                     light: "hsl(45 80% 65%)",
                     dark: "hsl(35 70% 45%)",
+                    dim: "rgba(212, 175, 55, 0.4)",
                 },
                 diesel: {
                     '50': '#fff3e6',
@@ -203,7 +204,7 @@ export default {
             fontFamily: {
                 display: ['"Playfair Display"', 'Georgia', 'serif'],
                 sans: [
-                    'Roboto',
+                    '"DM Sans"',
                     'ui-sans-serif',
                     'system-ui',
                     '-apple-system',
@@ -215,7 +216,7 @@ export default {
                     'sans-serif'
                 ],
                 serif: [
-                    'Playfair Display',
+                    '"Cormorant Garamond"',
                     'ui-serif',
                     'Georgia',
                     'Cambria',

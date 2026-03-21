@@ -44,17 +44,17 @@ export function StepBudget({ formData, updateField }: Props) {
 
     return (
         <div>
-            <h2 className="text-2xl font-bold mb-1 text-white">
+            <h2 className="text-2xl font-bold mb-1 text-site-text-heading uppercase">
                 Investment Scope
             </h2>
-            <p className="text-gray-400 mb-6 text-sm">
-                Define the capital allocation for your residence. <span className="text-xs text-gray-500">(Suggested baseline: {formatCurrency(minInvestment)})</span>
+            <p className="text-site-text-muted mb-6 text-sm">
+                Define the capital allocation for your residence. <span className="text-xs text-site-text-meta">(Suggested baseline: {formatCurrency(minInvestment)})</span>
             </p>
 
             {/* Big budget display */}
-            <div className="text-center py-7 mb-5 rounded-xl border border-white/10 bg-gradient-to-br from-[#121212] to-[#1a1a1a]">
-                <div className="text-gray-400 text-xs mb-1 uppercase tracking-widest">Total Allocation</div>
-                <div className="text-red-400 text-4xl font-extrabold tracking-tighter">
+            <div className="text-center py-7 mb-5 rounded-none border border-site-border bg-gradient-to-br from-site-bg-card to-site-bg">
+                <div className="text-site-text-meta text-xs mb-1 uppercase tracking-widest">Total Allocation</div>
+                <div className="text-site-crimson text-4xl font-extrabold tracking-tighter">
                     {formatCurrency(formData.budgetAmount)}
                 </div>
             </div>
@@ -67,9 +67,9 @@ export function StepBudget({ formData, updateField }: Props) {
                     min={1500000} max={150000000} step={500000}
                     value={formData.budgetAmount}
                     onChange={e => updateField("budgetAmount", Number(e.target.value))}
-                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-600"
+                    className="w-full h-2 bg-site-bg-card rounded-none appearance-none cursor-pointer accent-site-crimson"
                 />
-                <div className="flex justify-between text-gray-500 text-xs mt-1 font-mono">
+                <div className="flex justify-between text-site-text-meta text-xs mt-1 font-mono">
                     <span>₹15L</span><span>₹15 Cr+</span>
                 </div>
             </div>
@@ -81,45 +81,40 @@ export function StepBudget({ formData, updateField }: Props) {
                     return (
                         <button
                             key={bp.label}
+                            type="button"
                             onClick={() => {
-                                updateField("budgetAmount", bp.value);
                                 updateField("budgetPreset", bp.label);
+                                updateField("budgetAmount", bp.value);
                             }}
-                            className={`border-2 rounded-xl p-4 text-center transition-all duration-200 ${active
-                                ? bp.label === "Essential" ? "bg-[#80cbc4]/10 border-[#80cbc4]" :
-                                    bp.label === "Premium" ? "bg-[#64b5f6]/10 border-[#64b5f6]" :
-                                        bp.label === "Luxury" ? "bg-[#f4a261]/10 border-[#f4a261]" :
-                                            "bg-[#e57373]/10 border-[#e57373]"
-                                : "bg-[#121212] border-white/5 hover:border-white/10"
+                            className={`border-2 rounded-none p-4 text-center transition-all duration-200 ${active
+                                ? "bg-site-crimson/10 border-site-crimson shadow-[0_0_15px_rgba(227, 83, 54,0.1)]"
+                                : "bg-site-bg-card border-site-border hover:border-site-crimson/30"
                                 }`}
                         >
                             <div className={`font-bold text-sm ${active
-                                ? bp.label === "Essential" ? "text-[#80cbc4]" :
-                                    bp.label === "Premium" ? "text-[#64b5f6]" :
-                                        bp.label === "Luxury" ? "text-[#f4a261]" :
-                                            "text-[#e57373]"
-                                : "text-white"
+                                ? "text-site-crimson"
+                                : "text-site-text-heading"
                                 }`}>{bp.label}</div>
-                            <div className="text-gray-400 text-xs mt-0.5">{bp.range}</div>
+                            <div className="text-site-text-muted text-xs mt-0.5">{bp.range}</div>
                         </button>
                     );
                 })}
             </div>
 
             {/* Feasibility bar */}
-            <div className="rounded-xl px-4 py-3 border border-white/10 bg-[#121212]">
+            <div className="rounded-none px-4 py-3 border border-site-border bg-site-bg-card">
                 <div className="flex justify-between mb-2">
-                    <span className="text-gray-400 text-xs uppercase tracking-wider">Feasibility Index</span>
-                    <span className={`text-xs font-semibold ${feasibility.label === "Legacy Tier" ? "text-red-500" :
+                    <span className="text-site-text-meta text-xs uppercase tracking-wider">Feasibility Index</span>
+                    <span className={`text-xs font-semibold ${feasibility.label === "Legacy Tier" ? "text-site-crimson" :
                         feasibility.label === "Luxury Tier" ? "text-yellow-500" :
                             feasibility.label === "Comfortable Scope" ? "text-emerald-500" :
-                                "text-gray-500"
+                                "text-site-text-muted"
                         }`}>{feasibility.label}</span>
                 </div>
-                <div className="rounded-full h-2 overflow-hidden bg-[#1a1a1a]">
+                <div className="rounded-none h-2 overflow-hidden bg-site-bg">
                     <div
                         ref={barRef}
-                        className="h-full rounded-full transition-all duration-500 ease-out w-[var(--progress)] bg-gradient-to-r from-emerald-500 via-yellow-500 to-red-500"
+                        className="h-full rounded-none transition-all duration-500 ease-out w-[var(--progress)] bg-gradient-to-r from-emerald-500 via-yellow-500 to-site-crimson"
                     />
                 </div>
             </div>

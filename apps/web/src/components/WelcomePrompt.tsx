@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { X, Sparkles, ArrowRight } from "lucide-react";
+import { X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import logoIcon from "@/assets/logo-icon.png";
 
 const WelcomePrompt = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -65,7 +66,7 @@ const WelcomePrompt = () => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-[100]">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-foreground/60 backdrop-blur-sm animate-fade-in"
@@ -93,8 +94,8 @@ const WelcomePrompt = () => {
           <div className="p-6 md:p-8">
             {/* Header */}
             <div className="text-center mb-6">
-              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="w-7 h-7 text-primary" />
+              <div className="flex justify-center">
+                <img src={logoIcon} alt="CA Logo" className="w-28 h-28" />
               </div>
               <h3 className="font-serif text-xl md:text-2xl font-bold text-foreground mb-2">
                 Welcome to Crossangle Interior

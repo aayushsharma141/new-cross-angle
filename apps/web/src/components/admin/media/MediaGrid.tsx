@@ -75,9 +75,9 @@ export const MediaGrid = ({
                         transition={{ delay: index * 0.02 }}
                     >
                         <Card
-                            className={`group overflow-hidden relative transition-all duration-200 hover:shadow-lg border-muted ${selectedFiles.has(file.id)
-                                ? 'ring-2 ring-primary border-primary shadow-md'
-                                : 'hover:border-primary/50'
+                            className={`group overflow-hidden relative transition-all duration-300 hover:shadow-[0_20px_50px_rgba(124,58,237,0.1)] border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md ${selectedFiles.has(file.id)
+                                ? 'ring-2 -admin-primary -admin-primary/50 shadow-[0_0_20px_rgba(124,58,237,0.2)]'
+                                : 'hover:-admin-primary/30'
                                 }`}
                         >
                             {!isReadOnly && (
@@ -85,7 +85,7 @@ export const MediaGrid = ({
                                     <Checkbox
                                         checked={selectedFiles.has(file.id)}
                                         onCheckedChange={() => onToggleSelection(file.id)}
-                                        className="bg-background/90 border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary shadow-sm"
+                                        className="bg-black/40 border-zinc-700 data-[state=checked]:-admin-primary data-[state=checked]:-admin-primary shadow-sm"
                                     />
                                 </div>
                             )}
@@ -97,21 +97,21 @@ export const MediaGrid = ({
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     loading="lazy"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end p-3">
-                                    <div className="flex items-center justify-center gap-2 mb-2">
-                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-white/90 hover:bg-white text-black shadow-sm" onClick={(e) => { e.stopPropagation(); onPreview(file); }} title="Preview">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-3">
+                                    <div className="flex items-center justify-center gap-2 mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-zinc-900/90 hover:-admin-primary hover:text-white text-zinc-300 border border-zinc-800 shadow-xl transition-all" onClick={(e) => { e.stopPropagation(); onPreview(file); }} title="Preview">
                                             <Maximize2 className="w-3.5 h-3.5" />
                                         </Button>
-                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-white/90 hover:bg-white text-black shadow-sm" onClick={(e) => { e.stopPropagation(); onCopyUrl(file.url); }} title="Copy URL">
-                                            {copiedUrl === file.url ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-zinc-900/90 hover:-admin-primary hover:text-white text-zinc-300 border border-zinc-800 shadow-xl transition-all" onClick={(e) => { e.stopPropagation(); onCopyUrl(file.url); }} title="Copy URL">
+                                            {copiedUrl === file.url ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                                         </Button>
                                         {!isReadOnly && (
-                                            <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full shadow-sm" onClick={(e) => { e.stopPropagation(); onDelete(file); }} title="Delete">
+                                            <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full shadow-xl bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all" onClick={(e) => { e.stopPropagation(); onDelete(file); }} title="Delete">
                                                 <Trash2 className="w-3.5 h-3.5" />
                                             </Button>
                                         )}
                                     </div>
-                                    <p className="text-white text-[10px] truncate opacity-80">{formatFileSize(file.size)}</p>
+                                    <p className="text-zinc-400 text-[10px] font-medium truncate opacity-0 group-hover:opacity-100 transition-opacity delay-100">{formatFileSize(file.size)}</p>
                                 </div>
                             </div>
                             <CardContent className="p-3">
@@ -134,13 +134,14 @@ export const MediaGrid = ({
             {files.map((file) => (
                 <div
                     key={file.id}
-                    className={`flex items-center gap-4 p-3 border rounded-lg hover:bg-accent/30 transition-all duration-200 group ${selectedFiles.has(file.id) ? 'ring-1 ring-primary border-primary bg-primary/5' : 'border-border'
+                    className={`flex items-center gap-4 p-3 border rounded-xl hover:-admin-primary/5 transition-all duration-300 group ${selectedFiles.has(file.id) ? 'ring-1 -admin-primary -admin-primary/50 -admin-primary/10' : 'border-zinc-800/50 bg-zinc-900/40 backdrop-blur-sm'
                         }`}
                 >
                     {!isReadOnly && (
                         <Checkbox
                             checked={selectedFiles.has(file.id)}
                             onCheckedChange={() => onToggleSelection(file.id)}
+                            className="border-zinc-700 data-[state=checked]:-admin-primary"
                         />
                     )}
                     <div

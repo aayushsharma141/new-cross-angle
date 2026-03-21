@@ -124,39 +124,27 @@ export default function AdminUsers(): JSX.Element {
     };
 
     return (
-        <div className="space-y-6">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Users</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+        <div className="max-w-7xl mx-auto space-y-8 py-4 animate-in fade-in duration-700">
+            <AdminBreadcrumb items={[{ label: 'Users' }]} />
 
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-3xl font-display font-bold text-[hsl(var(--admin-foreground))]">
-                        Users
-                    </h2>
-                    <p className="text-[hsl(var(--admin-muted))]">
-                        Manage team access and permissions.
-                    </p>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="space-y-1">
+                    <h1 className="text-4xl font-serif text-white tracking-tight">Access Control</h1>
+                    <p className="text-sm text-zinc-500 font-sans max-w-sm">Manage unit permissions and team authentication protocols.</p>
                 </div>
-                <Button onClick={() => setInviteOpen(true)}>
-                    <UserPlus className="mr-2 h-4 w-4" /> Invite User
-                </Button>
+                <div className="flex items-center gap-3">
+                    <Button onClick={() => setInviteOpen(true)} variant="primary" className="rounded-xl shadow-lg shadow-primary/20">
+                        <UserPlus className={`${icons.sm} mr-2`} /> Invite User
+                    </Button>
+                </div>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 bg-zinc-900/40 border border-zinc-800/50 backdrop-blur-md p-4 rounded-2xl">
                 <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                     <Input
                         placeholder="Search users..."
-                        className="pl-9"
+                        className="pl-10 bg-black/40 border-zinc-700/50 focus:border-primary/50 transition-all rounded-xl"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -221,7 +209,7 @@ export default function AdminUsers(): JSX.Element {
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             <Shield className="h-4 w-4 text-primary" />
-                                            <span className="capitalize">{user.role || "Viewer"}</span>
+                                            <span className="capitalize text-zinc-400 font-medium">{user.role || "Viewer"}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell>

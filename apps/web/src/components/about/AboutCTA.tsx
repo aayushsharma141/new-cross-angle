@@ -8,7 +8,7 @@ const AboutCTA = () => {
     <section className="relative py-24 md:py-32 overflow-hidden">
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/80" />
-      
+
       {/* Animated shapes */}
       <motion.div
         className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-background/5 blur-3xl"
@@ -70,7 +70,7 @@ const AboutCTA = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-primary-foreground/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed"
           >
-            Ready to transform your space? Schedule a free consultation 
+            Ready to transform your space? Schedule a free consultation
             and let's discuss how we can bring your vision to life.
           </motion.p>
 
@@ -99,7 +99,7 @@ const AboutCTA = () => {
               asChild
               size="lg"
               variant="outline"
-              className="group h-14 px-8 text-base rounded-full border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              className="group h-14 px-8 text-base rounded-full border-white/30 text-white hover:bg-white/10 hover:text-white"
             >
               <a href="tel:+919304XXXXXX" className="flex items-center gap-2">
                 <Phone className="w-5 h-5" />

@@ -154,30 +154,21 @@ const AdminSettings = () => {
   };
 
   return (
-    <div className="space-y-8 max-w-5xl animate-in fade-in duration-500">
-      <div className="flex flex-col gap-4">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Settings</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <div>
-          <h1 className="text-3xl font-display font-bold text-[hsl(var(--admin-foreground))]">Settings</h1>
-          <p className="text-[hsl(var(--admin-muted))] mt-2">Manage your account preferences and security.</p>
+    <div className="max-w-7xl mx-auto space-y-8 py-4 animate-in fade-in duration-700">
+      <AdminBreadcrumb items={[{ label: 'System' }, { label: 'Settings' }]} />
+
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-serif text-white tracking-tight">Settings</h1>
+          <p className="text-sm text-zinc-500 font-sans max-w-sm">Manage your executive credentials and system preferences.</p>
         </div>
       </div>
 
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="mb-6 grid w-full grid-cols-3 max-w-[400px]">
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="audit">Audit Logs</TabsTrigger>
+        <TabsList className="mb-8 p-1 bg-zinc-900/40 border border-zinc-800 rounded-2xl w-fit flex gap-1">
+          <TabsTrigger value="general" className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white transition-all">General</TabsTrigger>
+          <TabsTrigger value="security" className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white transition-all">Security</TabsTrigger>
+          <TabsTrigger value="audit" className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white transition-all">Audit Logs</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="space-y-6">
@@ -190,15 +181,15 @@ const AdminSettings = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
-              <CardHeader className="bg-muted/30 border-b pb-4">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <User className="text-blue-600 h-5 w-5" />
+            <Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
+              <CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
+                    <User className="text-primary h-5 w-5" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg">Account Information</CardTitle>
-                    <CardDescription>Your personal account details</CardDescription>
+                    <CardTitle className="text-lg font-serif">Account Information</CardTitle>
+                    <CardDescription className="text-zinc-500">Your personal executive profile details.</CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -231,15 +222,15 @@ const AdminSettings = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm">
-              <CardHeader className="bg-muted/30 border-b pb-4">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 bg-amber-100 rounded-lg">
-                    <Lock className="text-amber-600 h-5 w-5" />
+            <Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
+              <CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
+                    <Shield className="text-primary h-5 w-5" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg">Security</CardTitle>
-                    <CardDescription>Update your password to keep your account secure</CardDescription>
+                    <CardTitle className="text-lg font-serif">Security Protocol</CardTitle>
+                    <CardDescription className="text-zinc-500">Update your access credentials to maintain unit integrity.</CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -352,14 +343,14 @@ const AdminSettings = () => {
                   </div>
 
                   <div className="pt-2">
-                    <Button type="submit" disabled={isLoading} className="bg-[hsl(var(--brand-primary))]">
+                    <Button type="submit" disabled={isLoading} variant="primary" className="rounded-xl shadow-lg shadow-primary/20">
                       {isLoading ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                          Updating...
+                          Processing...
                         </>
                       ) : (
-                        "Update Password"
+                        "Update Protocol"
                       )}
                     </Button>
                   </div>
@@ -375,15 +366,15 @@ const AdminSettings = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm">
-              <CardHeader className="bg-muted/30 border-b pb-4">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Shield className="text-purple-600 h-5 w-5" />
+            <Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
+              <CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
+                    <Globe className="text-primary h-5 w-5" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg">Audit Logs</CardTitle>
-                    <CardDescription>Track critical system events and user actions</CardDescription>
+                    <CardTitle className="text-lg font-serif">Audit Trail</CardTitle>
+                    <CardDescription className="text-zinc-500">Chronological record of system modifications and access.</CardDescription>
                   </div>
                 </div>
               </CardHeader>
@@ -391,7 +382,7 @@ const AdminSettings = () => {
                 <AuditLogTable />
               </CardContent>
             </Card>
-          </motion.div >
+          </motion.div>
         </TabsContent>
       </Tabs>
     </div >

@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qube Designs — Architectural & Interior Studio, New Delhi</title>
+<meta name="description" content="18 years. 210+ projects. Architecture and interior design studio in New Delhi, founded by Karan Sethi. From furniture expertise to full spatial design.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700&family=Raleway:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* ── TOKENS ──────────────────────────────────────── */
+:root {
+  --black:   #000000;
+  --s1:      #07060A;
+  --s2:      #0F0D12;
+  --s3:      #161420;
+  --crimson: #C41230;
+  --cr-low:  rgba(196,18,48,0.07);
+  --w1:      #EDEAE8;
+  --w2:      rgba(237,234,232,0.56);
+  --w3:      rgba(237,234,232,0.26);
+  --line:    rgba(237,234,232,0.08);
+  --line2:   rgba(237,234,232,0.14);
+  --fd:      'Playfair Display', Georgia, serif;
+  --fb:      'Raleway', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--w1);
+  font-family: var(--fb);
+  font-weight: 300;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grain texture */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 900; opacity: .38; mix-blend-mode: overlay;
+}
+
+a { text-decoration: none; color: inherit; }
+em { color: var(--crimson); font-style: italic; }
+
+/* ── REVEAL ──────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .9s cubic-bezier(.16,1,.3,1),
+              transform .9s cubic-bezier(.16,1,.3,1);
+}
+.reveal.in { opacity: 1; transform: none; }
+.d1 { transition-delay: .1s; }
+.d2 { transition-delay: .2s; }
+.d3 { transition-delay: .3s; }
+.d4 { transition-delay: .4s; }
+.d5 { transition-delay: .5s; }
+
+/* ── SHARED ATOMS ────────────────────────────────── */
+.eyebrow {
+  display: flex; align-items: center; gap: 11px;
+  font-size: .57rem; font-weight: 700; letter-spacing: .28em;
+  text-transform: uppercase; color: var(--crimson); margin-bottom: 18px;
+}
+.eyebrow::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--crimson); flex-shrink: 0;
+}
+
+.sec-h2 {
+  font-family: var(--fd);
+  font-size: clamp(2rem, 3.8vw, 3.1rem);
+  font-weight: 400; line-height: 1.12; color: var(--w1);
+  margin-bottom: 52px;
+}
+.sec-h2 em { color: var(--crimson); font-style: italic; }
+
+.rule { height: 1px; background: var(--line); margin: 0 64px; }
+
+.btn-p {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: .6rem; font-weight: 700; letter-spacing: .22em;
+  text-transform: uppercase; color: #000;
+  background: var(--crimson); padding: 15px 28px;
+  transition: background .2s, transform .2s;
+}
+.btn-p:hover { background: #a5102a; transform: translateY(-1px); }
+
+.btn-g {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: .6rem; font-weight: 500; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--w2);
+  border: 1px solid var(--line2); padding: 14px 24px;
+  transition: border-color .2s, color .2s;
+}
+.btn-g:hover { border-color: rgba(237,234,232,.3); color: var(--w1); }
+
+/* ── NAV ─────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  height: 62px;
+  background: rgba(0,0,0,.92);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 64px;
+  animation: fadeDown .8s cubic-bezier(.16,1,.3,1) both;
+}
+
+.nav-logo {
+  font-family: var(--fd);
+  font-size: .92rem; font-weight: 500; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--w1);
+}
+.nav-logo span { color: var(--crimson); }
+
+.nav-links { display: flex; gap: 32px; }
+.nav-links a {
+  font-size: .57rem; font-weight: 500; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--w2);
+  position: relative; transition: color .2s;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -3px; left: 0; right: 0;
+  height: 1px; background: var(--crimson);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .3s ease;
+}
+.nav-links a:hover { color: var(--w1); }
+.nav-links a:hover::after { transform: scaleX(1); }
+
+.nav-wa {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: .57rem; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: #000;
+  background: var(--crimson); padding: 10px 20px;
+  transition: background .2s;
+}
+.nav-wa:hover { background: #a5102a; }
+.nav-wa svg { width: 13px; height: 13px; fill: #000; flex-shrink: 0; }
+
+/* ── HERO ────────────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  display: grid; grid-template-columns: 1fr 1fr;
+  padding-top: 62px; position: relative; overflow: hidden;
+}
+
+.hero-left {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 80px 64px;
+  animation: fromLeft 1s cubic-bezier(.16,1,.3,1) .2s both;
+}
+
+.hero-kicker {
+  display: flex; align-items: center; gap: 14px;
+  font-size: .57rem; font-weight: 700; letter-spacing: .28em;
+  text-transform: uppercase; color: var(--crimson); margin-bottom: 32px;
+}
+.hero-kicker::before { content: ''; width: 36px; height: 1px; background: var(--crimson); }
+
+.hero-h1 {
+  font-family: var(--fd);
+  font-size: clamp(3rem, 5.2vw, 5.5rem);
+  font-weight: 400; line-height: 1.04; letter-spacing: -.012em;
+  color: var(--w1); margin-bottom: 32px;
+}
+
+.hero-sub {
+  font-size: .88rem; font-weight: 300; color: var(--w2);
+  line-height: 1.95; max-width: 430px; margin-bottom: 48px;
+  border-left: 2px solid var(--crimson); padding-left: 22px;
+}
+
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 60px; }
+
+.hero-proof {
+  display: flex; gap: 36px; flex-wrap: wrap;
+}
+.hp {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.hp-num {
+  font-family: var(--fd);
+  font-size: 1.8rem; font-weight: 300; line-height: 1; color: var(--w1);
+}
+.hp-num sup { font-size: .8rem; color: var(--crimson); }
+.hp-label {
+  font-size: .55rem; font-weight: 600; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--w3);
+}
+
+/* Hero right */
+.hero-right {
+  position: relative; overflow: hidden;
+  border-left: 1px solid var(--line);
+  background: linear-gradient(145deg, #0A0810 0%, #130F18 50%, #0A0810 100%);
+}
+
+.hero-right svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+}
+
+.hero-right::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 60% 40%, rgba(196,18,48,.06) 0%, transparent 60%);
+  z-index: 1;
+}
+.hero-right::after {
+  content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 60px;
+  background: linear-gradient(to right, var(--black), transparent);
+  z-index: 2;
+}
+
+.hero-year {
+  position: absolute; bottom: 44px; right: 44px; z-index: 4;
+  background: rgba(0,0,0,.82); backdrop-filter: blur(14px);
+  border: 1px solid var(--line2); padding: 20px 26px;
+  animation: fromRight .9s cubic-bezier(.16,1,.3,1) .5s both;
+}
+.hero-year-num {
+  font-family: var(--fd);
+  font-size: 2.6rem; font-weight: 300; line-height: 1; color: var(--w1);
+}
+.hero-year-num sup { font-size: .9rem; color: var(--crimson); }
+.hero-year-label {
+  font-size: .53rem; font-weight: 600; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--w3); margin-top: 5px;
+}
+
+/* Floating award badge */
+.hero-award {
+  position: absolute; top: 40px; right: 44px; z-index: 4;
+  font-size: .53rem; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--crimson);
+  border: 1px solid rgba(196,18,48,.3); padding: 7px 14px;
+  background: rgba(196,18,48,.05);
+  animation: fromTop .8s cubic-bezier(.16,1,.3,1) .4s both;
+}
+
+/* ── TRUST STRIP ─────────────────────────────────── */
+.trust {
+  background: var(--s1);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.trust-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1px; background: var(--line);
+}
+.trust-cell {
+  background: var(--s1); padding: 40px 36px;
+  transition: background .25s;
+}
+.trust-cell:hover { background: var(--s2); }
+.tc-num {
+  font-family: var(--fd);
+  font-size: 2.8rem; font-weight: 300; line-height: 1;
+  color: var(--w1); margin-bottom: 8px;
+}
+.tc-num sup { font-size: .9rem; color: var(--crimson); }
+.tc-label {
+  font-size: .58rem; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--w3); margin-bottom: 5px;
+}
+.tc-desc { font-size: .74rem; font-weight: 300; color: var(--w2); line-height: 1.65; }
+
+/* ── DIFFERENTIATOR ──────────────────────────────── */
+.diff-section {
+  padding: 108px 64px;
+  background: var(--black);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start;
+}
+
+.diff-quote {
+  font-family: var(--fd);
+  font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+  font-weight: 400; font-style: italic; line-height: 1.48;
+  color: var(--w1); margin-bottom: 26px;
+}
+
+.diff-body {
+  font-size: .87rem; font-weight: 300; color: var(--w2);
+  line-height: 2; margin-bottom: 36px;
+}
+
+.diff-right { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.diff-item {
+  background: var(--s2); padding: 24px 26px;
+  display: grid; grid-template-columns: 26px 1fr; gap: 16px;
+  align-items: start; transition: background .2s;
+}
+.diff-item:hover { background: var(--s3); }
+.diff-icon { color: var(--crimson); font-size: .85rem; line-height: 1.6; }
+.dit { font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--w1); margin-bottom: 4px; }
+.did { font-size: .78rem; font-weight: 300; color: var(--w2); line-height: 1.72; }
+
+/* ── SERVICES ────────────────────────────────────── */
+.services-section {
+  padding: 108px 64px;
+  background: var(--s1);
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+.services-intro {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+  align-items: end; margin-bottom: 60px;
+}
+.services-intro-right {
+  font-size: .87rem; font-weight: 300; color: var(--w2); line-height: 2;
+}
+
+.core-services {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--line); border: 1px solid var(--line);
+  margin-bottom: 32px;
+}
+.svc-card {
+  background: var(--s2); padding: 44px 36px;
+  position: relative; overflow: hidden; transition: background .25s;
+}
+.svc-card:hover { background: var(--s3); }
+.svc-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+  opacity: 0; transition: opacity .35s;
+}
+.svc-card:hover::before { opacity: 1; }
+
+.svc-num {
+  font-family: var(--fd);
+  font-size: 3.8rem; font-weight: 900; font-style: italic;
+  color: rgba(196,18,48,.07); line-height: 1; margin-bottom: 20px;
+}
+.svc-icon {
+  width: 38px; height: 38px;
+  border: 1px solid rgba(196,18,48,.28);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+}
+.svc-icon svg { width: 16px; height: 16px; stroke: var(--crimson); fill: none; stroke-width: 1.5; }
+.svc-title {
+  font-family: var(--fd);
+  font-size: 1.2rem; font-weight: 400; color: var(--w1); margin-bottom: 12px;
+}
+.svc-desc { font-size: .8rem; font-weight: 300; color: var(--w2); line-height: 1.82; margin-bottom: 20px; }
+.svc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.svc-tag {
+  font-size: .52rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--w3); border: 1px solid var(--line); padding: 4px 10px;
+}
+
+/* Also offer strip */
+.also-strip {
+  background: var(--s2); border: 1px solid var(--line);
+  padding: 18px 28px;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+}
+.also-label {
+  font-size: .55rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--w3); margin-right: 8px;
+}
+.also-item {
+  font-size: .6rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--w2); padding: 4px 12px;
+  border: 1px solid var(--line);
+}
+
+/* ── FOUNDER STORY ───────────────────────────────── */
+.founder-section {
+  padding: 108px 64px;
+  background: var(--black);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start;
+}
+
+.founder-img-col { position: relative; }
+.founder-img {
+  width: 100%; aspect-ratio: 3/4;
+  background: linear-gradient(135deg, #0E0B12 0%, #17131F 50%, #0C0A0F 100%);
+  border: 1px solid var(--line); position: relative; overflow: hidden;
+}
+.founder-img::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(196,18,48,.06) 0%, transparent 60%);
+}
+/* CSS portrait silhouette */
+.founder-img svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.founder-img-label {
+  position: absolute; bottom: -1px; left: 0; right: 0;
+  background: var(--s2); border-top: 1px solid var(--line);
+  padding: 16px 20px;
+}
+.founder-name {
+  font-family: var(--fd); font-size: 1rem; font-weight: 500;
+  color: var(--w1); margin-bottom: 3px;
+}
+.founder-title {
+  font-size: .58rem; font-weight: 600; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--w3);
+}
+
+.founder-right { }
+.founder-body {
+  font-size: .87rem; font-weight: 300; color: var(--w2);
+  line-height: 2; margin-bottom: 36px;
+}
+.founder-quote {
+  border-left: 2px solid var(--crimson); padding: 18px 22px;
+  font-family: var(--fd); font-size: 1.05rem; font-weight: 300; font-style: italic;
+  color: var(--w1); line-height: 1.65; background: var(--cr-low); margin-bottom: 44px;
+}
+
+/* Timeline */
+.timeline { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.tl-item {
+  background: var(--s2); padding: 18px 22px;
+  display: grid; grid-template-columns: 72px 1fr; gap: 16px;
+  align-items: start; transition: background .2s;
+}
+.tl-item:hover { background: var(--s3); }
+.tl-year {
+  font-size: .62rem; font-weight: 700; letter-spacing: .12em;
+  color: var(--crimson); padding-top: 2px;
+}
+.tl-title { font-size: .72rem; font-weight: 600; letter-spacing: .06em; color: var(--w1); margin-bottom: 3px; }
+.tl-desc { font-size: .74rem; font-weight: 300; color: var(--w2); line-height: 1.65; }
+
+/* ── PORTFOLIO ───────────────────────────────────── */
+.portfolio-section {
+  padding: 108px 0;
+  background: var(--s1);
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+.portfolio-header {
+  padding: 0 64px 52px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+.portfolio-more {
+  font-size: .58rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--w2); border-bottom: 1px solid var(--line); padding-bottom: 3px;
+  display: flex; align-items: center; gap: 8px;
+  transition: color .2s, border-color .2s;
+}
+.portfolio-more:hover { color: var(--crimson); border-color: var(--crimson); }
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 400px 280px;
+  gap: 2px; padding: 0 64px;
+}
+.proj {
+  position: relative; overflow: hidden; background: var(--s2);
+}
+.p-big { grid-row: 1 / 3; }
+.proj-bg {
+  position: absolute; inset: 0;
+  transition: transform .7s cubic-bezier(.16,1,.3,1);
+}
+.proj:hover .proj-bg { transform: scale(1.04); }
+
+.pa { background: linear-gradient(135deg, #0E0B14 0%, #1C1220 55%, #0B0910 100%); }
+.pa::after { content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 35% 60%, rgba(196,18,48,.09) 0%, transparent 55%),
+    linear-gradient(to right, rgba(237,234,232,.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(237,234,232,.02) 1px, transparent 1px);
+  background-size: 100%, 70px 70px, 70px 70px; }
+.pb { background: linear-gradient(220deg, #110D16 0%, #0D0A12 70%, #1A1222 100%); }
+.pb::after { content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 70% 30%, rgba(120,80,180,.04) 0%, transparent 55%); }
+.pc { background: linear-gradient(50deg, #0A0810 0%, #14101A 100%); }
+.pc::after { content:''; position:absolute; inset:0;
+  background: linear-gradient(to bottom right, transparent 42%, rgba(196,18,48,.06) 50%, transparent 58%); }
+.pd { background: linear-gradient(170deg, #100C16 0%, #1C1525 60%, #0C0A10 100%); }
+.pd::after { content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 75%, rgba(196,18,48,.07) 0%, transparent 60%); }
+.pe { background: linear-gradient(110deg, #0D0B14 0%, #0A0810 100%); }
+
+.proj-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 24px 26px;
+  background: linear-gradient(to top, rgba(0,0,0,.9) 0%, transparent 100%);
+  transform: translateY(8px);
+  transition: transform .35s ease;
+}
+.proj:hover .proj-info { transform: none; }
+.proj-cat {
+  font-size: .5rem; font-weight: 700; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--crimson); margin-bottom: 4px;
+}
+.proj-name {
+  font-family: var(--fd); font-size: 1rem; font-weight: 400; color: var(--w1);
+}
+.proj-loc { font-size: .58rem; color: var(--w2); margin-top: 3px; letter-spacing: .06em; }
+.proj-badge {
+  position: absolute; top: 16px; left: 16px;
+  font-size: .5rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  background: var(--crimson); color: #000; padding: 4px 9px;
+  opacity: 0; transition: opacity .3s;
+}
+.proj:hover .proj-badge { opacity: 1; }
+
+/* ── TESTIMONIALS ────────────────────────────────── */
+.testi-section {
+  padding: 108px 64px;
+  background: var(--black);
+}
+
+.testi-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--line); border: 1px solid var(--line);
+}
+.testi-card {
+  background: var(--s2); padding: 40px 34px;
+  position: relative; overflow: hidden; transition: background .25s;
+}
+.testi-card:hover { background: var(--s3); }
+.testi-mark {
+  font-family: var(--fd); font-size: 4rem; font-weight: 900;
+  color: rgba(196,18,48,.1); line-height: .8; margin-bottom: 16px;
+}
+.testi-text {
+  font-family: var(--fd); font-size: .98rem; font-weight: 300; font-style: italic;
+  color: var(--w1); line-height: 1.68; margin-bottom: 26px;
+}
+.testi-text em { color: var(--crimson); font-style: italic; }
+.testi-sep { width: 30px; height: 1px; background: var(--crimson); margin-bottom: 16px; }
+.testi-name { font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--w1); margin-bottom: 3px; }
+.testi-role { font-size: .62rem; font-weight: 300; color: var(--w3); letter-spacing: .06em; }
+
+/* ── AWARDS ──────────────────────────────────────── */
+.awards-section {
+  padding: 72px 64px;
+  background: var(--s1);
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+.awards-inner {
+  display: flex; align-items: center; gap: 48px; flex-wrap: wrap;
+}
+.awards-label {
+  font-size: .57rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--w3); flex-shrink: 0;
+  display: flex; align-items: center; gap: 10px;
+}
+.awards-label::after { content: ''; width: 1px; height: 28px; background: var(--line2); }
+.award-item {
+  font-size: .7rem; font-weight: 500; letter-spacing: .1em;
+  color: var(--w2); padding: 8px 16px;
+  border: 1px solid var(--line); transition: border-color .2s, color .2s;
+}
+.award-item:hover { border-color: rgba(196,18,48,.3); color: var(--crimson); }
+
+/* ── ENQUIRY ─────────────────────────────────────── */
+.enquiry-section {
+  padding: 108px 64px;
+  background: var(--black);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+}
+
+.enq-left { }
+.enq-sub {
+  font-size: .87rem; font-weight: 300; color: var(--w2);
+  line-height: 2; margin-bottom: 28px;
+}
+.enq-filter {
+  background: var(--cr-low); border-left: 2px solid var(--crimson);
+  padding: 16px 22px; margin-bottom: 40px;
+  font-size: .78rem; font-weight: 300; color: var(--w2); line-height: 1.8;
+}
+.enq-filter strong { color: var(--w1); font-weight: 500; }
+
+.contact-list { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.contact-row {
+  background: var(--s2); padding: 16px 20px;
+  display: grid; grid-template-columns: 80px 1fr; gap: 14px; align-items: center;
+}
+.cr-label { font-size: .53rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--w3); }
+.cr-val { font-size: .8rem; font-weight: 300; color: var(--w1); }
+.cr-val.red { color: var(--crimson); }
+
+.enq-form { display: flex; flex-direction: column; gap: 1px; background: var(--line); }
+.f-field {
+  background: var(--s2); padding: 17px 20px;
+  transition: background .2s;
+}
+.f-field:focus-within { background: var(--s3); }
+.f-field label {
+  display: block; font-size: .52rem; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--w3); margin-bottom: 6px;
+}
+.f-field input,
+.f-field select,
+.f-field textarea {
+  width: 100%; background: transparent; border: none; outline: none;
+  font-family: var(--fb); font-size: .84rem; font-weight: 300;
+  color: var(--w1); resize: none;
+}
+.f-field input::placeholder, .f-field textarea::placeholder { color: var(--w3); }
+.f-field select { color: var(--w2); appearance: none; cursor: pointer; }
+.f-field select option { background: #0F0D12; color: var(--w1); }
+
+.f-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; }
+.f-submit {
+  background: var(--crimson); color: #000;
+  font-family: var(--fb); font-size: .6rem; font-weight: 700;
+  letter-spacing: .22em; text-transform: uppercase;
+  border: none; padding: 18px; cursor: pointer;
+  transition: background .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.f-submit:hover { background: #a5102a; }
+.f-submit svg { width: 13px; height: 13px; fill: #000; }
+
+.f-wa {
+  background: #075E54; color: #fff;
+  font-family: var(--fb); font-size: .6rem; font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase;
+  border: none; padding: 18px; cursor: pointer;
+  transition: background .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.f-wa:hover { background: #054a42; }
+.f-wa svg { width: 13px; height: 13px; fill: #fff; }
+
+.f-note {
+  font-size: .58rem; color: var(--w3); line-height: 1.7;
+  letter-spacing: .04em; margin-top: 12px; background: var(--s2);
+  padding: 14px 16px; border: 1px solid var(--line);
+}
+
+/* ── FOOTER ──────────────────────────────────────── */
+footer {
+  background: var(--s1);
+  border-top: 1px solid var(--line);
+  padding: 44px 64px;
+  display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 40px; align-items: start;
+}
+.footer-brand {
+  font-family: var(--fd); font-size: .9rem; font-weight: 500;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--w1); margin-bottom: 6px;
+}
+.footer-brand span { color: var(--crimson); }
+.footer-tagline { font-size: .62rem; color: var(--w3); letter-spacing: .08em; line-height: 1.7; }
+
+.footer-col-title {
+  font-size: .55rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--w3); margin-bottom: 16px;
+}
+.footer-links { display: flex; flex-direction: column; gap: 10px; }
+.footer-links a {
+  font-size: .72rem; font-weight: 300; color: var(--w2); transition: color .2s;
+}
+.footer-links a:hover { color: var(--crimson); }
+
+.footer-bottom {
+  border-top: 1px solid var(--line); padding: 20px 64px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--s1);
+}
+.footer-copy { font-size: .57rem; color: var(--w3); letter-spacing: .08em; }
+.footer-copy span { color: var(--crimson); }
+
+/* ── KEYFRAMES ───────────────────────────────────── */
+@keyframes fadeDown  { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:none; } }
+@keyframes fromLeft  { from { opacity:0; transform:translateX(-30px); } to { opacity:1; transform:none; } }
+@keyframes fromRight { from { opacity:0; transform:translateX(30px);  } to { opacity:1; transform:none; } }
+@keyframes fromTop   { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:none; } }
+
+/* ── RESPONSIVE ──────────────────────────────────── */
+@media (max-width: 960px) {
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-left { padding: 72px 28px 56px; }
+  .hero-right { display: none; }
+  .trust-grid { grid-template-columns: repeat(2, 1fr); }
+  .diff-section, .founder-section, .enquiry-section,
+  .services-intro { grid-template-columns: 1fr; gap: 40px; }
+  .diff-section, .founder-section, .services-section,
+  .testi-section, .enquiry-section { padding: 72px 28px; }
+  .portfolio-header, .portfolio-grid { padding-left: 28px; padding-right: 28px; }
+  .portfolio-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+  .p-big { grid-row: auto; height: 360px; }
+  .proj { height: 240px; }
+  .core-services, .testi-grid { grid-template-columns: 1fr; }
+  footer { grid-template-columns: 1fr; padding: 40px 28px; }
+  .footer-bottom { padding: 18px 28px; flex-direction: column; gap: 8px; }
+  .awards-section { padding: 52px 28px; }
+  .rule { margin: 0 28px; }
+  .f-actions { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ══════════════════════════════════════════ -->
+<nav>
+  <div class="nav-logo"><span>Q</span>ube Designs</div>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#work">Portfolio</a>
+    <a href="#founder">Studio</a>
+    <a href="#enquiry">Enquire</a>
+  </div>
+  <a href="https://wa.me/+918700655257" target="_blank" class="nav-wa">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    WhatsApp Us
+  </a>
+</nav>
+
+<!-- ═══ HERO ══════════════════════════════════════════ -->
+<section class="hero" id="home">
+  <div class="hero-left">
+    <div class="hero-kicker">New Delhi · Est. 2004 · 18 Years of Practice</div>
+    <h1 class="hero-h1">
+      20 Years of<br>
+      Material Knowledge.<br>
+      <em>One Address.</em>
+    </h1>
+    <p class="hero-sub">
+      We started with furniture. We understand how things are made, what lasts, and what doesn't — before a single sketch is drawn. That knowledge is what separates a designed space from a finished one.
+    </p>
+    <div class="hero-actions">
+      <a href="#work" class="btn-p">View Our Work</a>
+      <a href="#enquiry" class="btn-g">Start a Project</a>
+    </div>
+    <div class="hero-proof">
+      <div class="hp">
+        <div class="hp-num">210<sup>+</sup></div>
+        <div class="hp-label">Projects Built</div>
+      </div>
+      <div class="hp">
+        <div class="hp-num">150<sup>+</sup></div>
+        <div class="hp-label">Clients Served</div>
+      </div>
+      <div class="hp">
+        <div class="hp-num">09<sup>+</sup></div>
+        <div class="hp-label">Awards Won</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <svg viewBox="0 0 600 900" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <!-- Room perspective -->
+      <line x1="0" y1="120" x2="600" y2="120" stroke="#EDEAE8" stroke-width=".3" opacity=".15"/>
+      <line x1="0" y1="780" x2="600" y2="780" stroke="#EDEAE8" stroke-width=".3" opacity=".12"/>
+      <line x1="0" y1="120" x2="0" y2="780" stroke="#EDEAE8" stroke-width=".3" opacity=".12"/>
+      <line x1="600" y1="120" x2="600" y2="780" stroke="#EDEAE8" stroke-width=".3" opacity=".12"/>
+      <!-- Vanish lines -->
+      <line x1="0" y1="120" x2="300" y2="350" stroke="#EDEAE8" stroke-width=".2" opacity=".08"/>
+      <line x1="600" y1="120" x2="300" y2="350" stroke="#EDEAE8" stroke-width=".2" opacity=".08"/>
+      <line x1="0" y1="780" x2="300" y2="560" stroke="#EDEAE8" stroke-width=".2" opacity=".08"/>
+      <line x1="600" y1="780" x2="300" y2="560" stroke="#EDEAE8" stroke-width=".2" opacity=".08"/>
+      <!-- Floor horizon -->
+      <line x1="0" y1="520" x2="600" y2="520" stroke="#EDEAE8" stroke-width=".3" opacity=".1"/>
+      <!-- Grid -->
+      <line x1="200" y1="120" x2="200" y2="780" stroke="#EDEAE8" stroke-width=".2" opacity=".04"/>
+      <line x1="400" y1="120" x2="400" y2="780" stroke="#EDEAE8" stroke-width=".2" opacity=".04"/>
+      <line x1="0" y1="350" x2="600" y2="350" stroke="#EDEAE8" stroke-width=".2" opacity=".04"/>
+      <!-- Sofa -->
+      <rect x="110" y="490" width="320" height="36" rx="2" fill="#EDEAE8" opacity=".04"/>
+      <rect x="124" y="456" width="292" height="38" rx="3" fill="#EDEAE8" opacity=".045"/>
+      <rect x="110" y="455" width="22" height="72" rx="1" fill="#EDEAE8" opacity=".055"/>
+      <rect x="408" y="455" width="22" height="72" rx="1" fill="#EDEAE8" opacity=".055"/>
+      <!-- Table -->
+      <rect x="200" y="545" width="140" height="5" rx="1" fill="#EDEAE8" opacity=".04"/>
+      <line x1="215" y1="550" x2="215" y2="566" stroke="#EDEAE8" stroke-width="1" opacity=".04"/>
+      <line x1="325" y1="550" x2="325" y2="566" stroke="#EDEAE8" stroke-width="1" opacity=".04"/>
+      <!-- Lamp -->
+      <line x1="460" y1="240" x2="460" y2="490" stroke="#EDEAE8" stroke-width="1.2" opacity=".055"/>
+      <ellipse cx="460" cy="234" rx="26" ry="9" fill="#EDEAE8" opacity=".04"/>
+      <!-- Art frame -->
+      <rect x="215" y="160" width="118" height="148" fill="none" stroke="#EDEAE8" stroke-width=".5" opacity=".1"/>
+      <!-- Crimson light ray -->
+      <line x1="0" y1="390" x2="600" y2="390" stroke="#C41230" stroke-width=".9" opacity=".16"/>
+      <!-- Vertical axis -->
+      <line x1="300" y1="120" x2="300" y2="780" stroke="#C41230" stroke-width=".35" opacity=".07" stroke-dasharray="4 10"/>
+    </svg>
+    <div class="hero-award">9× Award-Winning Studio</div>
+    <div class="hero-year">
+      <div class="hero-year-num">18<sup>+</sup></div>
+      <div class="hero-year-label">Years of Practice</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TRUST STRIP ════════════════════════════════════ -->
+<div class="trust">
+  <div class="trust-grid">
+    <div class="trust-cell reveal">
+      <div class="tc-num">210<sup>+</sup></div>
+      <div class="tc-label">Projects Delivered</div>
+      <div class="tc-desc">Residential, commercial, hospitality & institutional</div>
+    </div>
+    <div class="trust-cell reveal d1">
+      <div class="tc-num">150<sup>+</sup></div>
+      <div class="tc-label">Clients</div>
+      <div class="tc-desc">Repeat client rate above 60% — Delhi's highest</div>
+    </div>
+    <div class="trust-cell reveal d2">
+      <div class="tc-num">09<sup>+</sup></div>
+      <div class="tc-label">Prestigious Awards</div>
+      <div class="tc-desc">Recognised across architecture and interior categories</div>
+    </div>
+    <div class="trust-cell reveal d3">
+      <div class="tc-num">18<sup>+</sup></div>
+      <div class="tc-label">Years of Practice</div>
+      <div class="tc-desc">Since 2004 — from furniture to full architecture</div>
+    </div>
+  </div>
+</div>
+
+<div class="rule"></div>
+
+<!-- ═══ DIFFERENTIATOR ════════════════════════════════ -->
+<section class="diff-section">
+  <div class="reveal">
+    <div class="eyebrow">What Makes Us Different</div>
+    <p class="diff-quote">
+      "We don't just design buildings —<br>we create experiences that leave<br>a lasting impact."
+    </p>
+    <p class="diff-body">
+      Most design firms start with a mood board. We start with material knowledge built over two decades — understanding how stone behaves in Delhi's heat, which finishes hold up in high-footfall commercial spaces, and where budgets quietly drain without the client knowing. That foundation changes every decision we make.
+    </p>
+    <a href="#enquiry" class="btn-p">Start a Conversation</a>
+  </div>
+  <div class="diff-right reveal d2">
+    <div class="diff-item">
+      <div class="diff-icon">◆</div>
+      <div>
+        <div class="dit">Material Intelligence</div>
+        <div class="did">20 years of sourcing, importing and specifying materials means we know quality before it enters the room — not after it's installed.</div>
+      </div>
+    </div>
+    <div class="diff-item">
+      <div class="diff-icon">◆</div>
+      <div>
+        <div class="dit">Full Spatial Ownership</div>
+        <div class="did">From concept through procurement to final installation — one team, one point of accountability. No handover gaps, no blame-sharing.</div>
+      </div>
+    </div>
+    <div class="diff-item">
+      <div class="diff-icon">◆</div>
+      <div>
+        <div class="dit">Functionality First</div>
+        <div class="did">Beautiful spaces that are also liveable, maintainable, and built to last. We design for the tenth year as much as the first impression.</div>
+      </div>
+    </div>
+    <div class="diff-item">
+      <div class="diff-icon">◆</div>
+      <div>
+        <div class="dit">Honest Budget Management</div>
+        <div class="did">We tell you where money matters and where it doesn't — before you spend it. Transparent procurement, no hidden margins on materials.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="rule"></div>
+
+<!-- ═══ SERVICES ══════════════════════════════════════ -->
+<section id="services" class="services-section">
+  <div class="services-intro">
+    <div class="reveal">
+      <div class="eyebrow">What We Do</div>
+      <h2 class="sec-h2" style="margin-bottom:0;">
+        Three core disciplines.<br><em>One integrated team.</em>
+      </h2>
+    </div>
+    <p class="services-intro-right reveal d2">
+      We focus where we are best. Architecture, Interior Design, and 3D Visualisation — delivered as a unified service so nothing falls between disciplines. All other capabilities sit behind these three.
+    </p>
+  </div>
+
+  <div class="core-services reveal">
+    <div class="svc-card">
+      <div class="svc-num">01</div>
+      <div class="svc-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/></svg>
+      </div>
+      <div class="svc-title">Architectural Design</div>
+      <div class="svc-desc">
+        Full building design — from concept through working drawings to site supervision. Residential bungalows, commercial buildings, hospitality projects and institutional spaces across Delhi NCR.
+      </div>
+      <div class="svc-tags">
+        <span class="svc-tag">Residential</span>
+        <span class="svc-tag">Commercial</span>
+        <span class="svc-tag">Hospitality</span>
+        <span class="svc-tag">Institutional</span>
+      </div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-num">02</div>
+      <div class="svc-icon">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <div class="svc-title">Interior Design</div>
+      <div class="svc-desc">
+        Complete interior fit-outs with end-to-end material procurement. Our furniture import heritage means we specify materials at source — not through a catalogue. Homes, offices, restaurants, and retail.
+      </div>
+      <div class="svc-tags">
+        <span class="svc-tag">Homes</span>
+        <span class="svc-tag">Offices</span>
+        <span class="svc-tag">Restaurants</span>
+        <span class="svc-tag">Retail</span>
+      </div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-num">03</div>
+      <div class="svc-icon">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      </div>
+      <div class="svc-title">3D Visualisation</div>
+      <div class="svc-desc">
+        Photorealistic renders before a wall goes up. We use visualisation as a decision-making tool — not a sales asset — so clients confirm materials, light, and spatial proportion before construction begins.
+      </div>
+      <div class="svc-tags">
+        <span class="svc-tag">Pre-build Renders</span>
+        <span class="svc-tag">Walkthroughs</span>
+        <span class="svc-tag">Material Studies</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="also-strip reveal">
+    <span class="also-label">Also Offer</span>
+    <span class="also-item">Urban Planning</span>
+    <span class="also-item">Landscaping</span>
+    <span class="also-item">Building Renovation</span>
+    <span class="also-item">Lighting Design</span>
+    <span class="also-item">Feasibility Studies</span>
+    <span class="also-item">Building Code Compliance</span>
+  </div>
+</section>
+
+<div class="rule"></div>
+
+<!-- ═══ PORTFOLIO ══════════════════════════════════════ -->
+<section id="work" class="portfolio-section">
+  <div class="portfolio-header reveal">
+    <div>
+      <div class="eyebrow">Selected Work</div>
+      <h2 class="sec-h2" style="margin-bottom:0;">210+ projects.<br><em>A few we're proud of.</em></h2>
+    </div>
+    <a href="mailto:ks@qubeoffice.com" class="portfolio-more">Request Full Portfolio →</a>
+  </div>
+
+  <div class="portfolio-grid reveal d1">
+    <div class="proj p-big">
+      <div class="proj-bg pa"></div>
+      <div class="proj-badge">Signature</div>
+      <div class="proj-info">
+        <div class="proj-cat">Luxury Residence · Interior Design</div>
+        <div class="proj-name">South Delhi Bungalow</div>
+        <div class="proj-loc">Greater Kailash, New Delhi · 2024 · 5,200 sq.ft</div>
+      </div>
+    </div>
+    <div class="proj">
+      <div class="proj-bg pb"></div>
+      <div class="proj-info">
+        <div class="proj-cat">Commercial · Architecture</div>
+        <div class="proj-name">Corporate HQ Fitout</div>
+        <div class="proj-loc">Connaught Place, Delhi · 2023</div>
+      </div>
+    </div>
+    <div class="proj">
+      <div class="proj-bg pc"></div>
+      <div class="proj-info">
+        <div class="proj-cat">Hospitality · Interior</div>
+        <div class="proj-name">Fine Dining Restaurant</div>
+        <div class="proj-loc">Hauz Khas Village, Delhi · 2023</div>
+      </div>
+    </div>
+    <div class="proj">
+      <div class="proj-bg pd"></div>
+      <div class="proj-info">
+        <div class="proj-cat">Residential · Full Architecture</div>
+        <div class="proj-name">Noida Penthouse</div>
+        <div class="proj-loc">Sector 44, Noida · 2024</div>
+      </div>
+    </div>
+    <div class="proj">
+      <div class="proj-bg pe"></div>
+      <div class="proj-info">
+        <div class="proj-cat">Retail · Interior Design</div>
+        <div class="proj-name">Luxury Showroom</div>
+        <div class="proj-loc">Kirti Nagar, New Delhi · 2022</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ AWARDS ═════════════════════════════════════════ -->
+<div class="awards-section reveal">
+  <div class="awards-inner">
+    <span class="awards-label">9+ Awards Including</span>
+    <span class="award-item">Excellence in Residential Design</span>
+    <span class="award-item">Best Commercial Interior NCR</span>
+    <span class="award-item">Architectural Innovation Award</span>
+    <span class="award-item">Sustainable Design Commendation</span>
+    <span class="award-item">Best Hospitality Space Delhi</span>
+  </div>
+</div>
+
+<div class="rule"></div>
+
+<!-- ═══ TESTIMONIALS ══════════════════════════════════ -->
+<section class="testi-section">
+  <div class="reveal">
+    <div class="eyebrow">Client Words</div>
+    <h2 class="sec-h2">What 150+ clients <em>actually say.</em></h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-mark">&ldquo;</div>
+      <p class="testi-text">Karan's team understood our brief better than we did. They pushed back on two decisions that would have dated badly — and they were right. The house still looks current three years later.</p>
+      <div class="testi-sep"></div>
+      <div class="testi-name">Rajiv & Sunita Malhotra</div>
+      <div class="testi-role">Residence, Greater Kailash — 2021</div>
+    </div>
+    <div class="testi-card reveal d2">
+      <div class="testi-mark">&ldquo;</div>
+      <p class="testi-text">We had worked with two other firms before Qube. The difference was <em>material knowledge</em> — they could look at a stone and tell you exactly how it would behave in a commercial kitchen environment.</p>
+      <div class="testi-sep"></div>
+      <div class="testi-name">Nikhil Sharma</div>
+      <div class="testi-role">Restaurant Owner, Hauz Khas Village — 2023</div>
+    </div>
+    <div class="testi-card reveal d4">
+      <div class="testi-mark">&ldquo;</div>
+      <p class="testi-text">The 3D visualisations were so accurate that our board approved the design in one meeting. What normally takes three rounds of revisions was done in one. That alone saved us six weeks.</p>
+      <div class="testi-sep"></div>
+      <div class="testi-name">Priya Kapoor</div>
+      <div class="testi-role">Managing Director, Corporate HQ Fitout — 2023</div>
+    </div>
+  </div>
+</section>
+
+<div class="rule"></div>
+
+<!-- ═══ FOUNDER ════════════════════════════════════════ -->
+<section id="founder" class="founder-section">
+  <div class="founder-img-col reveal">
+    <div class="founder-img">
+      <!-- CSS architectural portrait placeholder -->
+      <svg viewBox="0 0 400 560" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background lines -->
+        <line x1="0" y1="80" x2="400" y2="80" stroke="#EDEAE8" stroke-width=".3" opacity=".08"/>
+        <line x1="0" y1="480" x2="400" y2="480" stroke="#EDEAE8" stroke-width=".3" opacity=".08"/>
+        <!-- Person silhouette -->
+        <ellipse cx="200" cy="170" rx="58" ry="68" fill="#EDEAE8" opacity=".045"/>
+        <path d="M120 480 Q120 320 200 300 Q280 320 280 480" fill="#EDEAE8" opacity=".04"/>
+        <path d="M80 480 Q100 360 200 340 Q300 360 320 480" fill="#EDEAE8" opacity=".025"/>
+        <!-- Desk -->
+        <rect x="60" y="478" width="280" height="4" rx="1" fill="#EDEAE8" opacity=".06"/>
+        <line x1="80" y1="482" x2="80" y2="520" stroke="#EDEAE8" stroke-width="1" opacity=".05"/>
+        <line x1="320" y1="482" x2="320" y2="520" stroke="#EDEAE8" stroke-width="1" opacity=".05"/>
+        <!-- Blueprint on desk -->
+        <rect x="100" y="460" width="100" height="18" rx="1" fill="#EDEAE8" opacity=".04"/>
+        <line x1="108" y1="466" x2="192" y2="466" stroke="#C41230" stroke-width=".6" opacity=".2"/>
+        <line x1="108" y1="470" x2="180" y2="470" stroke="#C41230" stroke-width=".6" opacity=".14"/>
+        <!-- Single crimson light -->
+        <line x1="0" y1="300" x2="400" y2="300" stroke="#C41230" stroke-width=".8" opacity=".12"/>
+      </svg>
+    </div>
+    <div class="founder-img-label">
+      <div class="founder-name">Karan Sethi</div>
+      <div class="founder-title">Founder & Principal Designer</div>
+    </div>
+  </div>
+
+  <div class="founder-right reveal d2">
+    <div class="eyebrow">Our Founder</div>
+    <h2 class="sec-h2">Built on <em>two decades</em><br>of material knowledge.</h2>
+    <p class="founder-body">
+      Karan Sethi didn't arrive at architecture through a textbook. He arrived through furniture — importing, sourcing, and selling it from 2004 across multiple Delhi retail locations. That background gave him something most designers don't have: an understanding of how things are actually made, what quality feels like before it's installed, and which materials perform over time versus which ones photograph well.
+    </p>
+    <p class="founder-body">
+      When he transitioned into interiors in 2011, that material intelligence became the foundation of the studio's design process. By 2016, the retail stores closed and Qube became a full-service design practice. The instinct remained: start with what lasts.
+    </p>
+    <div class="founder-quote">
+      "We build more than structures — we design customised experiences tuned to your aspirations."
+    </div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-year">2004</div>
+        <div>
+          <div class="tl-title">Furniture Import Business</div>
+          <div class="tl-desc">Karan begins importing and retailing quality furniture across Delhi — building deep material knowledge from source.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2011</div>
+        <div>
+          <div class="tl-title">Interior Design Practice Begins</div>
+          <div class="tl-desc">Applying retail expertise to full interior commissions — a natural evolution from knowing materials to designing with them.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2015</div>
+        <div>
+          <div class="tl-title">First Dedicated Design Office</div>
+          <div class="tl-desc">Kirti Nagar studio opens — giving the practice a home and signalling a clear professional commitment to design.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2016</div>
+        <div>
+          <div class="tl-title">Full Transition to Design</div>
+          <div class="tl-desc">All retail furniture shops close. Qube Designs becomes a 100% architecture and interior practice.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2025</div>
+        <div>
+          <div class="tl-title">Expanded Studio, Kirti Nagar</div>
+          <div class="tl-desc">A larger, modern studio opens to house a growing multidisciplinary team — 210+ projects and counting.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="rule"></div>
+
+<!-- ═══ ENQUIRY ════════════════════════════════════════ -->
+<section id="enquiry" class="enquiry-section">
+  <div class="enq-left reveal">
+    <div class="eyebrow">Start a Project</div>
+    <h2 class="sec-h2">Tell us about<br>your <em>space.</em></h2>
+    <p class="enq-sub">
+      Every project starts with a conversation — not a contract. Tell us what you're thinking and we'll tell you honestly whether we're the right fit. No pressure, no pitch decks.
+    </p>
+    <div class="enq-filter">
+      <strong>We work on:</strong> Residential interiors, commercial architecture, hospitality design, retail fitouts, and building renovations across Delhi NCR. Minimum project scope: full interior or architectural commission.
+    </div>
+    <div class="contact-list">
+      <div class="contact-row">
+        <span class="cr-label">Phone</span>
+        <span class="cr-val">+91 87006 55257</span>
+      </div>
+      <div class="contact-row">
+        <span class="cr-label">Email</span>
+        <span class="cr-val red">ks@qubeoffice.com</span>
+      </div>
+      <div class="contact-row">
+        <span class="cr-label">Studio</span>
+        <span class="cr-val">Main Road, Kirti Nagar, New Delhi</span>
+      </div>
+      <div class="contact-row">
+        <span class="cr-label">WhatsApp</span>
+        <a href="https://wa.me/+918700655257" target="_blank" style="font-size:.8rem;font-weight:300;color:var(--crimson);">Message Directly →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="reveal d2">
+    <div class="enq-form">
+      <div class="f-field">
+        <label>Your Name</label>
+        <input type="text" placeholder="Full name">
+      </div>
+      <div class="f-field">
+        <label>Phone Number</label>
+        <input type="tel" placeholder="+91">
+      </div>
+      <div class="f-field">
+        <label>Project Location</label>
+        <input type="text" placeholder="Delhi, Noida, Gurgaon…">
+      </div>
+      <div class="f-field">
+        <label>Project Type</label>
+        <select>
+          <option value="" disabled selected>Select type</option>
+          <option>Residential Interior</option>
+          <option>Residential Architecture</option>
+          <option>Commercial / Office</option>
+          <option>Hospitality / Restaurant</option>
+          <option>Retail Fitout</option>
+          <option>Building Renovation</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="f-field">
+        <label>Brief Description</label>
+        <textarea rows="4" placeholder="Space size, timeline, what you're looking to achieve…"></textarea>
+      </div>
+      <div class="f-actions">
+        <button class="f-submit" type="button" onclick="window.location='mailto:ks@qubeoffice.com'">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Send via Email
+        </button>
+        <button class="f-wa" type="button" onclick="window.open('https://wa.me/+918700655257','_blank')">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp Us
+        </button>
+      </div>
+    </div>
+    <p class="f-note">
+      We typically respond within 24 hours. WhatsApp is fastest for a quick conversation. All enquiries are handled personally by Karan or a senior member of the team.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═════════════════════════════════════════ -->
+<footer>
+  <div>
+    <div class="footer-brand"><span>Q</span>ube Designs</div>
+    <div class="footer-tagline">
+      Architecture &amp; Interior Design Studio<br>
+      Main Road, Kirti Nagar, New Delhi<br>
+      Est. 2004 — 18 years of material knowledge.
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Navigate</div>
+    <div class="footer-links">
+      <a href="#home">Home</a>
+      <a href="#services">Services</a>
+      <a href="#work">Portfolio</a>
+      <a href="#founder">Our Studio</a>
+      <a href="#enquiry">Start a Project</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-title">Connect</div>
+    <div class="footer-links">
+      <a href="https://www.instagram.com/qubedesign_ks" target="_blank">Instagram</a>
+      <a href="https://www.linkedin.com/in/karan-sethi-54907b103" target="_blank">LinkedIn</a>
+      <a href="https://wa.me/+918700655257" target="_blank">WhatsApp</a>
+      <a href="mailto:ks@qubeoffice.com">ks@qubeoffice.com</a>
+      <a href="tel:+918700655257">+91 87006 55257</a>
+    </div>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <span class="footer-copy">© 2025 Qube Designs. All rights reserved. <span>New Delhi, India.</span></span>
+  <span class="footer-copy">Architecture · Interior Design · 3D Visualisation</span>
+</div>
+
+<script>
+// Scroll reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+
+// Nav active highlight on scroll
+const sections = document.querySelectorAll('section[id], div[id="home"]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + current
+      ? 'var(--w1)' : '';
+  });
+}, { passive: true });
+</script>
+</body>
+</html>

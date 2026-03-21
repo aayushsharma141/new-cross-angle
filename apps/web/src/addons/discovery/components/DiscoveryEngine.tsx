@@ -48,7 +48,7 @@ export interface DiscoveryConfig {
 
 export interface DiscoveryEngineProps {
     config?: DiscoveryConfig;
-    onComplete?: (result: Record<string, unknown>) => void;
+    onComplete?: (result: { scores: AestheticScores; signals: UserSignals; aiResult?: AIAestheticResult | null }) => void;
 }
 
 export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {}) => {
@@ -220,7 +220,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
         <div className={cn(
             "w-full text-foreground relative flex flex-col lg:flex-row",
             // Deep warm-ink background for quiz stages and results
-            isQuizStage ? "bg-[#0D0A08] h-screen overflow-hidden" : isResultsStage ? "bg-[#040404] min-h-screen" : "bg-background min-h-screen"
+            isQuizStage ? "bg-site-bg h-screen overflow-hidden" : isResultsStage ? "bg-site-bg min-h-screen" : "bg-site-bg min-h-screen"
         )}>
             {/* Cinematic wipe overlay */}
             <AnimatePresence>
@@ -240,7 +240,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                 <div
                     className="fixed inset-0 pointer-events-none z-0"
                     style={{
-                        background: "radial-gradient(ellipse 70% 50% at 60% 40%, rgba(28,20,16,0.95) 0%, #0D0A08 70%)",
+                        background: "radial-gradient(ellipse 70% 50% at 60% 40%, rgba(26,26,26,0.95) 0%, #0F0F10 70%)",
                     }}
                 />
             )}
@@ -259,7 +259,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
 
             {/* ── COMPACT DOT-NAV SIDEBAR (72px) ── */}
             {isQuizStage && (
-                <div className="hidden lg:flex flex-col w-[72px] shrink-0 h-full border-r border-white/5 bg-[#0A0705]/80 backdrop-blur-xl relative z-10">
+                <div className="hidden lg:flex flex-col w-[72px] shrink-0 h-full border-r border-site-border bg-site-bg/80 backdrop-blur-xl relative z-10">
                     {/* Numbered dot nav */}
                     <div className="flex-1 flex flex-col items-center justify-center gap-4 py-8">
                         {DOT_NAV_STAGES.map(({ stage: s, label }, idx) => {
@@ -269,19 +269,19 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                                 <div key={s} className="relative group flex flex-col items-center gap-1">
                                     {/* Dot — 8px active, 5px inactive */}
                                     <div className={`rounded-full transition-all duration-500 ${isActive
-                                        ? "w-2.5 h-2.5 bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.6)]"
+                                        ? "w-2.5 h-2.5 bg-site-crimson shadow-[0_0_10px_rgba(227, 83, 54,0.6)]"
                                         : isCompleted
-                                            ? "w-1.5 h-1.5 bg-amber-400/30"
-                                            : "w-1.5 h-1.5 bg-white/15"
+                                            ? "w-1.5 h-1.5 bg-site-crimson/30"
+                                            : "w-1.5 h-1.5 bg-site-text-meta/20"
                                         }`} />
                                     {/* Section number — always visible at 30%, active at full */}
-                                    <span className={`text-[9px] font-mono tabular-nums transition-all duration-300 ${isActive ? "text-amber-400/90" :
-                                        isCompleted ? "text-white/30" : "text-white/20"
+                                    <span className={`text-[9px] font-mono tabular-nums transition-all duration-300 ${isActive ? "text-site-crimson/90" :
+                                        isCompleted ? "text-site-text-meta/40" : "text-site-text-meta/20"
                                         }`}>
                                         {String(idx + 1).padStart(2, "0")}
                                     </span>
                                     {/* Hover tooltip */}
-                                    <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#0D0A08] border border-white/10 text-[10px] text-white/75 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+                                    <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-site-bg-card border border-site-border text-[10px] text-site-text-muted whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
                                         {label}
                                     </div>
                                 </div>
@@ -393,8 +393,8 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                                     <Suspense fallback={
                                         <div className="w-full h-[60vh] flex items-center justify-center">
                                             <div className="flex flex-col items-center gap-4">
-                                                <div className="w-12 h-12 rounded-full border border-white/10 border-t-amber-400 animate-spin" />
-                                                <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-mono">Loading Results...</p>
+                                                <div className="w-12 h-12 rounded-full border border-site-border border-t-site-crimson animate-spin" />
+                                                <p className="text-[10px] uppercase tracking-[0.2em] text-site-text-meta font-mono">Loading Results...</p>
                                             </div>
                                         </div>
                                     }>

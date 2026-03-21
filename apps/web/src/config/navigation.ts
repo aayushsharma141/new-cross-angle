@@ -17,9 +17,9 @@ export const servicesMenu = {
   ],
 };
 
-export const navLinks = [
+export const navLinks: { name: string; href: string; hasMegaMenu?: boolean }[] = [
   { name: "Home", href: "/" },
-  { name: "Services", href: "/services", hasMegaMenu: true },
+  { name: "Services", href: "/services", hasMegaMenu: false },
   { name: "Projects", href: "/gallery" },
   { name: "About", href: "/about-us" },
   { name: "Blog", href: "/blog" },

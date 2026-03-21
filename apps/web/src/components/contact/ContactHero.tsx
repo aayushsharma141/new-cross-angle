@@ -27,14 +27,14 @@ const ContactHero = () => {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[60vh] flex items-center justify-center overflow-hidden pt-28 pb-16"
+      className="relative min-h-[60vh] flex items-center justify-center overflow-hidden pt-28 pb-16 bg-site-bg"
     >
       {/* Animated Gradient Mesh Background */}
       <div className="absolute inset-0 z-0">
         <motion.div
           className="absolute w-[600px] h-[600px] rounded-full opacity-30 blur-[100px]"
           style={{
-            background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, var(--site-crimson) 0%, transparent 70%)',
             top: '20%',
             left: '30%',
           }}
@@ -52,7 +52,7 @@ const ContactHero = () => {
         <motion.div
           className="absolute w-[400px] h-[400px] rounded-full opacity-20 blur-[80px]"
           animate={{
-            background: 'radial-gradient(circle, hsl(var(--secondary)) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, var(--site-crimson) 0%, transparent 70%)',
             bottom: '10%',
             right: '20%',
             x: mousePosition.x * -1,
@@ -70,22 +70,6 @@ const ContactHero = () => {
       {/* Grid pattern */}
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" />
 
-      {/* Floating shapes */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <motion.div
-          className="absolute top-20 right-[20%] w-16 h-16 border border-primary/20 rounded-lg"
-          animate={{ rotate: 360, y: [0, -15, 0] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        />
-        <motion.div
-          className="absolute bottom-20 left-[15%] w-12 h-12 border border-secondary/20 rounded-full"
-          animate={{ rotate: -360, scale: [1, 1.2, 1] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-        />
-      </div>
-
-
-
       {/* Content */}
       <div className="container mx-auto px-4 relative z-10" ref={textRef}>
         <div className="text-center max-w-4xl mx-auto">
@@ -95,7 +79,7 @@ const ContactHero = () => {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-flex items-center gap-2 text-primary font-medium tracking-[0.2em] uppercase text-sm mb-6 border border-primary/30 px-5 py-2.5 rounded-full backdrop-blur-sm bg-primary/5">
+            <span className="inline-flex items-center gap-2 text-site-crimson font-medium tracking-[0.2em] uppercase text-sm mb-6 border border-site-crimson/30 px-5 py-2.5 rounded-none backdrop-blur-sm bg-site-crimson/5">
               <Sparkles className="w-4 h-4" />
               Get In Touch
               <Sparkles className="w-4 h-4" />
@@ -104,22 +88,22 @@ const ContactHero = () => {
 
           {/* Kinetic Typography headline */}
           <div className="mb-6 px-2">
-            <KineticText className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight">
+            <KineticText className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-site-text-heading leading-tight">
               Ready to Transform
             </KineticText>
-            <KineticText className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary leading-tight mt-2">
+            <KineticText className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-site-crimson leading-tight mt-2">
               Your Space?
             </KineticText>
           </div>
 
           <motion.p
-            className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto"
+            className="text-site-text-muted text-lg md:text-xl max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.8, duration: 0.6 }}
           >
             Get a free consultation and 3D design visualization.
-            <span className="block mt-2 text-primary font-medium">
+            <span className="block mt-2 text-site-crimson font-medium">
               No obligation. No hidden costs.
             </span>
           </motion.p>

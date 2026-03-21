@@ -16,20 +16,9 @@ import Portfolio from "@/components/Portfolio";
 import TrustSection from "@/components/TrustSection";
 import { BeforeAfterShowcase } from "@/components/BeforeAfterShowcase";
 import Testimonials from "@/components/Testimonials";
-
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-import { PageRenderer } from "@/components/cms/PageRenderer";
-import { Loader2 } from "lucide-react";
+import { MarqueeStrip } from "@/components/MarqueeStrip";
 
 const Index = () => {
-  const { data: pageData, isLoading } = useQuery({
-    queryKey: ["page", "home"],
-    queryFn: () => api.getPageBySlug("home"),
-  });
-
-  const sections = pageData?.sections || [];
-
   return (
     <>
       <Helmet>
@@ -64,24 +53,33 @@ const Index = () => {
         <SectionNavDots />
         <WhatsAppButton />
 
-        {isLoading ? (
-          <div className="min-h-screen flex items-center justify-center bg-background">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        ) : sections.length > 0 ? (
-          <PageRenderer sections={sections} />
-        ) : (
-          <>
-            <Hero />
-            <About />
-            <Services />
-            <Process />
-            <Portfolio />
-            <TrustSection />
-            <BeforeAfterShowcase />
-            <Testimonials />
-          </>
-        )}
+        <div id="hero" className="bg-site-bg">
+          <Hero />
+        </div>
+        <div id="about" className="bg-site-bg-section border-t border-site-border">
+          <About />
+        </div>
+        <div id="services" className="bg-site-bg border-t border-site-border">
+          <Services />
+        </div>
+        <div id="process" className="bg-site-bg-section border-t border-site-border">
+          <Process />
+        </div>
+        <div className="bg-site-bg-section border-t border-site-border">
+          <MarqueeStrip />
+        </div>
+        <div id="portfolio" className="bg-site-bg border-t border-site-border">
+          <Portfolio />
+        </div>
+        <div className="bg-site-bg-section border-t border-site-border">
+          <TrustSection />
+        </div>
+        <div className="bg-site-bg border-t border-site-border">
+          <BeforeAfterShowcase />
+        </div>
+        <div id="testimonials" className="bg-site-bg-section border-t border-site-border">
+          <Testimonials />
+        </div>
       </main>
       <Footer />
     </>

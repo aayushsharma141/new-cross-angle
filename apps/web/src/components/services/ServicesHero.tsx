@@ -1,176 +1,160 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
-import { ChevronDown } from "lucide-react";
-import { KineticText } from "@/components/ui/kinetic-text";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+
+const wordPairs = [
+  { top: "Intelligence", bottom: "Decoration" },
+  { top: "Execution", bottom: "Incomplete" },
+  { top: "Experience", bottom: "Cold" },
+];
 
 const ServicesHero = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
+  const [index, setIndex] = useState(0);
 
-  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((current) => (current + 1) % wordPairs.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
 
-  const titleWords = ["You", "Dream", "It.", "We", "Design", "It."];
+  const currentPair = wordPairs[index];
 
   return (
-    <section
-      ref={containerRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background"
-    >
-      {/* Animated gradient mesh background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full"
-          style={{
-            background: "radial-gradient(circle, hsl(var(--primary) / 0.15) 0%, transparent 70%)",
+    <section className="relative min-h-screen flex flex-col justify-end overflow-hidden bg-[#000000]" style={{ padding: "clamp(100px,12vh,140px) clamp(20px,5vw,80px) clamp(16px,3vh,40px)" }}>
+      {/* Background Layers */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Animated Grid Texture */}
+        <motion.div 
+          animate={{ 
+            y: [0, -40],
+            opacity: [0.03, 0.05, 0.03]
           }}
-          animate={{
-            scale: [1, 1.2, 1],
-            x: [0, 50, 0],
-            y: [0, -30, 0],
+          transition={{ 
+            y: { duration: 20, repeat: Infinity, ease: "linear" },
+            opacity: { duration: 10, repeat: Infinity, ease: "easeInOut" }
           }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:40px_40px]"
         />
-        <motion.div
-          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full"
-          style={{
-            background: "radial-gradient(circle, hsl(var(--secondary) / 0.1) 0%, transparent 70%)",
+        
+        {/* Powerful Radial Red Glow */}
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.1, 1],
+            opacity: [0.1, 0.15, 0.1]
           }}
-          animate={{
-            scale: [1.2, 1, 1.2],
-            x: [0, -40, 0],
-            y: [0, 40, 0],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
-          style={{
-            background: "radial-gradient(circle, hsl(var(--accent) / 0.08) 0%, transparent 60%)",
-          }}
-          animate={{
-            rotate: [0, 360],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear",
-          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100vw] h-[100vw] max-w-[1200px] max-h-[1200px] rounded-full blur-[160px]"
+          style={{ background: "radial-gradient(circle, #FF2A2A 0%, transparent 70%)" }}
         />
       </div>
 
-      {/* Noise texture overlay */}
-      <div className="absolute inset-0 opacity-[0.03] bg-noise" />
+        <div className="w-full max-w-[1400px] mx-auto relative z-10 flex flex-col justify-center flex-1">
+          
+          {/* Top Label */}
+          <motion.div
+            initial={{ opacity: 0, y: 36 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-center gap-3.5 mb-6 text-[10px] font-bold tracking-[0.3em] uppercase text-[#FF2A2A] font-label"
+          >
+            <div className="w-9 h-[1px] bg-[#FF2A2A] shrink-0" />
+            Our Services
+          </motion.div>
 
-      {/* Grid lines */}
-      <div className="absolute inset-0 opacity-[0.02]">
-        <div
-          className="h-full w-full bg-grid-pattern"
-        />
-      </div>
+          {/* Main Heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 36 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-9"
+          >
+            <h1 className="font-display text-[clamp(2.4rem,5.8vw,6rem)] font-normal text-[#EDEDED] leading-[1.06] tracking-[-0.02em] max-w-[20ch]">
+              Turnkey Interior<br />
+              Projects Delivered<br />
+              with <span className="text-[#FF2A2A] italic">Hospitality<br />Precision.</span>
+            </h1>
+          </motion.div>
 
-      <motion.div style={{ y, opacity }} className="relative z-10 container mx-auto px-4">
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex justify-center mb-8"
-        >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium tracking-wider">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            OUR SERVICES
-          </span>
-        </motion.div>
+          {/* Animated Word-Swap Statement */}
+          <motion.div
+            initial={{ opacity: 0, y: 36 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="font-display text-[clamp(1.1rem,2.6vw,2rem)] font-light text-[#EDEDED]/60 italic border-l-[3px] border-[#FF2A2A] pl-5 mb-8 flex items-center flex-wrap gap-[0.25em]"
+          >
+            <span>Architecture Without</span>
+            
+            <div className="relative inline-flex overflow-hidden text-[#FF2A2A] font-normal mx-[0.1em]">
+              <AnimatePresence mode="popLayout">
+                <motion.div
+                  key={currentPair.top}
+                  initial={{ y: "100%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: "-100%", opacity: 0 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="whitespace-nowrap inline-block"
+                >
+                  {currentPair.top}
+                </motion.div>
+              </AnimatePresence>
+            </div>
 
-        {/* Main Title with staggered animation */}
-        <div className="text-center mb-8 px-2">
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight flex flex-wrap justify-center gap-x-2 sm:gap-x-4 gap-y-2">
-            <KineticText preset="word-reveal" delay={0.1}>
-              You Dream It.
-            </KineticText>
-            <span className="flex gap-x-2 sm:gap-x-4">
-              <KineticText preset="word-reveal" delay={0.4}>
-                We
-              </KineticText>
-              <span className="text-primary italic">
-                <KineticText preset="word-reveal" delay={0.5}>
-                  Design
-                </KineticText>
+            <span>Is</span>
+
+            <div className="relative inline-flex overflow-hidden text-[#FF2A2A] font-normal mx-[0.1em]">
+              <AnimatePresence mode="popLayout">
+                <motion.div
+                  key={currentPair.bottom}
+                  initial={{ y: "100%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: "-100%", opacity: 0 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="whitespace-nowrap inline-block"
+                >
+                  {currentPair.bottom}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            
+            <span>.</span>
+          </motion.div>
+
+          {/* Vision Paragraph */}
+          <motion.p
+            initial={{ opacity: 0, y: 36 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="text-[clamp(0.95rem,1.4vw,1.12rem)] font-light leading-[1.75] text-[#EDEDED]/55 max-w-[52ch] mb-10"
+          >
+            We deliver fully managed interior environments combining design intelligence, execution precision, and hospitality-grade detailing — from concept sketch to final handover.
+          </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 36 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-wrap gap-2.5 mb-10"
+          >
+            {[
+              "Strategic ROI",
+              "Data-Driven Design",
+              "End-to-End Turnkey"
+            ].map((tag, i) => (
+              <span key={i} className="font-label text-[9px] font-semibold tracking-[0.18em] uppercase border border-white/10 px-[18px] py-[9px] text-[#EDEDED]/55 hover:border-[#FF2A2A] hover:text-[#FF2A2A] transition-colors duration-300 cursor-default">
+                {tag}
               </span>
-              <KineticText preset="word-reveal" delay={0.6}>
-                It.
-              </KineticText>
-            </span>
-          </h1>
+            ))}
+          </motion.div>
+
+
+
+
         </div>
 
-        {/* Description */}
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto text-center leading-relaxed"
-        >
-          From initial concepts to stunning reality, we're your design partner.
-          Every space is crafted with precision because every detail matters.
-        </motion.p>
 
-        {/* Stats Row */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1 }}
-          className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-8 md:gap-16 mt-12 md:mt-16"
-        >
-          {[
-            { label: "HUMAN CREATIVITY.", value: "" },
-            { label: "AI-ENHANCED SPEED.", value: "" },
-            { label: "DESIGNS THAT INSPIRE.", value: "" },
-          ].map((stat, index) => (
-            <motion.div
-              key={index}
-              className="text-center bg-card/10 backdrop-blur-sm sm:bg-transparent px-4 py-3 sm:px-0 sm:py-0 rounded-lg sm:rounded-none border border-border/10 sm:border-none"
-              whileHover={{ scale: 1.05 }}
-            >
-              <span className="text-[11px] sm:text-sm md:text-base font-medium tracking-widest text-muted-foreground whitespace-nowrap">
-                {stat.label}
-              </span>
-            </motion.div>
-          ))}
-        </motion.div>
-      </motion.div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-      >
-        <span className="text-xs tracking-widest text-muted-foreground uppercase">
-          Scroll to explore
-        </span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <ChevronDown className="w-5 h-5 text-primary" />
-        </motion.div>
-      </motion.div>
     </section>
   );
 };
 
 export default ServicesHero;
+

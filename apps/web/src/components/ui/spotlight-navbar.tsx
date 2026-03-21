@@ -109,8 +109,8 @@ export function SpotlightNavContainer({
                 )}
                 style={{
                     ...((isDark
-                        ? { "--spotlight-color": "rgba(255,255,255,0.15)", "--ambience-color": "rgba(255,255,255,1)" }
-                        : { "--spotlight-color": "rgba(255,255,255,0.15)", "--ambience-color": "rgba(255,255,255,1)" }) as React.CSSProperties)
+                        ? { "--spotlight-color": "rgba(255,255,255,0.15)", "--ambience-color": "hsl(var(--primary))" }
+                        : { "--spotlight-color": "rgba(0,0,0,0.05)", "--ambience-color": "hsl(var(--primary))" }) as React.CSSProperties)
                 }}
             >
                 {/* Content */}
@@ -118,35 +118,37 @@ export function SpotlightNavContainer({
                     {children}
                 </div>
 
-                {/* LIGHTING LAYERS */}
-                {/* 1. The Moving Spotlight (Follows Mouse) */}
-                <div
-                    className="pointer-events-none absolute bottom-0 left-0 w-full h-full z-[1] opacity-0 transition-opacity duration-300 rounded-full"
-                    style={{
-                        opacity: hoverX !== null ? 1 : 0,
-                        background: `
+                {/* LIGHTING LAYERS - Wrapped to prevent edge bleeding on rounded corners */}
+                <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none z-[1]">
+                    {/* 1. The Moving Spotlight (Follows Mouse) */}
+                    <div
+                        className="absolute bottom-0 left-0 w-full h-full opacity-0 transition-opacity duration-300"
+                        style={{
+                            opacity: hoverX !== null ? 1 : 0,
+                            background: `
               radial-gradient(
                 120px circle at var(--spotlight-x) 100%, 
                 var(--spotlight-color, rgba(0,0,0,0.1)) 0%, 
                 transparent 50%
               )
             `
-                    }}
-                />
+                        }}
+                    />
 
-                {/* 2. The Active State Ambience (Stays on Active) */}
-                <div
-                    className="pointer-events-none absolute bottom-0 left-0 w-full h-[2px] z-[2]"
-                    style={{
-                        background: `
+                    {/* 2. The Active State Ambience (Stays on Active) */}
+                    <div
+                        className="absolute bottom-0 left-0 w-full h-[2px]"
+                        style={{
+                            background: `
                   radial-gradient(
                     60px circle at var(--ambience-x) 0%, 
                     var(--ambience-color, rgba(0,0,0,1)) 0%, 
                     transparent 100%
                   )
                 `
-                    }}
-                />
+                        }}
+                    />
+                </div>
             </nav>
         </div>
     );

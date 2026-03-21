@@ -95,22 +95,22 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
             className="space-y-8 pb-20"
         >
             {/* Immersive Header Card */}
-            <div className="relative overflow-hidden rounded-[2.5rem] p-10 lg:p-14 border border-white/10 bg-gradient-to-br from-white/[0.05] to-transparent backdrop-blur-3xl shadow-2xl">
+            <div className="relative overflow-hidden rounded-none p-10 lg:p-14 border border-site-border bg-gradient-to-br from-site-bg-card to-transparent backdrop-blur-3xl shadow-2xl">
                 {/* Dynamic Aura */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/10 blur-[120px] rounded-full -mr-32 -mt-32 animate-pulse" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-yellow-500/5 blur-[100px] rounded-full -ml-20 -mb-20" />
+                <div className="absolute top-0 right-0 w-96 h-96 bg-site-crimson/10 blur-[120px] rounded-full -mr-32 -mt-32 animate-pulse" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-site-crimson/5 blur-[100px] rounded-full -ml-20 -mb-20" />
 
                 <div className="relative z-10 flex flex-col items-center text-center">
                     <motion.span
                         variants={itemVariants}
-                        className="text-primary font-mono text-[10px] uppercase tracking-[0.5em] mb-4 block"
+                        className="text-site-crimson font-mono text-[10px] uppercase tracking-[0.5em] mb-4 block"
                     >
                         Investment Outlook
                     </motion.span>
 
                     <motion.h2
                         variants={itemVariants}
-                        className="text-4xl md:text-6xl font-serif font-bold text-white tracking-tighter mb-8"
+                        className="text-4xl md:text-6xl font-serif font-bold text-site-text-heading tracking-tighter mb-8"
                     >
                         {formatRange(estimate.total.min, estimate.total.max)}
                     </motion.h2>
@@ -128,11 +128,11 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Detailed Breakdown */}
                 <motion.div variants={itemVariants} className="lg:col-span-7 space-y-6">
-                    <div className="bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden backdrop-blur-xl transition-all hover:bg-white/[0.04]">
-                        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between">
-                            <h3 className="text-white font-serif text-lg font-bold">Execution Intelligence</h3>
-                            <div className="p-2 bg-white/5 rounded-full">
-                                <ExternalLink className="w-4 h-4 text-gray-500" />
+                    <div className="bg-site-bg-card border border-site-border rounded-none overflow-hidden backdrop-blur-xl transition-all hover:bg-site-bg-card-hover shadow-xl">
+                        <div className="px-8 py-6 border-b border-site-border flex items-center justify-between">
+                            <h3 className="text-site-text-heading font-serif text-lg font-bold uppercase tracking-widest">Execution Intelligence</h3>
+                            <div className="p-2 bg-site-bg/50 rounded-none border border-site-border">
+                                <ExternalLink className="w-4 h-4 text-site-text-meta" />
                             </div>
                         </div>
 
@@ -141,17 +141,17 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
                                 <motion.div
                                     key={i}
                                     variants={itemVariants}
-                                    className="flex justify-between items-center px-6 py-4 rounded-2xl hover:bg-white/5 transition-colors group"
+                                    className="flex justify-between items-center px-6 py-4 rounded-none hover:bg-site-bg transition-colors group"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                            {item.icon || <div className="w-1.5 h-1.5 rounded-full bg-gray-600 group-hover:bg-primary" />}
+                                        <div className="w-8 h-8 rounded-none border border-site-border bg-site-bg flex items-center justify-center group-hover:bg-site-crimson/20 transition-colors">
+                                            {item.icon || <div className="w-1.5 h-1.5 rounded-full bg-site-text-meta group-hover:bg-site-crimson" />}
                                         </div>
-                                        <span className="text-gray-400 text-xs font-medium uppercase tracking-widest">{item.label}</span>
+                                        <span className="text-site-text-meta text-[11px] font-medium uppercase tracking-widest transition-colors group-hover:text-site-text">{item.label}</span>
                                     </div>
                                     <span className={cn(
                                         "text-sm font-bold tracking-tight",
-                                        item.color === THEME.GOLD ? "text-yellow-500" : "text-white"
+                                        item.color === THEME.GOLD ? "text-site-crimson" : "text-site-text-heading"
                                     )}>
                                         {item.value}
                                     </span>
@@ -160,13 +160,13 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
                         </div>
 
                         {/* Summary Footer */}
-                        <div className="p-8 bg-white/[0.02] border-t border-white/5 flex justify-between items-center">
+                        <div className="p-8 bg-site-bg/40 border-t border-site-border flex justify-between items-center">
                             <div>
-                                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-1">Indicative Total</p>
-                                <p className="text-2xl font-serif font-bold text-white">{formatRange(estimate.total.min, estimate.total.max)}</p>
+                                <p className="text-[10px] text-site-text-meta uppercase tracking-widest font-black mb-1">Indicative Total</p>
+                                <p className="text-2xl font-serif font-bold text-site-text-heading">{formatRange(estimate.total.min, estimate.total.max)}</p>
                             </div>
                             <div className="text-right">
-                                <p className="text-[9px] text-gray-600 italic">Financial modeling includes<br />standard GST and contingency.</p>
+                                <p className="text-[9px] text-site-text-meta italic leading-relaxed font-medium">Financial modeling includes<br />standard GST and contingency.</p>
                             </div>
                         </div>
                     </div>
@@ -175,21 +175,21 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
                 {/* Scope & Support */}
                 <motion.div variants={itemVariants} className="lg:col-span-5 space-y-6">
                     {/* Deliverables Card */}
-                    <div className="bg-[#0c0c0c] border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-2xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors" />
+                    <div className="bg-site-bg-card border border-site-border rounded-none p-8 shadow-2xl relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-site-crimson/5 blur-2xl -mr-16 -mt-16 group-hover:bg-site-crimson/10 transition-colors" />
 
                         <div className="flex items-center gap-3 mb-8">
-                            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                                <Check className="w-5 h-5 text-primary" />
+                            <div className="w-10 h-10 rounded-none bg-site-crimson/20 border border-site-crimson/30 flex items-center justify-center">
+                                <Check className="w-5 h-5 text-site-crimson" />
                             </div>
-                            <h3 className="text-white font-serif text-lg font-bold">Inclusions</h3>
+                            <h3 className="text-site-text-heading font-serif text-lg font-bold uppercase tracking-widest">Inclusions</h3>
                         </div>
 
                         <div className="space-y-4">
                             {svc?.includes.slice(0, 6).map((item, i) => (
                                 <div key={i} className="flex items-start gap-3 group/item">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-primary/40 mt-1.5 group-hover/item:scale-150 transition-transform" />
-                                    <span className="text-gray-400 text-[11px] leading-relaxed group-hover/item:text-gray-200 transition-colors">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-site-crimson/40 mt-1.5 group-hover/item:scale-150 transition-transform" />
+                                    <span className="text-site-text-muted text-[11px] leading-relaxed group-hover/item:text-site-text transition-colors">
                                         {item}
                                     </span>
                                 </div>
@@ -201,17 +201,17 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
                     <div className="grid grid-cols-2 gap-4">
                         <button
                             onClick={onReset}
-                            className="p-6 rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-all group flex flex-col items-center gap-3"
+                            className="p-6 rounded-none border border-site-border bg-site-bg-card hover:bg-site-bg-card-hover transition-all group flex flex-col items-center gap-3 shadow-xl"
                         >
-                            <Home className="w-6 h-6 text-gray-500 group-hover:text-primary transition-colors" />
-                            <span className="text-[10px] uppercase font-black tracking-widest text-gray-400">Restart</span>
+                            <Home className="w-6 h-6 text-site-text-meta group-hover:text-site-crimson transition-all group-hover:rotate-12" />
+                            <span className="text-[10px] uppercase font-black tracking-widest text-site-text-meta transition-colors group-hover:text-site-crimson">Restart</span>
                         </button>
                         <Link
                             to="/contact-us"
-                            className="p-6 rounded-3xl bg-primary hover:bg-primary/90 transition-all group flex flex-col items-center gap-3 shadow-xl shadow-primary/20"
+                            className="p-6 rounded-none bg-site-crimson hover:bg-site-crimson/90 transition-all group flex flex-col items-center gap-3 shadow-xl shadow-site-crimson/10"
                         >
-                            <PhoneCall className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-                            <span className="text-[10px] uppercase font-black tracking-widest text-white">Consult</span>
+                            <PhoneCall className="w-6 h-6 text-site-bg group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] uppercase font-black tracking-widest text-site-bg">Consult</span>
                         </Link>
                     </div>
                 </motion.div>
@@ -222,14 +222,14 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
 
 function Badge({ label, variant = "glass" }: { label: string; variant?: "glass" | "primary" | "gold" }) {
     const variants = {
-        glass: "bg-white/[0.05] text-gray-400 border-white/10",
-        primary: "bg-primary/20 text-primary border-primary/30",
-        gold: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30",
+        glass: "bg-site-bg-card/50 text-site-text-meta border-site-border font-medium",
+        primary: "bg-site-crimson/20 text-site-crimson border-site-crimson/30 font-bold",
+        gold: "bg-site-crimson/20 text-site-crimson border-site-crimson/30 font-bold",
     };
 
     return (
         <span className={cn(
-            "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-md border",
+            "px-4 py-1.5 rounded-none text-[10px] font-black uppercase tracking-wider backdrop-blur-md border",
             variants[variant]
         )}>
             {label}

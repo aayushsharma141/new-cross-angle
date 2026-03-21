@@ -47,39 +47,40 @@ export default function AdminEstimateLeads() {
     }
 
     return (
-        <div className="flex flex-col space-y-6 animate-in fade-in duration-500 pb-20">
-            <AdminBreadcrumb items={[{ label: 'Estimate Leads' }]} />
+        <div className="max-w-7xl mx-auto space-y-8 py-4 animate-in fade-in duration-700">
+            <AdminBreadcrumb items={[{ label: 'Estimate' }, { label: 'Leads' }]} />
 
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-3xl font-display font-bold text-[hsl(var(--admin-foreground))] flex items-center gap-3">
-                        <Users className={`${icons.xl} text-primary`} />
-                        Estimate Leads
-                    </h2>
-                    <p className="text-[hsl(var(--admin-muted))] mt-1">
-                        View and manage leads generated from the cost estimator.
-                    </p>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="space-y-1">
+                    <h1 className="text-4xl font-serif text-white tracking-tight">Estimate Leads</h1>
+                    <p className="text-sm text-zinc-500 font-sans max-w-sm">Leads generated via computational cost estimation modules.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-xl text-zinc-400">
+                        <Users className={icons.sm} />
+                        <span className="text-xs font-bold uppercase tracking-widest">{data?.length || 0} Records</span>
+                    </div>
                 </div>
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden relative">
+            <div className="rounded-xl border border-zinc-800/50 bg-zinc-900/30 backdrop-blur-md overflow-hidden shadow-2xl relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
                 <div className="overflow-x-auto relative z-10">
                     <Table>
-                        <TableHeader>
-                            <TableRow className="border-b border-white/10 bg-black/20 text-slate-300 hover:bg-black/20">
-                                <TableHead className="text-left font-medium py-4 px-4 whitespace-nowrap">Name</TableHead>
-                                <TableHead className="text-left font-medium py-4 px-4 whitespace-nowrap">Email</TableHead>
-                                <TableHead className="text-left font-medium py-4 px-4 whitespace-nowrap">Phone</TableHead>
-                                <TableHead className="text-left font-medium py-4 px-4 whitespace-nowrap">Project Type</TableHead>
-                                <TableHead className="text-left font-medium py-4 px-4 whitespace-nowrap">Area (sqft)</TableHead>
-                                <TableHead className="text-left font-medium py-4 px-4 whitespace-nowrap">Quality Tier</TableHead>
-                                <TableHead className="text-left font-medium py-4 px-4 whitespace-nowrap">Min Estimate</TableHead>
-                                <TableHead className="text-left font-medium py-4 px-4 whitespace-nowrap">Max Estimate</TableHead>
-                                <TableHead className="text-left font-medium py-4 px-4 whitespace-nowrap">Status</TableHead>
+                        <TableHeader className="bg-zinc-900/50 border-b border-zinc-800">
+                            <TableRow className="border-zinc-800 hover:bg-transparent text-zinc-500 uppercase text-[10px] font-bold tracking-widest">
+                                <TableHead className="py-4 px-4 whitespace-nowrap text-zinc-500">Name</TableHead>
+                                <TableHead className="py-4 px-4 whitespace-nowrap text-zinc-500">Email</TableHead>
+                                <TableHead className="py-4 px-4 whitespace-nowrap text-zinc-500">Phone</TableHead>
+                                <TableHead className="py-4 px-4 whitespace-nowrap text-zinc-500">Project Type</TableHead>
+                                <TableHead className="py-4 px-4 whitespace-nowrap text-zinc-500">Area (sqft)</TableHead>
+                                <TableHead className="py-4 px-4 whitespace-nowrap text-zinc-500">Quality Tier</TableHead>
+                                <TableHead className="py-4 px-4 whitespace-nowrap text-zinc-500">Min Estimate</TableHead>
+                                <TableHead className="py-4 px-4 whitespace-nowrap text-zinc-500">Max Estimate</TableHead>
+                                <TableHead className="py-4 px-4 whitespace-nowrap text-zinc-500">Status</TableHead>
                             </TableRow>
                         </TableHeader>
-                        <TableBody className="divide-y divide-white/5">
+                        <TableBody>
                             {data?.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={9} className="text-center py-8 text-slate-500">
@@ -102,9 +103,9 @@ export default function AdminEstimateLeads() {
                                             {lead.estimate_total_max ? `₹${lead.estimate_total_max.toLocaleString('en-IN')}` : '-'}
                                         </TableCell>
                                         <TableCell className="py-3 px-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${lead.status === 'new' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
-                                                lead.status === 'contacted' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
-                                                    'bg-slate-500/20 text-slate-300 border border-slate-500/30'
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${lead.status === 'new' ? 'bg-primary/20 text-primary border border-primary/30' :
+                                                lead.status === 'contacted' ? 'bg-zinc-800 text-zinc-400 border border-zinc-700' :
+                                                    'bg-zinc-900/50 text-zinc-500 border border-zinc-800'
                                                 }`}>
                                                 {lead.status || 'New'}
                                             </span>

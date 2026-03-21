@@ -2,7 +2,6 @@ import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FixedSocialBar from "@/components/FixedSocialBar";
-import FloatingParticles from "@/components/FloatingParticles";
 import ScrollToTop from "@/components/ScrollToTop";
 import ContactHero from "@/components/contact/ContactHero";
 import CTAContact from "@/components/CTAContact";
@@ -21,7 +20,6 @@ const ContactPage = () => {
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/contact-us" />
       </Helmet>
-      <FloatingParticles count={25} />
       <FixedSocialBar />
       <Navbar />
       <main className="min-h-screen relative z-10 bg-background">

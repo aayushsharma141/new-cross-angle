@@ -8,9 +8,9 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from "@/design-system/components/Table";
+import { Button } from "@/design-system/components/Button";
+import { Input } from "@/design-system/components/Input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,8 +22,11 @@ import {
     DialogTrigger,
     DialogFooter,
 } from "@/components/ui/dialog";
-import { Loader2, Plus, Edit2, Trash2 } from "lucide-react";
+import { Loader2, Plus, Edit2, Trash2, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
+import { Card } from "@/design-system/components/Card";
+import { icons } from "@/design-system/tokens/icons";
 
 interface TeamMember {
     id: string;
@@ -105,16 +108,23 @@ export default function AdminTeamMembers() {
     };
 
     return (
-        <div className="container mx-auto py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Team Members</h1>
+        <div className="max-w-7xl mx-auto space-y-8 py-4 animate-in fade-in duration-700">
+            <AdminBreadcrumb items={[{ label: 'System' }, { label: 'Team Members' }]} />
+
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="space-y-1">
+                    <h1 className="text-4xl font-serif text-white tracking-tight">Team Members</h1>
+                    <p className="text-sm text-zinc-500 font-sans max-w-sm">Manage your executive and creative team units.</p>
+                </div>
 
                 <Dialog open={isDialogOpen} onOpenChange={(open) => {
                     setIsDialogOpen(open);
                     if (!open) setEditingMember(null);
                 }}>
                     <DialogTrigger asChild>
-                        <Button><Plus className="w-4 h-4 mr-2" /> Add Member</Button>
+                        <Button variant="primary">
+                            <Plus className={icons.sm + " mr-2"} /> Add Member
+                        </Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
@@ -148,9 +158,9 @@ export default function AdminTeamMembers() {
                                 </Label>
                             </div>
                             <DialogFooter>
-                                <Button type="submit" disabled={upsertMutation.isPending}>
+                                <Button type="submit" variant="primary" disabled={upsertMutation.isPending}>
                                     {upsertMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                                    Save
+                                    Save Changes
                                 </Button>
                             </DialogFooter>
                         </form>
@@ -158,15 +168,15 @@ export default function AdminTeamMembers() {
                 </Dialog>
             </div>
 
-            <div className="border rounded-md">
+            <Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md overflow-hidden shadow-2xl">
                 <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Photo</TableHead>
+                    <TableHeader className="bg-zinc-900/50 border-b border-zinc-800">
+                        <TableRow className="border-zinc-800 hover:bg-transparent text-zinc-500">
+                            <TableHead className="w-[80px]">Photo</TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Designation</TableHead>
                             <TableHead>Display Order</TableHead>
-                            <TableHead>Published</TableHead>
+                            <TableHead>Status</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -196,28 +206,34 @@ export default function AdminTeamMembers() {
                                     <TableCell className="font-medium">{member.name}</TableCell>
                                     <TableCell>{member.role}</TableCell>
                                     <TableCell>{member.display_order}</TableCell>
-                                    <TableCell>Yes</TableCell>
-                                    <TableCell className="text-right space-x-2">
-                                        <Button variant="ghost" size="sm" onClick={() => {
-                                            setEditingMember(member);
-                                            setIsDialogOpen(true);
-                                        }}>
-                                            <Edit2 className="w-4 h-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="sm" className="text-destructive" onClick={() => {
-                                            if (confirm("Are you sure you want to delete this team member?")) {
-                                                deleteMutation.mutate(member.id);
-                                            }
-                                        }}>
-                                            <Trash2 className="w-4 h-4" />
-                                        </Button>
+                                    <TableCell>
+                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                                            Active
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <div className="flex justify-end gap-2">
+                                            <Button variant="ghost" size="icon" onClick={() => {
+                                                setEditingMember(member);
+                                                setIsDialogOpen(true);
+                                            }} className="hover:bg-primary/5 text-zinc-400 hover:text-primary transition-colors">
+                                                <Edit2 className={icons.sm} />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" className="hover:bg-red-500/10 text-zinc-600 hover:text-red-500 transition-colors" onClick={() => {
+                                                if (confirm("Are you sure you want to delete this team member?")) {
+                                                    deleteMutation.mutate(member.id);
+                                                }
+                                            }}>
+                                                <Trash2 className={icons.sm} />
+                                            </Button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))
                         )}
                     </TableBody>
                 </Table>
-            </div>
+            </Card>
         </div>
     );
 }

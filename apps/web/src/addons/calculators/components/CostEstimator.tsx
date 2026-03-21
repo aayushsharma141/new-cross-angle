@@ -65,8 +65,8 @@ export function CostEstimator() {
     /* ── Results mode: full-width, no side panels ── */
     if (showResults) {
         return (
-            <div className="w-full h-screen bg-zinc-950 overflow-y-auto font-sans relative">
-                <a href="/" className="absolute top-6 left-6 z-50 inline-flex items-center gap-2 px-4 py-2 bg-zinc-900/50 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest text-white hover:bg-red-600 transition-all border border-white/10">
+            <div className="w-full h-screen bg-site-bg overflow-y-auto font-sans relative">
+                <a href="/" className="absolute top-6 left-6 z-50 inline-flex items-center gap-2 px-4 py-2 bg-site-bg-card/50 backdrop-blur-md rounded-none text-xs font-bold uppercase tracking-widest text-site-text hover:bg-site-crimson hover:text-site-bg transition-all border border-site-border">
                     <span>←</span> Home
                 </a>
                 <div className="max-w-4xl mx-auto px-6 py-10 lg:py-16">
@@ -81,37 +81,36 @@ export function CostEstimator() {
         );
     }
 
-    /* ── Steps mode: 3-panel split layout ── */
     return (
-        <div className="flex flex-col lg:flex-row w-full h-screen bg-zinc-950 font-sans overflow-hidden">
+        <div className="flex flex-col lg:flex-row w-full h-screen bg-site-bg font-sans overflow-hidden text-site-text">
 
             {/* ═══ LEFT PANEL ═══ */}
             <div
-                className="hidden lg:flex lg:w-[30%] min-w-[300px] h-full flex-col justify-between border-r border-white/5 p-12 relative overflow-hidden shrink-0 bg-gradient-to-b from-[#1a1a1a] to-zinc-950"
+                className="hidden lg:flex lg:w-[30%] min-w-[300px] h-full flex-col justify-between border-r border-site-border p-12 relative overflow-hidden shrink-0 bg-gradient-to-b from-site-bg-card to-site-bg"
             >
                 {/* Subtle dot pattern overlay */}
                 <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle,_#fff_1px,_transparent_1px)] bg-[length:20px_20px]" />
 
                 <div className="relative z-10">
-                    <div className="text-[10px] text-red-500 font-black uppercase tracking-[0.4em] mb-4">
+                    <div className="text-[10px] text-site-crimson font-black uppercase tracking-[0.4em] mb-4">
                         Cost Estimator
                     </div>
-                    <h2 className="text-3xl font-black text-white leading-tight tracking-tighter mb-6">
+                    <h2 className="text-3xl font-black text-site-text-heading leading-tight tracking-tighter mb-6 uppercase">
                         {stepInfo.title}
                     </h2>
-                    <p className="text-gray-400 text-sm leading-relaxed max-w-[240px]">
+                    <p className="text-site-text-muted text-sm leading-relaxed max-w-[240px]">
                         {stepInfo.subtitle}
                     </p>
                 </div>
 
                 <div className="relative z-10">
-                    <div className="w-10 h-0.5 bg-red-600/40 mb-6" />
-                    <h3 className="hidden lg:block text-xl font-serif font-bold text-white mb-2">Estimate Your Dream Space</h3>
-                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] leading-relaxed max-w-[200px]">
+                    <div className="w-10 h-0.5 bg-site-crimson/40 mb-6" />
+                    <h3 className="hidden lg:block text-xl font-serif font-bold text-site-text-heading mb-2">Estimate Your Dream Space</h3>
+                    <p className="text-[10px] text-site-text-meta font-bold uppercase tracking-[0.2em] leading-relaxed max-w-[200px]">
                         Get a transparent, instant estimate for your interior design project. No hidden costs, just honest pricing.
                     </p>
                     {currentStep === 0 && (
-                        <a href="/" className="inline-flex items-center gap-2 mt-6 text-xs font-bold uppercase tracking-widest text-white hover:text-red-500 transition-colors">
+                        <a href="/" className="inline-flex items-center gap-2 mt-6 text-xs font-bold uppercase tracking-widest text-site-text hover:text-site-crimson transition-colors">
                             <span className="text-lg">←</span> Home
                         </a>
                     )}
@@ -119,16 +118,16 @@ export function CostEstimator() {
             </div>
 
             {/* ═══ MIDDLE PANEL ═══ */}
-            <div className="flex lg:flex-col lg:w-20 w-full h-auto lg:h-full items-center justify-between lg:justify-center border-b lg:border-b-0 lg:border-r border-white/5 bg-zinc-900/50 p-4 lg:p-0 relative shrink-0">
-                <div className="hidden lg:block absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px bg-white/5" />
+            <div className="flex lg:flex-col lg:w-20 w-full h-auto lg:h-full items-center justify-between lg:justify-center border-b lg:border-b-0 lg:border-r border-site-border bg-site-bg-card/50 p-4 lg:p-0 relative shrink-0">
+                <div className="hidden lg:block absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px bg-site-border" />
                 <div
                     ref={largeProgressBarRef}
-                    className="hidden lg:block absolute top-0 left-1/2 -translate-x-1/2 w-px bg-red-600 transition-all duration-700 ease-out shadow-[0_0_15px_rgba(220,38,38,0.5)] h-[var(--progress)]"
+                    className="hidden lg:block absolute top-0 left-1/2 -translate-x-1/2 w-px bg-site-crimson transition-all duration-700 ease-out shadow-[0_0_15px_rgba(227, 83, 54,0.5)] h-[var(--progress)]"
                 />
-                <div className="lg:hidden absolute bottom-0 left-0 right-0 h-[2px] bg-white/5">
+                <div className="lg:hidden absolute bottom-0 left-0 right-0 h-[2px] bg-site-border">
                     <div
                         ref={smallProgressBarRef}
-                        className="h-full bg-red-600 transition-all duration-700 ease-out shadow-[0_0_10px_rgba(220,38,38,0.5)] w-[var(--progress)]"
+                        className="h-full bg-site-crimson transition-all duration-700 ease-out shadow-[0_0_10px_rgba(227, 83, 54,0.5)] w-[var(--progress)]"
                     />
                 </div>
 
@@ -144,15 +143,15 @@ export function CostEstimator() {
                                 className={`group flex flex-col items-center gap-1.5 transition-all outline-none ${i <= currentStep ? "cursor-pointer" : "cursor-default opacity-40"}`}
                             >
                                 <div className={`
-                                    w-7 h-7 lg:w-8 lg:h-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all duration-300
-                                    ${done ? "bg-red-600 text-white" : active ? "bg-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.4)]" : "bg-zinc-800 text-gray-500 border border-white/10"}
-                                    ${active ? "scale-110 ring-4 ring-red-600/20" : "scale-100"}
+                                    w-7 h-7 lg:w-8 lg:h-8 rounded-none flex items-center justify-center text-[10px] font-black transition-all duration-300
+                                    ${done ? "bg-site-crimson text-site-bg" : active ? "bg-site-crimson text-site-bg shadow-[0_0_15px_rgba(227, 83, 54,0.4)]" : "bg-site-bg-card text-site-text-meta border border-site-border"}
+                                    ${active ? "scale-110 ring-4 ring-site-crimson/20" : "scale-100"}
                                 `}>
                                     {done ? "✓" : i + 1}
                                 </div>
                                 <span className={`
                                     hidden lg:block text-[8px] font-black uppercase tracking-widest transition-colors duration-300
-                                    ${active ? "text-red-500" : done ? "text-gray-400" : "text-gray-600"}
+                                    ${active ? "text-site-crimson" : done ? "text-site-text-muted" : "text-site-text-meta"}
                                 `}>
                                     {label}
                                 </span>
@@ -164,11 +163,11 @@ export function CostEstimator() {
 
             {/* ═══ RIGHT PANEL ═══ */}
             <div className="flex-1 flex flex-col h-full relative overflow-hidden">
-                <div className="lg:hidden p-6 border-b border-white/5 bg-zinc-950/80 backdrop-blur-md">
-                    <div className="text-[9px] text-red-500 font-black uppercase tracking-[0.3em] mb-1">
+                <div className="lg:hidden p-6 border-b border-site-border bg-site-bg/80 backdrop-blur-md">
+                    <div className="text-[9px] text-site-crimson font-black uppercase tracking-[0.3em] mb-1">
                         {labelForStep(currentStep)}
                     </div>
-                    <h2 className="text-xl font-black text-white tracking-tight">
+                    <h2 className="text-xl font-black text-site-text-heading tracking-tight uppercase">
                         {stepInfo.title}
                     </h2>
                 </div>
@@ -195,12 +194,12 @@ export function CostEstimator() {
                     </div>
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 border-t border-white/5 bg-zinc-950/90 backdrop-blur-2xl p-4 pb-6 lg:px-16 lg:py-6 flex justify-between items-center z-20">
+                <div className="absolute bottom-0 left-0 right-0 border-t border-site-border bg-site-bg/90 backdrop-blur-2xl p-4 pb-6 lg:px-16 lg:py-6 flex justify-between items-center z-20">
                     <button
                         onClick={prevStep}
                         disabled={currentStep === 0}
                         className={`
-                            ${navBtnStyle} text-gray-400 border border-white/10 hover:text-white hover:border-white/20
+                            ${navBtnStyle} text-site-text-muted border border-site-border hover:text-site-crimson hover:border-site-crimson/50 rounded-none
                             ${currentStep === 0 ? "opacity-0 pointer-events-none" : "opacity-100"}
                         `}
                     >
@@ -208,14 +207,14 @@ export function CostEstimator() {
                     </button>
 
                     <div className="hidden sm:flex flex-col items-center">
-                        <div className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1.5 grayscale opacity-50">
+                        <div className="text-[10px] text-site-text-meta font-black uppercase tracking-widest mb-1.5 grayscale opacity-50">
                             Progress
                         </div>
                         <div className="flex gap-1">
                             {STEP_LABELS.map((_, i) => (
                                 <div
                                     key={i}
-                                    className={`w-4 h-1 rounded-full transition-all duration-500 ${i <= currentStep ? "bg-red-600" : "bg-white/5"}`}
+                                    className={`w-4 h-1 rounded-none transition-all duration-500 ${i <= currentStep ? "bg-site-crimson" : "bg-site-border"}`}
                                 />
                             ))}
                         </div>
@@ -225,8 +224,8 @@ export function CostEstimator() {
                         onClick={nextStep}
                         disabled={!canProceed || isSaving}
                         className={`
-                            ${navBtnStyle} min-w-[140px] shadow-lg
-                            ${canProceed ? "bg-red-600 text-white hover:bg-red-500 shadow-red-900/20" : "bg-zinc-800 text-gray-500 cursor-not-allowed"}
+                            ${navBtnStyle} min-w-[140px] shadow-lg rounded-none
+                            ${canProceed ? "bg-site-crimson text-site-bg hover:bg-site-crimson/90 shadow-site-crimson/10" : "bg-site-bg-card text-site-text-meta cursor-not-allowed"}
                         `}
                     >
                         {isSaving ? (

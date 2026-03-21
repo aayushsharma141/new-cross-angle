@@ -12,9 +12,10 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				display: ["Cormorant Garamond", "Georgia", "serif", ...fontFamily.serif],
-				sans: ["DM Sans", "system-ui", "sans-serif", ...fontFamily.sans],
-				mono: ["Space Mono", "ui-monospace", "monospace", ...fontFamily.mono],
+				display: ["'Cormorant Garamond'", "serif", ...fontFamily.serif],
+				sans: ["'DM Sans'", "system-ui", "sans-serif", ...fontFamily.sans],
+				label: ["'Montserrat'", "sans-serif"],
+				mono: ["'JetBrains Mono'", "ui-monospace", "monospace", ...fontFamily.mono],
 			},
 			colors: {
 				background: "hsl(var(--background) / <alpha-value>)",
@@ -57,6 +58,66 @@ export default {
 					"accent-foreground": "hsl(var(--sidebar-accent-foreground) / <alpha-value>)",
 					border: "hsl(var(--sidebar-border) / <alpha-value>)",
 					ring: "hsl(var(--sidebar-ring) / <alpha-value>)",
+				},
+				site: {
+					bg: '#000000',
+					'bg-section': '#080604',
+					'bg-card': '#100D0A',
+					'bg-card-hover': '#1A1614',
+					'bg-light': '#F5F3EF',
+					'bg-input': '#100D0A',
+					crimson: '#C41230',
+					'crimson-light': 'rgba(196, 18, 48, 0.3)',
+					stone: '#8B8B8B',
+					text: '#EDEAE6',
+					'text-heading': '#FFFFFF',
+					'text-muted': '#A3A09C',
+					'text-meta': '#6B6B6B',
+					border: 'rgba(237, 234, 230, 0.08)',
+					'border-input': 'rgba(237, 234, 230, 0.1)',
+				},
+				admin: {
+					background: "hsl(var(--admin-background) / <alpha-value>)",
+					foreground: "hsl(var(--admin-foreground) / <alpha-value>)",
+					card: {
+						DEFAULT: "hsl(var(--admin-card) / <alpha-value>)",
+						foreground: "hsl(var(--admin-card-foreground) / <alpha-value>)",
+					},
+					popover: {
+						DEFAULT: "hsl(var(--admin-popover) / <alpha-value>)",
+						foreground: "hsl(var(--admin-popover-foreground) / <alpha-value>)",
+					},
+					primary: {
+						DEFAULT: "hsl(var(--admin-primary) / <alpha-value>)",
+						hover: "hsl(var(--admin-primary-hover) / <alpha-value>)",
+						foreground: "hsl(var(--admin-primary-foreground) / <alpha-value>)",
+					},
+					secondary: {
+						DEFAULT: "hsl(var(--admin-secondary) / <alpha-value>)",
+						foreground: "hsl(var(--admin-secondary-foreground) / <alpha-value>)",
+					},
+					muted: {
+						DEFAULT: "hsl(var(--admin-muted) / <alpha-value>)",
+						foreground: "hsl(var(--admin-muted-foreground) / <alpha-value>)",
+					},
+					accent: {
+						DEFAULT: "hsl(var(--admin-accent) / <alpha-value>)",
+						foreground: "hsl(var(--admin-accent-foreground) / <alpha-value>)",
+					},
+					border: "hsl(var(--admin-border) / <alpha-value>)",
+					input: "hsl(var(--admin-input) / <alpha-value>)",
+					ring: "hsl(var(--admin-ring) / <alpha-value>)",
+					wine: {
+						DEFAULT: "hsl(var(--admin-wine) / <alpha-value>)",
+						light: "hsl(var(--admin-wine-light) / <alpha-value>)",
+					},
+					gold: {
+						DEFAULT: "hsl(var(--admin-gold) / <alpha-value>)",
+						muted: "hsl(var(--admin-gold-muted) / <alpha-value>)",
+					},
+					obsidian: "hsl(var(--admin-obsidian) / <alpha-value>)",
+					charcoal: "hsl(var(--admin-charcoal) / <alpha-value>)",
+					stone: "hsl(var(--admin-stone) / <alpha-value>)",
 				},
 			},
 			borderRadius: {
@@ -110,6 +171,8 @@ export default {
 					from: { opacity: "0", transform: "translateY(8px)" },
 					to: { opacity: "1", transform: "translateY(0)" },
 				},
+				fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+				slideUp: { '0%': { transform: 'translateY(24px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
 				"glow-pulse": {
 					"0%, 100%": { boxShadow: "0 0 20px hsl(43 90% 55% / 0.3)" },
 					"50%": { boxShadow: "0 0 35px hsl(43 90% 55% / 0.55)" },
@@ -188,6 +251,8 @@ export default {
 			},
 			animation: {
 				"fade-in": "fade-in 0.4s ease forwards",
+				'site-fade-in': 'fadeIn 0.6s ease-out',
+				'site-slide-up': 'slideUp 0.5s ease-out',
 				"glow-pulse": "glow-pulse 2.5s ease-in-out infinite",
 				"shimmer": "shimmer 2.5s linear infinite",
 				'accordion-down': 'accordion-down 0.2s ease-out',

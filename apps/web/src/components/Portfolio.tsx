@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { ArrowUpRight, Eye, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import FloatingParticles from "./FloatingParticles";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { categories } from "@/data/projects";
@@ -12,6 +11,8 @@ import Magnetic from "./ui/magnetic";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useImageParallax } from "@/hooks/useImageParallax";
+import { BlurText, TiltedCard } from "./ReactBits";
+import { SpotlightCard } from "./ReactBits";
 
 import { type Project } from "@/data/projects";
 
@@ -27,68 +28,76 @@ const ProjectCard = ({
   const { containerRef, imageRef } = useImageParallax({ speed: 0.15, scale: 1.15 });
 
   return (
-    <div
-      className="group relative animate-fade-in"
-      ref={containerRef}
+    <SpotlightCard
+      spotlightColor="rgba(227, 83, 54, 0.15)"
+      className="group relative animate-fade-in rounded-none bg-site-bg-card border border-transparent hover:border-site-crimson hover:bg-site-bg-card-hover transition-all duration-300"
     >
-      <div
-        className="relative overflow-hidden rounded-xl aspect-[4/3] mb-4 cursor-pointer"
-        onClick={() => openLightbox(index)}
-        onKeyDown={(e) => e.key === "Enter" && openLightbox(index)}
-        role="button"
-        tabIndex={0}
-        aria-label={`View ${project.title} project`}
-      >
-        <div className="aspect-[4/5] overflow-hidden">
-          <Image
-            ref={imageRef}
-            src={project.heroImage}
-            alt={project.title}
-            loading="lazy"
-            imageClassName="transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
+      <div ref={containerRef}>
+        <div
+          className="relative overflow-hidden rounded-xl aspect-[4/3] mb-4 cursor-pointer"
+          onClick={() => openLightbox(index)}
+          onKeyDown={(e) => e.key === "Enter" && openLightbox(index)}
+          role="button"
+          tabIndex={0}
+          aria-label={`View ${project.title} project`}
+        >
+          <TiltedCard
+            imageSrc={project.heroImage}
+            altText={project.title}
+            captionText={`${project.year} • ${project.category}`}
+            containerHeight="100%"
+            containerWidth="100%"
+            imageHeight="100%"
+            imageWidth="100%"
+            rotateAmplitude={12}
+            scaleOnHover={1.05}
+            showMobileWarning={false}
+            showTooltip={true}
+            displayOverlayContent={true}
+            overlayContent={
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 w-full h-full">
+                {/* Overlay Gradient */}
+                <div className="absolute inset-0 bg-black/40 w-full h-full" />
+
+                {/* View Button */}
+                <div className="relative z-10 w-14 h-14 md:w-16 md:h-16 bg-site-crimson rounded-full flex items-center justify-center shadow-2xl">
+                  <Eye className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                </div>
+
+                {/* Year Badge */}
+                <div className="absolute top-4 right-4 bg-site-bg-card/90 backdrop-blur-sm px-3 py-1.5 rounded-none text-xs md:text-sm font-medium text-site-text">
+                  {project.year}
+                </div>
+
+                {/* Category Badge */}
+                <div className="absolute bottom-4 left-4">
+                  <span className="bg-site-crimson text-white text-[10px] md:text-xs font-medium uppercase tracking-wider px-3 py-1.5 ">
+                    {project.category}
+                  </span>
+                </div>
+              </div>
+            }
           />
         </div>
 
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-
-        {/* View Button */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
-          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center transform scale-50 group-hover:scale-100 transition-transform duration-500 shadow-2xl">
-            <Eye className="w-6 h-6 text-primary-foreground" />
+        <div className="space-y-2 p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-medium text-site-text-meta uppercase tracking-widest">{project.category}</span>
           </div>
-        </div>
-
-        {/* Year Badge */}
-        <div className="absolute top-4 right-4 bg-foreground/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-medium text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          {project.year}
-        </div>
-
-        {/* Category Badge */}
-        <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-          <span className="bg-primary text-primary-foreground text-xs font-medium uppercase tracking-wider px-3 py-1.5 rounded-full">
-            {project.category}
-          </span>
+          <h3 className="text-xl font-serif font-bold text-site-text-heading">{project.title}</h3>
+          <p className="text-site-text-muted text-sm leading-relaxed mb-4">
+            {project.brief.substring(0, 100)}...
+          </p>
+          <Link
+            to={`/portfolio/${project.slug}`}
+            className="inline-flex items-center gap-2 text-site-crimson font-medium hover:gap-3 transition-all focus:outline-none focus:border-site-crimson rounded-none"
+          >
+            View Full Project
+            <ArrowUpRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-primary uppercase tracking-wider">{project.category}</span>
-        </div>
-        <h3 className="text-xl font-display font-bold">{project.title}</h3>
-        <p className="text-primary-foreground/60 leading-relaxed mb-4">
-          {project.brief.substring(0, 100)}...
-        </p>
-        <Link
-          to={`/portfolio/${project.slug}`}
-          className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all focus:outline-none focus:ring-2 focus:ring-primary rounded"
-        >
-          View Full Project
-          <ArrowUpRight className="w-4 h-4" />
-        </Link>
-      </div>
-    </div>
+    </SpotlightCard>
   );
 };
 
@@ -137,31 +146,28 @@ const Portfolio = () => {
   }, [lightboxOpen, navigateLightbox]);
 
   return (
-    <section className="py-24 bg-background relative overflow-hidden" id="portfolio">
-      <FloatingParticles />
-
+    <section className="py-24 bg-site-bg relative overflow-hidden" id="portfolio">
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div className="max-w-2xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="mb-6 block"
-            >
-              <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary-foreground">
-                Curated Excellence
+            <div className="mb-6 block min-h-[4rem]">
+              <h2 className="text-4xl md:text-5xl font-serif font-bold text-site-text-heading relative inline-block after:content-[''] after:block after:w-12 after:h-px after:bg-site-crimson after:mt-3">
+                <BlurText
+                  text="Curated Excellence"
+                  animateBy="words"
+                  direction="bottom"
+                  delay={100}
+                />
               </h2>
-            </motion.div>
-            <p className="text-lg text-primary-foreground/60 leading-relaxed">
+            </div>
+            <p className="text-lg text-site-text-muted leading-relaxed">
               Explore our portfolio of ultra-luxury residences and high-value commercial environments
               that redefine the boundaries of spatial anticipation.
             </p>
           </div>
           <Link
             to="/gallery"
-            className="group flex items-center gap-3 text-primary font-medium hover:gap-4 transition-all duration-300"
+            className="group flex items-center gap-3 text-site-crimson font-medium hover:gap-4 transition-all duration-300"
           >
             View All Projects
             <ArrowUpRight className="w-5 h-5 group-hover:rotate-45 transition-transform duration-300" />
@@ -171,33 +177,20 @@ const Portfolio = () => {
         {/* Category Filters */}
         <div className="flex flex-wrap gap-4 mb-12" aria-label="Project category filters">
           {categories.map((category) => {
-            const isSelected = activeFilter === category;
+            const isSelected = category === activeFilter;
             return (
-              <Magnetic key={category} strength={0.2}>
-                {isSelected ? (
-                  <button
-                    onClick={() => setActiveFilter(category)}
-                    aria-pressed="true"
-                    className={cn(
-                      "px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
-                      "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                    )}
-                  >
-                    {category}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setActiveFilter(category)}
-                    aria-pressed="false"
-                    className={cn(
-                      "px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
-                      "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    )}
-                  >
-                    {category}
-                  </button>
+              <button
+                key={category}
+                onClick={() => setActiveFilter(category)}
+                className={cn(
+                  "px-6 py-2.5 rounded-none text-sm font-medium transition-all duration-300",
+                  isSelected
+                    ? "bg-site-crimson text-white shadow-lg shadow-site-crimson/10"
+                    : "text-site-text-muted hover:text-site-text hover:bg-site-bg-card border border-site-border"
                 )}
-              </Magnetic>
+              >
+                {category}
+              </button>
             );
           })}
         </div>
@@ -213,12 +206,11 @@ const Portfolio = () => {
           ))}
         </div>
 
-        {/* Bottom CTA */}
         <div className="mt-20 text-center">
-          <p className="text-primary-foreground/60 mb-6">Want to see more of our work?</p>
+          <p className="text-site-text-muted mb-6">Want to see more of our work?</p>
           <Link
             to="/gallery"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-medium hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 hover:-translate-y-1"
+            className="inline-flex items-center gap-2 bg-site-crimson text-white px-10 py-4 rounded-none font-semibold uppercase tracking-widest text-sm hover:bg-site-crimson/90 transition-all duration-300 hover:-translate-y-1 shadow-lg shadow-site-crimson/20"
           >
             Explore Full Portfolio
             <ArrowUpRight className="w-5 h-5" />
@@ -245,17 +237,17 @@ const Portfolio = () => {
             {/* Navigation Arrows */}
             <button
               onClick={() => navigateLightbox("prev")}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-foreground/80 hover:bg-primary transition-colors group"
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 hover:bg-primary transition-colors group"
               aria-label="Previous project"
             >
-              <ChevronLeft className="w-6 h-6 text-primary-foreground group-hover:text-primary-foreground" />
+              <ChevronLeft className="w-6 h-6 text-white" />
             </button>
             <button
               onClick={() => navigateLightbox("next")}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-foreground/80 hover:bg-primary transition-colors group"
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 hover:bg-primary transition-colors group"
               aria-label="Next project"
             >
-              <ChevronRight className="w-6 h-6 text-primary-foreground group-hover:text-primary-foreground" />
+              <ChevronRight className="w-6 h-6 text-white" />
             </button>
 
             {/* Image */}
@@ -273,14 +265,14 @@ const Portfolio = () => {
                 <span className="bg-primary/20 text-primary text-xs font-medium uppercase tracking-wider px-3 py-1 rounded-full">
                   {filteredProjects[currentImageIndex]?.category}
                 </span>
-                <span className="text-primary-foreground/50 text-sm">
+                <span className="text-muted-foreground text-sm">
                   {filteredProjects[currentImageIndex]?.year}
                 </span>
               </div>
-              <h3 className="font-serif text-2xl font-semibold text-primary-foreground mb-2">
+              <h3 className="font-serif text-2xl font-semibold text-foreground mb-2">
                 {filteredProjects[currentImageIndex]?.title}
               </h3>
-              <p className="text-primary-foreground/60 mb-4">
+              <p className="text-muted-foreground mb-4">
                 {filteredProjects[currentImageIndex]?.brief}
               </p>
               <Link

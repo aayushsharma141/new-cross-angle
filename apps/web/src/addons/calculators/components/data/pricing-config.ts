@@ -8,19 +8,19 @@ import type { PricingConfig, CityTier } from "./types";
 /* ─── Theme tokens (used by components) ─── */
 
 export const THEME = {
-    RED: "#c62828",
-    RED_LIGHT: "#ef5350",
-    BG: "#0d0d0d",
-    CARD: "#161616",
-    CARD2: "#1e1e1e",
-    BORDER: "#2a2a2a",
-    BORDER2: "#333",
-    TEXT: "#f5f5f5",
-    MUTED: "#777",
-    MUTED2: "#999",
+    RED: "#E35336",       // Map RED to site.gold
+    RED_LIGHT: "#E3C488", // Map RED_LIGHT to site.gold-light
+    BG: "#0F0F10",        // site.bg
+    CARD: "#141414",      // site.bg-card
+    CARD2: "#1E1E1E",     // site.bg-card-hover
+    BORDER: "#1F1F1F",    // site.border
+    BORDER2: "#2A2A2A",
+    TEXT: "#F5F5F5",
+    MUTED: "#A0A0A0",
+    MUTED2: "#707070",
     GREEN: "#43a047",
     AMBER: "#fb8c00",
-    GOLD: "#f4a261",
+    GOLD: "#E35336",      // site.gold
 } as const;
 
 /* ─── Property Types ─── */

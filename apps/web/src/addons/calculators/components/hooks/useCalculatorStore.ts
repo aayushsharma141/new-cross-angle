@@ -2,11 +2,10 @@
    Calculator Store — 7-step flow
    ═══════════════════════════════════════════════ */
 
-import { useState, useCallback, useMemo } from "react";
-import type { CalculatorFormData, EstimateResult, LeadScore } from "../data/types";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import type { CalculatorFormData, EstimateResult, LeadScore, PricingConfig } from "../data/types";
 import { calculateEstimate } from "../data/calculation-engine";
 import { DEFAULT_PRICING_CONFIG } from "../data/pricing-config";
-import { generateId } from "../data/format-utils";
 import { supabase } from "@/lib/supabase";
 
 const TOTAL_STEPS = 8; // 0..6 = input steps, 7 = results
@@ -94,6 +93,29 @@ export function useCalculatorStore() {
     const [showResults, setShowResults] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
+    // Dynamic config pulled from Admin DB
+    const [pricingConfig, setPricingConfig] = useState<PricingConfig>(DEFAULT_PRICING_CONFIG);
+
+    useEffect(() => {
+        const fetchConfig = async () => {
+            try {
+                const { data } = await supabase
+                    .from("estimate_rates")
+                    .select("config")
+                    .order("updated_at", { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (data?.config) {
+                    setPricingConfig({ ...DEFAULT_PRICING_CONFIG, ...data.config as PricingConfig });
+                }
+            } catch (err) {
+                console.error("Failed to load dynamic pricing config. Using defaults.", err);
+            }
+        };
+        void fetchConfig();
+    }, []);
+
     /** Update a single field */
     const updateField = useCallback(<K extends keyof CalculatorFormData>(field: K, value: CalculatorFormData[K]) => {
         setFormData(prev => {
@@ -116,8 +138,8 @@ export function useCalculatorStore() {
     const estimate: EstimateResult | null = useMemo(() => {
         if (!formData.selectedService) return null;
         if (formData.area <= 0) return null;
-        return calculateEstimate(formData, DEFAULT_PRICING_CONFIG);
-    }, [formData]);
+        return calculateEstimate(formData, pricingConfig);
+    }, [formData, pricingConfig]);
 
     /** Step navigation */
     const nextStep = useCallback(() => {
@@ -219,57 +241,30 @@ export function useCalculatorStore() {
         };
     }, [formData]);
 
-    /** Save lead to Supabase */
+    /** Save lead referencing Edge Function internally to protect logic & payload injections */
     const saveLead = useCallback(async () => {
         if (!estimate) return;
         setIsSaving(true);
         try {
-            const score = scoreLead();
-            const lead = {
-                id: generateId(),
-                timestamp: new Date().toISOString(),
-                property_type: formData.propertyType,
-                bhk: formData.bhk,
-                area: formData.area,
-                city: formData.city,
-                state: formData.state,
-                city_tier: formData.cityTier,
-                budget: formData.budgetAmount,
-                service: formData.selectedService,
-                execution_tier: formData.executionTier,
-                estimate_min: estimate.total.min,
-                estimate_max: estimate.total.max,
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                start_timing: formData.startTiming,
-                lead_score: score.total,
-                lead_category: score.category,
-                score_breakdown: score.breakdown,
-                form_data: formData,
-            };
-
-            await supabase.from("estimate_leads").insert(lead);
-
-            // Also insert into main leads table for CRM tracking
-            await supabase.from("leads").insert({
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                message: `Cost estimate generated. Min: ₹${estimate.total.min.toLocaleString('en-IN')}, Max: ₹${estimate.total.max.toLocaleString('en-IN')}. Area: ${formData.area} sqft, Type: ${formData.propertyType}`,
-                lead_source: 'estimator',
-                city: formData.city,
-                budget: formData.budgetAmount?.toString(),
-                service: formData.selectedService,
-                source_url: window.location.href,
-                score: score.total
+            // Let the secure server re-calculate and handle DB entries
+            const { data, error } = await supabase.functions.invoke("submit-estimate", {
+                body: { formData }
             });
+
+            if (error) {
+                console.error("Edge Function error:", error);
+                throw error;
+            }
+
+            // Note: the backend handles creating the lead and inserting it into estimate_leads.
+            console.log("Lead securely captured via edge function:", data);
         } catch (err) {
-            console.error("Failed to save lead:", err);
+            console.error("Failed to save lead securely:", err);
+            // Non-blocking for user UX. 
         } finally {
             setIsSaving(false);
         }
-    }, [estimate, formData, scoreLead]);
+    }, [estimate, formData]);
 
     return {
         formData,

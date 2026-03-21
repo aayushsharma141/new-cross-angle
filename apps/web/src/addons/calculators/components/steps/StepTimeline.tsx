@@ -23,10 +23,10 @@ export function StepTimeline({ formData, updateField }: Props) {
 
     return (
         <div>
-            <h2 className="text-2xl font-bold mb-1 text-white">
+            <h2 className="text-2xl font-bold mb-1 text-site-text-heading uppercase">
                 Timeline & Contact
             </h2>
-            <p className="text-gray-400 mb-6 text-sm">
+            <p className="text-site-text-muted mb-6 text-sm">
                 When would you like to start?
             </p>
 
@@ -38,14 +38,14 @@ export function StepTimeline({ formData, updateField }: Props) {
                         <button
                             key={opt.label}
                             onClick={() => updateField("startTiming", opt.label)}
-                            className={`border-2 rounded-xl py-4 px-2 text-center transition-all duration-200 ${active ? "bg-red-600/10 border-red-600" : "bg-[#121212] border-white/5"
+                            className={`border-2 rounded-none py-4 px-2 text-center transition-all duration-200 ${active ? "bg-site-crimson/10 border-site-crimson shadow-[0_0_15px_rgba(227, 83, 54,0.1)]" : "bg-site-bg-card border-site-border"
                                 }`}
                         >
                             <div className="text-3xl mb-1.5">{opt.icon}</div>
-                            <div className={`font-semibold text-sm ${active ? "text-red-400" : "text-white"}`}>
+                            <div className={`font-semibold text-sm ${active ? "text-site-crimson" : "text-site-text-heading"}`}>
                                 {opt.label}
                             </div>
-                            <div className="text-gray-400 text-[10px] uppercase tracking-wider mt-1">{opt.desc}</div>
+                            <div className="text-site-text-muted text-[10px] uppercase tracking-wider mt-1">{opt.desc}</div>
                         </button>
                     );
                 })}
@@ -54,8 +54,8 @@ export function StepTimeline({ formData, updateField }: Props) {
             {/* Project duration (C4/C5) */}
             {showDuration && (
                 <div className="mb-6">
-                    <label className={`${labelStyle} text-gray-400`}>
-                        Project Duration: <span className="font-bold text-red-400">{formData.projectMonths} months</span>
+                    <label className={`${labelStyle} text-site-text-muted`}>
+                        Project Duration: <span className="font-bold text-site-crimson">{formData.projectMonths} months</span>
                     </label>
                     <input
                         type="range"
@@ -63,9 +63,9 @@ export function StepTimeline({ formData, updateField }: Props) {
                         min={1} max={24} step={1}
                         value={formData.projectMonths}
                         onChange={e => updateField("projectMonths", Number(e.target.value))}
-                        className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-600"
+                        className="w-full h-2 bg-site-bg-card rounded-none appearance-none cursor-pointer accent-site-crimson"
                     />
-                    <div className="flex justify-between text-gray-400 text-xs mt-1">
+                    <div className="flex justify-between text-site-text-meta text-xs mt-1">
                         <span>1 month</span><span>24 months</span>
                     </div>
                 </div>
@@ -74,9 +74,9 @@ export function StepTimeline({ formData, updateField }: Props) {
             {/* Extra visits (C4) */}
             {showVisits && (
                 <div className="mb-6">
-                    <label className={`${labelStyle} text-gray-400`}>
-                        Senior Designer Visits: <span className="font-bold text-red-400">{formData.extraVisits}</span>
-                        <span className="text-xs ml-1.5 font-normal text-gray-500">
+                    <label className={`${labelStyle} text-site-text-muted`}>
+                        Senior Designer Visits: <span className="font-bold text-site-crimson">{formData.extraVisits}</span>
+                        <span className="text-xs ml-1.5 font-normal text-site-text-meta">
                             (5 free, then ₹5,000/visit)
                         </span>
                     </label>
@@ -86,22 +86,22 @@ export function StepTimeline({ formData, updateField }: Props) {
                         min={0} max={20} step={1}
                         value={formData.extraVisits}
                         onChange={e => updateField("extraVisits", Number(e.target.value))}
-                        className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-600"
+                        className="w-full h-2 bg-site-bg-card rounded-none appearance-none cursor-pointer accent-site-crimson"
                     />
-                    <div className="flex justify-between text-gray-400 text-xs mt-1">
+                    <div className="flex justify-between text-site-text-meta text-xs mt-1">
                         <span>0 visits</span><span>20 visits</span>
                     </div>
                 </div>
             )}
 
             {/* Contact form */}
-            <div className="bg-[#161616] border border-white/10 rounded-xl p-5 mt-2">
-                <div className="font-semibold text-base mb-4 text-white">
+            <div className="bg-site-bg-card border border-site-border rounded-none p-5 mt-2 shadow-2xl">
+                <div className="font-semibold text-base mb-4 text-site-text-heading uppercase tracking-[0.2em]">
                     📋 Contact Details
                 </div>
                 <div className="flex flex-col gap-4">
                     <div>
-                        <label className="block text-xs font-medium mb-1.5 text-gray-400">Full Name *</label>
+                        <label className="block text-xs font-medium mb-1.5 text-site-text-meta uppercase tracking-widest">Full Name *</label>
                         <input
                             type="text"
                             title="Your full name"
@@ -112,7 +112,7 @@ export function StepTimeline({ formData, updateField }: Props) {
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium mb-1.5 text-gray-400">Email</label>
+                        <label className="block text-xs font-medium mb-1.5 text-site-text-meta uppercase tracking-widest">Email</label>
                         <input
                             type="email"
                             title="Your email address"
@@ -123,7 +123,7 @@ export function StepTimeline({ formData, updateField }: Props) {
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium mb-1.5 text-gray-400">Phone Number *</label>
+                        <label className="block text-xs font-medium mb-1.5 text-site-text-meta uppercase tracking-widest">Phone Number *</label>
                         <input
                             type="tel"
                             title="Your phone number"

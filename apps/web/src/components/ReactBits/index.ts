@@ -1,3 +1,10 @@
 export { default as GridDistortion } from "./GridDistortion";
 export { default as Squares } from "./Squares";
 export { default as IridescenceGlow } from "./IridescenceGlow";
+export { default as BlurText } from "./BlurText";
+export { default as CountUp } from "./CountUp";
+export { default as ScrollVelocity } from "./ScrollVelocity";
+export { default as ShinyText } from "./ShinyText";
+export { default as SpotlightCard } from "./SpotlightCard";
+export { default as TiltedCard } from "./TiltedCard";
+export { default as SplitText } from "./SplitText";

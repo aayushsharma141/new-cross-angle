@@ -3,7 +3,6 @@ import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FixedSocialBar from "@/components/FixedSocialBar";
-import FloatingParticles from "@/components/FloatingParticles";
 import ScrollToTop from "@/components/ScrollToTop";
 import AboutHero from "@/components/about/AboutHero";
 import AboutValues from "@/components/about/AboutValues";
@@ -30,8 +29,6 @@ const AboutPage = () => {
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/about-us" />
       </Helmet>
-
-      <FloatingParticles count={25} />
 
       <Navbar />
       <main id="main-content" className="min-h-screen relative z-10">

@@ -23,7 +23,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/design-system/components/Table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, LineChart, Line, CartesianGrid, Legend, AreaChart, Area } from "recharts";
 import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { icons } from "@/design-system/tokens/icons";
@@ -37,7 +37,7 @@ interface SessionRow {
   last_stage: string;
   completion_time_seconds: number | null;
   user_agent: string | null;
-  answers: Record<string, unknown> | null; // Added for new session table structure
+  answers: Record<string, unknown>;
 }
 
 interface EventRow {
@@ -320,17 +320,17 @@ const StatCard = ({
     initial={{ opacity: 0, y: 16 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay, duration: 0.4 }}
-    className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 flex flex-col gap-2 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(236,72,153,0.1)] hover:border-pink-500/30 transition-all duration-500 hover:-translate-y-1"
+    className="group relative overflow-hidden rounded-2xl border border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md p-6 flex flex-col gap-2 shadow-2xl hover:shadow-[0_20px_50px_rgba(124,58,237,0.1)] hover:border-primary/30 transition-all duration-500 hover:-translate-y-1"
   >
     {/* Animated background gradient */}
-    <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
     <div className="flex items-center justify-between relative z-10">
-      <div className="p-2.5 rounded-xl bg-gradient-to-br from-pink-500/10 to-rose-500/10 text-pink-500 group-hover:scale-110 transition-transform duration-500">
+      <div className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-primary group-hover:scale-110 transition-transform duration-500 shadow-inner">
         <Icon className={cn("relative z-10", icons.md)} />
       </div>
       {sub && (
-        <span className="text-xs font-medium text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-full flex items-center gap-1">
+        <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20 uppercase tracking-widest flex items-center gap-1">
           <TrendingUp className={icons.xs} />
           {sub}
         </span>
@@ -338,8 +338,8 @@ const StatCard = ({
     </div>
 
     <div className="mt-2 relative z-10">
-      <h3 className="text-sm font-medium text-slate-400 mb-1">{label}</h3>
-      <p className="text-3xl font-display font-semibold tracking-tight text-white">{value}</p>
+      <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">{label}</h3>
+      <p className="text-3xl font-serif font-bold tracking-tight text-white">{value}</p>
     </div>
   </motion.div>
 );
@@ -383,15 +383,18 @@ export default function AdminAnalytics() {
 
   const loadData = useCallback(async () => {
     setRefreshing(true);
-    let sessQuery = (supabase.from("discovery_analytics_sessions") as unknown as { select: (s: string) => unknown })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let sessQuery: any = supabase.from("discovery_analytics_sessions")
       .select("*, answers") // Include answers for new session table
       .order("started_at", { ascending: false })
       .limit(1000);
-    let evtQuery = (supabase.from("discovery_analytics_events") as unknown as { select: (s: string) => unknown })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let evtQuery: any = supabase.from("discovery_analytics_events")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(5000);
-    let leadsQuery = (supabase.from("discovery_leads") as unknown as { select: (s: string) => unknown })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let leadsQuery: any = supabase.from("discovery_leads")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(500);
@@ -510,7 +513,7 @@ export default function AdminAnalytics() {
     return { dailyStats, serviceDistribution };
   }, [sessions]);
 
-  const COLORS = ['#ec4899', '#f43f5e', '#eab308', '#22c55e', '#3b82f6', '#6366f1', '#a855f7', '#d946b6'];
+  const COLORS = ['#7c3aed', '#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe', '#f5f3ff', '#4c1d95'];
 
   const filteredSessions = useMemo(() => {
     if (viewingType === 'completed') {
@@ -542,35 +545,35 @@ export default function AdminAnalytics() {
 
         {/* Quick Date Range (Placeholder) */}
         <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl p-1 backdrop-blur-md">
-          <Button variant="ghost" size="sm" className="px-3 py-1.5 text-xs font-medium bg-white/10 text-white rounded-lg shadow-sm border border-white/5 h-auto hover:bg-white/20">30 Days</Button>
-          <Button variant="ghost" size="sm" className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors h-auto">7 Days</Button>
-          <Button variant="ghost" size="sm" className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-colors h-auto">24 Hours</Button>
+          <Button variant="ghost" size="sm" className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest bg-zinc-900 border border-zinc-800 text-yellow-500 rounded-lg shadow-sm h-auto hover:bg-zinc-800 transition-all">30 Days</Button>
+          <Button variant="ghost" size="sm" className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors h-auto">7 Days</Button>
+          <Button variant="ghost" size="sm" className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors h-auto">24 Hours</Button>
         </div>
       </div>
 
       {/* Internal View Tabs: Analytics vs Leads (Discovery specific) */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 bg-zinc-900/40 border border-zinc-800/50 backdrop-blur-md p-1 rounded-2xl w-fit">
         <Button
-          variant={activeTab === "analytics" ? "secondary" : "ghost"}
+          variant="ghost"
           onClick={() => setActiveTab("analytics")}
           className={cn(
-            "px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
+            "px-6 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2",
             activeTab === "analytics"
-              ? "bg-white/10 border border-white/10 text-white shadow-sm hover:bg-white/20"
-              : "bg-transparent border border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-300"
+              ? "bg-primary/20 text-primary shadow-sm"
+              : "text-zinc-500 hover:text-zinc-200"
           )}
         >
           <BarChart3 className={icons.sm} />
           Discovery Analytics
         </Button>
         <Button
-          variant={activeTab === "leads" ? "secondary" : "ghost"}
+          variant="ghost"
           onClick={() => setActiveTab("leads")}
           className={cn(
-            "px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
+            "px-6 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2",
             activeTab === "leads"
-              ? "bg-white/10 border border-white/10 text-white shadow-sm hover:bg-white/20"
-              : "bg-transparent border border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-300"
+              ? "bg-primary/20 text-primary shadow-sm"
+              : "text-zinc-500 hover:text-zinc-200"
           )}
         >
           <UserCheck className={icons.sm} />
@@ -578,7 +581,7 @@ export default function AdminAnalytics() {
           {leads.length > 0 && (
             <span className={cn(
               "ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold",
-              activeTab === "leads" ? "bg-white/20 text-white" : "bg-white/10 text-slate-400"
+              activeTab === "leads" ? "bg-primary/20 text-primary" : "bg-white/5 text-zinc-500"
             )}>
               {leads.length}
             </span>
@@ -1083,19 +1086,19 @@ export default function AdminAnalytics() {
                         ...{session.id.slice(-8)}
                       </TableCell>
                       <TableCell className="px-6 py-4 border-none">
-                        {session.answers?.platform || "-"}
+                        {(session.answers?.platform as string) || "-"}
                       </TableCell>
-                      <TableCell className="px-6 py-4 max-w-xs truncate border-none" title={session.answers?.services?.join(", ")}>
+                      <TableCell className="px-6 py-4 max-w-xs truncate border-none" title={(session.answers?.services as string[] | undefined)?.join(", ")}>
                         {session.answers?.services ? (
                           <div className="flex gap-1.5 flex-wrap">
-                            {session.answers.services.slice(0, 2).map((s: string, i: number) => (
+                            {(session.answers.services as string[]).slice(0, 2).map((s: string, i: number) => (
                               <span key={i} className="bg-indigo-500/10 text-indigo-400 text-[10px] px-2 py-0.5 rounded-full border border-indigo-500/20">
                                 {s}
                               </span>
                             ))}
-                            {session.answers.services.length > 2 && (
+                            {(session.answers.services as string[]).length > 2 && (
                               <span className="bg-white/5 text-muted-foreground text-[10px] px-2 py-0.5 rounded-full border border-white/10">
-                                +{session.answers.services.length - 2}
+                                +{(session.answers.services as string[]).length - 2}
                               </span>
                             )}
                           </div>
@@ -1105,7 +1108,7 @@ export default function AdminAnalytics() {
                         {session.answers?.timeline ? (
                           <span className="flex items-center gap-1.5 text-xs">
                             <Clock className={cn("text-muted-foreground", icons.xs)} />
-                            {session.answers.timeline}
+                            {session.answers.timeline as string}
                           </span>
                         ) : "-"}
                       </TableCell>
@@ -1753,116 +1756,115 @@ export default function AdminAnalytics() {
               return false;
             });
 
-            return (
-              <>
-                <DialogHeader className="p-6 pb-4 border-b border-border">
-                  <DialogTitle className="text-lg font-serif-display">{selectedLead.name}</DialogTitle>
-                  <DialogDescription className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                    Lead captured {new Date(selectedLead.created_at).toLocaleString()}
-                    {(() => {
-                      const intent = scoreLeadIntent(selectedLead);
-                      return (
-                        <span className={cn("inline-block px-2 py-0.5 rounded-full text-xs font-medium", intent.cls)}>
-                          {intent.label} Intent
-                        </span>
-                      );
-                    })()}
-                  </DialogDescription>
-                </DialogHeader>
+            return (<>
+              <DialogHeader className="p-6 pb-4 border-b border-border">
+                <DialogTitle className="text-lg font-serif-display">{selectedLead.name}</DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                  Lead captured {new Date(selectedLead.created_at).toLocaleString()}
+                  {(() => {
+                    const intent = scoreLeadIntent(selectedLead);
+                    return (
+                      <span className={cn("inline-block px-2 py-0.5 rounded-full text-xs font-medium", intent.cls)}>
+                        {intent.label} Intent
+                      </span>
+                    );
+                  })()}
+                </DialogDescription>
+              </DialogHeader>
 
-                <div className="p-6 space-y-5">
-                  {/* Contact Info */}
-                  <div>
-                    <h3 className="text-xs tracking-premium text-muted-foreground mb-3">CONTACT</h3>
-                    <div className="space-y-2.5">
+              <div className="p-6 space-y-5">
+                {/* Contact Info */}
+                <div>
+                  <h3 className="text-xs tracking-premium text-muted-foreground mb-3">CONTACT</h3>
+                  <div className="space-y-2.5">
+                    <div className="flex items-center gap-2.5 text-sm">
+                      <Mail className={cn("text-muted-foreground shrink-0", icons.sm)} />
+                      <a href={`mailto:${selectedLead.email}`} className="text-foreground hover:underline">{selectedLead.email}</a>
+                    </div>
+                    {selectedLead.phone && (
                       <div className="flex items-center gap-2.5 text-sm">
-                        <Mail className={cn("text-muted-foreground shrink-0", icons.sm)} />
-                        <a href={`mailto:${selectedLead.email}`} className="text-foreground hover:underline">{selectedLead.email}</a>
+                        <Phone className={cn("text-muted-foreground shrink-0", icons.sm)} />
+                        <a href={`tel:${selectedLead.phone}`} className="text-foreground hover:underline">{selectedLead.phone}</a>
                       </div>
-                      {selectedLead.phone && (
-                        <div className="flex items-center gap-2.5 text-sm">
-                          <Phone className={cn("text-muted-foreground shrink-0", icons.sm)} />
-                          <a href={`tel:${selectedLead.phone}`} className="text-foreground hover:underline">{selectedLead.phone}</a>
-                        </div>
-                      )}
-                      {selectedLead.city && (
-                        <div className="flex items-center gap-2.5 text-sm">
-                          <MapPin className={cn("text-muted-foreground shrink-0", icons.sm)} />
-                          <span>{selectedLead.city}</span>
-                        </div>
-                      )}
-                    </div>
+                    )}
+                    {selectedLead.city && (
+                      <div className="flex items-center gap-2.5 text-sm">
+                        <MapPin className={cn("text-muted-foreground shrink-0", icons.sm)} />
+                        <span>{selectedLead.city}</span>
+                      </div>
+                    )}
                   </div>
+                </div>
 
-                  {/* Project Details */}
-                  <div>
-                    <h3 className="text-xs tracking-premium text-muted-foreground mb-3">PROJECT DETAILS</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="rounded-md border border-border p-3">
-                        <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
-                          <Briefcase className={icons.xs} />
-                          <span className="text-[10px] tracking-premium">TYPE</span>
-                        </div>
-                        <span className="text-sm font-medium">{selectedLead.project_type || "—"}</span>
-                      </div>
-                      <div className="rounded-md border border-border p-3">
-                        <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
-                          <DollarSign className={icons.xs} />
-                          <span className="text-[10px] tracking-premium">BUDGET</span>
-                        </div>
-                        <span className="text-sm font-medium">{selectedLead.budget_range || "—"}</span>
-                      </div>
-                      <div className="rounded-md border border-border p-3">
-                        <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
-                          <Timer className={icons.xs} />
-                          <span className="text-[10px] tracking-premium">TIMELINE</span>
-                        </div>
-                        <span className="text-sm font-medium">{selectedLead.timeline || "—"}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Source Info */}
-                  {(selectedLead.lead_source || selectedLead.utm_source) && (
-                    <div>
-                      <h3 className="text-xs tracking-premium text-muted-foreground mb-3">SOURCE</h3>
-                      <div className="space-y-2.5">
-                        <div className="flex items-center gap-2.5 text-sm">
-                          <Globe className={cn("text-muted-foreground shrink-0", icons.sm)} />
-                          <span>{selectedLead.lead_source || selectedLead.utm_source}</span>
-                        </div>
-                        {selectedLead.utm_medium && (
-                          <div className="text-xs text-muted-foreground ml-6">
-                            Medium: {selectedLead.utm_medium}
-                          </div>
-                        )}
-                        {selectedLead.utm_campaign && (
-                          <div className="text-xs text-muted-foreground ml-6">
-                            Campaign: {selectedLead.utm_campaign}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Session Link */}
-                  <div>
-                    <h3 className="text-xs tracking-premium text-muted-foreground mb-3">LINKED SESSION</h3>
+                {/* Project Details */}
+                <div>
+                  <h3 className="text-xs tracking-premium text-muted-foreground mb-3">PROJECT DETAILS</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="rounded-md border border-border p-3">
-                      <p className="text-xs font-mono text-muted-foreground truncate">{selectedLead.session_id}</p>
-                      <a
-                        href={`/results/${selectedLead.session_id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs mt-1.5 inline-block hover:underline"
-                        style={{ color: "hsl(var(--gold))" }}
-                      >
-                        View results page →
-                      </a>
+                      <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                        <Briefcase className={icons.xs} />
+                        <span className="text-[10px] tracking-premium">TYPE</span>
+                      </div>
+                      <span className="text-sm font-medium">{selectedLead.project_type || "—"}</span>
+                    </div>
+                    <div className="rounded-md border border-border p-3">
+                      <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                        <DollarSign className={icons.xs} />
+                        <span className="text-[10px] tracking-premium">BUDGET</span>
+                      </div>
+                      <span className="text-sm font-medium">{selectedLead.budget_range || "—"}</span>
+                    </div>
+                    <div className="rounded-md border border-border p-3">
+                      <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                        <Timer className={icons.xs} />
+                        <span className="text-[10px] tracking-premium">TIMELINE</span>
+                      </div>
+                      <span className="text-sm font-medium">{selectedLead.timeline || "—"}</span>
                     </div>
                   </div>
                 </div>
-              </>
+
+                {/* Source Info */}
+                {(selectedLead.lead_source || selectedLead.utm_source) && (
+                  <div>
+                    <h3 className="text-xs tracking-premium text-muted-foreground mb-3">SOURCE</h3>
+                    <div className="space-y-2.5">
+                      <div className="flex items-center gap-2.5 text-sm">
+                        <Globe className={cn("text-muted-foreground shrink-0", icons.sm)} />
+                        <span>{selectedLead.lead_source || selectedLead.utm_source}</span>
+                      </div>
+                      {selectedLead.utm_medium && (
+                        <div className="text-xs text-muted-foreground ml-6">
+                          Medium: {selectedLead.utm_medium}
+                        </div>
+                      )}
+                      {selectedLead.utm_campaign && (
+                        <div className="text-xs text-muted-foreground ml-6">
+                          Campaign: {selectedLead.utm_campaign}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Session Link */}
+                <div>
+                  <h3 className="text-xs tracking-premium text-muted-foreground mb-3">LINKED SESSION</h3>
+                  <div className="rounded-md border border-border p-3">
+                    <p className="text-xs font-mono text-muted-foreground truncate">{selectedLead.session_id}</p>
+                    <a
+                      href={`/results/${selectedLead.session_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs mt-1.5 inline-block hover:underline"
+                      style={{ color: "hsl(var(--gold))" }}
+                    >
+                      View results page →
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </>
             );
           })()}
         </DialogContent>
@@ -1877,137 +1879,136 @@ export default function AdminAnalytics() {
               .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
             const parsed = selectedSession.user_agent ? parseUA(selectedSession.user_agent) : null;
 
-            return (
-              <>
-                <DialogHeader className="p-6 pb-4 border-b border-border">
-                  <DialogTitle className="text-lg font-serif-display">Session Detail</DialogTitle>
-                  <DialogDescription className="text-xs font-mono text-muted-foreground mt-1">
-                    {selectedSession.id}
-                  </DialogDescription>
-                </DialogHeader>
+            return (<>
+              <DialogHeader className="p-6 pb-4 border-b border-border">
+                <DialogTitle className="text-lg font-serif-display">Session Detail</DialogTitle>
+                <DialogDescription className="text-xs font-mono text-muted-foreground mt-1">
+                  {selectedSession.id}
+                </DialogDescription>
+              </DialogHeader>
 
-                <ScrollArea className="max-h-[calc(85vh-120px)]">
-                  <div className="p-6 space-y-6">
-                    {/* Summary cards */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div className="rounded-md border border-border p-3">
-                        <span className="text-xs text-muted-foreground block mb-1">Status</span>
-                        <span className={cn(
-                          "inline-block px-2 py-0.5 rounded-full text-xs font-medium",
-                          selectedSession.is_completed
-                            ? "bg-emerald-500/15 text-emerald-400"
-                            : "bg-amber-500/15 text-amber-400"
-                        )}>
-                          {selectedSession.is_completed ? "Completed" : "Dropped"}
-                        </span>
-                      </div>
-                      <div className="rounded-md border border-border p-3">
-                        <span className="text-xs text-muted-foreground block mb-1">Mode</span>
-                        <span className="text-sm font-medium">{selectedSession.mode}</span>
-                      </div>
-                      <div className="rounded-md border border-border p-3">
-                        <span className="text-xs text-muted-foreground block mb-1">Last Stage</span>
-                        <span className="text-sm font-medium">{STAGE_LABELS[selectedSession.last_stage] ?? selectedSession.last_stage}</span>
-                      </div>
-                      <div className="rounded-md border border-border p-3">
-                        <span className="text-xs text-muted-foreground block mb-1">Duration</span>
-                        <span className="text-sm font-medium">
-                          {selectedSession.completion_time_seconds != null
-                            ? formatDuration(selectedSession.completion_time_seconds)
-                            : "—"}
-                        </span>
-                      </div>
+              <ScrollArea className="max-h-[calc(85vh-120px)]">
+                <div className="p-6 space-y-6">
+                  {/* Summary cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="rounded-md border border-border p-3">
+                      <span className="text-xs text-muted-foreground block mb-1">Status</span>
+                      <span className={cn(
+                        "inline-block px-2 py-0.5 rounded-full text-xs font-medium",
+                        selectedSession.is_completed
+                          ? "bg-emerald-500/15 text-emerald-400"
+                          : "bg-amber-500/15 text-amber-400"
+                      )}>
+                        {selectedSession.is_completed ? "Completed" : "Dropped"}
+                      </span>
                     </div>
+                    <div className="rounded-md border border-border p-3">
+                      <span className="text-xs text-muted-foreground block mb-1">Mode</span>
+                      <span className="text-sm font-medium">{selectedSession.mode}</span>
+                    </div>
+                    <div className="rounded-md border border-border p-3">
+                      <span className="text-xs text-muted-foreground block mb-1">Last Stage</span>
+                      <span className="text-sm font-medium">{STAGE_LABELS[selectedSession.last_stage] ?? selectedSession.last_stage}</span>
+                    </div>
+                    <div className="rounded-md border border-border p-3">
+                      <span className="text-xs text-muted-foreground block mb-1">Duration</span>
+                      <span className="text-sm font-medium">
+                        {selectedSession.completion_time_seconds != null
+                          ? formatDuration(selectedSession.completion_time_seconds)
+                          : "—"}
+                      </span>
+                    </div>
+                  </div>
 
-                    {/* Timestamps & Device */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div className="space-y-1">
-                        <p className="text-muted-foreground">Started: <span className="text-foreground">{new Date(selectedSession.started_at).toLocaleString()}</span></p>
-                        {selectedSession.completed_at && (
-                          <p className="text-muted-foreground">Completed: <span className="text-foreground">{new Date(selectedSession.completed_at).toLocaleString()}</span></p>
-                        )}
-                      </div>
-                      {parsed && (
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground">Device: <span className="text-foreground">{parsed.device}</span></p>
-                          <p className="text-muted-foreground">Browser: <span className="text-foreground">{parsed.browser} / {parsed.os}</span></p>
-                        </div>
+                  {/* Timestamps & Device */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="space-y-1">
+                      <p className="text-muted-foreground">Started: <span className="text-foreground">{new Date(selectedSession.started_at).toLocaleString()}</span></p>
+                      {selectedSession.completed_at && (
+                        <p className="text-muted-foreground">Completed: <span className="text-foreground">{new Date(selectedSession.completed_at).toLocaleString()}</span></p>
                       )}
                     </div>
+                    {parsed && (
+                      <div className="space-y-1">
+                        <p className="text-muted-foreground">Device: <span className="text-foreground">{parsed.device}</span></p>
+                        <p className="text-muted-foreground">Browser: <span className="text-foreground">{parsed.browser} / {parsed.os}</span></p>
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Stage progress visualization */}
-                    <div>
-                      <h3 className="text-sm font-medium mb-3">Journey Progress</h3>
-                      <div className="flex gap-1">
-                        {STAGE_ORDER.map((stage) => {
-                          const reached = STAGE_ORDER.indexOf(selectedSession.last_stage) >= STAGE_ORDER.indexOf(stage);
+                  {/* Stage progress visualization */}
+                  <div>
+                    <h3 className="text-sm font-medium mb-3">Journey Progress</h3>
+                    <div className="flex gap-1">
+                      {STAGE_ORDER.map((stage) => {
+                        const reached = STAGE_ORDER.indexOf(selectedSession.last_stage) >= STAGE_ORDER.indexOf(stage);
+                        return (
+                          <div key={stage} className="flex-1 group relative">
+                            <div
+                              className={cn(
+                                "h-2 rounded-full transition-colors",
+                                reached ? "bg-foreground/40" : "bg-muted"
+                              )}
+                              style={reached && stage === selectedSession.last_stage ? { background: "hsl(var(--gold))" } : undefined}
+                            />
+                            <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                              {STAGE_LABELS[stage]}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Event Timeline */}
+                  <div>
+                    <h3 className="text-sm font-medium mb-3">Event Timeline ({sessionEvents.length} events)</h3>
+                    {sessionEvents.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">No events found for this session.</p>
+                    ) : (
+                      <div className="relative pl-4 border-l border-border space-y-0">
+                        {sessionEvents.map((evt, i) => {
+                          const prevTime = i > 0 ? new Date(sessionEvents[i - 1].created_at).getTime() : null;
+                          const currTime = new Date(evt.created_at).getTime();
+                          const delta = prevTime ? (currTime - prevTime) / 1000 : null;
+
                           return (
-                            <div key={stage} className="flex-1 group relative">
-                              <div
-                                className={cn(
-                                  "h-2 rounded-full transition-colors",
-                                  reached ? "bg-foreground/40" : "bg-muted"
-                                )}
-                                style={reached && stage === selectedSession.last_stage ? { background: "hsl(var(--gold))" } : undefined}
-                              />
-                              <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                                {STAGE_LABELS[stage]}
-                              </span>
+                            <div key={evt.id} className="relative pb-4 last:pb-0">
+                              <div className="absolute -left-[calc(1rem+4.5px)] top-1.5 w-2 h-2 rounded-full bg-foreground/30 border border-background" />
+                              <div className="flex items-start gap-3">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="font-mono text-xs font-medium text-foreground">{evt.event_type}</span>
+                                    {evt.stage_name && (
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                        {STAGE_LABELS[evt.stage_name] ?? evt.stage_name}
+                                      </span>
+                                    )}
+                                    {delta !== null && (
+                                      <span className="text-[10px] text-muted-foreground">
+                                        +{delta < 60 ? `${delta.toFixed(1)}s` : `${(delta / 60).toFixed(1)}m`}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {evt.meta && Object.keys(evt.meta).length > 0 && (
+                                    <p className="text-[10px] text-muted-foreground mt-0.5 font-mono truncate max-w-md">
+                                      {JSON.stringify(evt.meta)}
+                                    </p>
+                                  )}
+                                </div>
+                                <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
+                                  {new Date(evt.created_at).toLocaleTimeString()}
+                                </span>
+                              </div>
                             </div>
                           );
                         })}
                       </div>
-                    </div>
-
-                    {/* Event Timeline */}
-                    <div>
-                      <h3 className="text-sm font-medium mb-3">Event Timeline ({sessionEvents.length} events)</h3>
-                      {sessionEvents.length === 0 ? (
-                        <p className="text-xs text-muted-foreground">No events found for this session.</p>
-                      ) : (
-                        <div className="relative pl-4 border-l border-border space-y-0">
-                          {sessionEvents.map((evt, i) => {
-                            const prevTime = i > 0 ? new Date(sessionEvents[i - 1].created_at).getTime() : null;
-                            const currTime = new Date(evt.created_at).getTime();
-                            const delta = prevTime ? (currTime - prevTime) / 1000 : null;
-
-                            return (
-                              <div key={evt.id} className="relative pb-4 last:pb-0">
-                                <div className="absolute -left-[calc(1rem+4.5px)] top-1.5 w-2 h-2 rounded-full bg-foreground/30 border border-background" />
-                                <div className="flex items-start gap-3">
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <span className="font-mono text-xs font-medium text-foreground">{evt.event_type}</span>
-                                      {evt.stage_name && (
-                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                                          {STAGE_LABELS[evt.stage_name] ?? evt.stage_name}
-                                        </span>
-                                      )}
-                                      {delta !== null && (
-                                        <span className="text-[10px] text-muted-foreground">
-                                          +{delta < 60 ? `${delta.toFixed(1)}s` : `${(delta / 60).toFixed(1)}m`}
-                                        </span>
-                                      )}
-                                    </div>
-                                    {evt.meta && Object.keys(evt.meta).length > 0 && (
-                                      <p className="text-[10px] text-muted-foreground mt-0.5 font-mono truncate max-w-md">
-                                        {JSON.stringify(evt.meta)}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
-                                    {new Date(evt.created_at).toLocaleTimeString()}
-                                  </span>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
-                </ScrollArea>
-              </>
+                </div>
+              </ScrollArea>
+            </>
             );
           })()}
         </DialogContent>

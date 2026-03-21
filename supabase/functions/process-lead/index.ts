@@ -1,51 +1,18 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  buildCorsHeaders,
+  handlePreflight,
+  checkRateLimit,
+  getClientId,
+  rateLimitResponse,
+  badRequestResponse,
+  serverErrorResponse,
+  okResponse,
+} from "../_lib/security.ts";
 
-// Get allowed origins from environment or use defaults
-const getAllowedOrigins = (): string[] => {
-  const envOrigins = Deno.env.get("ALLOWED_ORIGINS");
-  if (envOrigins) {
-    return envOrigins.split(",").map(o => o.trim());
-  }
-  return [];
-};
-
-const getCorsHeaders = (req: Request): Record<string, string> => {
-  const origin = req.headers.get("origin") || "";
-  const allowedOrigins = getAllowedOrigins();
-
-  const isAllowed = origin.includes("localhost") ||
-    origin.includes("127.0.0.1") ||
-    allowedOrigins.some(allowed => origin === allowed);
-
-  return {
-    "Access-Control-Allow-Origin": isAllowed ? (origin || "*") : "",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  };
-};
-
-// Simple in-memory rate limiting (per function instance)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 5; // Max 5 requests per minute per email
-
-function isRateLimited(email: string): boolean {
-  const now = Date.now();
-  const key = email.toLowerCase().trim();
-  const record = rateLimitMap.get(key);
-
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-
-  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return true;
-  }
-
-  record.count++;
-  return false;
-}
+// 5 submissions per minute per IP — contact form abuse protection.
+const RATE_OPTS = { bucket: "process-lead", max: 5, windowMs: 60_000 };
 
 // Input validation functions
 function isValidEmail(email: string): boolean {
@@ -153,11 +120,13 @@ async function syncToGoogleSheets(lead: { name: string; email: string; phone?: s
 }
 
 serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req);
+  const preflight = handlePreflight(req);
+  if (preflight) return preflight;
 
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  // KV-backed rate limit (email not yet available, use IP at entry)
+  const clientId = getClientId(req);
+  const rl = await checkRateLimit(req, clientId, RATE_OPTS);
+  if (rl.limited) return rateLimitResponse(req, rl);
 
   try {
     let body;
@@ -214,14 +183,10 @@ serve(async (req) => {
       });
     }
 
-    // Rate limiting check
-    if (isRateLimited(email)) {
-      console.warn("Rate limit exceeded for email:", email);
-      return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    // Rate limiting check (per IP already done above, this is belt-and-suspenders per email)
+    const emailId = getClientId(req, undefined) + `:${email}`;
+    const rlEmail = await checkRateLimit(req, emailId, { ...RATE_OPTS, bucket: "process-lead-email" });
+    if (rlEmail.limited) return rateLimitResponse(req, rlEmail);
 
     // Sanitize inputs
     const sanitizedName = sanitizeString(name);
@@ -300,15 +265,10 @@ serve(async (req) => {
 
     console.log("Lead processed with AI response, WhatsApp notification, and Google Sheets sync");
 
-    return new Response(JSON.stringify({ success: true, aiResponse: generatedResponse }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return okResponse(req, { success: true, aiResponse: generatedResponse }, {}, rl, RATE_OPTS.max);
   } catch (error: unknown) {
     console.error("Error processing lead:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return serverErrorResponse(req, message);
   }
 });

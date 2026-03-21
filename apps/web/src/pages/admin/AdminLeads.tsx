@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { leadRepo } from "@/repositories";
 import { LeadPipeline } from "@/components/admin/leads/LeadPipeline";
 import { LeadDetailSheet } from "@/components/admin/leads/LeadDetailSheet";
 import { Button } from "@/design-system/components/Button";
@@ -46,9 +46,9 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 const STATUS_COLORS: Record<string, string> = {
   new: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  contacted: "bg-purple-500/10 text-purple-500 border-purple-500/20",
+  contacted: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
   qualified: "bg-cyan-500/10 text-cyan-500 border-cyan-500/20",
-  proposal: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+  proposal: "bg-primary/10 text-primary border-primary/20",
   won: "bg-success/10 text-success border-success/20",
   lost: "bg-error/10 text-error border-error/20",
 };
@@ -74,8 +74,8 @@ const TYPE_LABELS: Record<string, string> = {
 
 function TemperatureIcon({ score }: { score: number }) {
   if (score >= 70) return <Flame className={`${icons.xs} text-error`} />;
-  if (score >= 40) return <Thermometer className={`${icons.xs} text-amber-500`} />;
-  return <Snowflake className={`${icons.xs} text-blue-500`} />;
+  if (score >= 40) return <Thermometer className={`${icons.xs} text-primary`} />;
+  return <Snowflake className={`${icons.xs} text-blue-400`} />;
 }
 
 export default function AdminLeads() {
@@ -89,22 +89,14 @@ export default function AdminLeads() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch Leads
   const { data: leads = [], isLoading } = useQuery({
     queryKey: ["leads"],
     queryFn: async (): Promise<Lead[]> => {
-      const { data, error } = await supabase
-        .from("leads")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      const leadsWithScore = (data as unknown as Lead[]).map((lead) => ({
+      const raw = await leadRepo.getLeads();
+      const leadsWithScore = (raw as unknown as Lead[]).map((lead) => ({
         ...lead,
         score: lead.score ?? calculateLeadScore(lead),
       }));
-
       return leadsWithScore.sort((a, b) => (b.score || 0) - (a.score || 0));
     },
   });
@@ -122,8 +114,7 @@ export default function AdminLeads() {
   // Update Lead Mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Lead> & { id: string }): Promise<void> => {
-      const { error } = await supabase.from("leads").update(updates).eq("id", id);
-      if (error) throw error;
+      await leadRepo.updateLeadStatus(id, updates.status ?? "");
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["leads"] });
@@ -137,10 +128,7 @@ export default function AdminLeads() {
 
   // Delete Lead Mutation
   const deleteMutation = useMutation({
-    mutationFn: async (id: string): Promise<void> => {
-      const { error } = await supabase.from("leads").delete().eq("id", id);
-      if (error) throw error;
-    },
+    mutationFn: (id: string): Promise<void> => leadRepo.deleteLead(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["leads"] });
       toast({ title: "Lead Deleted", description: "Lead removed permanently." });
@@ -157,15 +145,19 @@ export default function AdminLeads() {
       ["Name", "Email", "Phone", "Status", "Source", "Type", "City", "Budget", "Score", "Date"],
       ...leads.map((l) => {
         const temp = getLeadTemperature(l.score || 0);
+        const lSource = l.source || l.lead_source || "";
+        const lType = l.category || l.lead_type || "";
+        const lBudget = l.budget || (l as any).budget_range || "";
+
         return [
           l.name,
           l.email,
           l.phone || "",
           l.status,
-          SOURCE_LABELS[l.lead_source || ""] || l.lead_source || "",
-          TYPE_LABELS[l.lead_type || ""] || l.lead_type || "",
+          SOURCE_LABELS[lSource] || lSource,
+          TYPE_LABELS[lType] || lType,
           l.city || "",
-          l.budget || "",
+          lBudget,
           `${l.score || 0} (${temp.label})`,
           format(new Date(l.created_at || ""), "yyyy-MM-dd"),
         ];
@@ -206,31 +198,31 @@ export default function AdminLeads() {
       {/* Mini KPI Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Leads", value: kpis.total, color: "text-text-primary" },
-          { label: "Hot Leads", value: kpis.hot, color: "text-error", icon: <Flame className={`${icons.sm} text-error`} /> },
-          { label: "New Leads", value: kpis.new, color: "text-blue-500" },
-          { label: "Won", value: kpis.won, color: "text-success" },
+          { label: "Total Leads", value: kpis.total, color: "text-zinc-100" },
+          { label: "Hot Leads", value: kpis.hot, color: "text-red-500", icon: <Flame className={`${icons.sm} text-red-500`} /> },
+          { label: "New Leads", value: kpis.new, color: "text-blue-400" },
+          { label: "Won", value: kpis.won, color: "text-emerald-500" },
         ].map((k) => (
           <Card
             key={k.label}
-            className="px-4 py-4 flex items-center justify-between shadow-none bg-surface-card"
+            className="px-4 py-4 flex items-center justify-between shadow-none bg-zinc-900/40 border-zinc-800/50 backdrop-blur-md"
           >
-            <span className="text-xs text-text-muted uppercase tracking-wider font-semibold">{k.label}</span>
+            <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">{k.label}</span>
             <div className="flex items-center gap-1.5">
               {k.icon}
-              <span className={cn("text-2xl font-display font-bold", k.color)}>{k.value}</span>
+              <span className={cn("text-2xl font-serif font-bold", k.color)}>{k.value}</span>
             </div>
           </Card>
         ))}
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row items-center gap-3 w-full bg-surface-card p-3 rounded-lg border">
+      <div className="flex flex-col sm:flex-row items-center gap-4 bg-zinc-900/40 backdrop-blur-md p-4 rounded-2xl border border-zinc-800/50">
         <div className="relative flex-1 w-full max-w-md">
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 ${icons.sm} text-text-muted`} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
           <Input
-            placeholder="Search by name or email…"
-            className="pl-9 w-full"
+            placeholder="Search leads..."
+            className="pl-10 bg-black/40 border-zinc-700/50 focus:border-primary/50 transition-all rounded-xl"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -238,10 +230,11 @@ export default function AdminLeads() {
 
         <div className="flex items-center gap-3 w-full sm:w-auto ml-auto">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[140px] bg-surface h-10 border-border">
+            <SelectTrigger className="w-full sm:w-[140px] bg-black/40 border-zinc-700/50 rounded-xl h-10 text-zinc-300">
+              <Users className="w-4 h-4 mr-2 text-zinc-500" />
               <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-zinc-900 border-zinc-800">
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="new">New</SelectItem>
               <SelectItem value="contacted">Contacted</SelectItem>
@@ -253,11 +246,11 @@ export default function AdminLeads() {
           </Select>
 
           <Tabs value={view} onValueChange={(v) => setView(v as "board" | "list")} className="w-[140px]">
-            <TabsList className="grid w-full grid-cols-2 h-10 bg-surface border shadow-none">
-              <TabsTrigger value="list" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+            <TabsList className="grid w-full grid-cols-2 h-10 bg-black/40 border-zinc-700/50 border shadow-none rounded-xl">
+              <TabsTrigger value="list" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-lg transition-all">
                 <ListIcon className={icons.sm} />
               </TabsTrigger>
-              <TabsTrigger value="board" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+              <TabsTrigger value="board" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-lg transition-all">
                 <LayoutGrid className={icons.sm} />
               </TabsTrigger>
             </TabsList>
@@ -313,6 +306,9 @@ export default function AdminLeads() {
                   {filteredLeads.map((lead) => {
                     const score = lead.score || 0;
                     const temp = getLeadTemperature(score);
+                    const leadType = lead.category || lead.lead_type;
+                    const leadSource = lead.source || lead.lead_source;
+
                     return (
                       <TableRow
                         key={lead.id}
@@ -330,14 +326,14 @@ export default function AdminLeads() {
                         {/* Lead Type */}
                         <TableCell>
                           <span className="text-sm">
-                            {TYPE_LABELS[lead.lead_type || ""] || lead.lead_type || "—"}
+                            {TYPE_LABELS[leadType || ""] || leadType || "—"}
                           </span>
                         </TableCell>
 
                         {/* Lead Source */}
                         <TableCell>
                           <span className="text-sm">
-                            {SOURCE_LABELS[lead.lead_source || ""] || lead.lead_source || "—"}
+                            {SOURCE_LABELS[leadSource || ""] || leadSource || "—"}
                           </span>
                         </TableCell>
 

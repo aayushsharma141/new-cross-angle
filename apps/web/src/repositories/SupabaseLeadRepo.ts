@@ -15,5 +15,9 @@ export class SupabaseLeadRepo implements LeadRepository {
         const { error } = await supabase.from('leads').update({ status }).eq('id', id);
         if (error) throw error;
     }
+    async deleteLead(id: string): Promise<void> {
+        const { error } = await supabase.from('leads').delete().eq('id', id);
+        if (error) throw error;
+    }
 }
 export const leadRepo = new SupabaseLeadRepo();

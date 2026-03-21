@@ -25,7 +25,7 @@ export const AdminBreadcrumb = ({ items = [] }: AdminBreadcrumbProps) => {
             <BreadcrumbList>
                 <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                        <Link to="/admin" className="flex items-center gap-1 hover:text-primary transition-colors">
+                        <Link to="/admin" className="flex items-center gap-1 hover:-admin-primary transition-colors">
                             <Home className={icons.sm} />
                             <span>Admin</span>
                         </Link>
@@ -42,7 +42,7 @@ export const AdminBreadcrumb = ({ items = [] }: AdminBreadcrumbProps) => {
                             {item.href && !isLast ? (
                                 <>
                                     <BreadcrumbLink asChild>
-                                        <Link to={item.href} className="hover:text-primary transition-colors">
+                                        <Link to={item.href} className="hover:-admin-primary transition-colors">
                                             {item.label}
                                         </Link>
                                     </BreadcrumbLink>

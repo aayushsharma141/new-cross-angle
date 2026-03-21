@@ -1,0 +1,32 @@
+# .context/decisions.log
+# APPEND ONLY — never delete or edit past entries
+# Format: [ISO timestamp] | [Model] | [CATEGORY] | [Decision] | [Reason]
+# Categories: ARCH / DB / UI / BUG / REVERT / BLOCK / CONFIRM
+# Add new entries at the BOTTOM.
+# ─────────────────────────────────────────────────────────
+
+[2026-03-13T00:00:00Z] | System | ARCH | Established .cursorrules as primary boot injection point | Antigravity reads .cursorrules automatically — this is the only guaranteed context on model switch
+
+[2026-03-13T00:00:00Z] | System | ARCH | Repository pattern adopted: apps/web/src/repositories/ | Decouples UI from Supabase. SupabaseLeadRepo.ts and SupabaseProjectRepo.ts already exist.
+
+[2026-03-13T00:00:00Z] | System | ARCH | AdminLayout resolved: components/admin/AdminLayout.tsx deleted, pages/admin/AdminLayout.tsx is canonical | Audit found duplicate — resolved by deleting the non-premium version
+
+[2026-03-13T00:00:00Z] | System | UI | Locked UHNW luxury dark gold design system | Brand requirement. See design.lock for full spec.
+
+[2026-03-13T00:00:00Z] | System | DB | leads.name (not full_name), leads.lead_source (not service) | Real field name bugs found in audit — AdminLeads.tsx list view was showing empty columns because of this
+
+[2026-03-13T00:00:00Z] | System | DB | services.name (not services.title) | Services table uses name field, not title
+
+[2026-03-13T00:00:00Z] | System | DB | testimonials.active (not is_active, not is_featured) | Confirmed from schema
+
+[2026-03-13T00:00:00Z] | System | ARCH | React Bits components copied to apps/web/src/components/ReactBits/ | Source in tmp_react_bits/src/ts-tailwind/ — copy files there, do not edit source
+
+[2026-03-13T00:00:00Z] | System | BUG | KPI cards were hardcoded useState(0) — never live | All KPI cards must use useQuery → Supabase COUNT queries
+
+[2026-03-13T00:00:00Z] | System | BUG | count ?? 0 not count || 0 | Falsy zero bug: count || 0 returns 0 when count IS 0, breaking KPI display
+
+[2026-03-13T00:00:00Z] | System | CONFIRM | Migration SQL must be confirmed by Aayush before applying | Run: show Aayush the migration, wait for "yes", then: supabase db push
+
+# ─────────────────────────────────────────────────────────
+# ADD NEW ENTRIES BELOW THIS LINE
+# ─────────────────────────────────────────────────────────

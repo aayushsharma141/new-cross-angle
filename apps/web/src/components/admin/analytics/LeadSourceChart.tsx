@@ -34,13 +34,13 @@ export function LeadSourceChart() {
         queryFn: async () => {
             const { data, error } = await supabase
                 .from("leads")
-                .select("lead_source");
+                .select("source, lead_source" as any); // Select both for compatibility during transition
 
             if (error) throw error;
 
             const counts: Record<string, number> = {};
             for (const row of data || []) {
-                const s = row.lead_source || "other";
+                const s = (row as any).source || (row as any).lead_source || "other";
                 counts[s] = (counts[s] || 0) + 1;
             }
 

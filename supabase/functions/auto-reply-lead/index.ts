@@ -1,59 +1,38 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import {
+    buildCorsHeaders,
+    handlePreflight,
+    checkRateLimit,
+    getClientId,
+    rateLimitResponse,
+} from "../_lib/security.ts";
+
+const RATE_OPTS = { bucket: "auto-reply", max: 3, windowMs: 60_000 };
 
 interface Lead {
     id: string;
     name: string;
-    email: string; // Required for auto-reply
+    email: string;
     phone?: string;
     service?: string;
 }
 
-// Simple in-memory rate limiting
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 3;
-
-function isRateLimited(identifier: string): boolean {
-    const now = Date.now();
-    const key = identifier.toLowerCase().trim();
-    const record = rateLimitMap.get(key);
-
-    if (!record || now > record.resetTime) {
-        rateLimitMap.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
-        return false;
-    }
-
-    if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
-        return true;
-    }
-
-    record.count++;
-    return false;
-}
-
 serve(async (req) => {
-    if (req.method === 'OPTIONS') {
-        return new Response('ok', { headers: corsHeaders })
-    }
+    const preflight = handlePreflight(req);
+    if (preflight) return preflight;
+
+    const clientId = getClientId(req);
+    const rl = await checkRateLimit(req, clientId, RATE_OPTS);
+    if (rl.limited) return rateLimitResponse(req, rl);
 
     try {
-        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-
-        if (isRateLimited(`ip:${ip}`)) {
-            return new Response(JSON.stringify({ error: "Too Many Requests" }), {
-                status: 429,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-        }
-
         const supabaseClient = createClient(
             Deno.env.get('SUPABASE_URL') ?? '',
             Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-        )
+        );
 
-        const { lead }: { lead: Lead } = await req.json()
+        const { lead }: { lead: Lead } = await req.json();
 
         if (!lead || !lead.email) {
             throw new Error("Lead email is required for auto-reply")
@@ -108,14 +87,15 @@ serve(async (req) => {
         }
 
         return new Response(JSON.stringify({ success: true }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        })
+            headers: { ...buildCorsHeaders(req), 'Content-Type': 'application/json' }
+        });
 
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("Auto-reply Error:", error);
-        return new Response(JSON.stringify({ error: error.message }), {
+        const msg = error instanceof Error ? error.message : 'Unknown error';
+        return new Response(JSON.stringify({ error: msg }), {
             status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        })
+            headers: { ...buildCorsHeaders(req), 'Content-Type': 'application/json' }
+        });
     }
-})
+});

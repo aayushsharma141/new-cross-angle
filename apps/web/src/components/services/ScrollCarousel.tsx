@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { serviceCategories } from "@/config/site-content";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,121 +15,118 @@ export const ScrollCarousel = () => {
 
     console.log("ScrollCarousel render");
 
-    React.useEffect(() => {
+    useGSAP(() => {
         const section = sectionRef.current;
         const track = trackRef.current;
         if (!section || !track) return;
 
-        // Let GSAP measure after fonts/images have laid out
-        const ctx = gsap.context(() => {
-            // ── Horizontal slide ──────────────────────────────────────────────────
-            const trackEl = trackRef.current;
-            const sectionEl = sectionRef.current;
-            if (!trackEl || !sectionEl) return;
+        const trackEl = trackRef.current;
+        const sectionEl = sectionRef.current;
+        if (!trackEl || !sectionEl) return;
 
-            const tween = gsap.to(trackEl, {
-                x: () => -(trackEl.scrollWidth - window.innerWidth),
-                ease: "none",
-                scrollTrigger: {
-                    id: "horiz",
-                    trigger: sectionEl,
-                    pin: true,
-                    scrub: 1,
-                    end: () => `+=${trackEl.scrollWidth - window.innerWidth}`,
-                    invalidateOnRefresh: true,
-                    anticipatePin: 1,
+        const getScrollAmount = () => {
+            const trackWidth = trackEl.scrollWidth;
+            const viewportWidth = window.innerWidth;
+            return -(trackWidth - viewportWidth + 300); // 300px extra to ensure last card shows completely and spacer kicks in
+        };
+
+        const tween = gsap.to(trackEl, {
+            x: getScrollAmount,
+            ease: "none",
+            scrollTrigger: {
+                id: "horiz",
+                trigger: sectionEl,
+                pin: true,
+                pinSpacing: true,
+                scrub: 1,
+                start: "top top",
+                end: () => `+=${Math.abs(getScrollAmount())}`,
+                invalidateOnRefresh: true,
+                anticipatePin: 1,
+            },
+        });
+
+        // ── Per-card animations ────────────────────────
+        cardRefs.current.forEach((card) => {
+            if (!card) return;
+
+            gsap.fromTo(
+                card,
+                {
+                    scale: 0.85,
+                    opacity: 0.6,
+                    filter: "blur(4px)",
+                    boxShadow: "0px 0px 0px 0px rgba(227, 83, 54, 0)"
                 },
-            });
-
-            // ── Per-card animations as each passes center ────────────────────────
-            cardRefs.current.forEach((card) => {
-                if (!card) return;
-
-                // Animate IN: right edge enters screen until card center hits viewport center
-                gsap.fromTo(
-                    card,
-                    {
-                        scale: 0.7,
-                        opacity: 0.4,
-                        filter: "blur(6px)",
-                        boxShadow: "0px 0px 0px 0px rgba(220, 38, 38, 0)"
+                {
+                    scale: 1,
+                    opacity: 1,
+                    filter: "blur(0px)",
+                    boxShadow: "0px 0px 40px -10px rgba(227, 83, 54, 0.15)",
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: card,
+                        containerAnimation: tween,
+                        start: "left 85%",
+                        end: "center center",
+                        scrub: true,
                     },
-                    {
-                        scale: 1,
-                        opacity: 1,
-                        filter: "blur(0px)",
-                        boxShadow: "0px 0px 80px 15px rgba(220, 38, 38, 0.25)",
-                        ease: "power1.out",
-                        scrollTrigger: {
-                            trigger: card,
-                            containerAnimation: tween,
-                            start: "left 95%",
-                            end: "center center",
-                            scrub: true,
-                        },
-                    }
-                );
+                }
+            );
 
-                // Animate OUT: center leaves viewport center until left edge exits
-                gsap.fromTo(
-                    card,
-                    {
-                        scale: 1,
-                        opacity: 1,
-                        filter: "blur(0px)",
-                        boxShadow: "0px 0px 80px 15px rgba(220, 38, 38, 0.25)"
+            gsap.fromTo(
+                card,
+                {
+                    scale: 1,
+                    opacity: 1,
+                    filter: "blur(0px)",
+                    boxShadow: "0px 0px 40px -10px rgba(227, 83, 54, 0.15)"
+                },
+                {
+                    scale: 0.85,
+                    opacity: 0.6,
+                    filter: "blur(4px)",
+                    boxShadow: "0px 0px 0px 0px rgba(227, 83, 54, 0)",
+                    ease: "power2.in",
+                    scrollTrigger: {
+                        trigger: card,
+                        containerAnimation: tween,
+                        start: "center center",
+                        end: "right 25%",
+                        scrub: true,
                     },
-                    {
-                        scale: 0.7,
-                        opacity: 0.4,
-                        filter: "blur(6px)",
-                        boxShadow: "0px 0px 0px 0px rgba(220, 38, 38, 0)",
-                        ease: "power1.in",
-                        scrollTrigger: {
-                            trigger: card,
-                            containerAnimation: tween,
-                            start: "center center",
-                            end: "right 5%",
-                            scrub: true,
-                        },
-                    }
-                );
-            });
-        }, section);
-
-        return () => ctx.revert();
-    }, []);
+                }
+            );
+        });
+    }, { scope: sectionRef });
 
     return (
         <section
             ref={sectionRef}
-            className="relative"
+            className="relative h-screen bg-site-bg text-site-text flex flex-col lg:flex-row overflow-hidden w-full m-0"
         >
-            {/* ── Static title — always centred at top, sits above pinned content ── */}
-            <div
-                className="absolute top-0 left-0 w-full z-20 pointer-events-none flex flex-col items-center"
-                style={{ paddingTop: "clamp(32px, 5vh, 64px)" }}
-            >
-                <span className="text-primary font-mono text-xs md:text-sm tracking-[0.25em] uppercase mb-3 opacity-80">
-                    Our Expertise
-                </span>
-                <h2 className="font-serif text-4xl md:text-6xl font-bold text-center leading-tight">
-                    Design Disciplines
-                </h2>
+            {/* ── Left Fixed Content ── */}
+            <div className="absolute top-0 left-0 w-full lg:relative lg:w-[480px] xl:w-[540px] h-auto lg:h-full flex flex-col justify-center px-8 lg:px-16 pt-24 lg:pt-0 z-20 shrink-0 bg-gradient-to-b lg:bg-gradient-to-r from-site-bg via-site-bg to-transparent lg:to-transparent pointer-events-none lg:pointer-events-auto">
+                <div className="lg:pl-16">
+                    <span className="text-site-crimson font-mono text-xs tracking-[0.2em] uppercase mb-4 block font-bold pointer-events-auto">
+                        Our Expertise
+                    </span>
+                    <h2 className="font-serif text-5xl md:text-6xl xl:text-7xl font-bold mb-6 tracking-tight leading-[1.1] pointer-events-auto text-site-text-heading">
+                        Design <br className="hidden lg:block" /> Disciplines
+                    </h2>
+                    <p className="text-site-text-muted text-base lg:text-lg leading-relaxed max-w-[400px] pointer-events-auto font-light">
+                        Swipe through our specialized services. Each discipline is handled by dedicated experts ensuring perfection in every detail.
+                    </p>
+                </div>
             </div>
 
-            {/* ── Full-screen viewport ─────────────────────────────────────────── */}
-            <div
-                className="h-screen flex items-center overflow-hidden"
-                style={{
-                    maskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
-                    WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)"
-                }}
-            >
+
+            {/* ── Right Scrolling Track ─────────────────────────────────────────── */}
+            <div className="flex-1 h-screen flex items-end pb-12 lg:pb-0 lg:items-center relative z-10 w-full overflow-hidden" >
                 {/* Track — slides left as section is pinned */}
                 <div
                     ref={trackRef}
-                    className="flex items-center gap-8 px-[10vw] min-w-max"
+                    className="flex items-center gap-6 lg:gap-12 px-8 lg:pl-12 min-w-max"
                     style={{ willChange: "transform" }}
                 >
                     {serviceCategories.map((category, index) => {
@@ -138,51 +136,52 @@ export const ScrollCarousel = () => {
                                 key={category.id}
                                 to={`/services/${category.slug}`}
                                 ref={(el) => { cardRefs.current[index] = el; }}
-                                /* 6:4 aspect ratio */
-                                className="group relative shrink-0 rounded-[2rem] overflow-hidden border border-white/10"
+                                className="group relative shrink-0 rounded-none overflow-hidden bg-site-bg-card border border-site-border shadow-[0_0_40px_rgba(0,0,0,0.5)]"
                                 style={{
-                                    height: "clamp(300px, 60vh, 600px)",
+                                    height: "clamp(400px, 65vh, 700px)",
                                     aspectRatio: "6 / 4",
                                     maxWidth: "85vw",
                                     willChange: "transform",
                                 }}
                             >
                                 {/* Background image */}
-                                <div className="absolute inset-0 z-0 overflow-hidden">
+                                <div className="absolute inset-0 z-0 overflow-hidden bg-site-bg">
                                     <img
                                         src={category.heroImage}
                                         alt={category.title}
-                                        className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700"
+                                        className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-1000 ease-out"
                                         loading="lazy"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                                    {/* Gradient overlay for text legibility */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
                                 </div>
 
-                                {/* Number badge */}
-                                <span className="absolute top-6 right-8 font-mono text-5xl text-white/10 font-bold z-10 select-none">
-                                    0{index + 1}
-                                </span>
-
-                                {/* Card content */}
-                                <div className="absolute inset-0 z-10 p-8 md:p-10 flex flex-col justify-between">
-                                    {/* Icon pill */}
-                                    <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-primary transition-colors duration-500 self-start">
-                                        <Icon className="w-6 h-6 text-white" />
+                                {/* Top section: Icon and Number */}
+                                <div className="absolute top-6 lg:top-10 left-6 lg:left-10 right-6 lg:right-10 z-10 flex justify-between items-start">
+                                    {/* Strategic Icon box: wire-frame, no fill */}
+                                    <div className="w-11 h-11 border border-[rgba(196,18,48,0.3)] flex items-center justify-center bg-black/20 backdrop-blur-sm transition-all duration-500 group-hover:border-[rgba(196,18,48,0.6)] group-hover:bg-site-crimson/10">
+                                        <Icon className="w-5 h-5 text-site-crimson" strokeWidth={1.5} />
                                     </div>
+                                    {/* Number eyebrow */}
+                                    <span className="text-[10px] text-site-crimson/60 font-medium tracking-[0.3em] uppercase select-none">
+                                        0{index + 1}
+                                    </span>
+                                </div>
 
-                                    {/* Text */}
-                                    <div className="translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                                        <h3 className="font-serif text-2xl md:text-3xl font-bold text-white mb-3">
+                                {/* Bottom section: Title, Desc, Explore */}
+                                <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-10 z-10">
+                                    <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                                        <h3 className="font-display text-3xl lg:text-4xl font-bold text-white mb-3 lg:mb-4 tracking-tight drop-shadow-md">
                                             {category.title}
                                         </h3>
-                                        <p className="text-white/60 text-sm line-clamp-2 mb-5 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                        <p className="text-white/70 text-sm lg:text-base line-clamp-2 mb-6 lg:mb-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 font-light pr-4">
                                             {category.description}
                                         </p>
-                                        <div className="flex items-center gap-2 text-white font-medium uppercase tracking-wider text-xs">
-                                            <span className="border-b border-primary/50 group-hover:border-primary transition-colors pb-1">
+                                        <div className="flex items-center gap-3 text-site-crimson font-bold uppercase tracking-widest text-[10px] lg:text-xs">
+                                            <span className="border-b-2 border-transparent group-hover:border-site-crimson pb-1 transition-colors duration-300">
                                                 Explore
                                             </span>
-                                            <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+                                            <ArrowRight className="w-4 h-4 lg:w-5 lg:h-5 group-hover:translate-x-2 transition-transform duration-300 text-site-crimson/50 group-hover:text-site-crimson" />
                                         </div>
                                     </div>
                                 </div>
@@ -190,8 +189,8 @@ export const ScrollCarousel = () => {
                         );
                     })}
 
-                    {/* Trailing spacer so last card can reach center */}
-                    <div className="shrink-0 w-[10vw]" aria-hidden="true" />
+                    {/* Trailing spacer so last card can reach the center nicely */}
+                    <div className="shrink-0 w-[50vw] lg:w-[40vw]" aria-hidden="true" />
                 </div>
             </div>
         </section>

@@ -231,9 +231,9 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
               {String(currentSection + 1).padStart(2, "0")}/{totalSections}
             </span>
             <div className="flex items-center gap-3">
-              {/* Thin amber left accent — replaces icon */}
-              <div className="w-[3px] h-10 bg-amber-400/60 rounded-full shrink-0" />
-              <h2 className="font-serif-display text-4xl xl:text-5xl font-normal text-white/95 leading-none">
+              {/* Thin gold left accent — replaces icon */}
+              <div className="w-[3px] h-10 bg-site-crimson/60 rounded-full shrink-0" />
+              <h2 className="font-serif-display text-4xl xl:text-5xl font-normal text-site-text-heading leading-none">
                 {sectionLabels[currentSection]}
               </h2>
             </div>
@@ -247,10 +247,10 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
                   key={i}
                   style={{ width: i === currentSection ? 20 : 8 }}
                   className={`h-[4px] rounded-full transition-all duration-400 ${i === currentSection
-                    ? "bg-amber-400"
+                    ? "bg-site-crimson"
                     : i < currentSection
-                      ? "bg-amber-400/40"
-                      : "bg-white/10"
+                      ? "bg-site-crimson/40"
+                      : "bg-site-border"
                     }`}
                 />
               ))}
@@ -295,7 +295,7 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
       </div>
 
       {/* ── FIXED CTA FOOTER ── */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between px-5 xl:px-8 py-2.5 border-t border-border/10 bg-background/70 backdrop-blur-sm">
+      <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between px-5 xl:px-8 py-2.5 border-t border-site-border bg-site-bg/70 backdrop-blur-sm">
         {/* Zone 6: Skip text — 12px, readable, centered-ish, with icon */}
         <p className="flex items-center gap-1.5 text-[12px] text-white/50">
           <span className="inline-block rotate-90 opacity-60">↓</span>
@@ -313,7 +313,7 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
           )}
           <button
             onClick={goNext}
-            className="flex items-center gap-1.5 px-5 py-1.5 bg-white/90 text-[#0D0A08] text-[9px] xl:text-[10px] font-medium uppercase tracking-widest hover:bg-white transition-colors"
+            className="flex items-center gap-1.5 px-5 py-1.5 bg-site-crimson text-site-bg text-[9px] xl:text-[10px] font-medium uppercase tracking-widest hover:bg-site-crimson/90 transition-colors"
           >
             {isLastSection ? t("reflection_continue") : "Next"}
             {!isLastSection && <ArrowRight size={10} />}
