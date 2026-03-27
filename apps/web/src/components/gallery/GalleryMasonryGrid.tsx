@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import GalleryCard from "./GalleryCard";
 
-export interface GalleryItem {
+interface GalleryItem {
   category: string;
   image: string;
   title?: string;

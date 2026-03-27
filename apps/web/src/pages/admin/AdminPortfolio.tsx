@@ -33,7 +33,6 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 import type { ProjectWithCategory } from "@/repositories";
-export type { Project, Category, ProjectWithCategory } from "@/repositories";
 
 export default function AdminPortfolio(): JSX.Element {
   const [searchParams] = useSearchParams();

@@ -1,6 +1,6 @@
 import { LucideIcon, Home, Building2, Lamp, Sofa, UtensilsCrossed, Bed } from "lucide-react";
 
-export type ServiceCategory = {
+type ServiceCategory = {
     id: string;
     title: string;
     description: string;
@@ -9,7 +9,7 @@ export type ServiceCategory = {
     icon: LucideIcon;
 };
 
-export type ServiceDetail = {
+type ServiceDetail = {
     id: string;
     categoryId: string;
     title: string;

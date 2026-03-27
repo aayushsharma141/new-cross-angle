@@ -392,7 +392,7 @@ const AdminBlogs = () => {
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="primary" onClick={handleNewPost} className="rounded-xl shadow-lg shadow-primary/20">
+            <Button onClick={handleNewPost} className="rounded-xl shadow-lg shadow-primary/20">
               <Plus className={`${icons.sm} mr-2`} />
               New Post
             </Button>
@@ -536,7 +536,7 @@ const AdminBlogs = () => {
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-xl border-zinc-800">
                   Cancel
                 </Button>
-                <Button type="submit" variant="primary" disabled={isSaving} className="rounded-xl shadow-lg shadow-primary/20">
+                <Button type="submit" disabled={isSaving} className="rounded-xl shadow-lg shadow-primary/20">
                   {isSaving ? <Loader2 className={`${icons.sm} animate-spin mr-2`} /> : null}
                   {editingPost ? "Update" : "Create"} Article
                 </Button>

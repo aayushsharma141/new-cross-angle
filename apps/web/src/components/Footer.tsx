@@ -48,7 +48,7 @@ const Footer = () => {
               <img
                 src={logoIcon}
                 alt="Cross Angle Interior"
-                className="h-[68px] w-auto opacity-90 [image-rendering:crisp-edges]"
+                className="h-[68px] w-auto opacity-90"
               />
               <span className="font-serif text-2xl font-bold">
                 <span className="text-site-text-heading">Crossangle</span>{" "}

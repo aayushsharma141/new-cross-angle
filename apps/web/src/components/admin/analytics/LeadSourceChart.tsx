@@ -28,19 +28,24 @@ const SOURCE_LABELS: Record<string, string> = {
     other: "Other",
 };
 
+interface LeadSourceRow {
+    source: string | null;
+    lead_source: string | null;
+}
+
 export function LeadSourceChart() {
     const { data: chartData = [], isLoading } = useQuery({
         queryKey: ["lead-source-stats"],
         queryFn: async () => {
             const { data, error } = await supabase
                 .from("leads")
-                .select("source, lead_source" as any); // Select both for compatibility during transition
+                .select("source, lead_source");
 
             if (error) throw error;
 
             const counts: Record<string, number> = {};
-            for (const row of data || []) {
-                const s = (row as any).source || (row as any).lead_source || "other";
+            for (const row of (data || []) as LeadSourceRow[]) {
+                const s = row.source || row.lead_source || "other";
                 counts[s] = (counts[s] || 0) + 1;
             }
 

@@ -1,197 +1,180 @@
-import { useState, useEffect, useRef } from "react";
+import { useRef } from "react";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { Home, Ruler, Palette, Hammer, Check } from "lucide-react";
-import { cn } from "@/lib/utils";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { motion } from "framer-motion";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const steps = [
   {
+    id: "C",
     icon: Home,
     title: "Consult",
     subtitle: "Free Meeting",
-    duration: "1-2 days",
     description: "Share your vision with our expert designers",
-    details: [
-      "Understanding your lifestyle & space usage",
-      "Budget & timeline alignment discussion",
-      "On-site or virtual meeting options",
-      "Initial concept sketches shared"
-    ]
   },
   {
+    id: "M",
     icon: Ruler,
     title: "Measure & Plan",
     subtitle: "Blueprint",
-    duration: "3-5 days",
     description: "Precise measurements and detailed planning",
-    details: [
-      "Professional site survey & measurements",
-      "Structural assessment & feasibility",
-      "Space optimization strategies",
-      "Material selection guidance"
-    ]
   },
   {
+    id: "D",
     icon: Palette,
-    title: "Design Approval",
+    title: "Design",
     subtitle: "3D Views",
-    duration: "7-10 days",
-    description: "Review realistic 3D visualizations before execution",
-    details: [
-      "Photorealistic 3D renders of your space",
-      "Multiple design options to choose from",
-      "Material & finish samples provided",
-      "Revisions until you're satisfied"
-    ]
+    description: "Review realistic 3D visualizations",
   },
   {
+    id: "E",
     icon: Hammer,
     title: "Execute",
-    subtitle: "Quality Craftsmanship",
-    duration: "30-45 days",
+    subtitle: "Craftsmanship",
     description: "Expert craftsmen bring your design to life",
-    details: [
-      "Skilled craftsmen & quality materials",
-      "Regular progress updates & site visits",
-      "Strict quality control checkpoints",
-      "Timeline adherence & milestone reviews"
-    ]
   },
   {
+    id: "F",
     icon: Check,
     title: "Handover",
     subtitle: "Final Reveal",
-    duration: "1 day",
     description: "Walk through your transformed space",
-    details: [
-      "Complete walkthrough of finished space",
-      "Quality assurance inspection",
-      "Warranty documentation provided",
-      "Post-project support available"
-    ]
   },
 ];
 
-const Process = () => {
-  const [activeStep, setActiveStep] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const leftRef = useRef<HTMLDivElement>(null);
+type ProcessStepConfig = typeof steps[number];
 
-  useEffect(() => {
-    const mm = gsap.matchMedia();
+const TimelineStep = ({
+  step,
+  index,
+  totalSteps,
+  scrollYProgress,
+}: {
+  step: ProcessStepConfig;
+  index: number;
+  totalSteps: number;
+  scrollYProgress: MotionValue<number>;
+}) => {
+  const threshold = index / (totalSteps - 1);
+  const startFade = Math.max(0, threshold - 0.1);
+  const endFade = threshold;
 
-    mm.add("all", () => {
-      // Update active step based on scroll
-      steps.forEach((_, index) => {
-        ScrollTrigger.create({
-          trigger: `#step-content-${index}`,
-          start: "top center",
-          end: "bottom center",
-          onToggle: (self) => {
-            if (self.isActive) setActiveStep(index);
-          },
-        });
-      });
-    });
-
-    return () => {
-      ScrollTrigger.getAll().forEach(st => st.kill());
-      mm.revert();
-    };
-  }, []);
+  const opacity = useTransform(scrollYProgress, [startFade, endFade], [0.2, 1]);
+  const y = useTransform(scrollYProgress, [startFade, endFade], [30, 0]);
+  const color = useTransform(
+    scrollYProgress,
+    [startFade, endFade],
+    ["rgba(255,255,255,0.2)", "rgba(255,255,255,1)"]
+  );
+  const bgNode = useTransform(
+    scrollYProgress,
+    [startFade, endFade],
+    ["rgba(0,0,0,1)", "#E81B39"]
+  );
 
   return (
-    <section id="process" className="py-20 md:py-32 relative bg-background">
-      <div className="container mx-auto px-4">
-        <div ref={containerRef} className="flex flex-col md:flex-row items-start gap-12 md:gap-20 relative">
-          {/* Left Side: Pinned Visuals (Desktop) / Header (Mobile) */}
-          <div ref={leftRef} className="w-full md:w-1/3 md:sticky md:top-32 h-fit">
-            {/* Section Header */}
-            <div className="mb-12">
-              <span className="text-primary font-mono text-sm tracking-[0.3em] uppercase block mb-4">
-                How We Work
-              </span>
-              <h2 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-6">
-                A Journey of <span className="text-primary italic">Transformation</span>
-              </h2>
-            </div>
+    <div className="relative flex flex-col items-center">
+      <motion.div
+        className="w-8 h-8 md:w-12 md:h-12 rounded-full border-2 border-site-crimson flex items-center justify-center font-display font-bold text-sm md:text-lg z-10"
+        style={{
+          backgroundColor: bgNode,
+          color,
+        }}
+      >
+        {step.id}
+      </motion.div>
 
-            {/* Timeline Icons - Hidden on mobile, sticky with header on desktop */}
-            <div className="hidden md:flex relative h-full flex-col items-center justify-center py-10">
-              {/* Progress Line */}
-              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/10 -translate-x-1/2" />
+      <motion.div
+        className="absolute top-16 md:top-20 w-32 md:w-48 text-center"
+        style={{ opacity, y }}
+      >
+        <div className="flex items-center justify-center mb-2">
+          <step.icon className="w-5 h-5 text-site-crimson" />
+        </div>
+        <h3 className="text-white font-bold text-base md:text-xl mb-1">
+          {step.title}
+        </h3>
+        <p className="text-[#A3A09C] text-xs md:text-sm font-light leading-relaxed hidden sm:block">
+          {step.description}
+        </p>
+      </motion.div>
+    </div>
+  );
+};
 
+const Process = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
 
-              <motion.div
-                className="absolute left-1/2 top-0 w-px bg-primary -translate-x-1/2"
-                animate={{ height: `${(activeStep / (steps.length - 1)) * 100}%` }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
-              />
+  // We make the container 300vh so user scrolls for a while
+  // The scroll progress 0 -> 1 represents the user scrolling through this 300vh block
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
 
-              {/* Step Icons Ring */}
-              <div className="relative z-10 space-y-12">
-                {steps.map((step, index) => {
-                  const Icon = step.icon;
-                  const isActive = activeStep === index;
-                  return (
-                    <div
-                      key={index}
-                      className={cn(
-                        "w-16 h-16 rounded-full flex items-center justify-center border-2 transition-all duration-700",
-                        isActive
-                          ? "bg-primary border-primary scale-125 shadow-[0_0_30px_rgba(200,65,42,0.4)]"
-                          : "bg-black/50 border-white/10 text-white/40"
-                      )}
-                    >
-                      <Icon className={cn("w-6 h-6", isActive ? "text-white" : "text-white/20")} />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+  // The horizontal red line width is exactly tied to scroll progress
+  const lineWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
-          {/* Right Side: Step Contents */}
-          <div className="flex-1 space-y-32 md:space-y-[40vh] pt-10 md:pt-[30vh] pb-32 md:pb-[20vh]">
+  return (
+    <section ref={containerRef} id="process" className="relative h-[300vh] bg-site-bg">
+      {/* Sticky container that stays on screen while user scrolls through the 300vh target */}
+      <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden py-20 px-4 md:px-12">
+        
+        {/* Header */}
+        <div className="absolute top-20 left-4 md:left-12">
+          <span className="text-site-crimson font-mono text-sm tracking-[0.3em] uppercase block mb-2">
+            How We Work
+          </span>
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-white">
+            Our Process
+          </h2>
+        </div>
+
+        {/* Timeline Area */}
+        <div className="relative mt-20 md:mt-0 w-full max-w-7xl mx-auto h-64 flex items-center">
+          
+          {/* Base gray line */}
+          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px] bg-white/10" />
+
+          {/* Animated red line (grows as you scroll) */}
+          <motion.div
+            className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-site-crimson origin-left"
+            style={{ width: lineWidth }}
+          />
+
+          {/* Nodes */}
+          <div className="absolute inset-0 flex justify-between items-center pointer-events-none">
             {steps.map((step, index) => {
-              const isActive = activeStep === index;
               return (
-                <div
-                  key={index}
-                  id={`step-content-${index}`}
-                  className={cn(
-                    "transition-all duration-700 transform",
-                    isActive ? "opacity-100 translate-y-0" : "opacity-30 translate-y-10"
-                  )}
-                >
-                  <div className="max-w-xl">
-                    <span className="text-primary font-mono text-xs tracking-widest uppercase mb-4 block">
-                      Step 0{index + 1}
-                    </span>
-                    <h3 className="text-2xl md:text-5xl font-serif font-bold text-white mb-6">
-                      {step.title}
-                    </h3>
-                    <p className="text-white/60 text-lg md:text-xl leading-relaxed mb-8">
-                      {step.description}
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {step.details.map((detail, dIndex) => (
-                        <div key={dIndex} className="flex items-center gap-3 text-white/50 bg-white/5 p-4 rounded-xl border border-white/5">
-                          <Check className="w-4 h-4 text-primary shrink-0" />
-                          <span className="text-sm">{detail}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <TimelineStep
+                  key={step.id}
+                  step={step}
+                  index={index}
+                  totalSteps={steps.length}
+                  scrollYProgress={scrollYProgress}
+                />
               );
             })}
           </div>
         </div>
+
+        {/* Scroll Mouse Visual Indicator */}
+        <motion.div 
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+        >
+          <div className="w-5 h-8 border border-white/30 rounded-full flex justify-center p-1">
+            <motion.div 
+              className="w-1 h-1.5 bg-site-crimson rounded-full"
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </div>
+          <span className="text-[10px] text-white/50 uppercase tracking-widest font-mono">
+            Scroll to advance
+          </span>
+        </motion.div>
+
       </div>
     </section>
   );

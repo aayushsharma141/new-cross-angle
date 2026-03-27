@@ -293,9 +293,8 @@ const AdminServices = () => {
     if (isLoading) {
         return (
             <LoadingState
-                title="Loading Services"
-                description="Fetching your service offerings..."
-                size="lg"
+                text="Loading services..."
+                className="min-h-[320px]"
             />
         );
     }
@@ -461,7 +460,7 @@ const AdminServices = () => {
                                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                                         Cancel
                                     </Button>
-                                    <Button type="submit" variant="gold" disabled={isSaving}>
+                                    <Button type="submit" variant="primary" disabled={isSaving}>
                                         {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                                         {editingService ? "Update" : "Create"}
                                     </Button>
@@ -528,7 +527,7 @@ const AdminServices = () => {
                                         title="No services found"
                                         description="You haven't added any services yet. Create one to get started."
                                         action={
-                                            <Button onClick={() => setIsDialogOpen(true)} variant="gold">
+                                            <Button onClick={() => setIsDialogOpen(true)} variant="primary">
                                                 <Plus className="w-4 h-4 mr-2" />
                                                 Add Service
                                             </Button>

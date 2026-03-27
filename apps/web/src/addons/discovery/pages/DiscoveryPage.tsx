@@ -7,13 +7,13 @@ const DiscoveryPage = () => {
     return (
         <div className="min-h-screen bg-background relative">
             <Helmet>
-                <title>Spatial Identity OS | Cross Angle Interior</title>
+                <title>Style Discovery | Cross Angle Interior</title>
                 <meta
                     name="description"
-                    content="Uncover your unique design language with Spatial Identity OS. A guided journey through instinct, emotion, and texture."
+                    content="Uncover your unique design language with our Style Discovery tool. A guided journey through instinct, emotion, and texture."
                 />
-                <meta property="og:title" content="Spatial Identity OS | Cross Angle Interior" />
-                <meta property="og:description" content="Uncover your unique design language with Spatial Identity OS." />
+                <meta property="og:title" content="Style Discovery | Cross Angle Interior" />
+                <meta property="og:description" content="Uncover your unique design language with our Style Discovery tool." />
             </Helmet>
 
             <Link to="/" className="fixed top-6 left-6 z-[100] hover:opacity-80 transition-opacity">

@@ -30,4 +30,3 @@ export const RetroGrid = ({ className, angle = 65 }: RetroGridProps) => {
     );
 };
 
-export default RetroGrid;

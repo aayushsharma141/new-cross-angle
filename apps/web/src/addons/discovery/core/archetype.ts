@@ -1,6 +1,6 @@
 import { AestheticScores, Archetype } from "@/types/discovery";
 
-export const archetypes: Archetype[] = [
+const archetypes: Archetype[] = [
     {
         name: "The Quiet Curator",
         tagline: "You prefer calm, simple, and thoughtfully arranged spaces. Every object earns its place through meaning, not trend. Peace and clarity are at the heart of your home.",

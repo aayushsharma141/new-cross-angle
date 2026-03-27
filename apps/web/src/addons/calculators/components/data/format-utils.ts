@@ -16,7 +16,7 @@ export function formatRange(min: number, max: number): string {
 }
 
 /** Format area with sq ft suffix */
-export function formatArea(area: number): string {
+function formatArea(area: number): string {
     return `${area.toLocaleString("en-IN")} sq ft`;
 }
 

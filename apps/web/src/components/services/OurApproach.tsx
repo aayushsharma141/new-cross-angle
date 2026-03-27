@@ -68,7 +68,7 @@ const OurApproach = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.85, delay: 0.3 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                  className={`grid grid-cols-[52px_1fr] gap-5 py-[26px] border-b border-white/10 transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] hover:pl-2.5 ${i === 0 ? 'border-t border-white/10' : ''}`}
+                  className={`grid grid-cols-[52px_1fr] gap-5 py-[26px] border-b border-white/10 transition-all duration-350 ease-[timing-function:cubic-bezier(0.22,1,0.36,1)] hover:pl-2.5 ${i === 0 ? 'border-t border-white/10' : ''}`}
                 >
                   <span className="font-display italic text-[1.5rem] text-[#FF2A2A] leading-none mt-1 cursor-default">
                     {pillar.num}

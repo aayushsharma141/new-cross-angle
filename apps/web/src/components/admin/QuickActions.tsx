@@ -1,6 +1,6 @@
-import { useNavigate } from "react-router-dom";
+import type { ComponentType } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Plus, UserPlus, FileText, Image as ImageIcon, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function QuickActionButton({
@@ -10,8 +10,7 @@ export function QuickActionButton({
     gradient,
     onClick
 }: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    icon: any;
+    icon: ComponentType<{ className?: string }>;
     label: string;
     href?: string;
     gradient: string;
@@ -19,17 +18,9 @@ export function QuickActionButton({
 }) {
     const navigate = useNavigate();
 
-    const handleClick = () => {
-        if (onClick) onClick();
-        if (href) navigate(href);
-    };
-
-    return (
-        <button
-            onClick={handleClick}
-            className="group relative overflow-hidden rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-5 hover:shadow-md transition-all duration-300 w-full"
-        >
-            {/* Background gradient on hover */}
+    const className = "group relative overflow-hidden rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-5 hover:shadow-md transition-all duration-300 w-full";
+    const content = (
+        <>
             <div className={cn(
                 "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br",
                 gradient
@@ -47,11 +38,35 @@ export function QuickActionButton({
                 </div>
                 <ArrowRight className="h-4 w-4 text-[hsl(var(--admin-muted))] opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
+        </>
+    );
+
+    if (href) {
+        return (
+            <Link to={href} onClick={onClick} className={className}>
+                {content}
+            </Link>
+        );
+    }
+
+    return (
+        <button
+            type="button"
+            onClick={() => {
+                if (onClick) {
+                    onClick();
+                    return;
+                }
+                navigate("/admin");
+            }}
+            className={className}
+        >
+            {content}
         </button>
     );
 }
 
-export function QuickActions() {
+function QuickActions() {
     const actions = [
         { label: "New Project", icon: Plus, gradient: "from-blue-500 to-blue-600", path: "/admin/portfolio" },
         { label: "Add Lead", icon: UserPlus, gradient: "from-green-500 to-green-600", path: "/admin/leads" },

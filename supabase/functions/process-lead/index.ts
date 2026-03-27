@@ -129,6 +129,7 @@ serve(async (req) => {
   if (rl.limited) return rateLimitResponse(req, rl);
 
   try {
+    const corsHeaders = buildCorsHeaders(req);
     let body;
     try {
       body = await req.json();
@@ -195,22 +196,23 @@ serve(async (req) => {
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
-    // Send WhatsApp notification
-    await sendWhatsAppNotification({
-      name: sanitizedName,
-      email,
-      phone: sanitizedPhone,
-      message: sanitizedMessage
-    });
-
-    // Sync to Google Sheets
-    await syncToGoogleSheets({
-      name: sanitizedName,
-      email,
-      phone: sanitizedPhone,
-      message: sanitizedMessage,
-      category
-    });
+    // Send WhatsApp notification and sync to Google Sheets in parallel
+    // Both are fire-and-forget with internal error handling
+    await Promise.allSettled([
+      sendWhatsAppNotification({
+        name: sanitizedName,
+        email,
+        phone: sanitizedPhone,
+        message: sanitizedMessage
+      }),
+      syncToGoogleSheets({
+        name: sanitizedName,
+        email,
+        phone: sanitizedPhone,
+        message: sanitizedMessage,
+        category
+      }),
+    ]);
 
     if (!LOVABLE_API_KEY) {
       console.log("LOVABLE_API_KEY not configured, skipping AI response");

@@ -126,7 +126,7 @@ const ServicesPage = () => {
                         <img
                           src={service.hero_image || "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=75"}
                           alt={service.title}
-                          className="w-full h-full object-cover scale-[1.04] grayscale-[0.75] brightness-[0.72] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/card:grayscale-0 group-hover/card:brightness-[0.85] group-hover/card:scale-100"
+                          className="w-full h-full object-cover scale-[1.04] grayscale-[0.75] brightness-[0.72] transition-all duration-[time:900ms] ease-[timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover/card:grayscale-0 group-hover/card:brightness-[0.85] group-hover/card:scale-100"
                           loading="lazy"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/86 to-transparent to-[52%] pointer-events-none" />
@@ -198,7 +198,7 @@ const ServicesPage = () => {
                   return (
                     <Link to={`/services/${service.category_id}/${service.slug}`} key={service.id} className="block group bg-[#000000] overflow-hidden transition-colors duration-300 hover:bg-[#0D0D0D] relative" style={{ padding: "clamp(28px,3vw,52px)" }}>
                       {/* Red line reveal */}
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#FF2A2A] scale-y-0 origin-bottom transition-transform duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-y-100" />
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#FF2A2A] scale-y-0 origin-bottom transition-transform duration-400 ease-[timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:scale-y-100" />
                       
                       <div className="mb-6 text-[#EDEDED] grayscale-[1] brightness-[0.55] transition-all duration-300 group-hover:grayscale-0 group-hover:brightness-100">
                         <Icon className="w-10 h-10 stroke-[1.5px]" />

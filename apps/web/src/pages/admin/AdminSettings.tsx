@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Lock, Loader2, Eye, EyeOff, User, Shield, Check, X, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,19 +11,13 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { changePasswordSchema } from "@/lib/auth-validation";
 import { cn } from "@/lib/utils";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { AuditLogTable } from "@/components/admin/settings/AuditLogTable";
 import { GeneralSettingsForm } from "@/components/admin/settings/GeneralSettingsForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const AdminSettings = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -36,6 +31,21 @@ const AdminSettings = () => {
   const { toast } = useToast();
 
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const activeTab = searchParams.get("tab") === "audit"
+    ? "audit"
+    : searchParams.get("tab") === "security"
+      ? "security"
+      : "general";
+
+  const handleTabChange = (nextTab: string) => {
+    const nextParams = new URLSearchParams(searchParams);
+    if (nextTab === "general") {
+      nextParams.delete("tab");
+    } else {
+      nextParams.set("tab", nextTab);
+    }
+    setSearchParams(nextParams, { replace: true });
+  };
 
   useEffect(() => {
     const fetchUserInfo = async (): Promise<void> => {
@@ -164,7 +174,7 @@ const AdminSettings = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="general" className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="mb-8 p-1 bg-zinc-900/40 border border-zinc-800 rounded-2xl w-fit flex gap-1">
           <TabsTrigger value="general" className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white transition-all">General</TabsTrigger>
           <TabsTrigger value="security" className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white transition-all">Security</TabsTrigger>
@@ -251,6 +261,7 @@ const AdminSettings = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        aria-label={showCurrentPassword ? "Hide current password" : "Show current password"}
                         className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -279,6 +290,7 @@ const AdminSettings = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => setShowNewPassword(!showNewPassword)}
+                          aria-label={showNewPassword ? "Hide new password" : "Show new password"}
                           className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
                         >
                           {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -330,6 +342,7 @@ const AdminSettings = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        aria-label={showConfirmPassword ? "Hide password confirmation" : "Show password confirmation"}
                         className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -343,7 +356,7 @@ const AdminSettings = () => {
                   </div>
 
                   <div className="pt-2">
-                    <Button type="submit" disabled={isLoading} variant="primary" className="rounded-xl shadow-lg shadow-primary/20">
+                    <Button type="submit" disabled={isLoading} className="rounded-xl shadow-lg shadow-primary/20">
                       {isLoading ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin mr-2" />

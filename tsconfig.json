@@ -55,8 +55,6 @@
   "exclude": [
     "node_modules",
     "apps/admin/**/*",
-    "apps/web/my-project/**/*",
-    "apps/web/crossangle-cms/**/*",
     "supabase/**/*"
   ]
 }

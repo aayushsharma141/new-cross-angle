@@ -51,16 +51,22 @@ const CTAContact = () => {
     const message = (target.elements.namedItem("message") as HTMLTextAreaElement).value;
 
     try {
-      const { error } = await supabase.from('leads').insert({
+      const payload = {
         name: `${firstName} ${lastName}`.trim(),
         email,
         phone,
         message,
         lead_source: 'website_contact',
         source_url: window.location.href
+      };
+
+      const { error, data } = await supabase.functions.invoke('process-lead', {
+        body: payload
       });
 
-      if (error) throw error;
+      if (error || (data && !data.success)) {
+        throw new Error(error?.message || data?.error || 'Failed to process lead');
+      }
 
       toast({
         title: "Message sent!",
@@ -134,8 +140,7 @@ const CTAContact = () => {
               >
                 <Button
                   size="lg"
-                  variant="luxury"
-                  className="w-full"
+                  className="w-full bg-site-crimson hover:bg-[#A30E28] text-white text-sm font-semibold uppercase tracking-widest px-6 py-6 rounded-none"
                 >
                   <Phone className="mr-2 h-4 w-4" />
                   Call Now
@@ -158,7 +163,7 @@ const CTAContact = () => {
               </a>
             </div>
             <div className="flex">
-              <Link to="/calculator" className="flex-1 w-full">
+              <Link to="/estimate" className="flex-1 w-full">
                 <Button
                   size="lg"
                   variant="default"
@@ -272,8 +277,7 @@ const CTAContact = () => {
               <Button
                 type="submit"
                 size="lg"
-                variant="luxury"
-                className="w-full py-6"
+                className="w-full py-6 bg-site-crimson hover:bg-[#A30E28] text-white rounded-none"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Sending..." : "Send Message"}

@@ -46,7 +46,7 @@ const SIGNAL_MAP: Record<string, Partial<AestheticScores>> = {
  * Returns new scores (immutable). Falls back to unchanged scores
  * if the signal key is unknown.
  */
-export function applySignal(current: AestheticScores, signal: string): AestheticScores {
+function applySignal(current: AestheticScores, signal: string): AestheticScores {
     const weights = SIGNAL_MAP[signal];
     if (!weights) {
         console.warn(`[scoring] Unknown signal key: "${signal}"`);

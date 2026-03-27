@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 
-export type SchemaType = "LocalBusiness" | "Service" | "BreadcrumbList" | "Article";
+type SchemaType = "LocalBusiness" | "Service" | "BreadcrumbList" | "Article";
 
 interface SchemaMarkupProps {
     type: SchemaType;

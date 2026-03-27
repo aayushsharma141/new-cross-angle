@@ -22,7 +22,7 @@ export const Skeleton = ({ className, ...props }: SkeletonProps) => {
 /**
  * Card skeleton for portfolio/service items
  */
-export const CardSkeleton = () => {
+const CardSkeleton = () => {
   return (
     <div className="rounded-xl border bg-card overflow-hidden">
       <Skeleton className="aspect-video w-full" />
@@ -41,7 +41,7 @@ export const CardSkeleton = () => {
 /**
  * Table row skeleton for admin lists
  */
-export const TableRowSkeleton = ({ columns = 5 }: { columns?: number }) => {
+const TableRowSkeleton = ({ columns = 5 }: { columns?: number }) => {
   return (
     <div className="flex items-center gap-4 p-4 border-b">
       {Array.from({ length: columns }).map((_, i) => (
@@ -60,7 +60,7 @@ export const TableRowSkeleton = ({ columns = 5 }: { columns?: number }) => {
 /**
  * Blog post skeleton
  */
-export const BlogSkeleton = () => {
+const BlogSkeleton = () => {
   return (
     <div className="rounded-xl border bg-card overflow-hidden">
       <Skeleton className="aspect-[16/9] w-full" />
@@ -80,7 +80,7 @@ export const BlogSkeleton = () => {
 /**
  * Service card skeleton
  */
-export const ServiceSkeleton = () => {
+const ServiceSkeleton = () => {
   return (
     <div className="rounded-xl border bg-card p-6 space-y-4">
       <Skeleton className="h-12 w-12 rounded-lg" />
@@ -98,7 +98,7 @@ export const ServiceSkeleton = () => {
 /**
  * Stats skeleton for dashboard
  */
-export const StatsSkeleton = () => {
+const StatsSkeleton = () => {
   return (
     <div className="rounded-xl border bg-card p-6">
       <div className="flex items-center justify-between">
@@ -115,7 +115,7 @@ export const StatsSkeleton = () => {
 /**
  * Media grid skeleton
  */
-export const MediaGridSkeleton = ({ count = 12 }: { count?: number }) => {
+const MediaGridSkeleton = ({ count = 12 }: { count?: number }) => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {Array.from({ length: count }).map((_, i) => (
@@ -134,7 +134,7 @@ export const MediaGridSkeleton = ({ count = 12 }: { count?: number }) => {
 /**
  * Profile/Avatar skeleton
  */
-export const AvatarSkeleton = ({ size = "md" }: { size?: "sm" | "md" | "lg" }) => {
+const AvatarSkeleton = ({ size = "md" }: { size?: "sm" | "md" | "lg" }) => {
   const sizeClasses = {
     sm: "h-8 w-8",
     md: "h-12 w-12",
@@ -147,7 +147,7 @@ export const AvatarSkeleton = ({ size = "md" }: { size?: "sm" | "md" | "lg" }) =
 /**
  * Full page loading skeleton
  */
-export const PageSkeleton = () => {
+const PageSkeleton = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Header */}
@@ -168,5 +168,3 @@ export const PageSkeleton = () => {
     </div>
   );
 };
-
-export default Skeleton;

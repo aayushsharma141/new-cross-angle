@@ -144,7 +144,7 @@ export const TIERS: Record<CityTier, { label: string; multiplier: number; color:
 
 /* ─── Services (C1–C5) ─── */
 
-export interface ServiceDef {
+interface ServiceDef {
     id: "C1" | "C2" | "C3" | "C4" | "C5";
     label: string;
     rateLabel: string;
@@ -161,7 +161,7 @@ export interface ServiceDef {
     tiers?: Record<string, { min: number; max: number; label: string; desc: string }>;
 }
 
-export interface AddonDef {
+interface AddonDef {
     id: string;
     label: string;
     icon: string;

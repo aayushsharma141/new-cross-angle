@@ -28,7 +28,7 @@ interface SupabaseFAQ {
   answer: string;
 }
 
-export interface SupabaseItem {
+interface SupabaseItem {
   id: string;
   slug?: string;
   title?: string;
@@ -133,9 +133,6 @@ export interface Blog {
   slug: string;
   content?: string;
 }
-
-// Re-export or use from @repo/types
-export type { ServiceDetail };
 
 const mapSupabaseToBlog = (item: SupabaseItem): Blog => {
   return {

@@ -10,31 +10,18 @@ import {
     defaultDropAnimationSideEffects,
     DragEndEvent,
     DragStartEvent,
-    DragOverEvent,
     DropAnimation,
+    useDroppable,
 } from "@dnd-kit/core";
 import {
-    arrayMove,
     SortableContext,
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { LeadCard } from "./LeadCard";
 import { leadStatusOptions } from "@/lib/validations";
-import { useDroppable } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
-
-interface Lead {
-    id: string;
-    name: string;
-    email?: string;
-    phone?: string;
-    service?: string;
-    status: string;
-    notes?: string;
-    created_at?: string;
-    score?: number;
-}
+import type { Lead } from "@/lib/leadScoring";
 
 interface LeadPipelineProps {
     leads: Lead[];
@@ -117,6 +104,8 @@ export function LeadPipeline({ leads, onLeadMove, onLeadClick }: LeadPipelinePro
     );
 
     const columns = leadStatusOptions;
+    const isLeadStatus = (value: string): value is (typeof leadStatusOptions)[number] =>
+        columns.includes(value as (typeof leadStatusOptions)[number]);
 
     const handleDragStart = (event: DragStartEvent) => {
         setActiveId(event.active.id as string);
@@ -140,16 +129,14 @@ export function LeadPipeline({ leads, onLeadMove, onLeadClick }: LeadPipelinePro
         let newStatus = over.id as string;
 
         // If dropped on another lead, find that lead's status
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (!columns.includes(newStatus as any)) {
+        if (!isLeadStatus(newStatus)) {
             const overLead = leads.find((l) => l.id === over.id);
             if (overLead) {
                 newStatus = overLead.status;
             }
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (activeLead.status !== newStatus && columns.includes(newStatus as any)) {
+        if (activeLead.status !== newStatus && isLeadStatus(newStatus)) {
             onLeadMove(activeLead.id, newStatus);
         }
 

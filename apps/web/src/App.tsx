@@ -48,6 +48,7 @@ const AdminTeam = lazy(() => import("./pages/admin/AdminTeam"));
 const AdminEstimateLeads = lazy(() => import("./pages/admin/AdminEstimateLeads"));
 const AdminEstimateRates = lazy(() => import("./pages/admin/AdminEstimateRates"));
 const AdminTeamMembers = lazy(() => import("./pages/admin/AdminTeamMembers"));
+const AdminHero = lazy(() => import("./pages/admin/AdminHero"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 // Admin Module Wrappers — also lazy-loaded
 const CmsModule = lazy(() => import("./pages/admin/modules/CmsModule").then(m => ({ default: m.CmsModule })));
@@ -105,48 +106,48 @@ const AnimatedRoutes = () => {
             <Route path="/admin/login" element={<Navigate to="/admin/auth" replace />} />
             <Route path="/admin/reset-password" element={<AdminResetPassword />} />
 
-            <Route path="/admin/auth" element={<AdminAuth />} />
-            <Route path="/admin/login" element={<Navigate to="/admin/auth" replace />} />
-            <Route path="/admin/reset-password" element={<AdminResetPassword />} />
+            <Route element={<AuthGuard />}>
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminHub />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="access" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminUsers /></RoleGuard>} />
 
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminHub />} />
-              <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="cms" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><CmsModule /></RoleGuard>}>
+                  <Route path="portfolio" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminPortfolio /></RoleGuard>} />
+                  <Route path="services" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminServices /></RoleGuard>} />
+                  <Route path="testimonials" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTestimonials /></RoleGuard>} />
+                  <Route path="team" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTeam /></RoleGuard>} />
+                  <Route path="blogs" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminBlogs /></RoleGuard>} />
+                  <Route path="media" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminMedia /></RoleGuard>} />
+                  <Route path="hero" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminHero /></RoleGuard>} />
+                </Route>
 
-              <Route path="cms" element={<RoleGuard allowedRoles={["admin", "editor", "viewer"]}><CmsModule /></RoleGuard>}>
-                <Route path="portfolio" element={<RoleGuard allowedRoles={["admin", "editor"]}><AdminPortfolio /></RoleGuard>} />
-                <Route path="services" element={<RoleGuard allowedRoles={["admin", "editor"]}><AdminServices /></RoleGuard>} />
-                <Route path="testimonials" element={<RoleGuard allowedRoles={["admin", "editor"]}><AdminTestimonials /></RoleGuard>} />
-                <Route path="team" element={<RoleGuard allowedRoles={["admin", "editor"]}><AdminTeam /></RoleGuard>} />
-                <Route path="blogs" element={<RoleGuard allowedRoles={["admin", "editor"]}><AdminBlogs /></RoleGuard>} />
-                <Route path="media" element={<RoleGuard allowedRoles={["admin", "editor", "viewer"]}><AdminMedia /></RoleGuard>} />
+                <Route path="crm" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><CrmModule /></RoleGuard>}>
+                  <Route path="leads" element={<AdminLeads />} />
+                  <Route path="users" element={<Navigate to="/admin/access" replace />} />
+                </Route>
+
+                <Route path="discovery" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><DiscoveryModule /></RoleGuard>}>
+                  <Route path="analytics" element={<AdminAnalytics />} />
+                </Route>
+
+                <Route path="estimator" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><EstimatorModule /></RoleGuard>}>
+                  <Route path="leads" element={<AdminEstimateLeads />} />
+                  <Route path="rates" element={<RoleGuard allowedRoles={["super_admin"]}><AdminEstimateRates /></RoleGuard>} />
+                </Route>
+
+                <Route path="blog" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><BlogModule /></RoleGuard>}>
+                  <Route path="overview" element={<AdminBlogOverview />} />
+                  <Route path="performance" element={<AdminBlogPerformance />} />
+                  <Route path="engagement" element={<AdminBlogEngagement />} />
+                </Route>
+
+                <Route path="system" element={<RoleGuard allowedRoles={["super_admin"]}><SystemModule /></RoleGuard>}>
+                  <Route path="settings" element={<AdminSettings />} />
+                  <Route path="team-members" element={<AdminTeamMembers />} />
+                </Route>
               </Route>
-
-              <Route path="crm" element={<RoleGuard allowedRoles={["admin", "editor", "viewer"]}><CrmModule /></RoleGuard>}>
-                <Route path="leads" element={<AdminLeads />} />
-                <Route path="users" element={<RoleGuard allowedRoles={["admin"]}><AdminUsers /></RoleGuard>} />
-              </Route>
-
-              <Route path="discovery" element={<RoleGuard allowedRoles={["admin", "editor", "viewer"]}><DiscoveryModule /></RoleGuard>}>
-                <Route path="analytics" element={<AdminAnalytics />} />
-              </Route>
-
-              <Route path="estimator" element={<RoleGuard allowedRoles={["admin", "editor", "viewer"]}><EstimatorModule /></RoleGuard>}>
-                <Route path="leads" element={<AdminEstimateLeads />} />
-                <Route path="rates" element={<RoleGuard allowedRoles={["admin"]}><AdminEstimateRates /></RoleGuard>} />
-              </Route>
-
-              <Route path="blog" element={<RoleGuard allowedRoles={["admin", "editor", "viewer"]}><BlogModule /></RoleGuard>}>
-                <Route path="overview" element={<AdminBlogOverview />} />
-                <Route path="performance" element={<AdminBlogPerformance />} />
-                <Route path="engagement" element={<AdminBlogEngagement />} />
-              </Route >
-
-              <Route path="system" element={<RoleGuard allowedRoles={["admin"]}><SystemModule /></RoleGuard>}>
-                <Route path="settings" element={<AdminSettings />} />
-                <Route path="team-members" element={<AdminTeamMembers />} />
-              </Route >
-            </Route >
+            </Route>
           </Routes >
         </Suspense >
       ) : (
@@ -155,12 +156,14 @@ const AnimatedRoutes = () => {
             <Route path="/" element={<PageTransition><Index /></PageTransition>} />
             <Route path="/about-us" element={<PageTransition><AboutPage /></PageTransition>} />
             <Route path="/services" element={<PageTransition><ServicesPage /></PageTransition>} />
+            <Route path="/services/:category" element={<PageTransition><ServiceCategoryPage /></PageTransition>} />
+            <Route path="/services/:category/:service" element={<PageTransition><ServiceDetailPage /></PageTransition>} />
             <Route path="/gallery" element={<PageTransition><GalleryPage /></PageTransition>} />
             <Route path="/blog" element={<PageTransition><BlogPage /></PageTransition>} />
             <Route path="/blog/:slug" element={<PageTransition><BlogDetailPage /></PageTransition>} />
             <Route path="/contact-us" element={<PageTransition><ContactPage /></PageTransition>} />
             <Route path="/estimate" element={<PageTransition><PriceEstimator /></PageTransition>} />
-            <Route path="/spatial-identity-os" element={<PageTransition><DiscoveryPage /></PageTransition>} />
+            <Route path="/style-quiz" element={<PageTransition><DiscoveryPage /></PageTransition>} />
             <Route path="/blueprint" element={<PageTransition><Suspense fallback={<div className="min-h-screen bg-[#080808] w-full" />}><BlueprintPage /></Suspense></PageTransition>} />
             <Route path="/portfolio/:slug" element={<PageTransition><ProjectPage /></PageTransition>} />
             {/* Redirect routes for common variations */}

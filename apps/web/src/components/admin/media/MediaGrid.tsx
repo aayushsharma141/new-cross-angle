@@ -99,14 +99,14 @@ export const MediaGrid = ({
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-3">
                                     <div className="flex items-center justify-center gap-2 mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-zinc-900/90 hover:-admin-primary hover:text-white text-zinc-300 border border-zinc-800 shadow-xl transition-all" onClick={(e) => { e.stopPropagation(); onPreview(file); }} title="Preview">
+                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-zinc-900/90 hover:-admin-primary hover:text-white text-zinc-300 border border-zinc-800 shadow-xl transition-all" onClick={(e) => { e.stopPropagation(); onPreview(file); }} title="Preview" aria-label={`Preview ${file.name}`}>
                                             <Maximize2 className="w-3.5 h-3.5" />
                                         </Button>
-                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-zinc-900/90 hover:-admin-primary hover:text-white text-zinc-300 border border-zinc-800 shadow-xl transition-all" onClick={(e) => { e.stopPropagation(); onCopyUrl(file.url); }} title="Copy URL">
+                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-zinc-900/90 hover:-admin-primary hover:text-white text-zinc-300 border border-zinc-800 shadow-xl transition-all" onClick={(e) => { e.stopPropagation(); onCopyUrl(file.url); }} title="Copy URL" aria-label={`Copy URL for ${file.name}`}>
                                             {copiedUrl === file.url ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                                         </Button>
                                         {!isReadOnly && (
-                                            <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full shadow-xl bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all" onClick={(e) => { e.stopPropagation(); onDelete(file); }} title="Delete">
+                                            <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full shadow-xl bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all" onClick={(e) => { e.stopPropagation(); onDelete(file); }} title="Delete" aria-label={`Delete ${file.name}`}>
                                                 <Trash2 className="w-3.5 h-3.5" />
                                             </Button>
                                         )}
@@ -161,14 +161,14 @@ export const MediaGrid = ({
                         </div>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity px-2">
-                        <Button size="sm" variant="ghost" onClick={() => onPreview(file)} className="h-8 w-8 p-0">
+                        <Button size="sm" variant="ghost" onClick={() => onPreview(file)} className="h-8 w-8 p-0" aria-label={`Preview ${file.name}`}>
                             <Maximize2 className="w-4 h-4 text-muted-foreground" />
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => onCopyUrl(file.url)} className="h-8 w-8 p-0">
+                        <Button size="sm" variant="ghost" onClick={() => onCopyUrl(file.url)} className="h-8 w-8 p-0" aria-label={`Copy URL for ${file.name}`}>
                             {copiedUrl === file.url ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
                         </Button>
                         {!isReadOnly && (
-                            <Button size="sm" variant="ghost" onClick={() => onDelete(file)} className="h-8 w-8 p-0 hover:text-destructive">
+                            <Button size="sm" variant="ghost" onClick={() => onDelete(file)} className="h-8 w-8 p-0 hover:text-destructive" aria-label={`Delete ${file.name}`}>
                                 <Trash2 className="w-4 h-4" />
                             </Button>
                         )}

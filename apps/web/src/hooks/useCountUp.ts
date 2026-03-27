@@ -5,7 +5,7 @@ interface UseCountUpOptions {
   delay?: number;
 }
 
-export const useCountUp = (
+const useCountUp = (
   target: number,
   options: UseCountUpOptions = {}
 ) => {

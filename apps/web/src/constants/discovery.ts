@@ -35,7 +35,7 @@ export const ADJECTIVE_OPTIONS = [
   "Grounded", "Luxurious", "Organic", "Modern", "Timeless",
 ];
 
-export const REFLECTION_PROMPTS = [
+const REFLECTION_PROMPTS = [
   "Where do you feel most at peace?",
   "Do you gravitate toward warmth or minimalism?",
   "Do you feel energized by boldness or calmness?",

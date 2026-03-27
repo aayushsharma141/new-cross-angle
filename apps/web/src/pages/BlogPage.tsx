@@ -16,8 +16,9 @@ import { trackNewsletterSignup, trackTagClick } from "@/hooks/useBlogTracking";
 import { supabase } from "@/integrations/supabase/client";
 
 /* ─────────────────────────── STYLE CONSTANTS ─────────────────────────── */
+const CRIMSON = "#C41230";
+const CRIMSON_DIM = "#9C0E26";
 const GOLD = "#C6A15B";
-const GOLD_DIM = "#8B6F3D";
 
 const CATEGORIES = [
   "All",
@@ -174,38 +175,38 @@ const BlogPage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
                 >
-                  <span
-                    className="inline-block text-xs font-bold uppercase tracking-[0.25em] px-4 py-1.5 rounded-full mb-4"
-                    style={{ background: `${GOLD}20`, color: GOLD, border: `1px solid ${GOLD}40` }}
-                  >
-                    Featured Article
-                  </span>
-
-                  <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
-                    {cleanTitle(featuredPost.title)}
-                  </h1>
-
-                  <p className="text-base md:text-lg leading-relaxed mb-4" style={{ color: "#B8B8B8" }}>
-                    {featuredPost.excerpt}
-                  </p>
-
-                  {/* Meta */}
-                  <div className="flex flex-wrap items-center gap-4 text-sm mb-6" style={{ color: "#999" }}>
-                    <span style={{ color: GOLD }}>{featuredPost.category || "Interior Design"}</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{readTime(featuredPost)}</span>
-                    <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{viewCount(featuredPost)}</span>
-                    <span>{featuredPost.date}</span>
-                  </div>
-
-                  <Link to={`/blog/${featuredPost.slug || featuredPost.id}`}>
-                    <Button
-                      className="group px-8 py-3 text-sm font-semibold tracking-wide rounded-lg transition-all duration-300"
-                      style={{ background: GOLD, color: "#000" }}
+                    <span
+                      className="inline-block text-xs font-bold uppercase tracking-[0.25em] px-4 py-1.5 rounded-full mb-4"
+                      style={{ background: `${CRIMSON}20`, color: CRIMSON, border: `1px solid ${CRIMSON}40` }}
                     >
-                      Read Full Article
-                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
+                      Featured Article
+                    </span>
+
+                    <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
+                      {cleanTitle(featuredPost.title)}
+                    </h1>
+
+                    <p className="text-base md:text-lg leading-relaxed mb-4" style={{ color: "#B8B8B8" }}>
+                      {featuredPost.excerpt}
+                    </p>
+
+                    {/* Meta */}
+                    <div className="flex flex-wrap items-center gap-4 text-sm mb-6" style={{ color: "#999" }}>
+                      <span style={{ color: CRIMSON }}>{featuredPost.category || "Interior Design"}</span>
+                      <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{readTime(featuredPost)}</span>
+                      <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{viewCount(featuredPost)}</span>
+                      <span>{featuredPost.date}</span>
+                    </div>
+
+                    <Link to={`/blog/${featuredPost.slug || featuredPost.id}`}>
+                      <Button
+                        className="group px-8 py-3 text-sm font-semibold tracking-wide rounded-lg transition-all duration-300"
+                        style={{ background: CRIMSON, color: "#fff" }}
+                      >
+                        Read Full Article
+                        <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
                 </motion.div>
               </div>
             </div>
@@ -224,9 +225,9 @@ const BlogPage = () => {
                     onClick={() => { setActiveCategory(cat); setCurrentPage(1); }}
                     className="px-4 py-2 text-xs font-medium rounded-full transition-all duration-300 border"
                     style={{
-                      background: activeCategory === cat ? GOLD : "transparent",
-                      color: activeCategory === cat ? "#000" : "#888",
-                      borderColor: activeCategory === cat ? GOLD : "#333",
+                      background: activeCategory === cat ? CRIMSON : "transparent",
+                      color: activeCategory === cat ? "#fff" : "#888",
+                      borderColor: activeCategory === cat ? CRIMSON : "#333",
                     }}
                   >
                     {cat}
@@ -268,14 +269,14 @@ const BlogPage = () => {
             <div className="container mx-auto px-4">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                  <TrendingUp className="w-5 h-5" style={{ color: GOLD }} />
+                  <TrendingUp className="w-5 h-5" style={{ color: CRIMSON }} />
                   <h2 className="font-serif text-2xl font-bold text-white">Trending Articles</h2>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => scrollSlider("left")} aria-label="Scroll left" className="p-2 rounded-full border transition-colors hover:border-[#C6A15B]" style={{ borderColor: "#333" }}>
+                  <button onClick={() => scrollSlider("left")} aria-label="Scroll left" className="p-2 rounded-full border transition-colors hover:border-[#C41230]" style={{ borderColor: "#333" }}>
                     <ChevronLeft className="w-4 h-4 text-white" />
                   </button>
-                  <button onClick={() => scrollSlider("right")} aria-label="Scroll right" className="p-2 rounded-full border transition-colors hover:border-[#C6A15B]" style={{ borderColor: "#333" }}>
+                  <button onClick={() => scrollSlider("right")} aria-label="Scroll right" className="p-2 rounded-full border transition-colors hover:border-[#C41230]" style={{ borderColor: "#333" }}>
                     <ChevronRight className="w-4 h-4 text-white" />
                   </button>
                 </div>
@@ -297,7 +298,7 @@ const BlogPage = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.08 }}
-                      className="rounded-xl overflow-hidden border transition-all duration-500 hover:border-[#C6A15B]/30"
+                      className="rounded-xl overflow-hidden border transition-all duration-500 hover:border-[#C41230]/30"
                       style={{ background: "#111", borderColor: "#222" }}
                     >
                       <div className="aspect-[16/10] overflow-hidden">
@@ -309,8 +310,8 @@ const BlogPage = () => {
                         />
                       </div>
                       <div className="p-4 space-y-2">
-                        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: GOLD }}>{post.category}</span>
-                        <h3 className="text-sm font-semibold text-white line-clamp-2 group-hover:text-[#C6A15B] transition-colors">{cleanTitle(post.title)}</h3>
+                        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: CRIMSON }}>{post.category}</span>
+                        <h3 className="text-sm font-semibold text-white line-clamp-2 group-hover:text-[#C41230] transition-colors">{cleanTitle(post.title)}</h3>
                         <div className="flex items-center gap-3 text-[11px]" style={{ color: "#666" }}>
                           <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{readTime(post)}</span>
                           <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{viewCount(post)}</span>
@@ -361,7 +362,7 @@ const BlogPage = () => {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.06 }}
-                          className={`rounded-xl overflow-hidden border group transition-all duration-500 hover:border-[#C6A15B]/30 hover:shadow-[0_12px_40px_rgba(198,161,91,0.08)] ${i === 0 ? "md:col-span-2" : ""}`}
+                          className={`rounded-xl overflow-hidden border group transition-all duration-500 hover:border-[#C41230]/30 hover:shadow-[0_12px_40px_rgba(196,18,48,0.08)] ${i === 0 ? "md:col-span-2" : ""}`}
                           style={{ background: "#0D0D0D", borderColor: "#1a1a1a" }}
                         >
                           <Link to={`/blog/${post.slug || post.id}`} className="block">
@@ -376,13 +377,13 @@ const BlogPage = () => {
                           </Link>
                           <div className="p-5 space-y-3">
                             <div className="flex items-center gap-3">
-                              <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full" style={{ background: `${GOLD}15`, color: GOLD }}>
+                              <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full" style={{ background: `${CRIMSON}15`, color: CRIMSON }}>
                                 {post.category}
                               </span>
                               <span className="text-[11px]" style={{ color: "#555" }}>{post.date}</span>
                             </div>
                             <Link to={`/blog/${post.slug || post.id}`}>
-                              <h3 className="font-serif text-lg font-semibold text-white group-hover:text-[#C6A15B] transition-colors leading-snug line-clamp-2">
+                              <h3 className="font-serif text-lg font-semibold text-white group-hover:text-[#C41230] transition-colors leading-snug line-clamp-2">
                                 {cleanTitle(post.title)}
                               </h3>
                             </Link>
@@ -394,8 +395,8 @@ const BlogPage = () => {
                               </div>
                               <Link
                                 to={`/blog/${post.slug || post.id}`}
-                                className="text-xs font-medium flex items-center gap-1 transition-colors hover:text-[#C6A15B]"
-                                style={{ color: GOLD_DIM }}
+                                className="text-xs font-medium flex items-center gap-1 transition-colors hover:text-[#C41230]"
+                                style={{ color: CRIMSON_DIM }}
                               >
                                 Read More <ArrowRight className="w-3 h-3" />
                               </Link>
@@ -416,9 +417,9 @@ const BlogPage = () => {
                         onClick={() => setCurrentPage(page)}
                         className="w-9 h-9 rounded-lg text-xs font-medium transition-all"
                         style={{
-                          background: currentPage === page ? GOLD : "#111",
-                          color: currentPage === page ? "#000" : "#888",
-                          border: `1px solid ${currentPage === page ? GOLD : "#333"}`,
+                          background: currentPage === page ? CRIMSON : "#111",
+                          color: currentPage === page ? "#fff" : "#888",
+                          border: `1px solid ${currentPage === page ? CRIMSON : "#333"}`,
                         }}
                       >
                         {page}
@@ -442,7 +443,7 @@ const BlogPage = () => {
                         key={cat}
                         onClick={() => { setActiveCategory(cat); setCurrentPage(1); }}
                         className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm transition-all hover:bg-white/5"
-                        style={{ color: activeCategory === cat ? GOLD : "#999" }}
+                        style={{ color: activeCategory === cat ? CRIMSON : "#999" }}
                       >
                         <span>{cat}</span>
                         <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "#1a1a1a", color: "#666" }}>{count}</span>
@@ -462,7 +463,7 @@ const BlogPage = () => {
                       <button
                         key={tag}
                         onClick={() => { trackTagClick("", tag); setSearchQuery(tag); setCurrentPage(1); }}
-                        className="text-xs px-3 py-1.5 rounded-full border transition-all hover:border-[#C6A15B] hover:text-[#C6A15B]"
+                        className="text-xs px-3 py-1.5 rounded-full border transition-all hover:border-[#C41230] hover:text-[#C41230]"
                         style={{ borderColor: "#333", color: "#888" }}
                       >
                         {tag}
@@ -480,9 +481,9 @@ const BlogPage = () => {
                   <div className="space-y-4">
                     {blogPosts.slice(0, 4).map((post, i) => (
                       <Link to={`/blog/${post.slug || post.id}`} key={post.id} className="flex gap-3 group">
-                        <span className="text-2xl font-serif font-bold" style={{ color: `${GOLD}40` }}>{String(i + 1).padStart(2, "0")}</span>
+                        <span className="text-2xl font-serif font-bold" style={{ color: `${CRIMSON}40` }}>{String(i + 1).padStart(2, "0")}</span>
                         <div>
-                          <h4 className="text-sm font-medium text-white group-hover:text-[#C6A15B] transition-colors line-clamp-2 leading-snug">{post.title}</h4>
+                          <h4 className="text-sm font-medium text-white group-hover:text-[#C41230] transition-colors line-clamp-2 leading-snug">{post.title}</h4>
                           <span className="text-[11px]" style={{ color: "#555" }}>{readTime(post)}</span>
                         </div>
                       </Link>
@@ -491,14 +492,14 @@ const BlogPage = () => {
                 </div>
 
                 {/* CTA Block */}
-                <div className="rounded-xl p-6 border text-center" style={{ background: `linear-gradient(135deg, ${GOLD}10, #0A0A0A)`, borderColor: `${GOLD}30` }}>
-                  <Sparkles className="w-8 h-8 mx-auto mb-3" style={{ color: GOLD }} />
+                <div className="rounded-xl p-6 border text-center" style={{ background: `linear-gradient(135deg, ${CRIMSON}10, #0A0A0A)`, borderColor: `${CRIMSON}30` }}>
+                  <Sparkles className="w-8 h-8 mx-auto mb-3" style={{ color: CRIMSON }} />
                   <h3 className="font-serif text-lg font-bold text-white mb-2">Partner With Experts</h3>
                   <p className="text-xs mb-4" style={{ color: "#888" }}>
                     Ready to redefine your hospitality space? Let's collaborate.
                   </p>
                   <Link to="/contact-us">
-                    <Button className="w-full text-xs font-semibold py-2.5 rounded-lg" style={{ background: GOLD, color: "#000" }}>
+                    <Button className="w-full text-xs font-semibold py-2.5 rounded-lg" style={{ background: CRIMSON, color: "#fff" }}>
                       Request Consultation
                     </Button>
                   </Link>
@@ -514,8 +515,8 @@ const BlogPage = () => {
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-2xl mx-auto text-center">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <Mail className="w-5 h-5" style={{ color: GOLD }} />
-                <span className="text-xs font-bold uppercase tracking-[0.25em]" style={{ color: GOLD }}>Newsletter</span>
+                <Mail className="w-5 h-5" style={{ color: CRIMSON }} />
+                <span className="text-xs font-bold uppercase tracking-[0.25em]" style={{ color: CRIMSON }}>Newsletter</span>
               </div>
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-3">Design Decoded Newsletter</h2>
               <p className="text-sm mb-8" style={{ color: "#888" }}>
@@ -524,7 +525,7 @@ const BlogPage = () => {
 
               {newsletterDone ? (
                 <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="text-center">
-                  <p className="text-lg font-serif" style={{ color: GOLD }}>Thank you! Welcome aboard. ✨</p>
+                  <p className="text-lg font-serif" style={{ color: CRIMSON }}>Thank you! Welcome aboard. ✨</p>
                 </motion.div>
               ) : (
                 <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
@@ -541,7 +542,7 @@ const BlogPage = () => {
                     type="submit"
                     disabled={newsletterSubmitting}
                     className="px-8 py-3 text-sm font-semibold rounded-lg whitespace-nowrap"
-                    style={{ background: GOLD, color: "#000" }}
+                    style={{ background: CRIMSON, color: "#fff" }}
                   >
                     {newsletterSubmitting ? "Subscribing..." : "Subscribe Now"}
                   </Button>
@@ -567,12 +568,12 @@ const BlogPage = () => {
               ].map((cs, i) => (
                 <Link key={i} to="/gallery" className="group">
                   <div
-                    className="rounded-xl p-8 border transition-all duration-500 hover:border-[#C6A15B]/30"
+                    className="rounded-xl p-8 border transition-all duration-500 hover:border-[#C41230]/30"
                     style={{ background: "#0A0A0A", borderColor: "#1a1a1a" }}
                   >
-                    <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: GOLD }}>{cs.tag}</span>
-                    <h3 className="font-serif text-lg font-semibold text-white mt-2 group-hover:text-[#C6A15B] transition-colors">{cs.title}</h3>
-                    <span className="inline-flex items-center gap-1 text-xs mt-4 transition-colors" style={{ color: GOLD_DIM }}>
+                    <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: CRIMSON }}>{cs.tag}</span>
+                    <h3 className="font-serif text-lg font-semibold text-white mt-2 group-hover:text-[#C41230] transition-colors">{cs.title}</h3>
+                    <span className="inline-flex items-center gap-1 text-xs mt-4 transition-colors" style={{ color: CRIMSON_DIM }}>
                       View Project <ArrowRight className="w-3 h-3" />
                     </span>
                   </div>

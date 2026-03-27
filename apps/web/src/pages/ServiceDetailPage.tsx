@@ -294,7 +294,7 @@ const ServiceDetailPage = () => {
                                     </Link>
                                 </Button>
                                 <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary text-lg h-14 px-8 bg-transparent" asChild>
-                                    <Link to="/discovery">
+                                    <Link to="/style-quiz">
                                         Discover Your Aesthetic
                                     </Link>
                                 </Button>

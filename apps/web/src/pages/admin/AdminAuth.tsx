@@ -25,7 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import logoIcon from "@/assets/logo-icon.png";
 
-type AuthView = 'login' | 'forgot' | 'check-email' | 'reset-password' | 'reset-success' | 'expired';
+type AuthView = 'login' | 'forgot' | 'check-email' | 'reset-password' | 'reset-success' | 'expired' | 'signed-out';
 
 const AdminAuth: React.FC = () => {
   const [view, setView] = useState<AuthView>('login');
@@ -42,8 +42,15 @@ const AdminAuth: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    if (user && view !== 'reset-password' && view !== 'reset-success') {
+    // If user is already logged in, redirect to admin (unless resetting password)
+    if (user && view !== 'reset-password' && view !== 'reset-success' && view !== 'signed-out') {
       navigate('/admin', { replace: true });
+    }
+
+    // Check for sign-out confirmation
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('signed-out') === 'true' && !user) {
+      setView('signed-out');
     }
 
     const hashParams = new URLSearchParams(location.hash.substring(1));
@@ -224,6 +231,24 @@ const AdminAuth: React.FC = () => {
                 <h1 className="text-3xl font-serif text-white mb-2">Link Expired</h1>
                 <p className="text-sm text-zinc-500 mb-8 font-sans">Session timed out. Please request a new handshake.</p>
                 <Button onClick={() => setView('forgot')} className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-2xl shadow-lg shadow-primary/20">Request New Link</Button>
+              </motion.div>
+            )}
+
+            {view === 'signed-out' && (
+              <motion.div key="signed-out" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
+                <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <ShieldCheck className="w-8 h-8 text-emerald-500" />
+                </div>
+                <h1 className="text-3xl font-serif text-white mb-2">Signed Out</h1>
+                <p className="text-sm text-zinc-500 mb-3 font-sans">Your session has been securely terminated.</p>
+                <p className="text-[11px] text-zinc-600 mb-8 font-sans">All local credentials and cached data have been cleared.</p>
+                <Button
+                  onClick={() => { setView('login'); navigate('/admin/auth', { replace: true }); }}
+                  className="w-full h-12 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white font-bold rounded-2xl flex items-center justify-center gap-2 group transition-all duration-300 shadow-lg shadow-primary/20"
+                >
+                  Sign In Again
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </Button>
               </motion.div>
             )}
 

@@ -17,20 +17,7 @@ import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
-
-interface Lead {
-    id: string;
-    name: string;
-    email?: string;
-    phone?: string;
-    service?: string;
-    status: string;
-    notes?: string;
-    created_at?: string;
-    message?: string;
-    category?: string;
-    source?: string;
-}
+import type { Lead } from "@/lib/leadScoring";
 
 interface LeadDetailSheetProps {
     lead: Lead | null;
@@ -66,6 +53,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
     const [formData, setFormData] = useState<Lead | null>(null);
     const { toast } = useToast();
     const queryClient = useQueryClient();
+    const isNewLead = formData?.id === "__new__";
 
     useEffect(() => {
         if (lead) {
@@ -106,10 +94,10 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
         const body = templateBody
             .replace(/{{name}}/g, formData.name || "there")
-            .replace(/{{service}}/g, formData.service || "your project");
+            .replace(/{{service}}/g, formData.category || formData.lead_type || "your project");
 
         const subject = templateSubject
-            .replace(/{{service}}/g, formData.service || "Project");
+            .replace(/{{service}}/g, formData.category || formData.lead_type || "Project");
 
         return { body, subject };
     };
@@ -238,8 +226,8 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                         <Label htmlFor="service">Interested Service</Label>
                                         <Input
                                             id="service"
-                                            value={formData.service || ""}
-                                            onChange={(e) => setFormData({ ...formData, service: e.target.value })}
+                                            value={formData.category || ""}
+                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                             readOnly={isReadOnly}
                                         />
                                     </div>
@@ -312,8 +300,8 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                 <SheetFooter className="px-6 py-4 border-t bg-muted/20 gap-2 shrink-0">
                     {!isReadOnly && (
                         <>
-                            <Button variant="destructive" onClick={() => onDelete(formData.id)} size="sm">Delete</Button>
-                            <Button onClick={handleSave} className="bg-[hsl(var(--brand-primary))]" size="sm">Save Changes</Button>
+                            {!isNewLead && <Button variant="destructive" onClick={() => onDelete(formData.id)} size="sm">Delete</Button>}
+                            <Button onClick={handleSave} className="bg-[hsl(var(--brand-primary))]" size="sm">{isNewLead ? "Create Lead" : "Save Changes"}</Button>
                         </>
                     )}
                 </SheetFooter>

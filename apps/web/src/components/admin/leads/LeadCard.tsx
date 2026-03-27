@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Phone, Mail, MoreHorizontal } from "lucide-react";
+import { Calendar, Phone, Mail } from "lucide-react";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { calculateLeadScore, getLeadTemperature, Lead } from "@/lib/leadScoring";
@@ -54,7 +54,7 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
                             </Avatar>
                             <div className="min-w-0">
                                 <h4 className="font-semibold text-sm leading-none truncate">{lead.name}</h4>
-                                <p className="text-[10px] text-muted-foreground truncate mt-1">{lead.service || "General Inquiry"}</p>
+                                <p className="text-[10px] text-muted-foreground truncate mt-1">{lead.category || lead.lead_type || "General Inquiry"}</p>
                             </div>
                         </div>
                         <Badge variant="outline" className={`text-[9px] px-1 py-0 h-4 shrink-0 ${color}`}>

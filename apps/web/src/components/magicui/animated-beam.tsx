@@ -114,4 +114,3 @@ export const AnimatedBeam = ({
     );
 };
 
-export default AnimatedBeam;

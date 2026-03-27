@@ -11,7 +11,7 @@ import { supabase } from "@/lib/supabase";
 const TOTAL_STEPS = 8; // 0..6 = input steps, 7 = results
 const STORAGE_KEY = "interior-estimator-draft";
 
-export const INITIAL_FORM_DATA: CalculatorFormData = {
+const INITIAL_FORM_DATA: CalculatorFormData = {
     // Step 1
     propertyType: null,
     // Step 2

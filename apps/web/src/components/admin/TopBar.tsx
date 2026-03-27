@@ -1,4 +1,4 @@
-import { Bell, User, LogOut, Settings, Moon, RefreshCw, Command } from "lucide-react";
+import { Bell, User, LogOut, Settings, Moon, RefreshCw, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -12,14 +12,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { AdminBreadcrumb } from "./AdminBreadcrumb";
-import { icons } from "@/design-system/tokens/icons";
-import { cn } from "@/lib/utils";
 import logoIcon from "@/assets/logo-icon.png";
+import { useTheme } from "@/components/theme-provider";
+import { useSystem } from "@/context/SystemContext";
+import { ROLE_LABELS, normalizeRole } from "@/lib/auth/rbac";
 
 export function TopBar() {
-    const { user, logout } = useAdminAuth();
+    const { user, logout, role } = useAdminAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const { theme, setTheme } = useTheme();
+    const { notifications } = useSystem();
+    const isDarkMode = theme !== "light";
+    const isAuditView = location.pathname === "/admin/system/settings" && new URLSearchParams(location.search).get("tab") === "audit";
 
     return (
         <header className="sticky top-0 z-40 w-full border-b border-zinc-800/50 bg-black/60 backdrop-blur-xl px-6 h-16 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
@@ -45,15 +50,41 @@ export function TopBar() {
             <div className="flex items-center gap-4">
 
                 <div className="flex items-center gap-1.5">
-                    <Button variant="ghost" size="icon" className="text-zinc-500 hover:-admin-primary hover:-admin-primary/5 h-9 w-9 rounded-xl transition-all">
-                        <Moon className="h-4 w-4" />
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="text-zinc-500 hover:-admin-primary hover:-admin-primary/5 h-9 w-9 rounded-xl transition-all"
+                        aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                        title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                        onClick={() => setTheme(isDarkMode ? "light" : "dark")}
+                    >
+                        {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-zinc-500 hover:-admin-primary hover:-admin-primary/5 h-9 w-9 rounded-xl transition-all">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="text-zinc-500 hover:-admin-primary hover:-admin-primary/5 h-9 w-9 rounded-xl transition-all"
+                        aria-label="Reload current admin view"
+                        title="Reload current admin view"
+                        onClick={() => window.location.reload()}
+                    >
                         <RefreshCw className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="relative text-zinc-500 hover:-admin-primary hover:-admin-primary/5 h-9 w-9 rounded-xl transition-all">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className={`relative h-9 w-9 rounded-xl transition-all ${isAuditView ? "text-yellow-500 bg-yellow-500/5" : "text-zinc-500 hover:-admin-primary hover:-admin-primary/5"}`}
+                        aria-label="Open audit logs"
+                        title="Open audit logs"
+                        onClick={() => navigate("/admin/system/settings?tab=audit")}
+                    >
                         <Bell className="h-4 w-4" />
-                        <span className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full bg-yellow-500 shadow-[0_0_10px_rgba(245,158,11,0.8)] animate-pulse" />
+                        {notifications.length > 0 && (
+                            <span className="absolute top-2.5 right-2.5 h-1.5 w-1.5 rounded-full bg-yellow-500 shadow-[0_0_10px_rgba(245,158,11,0.8)] animate-pulse" />
+                        )}
                     </Button>
                 </div>
 
@@ -74,7 +105,9 @@ export function TopBar() {
                                     <p className="text-[10px] font-bold text-zinc-200 leading-none tracking-tight">
                                         {user?.email?.split("@")[0] || "operator.alpha"}
                                     </p>
-                                    <p className="text-[8px] text-zinc-600 uppercase tracking-widest mt-1 font-bold">Admin</p>
+                                    <p className="text-[8px] text-zinc-600 uppercase tracking-widest mt-1 font-bold">
+                                        {ROLE_LABELS[normalizeRole(role)]}
+                                    </p>
                                 </div>
                             </div>
                         </Button>
@@ -85,7 +118,7 @@ export function TopBar() {
                         <DropdownMenuItem className="cursor-pointer text-xs py-2 px-3 hover:bg-zinc-800 focus:bg-zinc-800" onClick={() => navigate("/admin/system/settings")}>
                             <Settings className="mr-3 h-3.5 w-3.5 text-zinc-500" /> Application settings
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer text-xs py-2 px-3 hover:bg-zinc-800 focus:bg-zinc-800" onClick={() => navigate("/admin/system/team-members")}>
+                        <DropdownMenuItem className="cursor-pointer text-xs py-2 px-3 hover:bg-zinc-800 focus:bg-zinc-800" onClick={() => navigate("/admin/access")}>
                             <User className="mr-3 h-3.5 w-3.5 text-zinc-500" /> Account management
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-zinc-800" />

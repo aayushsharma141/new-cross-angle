@@ -21,7 +21,7 @@ interface ActivityItem {
     created_at: string;
     admin_id?: string;
     status: string;
-    details?: any;
+    details?: Record<string, unknown> | null;
     profiles?: {
         full_name: string;
     };

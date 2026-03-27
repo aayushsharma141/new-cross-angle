@@ -41,7 +41,7 @@ export interface MaterialOption {
   scores: Partial<AestheticScores>;
 }
 
-export interface LightOption {
+interface LightOption {
   name: string;
   description: string;
   bgColor: string;

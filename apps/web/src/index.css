@@ -505,3 +505,86 @@ em,
   color: var(--site-crimson);
   font-style: italic;
 }
+
+/* ════════════════════════════════════╗
+ *  Hero Image Animation Effects      ║
+ *  (controlled from CMS panel)        ║
+ * ════════════════════════════════════╝ */
+
+/* Ken Burns — Zoom In */
+@keyframes heroKenBurnsIn {
+  0%   { transform: scale(1);    }
+  100% { transform: scale(1.15); }
+}
+.hero-anim-kb-in {
+  animation: heroKenBurnsIn ease-out forwards;
+  will-change: transform;
+}
+
+/* Ken Burns — Zoom Out */
+@keyframes heroKenBurnsOut {
+  0%   { transform: scale(1.15); }
+  100% { transform: scale(1);    }
+}
+.hero-anim-kb-out {
+  animation: heroKenBurnsOut ease-out forwards;
+  will-change: transform;
+}
+
+/* Slow Pan Left */
+@keyframes heroPanLeft {
+  0%   { transform: translateX(0)   scale(1.05); }
+  100% { transform: translateX(-5%) scale(1.05); }
+}
+.hero-anim-pan-left {
+  animation: heroPanLeft linear forwards;
+  will-change: transform;
+}
+
+/* Slow Pan Right */
+@keyframes heroPanRight {
+  0%   { transform: translateX(-5%) scale(1.05); }
+  100% { transform: translateX(0)   scale(1.05); }
+}
+.hero-anim-pan-right {
+  animation: heroPanRight linear forwards;
+  will-change: transform;
+}
+
+/* ════════════════════════════════════╗
+ *  Animated Logo Effects             ║
+ * ════════════════════════════════════╝ */
+
+@keyframes shimmerWave {
+  0%, 100% {
+    color: #B61826;
+    text-shadow: none;
+  }
+  50% {
+    color: #FFD700; /* Golden */
+    text-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+  }
+}
+
+.shimmer-letter {
+  animation: shimmerWave 4s infinite ease-in-out;
+  /* Prevent jitter animation from overriding color completely */
+}
+
+@keyframes letterHoverJitter {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  30% {
+    transform: translateY(-4px) rotate(var(--tilt)) scale(1.06);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+.is-hovered .jitter-letter {
+  /* Override individual shimmer momentarily if needed, 
+     but transform handles the position, color is kept by shimmer */
+  animation: letterHoverJitter 0.4s ease-out forwards;
+}

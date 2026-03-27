@@ -2,7 +2,7 @@ import React from 'react';
 import { DiscoveryEngine, DiscoveryConfig } from './DiscoveryEngine';
 import { AestheticScores, UserSignals, AIAestheticResult } from '@/types/discovery';
 
-export interface DiscoveryAddonProps {
+interface DiscoveryAddonProps {
     config?: DiscoveryConfig;
     onComplete?: (result: { scores: AestheticScores; signals: UserSignals; aiResult?: AIAestheticResult }) => void;
 }

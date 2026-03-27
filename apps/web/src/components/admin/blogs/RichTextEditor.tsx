@@ -85,7 +85,7 @@ export function RichTextEditor({
         if (editor.isFocused) return;
         const currentHTML = editor.getHTML();
         if (currentHTML !== content) {
-            editor.commands.setContent(content, false);
+            editor.commands.setContent(content, { emitUpdate: false });
         }
     }, [content, editor]);
 

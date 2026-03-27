@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { navLinks } from "@/config/navigation";
 import { SpotlightNavContainer } from "@/components/ui/spotlight-navbar";
+import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -47,22 +48,16 @@ const Navbar = () => {
                 src={logoIcon}
                 alt="Cross Angle Interior"
                 className={cn(
-                  "w-auto transition-all duration-500 crisp-edges",
+                  "w-auto transition-all duration-500",
                   isScrolled ? "h-12 md:h-14" : "h-14 md:h-16"
                 )}
               />
             </div>
             {/* Brand Text */}
-            <div className="font-serif text-xl md:text-2xl lg:text-3xl font-bold transition-all duration-500 group-hover:tracking-wider">
-              <span className="text-primary">Crossangle</span>
-              {" "}
-              <span className={cn(
-                "transition-all duration-300",
-                showTransparent ? 'text-primary-foreground' : 'text-foreground'
-              )}>
-                Interior
-              </span>
-            </div>
+            <AnimatedLogo 
+              isScrolled={isScrolled} 
+              className="text-xl md:text-2xl lg:text-3xl hidden sm:flex" 
+            />
           </Link>
 
           {/* Desktop Navigation - Increased gaps */}
@@ -79,10 +74,10 @@ const Navbar = () => {
                 <Link
                   to={link.href}
                   className={cn(
-                    "relative font-medium transition-all duration-300 hover:text-primary group flex items-center gap-1 py-4",
+                    "relative font-medium transition-all duration-300 hover:text-[#FFD700] group flex items-center gap-1 py-4",
                     showTransparent ? 'text-primary-foreground/90' : 'text-muted-foreground',
-                    location.pathname === link.href && 'text-primary',
-                    link.name === "Get Estimate" && "text-primary font-bold"
+                    location.pathname === link.href && 'text-[#FFD700]',
+                    link.name === "Get Estimate" && "text-[#FFD700] font-bold"
                   )}
                 >
                   {link.name}
@@ -165,9 +160,9 @@ const Navbar = () => {
                         className={cn(
                           "transition-colors duration-300 font-medium text-lg py-3 px-4 rounded-xl block",
                           location.pathname === link.href
-                            ? 'text-primary bg-primary/10'
-                            : 'text-foreground hover:text-primary hover:bg-accent/50',
-                          link.name === "Get Estimate" && "text-primary font-bold"
+                            ? 'text-[#FFD700] bg-[#FFD700]/10'
+                            : 'text-foreground hover:text-[#FFD700] hover:bg-accent/50',
+                          link.name === "Get Estimate" && "text-[#FFD700] font-bold"
                         )}
                         onClick={() => setIsOpen(false)}
                       >

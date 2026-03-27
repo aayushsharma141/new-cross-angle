@@ -394,8 +394,9 @@ export default function AdminAnalytics() {
       .order("created_at", { ascending: false })
       .limit(5000);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let leadsQuery: any = supabase.from("discovery_leads")
+    let leadsQuery: any = supabase.from("leads_master")
       .select("*")
+      .eq("source", "discovery_engine")
       .order("created_at", { ascending: false })
       .limit(500);
 

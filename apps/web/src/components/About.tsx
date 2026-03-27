@@ -141,7 +141,7 @@ const About = () => {
 
             {/* CTA Button */}
             <Link to="/about-us">
-              <Button variant="luxury" className="px-8 !h-auto py-4 font-semibold uppercase tracking-widest text-xs">
+              <Button className="px-8 !h-auto py-4 font-semibold uppercase tracking-widest text-xs bg-site-crimson hover:bg-site-crimson/90 text-white rounded-none">
                 Discover Our Story
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform inline-block" />
               </Button>

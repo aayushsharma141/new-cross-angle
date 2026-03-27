@@ -22,10 +22,10 @@ export type ServiceId = "C1" | "C2" | "C3" | "C4" | "C5";
 export type ExecutionTierId = "economy" | "standard" | "premium" | "luxury";
 
 /** Timeline urgency options */
-export type TimelineOption = "Immediate" | "1-3 Months" | "3+ Months";
+type TimelineOption = "Immediate" | "1-3 Months" | "3+ Months";
 
 /** Budget tier classification */
-export type BudgetTier = "Budget" | "Standard" | "Premium" | "Luxury";
+type BudgetTier = "Budget" | "Standard" | "Premium" | "Luxury";
 
 /** Lead temperature classification */
 export type LeadCategory = "HOT" | "WARM" | "COLD";
@@ -170,7 +170,7 @@ export interface LeadScore {
 }
 
 /** Stored lead record */
-export interface LeadRecord {
+interface LeadRecord {
     id: string;
     timestamp: string;
     formData: CalculatorFormData;

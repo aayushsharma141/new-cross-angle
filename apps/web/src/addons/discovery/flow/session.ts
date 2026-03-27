@@ -1,7 +1,7 @@
 import { Stage, AestheticScores, UserSignals, AIAestheticResult } from "@/types/discovery";
 import { initialScores } from "../core/scoring";
 
-export interface SessionState {
+interface SessionState {
     stage: Stage;
     mode: "quick" | "deep";
     scores: AestheticScores;
@@ -22,7 +22,7 @@ export const initialSignals: UserSignals = {
     scores: initialScores,
 };
 
-export const initialSession: SessionState = {
+const initialSession: SessionState = {
     stage: Stage.Welcome,
     mode: "deep",
     scores: initialScores,

@@ -27,8 +27,8 @@ const ENGINES: Engine[] = [
       "Most clients arrive with inspiration images and a vague sense of what they want. Our Discovery Engine translates that ambiguity into a precise aesthetic profile — your spatial DNA. Answer a curated set of questions and receive a design archetype, mood alignment, and a personalised brief your designer can act on from day one.",
     primaryCta: { label: "Begin Discovery", href: "/style-quiz" },
     secondaryCta: { label: "How It Works", href: "/services#discovery" },
-    icon: <Compass strokeWidth={1} className="w-5 h-5" />,
-    glowColor: "rgba(196, 30, 58, 0.18)",
+    icon: <Compass strokeWidth={1.5} className="w-4 h-4" />,
+    glowColor: "rgba(196, 30, 58, 0.12)",
     decorNumber: "01",
     credibility: "Style profiles generated in under 4 minutes",
     reverse: false,
@@ -41,8 +41,8 @@ const ENGINES: Engine[] = [
       "Great design decisions require financial clarity. Our Estimator Engine maps your property size, quality tier, and project scope to a calibrated investment range — factoring material grades, labour complexity, and regional market rates. No vague ballparks. A real number you can plan around.",
     primaryCta: { label: "Get Your Estimate", href: "/estimate" },
     secondaryCta: { label: "See Methodology", href: "/services#estimator" },
-    icon: <Calculator strokeWidth={1} className="w-5 h-5" />,
-    glowColor: "rgba(196, 30, 58, 0.14)",
+    icon: <Calculator strokeWidth={1.5} className="w-4 h-4" />,
+    glowColor: "rgba(196, 30, 58, 0.08)",
     decorNumber: "02",
     credibility: "Estimates accurate within ±12% of final project cost",
     reverse: true,
@@ -52,27 +52,27 @@ const ENGINES: Engine[] = [
 /* ─── Animation variants ─────────────────────────────────── */
 const containerVariants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.13 } },
-};
+  visible: { transition: { staggerChildren: 0.1 } },
+} as const;
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.74, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
   },
-};
+} as const;
 
 const fadeIn = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.55, ease: "easeOut" } },
-};
+  visible: { opacity: 1, transition: { duration: 0.5, ease: "easeOut" as const } },
+} as const;
 
 /* ─── Engine Block ───────────────────────────────────────── */
 function EngineBlock({ engine }: { engine: Engine }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: true, margin: "-10%" });
 
   return (
     <motion.div
@@ -80,61 +80,66 @@ function EngineBlock({ engine }: { engine: Engine }) {
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
       variants={containerVariants}
-      className="relative overflow-hidden border-t border-white/[0.07]"
+      className="relative overflow-hidden border-t border-white/[0.04]"
     >
-      {/* ── Faded Background Art ─────────────────────────── */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 select-none">
-        {/* Radial glow emanating from top */}
+      {/* ── Faded Background Art & Grid ───────────────── */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 select-none flex items-center justify-center">
+        {/* Subtle grid pattern */}
         <div
-          className="absolute -top-20 left-1/2 -translate-x-1/2 w-[800px] h-[480px] rounded-full blur-[110px] opacity-80"
+          className="absolute inset-0 opacity-[0.03]"
           style={{
-            background: `radial-gradient(ellipse at 50% 0%, ${engine.glowColor} 0%, transparent 68%)`,
+            backgroundImage: `
+              linear-gradient(to right, rgba(255,255,255,1) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255,255,255,1) 1px, transparent 1px)
+            `,
+            backgroundSize: "120px 120px",
+            backgroundPosition: "center center",
+            maskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)"
           }}
         />
 
-        {/* Large watermark number */}
+        {/* Ambient Glow */}
+        <div
+          className="absolute w-[600px] h-[300px] rounded-[100%] blur-[80px] opacity-70 transition-opacity duration-1000"
+          style={{
+            background: `radial-gradient(ellipse at center, ${engine.glowColor} 0%, transparent 70%)`,
+            transform: engine.reverse ? "translate(25%, 0)" : "translate(-25%, 0)",
+          }}
+        />
+
+        {/* Giant Watermark Number */}
         <span
-          aria-hidden="true"
-          className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 leading-none pointer-events-none"
+          className="absolute leading-none pointer-events-none"
           style={{
             fontFamily: "'Cormorant Garamond', serif",
             fontWeight: 300,
-            fontSize: "clamp(8rem, 20vw, 18rem)",
-            color: "rgba(255,255,255,0.025)",
-            letterSpacing: "-0.04em",
+            fontSize: "clamp(8rem, 15vw, 14rem)",
+            color: "rgba(255,255,255,0.015)",
+            letterSpacing: "-0.05em",
+            [engine.reverse ? "left" : "right"]: "clamp(1rem, 5vw, 4rem)",
           }}
         >
           {engine.decorNumber}
         </span>
-
-        {/* Grid overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.02]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
-            backgroundSize: "72px 72px",
-          }}
-        />
-
-        {/* Mid horizontal line */}
-        <div className="absolute left-0 right-0 top-1/2 h-px bg-white/[0.03]" />
       </div>
 
       {/* ── Content Grid ─────────────────────────────────── */}
       <div
-        className={`relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-20 md:py-28
-          grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 items-center
-          ${engine.reverse ? "md:[direction:rtl]" : ""}`}
+        className={`relative z-10 max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 py-16 md:py-24
+          flex flex-col md:flex-row gap-12 md:gap-16 items-center justify-between
+          ${engine.reverse ? "md:flex-row-reverse" : ""}`}
       >
-        {/* ── Left / Narrative column ───────────────────── */}
-        <div className={engine.reverse ? "md:[direction:ltr]" : ""}>
+        {/* ── Narrative Column ───────────────────── */}
+        <div className="flex-1 max-w-[500px]">
           {/* System badge */}
-          <motion.div variants={fadeIn} className="flex items-center gap-2.5 mb-8">
-            <span className="text-[#C41E3A]">{engine.icon}</span>
+          <motion.div variants={fadeIn} className="flex items-center gap-3 mb-6">
+            <div className="border border-[#C41E3A]/30 bg-[#C41E3A]/5 rounded-sm p-1.5 flex items-center justify-center">
+              <span className="text-[#C41E3A]">{engine.icon}</span>
+            </div>
             <span
               style={{ fontFamily: "'DM Sans', sans-serif" }}
-              className="text-[9.5px] font-medium tracking-[0.26em] uppercase text-[#C41E3A]"
+              className="text-[10px] font-semibold tracking-[0.25em] uppercase text-[#C41E3A]"
             >
               [ {engine.system} ]
             </span>
@@ -143,20 +148,16 @@ function EngineBlock({ engine }: { engine: Engine }) {
           {/* Heading */}
           <motion.h2
             variants={fadeUp}
-            className="leading-[0.93] tracking-[-0.025em] mb-5"
+            className="leading-[1.05] tracking-[-0.02em] mb-4 text-[#EDEDED]"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontWeight: 300,
-              fontSize: "clamp(2.8rem, 6.5vw, 4.8rem)",
+              fontWeight: 400,
+              fontSize: "clamp(2.4rem, 5vw, 4rem)",
             }}
           >
             {engine.heading.map((word, i) => (
               <span key={i} className="block">
-                {i === 1 ? (
-                  <span className="text-white">{word}</span>
-                ) : (
-                  <span className="text-white/40">{word}</span>
-                )}
+                {word}
               </span>
             ))}
           </motion.h2>
@@ -164,10 +165,10 @@ function EngineBlock({ engine }: { engine: Engine }) {
           {/* Subheading */}
           <motion.p
             variants={fadeUp}
-            className="italic text-white/55 mb-5"
+            className="italic text-white/55 mb-4"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: "clamp(1rem, 1.8vw, 1.2rem)",
+              fontSize: "clamp(1.05rem, 1.5vw, 1.3rem)",
             }}
           >
             {engine.subheading}
@@ -176,14 +177,14 @@ function EngineBlock({ engine }: { engine: Engine }) {
           {/* Crimson rule */}
           <motion.div
             variants={fadeIn}
-            className="w-12 h-[1.5px] bg-[#C41E3A] mb-7 opacity-75"
+            className="w-16 h-[1px] bg-[#C41E3A] mb-5 opacity-80"
           />
 
           {/* Body copy */}
           <motion.p
             variants={fadeUp}
-            className="text-white/45 leading-[1.75] max-w-[460px]"
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem" }}
+            className="text-[#EDEDED]/45 leading-[1.7] max-w-[440px]"
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem" }}
           >
             {engine.description}
           </motion.p>
@@ -191,30 +192,25 @@ function EngineBlock({ engine }: { engine: Engine }) {
 
         {/* ── Right / CTA column ───────────────────────── */}
         <div
-          className={`flex flex-col gap-5 items-start
-            ${engine.reverse ? "md:[direction:ltr] md:items-start" : "md:items-end"}`}
+          className={`flex flex-col gap-6 items-start md:items-center flex-1 max-w-[340px]
+            ${engine.reverse ? "md:items-start" : "md:items-end"}`}
         >
-          {/* Decorative vertical accent */}
+          {/* Decorative vertical accent (desktop only) */}
           <motion.div
             variants={fadeIn}
-            className="hidden md:flex flex-col items-center gap-2 mb-2 opacity-15"
-          >
-            <div className="w-px h-14 bg-white/50" />
-            <div className="w-[3px] h-[3px] rounded-full bg-white/70" />
-          </motion.div>
+            className="hidden md:flex w-px h-16 bg-gradient-to-b from-transparent via-[#C41E3A]/40 to-transparent mb-2"
+          />
 
           {/* Primary CTA */}
-          <motion.div variants={fadeUp}>
+          <motion.div variants={fadeUp} className="w-full sm:w-auto">
             <Link
               to={engine.primaryCta.href}
-              className="group relative inline-flex items-center gap-3 px-8 py-[14px] bg-[#C41E3A] text-white overflow-hidden transition-all duration-300 hover:bg-[#a71830] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C41E3A] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              className="group relative flex items-center justify-between sm:justify-center gap-4 px-8 py-4 bg-[#C41E3A] text-white overflow-hidden transition-all duration-400 hover:bg-[#A31630] border border-[#C41E3A] hover:border-white/20 w-full"
             >
-              {/* Shine sweep */}
-              <span className="absolute inset-0 translate-x-[-115%] group-hover:translate-x-[115%] transition-transform duration-650 ease-in-out bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 pointer-events-none" />
-
+              <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 pointer-events-none" />
               <span
-                className="relative tracking-[0.13em] uppercase"
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", fontWeight: 500 }}
+                className="relative tracking-[0.15em] uppercase whitespace-nowrap"
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", fontWeight: 600 }}
               >
                 {engine.primaryCta.label}
               </span>
@@ -227,14 +223,14 @@ function EngineBlock({ engine }: { engine: Engine }) {
 
           {/* Secondary CTA */}
           {engine.secondaryCta && (
-            <motion.div variants={fadeUp}>
+            <motion.div variants={fadeUp} className="w-full sm:w-auto flex justify-start sm:justify-center">
               <Link
                 to={engine.secondaryCta.href}
-                className="group inline-flex items-center gap-2.5 text-white/35 hover:text-white/70 transition-colors duration-300"
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.72rem" }}
+                className="group flex items-center justify-center gap-3 text-white/40 hover:text-[#C41E3A] transition-colors duration-300"
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: 500 }}
               >
-                <span className="w-4 h-px bg-current transition-all duration-300 group-hover:w-6" />
-                <span className="tracking-[0.1em] uppercase">{engine.secondaryCta.label}</span>
+                <span className="w-6 h-px bg-current transition-all duration-300 group-hover:w-8" />
+                <span className="tracking-[0.15em] uppercase">{engine.secondaryCta.label}</span>
               </Link>
             </motion.div>
           )}
@@ -242,8 +238,8 @@ function EngineBlock({ engine }: { engine: Engine }) {
           {/* Credibility micro-copy */}
           <motion.p
             variants={fadeIn}
-            className="mt-3 text-white/18 uppercase tracking-[0.09em]"
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.66rem" }}
+            className="mt-2 text-white/25 uppercase tracking-[0.1em] text-left sm:text-center w-full"
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", lineHeight: "1.6" }}
           >
             {engine.credibility}
           </motion.p>
@@ -259,30 +255,30 @@ export default function ServicesEngines() {
     <section
       id="engines"
       aria-label="Precision design tools — Discovery and Estimator"
-      className="bg-[#050505]"
+      className="bg-[#020202] relative"
     >
       {/* Section prelude */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 pt-20 pb-10 border-t border-white/[0.07]">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 pt-16 pb-8">
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.55 }}
-          className="text-white/25 uppercase tracking-[0.3em] mb-3"
-          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "9.5px" }}
+          transition={{ duration: 0.5 }}
+          className="text-[#C41E3A] uppercase tracking-[0.3em] mb-2 font-semibold"
+          style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px" }}
         >
           Precision Instruments
         </motion.p>
         <motion.h2
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="text-white/70 leading-tight"
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="text-[#EDEDED] leading-tight"
           style={{
             fontFamily: "'Cormorant Garamond', serif",
-            fontWeight: 300,
-            fontSize: "clamp(1.4rem, 3vw, 2.2rem)",
+            fontWeight: 400,
+            fontSize: "clamp(1.6rem, 3.5vw, 2.4rem)",
           }}
         >
           Tools That Think Before You Spend.
@@ -293,9 +289,10 @@ export default function ServicesEngines() {
       {ENGINES.map((engine) => (
         <EngineBlock key={engine.system} engine={engine} />
       ))}
-
-      {/* Closing rule */}
-      <div className="border-b border-white/[0.07]" />
+      
+      {/* Closing border */}
+      <div className="border-b border-white/[0.04]" />
     </section>
   );
 }
+

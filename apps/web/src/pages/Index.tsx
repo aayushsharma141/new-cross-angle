@@ -48,37 +48,42 @@ const Index = () => {
       <ScrollProgress />
       <WelcomePrompt />
       <Navbar />
-      <main id="main-content" className="min-h-screen relative z-10 w-full">
+      <main id="main-content" className="min-h-screen relative w-full">
         <FixedSocialBar />
         <SectionNavDots />
         <WhatsAppButton />
 
-        <div id="hero" className="bg-site-bg">
+        {/* Hero — sticky behind everything, curtain scroll effect */}
+        <div className="h-screen">
           <Hero />
         </div>
-        <div id="about" className="bg-site-bg-section border-t border-site-border">
-          <About />
-        </div>
-        <div id="services" className="bg-site-bg border-t border-site-border">
-          <Services />
-        </div>
-        <div id="process" className="bg-site-bg-section border-t border-site-border">
-          <Process />
-        </div>
-        <div className="bg-site-bg-section border-t border-site-border">
-          <MarqueeStrip />
-        </div>
-        <div id="portfolio" className="bg-site-bg border-t border-site-border">
-          <Portfolio />
-        </div>
-        <div className="bg-site-bg-section border-t border-site-border">
-          <TrustSection />
-        </div>
-        <div className="bg-site-bg border-t border-site-border">
-          <BeforeAfterShowcase />
-        </div>
-        <div id="testimonials" className="bg-site-bg-section border-t border-site-border">
-          <Testimonials />
+
+        {/* Content slides OVER the hero as you scroll (curtain effect) */}
+        <div className="relative z-10">
+          <div id="about" className="bg-site-bg-section border-t border-site-border">
+            <About />
+          </div>
+          <div id="services" className="bg-site-bg border-t border-site-border">
+            <Services />
+          </div>
+          <div id="process" className="bg-site-bg-section border-t border-site-border">
+            <Process />
+          </div>
+          <div className="bg-site-bg-section border-t border-site-border">
+            <MarqueeStrip />
+          </div>
+          <div id="portfolio" className="bg-site-bg border-t border-site-border">
+            <Portfolio />
+          </div>
+          <div className="bg-site-bg-section border-t border-site-border">
+            <TrustSection />
+          </div>
+          <div className="bg-site-bg border-t border-site-border">
+            <BeforeAfterShowcase />
+          </div>
+          <div id="testimonials" className="bg-site-bg-section border-t border-site-border">
+            <Testimonials />
+          </div>
         </div>
       </main>
       <Footer />

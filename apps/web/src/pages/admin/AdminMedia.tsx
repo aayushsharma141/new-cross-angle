@@ -47,7 +47,7 @@ const BUCKET_NAME = "media";
 
 const AdminMedia = () => {
     const { toast } = useToast();
-    const { isViewer } = useAdminAuth();
+    const { isEditor } = useAdminAuth();
     const [searchParams] = useSearchParams();
     const urlSearch = searchParams.get("search");
     const urlFile = searchParams.get("file");
@@ -282,6 +282,7 @@ const AdminMedia = () => {
     };
 
     const isSelectionMode = selectedFiles.size > 0;
+    const isReadOnly = !isEditor;
 
     if (isLoading) {
         return (
@@ -300,7 +301,7 @@ const AdminMedia = () => {
                     <h1 className="font-display text-3xl font-bold">Media Library</h1>
                     <p className="text-muted-foreground mt-1">Manage images and files</p>
                 </div>
-                {!isViewer && (
+                {!isReadOnly && (
                     <Button
                         variant="outline"
                         onClick={handleSyncStorage}
@@ -363,6 +364,7 @@ const AdminMedia = () => {
                         variant={viewMode === "grid" ? "secondary" : "ghost"}
                         size="icon"
                         onClick={() => setViewMode("grid")}
+                        aria-label="Show media as grid"
                     >
                         <Grid className="w-4 h-4" />
                     </Button>
@@ -370,6 +372,7 @@ const AdminMedia = () => {
                         variant={viewMode === "list" ? "secondary" : "ghost"}
                         size="icon"
                         onClick={() => setViewMode("list")}
+                        aria-label="Show media as list"
                     >
                         <List className="w-4 h-4" />
                     </Button>
@@ -377,7 +380,7 @@ const AdminMedia = () => {
             </div>
 
             {/* Drop Zone */}
-            {!isViewer && (
+            {!isReadOnly && (
                 <MediaUploadZone
                     onUpload={handleUpload}
                     isUploading={isUploading}
@@ -396,7 +399,7 @@ const AdminMedia = () => {
                 onDelete={(file) => { setFileToDelete(file); setDeleteDialogOpen(true); }}
                 onCopyUrl={copyToClipboard}
                 copiedUrl={copiedUrl}
-                isReadOnly={isViewer}
+                isReadOnly={isReadOnly}
             />
 
             {/* Image Details Sheet */}
@@ -406,7 +409,7 @@ const AdminMedia = () => {
                 onClose={() => setPreviewFile(null)}
                 onDelete={(file) => { setFileToDelete(file); setDeleteDialogOpen(true); }}
                 onCopyUrl={copyToClipboard}
-                isReadOnly={isViewer}
+                isReadOnly={isReadOnly}
             />
 
             {/* Single Delete Confirmation */}

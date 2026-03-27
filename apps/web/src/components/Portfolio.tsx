@@ -1,20 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
-import { ArrowUpRight, Eye, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { ArrowUpRight, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { categories } from "@/data/projects";
+import { categories, type Project } from "@/data/projects";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { Image } from "@/components/ui/image";
-import { motion } from "framer-motion";
-import Magnetic from "./ui/magnetic";
+import { Image as BaseImage } from "@/components/ui/image";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { useImageParallax } from "@/hooks/useImageParallax";
-import { BlurText, TiltedCard } from "./ReactBits";
-import { SpotlightCard } from "./ReactBits";
-
-import { type Project } from "@/data/projects";
 
 const ProjectCard = ({
   project,
@@ -25,79 +19,57 @@ const ProjectCard = ({
   index: number;
   openLightbox: (index: number) => void
 }) => {
-  const { containerRef, imageRef } = useImageParallax({ speed: 0.15, scale: 1.15 });
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Tie image parallax directly to the scroll position of this matching card
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"]
+  });
+
+  // The image moves from -15% to 15% vertically within its container as user scrolls
+  const y = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
 
   return (
-    <SpotlightCard
-      spotlightColor="rgba(227, 83, 54, 0.15)"
-      className="group relative animate-fade-in rounded-none bg-site-bg-card border border-transparent hover:border-site-crimson hover:bg-site-bg-card-hover transition-all duration-300"
-    >
-      <div ref={containerRef}>
-        <div
-          className="relative overflow-hidden rounded-xl aspect-[4/3] mb-4 cursor-pointer"
-          onClick={() => openLightbox(index)}
-          onKeyDown={(e) => e.key === "Enter" && openLightbox(index)}
-          role="button"
-          tabIndex={0}
-          aria-label={`View ${project.title} project`}
+    <div className="group flex flex-col mb-16 md:mb-32">
+      <div 
+        ref={cardRef}
+        className="relative overflow-hidden aspect-[4/5] md:aspect-[3/4] w-full cursor-pointer bg-black/5"
+        onClick={() => openLightbox(index)}
+      >
+        <motion.div 
+          className="absolute inset-[-20%] w-[140%] h-[140%]"
+          style={{ y }}
         >
-          <TiltedCard
-            imageSrc={project.heroImage}
-            altText={project.title}
-            captionText={`${project.year} • ${project.category}`}
-            containerHeight="100%"
-            containerWidth="100%"
-            imageHeight="100%"
-            imageWidth="100%"
-            rotateAmplitude={12}
-            scaleOnHover={1.05}
-            showMobileWarning={false}
-            showTooltip={true}
-            displayOverlayContent={true}
-            overlayContent={
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 w-full h-full">
-                {/* Overlay Gradient */}
-                <div className="absolute inset-0 bg-black/40 w-full h-full" />
-
-                {/* View Button */}
-                <div className="relative z-10 w-14 h-14 md:w-16 md:h-16 bg-site-crimson rounded-full flex items-center justify-center shadow-2xl">
-                  <Eye className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                </div>
-
-                {/* Year Badge */}
-                <div className="absolute top-4 right-4 bg-site-bg-card/90 backdrop-blur-sm px-3 py-1.5 rounded-none text-xs md:text-sm font-medium text-site-text">
-                  {project.year}
-                </div>
-
-                {/* Category Badge */}
-                <div className="absolute bottom-4 left-4">
-                  <span className="bg-site-crimson text-white text-[10px] md:text-xs font-medium uppercase tracking-wider px-3 py-1.5 ">
-                    {project.category}
-                  </span>
-                </div>
-              </div>
-            }
+          <img
+            src={project.heroImage}
+            alt={project.title}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-        </div>
+        </motion.div>
 
-        <div className="space-y-2 p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium text-site-text-meta uppercase tracking-widest">{project.category}</span>
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+            <span className="text-white text-xs font-mono uppercase tracking-widest">View</span>
           </div>
-          <h3 className="text-xl font-serif font-bold text-site-text-heading">{project.title}</h3>
-          <p className="text-site-text-muted text-sm leading-relaxed mb-4">
-            {project.brief.substring(0, 100)}...
-          </p>
-          <Link
-            to={`/portfolio/${project.slug}`}
-            className="inline-flex items-center gap-2 text-site-crimson font-medium hover:gap-3 transition-all focus:outline-none focus:border-site-crimson rounded-none"
-          >
-            View Full Project
-            <ArrowUpRight className="w-4 h-4" />
-          </Link>
         </div>
       </div>
-    </SpotlightCard>
+
+      <div className="mt-6 flex flex-col space-y-2">
+        <div className="flex justify-between items-start">
+          <h3 className="text-2xl font-display font-medium text-site-text-heading group-hover:text-site-crimson transition-colors">
+            {project.title}
+          </h3>
+          <ArrowUpRight className="w-5 h-5 text-site-text-muted group-hover:text-site-crimson transition-colors mt-1" />
+        </div>
+        <div className="flex items-center gap-4 text-xs font-mono tracking-widest uppercase text-site-text-muted">
+          <span>{project.category}</span>
+          <span className="w-1 h-1 rounded-full bg-site-text-muted/30" />
+          <span>{project.year}</span>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -106,7 +78,6 @@ const Portfolio = () => {
     queryKey: ['projects'],
     queryFn: api.getProjects,
     staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000
   });
 
   const [activeFilter, setActiveFilter] = useState("All");
@@ -133,178 +104,132 @@ const Portfolio = () => {
     [filteredProjects.length]
   );
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!lightboxOpen) return;
-      if (e.key === "ArrowRight") navigateLightbox("next");
-      if (e.key === "ArrowLeft") navigateLightbox("prev");
-      if (e.key === "Escape") setLightboxOpen(false);
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lightboxOpen, navigateLightbox]);
+  // Split projects into 2 columns for masonry effect
+  const leftColumn = filteredProjects.filter((_, i) => i % 2 === 0);
+  const rightColumn = filteredProjects.filter((_, i) => i % 2 !== 0);
 
   return (
-    <section className="py-24 bg-site-bg relative overflow-hidden" id="portfolio">
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-          <div className="max-w-2xl">
-            <div className="mb-6 block min-h-[4rem]">
-              <h2 className="text-4xl md:text-5xl font-serif font-bold text-site-text-heading relative inline-block after:content-[''] after:block after:w-12 after:h-px after:bg-site-crimson after:mt-3">
-                <BlurText
-                  text="Curated Excellence"
-                  animateBy="words"
-                  direction="bottom"
-                  delay={100}
-                />
-              </h2>
+    <section className="py-24 md:py-32 bg-site-bg relative overflow-hidden" id="portfolio">
+      <div className="container mx-auto px-4 md:px-12 relative z-10">
+        
+        {/* Header Setup */}
+        <div className="flex flex-col mb-20 md:mb-32">
+          <span className="text-site-crimson font-mono text-sm tracking-[0.3em] uppercase block mb-4">
+            Selected Works
+          </span>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <h2 className="text-4xl md:text-5xl lg:text-7xl font-display font-medium text-site-text-heading leading-tight">
+              Curated <br />
+              <em className="text-site-text-muted not-italic">Excellence.</em>
+            </h2>
+            <div className="flex flex-wrap gap-2 md:max-w-md">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setActiveFilter(category)}
+                  className={cn(
+                    "px-5 py-2 rounded-full text-xs font-mono uppercase tracking-widest transition-all duration-300",
+                    category === activeFilter
+                      ? "bg-site-crimson text-white"
+                      : "bg-transparent text-site-text-muted hover:text-site-text"
+                  )}
+                >
+                  {category}
+                </button>
+              ))}
             </div>
-            <p className="text-lg text-site-text-muted leading-relaxed">
-              Explore our portfolio of ultra-luxury residences and high-value commercial environments
-              that redefine the boundaries of spatial anticipation.
-            </p>
           </div>
+        </div>
+
+        {/* 2-Column Masonry Grid */}
+        <div className="flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-24">
+          <div className="w-full md:w-1/2 flex flex-col">
+            {leftColumn.map((project, idx) => {
+              // The original index in the filtered array for lightbox
+              const originalIndex = filteredProjects.findIndex(p => p.id === project.id);
+              return (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  index={originalIndex}
+                  openLightbox={openLightbox}
+                />
+              );
+            })}
+          </div>
+          
+          {/* Right column has a top margin to create a staggered masonry effect */}
+          <div className="w-full md:w-1/2 flex flex-col md:mt-40">
+            {rightColumn.map((project, idx) => {
+              const originalIndex = filteredProjects.findIndex(p => p.id === project.id);
+              return (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  index={originalIndex}
+                  openLightbox={openLightbox}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        {/* View All CTA */}
+        <div className="mt-12 md:mt-20 flex justify-center">
           <Link
             to="/gallery"
-            className="group flex items-center gap-3 text-site-crimson font-medium hover:gap-4 transition-all duration-300"
+            className="group flex flex-col items-center gap-4 text-site-text hover:text-site-crimson transition-colors"
           >
-            View All Projects
-            <ArrowUpRight className="w-5 h-5 group-hover:rotate-45 transition-transform duration-300" />
-          </Link>
-        </div>
-
-        {/* Category Filters */}
-        <div className="flex flex-wrap gap-4 mb-12" aria-label="Project category filters">
-          {categories.map((category) => {
-            const isSelected = category === activeFilter;
-            return (
-              <button
-                key={category}
-                onClick={() => setActiveFilter(category)}
-                className={cn(
-                  "px-6 py-2.5 rounded-none text-sm font-medium transition-all duration-300",
-                  isSelected
-                    ? "bg-site-crimson text-white shadow-lg shadow-site-crimson/10"
-                    : "text-site-text-muted hover:text-site-text hover:bg-site-bg-card border border-site-border"
-                )}
-              >
-                {category}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProjects.map((project, index) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              index={index}
-              openLightbox={openLightbox}
-            />
-          ))}
-        </div>
-
-        <div className="mt-20 text-center">
-          <p className="text-site-text-muted mb-6">Want to see more of our work?</p>
-          <Link
-            to="/gallery"
-            className="inline-flex items-center gap-2 bg-site-crimson text-white px-10 py-4 rounded-none font-semibold uppercase tracking-widest text-sm hover:bg-site-crimson/90 transition-all duration-300 hover:-translate-y-1 shadow-lg shadow-site-crimson/20"
-          >
-            Explore Full Portfolio
-            <ArrowUpRight className="w-5 h-5" />
+            <div className="w-24 h-24 rounded-full border border-site-border flex items-center justify-center group-hover:border-site-crimson transition-colors">
+              <ArrowUpRight className="w-8 h-8 group-hover:scale-110 group-hover:rotate-12 transition-transform" />
+            </div>
+            <span className="font-mono text-xs uppercase tracking-widest">Explore Full Archive</span>
           </Link>
         </div>
       </div>
 
-      {/* Lightbox Dialog */}
+      {/* Lightbox Dialog - Kept mostly intact */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent className="max-w-5xl bg-background/95 backdrop-blur-xl border-primary/20 p-2 md:p-4 max-h-[85vh] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-primary/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-primary/40">
+        <DialogContent className="max-w-7xl bg-black/95 backdrop-blur-2xl border-none p-0 overflow-hidden h-[100dvh] w-screen max-h-none flex flex-col justify-center rounded-none shadow-2xl">
           <VisuallyHidden>
             <DialogTitle>Project Preview: {filteredProjects[currentImageIndex]?.title}</DialogTitle>
           </VisuallyHidden>
-          <div className="relative">
-            {/* Close button */}
-            <button
-              onClick={() => setLightboxOpen(false)}
-              className="absolute top-4 right-4 z-20 p-2 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
-              aria-label="Close lightbox"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          
+          <button
+            title="Close preview"
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-6 right-6 z-50 p-4 text-white/50 hover:text-white transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
 
-            {/* Navigation Arrows */}
-            <button
-              onClick={() => navigateLightbox("prev")}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 hover:bg-primary transition-colors group"
-              aria-label="Previous project"
-            >
-              <ChevronLeft className="w-6 h-6 text-white" />
-            </button>
-            <button
-              onClick={() => navigateLightbox("next")}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 hover:bg-primary transition-colors group"
-              aria-label="Next project"
-            >
-              <ChevronRight className="w-6 h-6 text-white" />
-            </button>
+          <button
+            title="Previous project"
+            onClick={() => navigateLightbox("prev")}
+            className="absolute left-6 top-1/2 -translate-y-1/2 z-50 p-4 text-white/50 hover:text-white transition-colors"
+          >
+            <ChevronLeft className="w-8 h-8" />
+          </button>
 
-            {/* Image */}
-            <div className="aspect-[4/3] rounded-xl overflow-hidden">
-              <Image
+          <button
+            title="Next project"
+            onClick={() => navigateLightbox("next")}
+            className="absolute right-6 top-1/2 -translate-y-1/2 z-50 p-4 text-white/50 hover:text-white transition-colors"
+          >
+            <ChevronRight className="w-8 h-8" />
+          </button>
+
+          <div className="w-full h-full flex flex-col items-center justify-center p-8 md:p-24">
+            <div className="w-full h-[70vh] flex items-center justify-center relative">
+              <BaseImage
                 src={filteredProjects[currentImageIndex]?.heroImage}
                 alt={filteredProjects[currentImageIndex]?.title}
-                loading="lazy"
+                className="max-w-full max-h-full object-contain drop-shadow-2xl"
               />
             </div>
-
-            {/* Info */}
-            <div className="p-4 md:p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="bg-primary/20 text-primary text-xs font-medium uppercase tracking-wider px-3 py-1 rounded-full">
-                  {filteredProjects[currentImageIndex]?.category}
-                </span>
-                <span className="text-muted-foreground text-sm">
-                  {filteredProjects[currentImageIndex]?.year}
-                </span>
-              </div>
-              <h3 className="font-serif text-2xl font-semibold text-foreground mb-2">
-                {filteredProjects[currentImageIndex]?.title}
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                {filteredProjects[currentImageIndex]?.brief}
-              </p>
-              <Link
-                to={`/portfolio/${filteredProjects[currentImageIndex]?.slug}`}
-                className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all"
-                onClick={() => setLightboxOpen(false)}
-              >
-                View Full Project
-                <ArrowUpRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            {/* Thumbnails */}
-            <div
-              className="flex gap-2 px-4 pb-4 overflow-x-auto focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-lg"
-              role="region"
-              aria-label="Project thumbnails"
-              tabIndex={0}
-            >
-              {filteredProjects.map((project, index) => (
-                <button
-                  key={project.id}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={cn(
-                    "flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition-all duration-300",
-                    currentImageIndex === index ? "ring-2 ring-primary scale-105" : "opacity-50 hover:opacity-100"
-                  )}
-                  aria-label={`View ${project.title}`}
-                >
-                  <Image src={project.heroImage} alt={project.title} loading="lazy" />
-                </button>
-              ))}
+            <div className="mt-8 text-center">
+              <h3 className="text-3xl font-display text-white mb-2">{filteredProjects[currentImageIndex]?.title}</h3>
+              <p className="text-sm font-mono tracking-widest uppercase text-white/50">{filteredProjects[currentImageIndex]?.category}</p>
             </div>
           </div>
         </DialogContent>

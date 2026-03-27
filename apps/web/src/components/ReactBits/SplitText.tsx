@@ -1,13 +1,16 @@
 import { useInView, motion } from 'framer-motion';
 import React, { useRef } from 'react';
 
+type InViewOptions = NonNullable<Parameters<typeof useInView>[1]>;
+type InViewMargin = InViewOptions['margin'];
+
 export interface SplitTextProps {
     text: string;
     className?: string;
     delay?: number;
     duration?: number;
     threshold?: number;
-    rootMargin?: string;
+    rootMargin?: InViewMargin;
 }
 
 const SplitText: React.FC<SplitTextProps> = ({
@@ -16,7 +19,7 @@ const SplitText: React.FC<SplitTextProps> = ({
     delay = 50,
     duration = 0.5,
     threshold = 0.1,
-    rootMargin = '-50px'
+    rootMargin = '0px 0px -50px 0px'
 }) => {
     const ref = useRef<HTMLParagraphElement>(null);
     const isInView = useInView(ref, { once: true, margin: rootMargin, amount: threshold });

@@ -16,7 +16,8 @@ import {
     Mail,
     Share2,
     CalendarIcon,
-    RefreshCw
+    RefreshCw,
+    type LucideIcon,
 } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -56,6 +57,39 @@ interface DailyStat {
     events: number;
 }
 
+interface BlogRow {
+    id: string;
+    title: string;
+}
+
+interface AnalyticsRow {
+    article_id: string;
+    total_views: number | null;
+    avg_read_time_seconds: number | null;
+    avg_scroll_depth: number | null;
+}
+
+const STAT_COLOR_STYLES = {
+    blue: {
+        bar: "bg-blue-500/50 group-hover:bg-blue-500",
+        icon: "text-blue-500",
+    },
+    emerald: {
+        bar: "bg-emerald-500/50 group-hover:bg-emerald-500",
+        icon: "text-emerald-500",
+    },
+    amber: {
+        bar: "bg-amber-500/50 group-hover:bg-amber-500",
+        icon: "text-amber-500",
+    },
+    pink: {
+        bar: "bg-pink-500/50 group-hover:bg-pink-500",
+        icon: "text-pink-500",
+    },
+} as const;
+
+type StatColor = keyof typeof STAT_COLOR_STYLES;
+
 /* ───────────────────────────────────────────────
    Component
    ─────────────────────────────────────────────── */
@@ -80,13 +114,17 @@ export default function AdminBlogOverview() {
                 .select('id, title');
 
             // 1b. Fetch analytics (may not exist)
-            let analyticsMap: Record<string, { views: number; read_time: number; scroll_depth: number }> = {};
+            const analyticsMap: Record<string, { views: number; read_time: number; scroll_depth: number }> = {};
             try {
                 const { data: ad } = await supabase
                     .from('article_analytics')
                     .select('article_id, total_views, avg_read_time_seconds, avg_scroll_depth');
-                if (ad) ad.forEach((a: any) => {
-                    analyticsMap[a.article_id] = { views: a.total_views || 0, read_time: a.avg_read_time_seconds || 0, scroll_depth: a.avg_scroll_depth || 0 };
+                if (ad) ad.forEach((row: AnalyticsRow) => {
+                    analyticsMap[row.article_id] = {
+                        views: row.total_views || 0,
+                        read_time: row.avg_read_time_seconds || 0,
+                        scroll_depth: row.avg_scroll_depth || 0,
+                    };
                 });
             } catch { /* table may not exist */ }
 
@@ -103,12 +141,12 @@ export default function AdminBlogOverview() {
                 .gte('created_at', thirtyDaysAgo);
 
             if (blogs) {
-                const metrics: ArticleMetric[] = blogs.map((a: any) => ({
-                    id: a.id,
-                    title: a.title,
-                    views: analyticsMap[a.id]?.views ?? 0,
-                    avg_read_time: analyticsMap[a.id]?.read_time ?? 0,
-                    avg_scroll_depth: analyticsMap[a.id]?.scroll_depth ?? 0,
+                const metrics: ArticleMetric[] = (blogs as BlogRow[]).map((article) => ({
+                    id: article.id,
+                    title: article.title,
+                    views: analyticsMap[article.id]?.views ?? 0,
+                    avg_read_time: analyticsMap[article.id]?.read_time ?? 0,
+                    avg_scroll_depth: analyticsMap[article.id]?.scroll_depth ?? 0,
                     newsletter_signups: 0,
                     share_clicks: 0
                 }));
@@ -149,9 +187,21 @@ export default function AdminBlogOverview() {
         loadData();
     }, [loadData]);
 
-    const StatCard = ({ icon: Icon, label, value, sub, color }: any) => (
+    const StatCard = ({
+        icon: Icon,
+        label,
+        value,
+        sub,
+        color,
+    }: {
+        icon: LucideIcon;
+        label: string;
+        value: string;
+        sub?: string;
+        color: StatColor;
+    }) => (
         <Card className="bg-zinc-900/40 border-zinc-800/50 backdrop-blur-md overflow-hidden relative group">
-            <div className={`absolute top-0 left-0 w-1 h-full bg-${color}-500/50 group-hover:bg-${color}-500 transition-colors`} />
+            <div className={cn("absolute top-0 left-0 w-1 h-full transition-colors", STAT_COLOR_STYLES[color].bar)} />
             <CardContent className="p-6">
                 <div className="flex justify-between items-start">
                     <div className="space-y-1">
@@ -159,7 +209,7 @@ export default function AdminBlogOverview() {
                         <h3 className="text-2xl font-serif font-bold text-white tracking-tight">{value}</h3>
                         {sub && <p className="text-[10px] text-zinc-600 font-medium">{sub}</p>}
                     </div>
-                    <div className={cn("p-2.5 rounded-xl bg-zinc-900 border border-zinc-800", `text-${color}-500 shadow-inner`)}>
+                    <div className={cn("p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 shadow-inner", STAT_COLOR_STYLES[color].icon)}>
                         <Icon size={18} strokeWidth={1.5} />
                     </div>
                 </div>
@@ -177,7 +227,7 @@ export default function AdminBlogOverview() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
-            <AdminBreadcrumb items={[{ label: 'Blog Settings', path: '/admin/cms/blogs' }, { label: 'Analytics' }]} />
+            <AdminBreadcrumb items={[{ label: 'Blog Settings', href: '/admin/cms/blogs' }, { label: 'Analytics' }]} />
 
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-1">

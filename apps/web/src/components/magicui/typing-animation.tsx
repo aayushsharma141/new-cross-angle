@@ -62,4 +62,3 @@ export const TypingAnimation = ({
     );
 };
 
-export default TypingAnimation;

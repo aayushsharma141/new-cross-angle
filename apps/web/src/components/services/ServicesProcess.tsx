@@ -99,7 +99,7 @@ const ServicesProcess = () => {
                   className={`relative group ${index === steps.length - 1 ? 'pb-0' : 'pb-[60px]'} sm:pl-[76px]`}
                 >
                   {/* Step Dot */}
-                  <div className="absolute left-[16px] top-2 w-[14px] h-[14px] rounded-full bg-[#030303] border-[1.5px] border-[#FF2A2A] z-10 transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:bg-[#FF2A2A] group-hover:shadow-[0_0_16px_rgba(255,42,42,0.5)] hidden sm:block" />
+                  <div className="absolute left-[16px] top-2 w-[14px] h-[14px] rounded-full bg-[#030303] border-[1.5px] border-[#FF2A2A] z-10 transition-all duration-350 ease-[timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:bg-[#FF2A2A] group-hover:shadow-[0_0_16px_rgba(255,42,42,0.5)] hidden sm:block" />
 
                   {/* Ghost Number */}
                   <div className="absolute right-[-10px] -top-[22px] font-display italic font-light text-[clamp(4.5rem,9vw,7.5rem)] leading-none text-[#EDEDED]/[0.03] select-none pointer-events-none transition-colors duration-350 group-hover:text-[#FF2A2A]/[0.05]">

@@ -69,5 +69,3 @@ export const ConfirmDialog = ({
         </AlertDialog>
     );
 };
-
-export default ConfirmDialog;

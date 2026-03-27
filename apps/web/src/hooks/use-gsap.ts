@@ -27,4 +27,4 @@ export const useGSAP = (
 };
 
 // Export pre-configured gsap instance
-export { gsap, ScrollTrigger };
+export { gsap };

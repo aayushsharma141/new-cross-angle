@@ -95,9 +95,6 @@ const TrustSection = () => {
               style={{ transitionDelay: `${i * 120}ms` }}
             >
               <div className="flex items-baseline gap-1">
-                {stat.prefix && (
-                  <span className="font-display text-2xl md:text-4xl font-light text-white">{stat.prefix}</span>
-                )}
                 <CountUp
                   to={stat.num}
                   duration={2.5}

@@ -44,6 +44,8 @@ import { EmptyState, LoadingState } from "@/design-system/components/states";
 import { cn } from "@/lib/utils";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 
+const NEW_LEAD_ID = "__new__";
+
 const STATUS_COLORS: Record<string, string> = {
   new: "bg-blue-500/10 text-blue-500 border-blue-500/20",
   contacted: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
@@ -85,9 +87,10 @@ export default function AdminLeads() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  const { isViewer } = useAdminAuth();
+  const { isEditor } = useAdminAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const isReadOnly = !isEditor;
 
   const { data: leads = [], isLoading } = useQuery({
     queryKey: ["leads"],
@@ -126,6 +129,33 @@ export default function AdminLeads() {
     },
   });
 
+  const createMutation = useMutation({
+    mutationFn: async (draft: Lead): Promise<void> => {
+      await leadRepo.submitLead({
+        name: draft.name,
+        email: draft.email ?? "",
+        phone: draft.phone,
+        message: draft.message,
+        source: draft.source,
+        category: draft.category,
+        city: draft.city,
+        budget: draft.budget,
+        notes: draft.notes,
+        lead_source: draft.lead_source,
+        lead_type: draft.lead_type,
+      });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["leads"] });
+      toast({ title: "Lead Created", description: "The new lead has been added to your pipeline." });
+      setIsSheetOpen(false);
+      setSelectedLead(null);
+    },
+    onError: (err: Error) => {
+      toast({ variant: "destructive", title: "Error", description: err.message });
+    },
+  });
+
   // Delete Lead Mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string): Promise<void> => leadRepo.deleteLead(id),
@@ -147,7 +177,7 @@ export default function AdminLeads() {
         const temp = getLeadTemperature(l.score || 0);
         const lSource = l.source || l.lead_source || "";
         const lType = l.category || l.lead_type || "";
-        const lBudget = l.budget || (l as any).budget_range || "";
+        const lBudget = l.budget || "";
 
         return [
           l.name,
@@ -188,8 +218,17 @@ export default function AdminLeads() {
         <Button variant="outline" onClick={handleExport}>
           <Download className={`${icons.sm} mr-2`} /> Export CSV
         </Button>
-        {!isViewer && (
-          <Button variant="primary" onClick={() => { setSelectedLead(null); setIsSheetOpen(true); }}>
+        {!isReadOnly && (
+          <Button variant="primary" onClick={() => {
+            setSelectedLead({
+              id: NEW_LEAD_ID,
+              name: "",
+              email: "",
+              status: "new",
+              created_at: new Date().toISOString(),
+            });
+            setIsSheetOpen(true);
+          }}>
             <Plus className={`${icons.sm} mr-2`} /> Add Lead
           </Button>
         )}
@@ -271,8 +310,17 @@ export default function AdminLeads() {
               : "Start capturing leads to build your sales pipeline."
           }
           action={
-            !isViewer ? (
-              <Button variant="primary" onClick={() => setIsSheetOpen(true)}>
+            !isReadOnly ? (
+              <Button variant="primary" onClick={() => {
+                setSelectedLead({
+                  id: NEW_LEAD_ID,
+                  name: "",
+                  email: "",
+                  status: "new",
+                  created_at: new Date().toISOString(),
+                });
+                setIsSheetOpen(true);
+              }}>
                 <Plus className={`${icons.sm} mr-2`} /> Add your first lead
               </Button>
             ) : null
@@ -401,9 +449,15 @@ export default function AdminLeads() {
         lead={selectedLead}
         open={isSheetOpen}
         onOpenChange={setIsSheetOpen}
-        onSave={(updated) => updateMutation.mutate(updated)}
+        onSave={(updated) => {
+          if (updated.id === NEW_LEAD_ID) {
+            createMutation.mutate(updated);
+            return;
+          }
+          updateMutation.mutate(updated);
+        }}
         onDelete={(id) => deleteMutation.mutate(id)}
-        isReadOnly={isViewer}
+        isReadOnly={isReadOnly}
       />
     </div>
   );

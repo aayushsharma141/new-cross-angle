@@ -10,7 +10,7 @@ export const useAdminAuth = () => {
 
   const logout = async () => {
     await signOut();
-    navigate("/admin/auth");
+    navigate("/admin/auth?signed-out=true");
   };
 
   return { isAuthenticated, isLoading, logout, user, role, isAdmin, isEditor, isViewer };

@@ -14,7 +14,7 @@ import {
 const RATE_OPTS = { bucket: "discovery-lead", max: 10, windowMs: 60_000 };
 
 // Calculate lead score based on MVP MVP rules
-function calculateLeadScore(payload: any): number {
+function calculateLeadScore(payload: Record<string, any>): number {
     let score = 0;
 
     // High intent signals
@@ -51,9 +51,9 @@ serve(async (req: Request) => {
             return badRequestResponse(req, "Invalid JSON");
         }
 
-        const { name, email, phone, consent, results, raw_data } = body as {
+        const { name, email, phone, consent, results } = body as {
             name: string; email: string; phone?: string; consent?: boolean;
-            results?: Record<string, unknown>; raw_data?: unknown;
+            results?: Record<string, any>;
         };
 
         if (!email || !String(email).includes("@")) {
@@ -105,27 +105,19 @@ serve(async (req: Request) => {
 
         const leadId = masterData.id;
 
-        // 2. Insert into raw_payload
-        const { error: payloadError } = await supabase
-            .from('raw_payload')
-            .insert({
-                lead_id: leadId,
-                payload: body
-            });
-
-        if (payloadError) {
-            console.error("Error inserting into raw_payload:", payloadError);
-            // We don't necessarily want to fail the whole request if raw_payload fails, 
-            // but it's good to log it. Master record is already created.
-        }
-
-        // 3. Webhook to Make.com (Phase 3 of MVP)
+        // 2. Run raw_payload insert and Make.com webhook concurrently
+        // Both are non-critical: master record is already created.
         const makeWebhookUrl = Deno.env.get("MAKE_WEBHOOK_URL");
-        let webhookStatus = "skip";
 
-        if (makeWebhookUrl) {
-            try {
-                const makeRes = await fetch(makeWebhookUrl, {
+        const [payloadResult, webhookResult] = await Promise.allSettled([
+            // 2a. Insert into raw_payload
+            supabase
+                .from('raw_payload')
+                .insert({ lead_id: leadId, payload: body }),
+
+            // 2b. Webhook to Make.com (Phase 3 of MVP)
+            makeWebhookUrl
+                ? fetch(makeWebhookUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -142,16 +134,27 @@ serve(async (req: Request) => {
                         source: 'discovery_engine',
                         created_at: new Date().toISOString()
                     }),
-                });
+                })
+                : Promise.resolve(null),
+        ]);
 
-                if (!makeRes.ok) {
-                    console.error("Make.com webhook failed:", await makeRes.text());
-                    webhookStatus = "failed";
-                } else {
-                    webhookStatus = "success";
+        // Log any errors from the concurrent operations
+        if (payloadResult.status === "fulfilled" && payloadResult.value?.error) {
+            console.error("Error inserting into raw_payload:", payloadResult.value.error);
+        } else if (payloadResult.status === "rejected") {
+            console.error("raw_payload insert rejected:", payloadResult.reason);
+        }
+
+        let webhookStatus = "skip";
+        if (makeWebhookUrl) {
+            if (webhookResult.status === "fulfilled" && webhookResult.value) {
+                const res = webhookResult.value as Response;
+                webhookStatus = res.ok ? "success" : "failed";
+                if (!res.ok) {
+                    console.error("Make.com webhook failed:", res.status);
                 }
-            } catch (err) {
-                console.error("Error calling Make.com webhook:", err);
+            } else if (webhookResult.status === "rejected") {
+                console.error("Make.com webhook rejected:", webhookResult.reason);
                 webhookStatus = "failed";
             }
         }

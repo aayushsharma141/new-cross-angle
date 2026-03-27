@@ -73,4 +73,3 @@ export const SparklesText = ({
     );
 };
 
-export default SparklesText;

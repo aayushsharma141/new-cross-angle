@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useAdmin } from "@/context/AdminContext";
@@ -23,7 +23,10 @@ import {
 import { cn } from "@/lib/utils";
 import { icons } from "@/design-system/tokens/icons";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+
+const MotionLink = motion(Link);
 
 /* ───────────────────────────────────────────────
    Live Hub Stats
@@ -116,17 +119,16 @@ interface ModuleTileProps {
 }
 
 const ModuleTile = ({ title, description, icon: Icon, href, index, badge }: ModuleTileProps) => {
-    const navigate = useNavigate();
     const { setCurrentModule } = useAdmin();
 
     return (
-        <motion.button
+        <MotionLink
+            to={href}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 * index, duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
             onClick={() => {
                 setCurrentModule(title);
-                navigate(href);
             }}
             className={cn(
                 "group relative flex flex-col items-start gap-4 rounded-xl border border-zinc-800/50",
@@ -166,7 +168,7 @@ const ModuleTile = ({ title, description, icon: Icon, href, index, badge }: Modu
             <div className="w-full flex items-center justify-end pt-2">
                 <ArrowRight className="w-3.5 h-3.5 text-zinc-700 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all" />
             </div>
-        </motion.button>
+        </MotionLink>
     );
 };
 
@@ -219,16 +221,16 @@ const MODULES: Omit<ModuleTileProps, "index">[] = [
         href: "/admin/system/settings",
     },
     {
-        title: "Team Access",
-        description: "Manage admin users, roles, and staff permissions matrix.",
+        title: "User Access",
+        description: "Manage admin users, role assignment, and account permissions.",
         icon: Shield,
-        href: "/admin/system/team-members",
+        href: "/admin/access",
     },
     {
         title: "Logs & Audit",
         description: "Detailed system logs, active sessions, and admin activity history.",
         icon: History,
-        href: "/admin/system/logs",
+        href: "/admin/system/settings?tab=audit",
     },
 ];
 
@@ -236,9 +238,25 @@ const MODULES: Omit<ModuleTileProps, "index">[] = [
    Admin Hub (The Launcher)
    ─────────────────────────────────────────────── */
 export default function AdminHub() {
-    const { user } = useAdminAuth();
+    const { user, role } = useAdminAuth();
     const { health, refreshHealth } = useSystem();
     const { stats, isRefreshing, refresh } = useHubStats();
+    const { toast } = useToast();
+    const location = useLocation();
+
+    // Handle access denied feedback from RoleGuard
+    useEffect(() => {
+        const state = location.state as { accessDenied?: boolean; role?: string } | null;
+        if (state?.accessDenied) {
+            toast({
+                title: "Permission Denied",
+                description: `Your account (${state.role || 'no role'}) does not have access to that module.`,
+                variant: "destructive"
+            });
+            // Clear state so toast doesn't reappear on refresh
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state, toast]);
 
     const displayName = (user?.user_metadata?.full_name as string) || user?.email?.split("@")[0] || "sharma1.aayu";
 
@@ -302,6 +320,7 @@ export default function AdminHub() {
                         size="icon"
                         onClick={handleRefresh}
                         disabled={isRefreshing}
+                        aria-label="Refresh hub statistics"
                         title="Refresh all stats"
                         className="h-9 w-9 text-zinc-500 hover:text-yellow-500 hover:bg-yellow-500/5 rounded-lg transition-all"
                     >
@@ -389,9 +408,9 @@ export default function AdminHub() {
                     <span>CrossAngle Intelligence · v3.0.0 Stable</span>
                 </div>
                 <div className="flex items-center gap-6">
-                    <a href="/admin/dashboard" className="hover:text-yellow-500 transition-colors">Analytics</a>
-                    <a href="/admin/system/settings" className="hover:text-yellow-500 transition-colors">Settings</a>
-                    <a href="/admin/system/logs" className="hover:text-yellow-500 transition-colors">Audit Logs</a>
+                    <Link to="/admin/dashboard" className="hover:text-yellow-500 transition-colors">Analytics</Link>
+                    <Link to="/admin/system/settings" className="hover:text-yellow-500 transition-colors">Settings</Link>
+                    <Link to="/admin/system/settings?tab=audit" className="hover:text-yellow-500 transition-colors">Audit Logs</Link>
                 </div>
             </motion.footer>
         </div>

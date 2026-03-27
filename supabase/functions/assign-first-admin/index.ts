@@ -1,8 +1,8 @@
 // Cloud Function: assign-first-admin
-// Purpose: During initial setup, allow creating exactly one admin role when there are no admins yet.
+// Purpose: During initial setup, allow creating exactly one super_admin role when none exists.
 // Security: 
-// - If an admin already exists, only authenticated admins can assign roles.
-// - If no admin exists, allow the first authenticated user to self-assign admin.
+// - If a super admin already exists, only authenticated super admins can assign roles.
+// - If none exist, allow the first authenticated user to self-assign super_admin.
 // - CORS is restricted to localhost (dev) and explicit origins
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
@@ -63,11 +63,11 @@ serve(async (req) => {
     // Service role client for privileged DB access
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // Check if any admin already exists
-    const { count: adminCount, error: countError } = await adminClient
+    // Check if any super admin already exists
+    const { count: superAdminCount, error: countError } = await adminClient
       .from("user_roles")
       .select("id", { count: "exact", head: true })
-      .eq("role", "admin");
+      .eq("role", "super_admin");
 
     if (countError) throw countError;
 
@@ -76,7 +76,7 @@ serve(async (req) => {
     // If client is just checking if signup is available, return status
     if (body.check_signup_enabled) {
       return new Response(JSON.stringify({
-        signup_enabled: (adminCount ?? 0) === 0
+        signup_enabled: (superAdminCount ?? 0) === 0
       } satisfies Json), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -117,8 +117,8 @@ serve(async (req) => {
       });
     }
 
-    // If no admins exist, only allow caller to assign themselves
-    if ((adminCount ?? 0) === 0) {
+    // If no super admins exist, only allow caller to assign themselves.
+    if ((superAdminCount ?? 0) === 0) {
       if (requestedUserId !== callerUserId) {
         return new Response(JSON.stringify({ error: "Forbidden" }), {
           status: 403,
@@ -126,12 +126,12 @@ serve(async (req) => {
         });
       }
     } else {
-      // If admins exist, require caller is admin
+      // If a super admin already exists, require caller is super_admin.
       const { data: callerRole, error: callerRoleError } = await adminClient
         .from("user_roles")
         .select("role")
         .eq("user_id", callerUserId)
-        .eq("role", "admin")
+        .eq("role", "super_admin")
         .maybeSingle();
 
       if (callerRoleError || !callerRole) {
@@ -142,14 +142,14 @@ serve(async (req) => {
       }
     }
 
-    // Upsert admin role for requested user
+    // Upsert super_admin role for requested user.
     const { error: upsertError } = await adminClient
       .from("user_roles")
-      .upsert({ user_id: requestedUserId, role: "admin" }, { onConflict: "user_id,role" });
+      .upsert({ user_id: requestedUserId, role: "super_admin" }, { onConflict: "user_id" });
 
     if (upsertError) throw upsertError;
 
-    console.log(`Admin role assigned to user ${requestedUserId}`);
+    console.log(`Super admin role assigned to user ${requestedUserId}`);
 
     return new Response(JSON.stringify({ ok: true } satisfies Json), {
       status: 200,

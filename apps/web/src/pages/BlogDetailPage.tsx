@@ -22,7 +22,7 @@ import {
 } from "@/hooks/useBlogTracking";
 
 /* ─── Style constants ─── */
-const GOLD = "#C6A15B";
+const CRIMSON = "#C41230";
 
 // Clean up HTML entities and repeating brand names
 const cleanTitle = (title: string) => {
@@ -75,7 +75,7 @@ const ReadingProgressBar = () => {
         <div className="fixed top-0 left-0 right-0 z-[60] h-[3px]" style={{ background: "#111" }}>
             <motion.div
                 className="h-full"
-                style={{ background: `linear-gradient(90deg, ${GOLD}, #E8D5A3)`, width: `${progress}%` }}
+                style={{ background: `linear-gradient(90deg, ${CRIMSON}, #9C0E26)`, width: `${progress}%` }}
                 transition={{ duration: 0.1 }}
             />
         </div>
@@ -182,7 +182,7 @@ const BlogDetailPage = () => {
                 <div className="flex-1 flex flex-col items-center justify-center p-4">
                     <h1 className="text-3xl font-serif font-bold mb-4 text-white">Article not found</h1>
                     <p className="mb-8" style={{ color: "#888" }}>The article you're looking for doesn't exist.</p>
-                    <Button asChild style={{ background: GOLD, color: "#000" }}>
+                    <Button asChild style={{ background: CRIMSON, color: "#fff" }}>
                         <Link to="/blog">Back to Articles</Link>
                     </Button>
                 </div>
@@ -218,7 +218,7 @@ const BlogDetailPage = () => {
                             {post.category && (
                                 <span
                                     className="inline-block text-[11px] font-bold uppercase tracking-[0.2em] mb-6"
-                                    style={{ color: "#4ade80" }} // Green accent from reference image
+                                    style={{ color: CRIMSON }} 
                                 >
                                     {post.category}
                                 </span>
@@ -252,7 +252,7 @@ const BlogDetailPage = () => {
                                 <img
                                     src={post.cover_image}
                                     alt={post.title}
-                                    className="w-full h-full object-cover transition-transform hover:scale-105 duration-[1s]"
+                                    className="w-full h-full object-cover transition-transform hover:scale-105 duration-1000"
                                     loading="eager"
                                 />
                             </div>
@@ -264,7 +264,7 @@ const BlogDetailPage = () => {
 
                         {/* Excerpt Lead */}
                         {post.excerpt && (
-                            <p className="text-xl md:text-2xl leading-relaxed text-center mb-16 font-serif italic" style={{ color: GOLD }}>
+                            <p className="text-xl md:text-2xl leading-relaxed text-center mb-16 font-serif italic" style={{ color: CRIMSON }}>
                                 "{post.excerpt}"
                             </p>
                         )}
@@ -318,7 +318,7 @@ const BlogDetailPage = () => {
                                 Partner with CrossAngle Interior to bring exceptional design intelligence to your next project.
                             </p>
                             <Link to="/contact-us" onClick={handleCtaClick}>
-                                <Button className="px-10 py-6 text-sm font-bold uppercase tracking-widest rounded-none transition-all duration-300 hover:scale-105" style={{ background: GOLD, color: "#000" }}>
+                                <Button className="px-10 py-6 text-sm font-bold uppercase tracking-widest rounded-none transition-all duration-300 hover:scale-105" style={{ background: CRIMSON, color: "#fff" }}>
                                     Request Consultation
                                 </Button>
                             </Link>
@@ -337,8 +337,8 @@ const BlogDetailPage = () => {
                                                 <img src={rp.cover_image || "/placeholder.svg"} alt={rp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100" loading="lazy" />
                                             </div>
                                             <div className="text-center px-4">
-                                                <span className="text-[10px] font-bold uppercase tracking-[0.15em] block mb-3" style={{ color: "#4ade80" }}>{rp.category || "Design"}</span>
-                                                <h3 className="text-base font-serif font-semibold text-white line-clamp-3 group-hover:text-[#C6A15B] transition-colors leading-snug">
+                                                <span className="text-[10px] font-bold uppercase tracking-[0.15em] block mb-3" style={{ color: CRIMSON }}>{rp.category || "Design"}</span>
+                                                <h3 className="text-base font-serif font-semibold text-white line-clamp-3 group-hover:text-[#C41230] transition-colors leading-snug">
                                                     {rp.title}
                                                 </h3>
                                             </div>

@@ -46,7 +46,7 @@ export interface DiscoveryConfig {
     availableModes?: ("quick" | "deep" | "both")[];
 }
 
-export interface DiscoveryEngineProps {
+interface DiscoveryEngineProps {
     config?: DiscoveryConfig;
     onComplete?: (result: { scores: AestheticScores; signals: UserSignals; aiResult?: AIAestheticResult | null }) => void;
 }
