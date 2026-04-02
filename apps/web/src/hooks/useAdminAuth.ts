@@ -1,17 +1,27 @@
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useNavigate } from "react-router-dom";
 
 export const useAdminAuth = () => {
-  const { user, loading, signOut, role, isAdmin, isEditor, isViewer } = useAuth();
-  const navigate = useNavigate();
+  const { user, loading, signOut, role, isAdmin, isEditor, isViewer } =
+    useAuth();
 
   const isAuthenticated = !!user;
   const isLoading = loading;
+  const isSuperAdmin = role === 'super_admin';
 
   const logout = async () => {
     await signOut();
-    navigate("/admin/auth?signed-out=true");
+    window.location.replace("/admin/auth?signed-out=true");
   };
 
-  return { isAuthenticated, isLoading, logout, user, role, isAdmin, isEditor, isViewer };
+  return {
+    isAuthenticated,
+    isLoading,
+    logout,
+    user,
+    role,
+    isAdmin,
+    isEditor,
+    isViewer,
+    isSuperAdmin,
+  };
 };

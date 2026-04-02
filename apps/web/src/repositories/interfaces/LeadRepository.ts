@@ -1,15 +1,15 @@
 export interface LeadPayload {
     name: string;
     email: string;
-    phone?: string;
-    message?: string;
-    source?: string;
-    category?: string;
-    city?: string;
-    budget?: string;
-    notes?: string;
-    lead_source?: string; // Legacy/Mapping support
-    lead_type?: string;   // Legacy/Mapping support
+    phone?: string | null;
+    message?: string | null;
+    source?: string | null;
+    category?: string | null;
+    city?: string | null;
+    budget?: string | null;
+    notes?: string | null;
+    lead_source?: string | null;
+    lead_type?: string | null;
 }
 
 export interface Lead extends LeadPayload {
@@ -18,6 +18,13 @@ export interface Lead extends LeadPayload {
     score?: number;
     created_at: string;
     updated_at?: string;
+    assigned_to?: string | null;
+    lead_source?: string | null;
+    lead_type?: string | null;
+    service?: string | null;
+    source_url?: string | null;
+    internal_notes?: unknown | null;
+    score_details?: unknown | null;
 }
 
 export interface LeadRepository {
