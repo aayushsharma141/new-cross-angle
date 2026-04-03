@@ -91,10 +91,10 @@ interface MetricCardProps {
 }
 
 const colorStyles = {
-  primary: 'text-primary bg-primary/10',
-  success: 'text-emerald-500 bg-emerald-500/10',
-  warning: 'text-amber-500 bg-amber-500/10',
-  danger: 'text-red-500 bg-red-500/10',
+  primary: 'text-[hsl(var(--admin-primary))] bg-[hsl(var(--admin-primary-muted))]',
+  success: 'text-[hsl(var(--admin-success))] bg-[hsl(var(--admin-success-muted))]',
+  warning: 'text-[hsl(var(--admin-warning))] bg-[hsl(var(--admin-warning-muted))]',
+  danger: 'text-[hsl(var(--admin-danger))] bg-[hsl(var(--admin-danger-muted))]',
 };
 
 export function MetricCard({
@@ -124,14 +124,14 @@ export function MetricCard({
       </div>
       {progress !== undefined && (
         <div className="mt-3">
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-[hsl(var(--admin-surface))]">
             <div
               className={cn(
                 'h-full transition-all',
-                color === 'primary' && 'bg-primary',
-                color === 'success' && 'bg-emerald-500',
-                color === 'warning' && 'bg-amber-500',
-                color === 'danger' && 'bg-red-500'
+                color === 'primary' && 'bg-[hsl(var(--admin-primary))]',
+                color === 'success' && 'bg-[hsl(var(--admin-success))]',
+                color === 'warning' && 'bg-[hsl(var(--admin-warning))]',
+                color === 'danger' && 'bg-[hsl(var(--admin-danger))]'
               )}
               style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
             />
@@ -179,7 +179,7 @@ export function ConversionFunnel({ stages, className }: ConversionFunnelProps) {
                   {stage.count.toLocaleString()}
                 </span>
                 {index > 0 && (
-                  <span className="flex items-center text-xs text-emerald-500">
+                  <span className="flex items-center text-xs text-[hsl(var(--admin-success))]">
                     <ArrowUpRight className="h-3 w-3" />
                     {conversionRate}%
                   </span>
@@ -213,14 +213,14 @@ export function TrendIndicator({ value, label, className }: TrendIndicatorProps)
     <div className={cn('flex items-center gap-1', className)}>
       {isPositive && (
         <>
-          <ArrowUpRight className="h-4 w-4 text-emerald-500" />
-          <span className="text-sm font-medium text-emerald-500">+{value}%</span>
+          <ArrowUpRight className="h-4 w-4 text-[hsl(var(--admin-success))]" />
+          <span className="text-sm font-medium text-[hsl(var(--admin-success))]">+{value}%</span>
         </>
       )}
       {isNegative && (
         <>
-          <ArrowDownRight className="h-4 w-4 text-red-500" />
-          <span className="text-sm font-medium text-red-500">{value}%</span>
+          <ArrowDownRight className="h-4 w-4 text-[hsl(var(--admin-danger))]" />
+          <span className="text-sm font-medium text-[hsl(var(--admin-danger))]">{value}%</span>
         </>
       )}
       {!isPositive && !isNegative && (

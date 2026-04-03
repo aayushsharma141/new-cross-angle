@@ -26,9 +26,9 @@ export function AdminKPI({
     isLoading = false
 }: AdminKPIProps) {
     const variants = {
-        gold: "text-admin-gold bg-admin-gold/10 border-admin-gold/20",
-        secondary: "text-blue-400 bg-blue-400/10 border-blue-400/20",
-        accent: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
+        gold: "text-[hsl(var(--admin-primary))] bg-[hsl(var(--admin-primary-muted))] border-[hsl(var(--admin-primary))]/20",
+        secondary: "text-[hsl(var(--admin-info))] bg-[hsl(var(--admin-info-muted))] border-[hsl(var(--admin-info))]/20",
+        accent: "text-[hsl(var(--admin-success))] bg-[hsl(var(--admin-success-muted))] border-[hsl(var(--admin-success))]/20",
     };
 
     const spotlightColors = {
@@ -71,8 +71,8 @@ export function AdminKPI({
                                 <span
                                     className={cn(
                                         "text-xs font-medium px-1.5 py-0.5 rounded",
-                                        trend === "up" ? "text-emerald-400 bg-emerald-400/10" :
-                                            trend === "down" ? "text-rose-400 bg-rose-400/10" : "text-admin-muted"
+                                        trend === "up" ? "text-[hsl(var(--admin-success))] bg-[hsl(var(--admin-success-muted))]" :
+                                            trend === "down" ? "text-[hsl(var(--admin-danger))] bg-[hsl(var(--admin-danger-muted))]" : "text-admin-muted"
                                     )}
                                 >
                                     {change}

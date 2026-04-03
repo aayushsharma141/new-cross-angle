@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Admin Theme - Dark Luxury */
+    --admin-bg: 220 25% 5%;
+    --admin-surface: 220 20% 10%;
+    --admin-surface-hover: 220 20% 14%;
+    --admin-card: 220 18% 8%;
+    --admin-border: 220 15% 18%;
+    --admin-border-subtle: 220 15% 14%;
+    
+    --admin-text: 220 14% 96%;
+    --admin-text-muted: 220 10% 60%;
+    --admin-text-subtle: 220 8% 45%;
+    
+    --admin-primary: 38 92% 50%;
+    --admin-primary-hover: 38 92% 45%;
+    --admin-primary-muted: 38 92% 50% / 10%;
+    
+    --admin-success: 142 71% 45%;
+    --admin-success-muted: 142 71% 45% / 10%;
+    --admin-warning: 38 92% 50%;
+    --admin-warning-muted: 38 92% 50% / 10%;
+    --admin-danger: 0 84% 60%;
+    --admin-danger-muted: 0 84% 60% / 10%;
+    --admin-info: 199 89% 48%;
+    --admin-info-muted: 199 89% 48% / 10%;
+    
+    --admin-radius: 0.75rem;
+    --admin-radius-sm: 0.5rem;
+    --admin-radius-lg: 1rem;
+  }
+}
+
+@layer components {
+  /* Admin Layout */
+  .admin-theme {
+    @apply bg-[hsl(var(--admin-bg))] text-[hsl(var(--admin-text))] min-h-screen;
+  }
+  
+  /* Admin Card - Consistent styling */
+  .admin-card {
+    @apply rounded-xl border bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] backdrop-blur-sm;
+  }
+  
+  .admin-card-hover {
+    @apply admin-card transition-colors hover:bg-[hsl(var(--admin-surface-hover))];
+  }
+  
+  /* Admin Surface - Elevated surfaces */
+  .admin-surface {
+    @apply bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border))];
+  }
+  
+  /* Admin Input */
+  .admin-input {
+    @apply flex h-10 w-full rounded-lg border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] px-3 py-2 text-sm text-[hsl(var(--admin-text))] placeholder:text-[hsl(var(--admin-text-subtle))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-primary))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-bg))] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  
+  /* Admin Button - Primary */
+  .admin-btn-primary {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-[hsl(var(--admin-primary))] px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-[hsl(var(--admin-primary-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-primary))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-bg))] disabled:pointer-events-none disabled:opacity-50;
+  }
+  
+  /* Admin Button - Secondary */
+  .admin-btn-secondary {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-lg border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] px-4 py-2 text-sm font-medium text-[hsl(var(--admin-text))] transition-colors hover:bg-[hsl(var(--admin-surface-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-border))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-bg))] disabled:pointer-events-none disabled:opacity-50;
+  }
+  
+  /* Admin Button - Ghost */
+  .admin-btn-ghost {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium text-[hsl(var(--admin-text-muted))] transition-colors hover:bg-[hsl(var(--admin-surface))] hover:text-[hsl(var(--admin-text))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-border))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-bg))] disabled:pointer-events-none disabled:opacity-50;
+  }
+  
+  /* Admin Button - Danger */
+  .admin-btn-danger {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-[hsl(var(--admin-danger))] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[hsl(var(--admin-danger))] / 90% focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-danger))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-bg))] disabled:pointer-events-none disabled:opacity-50;
+  }
+  
+  /* Admin Badge */
+  .admin-badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  
+  /* Admin Table */
+  .admin-table-container {
+    @apply admin-card overflow-hidden;
+  }
+  
+  .admin-table {
+    @apply w-full text-sm;
+  }
+  
+  .admin-table-header {
+    @apply bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border))];
+  }
+  
+  .admin-table-header-cell {
+    @apply px-4 py-3 text-left text-xs font-medium text-[hsl(var(--admin-text-muted))] uppercase tracking-wider;
+  }
+  
+  .admin-table-row {
+    @apply border-b border-[hsl(var(--admin-border-subtle))] transition-colors hover:bg-[hsl(var(--admin-surface))] / 50;
+  }
+  
+  .admin-table-cell {
+    @apply px-4 py-3 text-[hsl(var(--admin-text))];
+  }
+  
+  /* Admin Typography */
+  .admin-title {
+    @apply text-3xl font-serif font-bold tracking-tight text-[hsl(var(--admin-text))];
+  }
+  
+  .admin-subtitle {
+    @apply text-sm text-[hsl(var(--admin-text-muted))];
+  }
+  
+  /* Admin Status Colors */
+  .admin-status-success {
+    @apply bg-[hsl(var(--admin-success-muted))] text-[hsl(var(--admin-success))] border border-[hsl(var(--admin-success))] / 20;
+  }
+  
+  .admin-status-warning {
+    @apply bg-[hsl(var(--admin-warning-muted))] text-[hsl(var(--admin-warning))] border border-[hsl(var(--admin-warning))] / 20;
+  }
+  
+  .admin-status-danger {
+    @apply bg-[hsl(var(--admin-danger-muted))] text-[hsl(var(--admin-danger))] border border-[hsl(var(--admin-danger))] / 20;
+  }
+  
+  .admin-status-info {
+    @apply bg-[hsl(var(--admin-info-muted))] text-[hsl(var(--admin-info))] border border-[hsl(var(--admin-info))] / 20;
+  }
+  
+  .admin-status-neutral {
+    @apply bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-muted))] border border-[hsl(var(--admin-border))];
+  }
+}
+
+@layer utilities {
+  /* Admin glass effect */
+  .admin-glass {
+    @apply bg-[hsl(var(--admin-card))] / 80 backdrop-blur-xl border border-[hsl(var(--admin-border))] / 50;
+  }
+  
+  /* Admin glow effect */
+  .admin-glow {
+    box-shadow: 0 0 20px -5px hsl(var(--admin-primary) / 0.3);
+  }
+  
+  /* Admin gradient text */
+  .admin-gradient-text {
+    @apply bg-gradient-to-r from-[hsl(var(--admin-primary))] to-[hsl(var(--admin-warning))] bg-clip-text text-transparent;
+  }
+
+  /* Admin Chart Colors - Sequential palette for data visualization */
+  .admin-chart-1 { color: hsl(var(--admin-primary)); }
+  .admin-chart-2 { color: hsl(var(--admin-info)); }
+  .admin-chart-3 { color: hsl(var(--admin-success)); }
+  .admin-chart-4 { color: hsl(var(--admin-warning)); }
+  .admin-chart-5 { color: hsl(var(--admin-danger)); }
+  .admin-chart-6 { color: hsl(270 60% 60%); }
+  .admin-chart-7 { color: hsl(180 60% 50%); }
+  .admin-chart-8 { color: hsl(330 70% 55%); }
+}

@@ -5,9 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const STATUS_COLORS: Record<string, string> = {
-    draft: "hsl(var(--admin-muted))",
-    live: "hsl(var(--brand-secondary))",
-    archived: "hsl(var(--brand-primary))",
+    draft: "hsl(var(--admin-text-subtle))",
+    live: "hsl(var(--admin-success))",
+    archived: "hsl(var(--admin-primary))",
 };
 
 export function ProjectPipelineChart() {

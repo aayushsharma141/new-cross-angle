@@ -6,12 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 const FUNNEL_ORDER = ["new", "contacted", "qualified", "proposal", "won", "lost"];
 const FUNNEL_COLORS: Record<string, string> = {
-    new: "hsl(var(--admin-info, 210 100% 56%))",
-    contacted: "hsl(var(--brand-secondary))",
-    qualified: "#22c55e",
-    proposal: "#f59e0b",
-    won: "hsl(var(--admin-success, 142 76% 36%))",
-    lost: "hsl(var(--admin-danger, 0 72% 51%))",
+    new: "hsl(var(--admin-info))",
+    contacted: "hsl(var(--admin-primary))",
+    qualified: "hsl(var(--admin-success))",
+    proposal: "hsl(var(--admin-warning))",
+    won: "hsl(142 71% 45%)",
+    lost: "hsl(var(--admin-danger))",
 };
 
 export function LeadFunnelChart() {

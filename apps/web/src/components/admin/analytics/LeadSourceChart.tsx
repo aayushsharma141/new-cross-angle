@@ -5,15 +5,15 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const SOURCE_COLORS: Record<string, string> = {
-    website_contact: "hsl(var(--brand-secondary))",
-    estimator: "hsl(var(--brand-primary))",
-    style_quiz: "#22c55e",
-    welcome_popup: "#8b5cf6",
-    discovery_engine: "#f43f5e",
-    whatsapp: "#25D366",
-    instagram: "#E1306C",
-    referral: "#f59e0b",
-    other: "hsl(var(--admin-muted))",
+    website_contact: "hsl(var(--admin-primary))",
+    estimator: "hsl(var(--admin-info))",
+    style_quiz: "hsl(var(--admin-success))",
+    welcome_popup: "hsl(270 60% 60%)",
+    discovery_engine: "hsl(var(--admin-danger))",
+    whatsapp: "hsl(145 63% 42%)",
+    instagram: "hsl(330 70% 55%)",
+    referral: "hsl(var(--admin-warning))",
+    other: "hsl(var(--admin-text-subtle))",
 };
 
 const SOURCE_LABELS: Record<string, string> = {

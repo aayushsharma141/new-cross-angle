@@ -129,22 +129,22 @@ const AdminDashboard = (): JSX.Element => {
 
       const leads = leadsRes.data || [];
       const totalLeads = leadsRes.count || 0;
-      const wonLeads = leads.filter((lead) => lead.status === "won").length;
+      const wonLeads = leads.filter((lead: Record<string, unknown>) => lead.status === "won").length;
       const conversionRate = totalLeads > 0 ? Math.round((wonLeads / totalLeads) * 100) : 0;
 
       const ratings = (testimonialsRes.data || [])
-        .map((testimonial) => testimonial.rating)
-        .filter((rating): rating is number => typeof rating === "number");
+        .map((testimonial: Record<string, unknown>) => testimonial.rating)
+        .filter((rating: unknown): rating is number => typeof rating === "number");
       const avgRating = ratings.length > 0
-        ? (ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length).toFixed(1)
+        ? (ratings.reduce((sum: number, rating: number) => sum + rating, 0) / ratings.length).toFixed(1)
         : "—";
 
       const estimates = estimateRes.data || [];
       const avgEstimate = estimates.length > 0
-        ? Math.round(estimates.reduce((sum, estimate) => sum + (estimate.estimate_total_min || 0), 0) / estimates.length)
+        ? Math.round(estimates.reduce((sum: number, estimate: Record<string, unknown>) => sum + (Number(estimate.estimate_total_min) || 0), 0) / estimates.length)
         : 0;
 
-      const mediaBytes = (mediaRes.data || []).reduce((sum, file) => sum + (file.size_bytes || 0), 0);
+      const mediaBytes = (mediaRes.data || []).reduce((sum: number, file: Record<string, unknown>) => sum + (Number(file.size_bytes) || 0), 0);
 
       return {
         leads: totalLeads,
@@ -207,7 +207,7 @@ const AdminDashboard = (): JSX.Element => {
   ];
 
   const fmt = (value: number | string | undefined | null): string =>
-    value === undefined || value === null ? "…" : value.toLocaleString();
+    value === undefined || value === null ? "..." : value.toLocaleString();
 
   const changeTab = (tab: TabType): void => {
     const nextParams = new URLSearchParams(searchParams);
@@ -226,8 +226,8 @@ const AdminDashboard = (): JSX.Element => {
       <div className="flex flex-col gap-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h2 className="text-4xl font-serif text-white tracking-tight">Intelligence Hub</h2>
-            <p className="text-zinc-500 font-sans mt-1">CrossAngle Production Operational Control Tower</p>
+            <h2 className="text-4xl font-serif text-[hsl(var(--admin-text))] tracking-tight">Dashboard</h2>
+            <p className="text-[hsl(var(--admin-text-muted))] font-sans mt-1">CrossAngle Interior Business Analytics</p>
           </div>
           <div className="flex items-center gap-3">
             <CalendarDateRangePicker date={date} setDate={setDate} />
@@ -235,7 +235,7 @@ const AdminDashboard = (): JSX.Element => {
               variant="outline"
               size="sm"
               onClick={handleDownloadReport}
-              className="bg-zinc-900/50 border-zinc-800 text-zinc-300 hover:text-white transition-all px-4"
+              className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))] hover:text-[hsl(var(--admin-text))] hover:bg-[hsl(var(--admin-surface-hover))] transition-all px-4"
             >
               <Download className="w-4 h-4 mr-2" />
               Export Data
@@ -243,7 +243,7 @@ const AdminDashboard = (): JSX.Element => {
           </div>
         </div>
 
-        <div className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/50 p-1.5 rounded-2xl flex flex-wrap gap-2 w-fit">
+        <div className="bg-[hsl(var(--admin-surface))] backdrop-blur-xl border border-[hsl(var(--admin-border))] p-1.5 rounded-2xl flex flex-wrap gap-2 w-fit">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -251,15 +251,15 @@ const AdminDashboard = (): JSX.Element => {
                 key={tab.id}
                 type="button"
                 onClick={() => changeTab(tab.id)}
-                aria-pressed={activeTab === tab.id}
+                aria-current={activeTab === tab.id ? "page" : undefined}
                 className={cn(
                   "px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2.5 group",
                   activeTab === tab.id
-                    ? "bg-primary text-white shadow-[0_0_20px_rgba(124,58,237,0.3)]"
-                    : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
+                    ? "bg-[hsl(var(--admin-primary))] text-black shadow-[0_0_20px_hsl(var(--admin-primary)/0.3)]"
+                    : "text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] hover:bg-[hsl(var(--admin-surface-hover))]"
                 )}
               >
-                <Icon className={cn("w-3.5 h-3.5", activeTab === tab.id ? "text-white" : "text-zinc-600 group-hover:text-zinc-400")} />
+                <Icon className={cn("w-3.5 h-3.5", activeTab === tab.id ? "text-black" : "text-[hsl(var(--admin-text-subtle))] group-hover:text-[hsl(var(--admin-text-muted))]")} />
                 {tab.label}
               </button>
             );
@@ -332,10 +332,10 @@ const AdminDashboard = (): JSX.Element => {
                   isLoading={statsLoading}
                 />
               </div>
-              <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-8 flex flex-col items-center justify-center text-center h-[400px]">
-                <Globe className="w-12 h-12 text-primary/20 mb-4" />
-                <h3 className="text-xl font-serif text-white">Traffic Map Unavailable</h3>
-                <p className="text-zinc-500 text-sm max-w-xs mt-2">
+              <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-2xl p-8 flex flex-col items-center justify-center text-center h-[400px]">
+                <Globe className="w-12 h-12 text-[hsl(var(--admin-primary))]/20 mb-4" />
+                <h3 className="text-xl font-serif text-[hsl(var(--admin-text))]">Traffic Map Unavailable</h3>
+                <p className="text-[hsl(var(--admin-text-muted))] text-sm max-w-xs mt-2">
                   Website event tracking is live, but location analytics has not been instrumented yet.
                 </p>
               </div>
@@ -365,8 +365,8 @@ const AdminDashboard = (): JSX.Element => {
                   isLoading={statsLoading}
                 />
               </div>
-              <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-6">
-                <h3 className="text-lg font-serif text-white mb-6">Lead Journey Performance</h3>
+              <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-2xl p-6">
+                <h3 className="text-lg font-serif text-[hsl(var(--admin-text))] mb-6">Lead Journey Performance</h3>
                 <LeadFunnelChart />
               </div>
             </div>
@@ -392,8 +392,8 @@ const AdminDashboard = (): JSX.Element => {
                   variant="gold"
                 />
               </div>
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 overflow-hidden">
-                <h3 className="text-lg font-serif text-white mb-4">Infrastructure Logs</h3>
+              <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6 overflow-hidden">
+                <h3 className="text-lg font-serif text-[hsl(var(--admin-text))] mb-4">Infrastructure Logs</h3>
                 <RecentActivityFeed dateRange={date} />
               </div>
             </div>
@@ -430,8 +430,8 @@ const AdminDashboard = (): JSX.Element => {
                   variant="accent"
                 />
               </div>
-              <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-6">
-                <h3 className="text-lg font-serif text-white mb-4">Admin Audit Trail</h3>
+              <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-2xl p-6">
+                <h3 className="text-lg font-serif text-[hsl(var(--admin-text))] mb-4">Admin Audit Trail</h3>
                 <RecentActivityFeed dateRange={date} />
               </div>
             </div>
@@ -439,38 +439,38 @@ const AdminDashboard = (): JSX.Element => {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/50 rounded-2xl p-6">
-            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-5">Quick Actions</h3>
+          <div className="bg-[hsl(var(--admin-card))] backdrop-blur-xl border border-[hsl(var(--admin-border))] rounded-2xl p-6">
+            <h3 className="text-xs font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-widest mb-5">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-2.5">
-              <QuickActionButton icon={Plus} label="New Lead" href="/admin/crm/leads" gradient="bg-zinc-800/50 border-zinc-700/50 hover:border-primary/50" />
-              <QuickActionButton icon={Package} label="CMS Build" href="/admin/cms/portfolio" gradient="bg-zinc-800/50 border-zinc-700/50 hover:border-primary/50" />
-              <QuickActionButton icon={Send} label="Outreach" href="/admin/discovery/analytics" gradient="bg-zinc-800/50 border-zinc-700/50 hover:border-primary/50" />
-              <QuickActionButton icon={Layers} label="Resources" href="/admin/cms/media" gradient="bg-zinc-800/50 border-zinc-700/50 hover:border-primary/50" />
+              <QuickActionButton icon={Plus} label="New Lead" href="/admin/crm/leads" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
+              <QuickActionButton icon={Package} label="CMS Build" href="/admin/cms/portfolio" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
+              <QuickActionButton icon={Send} label="Outreach" href="/admin/discovery/analytics" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
+              <QuickActionButton icon={Layers} label="Resources" href="/admin/cms/media" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
             </div>
           </div>
 
-          <div className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/50 rounded-2xl p-6">
-            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-5">System Health</h3>
+          <div className="bg-[hsl(var(--admin-card))] backdrop-blur-xl border border-[hsl(var(--admin-border))] rounded-2xl p-6">
+            <h3 className="text-xs font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-widest mb-5">System Health</h3>
             <div className="space-y-4">
               {[
                 {
                   name: "Database Cluster",
                   status: health.database === "connected" ? "Connected" : "Disconnected",
-                  color: health.database === "connected" ? "text-emerald-500" : "text-rose-500",
+                  color: health.database === "connected" ? "text-[hsl(var(--admin-success))]" : "text-[hsl(var(--admin-danger))]",
                 },
                 {
                   name: "Supabase API",
                   status: health.api === "online" ? "Online" : "Offline",
-                  color: health.api === "online" ? "text-emerald-500" : "text-rose-500",
+                  color: health.api === "online" ? "text-[hsl(var(--admin-success))]" : "text-[hsl(var(--admin-danger))]",
                 },
                 {
                   name: "Media Storage",
                   status: health.storage === "available" ? "Available" : health.storage === "full" ? "Near Capacity" : "Error",
-                  color: health.storage === "available" ? "text-emerald-500" : health.storage === "full" ? "text-amber-500" : "text-rose-500",
+                  color: health.storage === "available" ? "text-[hsl(var(--admin-success))]" : health.storage === "full" ? "text-[hsl(var(--admin-warning))]" : "text-[hsl(var(--admin-danger))]",
                 },
               ].map((item) => (
                 <div key={item.name} className="flex justify-between items-center text-[13px]">
-                  <span className="text-zinc-400 font-sans">{item.name}</span>
+                  <span className="text-[hsl(var(--admin-text-muted))] font-sans">{item.name}</span>
                   <span className={cn("font-bold flex items-center gap-1.5", item.color)}>
                     <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
                     {item.status}
@@ -480,12 +480,12 @@ const AdminDashboard = (): JSX.Element => {
             </div>
           </div>
 
-          <Link to="/admin/discovery/analytics" className="block bg-primary/5 border border-primary/20 rounded-2xl p-6 group hover:bg-primary/10 transition-all">
-            <h3 className="text-sm font-bold text-primary flex items-center justify-between mb-2">
+          <Link to="/admin/discovery/analytics" className="block bg-[hsl(var(--admin-primary))]/5 border border-[hsl(var(--admin-primary))]/20 rounded-2xl p-6 group hover:bg-[hsl(var(--admin-primary))]/10 transition-all">
+            <h3 className="text-sm font-bold text-[hsl(var(--admin-primary))] flex items-center justify-between mb-2">
               System Optimization
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </h3>
-            <p className="text-zinc-500 text-xs leading-relaxed">
+            <p className="text-[hsl(var(--admin-text-muted))] text-xs leading-relaxed">
               New lead patterns detected from Discovery Engine. Review intent analytics to optimize conversion.
             </p>
           </Link>
