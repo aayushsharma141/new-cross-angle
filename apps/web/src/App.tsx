@@ -1,5 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import {
   BrowserRouter,
   Navigate,
@@ -417,6 +418,7 @@ const App = () => {
                               <AnimatedRoutes />
                             </BrowserRouter>
                           </ErrorBoundary>
+                          <SpeedInsights />
       </SmoothScroll>
     </CoreProviders>
   );
