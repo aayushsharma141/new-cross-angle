@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Deno.serve is the native Supabase Edge Function entrypoint - no std/http import needed
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   buildCorsHeaders,
@@ -12,6 +12,7 @@ import {
   checkIdempotency,
   structuredLog,
   signWebhookPayload,
+  getRequestId,
 } from "../_lib/security.ts";
 
 const FN = "process-lead";
@@ -52,11 +53,14 @@ function sanitizeString(str: string | undefined): string {
   return str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '').trim();
 }
 
-async function syncToGoogleSheets(lead: { name: string; email: string; phone?: string; message?: string; category?: string }) {
+async function syncToGoogleSheets(
+  lead: { name: string; email: string; phone?: string; message?: string; category?: string },
+  requestId: string
+) {
   const webhookUrl = Deno.env.get("GOOGLE_SHEETS_WEBHOOK_URL");
 
   if (!webhookUrl) {
-    console.log("Google Sheets webhook not configured, skipping sync");
+    structuredLog("info", FN, "Google Sheets webhook not configured, skipping sync", {}, requestId);
     return;
   }
 
@@ -84,23 +88,25 @@ async function syncToGoogleSheets(lead: { name: string; email: string; phone?: s
     });
 
     if (!response.ok) {
-      console.error("Google Sheets webhook error:", await response.text());
+      structuredLog("error", FN, "Google Sheets webhook error", { status: response.status, body: await response.text() }, requestId);
     } else {
-      console.log("Lead synced to Google Sheets successfully");
+      structuredLog("info", FN, "Lead synced to Google Sheets successfully", {}, requestId);
     }
   } catch (error) {
-    console.error("Error syncing to Google Sheets:", error);
+    structuredLog("error", FN, "Error syncing to Google Sheets", { error: String(error) }, requestId);
   }
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   const preflight = handlePreflight(req);
   if (preflight) return preflight;
+
+  const requestId = getRequestId(req);
 
   // KV-backed rate limit (email not yet available, use IP at entry)
   const clientId = getClientId(req);
   const rl = await checkRateLimit(req, clientId, RATE_OPTS);
-  if (rl.limited) return rateLimitResponse(req, rl);
+  if (rl.limited) return rateLimitResponse(req, rl, {}, FN, requestId);
 
   try {
     const corsHeaders = buildCorsHeaders(req);
@@ -108,68 +114,44 @@ serve(async (req) => {
     try {
       body = await req.json();
     } catch {
-      console.error("Invalid JSON in request body");
-      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return badRequestResponse(req, "Invalid JSON", {}, requestId);
     }
 
     const { name, email, phone, message, category } = body;
 
     // Validate required fields
     if (!email || !isValidEmail(email)) {
-      console.error("Invalid email provided:", email);
-      return new Response(JSON.stringify({ error: "Invalid email address" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return badRequestResponse(req, "Invalid email address", {}, requestId);
     }
 
     if (!name || !isValidName(name)) {
-      console.error("Invalid name provided");
-      return new Response(JSON.stringify({ error: "Name is required and must be under 100 characters" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return badRequestResponse(req, "Name is required and must be under 100 characters", {}, requestId);
     }
 
     if (!isValidPhone(phone)) {
-      console.error("Invalid phone format");
-      return new Response(JSON.stringify({ error: "Invalid phone number format" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return badRequestResponse(req, "Invalid phone number format", {}, requestId);
     }
 
     if (!isValidMessage(message)) {
-      console.error("Message too long");
-      return new Response(JSON.stringify({ error: "Message must be under 5000 characters" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return badRequestResponse(req, "Message must be under 5000 characters", {}, requestId);
     }
 
     if (!isValidCategory(category)) {
-      console.error("Invalid category");
-      return new Response(JSON.stringify({ error: "Invalid category" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return badRequestResponse(req, "Invalid category", {}, requestId);
     }
 
     // Rate limiting check (per IP already done above, this is belt-and-suspenders per email)
     const emailId = getClientId(req, undefined) + `:${email}`;
     const rlEmail = await checkRateLimit(req, emailId, { ...RATE_OPTS, bucket: "process-lead-email" });
-    if (rlEmail.limited) return rateLimitResponse(req, rlEmail);
+    if (rlEmail.limited) return rateLimitResponse(req, rlEmail, {}, FN, requestId);
 
     // Idempotency: prevent duplicate inserts from double-clicks / retries.
     // Key = email + sanitized name + category (stable for same submission).
     const idemKey = `${email}:${name?.trim().toLowerCase()}:${category ?? "other"}`;
     const idem = await checkIdempotency(idemKey, "process-lead");
     if (idem.duplicate) {
-      structuredLog("info", FN, "Duplicate submission blocked", { email });
-      return okResponse(req, { success: true, deduplicated: true }, {}, rl, RATE_OPTS.max);
+      structuredLog("info", FN, "Duplicate submission blocked", { email }, requestId);
+      return okResponse(req, { success: true, deduplicated: true }, {}, rl, RATE_OPTS.max, requestId);
     }
 
     // Sanitize inputs
@@ -185,7 +167,7 @@ serve(async (req) => {
       phone: sanitizedPhone,
       message: sanitizedMessage,
       category
-    });
+    }, requestId);
 
     // -----------------------------------------------------------------------
     // AI RESPONSE HOOK (optional)
@@ -220,18 +202,18 @@ serve(async (req) => {
       });
 
     if (insertError) {
-      structuredLog("error", FN, "DB insert failed", { code: insertError.code, details: insertError.details });
+      structuredLog("error", FN, "DB insert failed", { code: insertError.code, details: insertError.details }, requestId);
     } else {
       await idem.markComplete();
-      structuredLog("info", FN, "Lead inserted", { email });
+      structuredLog("info", FN, "Lead inserted", { email }, requestId);
     }
 
-    structuredLog("info", FN, "Lead processed successfully", { email, category: category ?? "other" });
+    structuredLog("info", FN, "Lead processed successfully", { email, category: category ?? "other" }, requestId);
 
-    return okResponse(req, { success: true }, {}, rl, RATE_OPTS.max);
+    return okResponse(req, { success: true }, {}, rl, RATE_OPTS.max, requestId);
   } catch (error: unknown) {
-    structuredLog("error", FN, "Unhandled exception", { error: String(error) });
+    structuredLog("error", FN, "Unhandled exception", { error: String(error) }, requestId);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return serverErrorResponse(req, message);
+    return serverErrorResponse(req, message, {}, FN, error, requestId);
   }
 });

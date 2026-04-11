@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Deno.serve is the native Supabase Edge Function entrypoint - no std/http import needed
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import {
     buildCorsHeaders,
@@ -9,9 +9,12 @@ import {
     badRequestResponse,
     serverErrorResponse,
     okResponse,
+    structuredLog,
+    getRequestId,
 } from "../_lib/security.ts";
 
 // Public endpoint: rate limit generously but still protect.
+const FN = "submit-estimate";
 const RATE_OPTS = { bucket: "submit-estimate", max: 20, windowMs: 60_000 };
 
 // Define default config fallback matching frontend defaults
@@ -129,21 +132,23 @@ function scoreLead(formData: any, config: any) {
     };
 }
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
     const preflight = handlePreflight(req);
     if (preflight) return preflight;
+
+    const requestId = getRequestId(req);
 
     // Rate limit by IP before any processing
     const clientId = getClientId(req);
     const rl = await checkRateLimit(req, clientId, RATE_OPTS);
-    if (rl.limited) return rateLimitResponse(req, rl);
+    if (rl.limited) return rateLimitResponse(req, rl, {}, FN, requestId);
 
     try {
         const body = await req.json();
         const { formData } = body;
 
         if (!formData || !formData.email || !formData.area) {
-            return badRequestResponse(req, "Invalid strictly required form data");
+            return badRequestResponse(req, "Invalid strictly required form data", {}, requestId);
         }
 
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -207,15 +212,16 @@ serve(async (req: Request) => {
         });
 
         if (errInsert) {
-            console.error("Lead Insert Error: ", errInsert);
+            structuredLog("error", FN, "Lead Insert Error", { error: errInsert.message, details: errInsert.details }, requestId);
             throw errInsert;
         }
 
-        return okResponse(req, { success: true, estimate }, {}, rl, RATE_OPTS.max);
+        structuredLog("info", FN, "Lead Estimate Processed", { email: formData.email, score: score.total }, requestId);
+        return okResponse(req, { success: true, estimate }, {}, rl, RATE_OPTS.max, requestId);
 
     } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Internal error";
-        console.error("Critical submission failure: ", err);
-        return serverErrorResponse(req, msg);
+        structuredLog("error", FN, "Critical submission failure", { error: msg }, requestId);
+        return serverErrorResponse(req, msg, {}, FN, err, requestId);
     }
 });

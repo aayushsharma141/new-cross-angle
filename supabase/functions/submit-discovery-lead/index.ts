@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Deno.serve is the native Supabase Edge Function entrypoint - no std/http import needed
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
     buildCorsHeaders,
@@ -12,6 +12,7 @@ import {
     checkIdempotency,
     structuredLog,
     signWebhookPayload,
+    getRequestId,
 } from "../_lib/security.ts";
 
 const FN = "submit-discovery-lead";
@@ -56,21 +57,23 @@ function buildBudgetText(results?: Record<string, any>): string | null {
     return results.investment_tier ? String(results.investment_tier) : null;
 }
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
     const preflight = handlePreflight(req);
     if (preflight) return preflight;
+
+    const requestId = getRequestId(req);
 
     // Rate limit by IP
     const clientId = getClientId(req);
     const rl = await checkRateLimit(req, clientId, RATE_OPTS);
-    if (rl.limited) return rateLimitResponse(req, rl);
+    if (rl.limited) return rateLimitResponse(req, rl, {}, FN, requestId);
 
     try {
         let body: Record<string, unknown>;
         try {
             body = await req.json();
         } catch {
-            return badRequestResponse(req, "Invalid JSON");
+            return badRequestResponse(req, "Invalid JSON", {}, requestId);
         }
 
         const { name, email, phone, consent, results } = body as {
@@ -79,19 +82,19 @@ serve(async (req: Request) => {
         };
 
         if (!email || !String(email).includes("@")) {
-            return badRequestResponse(req, "Valid email is required");
+            return badRequestResponse(req, "Valid email is required", {}, requestId);
         }
 
         if (!name || String(name).trim().length === 0) {
-            return badRequestResponse(req, "Name is required");
+            return badRequestResponse(req, "Name is required", {}, requestId);
         }
 
         // Idempotency: prevent duplicate discovery lead inserts
         const idemKey = `${String(email).trim().toLowerCase()}:${results?.investment_tier ?? "none"}`;
         const idem = await checkIdempotency(idemKey, FN);
         if (idem.duplicate) {
-            structuredLog("info", FN, "Duplicate discovery submission blocked", { email });
-            return okResponse(req, { success: true, deduplicated: true }, {}, rl, RATE_OPTS.max);
+            structuredLog("info", FN, "Duplicate discovery submission blocked", { email }, requestId);
+            return okResponse(req, { success: true, deduplicated: true }, {}, rl, RATE_OPTS.max, requestId);
         }
 
         // Initialize Supabase client with Service Role to bypass RLS
@@ -139,7 +142,7 @@ serve(async (req: Request) => {
             }).select('id').single();
 
         if (crmLeadError) {
-            structuredLog("error", FN, "leads CRM insert failed", { code: crmLeadError.code });
+            structuredLog("error", FN, "leads CRM insert failed", { code: crmLeadError.code }, requestId);
             throw new Error(`Failed to create CRM lead record: ${crmLeadError.message}`);
         }
 
@@ -189,9 +192,9 @@ serve(async (req: Request) => {
 
         // Log any errors from the concurrent operations
         if (payloadResult.status === "fulfilled" && payloadResult.value?.error) {
-            structuredLog("warn", FN, "raw_payload insert error", { error: String(payloadResult.value.error) });
+            structuredLog("warn", FN, "raw_payload insert error", { error: String(payloadResult.value.error) }, requestId);
         } else if (payloadResult.status === "rejected") {
-            structuredLog("error", FN, "raw_payload insert rejected", { reason: String(payloadResult.reason) });
+            structuredLog("error", FN, "raw_payload insert rejected", { reason: String(payloadResult.reason) }, requestId);
         }
 
         let webhookStatus = "skip";
@@ -201,7 +204,7 @@ serve(async (req: Request) => {
                 webhookStatus = res.ok ? "success" : "failed";
                 if (!res.ok) {
                     const statusText = await res.text().catch(() => "Unknown error");
-                    structuredLog("warn", FN, "Make.com webhook non-ok", { status: res.status });
+                    structuredLog("warn", FN, "Make.com webhook non-ok", { status: res.status }, requestId);
                     await supabase.from('webhook_failures').insert({
                         webhook_url: makeWebhookUrl,
                         payload: makeWebhookPayload,
@@ -211,7 +214,7 @@ serve(async (req: Request) => {
                     });
                 }
             } else if (webhookResult.status === "rejected") {
-                structuredLog("error", FN, "Make.com webhook rejected", { reason: String(webhookResult.reason) });
+                structuredLog("error", FN, "Make.com webhook rejected", { reason: String(webhookResult.reason) }, requestId);
                 webhookStatus = "failed";
                 await supabase.from('webhook_failures').insert({
                     webhook_url: makeWebhookUrl,
@@ -224,18 +227,18 @@ serve(async (req: Request) => {
         }
 
         await idem.markComplete();
-        structuredLog("info", FN, "Discovery lead processed", { email, leadScore });
+        structuredLog("info", FN, "Discovery lead processed", { email, leadScore }, requestId);
 
         return okResponse(req, {
             success: true,
             id: leadId,
             score: leadScore,
             webhook_status: webhookStatus
-        }, {}, rl, RATE_OPTS.max);
+        }, {}, rl, RATE_OPTS.max, requestId);
 
     } catch (error: unknown) {
-        structuredLog("error", FN, "Unhandled exception", { error: String(error) });
+        structuredLog("error", FN, "Unhandled exception", { error: String(error) }, requestId);
         const message = error instanceof Error ? error.message : "Unknown error";
-        return serverErrorResponse(req, message);
+        return serverErrorResponse(req, message, {}, FN, error, requestId);
     }
 });

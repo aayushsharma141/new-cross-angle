@@ -23,7 +23,15 @@
  */
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
-import { structuredLog } from "../_lib/security.ts";
+import { 
+  structuredLog, 
+  getRequestId, 
+  handlePreflight, 
+  okResponse, 
+  badRequestResponse, 
+  serverErrorResponse,
+  unauthorizedResponse 
+} from "../_lib/security.ts";
 
 interface Lead {
   id: string;
@@ -159,12 +167,14 @@ async function getKv(): Promise<Deno.Kv> {
 
 // ─── Log Score Activity ────────────────────────────────────────────────────────
 
+// deno-lint-ignore no-explicit-any
 async function logScoreActivity(
-  supabase: ReturnType<typeof createClient>,
+  supabase: any,
   leadId: string,
   oldScore: number | null,
   newScore: number,
-  breakdown: ScoreBreakdown
+  breakdown: ScoreBreakdown,
+  requestId: string
 ): Promise<void> {
   const oldStr = oldScore !== null ? String(Math.round(oldScore)) : "—";
   const newStr = String(Math.round(newScore));
@@ -180,6 +190,7 @@ async function logScoreActivity(
       new_score: newScore,
       delta,
       breakdown,
+      trace_id: requestId,
     },
     performed_by: null,
   });
@@ -213,30 +224,35 @@ async function logScoreActivity(
  *   FOR EACH ROW EXECUTE FUNCTION public.handle_lead_score_update();
  */
 
+const FN = "auto-score-lead";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
-// Read payload from stdin (Supabase invoke) or request body
-  async function main() {
-    let leadId: string;
-    let oldScore: number | null;
+Deno.serve(async (req) => {
+  const preflight = handlePreflight(req);
+  if (preflight) return preflight;
 
-    const args = Deno.args;
-    leadId = args[0];
-    oldScore = args[1] ? parseFloat(args[1]) : null;
+  const requestId = getRequestId(req);
+
+  try {
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader !== `Bearer ${SERVICE_KEY}`) {
+      return unauthorizedResponse(req, "Invalid token", {}, requestId);
+    }
+
+    const { lead_id: leadId, old_score: oldScore } = await req.json();
 
     if (!leadId) {
-      console.error("No lead_id provided");
-      Deno.exit(1);
+      return badRequestResponse(req, "No lead_id provided", {}, requestId);
     }
 
     const kv = await getKv();
-    const idemKey = ["auto-score-lead", leadId];
+    const idemKey = [FN, leadId];
     const existing = await kv.get(idemKey);
     if (existing.value) {
-      structuredLog("info", "auto-score-lead", "Skipping — recently scored", { leadId });
-      Deno.exit(0);
+      structuredLog("info", FN, "Skipping — recently scored", { leadId }, requestId);
+      return okResponse(req, { success: true, skipped: "recently_scored" }, {}, undefined, undefined, requestId);
     }
     await kv.set(idemKey, { ts: Date.now() }, { expireIn: 5 * 60 * 1000 });
 
@@ -247,8 +263,8 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
       .single();
 
     if (fetchError || !lead) {
-      structuredLog("error", "auto-score-lead", "Lead not found", { leadId, error: fetchError?.message });
-      Deno.exit(1);
+      structuredLog("error", FN, "Lead not found", { leadId, error: fetchError?.message }, requestId);
+      return serverErrorResponse(req, `Lead not found: ${leadId}`, {}, FN, fetchError, requestId);
     }
 
     const typedLead = lead as Lead;
@@ -256,8 +272,8 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
     const currentScore = typedLead.score ?? 0;
 
     if (Math.abs(score - currentScore) < 1) {
-      structuredLog("info", "auto-score-lead", "Score unchanged", { leadId, score });
-      Deno.exit(0);
+      structuredLog("info", FN, "Score unchanged", { leadId, score }, requestId);
+      return okResponse(req, { success: true, unchanged: true }, {}, undefined, undefined, requestId);
     }
 
     const { error: updateError } = await supabase
@@ -266,20 +282,24 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
       .eq("id", leadId);
 
     if (updateError) {
-      structuredLog("error", "auto-score-lead", "Failed to update score", {
+      structuredLog("error", FN, "Failed to update score", {
         leadId, score, error: updateError.message,
-      });
-      Deno.exit(1);
+      }, requestId);
+      return serverErrorResponse(req, "Failed to update score", {}, FN, updateError, requestId);
     }
 
     if (Math.abs(score - (oldScore ?? currentScore)) >= 5) {
-      await logScoreActivity(supabase, leadId, oldScore ?? currentScore, score, breakdown);
+      await logScoreActivity(supabase, leadId, oldScore ?? currentScore, score, breakdown, requestId);
     }
 
-    structuredLog("info", "auto-score-lead", "Lead scored", {
+    structuredLog("info", FN, "Lead scored", {
       leadId, oldScore: oldScore ?? currentScore, newScore: score,
       delta: score - (oldScore ?? currentScore), breakdown,
-    });
-  }
+    }, requestId);
 
-  main();
+    return okResponse(req, { success: true, new_score: score }, {}, undefined, undefined, requestId);
+  } catch (error) {
+    structuredLog("error", FN, "Unhandled scoring exception", { error: String(error) }, requestId);
+    return serverErrorResponse(req, "Internal scoring failure", {}, FN, error, requestId);
+  }
+});

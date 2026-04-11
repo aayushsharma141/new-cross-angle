@@ -1,12 +1,15 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Deno.serve is the native Supabase Edge Function entrypoint - no std/http import needed
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import {
-  buildCorsHeaders,
-  handlePreflight,
-  checkRateLimit,
-  rateLimitResponse,
-  serverErrorResponse,
-  okResponse,
+import { 
+  handlePreflight, 
+  checkRateLimit, 
+  getClientId, 
+  rateLimitResponse, 
+  okResponse, 
+  badRequestResponse, 
+  serverErrorResponse, 
+  structuredLog, 
+  getRequestId 
 } from "../_lib/security.ts";
 
 const RATE_OPTS = { bucket: "score-lead", max: 10, windowMs: 60_000 };
@@ -136,33 +139,33 @@ function calculateLeadScore(lead: Record<string, unknown>): LeadScoreResult {
   };
 }
 
-serve(async (req) => {
+const FN = "score-lead";
+
+Deno.serve(async (req: Request) => {
   const preflight = handlePreflight(req);
   if (preflight) return preflight;
 
-  const rl = await checkRateLimit(req, req.headers.get('x-client-id') || 'anonymous', RATE_OPTS);
-  if (rl.limited) return rateLimitResponse(req, rl);
+  const requestId = getRequestId(req);
+  const clientId = getClientId(req);
+  const rl = await checkRateLimit(req, clientId, RATE_OPTS);
+  if (rl.limited) return rateLimitResponse(req, rl, {}, FN, requestId);
 
   try {
-    const corsHeaders = buildCorsHeaders(req);
-    
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
     let body;
     try {
       body = await req.json();
     } catch {
-      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return badRequestResponse(req, "Invalid JSON", {}, requestId);
     }
 
     const { leadId, recalculateAll } = body;
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     if (recalculateAll) {
+      structuredLog("info", FN, "Recalculating all leads", {}, requestId);
       const { data: leads, error: fetchError } = await supabase
         .from('leads')
         .select('*')
@@ -180,18 +183,20 @@ serve(async (req) => {
           .from('leads')
           .update({ 
             score: scoreResult.score,
-            score_details: scoreResult.breakdown,
+            score_details: { ...scoreResult.breakdown, trace_id: requestId },
           })
           .eq('id', lead.id);
       }
 
+      structuredLog("info", FN, "Bulk score complete", { count: results.length }, requestId);
       return okResponse(req, { 
         success: true, 
         count: results.length,
         results 
-      }, {}, rl, RATE_OPTS.max);
+      }, {}, rl, RATE_OPTS.max, requestId);
 
     } else if (leadId) {
+      structuredLog("info", FN, "Scoring single lead", { leadId }, requestId);
       const { data: lead, error: fetchError } = await supabase
         .from('leads')
         .select('*')
@@ -200,10 +205,7 @@ serve(async (req) => {
 
       if (fetchError) {
         if (fetchError.code === 'PGRST116') {
-          return new Response(JSON.stringify({ error: "Lead not found" }), {
-            status: 404,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          return badRequestResponse(req, "Lead not found", {}, requestId);
         }
         throw fetchError;
       }
@@ -214,24 +216,20 @@ serve(async (req) => {
         .from('leads')
         .update({ 
           score: scoreResult.score,
-          score_details: scoreResult.breakdown,
+          score_details: { ...scoreResult.breakdown, trace_id: requestId },
         })
         .eq('id', leadId);
 
-      return okResponse(req, { success: true, ...scoreResult }, {}, rl, RATE_OPTS.max);
+      structuredLog("info", FN, "Lead scored", { leadId, score: scoreResult.score }, requestId);
+      return okResponse(req, { success: true, ...scoreResult }, {}, rl, RATE_OPTS.max, requestId);
 
     } else {
-      return new Response(JSON.stringify({ 
-        error: "Either leadId or recalculateAll must be provided" 
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return badRequestResponse(req, "Either leadId or recalculateAll must be provided", {}, requestId);
     }
 
   } catch (error: unknown) {
-    console.error("Error scoring lead:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return serverErrorResponse(req, message);
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    structuredLog("error", FN, "Score failed", { error: msg }, requestId);
+    return serverErrorResponse(req, msg, {}, FN, error, requestId);
   }
 });

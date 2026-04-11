@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Deno.serve is the native Supabase Edge Function entrypoint - no std/http import needed
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import {
   buildCorsHeaders,
@@ -6,6 +6,9 @@ import {
   badRequestResponse,
   serverErrorResponse,
   unauthorizedResponse,
+  okResponse,
+  structuredLog,
+  getRequestId,
 } from "../_lib/security.ts";
 
 const HIGH_VALUE_THRESHOLD = 5_000_000;
@@ -13,6 +16,7 @@ const DEFAULT_WHATSAPP_NUMBER = "917410179061";
 const DEFAULT_ALERT_EMAIL = "info@crossangleinterior.com";
 const SUPPORTED_EVENTS = new Set(["INSERT", "insert"]);
 
+const FN = "handle-new-lead";
 type JsonMap = Record<string, unknown>;
 
 interface LeadRecord {
@@ -230,52 +234,53 @@ async function sendResendEmail(payload: { from: string; to: string[]; subject: s
 }
 
 async function logActivity(
-  supabase: any,
+  supabase: ReturnType<typeof createClient>,
   leadId: string,
   activityType: string,
   description: string,
   metadata: JsonMap = {},
+  requestId?: string,
 ) {
   const { error } = await supabase.from("lead_activities").insert({
     lead_id: leadId,
     activity_type: activityType,
     description,
-    metadata,
+    metadata: { ...metadata, trace_id: requestId },
     performed_by: null,
   });
 
   if (error) {
-    console.error(`Failed to log ${activityType}:`, error);
+    structuredLog("error", FN, `Failed to log ${activityType}`, { error: error.message }, requestId);
   }
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   const preflight = handlePreflight(req);
   if (preflight) return preflight;
 
+  const requestId = getRequestId(req);
+
   try {
     if (!validateWebhookSecret(req)) {
-      return unauthorizedResponse(req, "Invalid webhook secret");
+      return unauthorizedResponse(req, "Invalid webhook secret", {}, requestId);
     }
 
     const payload = await req.json() as WebhookPayload;
     const eventType = payload.type || payload.eventType;
 
     if (eventType && !SUPPORTED_EVENTS.has(eventType)) {
-      return new Response(JSON.stringify({ success: true, ignored: true, reason: `Unsupported event ${eventType}` }), {
-        headers: { ...buildCorsHeaders(req), "Content-Type": "application/json" },
-      });
+      return okResponse(req, { success: true, ignored: true, reason: `Unsupported event ${eventType}` }, {}, undefined, undefined, requestId);
     }
 
     const recordId = payload.record?.id;
     if (!recordId) {
-      return badRequestResponse(req, "Webhook payload did not include record.id");
+      return badRequestResponse(req, "Webhook payload did not include record.id", {}, requestId);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!supabaseUrl || !supabaseKey) {
-      return serverErrorResponse(req, "Supabase environment is not configured");
+      return serverErrorResponse(req, "Supabase environment is not configured", {}, FN, undefined, requestId);
     }
 
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
@@ -287,7 +292,7 @@ serve(async (req) => {
       .single();
 
     if (leadError || !lead) {
-      return serverErrorResponse(req, `Unable to load lead ${recordId}`);
+      return serverErrorResponse(req, `Unable to load lead ${recordId}`, {}, FN, leadError, requestId);
     }
 
     const typedLead = lead as LeadRecord;
@@ -337,10 +342,10 @@ serve(async (req) => {
           template: tier,
           budget_value_inr: typedLead.budget_value_inr,
           lead_source: typedLead.lead_source,
-        });
+        }, requestId);
         results.autoReplySent = true;
       } catch (error) {
-        console.error("Customer auto-reply failed:", error);
+        structuredLog("error", FN, "Customer auto-reply failed", { error: String(error) }, requestId);
         results.errors.push(error instanceof Error ? error.message : "Customer auto-reply failed");
       }
     } else if (!typedLead.email) {
@@ -374,10 +379,10 @@ serve(async (req) => {
           template: tier,
           alert_email: Deno.env.get("LEAD_ALERT_EMAIL") || DEFAULT_ALERT_EMAIL,
           due_at: dueAt,
-        });
+        }, requestId);
         results.internalNotified = true;
       } catch (error) {
-        console.error("Internal notification failed:", error);
+        structuredLog("error", FN, "Internal notification failed", { error: String(error) }, requestId);
         results.errors.push(error instanceof Error ? error.message : "Internal notification failed");
       }
     } else if (!resendApiKey) {
@@ -403,7 +408,7 @@ serve(async (req) => {
       .single();
 
     if (taskError) {
-      console.error("CRM task upsert failed:", taskError);
+      structuredLog("error", FN, "CRM task upsert failed", { error: taskError.message }, requestId);
       results.errors.push(`Failed to create CRM task: ${taskError.message}`);
     } else {
       await logActivity(supabase, typedLead.id, "crm_task_created", "Initial follow-up task created or refreshed", {
@@ -411,16 +416,14 @@ serve(async (req) => {
         due_at: dueAt,
         priority,
         task_type: "initial_follow_up",
-      });
+      }, requestId);
       results.crmTaskCreated = true;
     }
 
-    return new Response(JSON.stringify({ success: true, leadId: typedLead.id, tier, ...results }), {
-      headers: { ...buildCorsHeaders(req), "Content-Type": "application/json" },
-    });
+    return okResponse(req, { success: true, leadId: typedLead.id, tier, ...results }, {}, undefined, undefined, requestId);
   } catch (error) {
-    console.error("handle-new-lead error:", error);
+    structuredLog("error", FN, "handle-new-lead error", { error: String(error) }, requestId);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return serverErrorResponse(req, message);
+    return serverErrorResponse(req, message, {}, FN, error, requestId);
   }
 });

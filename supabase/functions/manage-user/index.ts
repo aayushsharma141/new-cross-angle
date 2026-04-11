@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Deno.serve is the native Supabase Edge Function entrypoint - no std/http import needed
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import {
     buildCorsHeaders,
@@ -101,7 +101,7 @@ async function ensureNotLastSuperAdmin(
     return null;
 }
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
     const preflight = handlePreflight(req, CORS_OPTS);
     if (preflight) return preflight;
 

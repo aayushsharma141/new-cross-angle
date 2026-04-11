@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Deno.serve is the native Supabase Edge Function entrypoint - no std/http import needed
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import {
     buildCorsHeaders,
@@ -6,8 +6,14 @@ import {
     checkRateLimit,
     getClientId,
     rateLimitResponse,
+    badRequestResponse,
+    serverErrorResponse,
+    okResponse,
+    structuredLog,
+    getRequestId,
 } from "../_lib/security.ts";
 
+const FN = "auto-reply-lead";
 const RATE_OPTS = { bucket: "auto-reply", max: 3, windowMs: 60_000 };
 
 interface Lead {
@@ -18,13 +24,15 @@ interface Lead {
     service?: string;
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
     const preflight = handlePreflight(req);
     if (preflight) return preflight;
 
+    const requestId = getRequestId(req);
+
     const clientId = getClientId(req);
     const rl = await checkRateLimit(req, clientId, RATE_OPTS);
-    if (rl.limited) return rateLimitResponse(req, rl);
+    if (rl.limited) return rateLimitResponse(req, rl, {}, FN, requestId);
 
     try {
         const supabaseClient = createClient(
@@ -35,10 +43,10 @@ serve(async (req) => {
         const { lead }: { lead: Lead } = await req.json();
 
         if (!lead || !lead.email) {
-            throw new Error("Lead email is required for auto-reply")
+            return badRequestResponse(req, "Lead email is required for auto-reply", {}, requestId);
         }
 
-        console.log(`Processing Auto-Reply for: ${lead.email}`);
+        structuredLog("info", FN, `Processing Auto-Reply`, { email: lead.email, lead_id: lead.id }, requestId);
 
         // 1. Send Email via Resend
         const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
@@ -70,9 +78,9 @@ serve(async (req) => {
 
             if (!res.ok) {
                 const errorData = await res.json();
-                console.error("Resend Error:", errorData);
+                structuredLog("error", FN, "Resend Error", { error: errorData }, requestId);
             } else {
-                console.log("Auto-reply email sent successfully.");
+                structuredLog("info", FN, "Auto-reply email sent successfully", { email: lead.email }, requestId);
 
                 // 2. Log Activity
                 await supabaseClient.from('lead_activities').insert({
@@ -83,19 +91,14 @@ serve(async (req) => {
                 });
             }
         } else {
-            console.log("RESEND_API_KEY not set, skipping auto-reply.");
+            structuredLog("warn", FN, "RESEND_API_KEY not set, skipping auto-reply", {}, requestId);
         }
 
-        return new Response(JSON.stringify({ success: true }), {
-            headers: { ...buildCorsHeaders(req), 'Content-Type': 'application/json' }
-        });
+        return okResponse(req, { success: true }, {}, rl, RATE_OPTS.max, requestId);
 
     } catch (error: unknown) {
-        console.error("Auto-reply Error:", error);
         const msg = error instanceof Error ? error.message : 'Unknown error';
-        return new Response(JSON.stringify({ error: msg }), {
-            status: 400,
-            headers: { ...buildCorsHeaders(req), 'Content-Type': 'application/json' }
-        });
+        structuredLog("error", FN, "Auto-reply Unhandled Exception", { error: msg }, requestId);
+        return serverErrorResponse(req, msg, {}, FN, error, requestId);
     }
 });

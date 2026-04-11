@@ -1,12 +1,16 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
-
-const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')
-
-const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { 
+  handlePreflight, 
+  checkRateLimit, 
+  getClientId, 
+  rateLimitResponse, 
+  okResponse, 
+  badRequestResponse, 
+  unauthorizedResponse, 
+  serverErrorResponse, 
+  structuredLog, 
+  getRequestId 
+} from "../_lib/security.ts";
 
 interface RequestBody {
     imageUrl: string
@@ -14,39 +18,26 @@ interface RequestBody {
     maxLength?: number
 }
 
-serve(async (req) => {
-    // Handle CORS preflight
-    if (req.method === 'OPTIONS') {
-        return new Response('ok', { headers: corsHeaders })
-    }
+const FN = "generate-caption";
+const RATE_OPTS = { bucket: "generate-caption", max: 5, windowMs: 60_000 };
+const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+
+Deno.serve(async (req) => {
+    const preflight = handlePreflight(req);
+    if (preflight) return preflight;
+
+    const requestId = getRequestId(req);
+
+    // Rate limiting
+    const clientId = getClientId(req);
+    const rl = await checkRateLimit(req, clientId, RATE_OPTS);
+    if (rl.limited) return rateLimitResponse(req, rl, {}, FN, requestId);
 
     try {
-        // Rate limiting
-        const kv = await Deno.openKv();
-        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-        const rlKey = ["rl_generate_caption", ip];
-        const rlEntry = await kv.get<[number, number]>(rlKey);
-        const now = Date.now();
-        const WINDOW_MS = 60_000; // 1 minute
-        const MAX_REQUESTS = 5;
-
-        if (!rlEntry.value || now - rlEntry.value[0] > WINDOW_MS) {
-            await kv.set(rlKey, [now, 1], { expireIn: WINDOW_MS });
-        } else if (rlEntry.value[1] >= MAX_REQUESTS) {
-            return new Response(JSON.stringify({ error: "Too Many Requests" }), {
-                status: 429,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-        } else {
-            await kv.set(rlKey, [rlEntry.value[0], rlEntry.value[1] + 1], { expireIn: WINDOW_MS });
-        }
         // Verify User Auth (prevent public abuse)
         const authHeader = req.headers.get("Authorization");
         if (!authHeader) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), {
-                status: 401,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return unauthorizedResponse(req, "Authentication required", {}, requestId);
         }
         const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
         const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
@@ -55,20 +46,18 @@ serve(async (req) => {
         });
         const { data: { user }, error: userError } = await supabaseClient.auth.getUser(authHeader.replace("Bearer ", ""));
         if (userError || !user) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), {
-                status: 401,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return unauthorizedResponse(req, "Invalid session", {}, requestId);
         }
 
         const { imageUrl, projectContext, maxLength = 125 }: RequestBody = await req.json()
 
         if (!imageUrl) {
-            throw new Error('imageUrl is required')
+            return badRequestResponse(req, 'imageUrl is required', {}, requestId);
         }
 
         if (!ANTHROPIC_API_KEY) {
-            throw new Error('ANTHROPIC_API_KEY not configured')
+            structuredLog("error", FN, "ANTHROPIC_API_KEY missing", {}, requestId);
+            throw new Error('ANTHROPIC_API_KEY not configured');
         }
 
         // Fetch image and convert to base64
@@ -139,37 +128,17 @@ Respond with ONLY the alt text, nothing else.`
         const caption = data.content[0].text.trim()
 
         // Log successful generation
-        console.log(`Generated caption (${caption.length} chars): ${caption.substring(0, 50)}...`)
+        structuredLog("info", FN, "Generated caption", { length: caption.length }, requestId);
 
-        return new Response(
-            JSON.stringify({
-                success: true,
-                caption,
-                length: caption.length
-            }),
-            {
-                headers: {
-                    ...corsHeaders,
-                    'Content-Type': 'application/json'
-                }
-            }
-        )
+        return okResponse(req, {
+            success: true,
+            caption,
+            length: caption.length
+        }, {}, rl, RATE_OPTS.max, requestId);
 
     } catch (error) {
-        console.error('Error generating caption:', error)
-
-        return new Response(
-            JSON.stringify({
-                success: false,
-                error: error.message || 'Failed to generate caption'
-            }),
-            {
-                status: 500,
-                headers: {
-                    ...corsHeaders,
-                    'Content-Type': 'application/json'
-                }
-            }
-        )
+        const msg = error instanceof Error ? error.message : 'Unknown error';
+        structuredLog("error", FN, "Caption generation failed", { error: msg }, requestId);
+        return serverErrorResponse(req, msg, {}, FN, error, requestId);
     }
 })

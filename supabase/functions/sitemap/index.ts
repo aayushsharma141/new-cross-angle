@@ -1,16 +1,19 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { 
+  handlePreflight, 
+  structuredLog, 
+  serverErrorResponse,
+  getRequestId 
+} from "../_lib/security.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const FN = "sitemap";
+const baseUrl = "https://crossangleinterior.com";
 
-serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+Deno.serve(async (req) => {
+  const preflight = handlePreflight(req);
+  if (preflight) return preflight;
+
+  const requestId = getRequestId(req);
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -24,7 +27,7 @@ serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const supabase = createClient(supabaseUrl, serviceRoleKey || supabaseKey);
 
-    const baseUrl = "https://crossangleinterior.com";
+    structuredLog("info", FN, "Generating sitemap", {}, requestId);
 
     // 1. Start the XML document
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
@@ -111,18 +114,17 @@ serve(async (req) => {
     // 7. Return Response with XML Headers and Cache mapping
     return new Response(xml, {
       headers: {
-        ...corsHeaders,
+        "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/xml",
         "Cache-Control": "public, max-age=3600, s-maxage=3600",
+        "X-Request-Id": requestId
       },
       status: 200,
     });
 
   } catch (error) {
-    console.error("Sitemap generation error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    structuredLog("error", FN, "Sitemap failed", { error: msg }, requestId);
+    return serverErrorResponse(req, msg, {}, FN, error, requestId);
   }
 });

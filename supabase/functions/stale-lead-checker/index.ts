@@ -30,9 +30,16 @@
  *   STALE_LEAD_THRESHOLDS_OVERRIDE (JSON, optional)
  */
 
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Deno.serve is the native Supabase Edge Function entrypoint - no std/http import needed
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
-import { buildCorsHeaders, structuredLog } from "../_lib/security.ts";
+import { 
+  handlePreflight, 
+  okResponse, 
+  badRequestResponse, 
+  serverErrorResponse, 
+  structuredLog, 
+  getRequestId 
+} from "../_lib/security.ts";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -216,13 +223,14 @@ async function logActivity(
   leadId: string,
   activityType: string,
   description: string,
-  metadata: Record<string, unknown> = {}
+  metadata: Record<string, unknown> = {},
+  requestId?: string
 ): Promise<void> {
   await supabase.from("lead_activities").insert({
     lead_id: leadId,
     activity_type: activityType,
     description,
-    metadata,
+    metadata: { ...metadata, trace_id: requestId },
     performed_by: null,
   });
 }
@@ -231,7 +239,8 @@ async function logActivity(
 
 async function markStale(
   supabase: ReturnType<typeof createClient>,
-  leads: Lead[]
+  leads: Lead[],
+  requestId?: string
 ): Promise<number> {
   if (leads.length === 0) return 0;
 
@@ -248,7 +257,7 @@ async function markStale(
     structuredLog("error", "stale-lead-checker", "Failed to mark leads stale", {
       ids,
       error: error.message,
-    });
+    }, requestId);
   }
 
   // Log activity for each newly stale lead
@@ -259,7 +268,8 @@ async function markStale(
         lead.id,
         "lead_stale_flagged",
         `${lead.name || "Lead"} flagged as stale — ${daysSince(lead.last_activity_at || lead.created_at)} days inactive`,
-        { days_inactive: daysSince(lead.last_activity_at || lead.created_at), status: lead.status }
+        { days_inactive: daysSince(lead.last_activity_at || lead.created_at), status: lead.status },
+        requestId
       );
     }
   }
@@ -271,7 +281,8 @@ async function markStale(
 
 async function unmarkActive(
   supabase: ReturnType<typeof createClient>,
-  stillStaleIds: string[]
+  stillStaleIds: string[],
+  requestId?: string
 ): Promise<number> {
   if (stillStaleIds.length === 0) return 0;
 
@@ -283,7 +294,7 @@ async function unmarkActive(
   if (error) {
     structuredLog("error", "stale-lead-checker", "Failed to unmark active leads", {
       error: error.message,
-    });
+    }, requestId);
     return 0;
   }
 
@@ -292,23 +303,18 @@ async function unmarkActive(
 
 // ─── Main Handler ─────────────────────────────────────────────────────────────
 
-serve(async (req: Request) => {
-  // Cron jobs send no-origin OPTIONS; handle gracefully
-  if (req.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: buildCorsHeaders(req),
-    });
-  }
+Deno.serve(async (req: Request) => {
+  const preflight = handlePreflight(req);
+  if (preflight) return preflight;
+
+  const requestId = getRequestId(req);
+  const FN = "stale-lead-checker";
 
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { ...buildCorsHeaders(req), "Content-Type": "application/json" },
-    });
+    return badRequestResponse(req, "Method not allowed", {}, requestId);
   }
 
-  structuredLog("info", "stale-lead-checker", "Starting stale lead scan", {});
+  structuredLog("info", FN, "Starting stale lead scan", {}, requestId);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -324,13 +330,10 @@ serve(async (req: Request) => {
     .not("status", "eq", "lost");
 
   if (fetchError) {
-    structuredLog("error", "stale-lead-checker", "Failed to fetch leads", {
+    structuredLog("error", FN, "Failed to fetch leads", {
       error: fetchError.message,
-    });
-    return new Response(JSON.stringify({ error: fetchError.message }), {
-      status: 500,
-      headers: { ...buildCorsHeaders(req), "Content-Type": "application/json" },
-    });
+    }, requestId);
+    return serverErrorResponse(req, fetchError.message, {}, FN, fetchError, requestId);
   }
 
   const allLeads = (leads || []) as Lead[];
@@ -370,10 +373,11 @@ serve(async (req: Request) => {
   const alreadyFlagged = staleResults.filter((r) => !!r.lead.stale_flagged_at);
 
   // ── Update DB ──
-  await markStale(supabase, newlyStale.map((r) => r.lead));
+  await markStale(supabase, newlyStale.map((r) => r.lead), requestId);
   await unmarkActive(
     supabase,
-    newlyActive.map((l) => l.id)
+    newlyActive.map((l) => l.id),
+    requestId
   );
 
   // ── Send notifications ──
@@ -390,28 +394,29 @@ serve(async (req: Request) => {
         subject: email.subject,
         html: email.html,
       });
-      structuredLog("info", "stale-lead-checker", "Digest email sent", {
+      structuredLog("info", FN, "Digest email sent", {
         to: alertEmail,
         staleCount: staleResults.length,
         hotCount: hotStale.length,
-      });
+      }, requestId);
     } catch (err) {
-      structuredLog("error", "stale-lead-checker", "Failed to send digest email", {
+      structuredLog("error", FN, "Failed to send digest email", {
         error: err instanceof Error ? err.message : String(err),
-      });
+      }, requestId);
     }
   }
 
-  structuredLog("info", "stale-lead-checker", "Stale lead scan complete", {
+  structuredLog("info", FN, "Stale lead scan complete", {
     totalScanned: allLeads.length,
     stale: staleResults.length,
     newlyStale: newlyStale.length,
     reactivated: newlyActive.length,
     hotStale: hotStale.length,
-  });
+  }, requestId);
 
-  return new Response(
-    JSON.stringify({
+  return okResponse(
+    req,
+    {
       success: true,
       totalScanned: allLeads.length,
       stale: staleResults.length,
@@ -424,9 +429,10 @@ serve(async (req: Request) => {
         daysOverdue: r.daysOverdue,
         score: r.lead.score,
       })),
-    }),
-    {
-      headers: { ...buildCorsHeaders(req), "Content-Type": "application/json" },
-    }
+    },
+    {},
+    undefined,
+    undefined,
+    requestId
   );
 });

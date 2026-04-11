@@ -7,11 +7,12 @@
  * 1. Strict CORS — environment-configurable, never wildcard on credentialed routes.
  * 2. Persistent rate limiting — backed by Deno KV (survives function restarts).
  * 3. JWT authentication & RBAC — validates Supabase session tokens.
- * 4. Standard secure response helpers that auto-report to Sentry.
- * 5. Sentry Deno SDK integration — 5xx errors and rate-limit breaches reported automatically.
+ * 6. Standard secure response helpers that auto-report to Sentry.
+ * 7. Sentry Deno SDK integration — 5xx errors and rate-limit breaches reported automatically.
+ * 8. Trace-aware structured logging with Request ID propagation.
  * 
  * Usage:
- *   import { buildCorsHeaders, checkRateLimit, verifyAdmin } from "../_lib/security.ts";
+ *   import { buildCorsHeaders, checkRateLimit, verifyAdmin, getRequestId, structuredLog } from "../_lib/security.ts";
  */
 
 /// <reference lib="deno.ns" />
@@ -48,16 +49,18 @@ function getSentryClient() {
 /**
  * Reports an error or message to Sentry. Silent no-op if SENTRY_DSN is unset.
  *
- * @param fnName   - Name of the calling edge function (e.g. "submit-estimate")
- * @param error    - The Error object or message string
- * @param extra    - Optional key/value metadata (e.g. { status: 429, ip: "1.2.3.4" })
- * @param level    - Sentry severity level (default: "error")
+ * @param fnName    - Name of the calling edge function (e.g. "submit-estimate")
+ * @param error     - The Error object or message string
+ * @param extra     - Optional key/value metadata (e.g. { status: 429, ip: "1.2.3.4" })
+ * @param level     - Sentry severity level (default: "error")
+ * @param requestId - Optional request ID for trace linking
  */
 export async function sentryReport(
     fnName: string,
     error: unknown,
     extra: Record<string, unknown> = {},
     level: "fatal" | "error" | "warning" | "info" = "error",
+    requestId?: string,
 ): Promise<void> {
     const sentry = getSentryClient();
     if (!sentry) return;
@@ -65,6 +68,7 @@ export async function sentryReport(
     sentry.withScope((scope: SentryDeno.Scope) => {
         scope.setTag("edge_fn", fnName);
         scope.setTag("runtime", "deno");
+        if (requestId) scope.setTag("request_id", requestId);
         scope.setLevel(level);
         scope.setExtras(extra);
 
@@ -268,8 +272,10 @@ export function rateLimitResponse(
     result: RateLimitResult,
     corsOpts: CorsOptions = {},
     fnName?: string,
+    requestId?: string,
 ): Response {
     const cors = buildCorsHeaders(req, corsOpts);
+    const rid = requestId ?? getRequestId(req);
 
     // Report rate-limit breaches to Sentry as warnings — they may indicate
     // bot activity, scraping, or credential stuffing attempts.
@@ -284,6 +290,7 @@ export function rateLimitResponse(
                 ip: req.headers.get("x-forwarded-for") ?? "unknown",
             },
             "warning",
+            rid,
         ).catch(() => {});
     }
 
@@ -291,6 +298,7 @@ export function rateLimitResponse(
         JSON.stringify({
             error: "Too Many Requests",
             retryAfter: Math.ceil((result.resetAt - Date.now()) / 1000),
+            request_id: rid,
         }),
         {
             status: 429,
@@ -298,6 +306,7 @@ export function rateLimitResponse(
                 ...cors,
                 "Content-Type": "application/json",
                 "Retry-After": String(Math.ceil((result.resetAt - Date.now()) / 1000)),
+                "X-Request-Id": rid,
                 "X-RateLimit-Limit": Deno.env.get("RATE_LIMIT_MAX") ?? "60",
                 "X-RateLimit-Remaining": "0",
                 "X-RateLimit-Reset": String(Math.floor(result.resetAt / 1000)),
@@ -382,16 +391,34 @@ export async function verifyAdmin(
     return { user: auth.user, error: null };
 }
 
+// ─── Trace ID Helpers ────────────────────────────────────────────────────────
+
+/**
+ * Extracts the Request ID from headers (Supabase proxy / Cloudflare)
+ * or generates a new one if missing.
+ */
+export function getRequestId(req: Request): string {
+    const header = req.headers.get("x-request-id") || req.headers.get("cf-ray");
+    if (header) return header;
+    return crypto.randomUUID();
+}
+
 // ─── Standard Response Helpers ───────────────────────────────────────────────
 
 export function unauthorizedResponse(
     req: Request,
     message = "Unauthorized",
     corsOpts: CorsOptions = {},
+    requestId?: string,
 ): Response {
-    return new Response(JSON.stringify({ error: message }), {
+    const rid = requestId ?? getRequestId(req);
+    return new Response(JSON.stringify({ error: message, request_id: rid }), {
         status: 401,
-        headers: { ...buildCorsHeaders(req, corsOpts), "Content-Type": "application/json" },
+        headers: { 
+            ...buildCorsHeaders(req, corsOpts), 
+            "Content-Type": "application/json",
+            "X-Request-Id": rid,
+        },
     });
 }
 
@@ -399,10 +426,16 @@ export function forbiddenResponse(
     req: Request,
     message = "Forbidden",
     corsOpts: CorsOptions = {},
+    requestId?: string,
 ): Response {
-    return new Response(JSON.stringify({ error: message }), {
+    const rid = requestId ?? getRequestId(req);
+    return new Response(JSON.stringify({ error: message, request_id: rid }), {
         status: 403,
-        headers: { ...buildCorsHeaders(req, corsOpts), "Content-Type": "application/json" },
+        headers: { 
+            ...buildCorsHeaders(req, corsOpts), 
+            "Content-Type": "application/json",
+            "X-Request-Id": rid,
+        },
     });
 }
 
@@ -410,10 +443,16 @@ export function badRequestResponse(
     req: Request,
     message: string,
     corsOpts: CorsOptions = {},
+    requestId?: string,
 ): Response {
-    return new Response(JSON.stringify({ error: message }), {
+    const rid = requestId ?? getRequestId(req);
+    return new Response(JSON.stringify({ error: message, request_id: rid }), {
         status: 400,
-        headers: { ...buildCorsHeaders(req, corsOpts), "Content-Type": "application/json" },
+        headers: { 
+            ...buildCorsHeaders(req, corsOpts), 
+            "Content-Type": "application/json",
+            "X-Request-Id": rid,
+        },
     });
 }
 
@@ -423,7 +462,9 @@ export function serverErrorResponse(
     corsOpts: CorsOptions = {},
     fnName?: string,
     originalError?: unknown,
+    requestId?: string,
 ): Response {
+    const rid = requestId ?? getRequestId(req);
     // Auto-report to Sentry — fire-and-forget (don't await to avoid blocking the response).
     if (fnName ?? originalError) {
         sentryReport(
@@ -431,12 +472,17 @@ export function serverErrorResponse(
             originalError ?? new Error(message),
             { message, path: new URL(req.url).pathname },
             "error",
+            rid,
         ).catch(() => {});
     }
 
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: message, request_id: rid }), {
         status: 500,
-        headers: { ...buildCorsHeaders(req, corsOpts), "Content-Type": "application/json" },
+        headers: { 
+            ...buildCorsHeaders(req, corsOpts), 
+            "Content-Type": "application/json",
+            "X-Request-Id": rid,
+        },
     });
 }
 
@@ -446,7 +492,9 @@ export function okResponse(
     corsOpts: CorsOptions = {},
     rateLimitResult?: RateLimitResult,
     maxLimit?: number,
+    requestId?: string,
 ): Response {
+    const rid = requestId ?? getRequestId(req);
     const cors = buildCorsHeaders(req, corsOpts);
     const rlHeaders: Record<string, string> = rateLimitResult
         ? {
@@ -458,7 +506,13 @@ export function okResponse(
 
     return new Response(JSON.stringify(data), {
         status: 200,
-        headers: { ...cors, ...rlHeaders, "Content-Type": "application/json", "Connection": "keep-alive" },
+        headers: { 
+            ...cors, 
+            ...rlHeaders, 
+            "Content-Type": "application/json", 
+            "Connection": "keep-alive",
+            "X-Request-Id": rid,
+        },
     });
 }
 
@@ -543,12 +597,14 @@ export function structuredLog(
     fn: string,
     message: string,
     meta: Record<string, unknown> = {},
+    traceId?: string,
 ): void {
     const entry = {
         ts: new Date().toISOString(),
         level,
         fn,
         message,
+        trace_id: traceId,
         ...meta,
     };
     if (level === "error") {

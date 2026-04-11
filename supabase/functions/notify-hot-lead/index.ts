@@ -1,6 +1,14 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { 
+  handlePreflight, 
+  checkRateLimit, 
+  getClientId, 
+  rateLimitResponse, 
+  okResponse, 
+  serverErrorResponse, 
+  structuredLog, 
+  getRequestId 
+} from "../_lib/security.ts";
 
 interface Lead {
     id: string;
@@ -14,60 +22,31 @@ interface Lead {
     priority?: string;
 }
 
-// Simple in-memory rate limiting
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 5;
+const FN = "notify-hot-lead";
+const RATE_OPTS = { bucket: "notify-hot-lead", max: 5, windowMs: 60_000 };
 
-function isRateLimited(identifier: string): boolean {
-    const now = Date.now();
-    const key = identifier.toLowerCase().trim();
-    const record = rateLimitMap.get(key);
 
-    if (!record || now > record.resetTime) {
-        rateLimitMap.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
-        return false;
-    }
+Deno.serve(async (req) => {
+    const preflight = handlePreflight(req);
+    if (preflight) return preflight;
 
-    if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
-        return true;
-    }
-
-    record.count++;
-    return false;
-}
-
-serve(async (req) => {
-    // Handle CORS
-    if (req.method === 'OPTIONS') {
-        return new Response('ok', { headers: corsHeaders })
-    }
+    const requestId = getRequestId(req);
+    const clientId = getClientId(req);
+    const rl = await checkRateLimit(req, clientId, RATE_OPTS);
+    if (rl.limited) return rateLimitResponse(req, rl, {}, FN, requestId);
 
     try {
-        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+        const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-        if (isRateLimited(`ip:${ip}`)) {
-            return new Response(JSON.stringify({ error: "Too Many Requests" }), {
-                status: 429,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-        }
-
-        const supabaseClient = createClient(
-            Deno.env.get('SUPABASE_URL') ?? '',
-            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-        )
-
-        const { lead }: { lead: Lead } = await req.json()
+        const { lead }: { lead: Lead } = await req.json();
 
         // Calculate score logic (Server-side validation)
-        // We can reuse the same logic or trust the client passed score if authenticated. 
-        // For now, let's assume lead.score is passed or we calculate simple high priority check.
-
         const isHot = (lead.score && lead.score >= 70) || (lead.priority === 'hot');
 
         if (isHot) {
-            console.log(`Processing Hot Lead: ${lead.name}`);
+            structuredLog("info", FN, `Processing Hot Lead Alert`, { email: lead.email, score: lead.score }, requestId);
 
             const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
             if (RESEND_API_KEY) {
@@ -78,8 +57,8 @@ serve(async (req) => {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        from: 'Cross Angle <leads@crossangleinterior.com>', // User needs to verify domain
-                        to: ['aayushsharma141@gmail.com'], // Defaulting to dev email or env var
+                        from: 'Cross Angle <leads@crossangleinterior.com>',
+                        to: ['aayushsharma141@gmail.com'], 
                         subject: `🔥 HOT LEAD: ${lead.name} (${lead.score}/100)`,
                         html: `
               <h2>High Priority Lead Received!</h2>
@@ -90,25 +69,28 @@ serve(async (req) => {
               <p><strong>Budget:</strong> ${lead.budget}</p>
               <p><strong>Message:</strong> ${lead.message}</p>
               <br/>
-              <p><a href="${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '')}/admin/leads">View in Dashboard</a></p>
+              <p><a href="${supabaseUrl.replace('.supabase.co', '')}/admin/leads">View in Dashboard</a></p>
             `
                     })
                 });
-                const data = await res.json();
-                console.log("Email sent:", data);
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    structuredLog("info", FN, "Hot lead email sent", { resend_id: data.id }, requestId);
+                } else {
+                    const err = await res.text();
+                    structuredLog("error", FN, "Resend API error", { error: err }, requestId);
+                }
             } else {
-                console.log("RESEND_API_KEY not set, skipping email.");
+                structuredLog("warn", FN, "RESEND_API_KEY not set, skipping email alert.", {}, requestId);
             }
         }
 
-        return new Response(JSON.stringify({ success: true }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        })
+        return okResponse(req, { success: true }, {}, rl, RATE_OPTS.max, requestId);
 
-    } catch (error) {
-        return new Response(JSON.stringify({ error: error.message }), {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        })
+    } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : 'Unknown error';
+        structuredLog("error", FN, "Hot Lead Notification Failure", { error: msg }, requestId);
+        return serverErrorResponse(req, msg, {}, FN, error, requestId);
     }
-})
+});

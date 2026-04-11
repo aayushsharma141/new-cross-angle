@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Deno.serve is the native Supabase Edge Function entrypoint — no std/http import needed
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
     buildCorsHeaders,
@@ -6,18 +6,26 @@ import {
     checkRateLimit,
     getClientId,
     rateLimitResponse,
+    badRequestResponse,
+    serverErrorResponse,
+    okResponse,
+    structuredLog,
+    getRequestId,
 } from "../_lib/security.ts";
 
+const FN = "cda-api";
 const RATE_OPTS = { bucket: "cda-api", max: 30, windowMs: 60_000 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
     const preflight = handlePreflight(req);
     if (preflight) return preflight;
+
+    const requestId = getRequestId(req);
 
     // Persistent rate limiting (KV-backed)
     const clientId = getClientId(req);
     const rl = await checkRateLimit(req, clientId, RATE_OPTS);
-    if (rl.limited) return rateLimitResponse(req, rl);
+    if (rl.limited) return rateLimitResponse(req, rl, {}, FN, requestId);
 
     try {
         const url = new URL(req.url);
@@ -33,7 +41,7 @@ serve(async (req) => {
         }
 
         if (!resource) {
-            throw new Error('Resource parameter is required (e.g., ?resource=pages or in body)');
+            return badRequestResponse(req, 'Resource parameter is required', {}, requestId);
         }
 
         // 1. Check Edge Cache
@@ -47,24 +55,20 @@ serve(async (req) => {
         // Invalidation override
         if (action === 'invalidate') {
             const deleted = await cache.delete(cacheKey);
-            return new Response(
-                JSON.stringify({ success: true, message: `Cache invalidated for ${cachePattern}`, deleted }),
-                { headers: { ...buildCorsHeaders(req), 'Content-Type': 'application/json' } }
-            );
+            structuredLog("info", FN, "Cache invalidated", { pattern: cachePattern }, requestId);
+            return okResponse(req, { success: true, message: `Cache invalidated for ${cachePattern}`, deleted }, {}, rl, RATE_OPTS.max, requestId);
         }
 
+        // Check edge cache before hitting DB
         const cachedResponse = await cache.match(cacheKey);
 
         if (cachedResponse) {
-            console.log(`[Cache HIT] ${cachePattern}`);
+            structuredLog("info", FN, "Cache HIT", { pattern: cachePattern }, requestId);
             const data = await cachedResponse.json();
-            return new Response(
-                JSON.stringify({ ...data, source: 'cache' }),
-                { headers: { ...buildCorsHeaders(req), 'Content-Type': 'application/json' } }
-            );
+            return okResponse(req, { ...data, source: 'cache' }, {}, rl, RATE_OPTS.max, requestId);
         }
 
-        console.log(`[Cache MISS] ${cachePattern}`);
+        structuredLog("info", FN, "Cache MISS", { pattern: cachePattern }, requestId);
 
         // 2. Fetch from DB
         // Using ANON KEY so RLS policies are strictly enforced (status='published' should be active)
@@ -128,19 +132,15 @@ serve(async (req) => {
         });
 
         // Put in cache non-blocking
-        cache.put(cacheKey, responseToCache.clone()).catch(console.error);
+        cache.put(cacheKey, responseToCache.clone()).catch(err => {
+            structuredLog("error", FN, "Cache put failed", { error: String(err) }, requestId);
+        });
 
-        return new Response(
-            JSON.stringify({ data: resultData, source: 'db' }),
-            { headers: { ...buildCorsHeaders(req), 'Content-Type': 'application/json' } }
-        );
+        return okResponse(req, { data: resultData, source: 'db' }, {}, rl, RATE_OPTS.max, requestId);
 
     } catch (error: unknown) {
-        console.error('Error in CDA API:', error);
         const msg = error instanceof Error ? error.message : 'Unknown error';
-        return new Response(
-            JSON.stringify({ error: msg }),
-            { status: 400, headers: { ...buildCorsHeaders(req), 'Content-Type': 'application/json' } }
-        );
+        structuredLog("error", FN, "CDA API Exception", { error: msg }, requestId);
+        return serverErrorResponse(req, msg, {}, FN, error, requestId);
     }
 });

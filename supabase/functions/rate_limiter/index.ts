@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Deno.serve is the native Supabase Edge Function entrypoint - no std/http import needed
 
 // Initialize Deno KV store for rate limiting
 const kv = await Deno.openKv();
@@ -40,7 +40,7 @@ async function isRateLimited(ip: string): Promise<boolean> {
     return false;
 }
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
     // Extract client IP from headers (Supabase proxies set x-forwarded-for)
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 

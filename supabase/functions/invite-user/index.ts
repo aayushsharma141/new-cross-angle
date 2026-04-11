@@ -1,11 +1,17 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Deno.serve is the native Supabase Edge Function entrypoint — no std/http import needed
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
-import {
-    buildCorsHeaders,
-    handlePreflight,
-    checkRateLimit,
-    getClientId,
-    rateLimitResponse,
+import { 
+  handlePreflight, 
+  checkRateLimit, 
+  getClientId, 
+  rateLimitResponse, 
+  okResponse, 
+  badRequestResponse, 
+  unauthorizedResponse, 
+  forbiddenResponse,
+  serverErrorResponse, 
+  structuredLog, 
+  getRequestId 
 } from "../_lib/security.ts";
 import { canAssignRole, isAppRole, normalizeRole } from "../_lib/rbac.ts";
 
@@ -18,26 +24,25 @@ type InviteUserRequest = {
     fullName?: string | null;
 };
 
-serve(async (req: Request) => {
+const FN = "invite-user";
+
+Deno.serve(async (req: Request) => {
     const preflight = handlePreflight(req, CORS_OPTS);
     if (preflight) return preflight;
 
+    const requestId = getRequestId(req);
     const clientId = getClientId(req);
     const rl = await checkRateLimit(req, clientId, RATE_OPTS);
-    if (rl.limited) return rateLimitResponse(req, rl, CORS_OPTS);
+    if (rl.limited) return rateLimitResponse(req, rl, CORS_OPTS, FN, requestId);
 
     try {
-        const corsHeaders = buildCorsHeaders(req, CORS_OPTS);
         const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
         const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 
         const authHeader = req.headers.get("Authorization");
         if (!authHeader) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), {
-                status: 401,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return unauthorizedResponse(req, "Authentication required", CORS_OPTS, requestId);
         }
 
         const token = authHeader.replace("Bearer ", "");
@@ -47,10 +52,7 @@ serve(async (req: Request) => {
 
         const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
         if (userError || !user) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), {
-                status: 401,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return unauthorizedResponse(req, "Invalid session", CORS_OPTS, requestId);
         }
 
         const adminClient = createClient(supabaseUrl, supabaseServiceKey);
@@ -61,34 +63,22 @@ serve(async (req: Request) => {
             .maybeSingle();
 
         if (roleError || !roleData?.role || !isAppRole(roleData.role) || roleData.role === "viewer") {
-            return new Response(JSON.stringify({ error: "Forbidden: You do not have permission to invite users" }), {
-                status: 403,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return forbiddenResponse(req, "permission to invite users required", CORS_OPTS, requestId);
         }
 
         const actorRole = roleData.role;
         const { email, role = "viewer", fullName } = (await req.json()) as InviteUserRequest;
 
         if (!email) {
-            return new Response(JSON.stringify({ error: "Email is required" }), {
-                status: 400,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return badRequestResponse(req, "Email is required", CORS_OPTS, requestId);
         }
 
         if (!isAppRole(role)) {
-            return new Response(JSON.stringify({ error: "Invalid role selected" }), {
-                status: 400,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return badRequestResponse(req, "Invalid role selected", CORS_OPTS, requestId);
         }
 
         if (!canAssignRole(actorRole, role)) {
-            return new Response(JSON.stringify({ error: "Forbidden: You cannot assign that role" }), {
-                status: 403,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return forbiddenResponse(req, "You cannot assign that role", CORS_OPTS, requestId);
         }
 
         const { data: inviteData, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
@@ -96,18 +86,12 @@ serve(async (req: Request) => {
         });
 
         if (inviteError) {
-            console.error("Error inviting user:", inviteError);
-            return new Response(JSON.stringify({ error: inviteError.message }), {
-                status: 400,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            structuredLog("warn", FN, "Invitation failed", { error: inviteError.message, email }, requestId);
+            return badRequestResponse(req, inviteError.message, CORS_OPTS, requestId);
         }
 
         if (!inviteData.user) {
-            return new Response(JSON.stringify({ error: "Invitation failed" }), {
-                status: 500,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return serverErrorResponse(req, "Invitation failed", CORS_OPTS, FN, new Error("No user returned from invite"), requestId);
         }
 
         const invitedUserId = inviteData.user.id;
@@ -117,13 +101,8 @@ serve(async (req: Request) => {
             .upsert({ user_id: invitedUserId, role }, { onConflict: "user_id" });
 
         if (roleAssignError) {
-            console.error("Error assigning role:", roleAssignError);
-            return new Response(JSON.stringify({
-                error: "User invited but role assignment failed. Please review the account in Supabase Auth.",
-            }), {
-                status: 500,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            structuredLog("error", FN, "Role assignment failed", { error: roleAssignError.message, invitedUserId }, requestId);
+            return serverErrorResponse(req, "Role assignment failed", CORS_OPTS, FN, roleAssignError, requestId);
         }
 
         const { error: profileError } = await adminClient
@@ -138,36 +117,27 @@ serve(async (req: Request) => {
             }, { onConflict: "id" });
 
         if (profileError) {
-            console.error("Error creating profile:", profileError);
-            return new Response(JSON.stringify({
-                error: "User invited but profile creation failed. Please review the account in admin settings.",
-            }), {
-                status: 500,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            structuredLog("error", FN, "Profile creation failed", { error: profileError.message, invitedUserId }, requestId);
+            return serverErrorResponse(req, "Profile creation failed", CORS_OPTS, FN, profileError, requestId);
         }
 
         const { error: auditError } = await adminClient.from("audit_logs").insert({
             action: "USER_INVITED",
             entity_type: "user",
             entity_id: invitedUserId,
-            details: { email, role, full_name: fullName?.trim() || null, invited_by: user.id },
+            details: { email, role, full_name: fullName?.trim() || null, invited_by: user.id, trace_id: requestId },
             user_id: user.id,
         });
 
         if (auditError) {
-            console.error("Audit log insert failed:", auditError);
+            structuredLog("warn", FN, "Audit log failed", { error: auditError.message }, requestId);
         }
 
-        return new Response(JSON.stringify({ success: true, message: "Invitation sent successfully" }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        structuredLog("info", FN, "User invited", { email, role, targetUserId: invitedUserId }, requestId);
+        return okResponse(req, { success: true, message: "Invitation sent successfully" }, CORS_OPTS, rl, RATE_OPTS.max, requestId);
     } catch (error: unknown) {
-        console.error("Error in invite-user:", error);
         const msg = error instanceof Error ? error.message : "Unknown error";
-        return new Response(JSON.stringify({ error: msg }), {
-            status: 500,
-            headers: { ...buildCorsHeaders(req, CORS_OPTS), "Content-Type": "application/json" },
-        });
+        structuredLog("error", FN, "Unhandled error", { error: msg }, requestId);
+        return serverErrorResponse(req, msg, CORS_OPTS, FN, error, requestId);
     }
 });

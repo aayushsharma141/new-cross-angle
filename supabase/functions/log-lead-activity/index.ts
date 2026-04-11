@@ -19,16 +19,17 @@
  *   LEAD_ALERT_EMAIL  — optional, for stale/dead-lead alerts
  */
 
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import {
   buildCorsHeaders,
   handlePreflight,
-  badRequestResponse,
-  serverErrorResponse,
   verifyAdmin,
   structuredLog,
-  type AuthResult,
+  getRequestId,
+  okResponse,
+  badRequestResponse,
+  serverErrorResponse,
+  unauthorizedResponse,
 } from "../_lib/security.ts";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -152,7 +153,8 @@ function generateDescription(
 async function writeActivity(
   supabase: ReturnType<typeof createClient>,
   payload: ActivityPayload,
-  actorId?: string
+  actorId?: string,
+  requestId?: string
 ): Promise<{ success: boolean; id?: string; error?: string }> {
   const description =
     payload.description ||
@@ -164,7 +166,7 @@ async function writeActivity(
       lead_id: payload.lead_id,
       activity_type: payload.activity_type,
       description,
-      metadata: payload.metadata || {},
+      metadata: { ...payload.metadata, trace_id: requestId },
       old_status: payload.old_status,
       new_status: payload.new_status,
       performed_by: actorId,
@@ -195,7 +197,8 @@ async function writeActivity(
 async function writeActivities(
   supabase: ReturnType<typeof createClient>,
   payloads: ActivityPayload[],
-  actorId?: string
+  actorId?: string,
+  requestId?: string
 ): Promise<{ success: boolean; count: number; errors: string[] }> {
   const errors: string[] = [];
   let count = 0;
@@ -208,7 +211,7 @@ async function writeActivities(
     lead_id: p.lead_id,
     activity_type: p.activity_type,
     description: p.description || generateDescription(p.activity_type, p, undefined),
-    metadata: p.metadata || {},
+    metadata: { ...p.metadata, trace_id: requestId },
     old_status: p.old_status,
     new_status: p.new_status,
     performed_by: actorId,
@@ -249,7 +252,8 @@ async function logStatusChange(
   leadId: string,
   oldStatus: string,
   newStatus: string,
-  actorId?: string
+  actorId?: string,
+  requestId?: string
 ): Promise<{ success: boolean; id?: string; error?: string }> {
   return writeActivity(supabase, {
     lead_id: leadId,
@@ -264,22 +268,25 @@ async function logStatusChange(
       from_label: STAGE_LABELS[oldStatus] || oldStatus,
       to_label: STAGE_LABELS[newStatus] || newStatus,
     },
-  }, actorId);
+  }, actorId, requestId);
 }
 
 // ─── Main Handler ───────────────────────────────────────────────────────────────
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   const preflight = handlePreflight(req, { credentialed: true });
   if (preflight) return preflight;
 
+  const requestId = getRequestId(req);
+  const FN = "log-lead-activity";
+
   try {
     // ── Auth (admin required for manual triggers) ──
-    const auth: AuthResult = await verifyAuth(req);
+    const auth = await verifyAdmin(req);
     const actorId = auth.user?.id;
 
     if (!actorId) {
-      return badRequestResponse(req, "Authentication required");
+      return unauthorizedResponse(req, "Admin privileges required", {}, requestId);
     }
 
     // ── Parse body ──
@@ -297,7 +304,7 @@ serve(async (req: Request) => {
     try {
       body = await req.json();
     } catch {
-      return badRequestResponse(req, "Invalid JSON payload");
+      return badRequestResponse(req, "Invalid JSON payload", {}, requestId);
     }
 
     // ── Init Supabase ──
@@ -307,21 +314,16 @@ serve(async (req: Request) => {
 
     // ── Batch mode ──
     if (body.activities && Array.isArray(body.activities)) {
-      const result = await writeActivities(supabase, body.activities, actorId);
-      structuredLog("info", "log-lead-activity", "Batch activity logged", {
+      const result = await writeActivities(supabase, body.activities, actorId, requestId);
+      structuredLog("info", FN, "Batch activity logged", {
         count: result.count,
         actorId,
-      });
-      return new Response(
-        JSON.stringify({
-          success: result.success,
-          count: result.count,
-          errors: result.errors,
-        }),
-        {
-          headers: { ...buildCorsHeaders(req), "Content-Type": "application/json" },
-        }
-      );
+      }, requestId);
+      return okResponse(req, {
+        success: result.success,
+        count: result.count,
+        errors: result.errors,
+      }, {}, undefined, undefined, requestId);
     }
 
     // ── Single activity mode ──
@@ -336,10 +338,9 @@ serve(async (req: Request) => {
     };
 
     if (!activity.lead_id || !activity.activity_type) {
-      return badRequestResponse(req, "lead_id and activity_type are required");
+      return badRequestResponse(req, "lead_id and activity_type are required", {}, requestId);
     }
 
-    // ── Auto-logic for status changes ──
     if (
       activity.activity_type === "status_changed" &&
       activity.old_status &&
@@ -350,21 +351,18 @@ serve(async (req: Request) => {
         activity.lead_id,
         activity.old_status,
         activity.new_status,
-        actorId
+        actorId,
+        requestId
       );
-      return new Response(JSON.stringify(result), {
-        headers: { ...buildCorsHeaders(req), "Content-Type": "application/json" },
-      });
+      return okResponse(req, result, {}, undefined, undefined, requestId);
     }
 
     // ── Generic activity ──
-    const result = await writeActivity(supabase, activity, actorId);
-    return new Response(JSON.stringify(result), {
-      headers: { ...buildCorsHeaders(req), "Content-Type": "application/json" },
-    });
+    const result = await writeActivity(supabase, activity, actorId, requestId);
+    return okResponse(req, result, {}, undefined, undefined, requestId);
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Unknown error";
-    structuredLog("error", "log-lead-activity", "Unhandled error", { error: msg });
-    return serverErrorResponse(req, msg);
+    structuredLog("error", FN, "Unhandled error", { error: msg }, requestId);
+    return serverErrorResponse(req, msg, {}, FN, error, requestId);
   }
 });

@@ -1,11 +1,15 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+// Deno.serve is the native Supabase Edge Function entrypoint — no std/http import needed
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
-import {
-    buildCorsHeaders,
-    handlePreflight,
-    checkRateLimit,
-    getClientId,
-    rateLimitResponse,
+import { 
+  handlePreflight, 
+  checkRateLimit, 
+  getClientId, 
+  rateLimitResponse, 
+  okResponse, 
+  unauthorizedResponse, 
+  serverErrorResponse, 
+  structuredLog, 
+  getRequestId 
 } from "../_lib/security.ts";
 import { isAppRole } from "../_lib/rbac.ts";
 
@@ -33,6 +37,7 @@ async function writeRole(
     adminClient: ReturnType<typeof createClient>,
     userId: string,
     role: SyncedRole,
+    requestId?: string
 ): Promise<void> {
     const primaryRole = role === "super_admin" ? "super_admin" : role;
     const fallbackRole = role === "super_admin" ? "admin" : role;
@@ -61,6 +66,7 @@ async function writeRole(
             .upsert({ user_id: userId, role: attempt.value }, { onConflict: attempt.onConflict });
 
         if (!error) {
+            structuredLog("info", "sync-user-role", "Role written successfully", { userId, role, attempt: attempt.value }, requestId);
             return;
         }
 
@@ -72,26 +78,25 @@ async function writeRole(
     }
 }
 
-serve(async (req: Request) => {
+const FN = "sync-user-role";
+
+Deno.serve(async (req: Request) => {
     const preflight = handlePreflight(req, CORS_OPTS);
     if (preflight) return preflight;
 
+    const requestId = getRequestId(req);
     const clientId = getClientId(req);
     const rl = await checkRateLimit(req, clientId, RATE_OPTS);
-    if (rl.limited) return rateLimitResponse(req, rl, CORS_OPTS);
+    if (rl.limited) return rateLimitResponse(req, rl, CORS_OPTS, FN, requestId);
 
     try {
-        const corsHeaders = buildCorsHeaders(req, CORS_OPTS);
         const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
         const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 
         const authHeader = req.headers.get("Authorization");
         if (!authHeader) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), {
-                status: 401,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return unauthorizedResponse(req, "Authentication required", CORS_OPTS, requestId);
         }
 
         const token = authHeader.replace("Bearer ", "");
@@ -101,10 +106,7 @@ serve(async (req: Request) => {
 
         const { data: { user }, error: userError } = await authClient.auth.getUser(token);
         if (userError || !user) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), {
-                status: 401,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return unauthorizedResponse(req, "Invalid session", CORS_OPTS, requestId);
         }
 
         const adminClient = createClient(supabaseUrl, supabaseServiceKey);
@@ -117,9 +119,7 @@ serve(async (req: Request) => {
 
         const existingRole = mapStoredRole(existingRoleData?.role);
         if (existingRole) {
-            return new Response(JSON.stringify({ role: existingRole, source: "user_roles" }), {
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return okResponse(req, { role: existingRole, source: "user_roles" }, CORS_OPTS, rl, RATE_OPTS.max, requestId);
         }
 
         const { data: profileData, error: profileError } = await adminClient
@@ -132,24 +132,17 @@ serve(async (req: Request) => {
 
         const derivedRole = mapProfileRole(profileData?.role);
         if (!derivedRole) {
-            return new Response(JSON.stringify({ role: null, source: "none" }), {
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            return okResponse(req, { role: null, source: "none" }, CORS_OPTS, rl, RATE_OPTS.max, requestId);
         }
 
         if (derivedRole !== "viewer") {
-            await writeRole(adminClient, user.id, derivedRole);
+            await writeRole(adminClient, user.id, derivedRole, requestId);
         }
 
-        return new Response(JSON.stringify({ role: derivedRole, source: "profiles" }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return okResponse(req, { role: derivedRole, source: "profiles" }, CORS_OPTS, rl, RATE_OPTS.max, requestId);
     } catch (error: unknown) {
-        console.error("Error in sync-user-role:", error);
         const msg = error instanceof Error ? error.message : "Unknown error";
-        return new Response(JSON.stringify({ error: msg }), {
-            status: 500,
-            headers: { ...buildCorsHeaders(req, CORS_OPTS), "Content-Type": "application/json" },
-        });
+        structuredLog("error", FN, "Sync failed", { error: msg }, requestId);
+        return serverErrorResponse(req, msg, CORS_OPTS, FN, error, requestId);
     }
 });
