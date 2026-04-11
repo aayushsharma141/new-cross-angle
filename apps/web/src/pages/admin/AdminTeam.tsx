@@ -27,6 +27,7 @@ import {
     Users
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getOptimizedUrl } from "@/lib/cdn";
 import {
     Dialog,
     DialogContent,
@@ -236,109 +237,111 @@ CREATE POLICY "Allow admin full access" ON team_members
                             <Plus className="w-4 h-4" /> Add Member
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[500px]">
-                        <DialogHeader>
+                    <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl border-zinc-800">
+                        <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
                             <DialogTitle>{editingMember ? "Edit Team Member" : "Add Team Member"}</DialogTitle>
                             <DialogDescription>
                                 Fill in the details to curate your team profile.
                             </DialogDescription>
                         </DialogHeader>
-                        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label htmlFor="name" className="text-sm font-medium">Name</label>
-                                    <Input id="name" name="name" defaultValue={editingMember?.name} required placeholder="Full Name" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label htmlFor="role" className="text-sm font-medium">Role</label>
-                                    <Input id="role" name="role" defaultValue={editingMember?.role} required placeholder="Visionary Designation" />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label htmlFor="bio" className="text-sm font-medium">Bio</label>
-                                <Textarea id="bio" name="bio" defaultValue={editingMember?.bio || ""} placeholder="A short, visionary biography..." rows={3} />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Profile Image</label>
-                                <div className="flex items-center gap-4">
-                                    <div className="relative w-20 h-20 rounded-full overflow-hidden border bg-muted flex-shrink-0">
-                                        {(editingMember?.image_url || selectedImage) ? (
-                                            <img
-                                                src={selectedImage || editingMember?.image_url || ""}
-                                                alt="Profile"
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                                                <Users className="w-8 h-8 opacity-20" />
-                                            </div>
-                                        )}
+                        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label htmlFor="name" className="text-sm font-medium">Name</label>
+                                        <Input id="name" name="name" defaultValue={editingMember?.name} required placeholder="Full Name" />
                                     </div>
-                                    <div className="flex-1 space-y-2">
-                                        <div className="flex gap-2">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => setIsMediaPickerOpen(true)}
-                                            >
-                                                Select form Library
-                                            </Button>
-                                            {(selectedImage || editingMember?.image_url) && (
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="text-destructive hover:text-destructive"
-                                                    onClick={() => {
-                                                        setSelectedImage("");
-                                                        if (editingMember) setEditingMember({ ...editingMember, image_url: null });
-                                                    }}
-                                                >
-                                                    Remove
-                                                </Button>
+                                    <div className="space-y-2">
+                                        <label htmlFor="role" className="text-sm font-medium">Role</label>
+                                        <Input id="role" name="role" defaultValue={editingMember?.role} required placeholder="Visionary Designation" />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label htmlFor="bio" className="text-sm font-medium">Bio</label>
+                                    <Textarea id="bio" name="bio" defaultValue={editingMember?.bio || ""} placeholder="A short, visionary biography..." rows={3} />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Profile Image</label>
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative w-20 h-20 rounded-full overflow-hidden border bg-muted flex-shrink-0">
+                                            {(editingMember?.image_url || selectedImage) ? (
+                                                <img
+                                                    src={getOptimizedUrl(selectedImage || editingMember?.image_url || "", { width: 160, height: 160, quality: 78 })}
+                                                    alt="Profile"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                                    <Users className="w-8 h-8 opacity-20" />
+                                                </div>
                                             )}
                                         </div>
-                                        <Input
-                                            id="image_url"
-                                            name="image_url"
-                                            value={selectedImage || editingMember?.image_url || ""}
-                                            onChange={(e) => {
-                                                setSelectedImage(e.target.value);
-                                                if (editingMember) setEditingMember({ ...editingMember, image_url: e.target.value });
-                                            }}
-                                            placeholder="https://..."
-                                            className="text-xs font-mono"
-                                        />
+                                        <div className="flex-1 space-y-2">
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => setIsMediaPickerOpen(true)}
+                                                >
+                                                    Select from Library
+                                                </Button>
+                                                {(selectedImage || editingMember?.image_url) && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="text-destructive hover:text-destructive"
+                                                        onClick={() => {
+                                                            setSelectedImage("");
+                                                            if (editingMember) setEditingMember({ ...editingMember, image_url: null });
+                                                        }}
+                                                    >
+                                                        Remove
+                                                    </Button>
+                                                )}
+                                            </div>
+                                            <Input
+                                                id="image_url"
+                                                name="image_url"
+                                                value={selectedImage || editingMember?.image_url || ""}
+                                                onChange={(e) => {
+                                                    setSelectedImage(e.target.value);
+                                                    if (editingMember) setEditingMember({ ...editingMember, image_url: e.target.value });
+                                                }}
+                                                placeholder="https://..."
+                                                className="text-xs font-mono"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label htmlFor="instagram_url" className="text-sm font-medium">Instagram</label>
+                                        <Input id="instagram_url" name="instagram_url" defaultValue={editingMember?.instagram_url || ""} placeholder="#" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label htmlFor="linkedin_url" className="text-sm font-medium">LinkedIn</label>
+                                        <Input id="linkedin_url" name="linkedin_url" defaultValue={editingMember?.linkedin_url || ""} placeholder="#" />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label htmlFor="email" className="text-sm font-medium">Email</label>
+                                        <Input id="email" name="email" type="email" defaultValue={editingMember?.email || ""} placeholder="name@crossangle.in" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label htmlFor="display_order" className="text-sm font-medium">Display Order</label>
+                                        <Input id="display_order" name="display_order" type="number" defaultValue={editingMember?.display_order || 0} />
                                     </div>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label htmlFor="instagram_url" className="text-sm font-medium">Instagram</label>
-                                    <Input id="instagram_url" name="instagram_url" defaultValue={editingMember?.instagram_url || ""} placeholder="#" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label htmlFor="linkedin_url" className="text-sm font-medium">LinkedIn</label>
-                                    <Input id="linkedin_url" name="linkedin_url" defaultValue={editingMember?.linkedin_url || ""} placeholder="#" />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label htmlFor="email" className="text-sm font-medium">Email</label>
-                                    <Input id="email" name="email" type="email" defaultValue={editingMember?.email || ""} placeholder="name@crossangle.in" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label htmlFor="display_order" className="text-sm font-medium">Display Order</label>
-                                    <Input id="display_order" name="display_order" type="number" defaultValue={editingMember?.display_order || 0} />
-                                </div>
-                            </div>
-                            <DialogFooter className="pt-4">
+                            <div className="shrink-0 px-6 py-4 border-t border-zinc-800">
                                 <Button type="submit" disabled={upsertMutation.isPending} className="w-full">
                                     {upsertMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     {editingMember ? "Save Changes" : "Add Visionary"}
                                 </Button>
-                            </DialogFooter>
+                            </div>
                         </form>
                     </DialogContent>
                 </Dialog>
@@ -396,7 +399,7 @@ CREATE POLICY "Allow admin full access" ON team_members
                                 <TableRow key={member.id}>
                                     <TableCell>
                                         <Avatar className="h-10 w-10 border">
-                                            <AvatarImage src={member.image_url || ""} />
+                                            <AvatarImage src={getOptimizedUrl(member.image_url || "", { width: 96, height: 96, quality: 76 })} />
                                             <AvatarFallback>{member.name[0]}</AvatarFallback>
                                         </Avatar>
                                     </TableCell>
@@ -412,7 +415,7 @@ CREATE POLICY "Allow admin full access" ON team_members
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon">
+                                                <Button variant="ghost" size="icon" aria-label="Team options">
                                                     <MoreHorizontal className="w-4 h-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>

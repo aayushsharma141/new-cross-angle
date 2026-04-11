@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ArrowDown } from "lucide-react";
+import { Image } from "@/components/ui/image";
 
 interface ProjectHeroProps {
   heroImage: string;
@@ -25,10 +26,14 @@ const ProjectHero = ({ heroImage, title, tagline }: ProjectHeroProps) => {
     <div ref={containerRef} className="relative h-[100dvh] w-full flex flex-col justify-center items-center overflow-hidden bg-neutral-950 text-stone-100">
       {/* Cinematic Image with Slow Scale and Pulse */}
       <motion.div className="absolute inset-0 bg-neutral-900" style={{ y, opacity }}>
-        <img
+        <Image
           src={heroImage}
           alt={title}
-          className="w-full h-full object-cover object-center opacity-70 mix-blend-luminosity animate-[pulse_20000ms_ease-in-out_infinite_alternate] scale-105"
+          className="h-full w-full"
+          imageClassName="object-center opacity-70 mix-blend-luminosity animate-[pulse_20000ms_ease-in-out_infinite_alternate] scale-105"
+          width={1920}
+          height={1080}
+          loading="eager"
         />
       </motion.div>
       

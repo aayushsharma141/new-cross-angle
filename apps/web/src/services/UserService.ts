@@ -86,7 +86,7 @@ export class UserService {
     const { data, error } = await supabase
       .from('profiles')
       .select('*, user_roles(role)')
-      .not('deleted_at', 'is', null)
+      .is('deleted_at', null)
       .or('role.eq.super_admin,role.eq.admin');
 
     if (error) throw error;

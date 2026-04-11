@@ -89,10 +89,10 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
         >
             <div className="text-center mb-10">
                 <h2 className="font-serif-display text-3xl font-medium mb-4">
-                    Your Blueprint is Ready
+                    Save Your Blueprint
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                    We've analyzed your spatial DNA. Enter your details to reveal your personalized aesthetic archetype and design strategy.
+                    Love your results? Enter your details to save your Spatial Identity Blueprint and receive a personalized design consultation from our team.
                 </p>
             </div>
 
@@ -151,7 +151,7 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                     ) : (
                         <>
                             <span className="relative z-10 flex items-center justify-center gap-2">
-                                Reveal My Results
+                                Save & Get Consultation
                                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                             </span>
                             <div className="absolute inset-0 bg-primary/10 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-out" />

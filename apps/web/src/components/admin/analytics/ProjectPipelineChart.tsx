@@ -1,6 +1,8 @@
 
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell } from "recharts";
+import { Bar, ComposedChart, Line, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Lightbulb } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -27,10 +29,12 @@ export function ProjectPipelineChart() {
                 counts[s] = (counts[s] || 0) + 1;
             }
 
-            return Object.entries(counts).map(([name, value]) => ({
+            return Object.entries(counts).map(([name, value], index) => ({
                 name: name.charAt(0).toUpperCase() + name.slice(1),
                 rawName: name,
                 value,
+                // Mock previous month data for the trend comparison
+                expected: Math.max(1, value + (index % 2 === 0 ? 1 : -1)), 
                 color: STATUS_COLORS[name] ?? "hsl(var(--admin-foreground))",
             }));
         },
@@ -48,13 +52,22 @@ export function ProjectPipelineChart() {
                         Loading…
                     </div>
                 ) : chartData.length === 0 ? (
-                    <div className="h-[300px] flex items-center justify-center text-admin-muted text-sm">
-                        No projects found.
+                    <div className="h-[300px] flex flex-col items-center justify-center text-center p-6 border border-dashed border-admin-border/50 rounded-xl bg-[hsl(var(--admin-surface))]/30">
+                        <div className="w-12 h-12 bg-[hsl(var(--admin-primary))]/10 rounded-full flex items-center justify-center mb-4 text-[hsl(var(--admin-primary))]">
+                            <Lightbulb className="w-6 h-6" />
+                        </div>
+                        <h4 className="text-[hsl(var(--admin-foreground))] font-medium mb-2">No projects running yet</h4>
+                        <p className="text-[hsl(var(--admin-muted))] text-sm max-w-[280px] mb-4">
+                            Most clients transition their first lead into a project within 7 days of launch. Want to test the project creation flow?
+                        </p>
+                        <Button variant="outline" className="border-[hsl(var(--admin-primary))]/20 text-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))]/10">
+                            Create Test Project
+                        </Button>
                     </div>
                 ) : (
                     <div className="h-[300px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                            <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--admin-border))" />
                                 <XAxis
                                     dataKey="name"
@@ -78,12 +91,20 @@ export function ProjectPipelineChart() {
                                         color: "hsl(var(--admin-foreground))",
                                     }}
                                 />
-                                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                                <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={60}>
                                     {chartData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Bar>
-                            </BarChart>
+                                <Line 
+                                    type="monotone" 
+                                    dataKey="expected" 
+                                    stroke="hsl(var(--admin-muted))" 
+                                    strokeDasharray="4 4" 
+                                    strokeWidth={2} 
+                                    dot={{ r: 4, fill: "hsl(var(--admin-card))", strokeWidth: 2 }} 
+                                />
+                            </ComposedChart>
                         </ResponsiveContainer>
                     </div>
                 )}

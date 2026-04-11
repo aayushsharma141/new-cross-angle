@@ -6,12 +6,27 @@ import { serviceCategories } from "@/config/site-content";
 import { Squares } from "./ReactBits";
 import useScrollReveal from "@/hooks/useScrollReveal";
 import { Button } from "@/components/ui/button";
+import { Image } from "@/components/ui/image";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
 const Services = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number>(0);
   const containerRef = useRef<HTMLElement>(null);
+  const { data: services = [] } = useQuery({
+    queryKey: ["services"],
+    queryFn: api.getServices,
+  });
 
   useScrollReveal(containerRef, ".reveal-elem");
+
+  const categoriesWithMedia = serviceCategories.map((category) => ({
+    ...category,
+    heroImage:
+      services.find((service) => service.category_id === category.id && service.hero_image)?.hero_image || "",
+  }));
+
+  const activeCategory = categoriesWithMedia[hoveredIndex];
 
   return (
     <section id="services" ref={containerRef} className="py-20 md:py-32 relative bg-black overflow-hidden min-h-screen flex flex-col justify-center">
@@ -32,7 +47,7 @@ const Services = () => {
           </h2>
 
           <div className="flex flex-col mb-10 w-full relative">
-            {serviceCategories.map((category, index) => {
+            {categoriesWithMedia.map((category, index) => {
               const isHovered = hoveredIndex === index;
               return (
                 <Link
@@ -83,10 +98,12 @@ const Services = () => {
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="absolute inset-0 w-full h-full rounded-2xl overflow-hidden shadow-2xl shadow-black/50"
             >
-              <img
-                src={serviceCategories[hoveredIndex]?.heroImage}
-                alt={serviceCategories[hoveredIndex]?.title}
-                className="w-full h-full object-cover"
+              <Image
+                src={activeCategory?.heroImage}
+                alt={activeCategory?.title}
+                className="h-full w-full"
+                width={900}
+                height={1200}
               />
               <div className="absolute inset-0 bg-black/20" />
             </motion.div>

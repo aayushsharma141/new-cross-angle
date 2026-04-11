@@ -1,38 +1,48 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { AuthProvider } from "@/components/auth/AuthProvider";
-import { AdminProvider } from "@/context/AdminContext";
-import { SystemProvider } from "@/context/SystemContext";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { useEffect, Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { SchemaMarkup } from "./components/SchemaMarkup";
-import { LanguageProvider } from "./hooks/useLanguage";
-import { ThemeProvider } from "./components/theme-provider";
-import { ScrollManager } from "./components/layout/ScrollManager";
-// Public Pages
-import Index from "./pages/Index";
-import AboutPage from "./pages/AboutPage";
-import ServicesPage from "./pages/ServicesPage";
-import ServiceCategoryPage from "./pages/ServiceCategoryPage";
-import ServiceDetailPage from "./pages/ServiceDetailPage";
-import GalleryPage from "./pages/GalleryPage";
-import BlogPage from "./pages/BlogPage";
-import BlogDetailPage from "./pages/BlogDetailPage";
-import ContactPage from "./pages/ContactPage";
-import ProjectPage from "./pages/ProjectPage";
-import PriceEstimator from "./addons/calculators/pages/PriceEstimator";
-import DiscoveryPage from "./addons/discovery/pages/DiscoveryPage";
-import NotFound from "./pages/NotFound";
-import PageTransition from "./components/PageTransition";
+import { CookieConsentBanner } from "./components/cookies/CookieConsentBanner";
+import { runWhenIdle } from "./lib/idle";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { PageSkeleton } from "./components/ui/PageSkeleton";
+
+import { SmoothScroll } from "./components/layout/SmoothScroll";
+import { CoreProviders } from "./providers/CoreProviders";
+
+const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
+const POSTHOG_HOST = 'https://us.i.posthog.com';
+
+// Public pages
+const Index = lazy(() => import("./pages/Index"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const ServicesPage = lazy(() => import("./pages/ServicesPage"));
+const ServiceCategoryPage = lazy(() => import("./pages/ServiceCategoryPage"));
+const ServiceDetailPage = lazy(() => import("./pages/ServiceDetailPage"));
+const GalleryPage = lazy(() => import("./pages/GalleryPage"));
+const ProjectHubPage = lazy(() => import("./pages/ProjectHubPage"));
+const BlogPage = lazy(() => import("./pages/BlogPage"));
+const BlogDetailPage = lazy(() => import("./pages/BlogDetailPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const ProjectPage = lazy(() => import("./pages/ProjectPage"));
+const PriceEstimator = lazy(() => import("./addons/calculators/pages/PriceEstimator"));
+const DiscoveryPage = lazy(() => import("./addons/discovery/pages/DiscoveryPage"));
 const BlueprintPage = lazy(() => import("./addons/discovery/pages/BlueprintPage"));
-// Admin Pages — lazy-loaded so anonymous public visitors never download admin JS
-// Auth + Layout stay static: they handle redirects before the user lands on any admin page
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Shared route wrappers
+import PageTransition from "./components/PageTransition";
+
+// Admin routes
 import AdminAuth from "./pages/admin/AdminAuth";
-import AdminResetPassword from "./pages/admin/AdminResetPassword";
 import AdminLayout from "./pages/admin/AdminLayout";
 const AdminHub = lazy(() => import("./pages/admin/AdminHub"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -49,52 +59,85 @@ const AdminEstimateLeads = lazy(() => import("./pages/admin/AdminEstimateLeads")
 const AdminEstimateRates = lazy(() => import("./pages/admin/AdminEstimateRates"));
 const AdminTeamMembers = lazy(() => import("./pages/admin/AdminTeamMembers"));
 const AdminHero = lazy(() => import("./pages/admin/AdminHero"));
+const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
-// Admin Module Wrappers — also lazy-loaded
-const CmsModule = lazy(() => import("./pages/admin/modules/CmsModule").then(m => ({ default: m.CmsModule })));
-const CrmModule = lazy(() => import("./pages/admin/modules/CrmModule").then(m => ({ default: m.CrmModule })));
-const DiscoveryModule = lazy(() => import("./pages/admin/modules/DiscoveryModule").then(m => ({ default: m.DiscoveryModule })));
-const EstimatorModule = lazy(() => import("./pages/admin/modules/EstimatorModule").then(m => ({ default: m.EstimatorModule })));
-const SystemModule = lazy(() => import("./pages/admin/modules/SystemModule").then(m => ({ default: m.SystemModule })));
-const BlogModule = lazy(() => import("./pages/admin/modules/BlogModule").then(m => ({ default: m.BlogModule })));
+const AdminAuditLogs = lazy(() => import("./pages/admin/AdminAuditLogs"));
+const CmsModule = lazy(() =>
+  import("./pages/admin/modules/CmsModule").then((module) => ({
+    default: module.CmsModule,
+  })),
+);
+const CrmModule = lazy(() =>
+  import("./pages/admin/modules/CrmModule").then((module) => ({
+    default: module.CrmModule,
+  })),
+);
+const DiscoveryModule = lazy(() =>
+  import("./pages/admin/modules/DiscoveryModule").then((module) => ({
+    default: module.DiscoveryModule,
+  })),
+);
+const EstimatorModule = lazy(() =>
+  import("./pages/admin/modules/EstimatorModule").then((module) => ({
+    default: module.EstimatorModule,
+  })),
+);
+const SystemModule = lazy(() =>
+  import("./pages/admin/modules/SystemModule").then((module) => ({
+    default: module.SystemModule,
+  })),
+);
+const BlogModule = lazy(() =>
+  import("./pages/admin/modules/BlogModule").then((module) => ({
+    default: module.BlogModule,
+  })),
+);
 const AdminBlogOverview = lazy(() => import("./pages/admin/AdminBlogOverview"));
 const AdminBlogPerformance = lazy(() => import("./pages/admin/AdminBlogPerformance"));
 const AdminBlogEngagement = lazy(() => import("./pages/admin/AdminBlogEngagement"));
+const DeferredScrollManager = lazy(() =>
+  import("./components/layout/ScrollManager").then((module) => ({
+    default: module.ScrollManager,
+  })),
+);
+
 import { RoleGuard } from "./components/admin/RoleGuard";
 import { AuthGuard } from "./components/auth/AuthGuard";
 
-// Minimal admin loading skeleton shown while lazy chunks download
-const AdminPageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--admin-bg))] admin-theme">
-    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-  </div>
-);
+const AdminPageLoader = () => <PageSkeleton variant="admin" />;
 
-const queryClient = new QueryClient();
+const PublicPageLoader = () => <PageSkeleton variant="public" />;
 
-// Scroll to top on route change
+
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
+    window.scrollTo({ top: 0, behavior: "auto" });
   }, [pathname]);
 
   return null;
 };
 
-import useLenis from "./hooks/useLenis";
+const DeferredExperienceEnhancements = () => {
+  const [shouldEnhanceScroll, setShouldEnhanceScroll] = useState(false);
+
+  useEffect(() => runWhenIdle(() => setShouldEnhanceScroll(true), 1200), []);
+
+  if (!shouldEnhanceScroll) {
+    return null;
+  }
+
+  return (
+    <Suspense fallback={null}>
+      <DeferredScrollManager />
+    </Suspense>
+  );
+};
 
 const AnimatedRoutes = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
-
-  // Initialize smooth scrolling for the entire app
-  useLenis();
-
-  useEffect(() => {
-    console.log("Debug: AnimatedRoutes rendered, path:", location.pathname, "isAdmin:", isAdmin);
-  }, [location.pathname, isAdmin]);
 
   return (
     <>
@@ -104,149 +147,279 @@ const AnimatedRoutes = () => {
           <Routes>
             <Route path="/admin/auth" element={<AdminAuth />} />
             <Route path="/admin/login" element={<Navigate to="/admin/auth" replace />} />
-            <Route path="/admin/reset-password" element={<AdminResetPassword />} />
-
+            <Route
+              path="/admin/reset-password"
+              element={<Navigate to="/admin/auth#type=recovery" replace />}
+            />
             <Route element={<AuthGuard />}>
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminHub />} />
                 <Route path="dashboard" element={<AdminDashboard />} />
-                <Route path="access" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminUsers /></RoleGuard>} />
+                <Route
+                  path="access"
+                  element={
+                    <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                      <AdminUsers />
+                    </RoleGuard>
+                  }
+                />
 
-                <Route path="cms" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><CmsModule /></RoleGuard>}>
-                  <Route path="portfolio" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminPortfolio /></RoleGuard>} />
-                  <Route path="services" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminServices /></RoleGuard>} />
-                  <Route path="testimonials" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTestimonials /></RoleGuard>} />
-                  <Route path="team" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTeam /></RoleGuard>} />
-                  <Route path="blogs" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminBlogs /></RoleGuard>} />
-                  <Route path="media" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminMedia /></RoleGuard>} />
-                  <Route path="hero" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminHero /></RoleGuard>} />
+                <Route
+                  path="cms"
+                  element={
+                    <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                      <CmsModule />
+                    </RoleGuard>
+                  }
+                >
+                  <Route
+                    path="portfolio"
+                    element={
+                      <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                        <AdminPortfolio />
+                      </RoleGuard>
+                    }
+                  />
+                  <Route
+                    path="services"
+                    element={
+                      <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                        <AdminServices />
+                      </RoleGuard>
+                    }
+                  />
+                  <Route
+                    path="testimonials"
+                    element={
+                      <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                        <AdminTestimonials />
+                      </RoleGuard>
+                    }
+                  />
+                  <Route
+                    path="team"
+                    element={
+                      <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                        <AdminTeam />
+                      </RoleGuard>
+                    }
+                  />
+                  <Route
+                    path="blogs"
+                    element={
+                      <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                        <AdminBlogs />
+                      </RoleGuard>
+                    }
+                  />
+                  <Route
+                    path="media"
+                    element={
+                      <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                        <AdminMedia />
+                      </RoleGuard>
+                    }
+                  />
+                  <Route
+                    path="hero"
+                    element={
+                      <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                        <AdminHero />
+                      </RoleGuard>
+                    }
+                  />
+                  <Route
+                    path="gallery"
+                    element={
+                      <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                        <AdminGallery />
+                      </RoleGuard>
+                    }
+                  />
                 </Route>
 
-                <Route path="crm" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><CrmModule /></RoleGuard>}>
+                <Route
+                  path="crm"
+                  element={
+                    <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                      <CrmModule />
+                    </RoleGuard>
+                  }
+                >
                   <Route path="leads" element={<AdminLeads />} />
                   <Route path="users" element={<Navigate to="/admin/access" replace />} />
                 </Route>
 
-                <Route path="discovery" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><DiscoveryModule /></RoleGuard>}>
+                <Route
+                  path="discovery"
+                  element={
+                    <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                      <DiscoveryModule />
+                    </RoleGuard>
+                  }
+                >
                   <Route path="analytics" element={<AdminAnalytics />} />
                 </Route>
 
-                <Route path="estimator" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><EstimatorModule /></RoleGuard>}>
+                <Route
+                  path="estimator"
+                  element={
+                    <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                      <EstimatorModule />
+                    </RoleGuard>
+                  }
+                >
                   <Route path="leads" element={<AdminEstimateLeads />} />
-                  <Route path="rates" element={<RoleGuard allowedRoles={["super_admin"]}><AdminEstimateRates /></RoleGuard>} />
+                  <Route
+                    path="rates"
+                    element={
+                      <RoleGuard allowedRoles={["super_admin"]}>
+                        <AdminEstimateRates />
+                      </RoleGuard>
+                    }
+                  />
                 </Route>
 
-                <Route path="blog" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><BlogModule /></RoleGuard>}>
+                <Route
+                  path="blog"
+                  element={
+                    <RoleGuard allowedRoles={["super_admin", "admin"]}>
+                      <BlogModule />
+                    </RoleGuard>
+                  }
+                >
                   <Route path="overview" element={<AdminBlogOverview />} />
                   <Route path="performance" element={<AdminBlogPerformance />} />
                   <Route path="engagement" element={<AdminBlogEngagement />} />
                 </Route>
 
-                <Route path="system" element={<RoleGuard allowedRoles={["super_admin"]}><SystemModule /></RoleGuard>}>
+                <Route
+                  path="system"
+                  element={
+                    <RoleGuard allowedRoles={["super_admin"]}>
+                      <SystemModule />
+                    </RoleGuard>
+                  }
+                >
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="team-members" element={<AdminTeamMembers />} />
+                  <Route path="audit" element={<AdminAuditLogs />} />
                 </Route>
               </Route>
             </Route>
-          </Routes >
-        </Suspense >
+          </Routes>
+        </Suspense>
       ) : (
         <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-            <Route path="/about-us" element={<PageTransition><AboutPage /></PageTransition>} />
-            <Route path="/services" element={<PageTransition><ServicesPage /></PageTransition>} />
-            <Route path="/services/:category" element={<PageTransition><ServiceCategoryPage /></PageTransition>} />
-            <Route path="/services/:category/:service" element={<PageTransition><ServiceDetailPage /></PageTransition>} />
-            <Route path="/gallery" element={<PageTransition><GalleryPage /></PageTransition>} />
-            <Route path="/blog" element={<PageTransition><BlogPage /></PageTransition>} />
-            <Route path="/blog/:slug" element={<PageTransition><BlogDetailPage /></PageTransition>} />
-            <Route path="/contact-us" element={<PageTransition><ContactPage /></PageTransition>} />
-            <Route path="/estimate" element={<PageTransition><PriceEstimator /></PageTransition>} />
-            <Route path="/style-quiz" element={<PageTransition><DiscoveryPage /></PageTransition>} />
-            <Route path="/blueprint" element={<PageTransition><Suspense fallback={<div className="min-h-screen bg-[#080808] w-full" />}><BlueprintPage /></Suspense></PageTransition>} />
-            <Route path="/portfolio/:slug" element={<PageTransition><ProjectPage /></PageTransition>} />
-            {/* Redirect routes for common variations */}
-            <Route path="/about" element={<Navigate to="/about-us" replace />} />
-            <Route path="/contact" element={<Navigate to="/contact-us" replace />} />
-            <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
-          </Routes>
+          <Suspense fallback={<PublicPageLoader />}>
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+              <Route path="/about-us" element={<PageTransition><AboutPage /></PageTransition>} />
+              <Route path="/services" element={<PageTransition><ServicesPage /></PageTransition>} />
+              <Route
+                path="/services/:category"
+                element={<PageTransition><ServiceCategoryPage /></PageTransition>}
+              />
+              <Route
+                path="/services/:category/:service"
+                element={<PageTransition><ServiceDetailPage /></PageTransition>}
+              />
+              <Route path="/portfolio" element={<PageTransition><ProjectHubPage /></PageTransition>} />
+              <Route path="/gallery" element={<PageTransition><GalleryPage /></PageTransition>} />
+              <Route path="/blog" element={<PageTransition><BlogPage /></PageTransition>} />
+              <Route
+                path="/blog/:slug"
+                element={<PageTransition><BlogDetailPage /></PageTransition>}
+              />
+              <Route path="/contact-us" element={<PageTransition><ContactPage /></PageTransition>} />
+              <Route
+                path="/estimate"
+                element={<PageTransition><PriceEstimator /></PageTransition>}
+              />
+              <Route
+                path="/style-quiz"
+                element={<PageTransition><DiscoveryPage /></PageTransition>}
+              />
+              <Route path="/blueprint" element={<PageTransition><BlueprintPage /></PageTransition>} />
+              <Route
+                path="/portfolio/:slug"
+                element={<PageTransition><ProjectPage /></PageTransition>}
+              />
+              <Route path="/about" element={<Navigate to="/about-us" replace />} />
+              <Route path="/contact" element={<Navigate to="/contact-us" replace />} />
+              <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+            </Routes>
+          </Suspense>
         </AnimatePresence>
       )}
     </>
   );
 };
 
-const App = () => (
-  <HelmetProvider>
-    <SchemaMarkup
-      type="LocalBusiness"
-      data={{
-        "@type": "InteriorDesigner",
-        "name": "Cross Angle Interior",
-        "image": "https://crossangleinterior.com/logo-icon.png",
-        "@id": "https://crossangleinterior.com",
-        "url": "https://crossangleinterior.com",
-        "telephone": "+917909041132",
-        "priceRange": "$$",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "2-G, 2nd floor, Aditya Signature building, Dimna Rd, Mango",
-          "addressLocality": "Jamshedpur",
-          "addressRegion": "Jharkhand",
-          "postalCode": "831012",
-          "addressCountry": "IN"
-        },
-        "geo": {
-          "@type": "GeoCoordinates",
-          "latitude": 22.8027,
-          "longitude": 86.2047
-        },
-        "openingHoursSpecification": {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday"
+const App = () => {
+  return (
+    <CoreProviders>
+      <SchemaMarkup
+        type="LocalBusiness"
+        data={{
+          "@type": "InteriorDesigner",
+          name: "Cross Angle Interior",
+          image: "https://crossangleinterior.com/logo-icon.png",
+          "@id": "https://crossangleinterior.com",
+          url: "https://crossangleinterior.com",
+          telephone: "+917909041132",
+          priceRange: "$$",
+          address: {
+            "@type": "PostalAddress",
+            streetAddress:
+              "2-G, 2nd floor, Aditya Signature building, Dimna Rd, Mango",
+            addressLocality: "Jamshedpur",
+            addressRegion: "Jharkhand",
+            postalCode: "831012",
+            addressCountry: "IN",
+          },
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: 22.8027,
+            longitude: 86.2047,
+          },
+          openingHoursSpecification: {
+            "@type": "OpeningHoursSpecification",
+            dayOfWeek: [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+            ],
+            opens: "09:00",
+            closes: "20:00",
+          },
+          sameAs: [
+            "https://www.instagram.com/crossangleinterior/",
+            "https://www.facebook.com/crossangleinterior",
           ],
-          "opens": "09:00",
-          "closes": "20:00"
-        },
-        "sameAs": [
-          "https://www.instagram.com/crossangleinterior/",
-          "https://www.facebook.com/crossangleinterior"
-        ]
-      }}
-    />
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <ScrollManager />
-        <TooltipProvider>
-          <AuthProvider>
-            <SystemProvider>
-              <AdminProvider>
-                <LanguageProvider>
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter
-                    future={{
-                      v7_startTransition: true,
-                      v7_relativeSplatPath: true,
-                    }}
-                  >
-                    <AnimatedRoutes />
-                  </BrowserRouter>
-                </LanguageProvider>
-              </AdminProvider>
-            </SystemProvider>
-          </AuthProvider>
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
-  </HelmetProvider>
-);
+        }}
+      />
+      <DeferredExperienceEnhancements />
+      <SmoothScroll>
+                          <Toaster />
+                          <Sonner />
+                          <CookieConsentBanner />
+                          <ErrorBoundary>
+                            <BrowserRouter
+                              future={{
+                                v7_startTransition: true,
+                                v7_relativeSplatPath: true,
+                              }}
+                            >
+                              <AnimatedRoutes />
+                            </BrowserRouter>
+                          </ErrorBoundary>
+      </SmoothScroll>
+    </CoreProviders>
+  );
+};
 
 export default App;

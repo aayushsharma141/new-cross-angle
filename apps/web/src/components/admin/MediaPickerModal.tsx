@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 interface MediaFile {
     id: string;
@@ -203,7 +204,7 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
                                         }`}
                                 >
                                     <img
-                                        src={file.url}
+                                        src={getOptimizedUrl(file.url, { width: 360, quality: 72 })}
                                         alt={file.name}
                                         className="w-full h-full object-cover"
                                         loading="lazy"

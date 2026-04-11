@@ -2,11 +2,18 @@ import { useEffect } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import useReducedMotion from '@/hooks/useReducedMotion';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export const ScrollManager = () => {
+    const prefersReducedMotion = useReducedMotion();
+
     useEffect(() => {
+        if (prefersReducedMotion) {
+            return;
+        }
+
         const lenis = new Lenis({
             duration: 1.2,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -19,7 +26,6 @@ export const ScrollManager = () => {
 
         lenis.on('scroll', ScrollTrigger.update);
 
-        // Tell ScrollTrigger to use Lenis' scroll position for pinning to work correctly
         ScrollTrigger.scrollerProxy(document.documentElement, {
             scrollTop(value) {
                 if (value !== undefined) {
@@ -33,10 +39,9 @@ export const ScrollManager = () => {
             pinType: document.documentElement.style.transform ? "transform" : "fixed",
         });
 
-        // Keep Lenis in sync when ScrollTrigger refreshes
-        ScrollTrigger.addEventListener("refresh", () => lenis.resize());
+        const handleRefresh = () => lenis.resize();
+        ScrollTrigger.addEventListener("refresh", handleRefresh);
 
-        // Global Reveal Effects
         const revealElements = document.querySelectorAll('.gsap-reveal');
         revealElements.forEach((el) => {
             gsap.from(el, {
@@ -69,19 +74,20 @@ export const ScrollManager = () => {
             });
         });
 
-        gsap.ticker.add((time) => {
+        const handleTick = (time: number) => {
             lenis.raf(time * 1000);
-        });
+        };
+        gsap.ticker.add(handleTick);
 
         gsap.ticker.lagSmoothing(0);
 
         return () => {
-            ScrollTrigger.removeEventListener("refresh", () => lenis.resize());
-            gsap.ticker.remove((time) => lenis.raf(time * 1000));
+            ScrollTrigger.removeEventListener("refresh", handleRefresh);
+            gsap.ticker.remove(handleTick);
             ScrollTrigger.getAll().forEach(t => t.kill());
             lenis.destroy();
         };
-    }, []);
+    }, [prefersReducedMotion]);
 
     return null;
 };

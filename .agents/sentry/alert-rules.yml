@@ -1,0 +1,122 @@
+# Sentry Alert Rules — Cross Angle Interior
+# ============================================================
+# These rules are defined here as infrastructure-as-code for
+# documentation and reproducibility. Apply them via the Sentry
+# dashboard (Settings → Alerts → Create Alert Rule) or via
+# the Sentry CLI: `sentry-cli send-event` or the API.
+#
+# Project: crossangle-web  (replace with your actual project slug)
+# Org:     crossangle       (replace with your actual org slug)
+# ============================================================
+
+alerts:
+
+  # ── 1. Unhandled JavaScript Exceptions ─────────────────────────────────────
+  - name: "Unhandled Exception Spike"
+    type: error
+    conditions:
+      # Fire when the error is new OR when a regression is detected.
+      - id: sentry.rules.conditions.first_seen_event.FirstSeenEventCondition
+      - id: sentry.rules.conditions.regression_event.RegressionEventCondition
+    filters:
+      # Only care about errors in the production environment.
+      - id: sentry.rules.filters.latest_release.LatestReleaseFilter
+    actions:
+      - id: sentry.mail.actions.NotifyEmailAction
+        targetType: IssueOwners
+      # Optional: replace with your Slack webhook
+      # - id: sentry.integrations.slack.notify_action.SlackNotifyServiceAction
+      #   workspace: YOUR_WORKSPACE_ID
+      #   channel: "#alerts-prod"
+      #   tags: "environment,release"
+    frequency: 1440   # Max one notification per 24 h for the same issue
+    environment: production
+
+  # ── 2. 5xx Error Rate Threshold ────────────────────────────────────────────
+  # Fires when the error rate for ANY edge function (tagged runtime=deno)
+  # exceeds 5 errors per minute over a 5-minute window.
+  - name: "Edge Function 5xx Spike"
+    type: metric
+    dataset: errors
+    aggregate: count()
+    query: "level:error tags[runtime]:deno"
+    timeWindow: 5          # minutes
+    thresholds:
+      critical:
+        gt: 10             # > 10 errors in 5 min = critical (pages on-call)
+        actions:
+          - id: sentry.mail.actions.NotifyEmailAction
+            targetType: Team
+      warning:
+        gt: 5              # > 5 errors in 5 min = warning
+        actions:
+          - id: sentry.mail.actions.NotifyEmailAction
+            targetType: IssueOwners
+    environment: production
+
+  # ── 3. Rate-Limit Breach Spike ─────────────────────────────────────────────
+  # rate_limiter reports 429s as Sentry warnings with the message
+  # "Rate limit exceeded". Fire if there are > 20 in 5 minutes —
+  # a reliable signal of bot traffic or credential stuffing.
+  - name: "Rate Limit Abuse Spike"
+    type: metric
+    dataset: errors
+    aggregate: count()
+    query: "level:warning message:\"Rate limit exceeded\""
+    timeWindow: 5
+    thresholds:
+      critical:
+        gt: 50
+        actions:
+          - id: sentry.mail.actions.NotifyEmailAction
+            targetType: Team
+      warning:
+        gt: 20
+        actions:
+          - id: sentry.mail.actions.NotifyEmailAction
+            targetType: IssueOwners
+    environment: production
+
+  # ── 4. Lead Submission Failure ─────────────────────────────────────────────
+  # Any error tagged to submit-discovery-lead or submit-estimate is
+  # business-critical — a lost lead = lost revenue. Page immediately.
+  - name: "Lead Submission Failure — Immediate"
+    type: error
+    conditions:
+      - id: sentry.rules.conditions.first_seen_event.FirstSeenEventCondition
+      - id: sentry.rules.conditions.regression_event.RegressionEventCondition
+    filters:
+      - id: sentry.rules.filters.tagged_event.TaggedEventFilter
+        match: contains
+        key: edge_fn
+        value: "submit"   # matches submit-discovery-lead AND submit-estimate
+    actions:
+      - id: sentry.mail.actions.NotifyEmailAction
+        targetType: Team
+    frequency: 60          # every hour if ongoing
+    environment: production
+
+  # ── 5. Session Replay Error on Contact / Quote Pages ───────────────────────
+  # Capture replays whenever an error occurs on pages containing /contact,
+  # /estimate, or /project (high-conversion paths).
+  # This is enforced by replaysOnErrorSampleRate: 1.0 in sentry.ts.
+  # No additional alert rule needed — Sentry auto-creates Issues from replays.
+
+  # ── 6. New Release Regression ──────────────────────────────────────────────
+  # Fires when a new deploy causes an error rate increase of > 20 %
+  # compared to the 24 h before the deploy.
+  - name: "Post-Deploy Regression"
+    type: metric
+    dataset: errors
+    aggregate: count()
+    query: ""
+    timeWindow: 60         # compare over 1 hour window post-deploy
+    thresholds:
+      warning:
+        gt: 0              # Any new error after a deploy is worth reviewing
+        actions:
+          - id: sentry.mail.actions.NotifyEmailAction
+            targetType: IssueOwners
+    # Sentry automatically scopes this to the latest release when
+    # "Only fire if the issue occurs in the latest release" is checked.
+    environment: production

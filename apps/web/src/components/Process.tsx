@@ -1,181 +1,326 @@
-import { useRef } from "react";
-import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { Home, Ruler, Palette, Hammer, Check } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
+import {
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
+import { Check, Hammer, Home, Palette, Ruler } from "lucide-react";
+import { Image } from "@/components/ui/image";
+import useReducedMotion from "@/hooks/useReducedMotion";
+import { cn } from "@/lib/utils";
 
 const steps = [
   {
     id: "C",
     icon: Home,
     title: "Consult",
-    subtitle: "Free Meeting",
-    description: "Share your vision with our expert designers",
+    subtitle: "Private Briefing",
+    description: "Share your vision, priorities, and timeline with our design team.",
+    detail:
+      "We begin with a precise understanding of lifestyle, site realities, and investment intent so the project starts with clarity.",
+    image: "/reality_render.jpg",
+    imageAlt: "Luxury living room consultation setting",
+    kicker: "Stage One",
   },
   {
     id: "M",
     icon: Ruler,
     title: "Measure & Plan",
-    subtitle: "Blueprint",
-    description: "Precise measurements and detailed planning",
+    subtitle: "Technical Mapping",
+    description: "Laser-precise measurement, circulation logic, and planning discipline.",
+    detail:
+      "Spatial planning, dimensions, and constraints are translated into an execution-ready foundation before any major design decision.",
+    image: "/blueprint_shell.jpg",
+    imageAlt: "Architectural blueprint and measured planning sheet",
+    kicker: "Stage Two",
   },
   {
     id: "D",
     icon: Palette,
     title: "Design",
-    subtitle: "3D Views",
-    description: "Review realistic 3D visualizations",
+    subtitle: "Visual Direction",
+    description: "See palettes, finishes, and realistic views before execution begins.",
+    detail:
+      "Materials, lighting mood, and 3D visuals align taste with feasibility, allowing decisions to feel confident instead of speculative.",
+    image: "/hero_reality_render_1775299733746.png",
+    imageAlt: "Photorealistic interior design preview",
+    kicker: "Stage Three",
   },
   {
     id: "E",
     icon: Hammer,
     title: "Execute",
-    subtitle: "Craftsmanship",
-    description: "Expert craftsmen bring your design to life",
+    subtitle: "Craft & Install",
+    description: "Specialist teams bring the approved design into built form.",
+    detail:
+      "Fabrication, site coordination, and finishing are managed as one controlled delivery stream to reduce friction and protect quality.",
+    image: "/reality_render.jpg",
+    imageAlt: "Finished interior under installation and styling",
+    kicker: "Stage Four",
   },
   {
     id: "F",
     icon: Check,
     title: "Handover",
     subtitle: "Final Reveal",
-    description: "Walk through your transformed space",
+    description: "Walk through a polished, ready-to-live space with full confidence.",
+    detail:
+      "The closing stage focuses on finishing, quality checks, and a composed reveal that feels complete rather than merely delivered.",
+    image: "/hero_reality_render_1775299733746.png",
+    imageAlt: "Completed premium interior ready for handover",
+    kicker: "Stage Five",
   },
-];
+] as const;
 
-type ProcessStepConfig = typeof steps[number];
+type ProcessStepConfig = (typeof steps)[number];
 
-const TimelineStep = ({
+const ProcessStepButton = ({
   step,
   index,
   totalSteps,
+  isActive,
   scrollYProgress,
+  onSelect,
 }: {
   step: ProcessStepConfig;
   index: number;
   totalSteps: number;
+  isActive: boolean;
   scrollYProgress: MotionValue<number>;
+  onSelect: (index: number) => void;
 }) => {
-  const threshold = index / (totalSteps - 1);
-  const startFade = Math.max(0, threshold - 0.1);
-  const endFade = threshold;
+  const threshold = index / Math.max(1, totalSteps - 1);
+  const startFade = Math.max(0, threshold - 0.12);
+  const endFade = Math.min(1, threshold + 0.08);
 
-  const opacity = useTransform(scrollYProgress, [startFade, endFade], [0.2, 1]);
-  const y = useTransform(scrollYProgress, [startFade, endFade], [30, 0]);
-  const color = useTransform(
-    scrollYProgress,
-    [startFade, endFade],
-    ["rgba(255,255,255,0.2)", "rgba(255,255,255,1)"]
-  );
-  const bgNode = useTransform(
-    scrollYProgress,
-    [startFade, endFade],
-    ["rgba(0,0,0,1)", "#E81B39"]
-  );
+  const y = useTransform(scrollYProgress, [startFade, endFade], [22, 0]);
+  const opacity = useTransform(scrollYProgress, [startFade, endFade], [0.35, 1]);
 
   return (
-    <div className="relative flex flex-col items-center">
-      <motion.div
-        className="w-8 h-8 md:w-12 md:h-12 rounded-full border-2 border-site-crimson flex items-center justify-center font-display font-bold text-sm md:text-lg z-10"
-        style={{
-          backgroundColor: bgNode,
-          color,
-        }}
+    <motion.button
+      type="button"
+      onClick={() => onSelect(index)}
+      className="relative flex min-w-0 flex-1 flex-col items-center text-center outline-none"
+      style={{ opacity, y }}
+      aria-current={isActive ? "step" : undefined}
+      aria-label={`View ${step.title} stage`}
+    >
+      <div
+        className={cn(
+          "relative z-10 flex h-11 w-11 items-center justify-center rounded-full border text-base transition-all duration-500 md:h-14 md:w-14 md:text-lg",
+          isActive
+            ? "border-site-crimson bg-site-crimson text-white shadow-[0_0_28px_rgba(232,27,57,0.28)]"
+            : "border-white/18 bg-black text-white/45",
+        )}
       >
-        {step.id}
-      </motion.div>
+        <span className="font-display font-semibold">{step.id}</span>
+      </div>
 
-      <motion.div
-        className="absolute top-16 md:top-20 w-32 md:w-48 text-center"
-        style={{ opacity, y }}
-      >
-        <div className="flex items-center justify-center mb-2">
-          <step.icon className="w-5 h-5 text-site-crimson" />
-        </div>
-        <h3 className="text-white font-bold text-base md:text-xl mb-1">
+      <div className="mt-7 flex items-center justify-center">
+        <step.icon
+          aria-hidden="true"
+          className={cn(
+            "h-4 w-4 transition-colors duration-400 md:h-5 md:w-5",
+            isActive ? "text-site-crimson" : "text-white/35",
+          )}
+        />
+      </div>
+
+      <div className="mt-3">
+        <h3
+          className={cn(
+            "font-sans text-lg font-semibold transition-colors duration-400 md:text-[1.05rem]",
+            isActive ? "text-white" : "text-white/42",
+          )}
+        >
           {step.title}
         </h3>
-        <p className="text-[#A3A09C] text-xs md:text-sm font-light leading-relaxed hidden sm:block">
+        <p
+          className={cn(
+            "mx-auto mt-2 max-w-[18ch] text-sm leading-relaxed transition-colors duration-400",
+            isActive ? "text-white/72" : "text-white/28",
+          )}
+        >
           {step.description}
         </p>
-      </motion.div>
-    </div>
+      </div>
+    </motion.button>
   );
 };
 
 const Process = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  // We make the container 300vh so user scrolls for a while
-  // The scroll progress 0 -> 1 represents the user scrolling through this 300vh block
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   });
 
-  // The horizontal red line width is exactly tied to scroll progress
-  const lineWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  const timelineProgress = useSpring(scrollYProgress, {
+    stiffness: prefersReducedMotion ? 240 : 120,
+    damping: prefersReducedMotion ? 38 : 26,
+    mass: 0.35,
+  });
+
+  const lineScaleX = useTransform(timelineProgress, [0, 1], [0, 1]);
+  const panelGlow = useTransform(
+    timelineProgress,
+    [0, 0.25, 0.5, 0.75, 1],
+    [
+      "0 0 0 rgba(232,27,57,0)",
+      "0 0 60px rgba(232,27,57,0.12)",
+      "0 0 80px rgba(255,255,255,0.08)",
+      "0 0 70px rgba(232,27,57,0.12)",
+      "0 0 45px rgba(232,27,57,0.10)",
+    ],
+  );
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    const nextIndex = Math.min(steps.length - 1, Math.floor(latest * steps.length));
+    setActiveIndex((currentIndex) => (currentIndex === nextIndex ? currentIndex : nextIndex));
+  });
+
+  const handleSelect = useCallback((index: number) => {
+    const node = containerRef.current;
+    if (!node) return;
+
+    const rect = node.getBoundingClientRect();
+    const scrollableDistance = rect.height - window.innerHeight;
+    const normalizedIndex = steps.length === 1 ? 0 : index / (steps.length - 1);
+    const targetY = window.scrollY + rect.top + scrollableDistance * normalizedIndex;
+
+    window.scrollTo({
+      top: targetY,
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+  }, [prefersReducedMotion]);
+
+  const activeStep = steps[activeIndex];
 
   return (
-    <section ref={containerRef} id="process" className="relative h-[300vh] bg-site-bg">
-      {/* Sticky container that stays on screen while user scrolls through the 300vh target */}
-      <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden py-20 px-4 md:px-12">
-        
-        {/* Header */}
-        <div className="absolute top-20 left-4 md:left-12">
-          <span className="text-site-crimson font-mono text-sm tracking-[0.3em] uppercase block mb-2">
-            How We Work
-          </span>
-          <h2 className="text-3xl md:text-5xl font-display font-bold text-white">
-            Our Process
-          </h2>
-        </div>
+    <section
+      ref={containerRef}
+      id="process"
+      className="relative h-[320vh] bg-site-bg text-white"
+      aria-label="How we work process section"
+    >
+      <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden px-4 py-8 md:px-8 lg:px-12">
+        <div className="mx-auto flex h-full w-full max-w-[1600px] flex-col justify-between gap-10">
+          <div className="grid gap-8 pt-12 lg:grid-cols-[minmax(280px,0.95fr)_minmax(0,1.75fr)] lg:items-start lg:pt-16">
+            <div className="max-w-[360px] pt-8 md:pt-14 lg:pt-20">
+              <span className="font-mono text-[11px] uppercase tracking-[0.42em] text-white/68">
+                How We Work
+              </span>
+              <h2 className="mt-3 font-display text-[clamp(3rem,6vw,5.7rem)] font-semibold leading-[0.92] tracking-[-0.04em] text-white text-balance">
+                Our Process
+              </h2>
+              <p className="mt-5 max-w-[17ch] font-display text-[1.05rem] leading-[1.5] text-white/76 md:text-[1.2rem]">
+                A connected five-stage journey designed to move from brief to final reveal with clarity.
+              </p>
+            </div>
 
-        {/* Timeline Area */}
-        <div className="relative mt-20 md:mt-0 w-full max-w-7xl mx-auto h-64 flex items-center">
-          
-          {/* Base gray line */}
-          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px] bg-white/10" />
+            <div className="relative">
+              <motion.div
+                style={{ boxShadow: panelGlow }}
+                className="relative min-h-[360px] overflow-hidden bg-transparent md:min-h-[430px] lg:min-h-[520px]"
+              >
+                {steps.map((step, index) => (
+                  <div
+                    key={step.id}
+                    className={cn(
+                      "absolute inset-0 transition-opacity duration-700",
+                      activeIndex === index ? "opacity-100" : "pointer-events-none opacity-0",
+                    )}
+                    aria-hidden={activeIndex !== index}
+                  >
+                    <Image
+                      src={step.image}
+                      alt={step.imageAlt}
+                      width={1600}
+                      height={1000}
+                      className="h-full w-full"
+                      imageClassName="h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,3,3,0.92)_0%,rgba(3,3,3,0.58)_40%,rgba(3,3,3,0.24)_100%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(232,27,57,0.18),transparent_38%),linear-gradient(180deg,transparent_0%,rgba(3,3,3,0.72)_100%)]" />
+                  </div>
+                ))}
 
-          {/* Animated red line (grows as you scroll) */}
-          <motion.div
-            className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-site-crimson origin-left"
-            style={{ width: lineWidth }}
-          />
+                <div className="relative z-10 flex h-full flex-col justify-end px-0 py-4 md:py-6 lg:py-8">
+                  <motion.div
+                    key={activeStep.id}
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    className="max-w-[580px] pl-5 md:pl-9 lg:pl-12"
+                  >
+                    <div className="text-[11px] uppercase tracking-[0.34em] text-white/62">
+                      {activeStep.kicker}
+                    </div>
+                    <div className="mt-4 flex items-end gap-4 md:gap-5">
+                      <span className="font-display text-[clamp(2.6rem,5.2vw,5rem)] font-semibold leading-none tracking-[-0.05em] text-white">
+                        {activeStep.title}
+                      </span>
+                      <span className="pb-2 font-mono text-[11px] uppercase tracking-[0.28em] text-site-crimson/90">
+                        {activeStep.subtitle}
+                      </span>
+                    </div>
+                    <p className="mt-5 max-w-[46ch] text-base leading-[1.8] text-white/78 md:text-[1.03rem]">
+                      {activeStep.detail}
+                    </p>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
 
-          {/* Nodes */}
-          <div className="absolute inset-0 flex justify-between items-center pointer-events-none">
-            {steps.map((step, index) => {
-              return (
-                <TimelineStep
+          <div className="relative px-5 pb-10 pt-14 md:px-8 lg:px-10">
+            <div className="pointer-events-none absolute left-[6%] right-[6%] top-[55px] hidden h-px bg-white/16 md:block" />
+            <motion.div
+              className="pointer-events-none absolute left-[6%] right-[6%] top-[55px] hidden h-px origin-left bg-site-crimson md:block"
+              style={{ scaleX: lineScaleX }}
+            />
+
+            <div className="flex flex-col gap-10 md:flex-row md:justify-between md:gap-4">
+              {steps.map((step, index) => (
+                <ProcessStepButton
                   key={step.id}
                   step={step}
                   index={index}
                   totalSteps={steps.length}
+                  isActive={index === activeIndex}
                   scrollYProgress={scrollYProgress}
+                  onSelect={handleSelect}
                 />
-              );
-            })}
+              ))}
+            </div>
           </div>
         </div>
-
-        {/* Scroll Mouse Visual Indicator */}
-        <motion.div 
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-        >
-          <div className="w-5 h-8 border border-white/30 rounded-full flex justify-center p-1">
-            <motion.div 
-              className="w-1 h-1.5 bg-site-crimson rounded-full"
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </div>
-          <span className="text-[10px] text-white/50 uppercase tracking-widest font-mono">
-            Scroll to advance
-          </span>
-        </motion.div>
-
       </div>
+      
+      {/* Schema.org FAQPage based on Process steps */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": steps.map(step => ({
+              "@type": "Question",
+              "name": `What is the ${step.title} stage of the process?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `${step.description} ${step.detail}`
+              }
+            }))
+          })
+        }}
+      />
     </section>
   );
 };

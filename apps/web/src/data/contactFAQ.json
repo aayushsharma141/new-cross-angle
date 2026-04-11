@@ -1,0 +1,30 @@
+[
+  {
+    "question": "What services do you offer?",
+    "answer": "We provide end-to-end interior design solutions including concept development, space planning, 3D visualization, and turnkey execution."
+  },
+  {
+    "question": "Do you handle turnkey projects?",
+    "answer": "Yes. From initial concept to final handover, we manage the entire process to deliver a seamless experience."
+  },
+  {
+    "question": "How is pricing determined?",
+    "answer": "Pricing depends on project size, scope, materials, and customization level. Use our estimator for a quick range."
+  },
+  {
+    "question": "How long does a project take?",
+    "answer": "Timelines vary, but most projects range between 6–16 weeks depending on complexity."
+  },
+  {
+    "question": "Can I customize everything?",
+    "answer": "Absolutely. Every project is tailored to your lifestyle, preferences, and functional needs."
+  },
+  {
+    "question": "Do you work outside the city?",
+    "answer": "Yes, we take on select projects across regions based on scope and alignment."
+  },
+  {
+    "question": "How do I know if your design style will match my taste?",
+    "answer": "We don't impose a style - we decode yours. Every project begins with understanding how you live, what you value, and how you want to feel in your space."
+  }
+]

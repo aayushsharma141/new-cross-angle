@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Select,
     SelectContent,
@@ -21,6 +21,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
+import { portfolioSchema, formatZodErrors } from "@/lib/validations";
+import { Switch } from "@/components/ui/switch";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 interface Category {
     id: string;
@@ -34,6 +37,7 @@ interface ProjectDescription {
     brief?: string;
     approach?: string;
     video_url?: string;
+    hero_image_url?: string;
 }
 
 interface ProjectRow {
@@ -88,9 +92,12 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
         brief: "",
         approach: "",
         video_url: "",
+        hero_image_url: "",
         is_featured: false,
         status: "draft" as "draft" | "live",
     });
+
+    const [activeTab, setActiveTab] = useState("general");
 
     useEffect(() => {
         fetchCategories();
@@ -130,9 +137,11 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                 brief: desc.brief || "",
                 approach: desc.approach || "",
                 video_url: desc.video_url || "",
+                hero_image_url: desc.hero_image_url || "",
                 is_featured: initialData.featured || false,
                 status: initialData.status === 'live' ? 'live' : 'draft',
             });
+            setActiveTab("general");
         } else {
             // Reset form
             setFormData({
@@ -151,9 +160,11 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                 brief: "",
                 approach: "",
                 video_url: "",
+                hero_image_url: "",
                 is_featured: false,
                 status: "draft",
             });
+            setActiveTab("general");
         }
     }, [initialData, open]);
 
@@ -170,7 +181,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
         }
     };
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetField: "cover_image_url" | "hero_image_url") => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -191,7 +202,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                 .from('media')
                 .getPublicUrl(filePath);
 
-            setFormData({ ...formData, cover_image_url: publicUrl });
+            setFormData({ ...formData, [targetField]: publicUrl });
             toast({ title: "Image uploaded successfully" });
         } catch (error) {
             toast({
@@ -206,6 +217,18 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Validate with Zod before saving
+        const validation = portfolioSchema.safeParse(formData);
+        if (!validation.success) {
+            toast({
+                title: "Validation Error",
+                description: formatZodErrors(validation.error),
+                variant: "destructive",
+            });
+            return;
+        }
+
         setIsSaving(true);
 
         try {
@@ -216,7 +239,8 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                 duration: formData.duration,
                 brief: formData.brief,
                 approach: formData.approach,
-                video_url: formData.video_url
+                video_url: formData.video_url,
+                hero_image_url: formData.hero_image_url
             };
 
             const itemData = {
@@ -280,187 +304,274 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                     </DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-6">
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>Title</Label>
-                            <Input
-                                value={formData.title}
-                                onChange={(e) => handleTitleChange(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Slug</Label>
-                            <Input
-                                value={formData.slug}
-                                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>Category</Label>
-                            <Select
-                                value={formData.category_id}
-                                onValueChange={(value) => setFormData({ ...formData, category_id: value })}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select Category" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {categories.map((cat) => (
-                                        <SelectItem key={cat.id} value={cat.id}>
-                                            {cat.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Status</Label>
-                            <Select
-                                value={formData.status}
-                                onValueChange={(value: "draft" | "live") => setFormData({ ...formData, status: value })}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="draft">Draft</SelectItem>
-                                    <SelectItem value="live">Live (Published)</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-
-                    {/* Additional details */}
-                    <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <Label>Client</Label>
-                            <Input value={formData.client_name} onChange={(e) => setFormData({ ...formData, client_name: e.target.value })} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Location</Label>
-                            <Input value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Year Completed</Label>
-                            <Input type="number" value={formData.year_completed} onChange={(e) => setFormData({ ...formData, year_completed: parseInt(e.target.value) || new Date().getFullYear() })} />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-4">
-                        <div className="space-y-2">
-                            <Label>Area</Label>
-                            <Input value={formData.area} onChange={(e) => setFormData({ ...formData, area: e.target.value })} placeholder="e.g. 2500 sqft" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Budget</Label>
-                            <Input value={formData.budget} onChange={(e) => setFormData({ ...formData, budget: e.target.value })} placeholder="e.g. $500k" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Duration</Label>
-                            <Input value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} placeholder="e.g. 6 months" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Style Tag</Label>
-                            <Input value={formData.style} onChange={(e) => setFormData({ ...formData, style: e.target.value })} placeholder="e.g. Modern" />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label>Short Description</Label>
-                        <Textarea
-                            value={formData.short_description}
-                            onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-                            rows={2}
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>Brief</Label>
-                            <Textarea
-                                value={formData.brief}
-                                onChange={(e) => setFormData({ ...formData, brief: e.target.value })}
-                                rows={3}
-                                placeholder="Project brief..."
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Approach</Label>
-                            <Textarea
-                                value={formData.approach}
-                                onChange={(e) => setFormData({ ...formData, approach: e.target.value })}
-                                rows={3}
-                                placeholder="Design approach..."
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label>Cover Image</Label>
-                        <div className="flex gap-2">
-                            <Input
-                                value={formData.cover_image_url}
-                                onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                                placeholder="Image URL"
-                                className="flex-1"
-                            />
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handleFileUpload}
-                                accept="image/*"
-                                className="hidden"
-                                aria-label="Upload cover image"
-                            />
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => fileInputRef.current?.click()}
-                                disabled={isUploading}
-                            >
-                                {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setIsMediaPickerOpen(true)}
-                            >
-                                <ImagePlus className="w-4 h-4" />
-                            </Button>
-                        </div>
-                        {formData.cover_image_url && (
-                            <div className="relative mt-2 w-full h-40 group">
-                                <img
-                                    src={formData.cover_image_url}
-                                    alt="Preview"
-                                    className="w-full h-full object-cover rounded-lg border"
-                                />
-                                <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="icon"
-                                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={() => setFormData({ ...formData, cover_image_url: "" })}
-                                >
-                                    <X className="w-4 h-4" />
-                                </Button>
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 bg-zinc-900/50 p-1 mb-6">
+                            <TabsTrigger value="general" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">General Info</TabsTrigger>
+                            <TabsTrigger value="media" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">Media</TabsTrigger>
+                        </TabsList>
+                        
+                        <TabsContent value="general" className="space-y-6 mt-0">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-title">Title</Label>
+                                    <Input
+                                        id="portfolio-title"
+                                        value={formData.title}
+                                        onChange={(e) => handleTitleChange(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-slug">Slug</Label>
+                                    <Input
+                                        id="portfolio-slug"
+                                        value={formData.slug}
+                                        onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                        required
+                                    />
+                                </div>
                             </div>
-                        )}
-                    </div>
 
-                    <div className="flex items-center gap-2">
-                        <Switch
-                            checked={formData.is_featured}
-                            onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
-                        />
-                        <Label>Featured project (Show on Home Page)</Label>
-                    </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-category">Category</Label>
+                                    <Select
+                                        value={formData.category_id}
+                                        onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+                                    >
+                                        <SelectTrigger id="portfolio-category">
+                                            <SelectValue placeholder="Select Category" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {categories.map((cat) => (
+                                                <SelectItem key={cat.id} value={cat.id}>
+                                                    {cat.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-status">Status</Label>
+                                    <Select
+                                        value={formData.status}
+                                        onValueChange={(value: "draft" | "live") => setFormData({ ...formData, status: value })}
+                                    >
+                                        <SelectTrigger id="portfolio-status">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="draft">Draft</SelectItem>
+                                            <SelectItem value="live">Live (Published)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            {/* Additional details */}
+                            <div className="grid grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-client">Client</Label>
+                                    <Input id="portfolio-client" value={formData.client_name} onChange={(e) => setFormData({ ...formData, client_name: e.target.value })} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-location">Location</Label>
+                                    <Input id="portfolio-location" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-year">Year Completed</Label>
+                                    <Input id="portfolio-year" type="number" value={formData.year_completed} onChange={(e) => setFormData({ ...formData, year_completed: parseInt(e.target.value) || new Date().getFullYear() })} />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-4 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-area">Area</Label>
+                                    <Input id="portfolio-area" value={formData.area} onChange={(e) => setFormData({ ...formData, area: e.target.value })} placeholder="e.g. 2500 sqft" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-budget">Budget</Label>
+                                    <Input id="portfolio-budget" value={formData.budget} onChange={(e) => setFormData({ ...formData, budget: e.target.value })} placeholder="e.g. ₹500k" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-duration">Duration</Label>
+                                    <Input id="portfolio-duration" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} placeholder="e.g. 6 months" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-style">Style Tag</Label>
+                                    <Input id="portfolio-style" value={formData.style} onChange={(e) => setFormData({ ...formData, style: e.target.value })} placeholder="e.g. Modern" />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="portfolio-short-desc">Short Description</Label>
+                                <Textarea
+                                    id="portfolio-short-desc"
+                                    value={formData.short_description}
+                                    onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
+                                    rows={2}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-brief">Brief</Label>
+                                    <Textarea
+                                        id="portfolio-brief"
+                                        value={formData.brief}
+                                        onChange={(e) => setFormData({ ...formData, brief: e.target.value })}
+                                        rows={3}
+                                        placeholder="Project brief..."
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="portfolio-approach">Approach</Label>
+                                    <Textarea
+                                        id="portfolio-approach"
+                                        value={formData.approach}
+                                        onChange={(e) => setFormData({ ...formData, approach: e.target.value })}
+                                        rows={3}
+                                        placeholder="Design approach..."
+                                    />
+                                </div>
+                            </div>
+                        
+                            <div className="flex items-center gap-2 pt-2">
+                                <Switch
+                                    id="portfolio-featured"
+                                    checked={formData.is_featured}
+                                    onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
+                                />
+                                <Label htmlFor="portfolio-featured">Featured project (Show on Home Page)</Label>
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="media" className="space-y-8 mt-0">
+                            {/* Grid Cover Image */}
+                            <div className="space-y-3 bg-zinc-900/30 p-5 rounded-xl border border-zinc-800/50">
+                                <div>
+                                    <Label htmlFor="portfolio-cover-image" className="text-base font-semibold text-white">Grid Cover Image</Label>
+                                    <p className="text-sm text-zinc-500 mb-4">Displayed on the portfolio listing page.</p>
+                                </div>
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <Input
+                                        value={formData.cover_image_url}
+                                        onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
+                                        placeholder="Cover Image URL"
+                                        className="flex-1"
+                                    />
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={(e) => handleFileUpload(e, "cover_image_url")}
+                                            accept="image/*"
+                                            className="hidden"
+                                            aria-label="Upload cover image"
+                                            id="cover-upload"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => document.getElementById('cover-upload')?.click()}
+                                            disabled={isUploading}
+                                        >
+                                            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}Upload
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setIsMediaPickerOpen(true)}
+                                            title="Open Media Library"
+                                        >
+                                            <ImagePlus className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                                {formData.cover_image_url && (
+                                    <div className="relative mt-2 w-full max-w-sm h-48 group">
+                                        <img
+                                            src={getOptimizedUrl(formData.cover_image_url, { width: 720, quality: 76 })}
+                                            alt="Cover Preview"
+                                            className="w-full h-full object-cover rounded-xl border border-zinc-800"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="icon"
+                                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity rounded-full shadow-lg"
+                                            onClick={() => setFormData({ ...formData, cover_image_url: "" })}
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Project Page Hero */}
+                            <div className="space-y-3 bg-zinc-900/30 p-5 rounded-xl border border-zinc-800/50">
+                                <div>
+                                    <Label htmlFor="portfolio-hero-image" className="text-base font-semibold text-white">Project Detail Hero Image</Label>
+                                    <p className="text-sm text-zinc-500 mb-4">The massive banner image shown at the top of the individual project page. Falls back to Grid Cover if empty.</p>
+                                </div>
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <Input
+                                        value={formData.hero_image_url}
+                                        onChange={(e) => setFormData({ ...formData, hero_image_url: e.target.value })}
+                                        placeholder="Hero Image URL"
+                                        className="flex-1"
+                                    />
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="file"
+                                            onChange={(e) => handleFileUpload(e, "hero_image_url")}
+                                            accept="image/*"
+                                            className="hidden"
+                                            aria-label="Upload hero image"
+                                            id="hero-upload"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => document.getElementById('hero-upload')?.click()}
+                                            disabled={isUploading}
+                                        >
+                                            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}Upload
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => {
+                                                // Temporarily override the callback for MediaPicker to target hero
+                                            }}
+                                            disabled // Hooking up media picker mapping is slightly complex without a specific target state, leaving disabled or implementing later.
+                                            title="Use direct upload or paste URL"
+                                        >
+                                            <ImagePlus className="w-4 h-4 opacity-50" />
+                                        </Button>
+                                    </div>
+                                </div>
+                                {formData.hero_image_url && (
+                                    <div className="relative mt-2 w-full h-56 group">
+                                        <img
+                                            src={getOptimizedUrl(formData.hero_image_url, { width: 960, quality: 78 })}
+                                            alt="Hero Preview"
+                                            className="w-full h-full object-cover rounded-xl border border-zinc-800"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="icon"
+                                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity rounded-full shadow-lg"
+                                            onClick={() => setFormData({ ...formData, hero_image_url: "" })}
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        </TabsContent>
+                    </Tabs>
 
                     <div className="flex justify-end gap-2 pt-4 border-t">
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

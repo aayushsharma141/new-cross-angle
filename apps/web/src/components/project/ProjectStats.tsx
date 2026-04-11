@@ -13,12 +13,12 @@ interface ProjectStatsProps {
 
 const ProjectStats = ({ location, area, duration, style, year, budget }: ProjectStatsProps) => {
   const stats = [
-    { icon: MapPin, label: "Location", value: location },
-    { icon: Ruler, label: "Area", value: area },
-    { icon: Clock, label: "Duration", value: duration },
-    { icon: Palette, label: "Style", value: style },
-    { icon: Calendar, label: "Year", value: year.toString() },
-    { icon: Banknote, label: "Budget", value: budget },
+    { icon: MapPin, label: "Location", value: location || "N/A" },
+    { icon: Ruler, label: "Area", value: area || "N/A" },
+    { icon: Clock, label: "Duration", value: duration || "N/A" },
+    { icon: Palette, label: "Style", value: style || "N/A" },
+    { icon: Calendar, label: "Year", value: year?.toString() || "2024" },
+    { icon: Banknote, label: "Budget", value: budget || "Premium" },
   ];
 
   return (

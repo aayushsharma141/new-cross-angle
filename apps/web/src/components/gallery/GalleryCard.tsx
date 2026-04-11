@@ -1,189 +1,156 @@
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useState, useRef } from "react";
-import { Eye, Expand } from "lucide-react";
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useImageParallax } from "@/hooks/useImageParallax";
-import { Button } from "@/components/ui/button";
 
 interface GalleryCardProps {
   image: string;
   category: string;
   title?: string;
+  location?: string;
+  year?: number;
   index: number;
   onClick: () => void;
-  size?: 'normal' | 'featured';
+  size?: "normal" | "featured";
 }
+
+// Subtle SVG grain overlay (no performance cost, pure CSS)
+const GRAIN_STYLE: React.CSSProperties = {
+  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='1'/%3E%3C/svg%3E")`,
+  backgroundSize: "180px 180px",
+};
 
 const GalleryCard = ({
   image,
   category,
   title,
+  location,
+  year,
   index,
   onClick,
-  size = 'normal'
+  size = "normal",
 }: GalleryCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
 
-  const { containerRef, imageRef } = useImageParallax({ speed: 0.12, scale: 1.15 });
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), {
-    stiffness: 300,
-    damping: 30
-  });
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), {
-    stiffness: 300,
-    damping: 30
-  });
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!cardRef.current) return;
-
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-
-    mouseX.set(x);
-    mouseY.set(y);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    mouseX.set(0);
-    mouseY.set(0);
-  };
+  const isFeatured = size === "featured";
 
   return (
     <motion.div
-      ref={cardRef}
-      initial={{ opacity: 0, y: 60, rotateX: -15 }}
-      whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
       transition={{
-        duration: 0.6,
-        delay: index * 0.08,
-        ease: "easeInOut"
+        duration: 0.55,
+        delay: Math.min(index * 0.06, 0.4),
+        ease: [0.22, 1, 0.36, 1],
       }}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
       className={`
-        group relative overflow-hidden rounded-2xl cursor-pointer
-        ${size === 'featured' ? 'row-span-2 aspect-[3/4]' : 'aspect-[4/3]'}
+        group relative overflow-hidden cursor-pointer rounded-none
+        ${isFeatured ? "aspect-[3/4]" : index % 3 === 0 ? "aspect-[4/3]" : "aspect-[3/4]"}
       `}
-      style={{
-        perspective: 1000,
-        transformStyle: 'preserve-3d'
-      }}
+      style={{ userSelect: "none" }}
     >
+      {/* Skeleton placeholder */}
+      {!isLoaded && (
+        <Skeleton className="absolute inset-0 w-full h-full rounded-none bg-white/5" />
+      )}
+
+      {/* Image */}
+      <motion.img
+        src={image}
+        alt={title || category}
+        className={`w-full h-full object-cover transition-all duration-700 ${
+          isLoaded ? "opacity-100" : "opacity-0"
+        }`}
+        animate={{ scale: isHovered ? 1.06 : 1 }}
+        transition={{ duration: 0.7, ease: "easeInOut" }}
+        loading="lazy"
+        onLoad={() => setIsLoaded(true)}
+      />
+
+      {/* Grain texture overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none"
+        style={GRAIN_STYLE}
+      />
+
+      {/* Base gradient — always visible (subtle) */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+      {/* Hover gradient — intensifies from bottom */}
       <motion.div
-        className="w-full h-full"
-        style={{
-          rotateX,
-          rotateY,
-          transformStyle: 'preserve-3d'
-        }}
+        className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/90 via-[#0a0a0a]/30 to-transparent"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHovered ? 1 : 0 }}
+        transition={{ duration: 0.4 }}
+      />
+
+      {/* ── Top-left editorial caption tag ─────────────────────────────── */}
+      <motion.div
+        className="absolute top-4 left-4"
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: isHovered ? 1 : 0.7, y: isHovered ? 0 : -2 }}
+        transition={{ duration: 0.3 }}
       >
-        {/* Skeleton loader */}
-        {!isLoaded && (
-          <Skeleton className="absolute inset-0 w-full h-full rounded-none" />
+        <span className="text-[9px] uppercase tracking-[0.3em] text-white/50 font-light bg-black/40 backdrop-blur-sm px-2 py-1">
+          {category}
+        </span>
+      </motion.div>
+
+      {/* ── Bottom content ─────────────────────────────────────────────── */}
+      <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col gap-1">
+        {/* Title */}
+        {title && (
+          <motion.h3
+            className="font-['Cormorant_Garamond',serif] text-lg md:text-xl font-light text-white leading-tight"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: isHovered ? 1 : 0.6, y: isHovered ? 0 : 8 }}
+            transition={{ duration: 0.35 }}
+          >
+            {title}
+          </motion.h3>
         )}
 
-        {/* Image with parallax effect */}
-        <motion.div
-          className="absolute inset-0"
-          animate={{
-            scale: isHovered ? 1.1 : 1
-          }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
+        {/* Location + Year */}
+        <motion.p
+          className="text-[9px] uppercase tracking-[0.25em] text-white/35 font-light"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isHovered ? 1 : 0 }}
+          transition={{ duration: 0.3, delay: 0.05 }}
         >
-          <img
-            src={image}
-            alt={title || category}
-            className={`w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-            loading="lazy"
-            onLoad={() => setIsLoaded(true)}
+          {location && `${location}`}
+          {location && year && " · "}
+          {year && `${year}`}
+        </motion.p>
+
+        {/* Gold bottom accent + icon */}
+        <div className="flex items-center justify-between mt-1">
+          <motion.div
+            className="h-px bg-[#D1AF6E]"
+            initial={{ scaleX: 0, originX: 0 }}
+            animate={{ scaleX: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            style={{ width: "100%", position: "absolute", bottom: 0, left: 0 }}
           />
-        </motion.div>
-
-        {/* Gradient overlay */}
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"
-          initial={{ opacity: 0.3 }}
-          animate={{ opacity: isHovered ? 0.9 : 0.3 }}
-          transition={{ duration: 0.3 }}
-        />
-
-        {/* Glow effect on hover */}
-        <motion.div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-          style={{
-            background: 'radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), hsl(var(--primary) / 0.15) 0%, transparent 50%)'
-          }}
-        />
-
-        {/* Content */}
-        <div className="absolute inset-0 p-6 flex flex-col justify-end">
-          {/* Category badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-            className="mb-2"
+          <motion.button
+            className="ml-auto flex items-center gap-1.5 text-[#D1AF6E] focus:outline-none focus-visible:ring-1 focus-visible:ring-[#D1AF6E]"
+            initial={{ opacity: 0, x: 8 }}
+            animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 8 }}
+            transition={{ duration: 0.3, delay: 0.08 }}
+            onClick={onClick}
+            aria-label={`Open ${title || category}`}
           >
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 text-primary text-xs font-medium">
-              {category.replace(/-/g, " ")}
+            <Plus className="w-4 h-4 stroke-[1.5]" />
+            <span className="text-[10px] uppercase tracking-[0.2em] font-light hidden sm:inline">
+              Open
             </span>
-          </motion.div>
-
-          {/* Title */}
-          {title && (
-            <motion.h3
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: isHovered ? 1 : 0.8, y: isHovered ? 0 : 10 }}
-              transition={{ duration: 0.3 }}
-              className="text-xl md:text-2xl font-serif font-bold text-white mb-2"
-            >
-              {title}
-            </motion.h3>
-          )}
-
-          {/* Actions */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
-            transition={{ duration: 0.3, delay: 0.15 }}
-            className="flex items-center gap-3"
-          >
-            <Button variant="outline" className="gap-2 rounded-full bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-colors">
-              <Eye className="w-4 h-4" />
-              View
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-colors"
-              aria-label="Expand image"
-              title="Expand image"
-            >
-              <Expand className="w-4 h-4" />
-            </Button>
-          </motion.div>
+          </motion.button>
         </div>
-
-        {/* Corner accent */}
-        <motion.div
-          className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-primary/50 rounded-tr-lg"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8 }}
-          transition={{ duration: 0.3 }}
-        />
-      </motion.div>
+      </div>
     </motion.div>
   );
 };

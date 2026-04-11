@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, Session } from "@supabase/supabase-js";
+import { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import {
     AppRole,
@@ -36,9 +36,9 @@ export const useAuth = () => {
     return useContext(AuthContext);
 };
 
-// ─── Role Cache (sessionStorage + 5-min TTL) ────────────────────────────────
-const ROLE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-const ROLE_CACHE_VERSION = "admin-rbac-v2";
+// ─── Role Cache (localStorage + 30-min TTL) ─────────────────────────────────
+const ROLE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const ROLE_CACHE_VERSION = "admin-rbac-v3";
 
 interface CachedRole {
     role: string | null;
@@ -46,17 +46,27 @@ interface CachedRole {
     version: string;
 }
 
+type RoleQueryResult = {
+    data: { role: string | null } | null;
+    error: { message?: string } | null;
+};
+
+type SyncRoleResult = {
+    data: { role?: string | null } | null;
+    error: { message?: string } | null;
+};
+
 function getCachedRole(userId: string): AppRole | null {
     try {
-        const raw = sessionStorage.getItem(`user_role_${userId}`);
+        const raw = localStorage.getItem(`user_role_${userId}`);
         if (!raw) return null;
         const cached: CachedRole = JSON.parse(raw);
         if (cached.version !== ROLE_CACHE_VERSION) {
-            sessionStorage.removeItem(`user_role_${userId}`);
+            localStorage.removeItem(`user_role_${userId}`);
             return null;
         }
         if (Date.now() > cached.expiresAt) {
-            sessionStorage.removeItem(`user_role_${userId}`);
+            localStorage.removeItem(`user_role_${userId}`);
             return null;
         }
         return mapStoredUserRole(cached.role);
@@ -71,13 +81,33 @@ function setCachedRole(userId: string, role: AppRole | null): void {
         expiresAt: Date.now() + ROLE_TTL_MS,
         version: ROLE_CACHE_VERSION,
     };
-    sessionStorage.setItem(`user_role_${userId}`, JSON.stringify(entry));
+    localStorage.setItem(`user_role_${userId}`, JSON.stringify(entry));
 }
 
 function clearRoleCache(): void {
-    Object.keys(sessionStorage).forEach(key => {
-        if (key.startsWith('user_role_')) sessionStorage.removeItem(key);
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('user_role_')) localStorage.removeItem(key);
     });
+}
+
+async function withTimeout<T>(
+    operation: Promise<T>,
+    timeoutMs: number,
+    label: string,
+): Promise<T> {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => {
+            reject(new Error(`${label} timed out after ${timeoutMs}ms`));
+        }, timeoutMs);
+    });
+
+    try {
+        return await Promise.race([operation, timeoutPromise]);
+    } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+    }
 }
 
 // ─── Provider ────────────────────────────────────────────────────────────────
@@ -90,8 +120,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     /**
      * Fetches the user's role from `user_roles` (the backend source of truth).
-     * Uses sessionStorage cache with a 5-minute TTL so role changes propagate
-     * within minutes without pounding the DB on every tab focus.
+     * Uses localStorage cache with a 30-minute TTL so refreshes do not briefly
+     * drop users into a null-role state between reloads.
      */
     const fetchUserRole = async (userId: string): Promise<AppRole | null> => {
         // Check cache first
@@ -103,59 +133,79 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         const start = performance.now();
         try {
-            const { data, error } = await supabase
-                .from('user_roles')
-                .select('role')
-                .eq('user_id', userId)
-                .maybeSingle();
+            console.log("Auth: Fetching role via direct user_roles query...");
+            const { data, error } = await withTimeout<RoleQueryResult>(
+                supabase
+                    .from('user_roles')
+                    .select('role')
+                    .eq('user_id', userId)
+                    .maybeSingle() as Promise<RoleQueryResult>,
+                5000,
+                "user_roles query",
+            );
 
-            if (error) {
-                console.error("Error fetching user role:", error);
-                return null;
-            }
-
-            const directRole = mapStoredUserRole(data?.role as string | null | undefined);
-            if (directRole) {
-                console.log("Auth: Fetched role from user_roles:", directRole);
-                setCachedRole(userId, directRole);
-                console.log(`Auth: Role fetch took ${(performance.now() - start).toFixed(2)}ms`);
-                return directRole;
-            }
-
-            const { data: syncData, error: syncError } = await supabase.functions.invoke("sync-user-role");
-            if (!syncError) {
-                const syncedRole =
-                    mapStoredUserRole(syncData?.role as string | null | undefined) ??
-                    mapProfileRole(syncData?.role as string | null | undefined);
-
-                if (syncedRole) {
-                    console.log("Auth: Recovered role via sync-user-role:", syncedRole);
-                    setCachedRole(userId, syncedRole);
-                    console.log(`Auth: Role sync took ${(performance.now() - start).toFixed(2)}ms`);
-                    return syncedRole;
+            if (!error && data?.role) {
+                const directRole = mapStoredUserRole(data.role as string);
+                if (directRole) {
+                    console.log("Auth: Got role from user_roles:", directRole, `(${(performance.now() - start).toFixed(0)}ms)`);
+                    setCachedRole(userId, directRole);
+                    return directRole;
                 }
-            } else {
-                console.warn("Auth: sync-user-role failed, falling back to profiles.role", syncError);
+            }
+            if (error) {
+                console.warn("Auth: user_roles query failed:", error);
             }
 
-            const { data: profileData, error: profileError } = await supabase
-                .from("profiles")
-                .select("role")
-                .eq("id", userId)
-                .maybeSingle();
+            // Fallback 1: profiles.role. This keeps access working even if user_roles
+            // has not been backfilled yet for a legacy account.
+            console.log("Auth: Falling back to profiles.role...");
+            const { data: profileData, error: profileError } = await withTimeout<RoleQueryResult>(
+                supabase
+                    .from("profiles")
+                    .select("role")
+                    .eq("id", userId)
+                    .maybeSingle() as Promise<RoleQueryResult>,
+                5000,
+                "profiles role query",
+            );
 
             if (profileError) {
-                console.error("Error fetching fallback profile role:", profileError);
+                console.warn("Auth: profiles.role fallback failed:", profileError);
+            } else {
+                const fallbackRole = mapProfileRole(profileData?.role as string | null | undefined);
+                console.log("Auth: Fallback profile role:", fallbackRole, `(${(performance.now() - start).toFixed(0)}ms)`);
+                if (fallbackRole) {
+                    setCachedRole(userId, fallbackRole);
+                    return fallbackRole;
+                }
+            }
+
+            // Final recovery: try the sync function, but never let it block login.
+            console.log("Auth: Attempting final sync-user-role recovery...");
+            const { data: syncData, error: syncError } = await withTimeout<SyncRoleResult>(
+                supabase.functions.invoke("sync-user-role") as Promise<SyncRoleResult>,
+                5000,
+                "sync-user-role",
+            );
+
+            if (syncError) {
+                console.warn("Auth: sync-user-role failed:", syncError);
                 return null;
             }
 
-            const fallbackRole = mapProfileRole(profileData?.role as string | null | undefined);
-            console.log("Auth: Fallback profile role:", fallbackRole);
-            setCachedRole(userId, fallbackRole);
-            console.log(`Auth: Fallback role fetch took ${(performance.now() - start).toFixed(2)}ms`);
-            return fallbackRole;
+            const syncedRole =
+                mapStoredUserRole(syncData?.role as string | null | undefined) ??
+                mapProfileRole(syncData?.role as string | null | undefined);
+
+            if (syncedRole) {
+                console.log("Auth: Recovered role via sync-user-role:", syncedRole, `(${(performance.now() - start).toFixed(0)}ms)`);
+                setCachedRole(userId, syncedRole);
+            }
+
+            return syncedRole;
         } catch (error) {
             console.error("Error in fetchUserRole:", error);
+            // On timeout or error, return null rather than hanging the auth transition
             return null;
         }
     };
@@ -165,7 +215,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         const timeoutId = setTimeout(() => {
             if (isMounted && loading) {
-                console.warn("Auth: Loading timeout exceeded.");
+                console.warn("Auth: Loading timeout exceeded (5s). Forcing loading=false to prevent white screen.");
                 setLoading(false);
             }
         }, 5000);
@@ -175,18 +225,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             return;
         }
 
-        /**
-         * Auth bootstrap — validate-first approach:
-         *
-         * 1. getUser() — validates the session server-side and ensures
-         *    auth.uid() is properly set for subsequent RLS-protected queries.
-         * 2. getSession() — returns the validated session with tokens.
-         * 3. fetchUserRole() — queries user_roles (RLS requires auth.uid()).
-         *
-         * The previous approach called getSession() first (local-only, no network),
-         * then fetched the role before getUser() validated. This caused auth.uid()
-         * to sometimes be unset when the role query fired, returning no rows.
-         */
         const getInitialSession = async () => {
             const start = performance.now();
             try {
@@ -229,27 +267,56 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         getInitialSession();
 
+        // ─── Auth state change handler ───────────────────────────────────
+        // KEY FIX: TOKEN_REFRESHED no longer re-fetches role from DB.
+        // This was the root cause of the "role shifts to no role" bug.
+        // Token refreshes happen every ~hour and the DB query would often
+        // timeout, causing setRole(null) which drops the user's access.
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (event, session) => {
+            async (event: AuthChangeEvent, newSession: Session | null) => {
                 if (!isMounted) return;
 
                 console.log("Auth: State change event:", event);
 
-                // Only re-fetch role on significant auth events to avoid
-                // unnecessary DB queries on token refresh / tab focus events.
-                if (event === "SIGNED_IN" || event === "SIGNED_OUT" ||
-                    event === "USER_UPDATED" || event === "TOKEN_REFRESHED") {
+                if (event === "SIGNED_OUT") {
+                    setSession(null);
+                    setUser(null);
+                    setRole(null);
+                    clearRoleCache();
+                    setLoading(false);
+                    return;
+                }
 
-                    setSession(session);
-                    setUser(session?.user ?? null);
+                if (event === "TOKEN_REFRESHED") {
+                    // Token refresh is routine — update session/user but NEVER
+                    // re-fetch the role from DB. Use cache only. If cache is
+                    // expired, keep the current in-memory role to avoid drops.
+                    setSession(newSession);
+                    setUser(newSession?.user ?? null);
+                    if (newSession?.user) {
+                        const cached = getCachedRole(newSession.user.id);
+                        if (cached !== null && isMounted) {
+                            setRole(cached);
+                        }
+                        // If cache expired, keep existing in-memory role — don't overwrite with null
+                    }
+                    return;
+                }
 
-                    if (session?.user) {
+                if (event === "SIGNED_IN" || event === "USER_UPDATED") {
+                    setSession(newSession);
+                    setUser(newSession?.user ?? null);
+
+                    if (newSession?.user) {
                         // Clear cache on sign-in so we always get fresh role
                         if (event === "SIGNED_IN") {
                             clearRoleCache();
                         }
-                        const userRole = await fetchUserRole(session.user.id);
-                        if (isMounted) setRole(userRole);
+                        const userRole = await fetchUserRole(newSession.user.id);
+                        // Only update role if we got a valid result — never drop to null
+                        if (isMounted && userRole !== null) {
+                            setRole(userRole);
+                        }
                     } else {
                         setRole(null);
                         clearRoleCache();
@@ -277,18 +344,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setRole(null);
     };
 
-    const isAdmin = isSuperAdmin(role);
-    const isEditor = hasWriteAccess(role);
-    const isViewer = role !== null;
+    const isAdminRole = isSuperAdmin(role);
+    const isEditorRole = hasWriteAccess(role);
+    const isViewerRole = role !== null;
 
     return (
         <AuthContext.Provider value={{
             user,
             session,
             role,
-            isAdmin,
-            isEditor,
-            isViewer,
+            isAdmin: isAdminRole,
+            isEditor: isEditorRole,
+            isViewer: isViewerRole,
             loading,
             signOut
         }}>

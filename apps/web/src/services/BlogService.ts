@@ -2,9 +2,9 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 import type { FilterParams, PaginatedResponse, PaginationParams, SortParams } from './types';
 
-type BlogPost = Database['public']['Tables']['blogs']['Row'];
-type BlogPostInsert = Database['public']['Tables']['blogs']['Insert'];
-type BlogPostUpdate = Database['public']['Tables']['blogs']['Update'];
+type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
+type BlogPostInsert = Database['public']['Tables']['blog_posts']['Insert'];
+type BlogPostUpdate = Database['public']['Tables']['blog_posts']['Update'];
 
 export class BlogService {
   async getPostsPaginated(
@@ -22,16 +22,18 @@ export class BlogService {
     } = params;
 
     let query = supabase
-      .from('blogs')
+      .from('blog_posts')
       .select('*', { count: 'exact' });
 
     if (search) {
       query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%`);
     }
     if (status === 'published') {
-      query = query.eq('is_published', true);
+      query = query.eq('status', 'published');
     } else if (status === 'draft') {
-      query = query.eq('is_published', false);
+      query = query.eq('status', 'draft');
+    } else if (status === 'review') {
+      query = query.eq('status', 'review');
     }
     if (dateFrom) {
       query = query.gte('created_at', dateFrom);
@@ -63,7 +65,7 @@ export class BlogService {
 
   async getPostById(id: string): Promise<BlogPost | null> {
     const { data, error } = await supabase
-      .from('blogs')
+      .from('blog_posts')
       .select('*')
       .eq('id', id)
       .single();
@@ -77,7 +79,7 @@ export class BlogService {
 
   async getPostBySlug(slug: string): Promise<BlogPost | null> {
     const { data, error } = await supabase
-      .from('blogs')
+      .from('blog_posts')
       .select('*')
       .eq('slug', slug)
       .single();
@@ -91,7 +93,7 @@ export class BlogService {
 
   async createPost(payload: BlogPostInsert): Promise<BlogPost> {
     const { data, error } = await supabase
-      .from('blogs')
+      .from('blog_posts')
       .insert(payload)
       .select()
       .single();
@@ -102,7 +104,7 @@ export class BlogService {
 
   async updatePost(id: string, updates: BlogPostUpdate): Promise<BlogPost> {
     const { data, error } = await supabase
-      .from('blogs')
+      .from('blog_posts')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
@@ -114,18 +116,18 @@ export class BlogService {
 
   async publishPost(id: string): Promise<BlogPost> {
     return this.updatePost(id, {
-      is_published: true,
+      status: 'published',
       published_at: new Date().toISOString()
     });
   }
 
   async unpublishPost(id: string): Promise<BlogPost> {
-    return this.updatePost(id, { is_published: false });
+    return this.updatePost(id, { status: 'draft' });
   }
 
   async deletePost(id: string): Promise<void> {
     const { error } = await supabase
-      .from('blogs')
+      .from('blog_posts')
       .delete()
       .eq('id', id);
 
@@ -134,9 +136,9 @@ export class BlogService {
 
   async bulkPublish(ids: string[]): Promise<number> {
     const { error, count } = await supabase
-      .from('blogs')
+      .from('blog_posts')
       .update({ 
-        is_published: true, 
+        status: 'published', 
         published_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
@@ -148,7 +150,7 @@ export class BlogService {
 
   async bulkDelete(ids: string[]): Promise<number> {
     const { error, count } = await supabase
-      .from('blogs')
+      .from('blog_posts')
       .delete()
       .in('id', ids);
 
@@ -160,10 +162,11 @@ export class BlogService {
     total: number;
     published: number;
     draft: number;
+    review: number;
     recentPosts: BlogPost[];
   }> {
     const { data, error } = await supabase
-      .from('blogs')
+      .from('blog_posts')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -172,8 +175,9 @@ export class BlogService {
     const posts = data as BlogPost[];
     return {
       total: posts.length,
-      published: posts.filter(p => p.is_published).length,
-      draft: posts.filter(p => !p.is_published).length,
+      published: posts.filter(p => p.status === 'published').length,
+      draft: posts.filter(p => p.status === 'draft').length,
+      review: posts.filter(p => p.status === 'review').length,
       recentPosts: posts.slice(0, 5),
     };
   }

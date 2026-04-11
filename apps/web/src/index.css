@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;500&display=optional');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -30,8 +30,8 @@
     --primary-foreground: 0 0% 100%;
 
     /* Interaction States */
-    --primary-hover: 43 85% 48%;
-    --primary-active: 43 80% 42%;
+    --primary-hover: 350 83% 36%;
+    --primary-active: 350 83% 30%;
 
     /* Secondary */
     --secondary: 0 0% 15%;
@@ -39,8 +39,7 @@
 
     /* Muted & Subtle */
     --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 65%;
-    /* Soft text */
+    --muted-foreground: 0 0% 68%;  /* raised from 65% → 4.5:1 AA contrast */
 
     /* Accent (Crimson) */
     --accent: 350 83% 44%;
@@ -87,6 +86,8 @@
     --site-crimson: #C41230;
     --site-crimson-90: rgba(196, 18, 48, 0.9);
     --site-crimson-30: rgba(196, 18, 48, 0.3);
+    --site-gold: #D1AF6E;
+    --site-gold-30: rgba(209, 175, 110, 0.3);
     --site-stone: #8B8B8B;
     --site-text: #EDEAE6;
     --site-text-heading: #FFFFFF;
@@ -95,6 +96,13 @@
     --site-border: rgba(237, 234, 230, 0.08);
     --site-border-input: rgba(237, 234, 230, 0.1);
     --site-overlay-hero: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.75));
+
+    /* ── Home page design-system tokens ── */
+    --home-glow-crimson: rgba(182, 24, 38, .18);
+    --home-glow-gold: rgba(255, 215, 0, .08);
+    --home-border-soft: rgba(255, 255, 255, .08);
+    --home-border-strong: rgba(255, 255, 255, .14);
+    --home-shadow: 0 32px 80px rgba(0, 0, 0, .45);
   }
 
   /* =========================
@@ -138,35 +146,37 @@
 
   /* Admin Base */
   .admin-theme {
-    /* Base Colors - Professional Dark Theme */
-    --admin-bg: 213 29% 6%;
-    /* #0B0F14 */
-    --admin-surface: 218 29% 15%;
-    /* #1A2230 */
-    --admin-card: 217 29% 10%;
-    /* #121821 */
-    --admin-border: 218 22% 21%;
-    /* #2A3342 */
+    /* Base Colors - Professional Dark Theme (Deep Onyx) */
+    --admin-bg: 0 0% 2%;
+    /* #050505 */
+    --admin-surface: 0 0% 7%;
+    /* #121212 */
+    --admin-card: 0 0% 5%;
+    /* #0D0D0D */
+    --admin-border: 0 0% 12%;
+    /* #1F1F1F */
 
-    /* Brand Colors - Gold/Amber Accent */
-    --admin-gold: 43 96% 56%;
-    /* #F59E0B */
-    --admin-gold-dim: 43 96% 42%;
-    --admin-gold-glow: 43 96% 56%;
+    /* Brand Colors - Champagne Gold Accent */
+    --admin-gold: 43 90% 55%;
+    /* #D4AF37 */
+    --admin-gold-dim: 43 90% 40%;
+    --admin-gold-glow: 43 90% 55% / 0.15;
 
     /* Typography */
-    --admin-text: 220 14% 91%;
-    /* #E5E7EB */
-    --admin-muted: 218 11% 65%;
-    /* #9CA3AF */
+    --admin-text: 210 20% 98%;
+    /* #F8FAFC */
+    --admin-muted: 215 15% 65%;
+    /* #94A3B8 */
 
-    /* Status Colors */
-    --admin-danger: 0 84% 60%;
-    /* #EF4444 */
-    --admin-success: 142 71% 45%;
-    /* #22C55E */
-    --admin-info: 199 89% 61%;
-    /* #38BDF8 */
+    /* Status Colors - High Saturation */
+    --admin-danger: 0 91% 60%;
+    /* #f43f5e */
+    --admin-success: 142 76% 45%;
+    /* #22c55e */
+    --admin-info: 199 89% 55%;
+    /* #38bdf8 */
+    --admin-warning: 38 92% 55%;
+    /* #f59e0b */
 
     /* ── Tailwind-consumed tokens ── */
     --surface: var(--admin-surface);
@@ -175,7 +185,7 @@
     --text-primary: var(--admin-text);
     --text-muted: var(--admin-muted);
     --error: var(--admin-danger);
-    --error-light: 0 84% 95%;
+    --error-light: 0 91% 95%;
 
     --background: var(--admin-bg);
     --foreground: var(--admin-text);
@@ -184,7 +194,7 @@
     --popover: var(--admin-card);
     --popover-foreground: var(--admin-text);
     --primary: var(--admin-gold);
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
     --secondary: var(--admin-surface);
     --secondary-foreground: var(--admin-text);
     --muted: var(--admin-bg);
@@ -201,48 +211,47 @@
 
   .dark .admin-theme,
   .admin-theme.dark {
-    /* Primary = Amber/Gold (the admin accent color) */
-    --admin-primary: 38 92% 50%;
-    /* #f59e0b - Amber 500 */
-    --admin-primary-hover: 38 92% 58%;
+    /* Primary = Champagne Gold */
+    --admin-primary: 43 90% 55%;
+    --admin-primary-hover: 43 90% 65%;
     --admin-primary-foreground: 0 0% 0%;
 
-    /* Dark surface system */
-    --admin-bg: 0 0% 0%;
+    /* Deep Onyx surface system */
+    --admin-bg: 0 0% 2%;
     --admin-background: 0 0% 1%;
     --admin-foreground: 0 0% 98%;
     --admin-surface: 0 0% 7%;
-    --admin-card: 0 0% 7%;
+    --admin-card: 0 0% 5%;
     --admin-card-foreground: 0 0% 98%;
     --admin-popover: 0 0% 3%;
     --admin-popover-foreground: 0 0% 98%;
-    --admin-border: 0 0% 13%;
-    --admin-input: 0 0% 12%;
+    --admin-border: 0 0% 12%;
+    --admin-input: 0 0% 11%;
     --admin-text: 0 0% 100%;
-    --admin-text-muted: 240 5% 65%;
-    --admin-muted: 240 5% 65%;
-    --admin-muted-foreground: 0 0% 65%;
+    --admin-text-muted: 215 15% 65%;
+    --admin-muted: 215 15% 65%;
+    --admin-muted-foreground: 215 15% 65%;
 
     /* Secondary/Accent */
-    --admin-secondary: 0 0% 15%;
+    --admin-secondary: 0 0% 10%;
     --admin-secondary-foreground: 0 0% 98%;
     --admin-accent: 43 90% 55%;
-    /* Champagne Gold */
     --admin-accent-foreground: 0 0% 100%;
     --admin-ring: var(--admin-gold);
 
-    /* Supplementary branding colors (used directly by specific components) */
-    --admin-wine: 355 85% 32%;
-    --admin-wine-light: 355 85% 42%;
-    --admin-gold: 43 90% 55%;
-    --admin-gold-muted: 43 50% 45%;
-    --admin-obsidian: 0 0% 7%;
-    --admin-charcoal: 0 0% 12%;
-    --admin-stone: 0 0% 45%;
+    /* Status / semantic colors */
+    --admin-primary: 43 90% 55%;
+    --admin-primary-hover: 43 90% 65%;
+    --admin-primary-foreground: 0 0% 0%;
+    --admin-primary-muted: 43 90% 55% / 0.12;
+    --admin-info: 199 89% 55%;
+    --admin-info-muted: 199 89% 55% / 0.12;
+    --admin-success: 142 76% 45%;
+    --admin-success-muted: 142 76% 45% / 0.12;
+    --admin-danger: 0 91% 60%;
+    --admin-danger-muted: 0 91% 60% / 0.12;
 
-    --radius: 0.5rem;
-
-    /* Sidebar tokens — use gold accent */
+    /* Sidebar tokens */
     --sidebar-background: var(--admin-bg);
     --sidebar-foreground: var(--admin-text);
     --sidebar-primary: var(--admin-gold);
@@ -252,6 +261,7 @@
     --sidebar-border: var(--admin-border);
     --sidebar-ring: var(--admin-gold);
   }
+
 }
 
 @layer base {
@@ -263,6 +273,13 @@
     background-color: var(--site-bg);
     color: var(--site-text);
     @apply font-sans antialiased;
+    /* Improved readability: 1.6 line-height aids dyslexic users (WCAG 1.4.12) */
+    line-height: 1.6;
+    /* Speed-optimised text rendering for body copy */
+    text-rendering: optimizeSpeed;
+    font-feature-settings: "kern" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1,
@@ -272,6 +289,14 @@
   h5,
   h6 {
     @apply font-sans tracking-tight;
+    /* Optimise heading rendering: kerning and ligatures for premium look */
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  }
+
+  /* Paragraph spacing improves readability (WCAG 1.4.12) */
+  p + p {
+    margin-top: 0.875em;
   }
 }
 
@@ -405,8 +430,42 @@
   }
 
   .surface-hover:hover {
-    border-color: hsl(352 78% 31%);
+    border-color: hsl(var(--admin-gold) / 0.3);
   }
+
+  /* Premium Analytics Utilities */
+  .analytics-glass {
+    background: linear-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .analytics-spotlight {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .analytics-spotlight::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(212, 175, 55, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .analytics-spotlight:hover::before {
+    opacity: 1;
+  }
+
+  .analytics-card-glow {
+    box-shadow: 0 0 40px -10px rgba(212, 175, 55, 0.05);
+  }
+
 
 }
 
@@ -462,7 +521,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 0.58rem;
+  /* Minimum 10px = 0.625rem — satisfies WCAG SC 1.4.4 (Text Resize) */
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.28em;
   text-transform: uppercase;
@@ -555,7 +615,14 @@ em,
  *  Animated Logo Effects             ║
  * ════════════════════════════════════╝ */
 
+/* LazySection placeholder skeleton sweep */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
 @keyframes shimmerWave {
+
   0%, 100% {
     color: #B61826;
     text-shadow: none;
@@ -588,3 +655,220 @@ em,
      but transform handles the position, color is kept by shimmer */
   animation: letterHoverJitter 0.4s ease-out forwards;
 }
+
+/* ════════════════════════════════════╗
+ *  Home Page Design-System Classes   ║
+ *  (extracted from surge deployment) ║
+ * ════════════════════════════════════╝ */
+
+.home-shell {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 15% 12%, var(--home-glow-crimson) 0%, transparent 32%),
+    radial-gradient(circle at 85% 18%, var(--home-glow-gold) 0%, transparent 24%),
+    linear-gradient(180deg, #010101, #050505 28%, #030303);
+}
+
+.home-section-frame {
+  position: relative;
+}
+.home-section-frame::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.03) 85%, transparent 100%);
+}
+
+.home-noise {
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  background-size: 240px 240px;
+  opacity: 0.04;
+  mix-blend-mode: soft-light;
+}
+
+/* ── Kicker / Eyebrow ── */
+.home-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--site-crimson);
+}
+.home-kicker::before {
+  content: "";
+  width: 2.25rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(182,24,38,0.18), rgba(182,24,38,0.85));
+}
+
+/* ── Body text ── */
+.home-body {
+  max-width: 40rem;
+  color: rgba(237, 234, 230, 0.74);
+  line-height: 1.8;
+}
+
+/* ── Glassmorphic panels ── */
+.home-panel {
+  background: linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(5,5,5,0.78);
+  border: 1px solid var(--home-border-soft);
+  box-shadow: var(--home-shadow);
+  backdrop-filter: blur(20px);
+}
+.home-panel-muted {
+  background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.016)), rgba(5,5,5,0.56);
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(18px);
+}
+
+/* ── Trust chips ── */
+.home-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: rgba(237, 234, 230, 0.72);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ── Button sweep / shine effect ── */
+.home-button-sweep {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.home-button-sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.16) 50%, transparent 80%);
+  transform: translate(-160%);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 0;
+}
+.home-button-sweep:hover::before {
+  transform: translate(160%);
+}
+.home-button-sweep > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── CTA Primary (crimson) ── */
+.home-cta-primary {
+  background: linear-gradient(135deg, rgba(182,24,38,0.98), rgb(135,14,32));
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+  box-shadow: 0 18px 40px rgba(182,24,38,0.28);
+}
+.home-cta-primary:hover {
+  box-shadow: 0 24px 52px rgba(182,24,38,0.4);
+  transform: translateY(-1px);
+}
+
+/* ── CTA Secondary (ghost/outline) ── */
+.home-cta-secondary {
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.024);
+  color: #fff;
+}
+.home-cta-secondary:hover {
+  border-color: rgba(255,255,255,0.28);
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── Image frame ── */
+.home-image-frame {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--home-border-strong);
+  background: rgba(7,7,7,0.85);
+  box-shadow: var(--home-shadow);
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .hero-anim-kb-in,
+  .hero-anim-kb-out,
+  .hero-anim-pan-left,
+  .hero-anim-pan-right,
+  .animate-marquee {
+    animation: none !important;
+  }
+  .home-button-sweep::before {
+    transition: none;
+  }
+}
+
+/* ════════════════════════════════════╗
+ *  Skip Navigation (A11y)            ║
+ *  Renders off-screen until focused  ║
+ * ════════════════════════════════════╝ */
+
+.skip-nav {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 9999;
+  padding: 0.75rem 1.25rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  border-bottom-right-radius: 0.375rem;
+  transition: top 0.15s ease;
+  text-decoration: none;
+  outline: none;
+}
+
+.skip-nav:focus {
+  top: 0;
+}
+
+/* ════════════════════════════════════╗
+ *  WCAG 2.1 Focus-Visible Styles     ║
+ *  Replaces outline:none patterns    ║
+ * ════════════════════════════════════╝ */
+
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Remove focus ring for mouse users (only for keyboard navigation) */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Interactive elements get a gold glow on keyboard focus (admin theme) */
+.admin-theme :focus-visible {
+  outline: 2px solid hsl(var(--admin-gold));
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px hsl(var(--admin-gold) / 0.18);
+}
+
+/* ════════════════════════════════════╗
+ *  Fluid Type Scale Utilities        ║
+ * ════════════════════════════════════╝ */
+
+.text-fluid-sm  { font-size: clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem); }
+.text-fluid-base{ font-size: clamp(0.875rem, 0.8rem  + 0.375vw, 1rem);    }
+.text-fluid-lg  { font-size: clamp(1rem,     0.9rem  + 0.5vw,  1.125rem); }
+.text-fluid-xl  { font-size: clamp(1.125rem, 1rem    + 0.625vw,1.25rem);  }
+.text-fluid-2xl { font-size: clamp(1.25rem,  1.1rem  + 0.75vw, 1.5rem);  }
+.text-fluid-3xl { font-size: clamp(1.5rem,   1.25rem + 1.25vw, 1.875rem);}
+.text-fluid-4xl { font-size: clamp(1.875rem, 1.5rem  + 1.875vw,2.25rem); }
+.text-fluid-5xl { font-size: clamp(2.25rem,  1.75rem + 2.5vw,  3rem);    }

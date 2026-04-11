@@ -4,6 +4,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!--
+    Font loading strategy: display=optional avoids FOUT entirely.
+    Fonts are loaded non-blocking; the fallback system font is used
+    on first paint. This eliminates CLS from late font swaps and
+    improves LCP scores. The full set mirrors index.css @import.
+  -->
+  <link
+    rel="preload"
+    as="style"
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;500&display=optional"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;500&display=optional"
+    />
+  </noscript>
+  <!-- ImageKit CDN DNS pre-resolution -->
+  <link rel="dns-prefetch" href="https://ik.imagekit.io" />
   <link rel="icon" href="/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -22,13 +44,18 @@
   <meta property="og:description"
     content="Transform your vision into exquisite living spaces with Crossangle Interior. Innovative and personalized interior design solutions." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="/og-image.png" />
+  <meta property="og:url" content="https://crossangleinterior.com/" />
+  <meta property="og:image" content="https://crossangleinterior.com/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Crossangle Interior — Premium Interior Design Studio" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Crossangle Interior | Premium Interior Design Studio" />
   <meta name="twitter:description"
     content="Transform your vision into exquisite living spaces with Crossangle Interior." />
-  <meta name="twitter:image" content="/og-image.png" />
+  <meta name="twitter:image" content="https://crossangleinterior.com/og-image.png" />
+  <meta name="twitter:image:alt" content="Crossangle Interior — Premium Interior Design Studio" />
 </head>
 
 <body>

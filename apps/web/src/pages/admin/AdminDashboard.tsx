@@ -20,6 +20,7 @@ import {
   Send,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { InsightCard } from "@/components/admin/dashboard/InsightCard";
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
 import { QuickActionButton } from "@/components/admin/QuickActions";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,6 @@ import { CalendarDateRangePicker } from "@/components/ui/date-range-picker";
 import { useToast } from "@/hooks/use-toast";
 import { DateRange } from "react-day-picker";
 import { subDays, endOfDay, formatDistanceToNow } from "date-fns";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { useSystem } from "@/context/SystemContext";
 
 interface DashboardStats {
@@ -80,8 +80,17 @@ const AdminDashboard = (): JSX.Element => {
     from: subDays(new Date(), 30),
     to: new Date(),
   });
+  const [closedInsights, setClosedInsights] = useState<Set<string>>(new Set());
   const activeTabParam = searchParams.get("tab");
   const activeTab: TabType = isTabType(activeTabParam) ? activeTabParam : "business";
+
+  const handleDismissInsight = (id: string) => {
+    setClosedInsights(prev => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  };
 
   useEffect(() => {
     void refreshHealth();
@@ -96,10 +105,10 @@ const AdminDashboard = (): JSX.Element => {
       let projectsQuery = supabase.from("projects").select("id, status, views", { count: "exact" });
       let leadsQuery = supabase.from("leads").select("id, status", { count: "exact" });
       const testimonialsQuery = supabase.from("testimonials").select("id, rating", { count: "exact" }).eq("active", true);
-      let estimateQuery = supabase.from("estimate_leads").select("id, estimate_total_min", { count: "exact" });
-      let blogsQuery = supabase.from("blogs").select("id", { count: "exact" });
+      let estimateQuery = supabase.from("leads").select("id, estimated_min", { count: "exact" }).eq("lead_source", "estimator");
+      let blogsQuery = supabase.from("blog_posts").select("id", { count: "exact" });
       let websiteEventsQuery = supabase.from("website_events").select("id", { count: "exact" }).eq("event_type", "page_view");
-      const mediaQuery = supabase.from("media").select("size_bytes");
+      const mediaQuery = supabase.rpc("get_total_media_bytes");
 
       if (fromIso) {
         projectsQuery = projectsQuery.gte("created_at", fromIso);
@@ -117,7 +126,7 @@ const AdminDashboard = (): JSX.Element => {
         websiteEventsQuery = websiteEventsQuery.lte("created_at", toIso);
       }
 
-      const [projectsRes, leadsRes, testimonialsRes, estimateRes, blogsRes, viewsRes, mediaRes] = await Promise.all([
+      const settled = await Promise.allSettled([
         projectsQuery,
         leadsQuery,
         testimonialsQuery,
@@ -127,34 +136,46 @@ const AdminDashboard = (): JSX.Element => {
         mediaQuery,
       ]);
 
-      const leads = leadsRes.data || [];
-      const totalLeads = leadsRes.count || 0;
-      const wonLeads = leads.filter((lead: Record<string, unknown>) => lead.status === "won").length;
+      // Helper to safely extract value from settled result
+      const ok = <T,>(r: PromiseSettledResult<T>): T | null =>
+        r.status === 'fulfilled' ? r.value : null;
+
+      const projectsRes   = ok(settled[0]);
+      const leadsRes      = ok(settled[1]);
+      const testimonialsRes = ok(settled[2]);
+      const estimateRes   = ok(settled[3]);
+      const blogsRes      = ok(settled[4]);
+      const viewsRes      = ok(settled[5]);
+      const mediaRes      = ok(settled[6]);
+
+      const leads = (leadsRes as { data: Record<string, unknown>[] | null } | null)?.data || [];
+      const totalLeads = (leadsRes as { count: number | null } | null)?.count || 0;
+      const wonLeads = leads.filter((lead) => lead.status === "won").length;
       const conversionRate = totalLeads > 0 ? Math.round((wonLeads / totalLeads) * 100) : 0;
 
-      const ratings = (testimonialsRes.data || [])
-        .map((testimonial: Record<string, unknown>) => testimonial.rating)
-        .filter((rating: unknown): rating is number => typeof rating === "number");
+      const ratings = ((testimonialsRes as { data: Record<string, unknown>[] | null } | null)?.data || [])
+        .map((t) => t.rating)
+        .filter((r): r is number => typeof r === "number");
       const avgRating = ratings.length > 0
-        ? (ratings.reduce((sum: number, rating: number) => sum + rating, 0) / ratings.length).toFixed(1)
-        : "—";
+        ? (ratings.reduce((sum: number, r: number) => sum + r, 0) / ratings.length).toFixed(1)
+        : "—”";
 
-      const estimates = estimateRes.data || [];
+      const estimates = (estimateRes as { data: Record<string, unknown>[] | null } | null)?.data || [];
       const avgEstimate = estimates.length > 0
-        ? Math.round(estimates.reduce((sum: number, estimate: Record<string, unknown>) => sum + (Number(estimate.estimate_total_min) || 0), 0) / estimates.length)
+        ? Math.round(estimates.reduce((sum: number, e) => sum + (Number(e.estimated_min) || 0), 0) / estimates.length)
         : 0;
 
-      const mediaBytes = (mediaRes.data || []).reduce((sum: number, file: Record<string, unknown>) => sum + (Number(file.size_bytes) || 0), 0);
+      const mediaBytes = Number((mediaRes as { data: unknown } | null)?.data) || 0;
 
       return {
         leads: totalLeads,
-        projects: projectsRes.count || 0,
-        views: viewsRes.count || 0,
-        estimateLeads: estimateRes.count || 0,
+        projects: (projectsRes as { count: number | null } | null)?.count || 0,
+        views: (viewsRes as { count: number | null } | null)?.count || 0,
+        estimateLeads: (estimateRes as { count: number | null } | null)?.count || 0,
         conversionRate,
         avgRating,
         avgEstimate,
-        cmsUpdates: blogsRes.count || 0,
+        cmsUpdates: (blogsRes as { count: number | null } | null)?.count || 0,
         mediaBytes,
       };
     },
@@ -221,8 +242,6 @@ const AdminDashboard = (): JSX.Element => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
-      <AdminBreadcrumb />
-
       <div className="flex flex-col gap-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -271,6 +290,16 @@ const AdminDashboard = (): JSX.Element => {
         <div className="space-y-8">
           {activeTab === "business" && (
             <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+              {!closedInsights.has("conv-anomaly") && (
+                <InsightCard 
+                  title="Conversion Anomaly Detected"
+                  description="Your lead-to-project conversion rate has dropped 12% this week. We recommend reviewing the Estimator stage drop-offs."
+                  type="warning"
+                  actionLabel="View Estimator Analytics"
+                  onAction={() => changeTab("product")}
+                  onDismiss={() => handleDismissInsight("conv-anomaly")}
+                />
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <AdminKPI
                   title="Total Leads"
@@ -284,7 +313,7 @@ const AdminDashboard = (): JSX.Element => {
                 />
                 <AdminKPI
                   title="Pipeline Value"
-                  value={`₹${((stats?.avgEstimate || 0) * (stats?.leads || 0) / 100000).toFixed(1)}L`}
+                  value={`₹${((stats?.avgEstimate || 0) * (stats?.estimateLeads || 0) / 100000).toFixed(1)}L`}
                   change="Estimated pipeline"
                   trend="up"
                   icon={TrendingUp}
@@ -496,3 +525,4 @@ const AdminDashboard = (): JSX.Element => {
 };
 
 export default AdminDashboard;
+

@@ -20,6 +20,7 @@ import {
 import { AestheticScores, Archetype, AIAestheticResult, UserSignals } from '@/types/discovery';
 import { visualImages } from '@/constants/discovery';
 import { trackResultLoaded } from '../infrastructure/analytics/tracker';
+import { Image } from '@/components/ui/image';
 
 const StaggeredText: React.FC<{ text: string; className?: string }> = ({ text, className }) => {
   const charArray = text.split("");
@@ -652,10 +653,13 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
               {visualMirrorImages[0] && (
                 <div className="md:col-span-7 relative group">
                   <div className="aspect-[4/3] overflow-hidden rounded-sm border border-white/5 relative bg-white/5">
-                    <img
+                    <Image
                       src={visualMirrorImages[0].url}
                       alt="Selected visual resonance 1"
-                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out"
+                      className="h-full w-full"
+                      imageClassName="opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out"
+                      width={900}
+                      height={675}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
                   </div>
@@ -672,10 +676,13 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
                 {visualMirrorImages[1] && (
                   <div className="relative group">
                     <div className="aspect-[3/4] md:aspect-square overflow-hidden rounded-sm border border-white/5 relative bg-white/5">
-                      <img
+                      <Image
                         src={visualMirrorImages[1].url}
                         alt="Selected visual resonance 2"
-                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out"
+                        className="h-full w-full"
+                        imageClassName="opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out"
+                        width={640}
+                        height={640}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
                     </div>
@@ -689,10 +696,13 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
                 {visualMirrorImages[2] && (
                   <div className="relative group md:ml-12 mt-4 md:mt-0">
                     <div className="aspect-video overflow-hidden rounded-sm border border-white/5 relative bg-white/5">
-                      <img
+                      <Image
                         src={visualMirrorImages[2].url}
                         alt="Selected visual resonance 3"
-                        className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out grayscale-[30%] hover:grayscale-0"
+                        className="h-full w-full"
+                        imageClassName="opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out grayscale-[30%] hover:grayscale-0"
+                        width={640}
+                        height={360}
                       />
                     </div>
                   </div>

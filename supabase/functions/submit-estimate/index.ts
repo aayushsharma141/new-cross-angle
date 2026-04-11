@@ -47,7 +47,6 @@ function calculateEstimate(data: any, config: any) {
         sup = config.design.supervision_monthly * (data.projectMonths || 3);
         extraVC = Math.max(0, (data.extraVisits || 5) - config.design.free_visits) * config.design.extra_visit_cost;
     } else if (svc === "C5" && data.executionTier) {
-        // Fix application of admin execution tiers properly
         const tier = config.execution[data.executionTier];
         if (tier) {
             exMin = a * tier.min * m;
@@ -148,13 +147,12 @@ serve(async (req: Request) => {
         }
 
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-        // Bypass RLS securely from server execution context
         const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // Fetch dynamic pricing rates created by user from Admin Panel!
+        // Fetch dynamic pricing rates created by user from Admin Panel
         let pricingConfig = DEFAULT_PRICING_CONFIG;
-        const { data: dbRates, error: ratesError } = await supabase
+        const { data: dbRates } = await supabase
             .from('estimate_rates')
             .select('config')
             .order('updated_at', { ascending: false })
@@ -169,36 +167,8 @@ serve(async (req: Request) => {
         const estimate = calculateEstimate(formData, pricingConfig);
         const score = scoreLead(formData, pricingConfig);
 
-        // Insert Lead
-        const { data: estLead, error: errInsert } = await supabase.from("estimate_leads").insert({
-            property_type: formData.propertyType,
-            bhk: formData.bhk,
-            area: formData.area,
-            city: formData.city,
-            state: formData.state,
-            city_tier: formData.cityTier,
-            budget: formData.budgetAmount,
-            service: formData.selectedService,
-            execution_tier: formData.executionTier,
-            estimate_min: estimate.total.min,
-            estimate_max: estimate.total.max,
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            start_timing: formData.startTiming,
-            lead_score: score.total,
-            lead_category: score.category,
-            score_breakdown: score.breakdown,
-            form_data: formData,
-        }).select('id').single();
-
-        if (errInsert) {
-            console.error("Lead Insert Error: ", errInsert);
-            throw errInsert;
-        }
-
-        // Cross-insert into generic CRM `leads` table
-        await supabase.from("leads").insert({
+        // Single insert into unified leads table (estimate_leads merged 2026-04-11)
+        const { error: errInsert } = await supabase.from("leads").insert({
             name: formData.name,
             email: formData.email,
             phone: formData.phone,
@@ -207,8 +177,39 @@ serve(async (req: Request) => {
             city: formData.city,
             budget: formData.budgetAmount?.toString(),
             service: formData.selectedService,
-            score: score.total
+            score: score.total,
+            score_details: score.breakdown,
+            // Estimator-specific columns (merged from former estimate_leads table)
+            area: formData.area,
+            city_tier: formData.cityTier,
+            property_type: formData.propertyType,
+            state: formData.state,
+            start_timing: formData.startTiming,
+            estimated_min: estimate.total.min,
+            estimated_max: estimate.total.max,
+            lead_score: score.total,
+            estimate_breakdown: {
+                designCost: estimate.designCost,
+                gstOnDesign: estimate.gstOnDesign,
+                supervisionCost: estimate.supervisionCost,
+                extraVisitsCost: estimate.extraVisitsCost,
+                executionCost: estimate.executionCost,
+                contingency: estimate.contingency,
+                pmFee: estimate.pmFee,
+                addonCost: estimate.addonCost,
+            },
+            internal_notes: {
+                execution_tier: formData.executionTier ?? null,
+                bhk: formData.bhk ?? null,
+                score_category: score.category,
+                score_breakdown: score.breakdown,
+            },
         });
+
+        if (errInsert) {
+            console.error("Lead Insert Error: ", errInsert);
+            throw errInsert;
+        }
 
         return okResponse(req, { success: true, estimate }, {}, rl, RATE_OPTS.max);
 

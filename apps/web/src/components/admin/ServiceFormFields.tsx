@@ -21,10 +21,11 @@ export const FeaturesEditor = ({ features, onChange }: FeaturesEditorProps) => {
 
     return (
         <div className="space-y-3">
-            <Label>Features</Label>
+            <Label htmlFor="service-features">Features</Label>
             {features.map((feature, idx) => (
                 <div key={idx} className="flex gap-2">
                     <Input
+                        id={`service-feature-${idx}`}
                         value={feature}
                         onChange={(e) => updateFeature(idx, e.target.value)}
                         placeholder="e.g. 24/7 Support"
@@ -57,7 +58,7 @@ export const ProcessEditor = ({ steps, onChange }: ProcessEditorProps) => {
 
     return (
         <div className="space-y-3">
-            <Label>Process Steps</Label>
+            <Label htmlFor="service-process">Process Steps</Label>
             {steps.map((step, idx) => (
                 <div key={idx} className="border p-3 rounded-md space-y-2 bg-accent/5">
                     <div className="flex justify-between items-center">
@@ -67,11 +68,13 @@ export const ProcessEditor = ({ steps, onChange }: ProcessEditorProps) => {
                         </Button>
                     </div>
                     <Input
+                        id={`process-step-${idx}`}
                         value={step.title}
                         onChange={(e) => updateStep(idx, "title", e.target.value)}
                         placeholder="Step Title"
                     />
                     <Textarea
+                        id={`process-desc-${idx}`}
                         value={step.description}
                         onChange={(e) => updateStep(idx, "description", e.target.value)}
                         placeholder="Description"
@@ -102,7 +105,7 @@ export const FAQEditor = ({ faq, onChange }: FAQEditorProps) => {
 
     return (
         <div className="space-y-3">
-            <Label>FAQ</Label>
+            <Label htmlFor="service-faq">FAQ</Label>
             {faq.map((item, idx) => (
                 <div key={idx} className="border p-3 rounded-md space-y-2 bg-accent/5">
                     <div className="flex justify-between items-center">
@@ -112,11 +115,13 @@ export const FAQEditor = ({ faq, onChange }: FAQEditorProps) => {
                         </Button>
                     </div>
                     <Input
+                        id={`faq-question-${idx}`}
                         value={item.question}
                         onChange={(e) => updateItem(idx, "question", e.target.value)}
                         placeholder="Question"
                     />
                     <Textarea
+                        id={`faq-answer-${idx}`}
                         value={item.answer}
                         onChange={(e) => updateItem(idx, "answer", e.target.value)}
                         placeholder="Answer"

@@ -1,17 +1,33 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { X, ChevronLeft, ChevronRight, ZoomIn, Download } from "lucide-react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Image } from "@/components/ui/image";
+
+interface LightboxItem {
+  image: string;
+  category: string;
+  title?: string;
+  slug?: string;
+  description?: string;
+  location?: string;
+  year?: number;
+}
 
 interface GalleryLightboxProps {
   isOpen: boolean;
   currentIndex: number;
-  items: { image: string; category: string; title?: string; slug?: string }[];
+  items: LightboxItem[];
   onClose: () => void;
-  onNavigate: (direction: 'prev' | 'next') => void;
+  onNavigate: (direction: "prev" | "next") => void;
   onIndexChange: (index: number) => void;
 }
+
+const GRAIN_STYLE: React.CSSProperties = {
+  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
+  backgroundSize: "128px 128px",
+};
 
 const GalleryLightbox = ({
   isOpen,
@@ -19,37 +35,26 @@ const GalleryLightbox = ({
   items,
   onClose,
   onNavigate,
-  onIndexChange
+  onIndexChange,
 }: GalleryLightboxProps) => {
-  const [isZoomed, setIsZoomed] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!isOpen) return;
-
-    switch (e.key) {
-      case 'Escape':
-        onClose();
-        break;
-      case 'ArrowLeft':
-        onNavigate('prev');
-        break;
-      case 'ArrowRight':
-        onNavigate('next');
-        break;
-    }
-  }, [isOpen, onClose, onNavigate]);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!isOpen) return;
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") onNavigate("prev");
+      if (e.key === "ArrowRight") onNavigate("next");
+    },
+    [isOpen, onClose, onNavigate]
+  );
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    }
-
+    window.addEventListener("keydown", handleKeyDown);
+    if (isOpen) document.body.style.overflow = "hidden";
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
     };
   }, [handleKeyDown, isOpen]);
 
@@ -59,18 +64,8 @@ const GalleryLightbox = ({
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!touchStart) return;
-
-    const touchEnd = e.changedTouches[0].clientX;
-    const diff = touchStart - touchEnd;
-
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) {
-        onNavigate('next');
-      } else {
-        onNavigate('prev');
-      }
-    }
-
+    const diff = touchStart - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) onNavigate(diff > 0 ? "next" : "prev");
     setTouchStart(null);
   };
 
@@ -84,162 +79,197 @@ const GalleryLightbox = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-50 flex items-center justify-center"
+          className="fixed inset-0 z-[100] flex"
           onClick={onClose}
         >
           {/* Backdrop */}
-          <motion.div
-            initial={{ backdropFilter: 'blur(0px)' }}
-            animate={{ backdropFilter: 'blur(20px)' }}
-            exit={{ backdropFilter: 'blur(0px)' }}
-            className="absolute inset-0 bg-background/90"
+          <div
+            className="absolute inset-0 bg-[#050505]/96 backdrop-blur-xl"
+            style={GRAIN_STYLE}
+          />
+          <div
+            className="absolute inset-0 opacity-[0.03] pointer-events-none"
+            style={GRAIN_STYLE}
           />
 
-          {/* Close button */}
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ delay: 0.2 }}
-            onClick={onClose}
-            className="absolute top-6 right-6 z-50 p-3 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 text-foreground hover:bg-card transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </motion.button>
-
-          {/* Navigation buttons */}
-          <motion.button
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ delay: 0.2 }}
-            onClick={(e) => { e.stopPropagation(); onNavigate('prev'); }}
-            disabled={currentIndex === 0}
-            className="absolute left-4 md:left-8 z-50 p-3 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 text-foreground hover:bg-card transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </motion.button>
-
-          <motion.button
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ delay: 0.2 }}
-            onClick={(e) => { e.stopPropagation(); onNavigate('next'); }}
-            disabled={currentIndex === items.length - 1}
-            className="absolute right-4 md:right-8 z-50 p-3 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 text-foreground hover:bg-card transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </motion.button>
-
-          {/* Main image */}
+          {/* ── Desktop: Left Info Panel ──────────────────────────────── */}
           <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.3 }}
-            className="relative max-w-[90vw] max-h-[80vh]"
+            className="hidden lg:flex relative z-10 w-72 xl:w-80 flex-shrink-0 flex-col justify-end p-10 border-r border-white/5"
             onClick={(e) => e.stopPropagation()}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -24 }}
+            transition={{ delay: 0.15 }}
           >
-            <motion.img
-              src={currentItem.image}
-              alt={currentItem.title || currentItem.category}
-              className={cn(
-                "max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl",
-                isZoomed && "cursor-zoom-out scale-150"
-              )}
-              onClick={() => setIsZoomed(!isZoomed)}
-              layoutId={`gallery-image-${currentIndex}`}
-            />
+            {/* Category */}
+            <span className="text-[9px] uppercase tracking-[0.35em] text-[#D1AF6E]/60 font-light mb-4">
+              {currentItem.category}
+            </span>
 
-            {/* Image info */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent rounded-b-lg"
-            >
-              <div className="flex items-end justify-between">
-                <div>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 text-primary text-xs font-medium mb-2">
-                    {currentItem.category.replace(/-/g, " ")}
-                  </span>
-                  {currentItem.title && (
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-serif font-bold text-white">
-                        {currentItem.title}
-                      </h3>
-                      {currentItem.slug && (
-                        <Link
-                          to={`/portfolio/${currentItem.slug}`}
-                          className="inline-block text-sm text-primary hover:text-primary/80 transition-colors underline underline-offset-4"
-                        >
-                          View Project Details
-                        </Link>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setIsZoomed(!isZoomed)}
-                    className="p-2 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors"
-                  >
-                    <ZoomIn className="w-5 h-5" />
-                  </button>
-                  <a
-                    href={currentItem.image}
-                    download
-                    onClick={(e) => e.stopPropagation()}
-                    className="p-2 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors"
-                  >
-                    <Download className="w-5 h-5" />
-                  </a>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+            {/* Rule */}
+            <div className="w-8 h-px bg-[#D1AF6E]/30 mb-5" />
 
-          {/* Thumbnail strip */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            transition={{ delay: 0.3 }}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 p-2 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50 max-w-[90vw] overflow-x-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {items.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => onIndexChange(index)}
-                className={cn(
-                  "flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden transition-all duration-300",
-                  index === currentIndex
-                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                    : "opacity-50 hover:opacity-100"
-                )}
+            {/* Title */}
+            {currentItem.title && (
+              <h2 className="font-['Cormorant_Garamond',serif] text-2xl xl:text-3xl font-light text-white leading-snug mb-4">
+                {currentItem.title}
+              </h2>
+            )}
+
+            {/* Description */}
+            {currentItem.description && (
+              <p className="text-sm text-white/40 font-light leading-relaxed mb-6">
+                {currentItem.description}
+              </p>
+            )}
+
+            {/* Location + Year */}
+            {(currentItem.location || currentItem.year) && (
+              <p className="text-[9px] uppercase tracking-[0.25em] text-white/25 font-light mb-8">
+                {currentItem.location}
+                {currentItem.location && currentItem.year && " · "}
+                {currentItem.year}
+              </p>
+            )}
+
+            {/* CTA link */}
+            {currentItem.slug && (
+              <Link
+                to={`/portfolio/${currentItem.slug}`}
+                className="self-start text-[10px] uppercase tracking-[0.25em] text-[#D1AF6E] hover:text-[#D1AF6E]/70 transition-colors border-b border-[#D1AF6E]/30 pb-0.5"
+                onClick={(e) => e.stopPropagation()}
               >
-                <img
-                  src={item.image}
-                  alt={item.category}
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
+                View Full Project
+              </Link>
+            )}
+
+            {/* Counter */}
+            <div className="mt-auto pt-10">
+              <span className="font-['Cormorant_Garamond',serif] text-5xl font-light text-white/10">
+                {String(currentIndex + 1).padStart(2, "0")}
+              </span>
+              <span className="text-[10px] text-white/20 ml-2">
+                / {String(items.length).padStart(2, "0")}
+              </span>
+            </div>
           </motion.div>
 
-          {/* Counter */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute top-6 left-6 px-4 py-2 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 text-foreground text-sm"
-          >
-            {currentIndex + 1} / {items.length}
-          </motion.div>
+          {/* ── Main Image Area ────────────────────────────────────────── */}
+          <div className="relative z-10 flex-1 flex flex-col">
+            {/* Top bar */}
+            <div className="flex items-center justify-between px-6 md:px-10 pt-8">
+              {/* Mobile counter */}
+              <span className="lg:hidden text-[10px] uppercase tracking-[0.25em] text-white/30 font-light">
+                {currentIndex + 1} / {items.length}
+              </span>
+              <span className="hidden lg:block" />
+
+              {/* Close */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                onClick={onClose}
+                aria-label="Close lightbox"
+                className="p-2 text-white/40 hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6 stroke-1" />
+              </motion.button>
+            </div>
+
+            {/* Image */}
+            <div
+              className="flex-1 flex items-center justify-center px-6 md:px-16 py-6"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={currentIndex}
+                  src={currentItem.image}
+                  alt={currentItem.title || currentItem.category}
+                  className="max-w-full max-h-[72vh] object-contain shadow-2xl"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.35, ease: "easeInOut" }}
+                />
+              </AnimatePresence>
+            </div>
+
+            {/* ── Navigation Row ────────────────────────────────────── */}
+            <div
+              className="flex items-center justify-between px-10 py-8 border-t border-white/5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Prev */}
+              <motion.button
+                onClick={() => onNavigate("prev")}
+                disabled={currentIndex === 0}
+                aria-label="Previous image"
+                className="flex items-center gap-3 text-white/30 hover:text-[#D1AF6E] transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
+                whileHover={{ x: -3 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                <span className="text-[18px] font-light">←</span>
+                <span className="text-[9px] uppercase tracking-[0.3em] hidden sm:inline">Prev</span>
+              </motion.button>
+
+              {/* Thumbnail strip (desktop only) */}
+              <div className="hidden md:flex gap-1.5 max-w-md overflow-x-auto scrollbar-none">
+                {items.slice(Math.max(0, currentIndex - 3), currentIndex + 4).map((item, i) => {
+                  const realIndex = Math.max(0, currentIndex - 3) + i;
+                  return (
+                    <button
+                      key={realIndex}
+                      onClick={() => onIndexChange(realIndex)}
+                      aria-label={`Go to image ${realIndex + 1}`}
+                      className={cn(
+                        "flex-shrink-0 w-14 h-10 overflow-hidden transition-all duration-300",
+                        realIndex === currentIndex
+                          ? "ring-1 ring-[#D1AF6E] opacity-100"
+                          : "opacity-30 hover:opacity-70"
+                      )}
+                    >
+                      <Image
+                        src={item.image}
+                        alt={item.category}
+                        className="h-full w-full"
+                        width={112}
+                        height={80}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Next */}
+              <motion.button
+                onClick={() => onNavigate("next")}
+                disabled={currentIndex === items.length - 1}
+                aria-label="Next image"
+                className="flex items-center gap-3 text-white/30 hover:text-[#D1AF6E] transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
+                whileHover={{ x: 3 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                <span className="text-[9px] uppercase tracking-[0.3em] hidden sm:inline">Next</span>
+                <span className="text-[18px] font-light">→</span>
+              </motion.button>
+            </div>
+
+            {/* Mobile title strip */}
+            {currentItem.title && (
+              <div className="lg:hidden px-6 pb-6 text-center border-t border-white/5 pt-4">
+                <p className="font-['Cormorant_Garamond',serif] text-lg font-light text-white/70">
+                  {currentItem.title}
+                </p>
+                <p className="text-[9px] uppercase tracking-widest text-white/25 mt-1">
+                  {currentItem.category}
+                </p>
+              </div>
+            )}
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

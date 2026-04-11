@@ -2,7 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "paths": {
-      "*": ["./*"],
+      "*": [
+        "./*"
+      ],
       "@/*": [
         "./src/*"
       ],
@@ -13,9 +15,7 @@
         "../../packages/types/src/*"
       ]
     },
-    // Overriding strict mode for now to prevent regressions during migration
-    "strict": false,
-    "noImplicitAny": false
+    "strict": true
   },
   "include": [
     "src"

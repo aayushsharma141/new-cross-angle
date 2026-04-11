@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Lead, LeadPayload } from '@/repositories/interfaces/LeadRepository';
 import type { FilterParams, PaginatedResponse, PaginationParams, SortParams, UndoItem } from './types';
+import { calculateLeadScore as libCalculateScore, getLeadTemperature } from '@/lib/leadScoring';
 
 const UNDO_TIMEOUT = 5000;
 const MAX_UNDO_ITEMS = 10;
@@ -141,73 +142,24 @@ export class LeadService {
     return count || ids.length;
   }
 
+  /**
+   * Calculates the lead score using the canonical scoring model from lib/leadScoring.
+   * Weights: budget(30) + category(20) + timeline(20) + contact(10) + source(15) + recency(5) = 100
+   * Buckets : hot ≥ 70 | warm ≥ 40 | cold < 40
+   *
+   * @deprecated For display/admin use, import calculateLeadScore from '@/lib/leadScoring' directly.
+   * This method exists for backward compatibility with getLeadStats().
+   */
   calculateLeadScore(lead: Partial<Lead>): number {
-    let score = 0;
-
-    const engagementScore = this.calculateEngagementScore(lead);
-    const budgetScore = this.calculateBudgetScore(lead);
-    const timelineScore = this.calculateTimelineScore(lead);
-    const sourceScore = this.calculateSourceScore(lead);
-
-    score = (engagementScore * 0.4) + (budgetScore * 0.3) + (timelineScore * 0.2) + (sourceScore * 0.1);
-
-    return Math.round(score);
+    return libCalculateScore(lead);
   }
 
-  private calculateEngagementScore(lead: Partial<Lead>): number {
-    let score = 0;
-    if (lead.message && lead.message.length > 50) score += 30;
-    if (lead.phone) score += 20;
-    if (lead.category) score += 25;
-    if (lead.city) score += 25;
-    return Math.min(100, score);
-  }
-
-  private calculateBudgetScore(lead: Partial<Lead>): number {
-    if (!lead.budget) return 0;
-    
-    const budgetMap: Record<string, number> = {
-      'under_5l': 20,
-      '5l_10l': 40,
-      '10l_20l': 60,
-      '20l_50l': 80,
-      'above_50l': 100,
-    };
-    
-    return budgetMap[lead.budget] || 0;
-  }
-
-  private calculateTimelineScore(lead: Partial<Lead>): number {
-    if (!lead.created_at) return 50;
-    
-    const createdDate = new Date(lead.created_at);
-    const now = new Date();
-    const daysSinceContact = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (daysSinceContact <= 7) return 100;
-    if (daysSinceContact <= 14) return 80;
-    if (daysSinceContact <= 30) return 60;
-    if (daysSinceContact <= 60) return 40;
-    return Math.max(0, 30 - (daysSinceContact - 60));
-  }
-
-  private calculateSourceScore(lead: Partial<Lead>): number {
-    const sourceMap: Record<string, number> = {
-      'linkedin': 80,
-      'referral': 70,
-      'search': 50,
-      'direct': 40,
-      'social': 30,
-      'other': 20,
-    };
-    
-    return sourceMap[lead.lead_source?.toLowerCase() || 'other'] || 20;
-  }
-
+  /**
+   * Returns the temperature label for a given score.
+   * Buckets are canonical: hot ≥ 70 | warm ≥ 40 | cold < 40.
+   */
   getTemperature(score: number): 'hot' | 'warm' | 'cold' {
-    if (score >= 70) return 'hot';
-    if (score >= 40) return 'warm';
-    return 'cold';
+    return getLeadTemperature(score).priority;
   }
 
   async getLeadStats(): Promise<{
@@ -219,29 +171,18 @@ export class LeadService {
     bySource: Record<string, number>;
     avgResponseTime: number;
   }> {
-    const { data, error } = await supabase.from('leads').select('*');
+    const { data, error } = await supabase.rpc('get_lead_stats');
     if (error) throw error;
 
-    const leads = data as Lead[];
-    const stats = {
-      total: leads.length,
-      hot: 0,
-      warm: 0,
-      cold: 0,
-      byStatus: {} as Record<string, number>,
-      bySource: {} as Record<string, number>,
-      avgResponseTime: 0,
+    return data as {
+      total: number;
+      hot: number;
+      warm: number;
+      cold: number;
+      byStatus: Record<string, number>;
+      bySource: Record<string, number>;
+      avgResponseTime: number;
     };
-
-    leads.forEach(lead => {
-      const score = lead.score || this.calculateLeadScore(lead);
-      const temp = this.getTemperature(score);
-      stats[score >= 70 ? 'hot' : score >= 40 ? 'warm' : 'cold']++;
-      stats.byStatus[lead.status] = (stats.byStatus[lead.status] || 0) + 1;
-      stats.bySource[lead.lead_source || 'unknown'] = (stats.bySource[lead.lead_source || 'unknown'] || 0) + 1;
-    });
-
-    return stats;
   }
 
   pushToUndoStack(lead: Lead): void {
@@ -278,6 +219,12 @@ export class LeadService {
 
   getUndoStack(): UndoItem<Lead>[] {
     return this.undoStack;
+  }
+
+  /** Clear all undo timeouts — call on component unmount to prevent memory leaks. */
+  clearUndoStack(): void {
+    this.undoStack.forEach(item => clearTimeout(item.timeout));
+    this.undoStack = [];
   }
 }
 

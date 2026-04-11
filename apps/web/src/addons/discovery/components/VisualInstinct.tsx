@@ -4,6 +4,7 @@ import { visualImages } from "@/constants/discovery";
 import { VISUAL_WEIGHTS } from "../core/weights";
 import { AestheticScores } from "@/types/discovery";
 import { track } from "../infrastructure/analytics/tracker";
+import { Image } from "@/components/ui/image";
 
 interface Props {
   sessionId: string | null;
@@ -144,11 +145,12 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
                   <div className="absolute inset-0 bg-white/[0.04] animate-pulse" />
                 )}
 
-                <img
+                <Image
                   src={img.url}
                   alt=""
-                  className={`
-                    w-full h-full object-cover transition-all duration-700
+                  className="h-full w-full"
+                  imageClassName={`
+                    transition-all duration-700
                     ${isLoaded ? "opacity-100" : "opacity-0"}
                     ${!isSelected && selected.length > 0 && !isMaxed
                       ? "grayscale-[0.6] opacity-60"
@@ -156,6 +158,8 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
                     }
                     ${isSelected ? "scale-[1.04]" : "scale-100"}
                   `}
+                  width={480}
+                  height={360}
                   loading="eager"
                   onLoad={() => markLoaded(img.id)}
                 />

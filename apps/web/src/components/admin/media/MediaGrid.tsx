@@ -10,6 +10,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 interface MediaFile {
     id: string;
@@ -92,7 +93,7 @@ export const MediaGrid = ({
 
                             <div className="aspect-square relative bg-secondary/50 cursor-pointer overflow-hidden" onClick={() => onPreview(file)}>
                                 <img
-                                    src={file.url}
+                                    src={getOptimizedUrl(file.url, { width: 420, quality: 72 })}
                                     alt={file.name}
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     loading="lazy"
@@ -148,7 +149,7 @@ export const MediaGrid = ({
                         className="w-12 h-12 rounded-md bg-secondary overflow-hidden flex-shrink-0 cursor-pointer border relative"
                         onClick={() => onPreview(file)}
                     >
-                        <img src={file.url} alt={file.name} className="w-full h-full object-cover" loading="lazy" />
+                        <img src={getOptimizedUrl(file.url, { width: 180, quality: 70 })} alt={file.name} className="w-full h-full object-cover" loading="lazy" />
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{file.name}</p>

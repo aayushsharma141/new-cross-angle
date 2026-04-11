@@ -17,13 +17,42 @@ const WelcomePrompt = () => {
   useEffect(() => {
     // Check if user has already seen/dismissed the prompt
     const hasSeenPrompt = localStorage.getItem("welcomePromptSeen");
-    if (!hasSeenPrompt) {
-      // Show prompt after 5 seconds
-      const timer = setTimeout(() => {
+    if (hasSeenPrompt) return;
+
+    let triggered = false;
+
+    const triggerPrompt = () => {
+      if (!triggered) {
+        triggered = true;
         setIsOpen(true);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
+        // Clean up listeners immediately when triggered to avoid duplicate events
+        window.removeEventListener("scroll", handleScroll);
+      }
+    };
+
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY;
+      const clientHeight = window.innerHeight;
+      
+      // Calculate scroll progress percentage
+      const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
+
+      if (scrollPercentage >= 0.5) {
+        triggerPrompt();
+      }
+    };
+
+    // Trigger after 20 seconds of session time if not already triggered by scroll
+    const timer = setTimeout(triggerPrompt, 20000);
+
+    // Also trigger on 50% scroll depth
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   const handleClose = () => {

@@ -18,5 +18,7 @@
     "ralphLoop.defaultMode": "Planning",
     "go.toolsEnvVars": {
         "GOTOOLCHAIN": "auto"
-    }
+    },
+    "claude-code.environmentVariables": [],
+    "markdown.validate.enabled": false
 }

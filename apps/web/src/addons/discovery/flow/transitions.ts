@@ -23,9 +23,9 @@ export function getNextStage(currentStage: Stage, mode: "quick" | "deep"): Stage
         case Stage.Analysis:
             return Stage.MiniResult;
         case Stage.MiniResult:
-            return Stage.LeadCapture;
-        case Stage.LeadCapture:
             return Stage.Results;
+        case Stage.Results:
+            return Stage.LeadCapture;
         default:
             return currentStage;
     }

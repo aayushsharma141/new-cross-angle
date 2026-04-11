@@ -5,7 +5,7 @@ const steps = [
   {
     number: "01",
     label: "Phase One",
-    title: "Discovery & Consultation",
+    title: "Discovery & Free Consultation",
     description: "Deep dive into lifestyle requirements, brand identity, and structural constraints. We map the functional needs before touching the aesthetics.",
   },
   {

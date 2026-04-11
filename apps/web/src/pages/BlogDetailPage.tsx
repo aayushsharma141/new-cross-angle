@@ -11,8 +11,14 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import React from "react";
-import DOMPurify from "dompurify";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Image } from "@/components/ui/image";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+
 import {
     useArticleViewTrack,
     useScrollDepthTrack,
@@ -97,7 +103,7 @@ const BlogDetailPage = () => {
             if (!slug) return;
             try {
                 const { data, error } = await supabase
-                    .from("blogs")
+                    .from("blog_posts")
                     .select("*")
                     .eq("slug", slug)
                     .single();
@@ -108,7 +114,7 @@ const BlogDetailPage = () => {
                 // Fetch related posts
                 if (data?.category) {
                     const { data: related } = await supabase
-                        .from("blogs")
+                        .from("blog_posts")
                         .select("*")
                         .eq("is_published", true)
                         .neq("slug", slug)
@@ -124,7 +130,33 @@ const BlogDetailPage = () => {
         fetchPost();
     }, [slug]);
 
+    useGSAP(() => {
+        if (!isLoading && post) {
+            // Header animation
+            gsap.from(".blog-header-content > *", {
+                y: 30,
+                opacity: 0,
+                stagger: 0.1,
+                duration: 0.8,
+                ease: "power2.out"
+            });
+
+            // Parallax effect on cover image
+            gsap.to(".blog-cover-parallax", {
+                y: 50,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: ".blog-cover-parallax",
+                    start: "top bottom",
+                    end: "bottom top",
+                    scrub: true
+                }
+            });
+        }
+    }, [isLoading, post]);
+
     /* ── Engagement Tracking ── */
+
     useArticleViewTrack(post?.id);
     useScrollDepthTrack(post?.id);
     useReadingTimeTrack(post?.id);
@@ -155,24 +187,24 @@ const BlogDetailPage = () => {
     /* ═══════════════ LOADING STATE ═══════════════ */
     if (isLoading) {
         return (
-            <div className="min-h-screen" style={{ background: "#222" }}>
+            <div className="min-h-screen bg-[#050505]" style={{ background: "#050505" }}>
                 <Navbar />
                 <div className="container mx-auto px-4 pt-40 pb-20 max-w-4xl flex flex-col items-center text-center">
-                    <Skeleton className="h-4 w-64 mb-6 bg-white/10" />
-                    <Skeleton className="h-4 w-24 mb-6 bg-white/10" />
-                    <Skeleton className="h-16 md:h-20 w-full mb-8 bg-white/10" />
-                    <Skeleton className="h-4 w-40 mb-12 bg-white/10" />
+                    <Skeleton className="h-4 w-64 mb-6 bg-zinc-800/30" />
+                    <Skeleton className="h-16 md:h-20 w-full mb-8 bg-zinc-800/40" />
+                    <Skeleton className="h-4 w-40 mb-12 bg-zinc-800/20" />
                 </div>
-                <Skeleton className="w-full h-[500px] md:h-[600px] mb-16 max-w-5xl mx-auto rounded-none bg-white/10" />
+                <div className="w-full h-[500px] md:h-[600px] bg-zinc-800/20 animate-pulse mb-16" />
                 <div className="container mx-auto px-4 max-w-3xl space-y-4">
-                    <Skeleton className="h-4 w-full bg-white/10" />
-                    <Skeleton className="h-4 w-full bg-white/10" />
-                    <Skeleton className="h-4 w-3/4 bg-white/10" />
+                    <Skeleton className="h-4 w-full bg-zinc-800/20" />
+                    <Skeleton className="h-4 w-full bg-zinc-800/20" />
+                    <Skeleton className="h-4 w-3/4 bg-zinc-800/20" />
                 </div>
                 <Footer />
             </div>
         );
     }
+
 
     /* ═══════════════ NOT FOUND ═══════════════ */
     if (!post) {
@@ -213,7 +245,8 @@ const BlogDetailPage = () => {
                 <article className="w-full">
                     {/* Header Section (Dark Background) */}
                     <div className="w-full pt-40 pb-16" style={{ background: "#000000" }}>
-                        <header className="container mx-auto px-4 max-w-4xl text-center">
+                        <header className="container mx-auto px-4 max-w-4xl text-center blog-header-content">
+
                             {/* Category Tag */}
                             {post.category && (
                                 <span
@@ -247,13 +280,17 @@ const BlogDetailPage = () => {
 
                     {/* Edge-to-edge / Max-W Cover Image */}
                     {post.cover_image && (
-                        <div className="w-full max-w-[1280px] mx-auto px-0 md:px-8 -mt-6 relative z-10 mb-16">
+                        <div className="w-full max-w-[1280px] mx-auto px-0 md:px-8 -mt-6 relative z-10 mb-16 blog-cover-parallax">
+
                             <div className="w-full aspect-[4/3] md:aspect-[21/9] shadow-xl relative overflow-hidden bg-black">
-                                <img
+                                <Image
                                     src={post.cover_image}
                                     alt={post.title}
-                                    className="w-full h-full object-cover transition-transform hover:scale-105 duration-1000"
+                                    className="w-full h-full"
+                                    imageClassName="object-cover transition-transform hover:scale-105 duration-1000"
                                     loading="eager"
+                                    width={1280}
+                                    quality={90}
                                 />
                             </div>
                         </div>
@@ -333,8 +370,15 @@ const BlogDetailPage = () => {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
                                     {relatedPosts.map(rp => (
                                         <Link key={rp.id} to={`/blog/${rp.slug}`} className="group block">
-                                            <div className="aspect-[4/3] overflow-hidden mb-5 shadow-lg rounded-none bg-black">
-                                                <img src={rp.cover_image || "/placeholder.svg"} alt={rp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100" loading="lazy" />
+                                            <div className="aspect-[4/3] overflow-hidden mb-5 shadow-lg bg-black">
+                                                <Image
+                                                    src={rp.cover_image} 
+                                                    alt={rp.title} 
+                                                    className="w-full h-full"
+                                                    imageClassName="object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                                                    width={400}
+                                                    height={300}
+                                                />
                                             </div>
                                             <div className="text-center px-4">
                                                 <span className="text-[10px] font-bold uppercase tracking-[0.15em] block mb-3" style={{ color: CRIMSON }}>{rp.category || "Design"}</span>

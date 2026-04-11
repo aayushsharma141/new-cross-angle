@@ -19,7 +19,7 @@ const CORS_OPTS = { credentialed: true };
 const RATE_OPTS = { bucket: "manage-user", max: 30, windowMs: 60_000 };
 const INACTIVE_BAN_DURATION = "876000h";
 
-type ManageUserAction = "activate" | "deactivate" | "delete" | "update";
+type ManageUserAction = "activate" | "deactivate" | "delete" | "update" | "reset-password";
 
 type ManageUserRequest = {
     action: ManageUserAction;
@@ -158,7 +158,7 @@ serve(async (req: Request) => {
             });
         }
 
-        if (!["activate", "deactivate", "delete", "update"].includes(action)) {
+        if (!["activate", "deactivate", "delete", "update", "reset-password"].includes(action)) {
             return new Response(JSON.stringify({ error: "Invalid action" }), {
                 status: 400,
                 headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -166,10 +166,36 @@ serve(async (req: Request) => {
         }
 
         if (userId === user.id) {
-            return new Response(JSON.stringify({ error: "You cannot perform this action on yourself" }), {
-                status: 400,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
+            if (action === "reset-password") {
+                return new Response(JSON.stringify({
+                    error: "You cannot reset your own password from the admin panel. Use the login page's 'Forgot Password' instead.",
+                }), {
+                    status: 400,
+                    headers: { ...corsHeaders, "Content-Type": "application/json" },
+                });
+            }
+
+            if (action === "update") {
+                const isOnlyFullName = typeof fullName === "string" &&
+                    !requestedRole &&
+                    !requestedStatus;
+
+                if (!isOnlyFullName) {
+                    return new Response(JSON.stringify({
+                        error: "You cannot change your own role or status. Ask another admin to do this.",
+                    }), {
+                        status: 400,
+                        headers: { ...corsHeaders, "Content-Type": "application/json" },
+                    });
+                }
+            } else {
+                return new Response(JSON.stringify({
+                    error: "You cannot perform this action on yourself.",
+                }), {
+                    status: 400,
+                    headers: { ...corsHeaders, "Content-Type": "application/json" },
+                });
+            }
         }
 
         if (body.role && !requestedRole) {
@@ -271,7 +297,41 @@ serve(async (req: Request) => {
                 break;
             }
 
+            case "reset-password": {
+                const { error: resetError } = await adminClient.auth.admin.inviteUserByEmail(user.email ?? "", {
+                    data: { name: targetProfile.full_name },
+                    redirectTo: `${supabaseUrl}/admin`,
+                });
+                if (resetError) throw resetError;
+
+                auditAction = "PASSWORD_RESET_REQUESTED";
+                auditDetails.triggered_by = user.id;
+                auditDetails.target_email = user.email;
+
+                return new Response(JSON.stringify({
+                    success: true,
+                    message: `Password reset email sent to ${user.email}`,
+                }), {
+                    headers: { ...corsHeaders, "Content-Type": "application/json" },
+                });
+            }
+
             case "update": {
+                const isSelfUpdate = userId === user.id;
+
+                if (isSelfUpdate) {
+                    if (typeof fullName === "string" && fullName.trim()) {
+                        const { error: profileError } = await adminClient
+                            .from("profiles")
+                            .update({ full_name: fullName.trim() })
+                            .eq("id", userId);
+                        if (profileError) throw profileError;
+                    }
+
+                    return new Response(JSON.stringify({ success: true }), {
+                        headers: { ...corsHeaders, "Content-Type": "application/json" },
+                    });
+                }
                 if (requestedRole) {
                     if (!canAssignRole(actorRole, requestedRole)) {
                         return new Response(JSON.stringify({

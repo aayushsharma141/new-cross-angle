@@ -1,3 +1,17 @@
+# robots.txt — Cross Angle Interior
+# https://crossangleinterior.com
+
 User-agent: *
 Allow: /
+
+# Block admin panel from all crawlers
+Disallow: /admin/
+Disallow: /admin/auth
+Disallow: /admin/login
+
+# Block other sensitive/utility paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /estimate/preview
+
 Sitemap: https://crossangleinterior.com/sitemap.xml

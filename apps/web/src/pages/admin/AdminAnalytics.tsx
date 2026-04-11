@@ -18,6 +18,7 @@ import {
 import { Link } from "react-router-dom";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
+import { PageSkeleton } from "@/components/ui/PageSkeleton";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -25,7 +26,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/design-system/components/Table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, LineChart, Line, CartesianGrid, Legend, AreaChart, Area } from "recharts";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { icons } from "@/design-system/tokens/icons";
 
 interface SessionRow {
@@ -394,9 +394,9 @@ export default function AdminAnalytics() {
       .order("created_at", { ascending: false })
       .limit(5000);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let leadsQuery: any = supabase.from("leads_master")
+    let leadsQuery: any = supabase.from("leads")
       .select("*")
-      .eq("source", "discovery_engine")
+      .eq("lead_source", "style_quiz")
       .order("created_at", { ascending: false })
       .limit(500);
 
@@ -538,17 +538,101 @@ export default function AdminAnalytics() {
   return (
     <div className="w-full flex flex-col gap-6">
       {/* Quick Stats header inside the tab content */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2 mb-4">
-        <div className="flex items-center gap-2 text-sm text-slate-400">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mt-2 mb-4">
+        <div className="flex items-center gap-2 text-sm text-slate-400 whitespace-nowrap">
           <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
           <span>{totalSessions} session{totalSessions !== 1 ? "s" : ""} · {leads.length} lead{leads.length !== 1 ? "s" : ""} recorded from Discovery</span>
         </div>
 
-        {/* Quick Date Range (Placeholder) */}
-        <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl p-1 backdrop-blur-md">
-          <Button variant="ghost" size="sm" className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest bg-zinc-900 border border-zinc-800 text-yellow-500 rounded-lg shadow-sm h-auto hover:bg-zinc-800 transition-all">30 Days</Button>
-          <Button variant="ghost" size="sm" className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors h-auto">7 Days</Button>
-          <Button variant="ghost" size="sm" className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors h-auto">24 Hours</Button>
+        {/* Date Filters + Export/Refresh actions merged into header */}
+        <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto xl:justify-end bg-zinc-900/40 border border-zinc-800/50 backdrop-blur-md p-1.5 rounded-2xl">
+          {PRESET_RANGES.map((p) => (
+            <Button
+              variant={activePreset === p.days ? "default" : "ghost"}
+              size="sm"
+              key={p.label}
+              onClick={() => handlePreset(p.days)}
+              className={cn("text-xs h-8 rounded-xl", activePreset === p.days ? "" : "text-zinc-400 hover:text-white hover:bg-white/5")}
+            >
+              {p.label}
+            </Button>
+          ))}
+
+          <div className="w-px h-6 bg-border mx-1 hidden sm:block" />
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="sm" className={cn("text-xs gap-1.5 h-8 rounded-xl bg-black/40 border border-white/5 hover:bg-white/10 hover:text-white", !dateFrom ? "text-muted-foreground" : "text-zinc-200")}>
+                <CalendarIcon className={icons.xs} />
+                {dateFrom ? format(dateFrom, "MMM d, yyyy") : "From"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={dateFrom}
+                onSelect={(d) => { setDateFrom(d); setActivePreset(null); }}
+                disabled={(d) => d > new Date() || (dateTo ? d > dateTo : false)}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+
+          <span className="text-xs text-muted-foreground">→</span>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="sm" className={cn("text-xs gap-1.5 h-8 rounded-xl bg-black/40 border border-white/5 hover:bg-white/10 hover:text-white", !dateTo ? "text-muted-foreground" : "text-zinc-200")}>
+                <CalendarIcon className={icons.xs} />
+                {dateTo ? format(dateTo, "MMM d, yyyy") : "To"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={dateTo}
+                onSelect={(d) => { setDateTo(d); setActivePreset(null); }}
+                disabled={(d) => d > new Date() || (dateFrom ? d < dateFrom : false)}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+
+          <div className="flex items-center gap-2 ml-auto sm:ml-0 border-l border-white/10 pl-3">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 rounded-xl bg-black/40 border-white/5 hover:bg-white/10 hover:text-white">
+                  <Download className={icons.sm} />
+                  Export
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-2" align="end">
+                <div className="flex flex-col gap-1">
+                  <Button variant="ghost" size="sm" onClick={exportSessions} className="text-xs justify-start px-3 py-2 h-auto">
+                    Sessions CSV ({sessions.length} rows)
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={exportEvents} className="text-xs justify-start px-3 py-2 h-auto">
+                    Events CSV ({events.length} rows)
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={exportLeads} className="text-xs justify-start px-3 py-2 h-auto">
+                    Leads CSV ({leads.length} rows)
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadData}
+              disabled={refreshing}
+              className="text-xs gap-1.5 h-8 rounded-xl bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 hover:text-primary"
+            >
+              <RefreshCw className={cn(icons.xs, refreshing && "animate-spin")} />
+              Refresh
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -591,116 +675,7 @@ export default function AdminAnalytics() {
       </div>
 
       {activeTab === "analytics" && (<>
-        {/* Date Range Filter Bar */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.05 }}
-          className="flex flex-wrap items-center gap-2 mb-8"
-        >
-          {PRESET_RANGES.map((p) => (
-            <Button
-              variant={activePreset === p.days ? "default" : "secondary"}
-              size="sm"
-              key={p.label}
-              onClick={() => handlePreset(p.days)}
-              className="text-xs h-8"
-            >
-              {p.label}
-            </Button>
-          ))}
-
-          <div className="w-px h-6 bg-border mx-1 hidden sm:block" />
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className={cn("text-xs gap-1.5", !dateFrom && "text-muted-foreground")}>
-                <CalendarIcon className={icons.xs} />
-                {dateFrom ? format(dateFrom, "MMM d, yyyy") : "From"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={dateFrom}
-                onSelect={(d) => { setDateFrom(d); setActivePreset(null); }}
-                disabled={(d) => d > new Date() || (dateTo ? d > dateTo : false)}
-                initialFocus
-                className="p-3 pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
-
-          <span className="text-xs text-muted-foreground">→</span>
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className={cn("text-xs gap-1.5", !dateTo && "text-muted-foreground")}>
-                <CalendarIcon className={icons.xs} />
-                {dateTo ? format(dateTo, "MMM d, yyyy") : "To"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={dateTo}
-                onSelect={(d) => { setDateTo(d); setActivePreset(null); }}
-                disabled={(d) => d > new Date() || (dateFrom ? d < dateFrom : false)}
-                initialFocus
-                className="p-3 pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
-
-          <div className="flex items-center gap-2 ml-auto">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="text-xs gap-1.5">
-                  <Download className={icons.sm} />
-                  Export
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-2 pointer-events-auto" align="end">
-                <div className="flex flex-col gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={exportSessions}
-                    className="text-xs justify-start px-3 py-2 h-auto"
-                  >
-                    Sessions CSV ({sessions.length} rows)
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={exportEvents}
-                    className="text-xs justify-start px-3 py-2 h-auto"
-                  >
-                    Events CSV ({events.length} rows)
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={exportLeads}
-                    className="text-xs justify-start px-3 py-2 h-auto"
-                  >
-                    Leads CSV ({leads.length} rows)
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={loadData}
-              disabled={refreshing}
-              className="text-xs gap-1.5"
-            >
-              <RefreshCw className={cn(icons.xs, refreshing && "animate-spin")} />
-              Refresh
-            </Button>
-          </div>
-        </motion.div>
+        {/* Date Range Filter Bar was moved up to the header */}
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-6">

@@ -6,9 +6,10 @@ import { KineticText } from "@/components/ui/kinetic-text";
 
 interface AboutHeroProps {
   onPlayVideo?: () => void;
+  videoUrl?: string;
 }
 
-const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
+const AboutHero = ({ onPlayVideo, videoUrl = "https://www.youtube.com/embed/gJMCIaI7nKg" }: AboutHeroProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVideoHovered, setIsVideoHovered] = useState(false);
 
@@ -31,7 +32,7 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
         <motion.div
           className="absolute top-1/3 left-1/4 w-[700px] h-[700px] rounded-full"
           style={{
-            background: "radial-gradient(circle, hsl(var(--primary) / 0.12) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(209,175,110,0.08) 0%, transparent 70%)",
           }}
           animate={{
             scale: [1, 1.3, 1],
@@ -47,7 +48,7 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
         <motion.div
           className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] rounded-full"
           style={{
-            background: "radial-gradient(circle, hsl(var(--secondary) / 0.08) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(209,175,110,0.06) 0%, transparent 70%)",
           }}
           animate={{
             scale: [1.2, 1, 1.2],
@@ -77,7 +78,7 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
               animate={{ x: dir > 0 ? ["0%", "-50%"] : ["-50%", "0%"] }}
               transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
             >
-              CROSS ANGLE INTERIOR • ESTD 2010 • EXCELLENCE IN DESIGN • CROSS ANGLE INTERIOR • ESTD 2010 • EXCELLENCE IN DESIGN •
+              CROSS ANGLE INTERIOR • CINEMATIC SPATIAL ELEGANCE • ESTD 2010 • CROSS ANGLE INTERIOR • CINEMATIC SPATIAL ELEGANCE • ESTD 2010 •
             </motion.div>
           ))}
         </div>
@@ -92,8 +93,8 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
               transition={{ duration: 0.6 }}
               className="mb-6"
             >
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium tracking-wider">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#d1af6e]/10 border border-[#d1af6e]/20 text-[#d1af6e] text-sm font-medium tracking-wider">
+                <span className="w-2 h-2 rounded-full bg-[#d1af6e] animate-[pulse_2s_ease-in-out_Infinity]" />
                 ABOUT THE STUDIO
               </span>
             </motion.div>
@@ -104,7 +105,7 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
                 <KineticText preset="char-reveal" stagger={0.03} duration={0.8}>
                   Cross Angle
                 </KineticText>
-                <div className="text-primary italic">
+                <div className="text-[#d1af6e] italic mt-2">
                   <KineticText preset="char-reveal" stagger={0.03} delay={0.4} duration={0.8}>
                     Interior
                   </KineticText>
@@ -124,7 +125,7 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
               </p>
 
               <p className="text-muted-foreground text-lg leading-relaxed max-w-lg">
-                For over <span className="text-foreground font-semibold">15 years</span>, our studio has been the silent architect of Jamshedpur's most prestigious environments—dedicated to the <span className="text-primary font-medium">Architecture of Anticipation</span>.
+                For over <span className="text-foreground font-semibold">15 years</span>, our studio has been the silent architect of Jamshedpur's most prestigious environments—dedicated to the <span className="text-[#d1af6e] font-medium tracking-wide">Architecture of Anticipation</span>.
               </p>
             </motion.div>
 
@@ -133,15 +134,18 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.8 }}
-              className="mt-12 p-8 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl grid grid-cols-3 gap-8"
+              className="mt-12 p-8 rounded-[2rem] bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] grid grid-cols-3 gap-8 relative overflow-hidden"
             >
+              {/* Internal subtle glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#d1af6e]/5 via-transparent to-transparent opacity-50 pointer-events-none" />
+              
               {[
                 { value: "15+", label: "Years" },
                 { value: "500+", label: "Projects" },
                 { value: "98%", label: "Clients" },
               ].map((stat, index) => (
                 <div key={index} className="text-center group">
-                  <p className="text-2xl md:text-3xl font-serif font-bold text-primary group-hover:scale-110 transition-transform duration-500">
+                  <p className="text-3xl md:text-4xl font-serif font-bold text-[#d1af6e] drop-shadow-[0_0_10px_rgba(209,175,110,0.3)] group-hover:scale-110 transition-transform duration-500">
                     {stat.value}
                   </p>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mt-1">
@@ -160,10 +164,10 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
             className="relative"
           >
             <div
-              className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl"
+              className="relative aspect-video rounded-[2rem] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.6)] border border-white/10 group backdrop-blur-3xl bg-black/50"
             >
               <iframe
-                src="https://www.youtube.com/embed/gJMCIaI7nKg"
+                src={videoUrl}
                 title="Cross Angle Interior Video"
                 className="w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -172,8 +176,8 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
             </div>
 
             {/* Decorative elements */}
-            <div className="absolute -top-4 -right-4 w-32 h-32 border-2 border-primary/20 rounded-3xl -z-10" />
-            <div className="absolute -bottom-4 -left-4 w-24 h-24 border-2 border-secondary/20 rounded-3xl -z-10" />
+            <div className="absolute -top-4 -right-4 w-32 h-32 border-2 border-[#d1af6e]/20 rounded-3xl -z-10 transition-transform duration-700 group-hover:rotate-[5deg] group-hover:border-[#d1af6e]/40" />
+            <div className="absolute -bottom-4 -left-4 w-24 h-24 border-2 border-white/10 rounded-3xl -z-10 transition-transform duration-700 group-hover:-rotate-[5deg]" />
           </motion.div>
         </div>
       </motion.div>
@@ -192,7 +196,7 @@ const AboutHero = ({ onPlayVideo }: AboutHeroProps) => {
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
         >
-          <ChevronDown className="w-5 h-5 text-primary" />
+          <ChevronDown className="w-5 h-5 text-[#d1af6e]/80" />
         </motion.div>
       </motion.div>
     </section>

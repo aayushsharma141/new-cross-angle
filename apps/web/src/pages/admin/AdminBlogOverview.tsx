@@ -22,6 +22,7 @@ import {
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     BarChart,
@@ -35,7 +36,6 @@ import {
     CartesianGrid,
     Cell
 } from "recharts";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { icons } from "@/design-system/tokens/icons";
 
 /* ───────────────────────────────────────────────
@@ -110,7 +110,7 @@ export default function AdminBlogOverview() {
         try {
             // 1. Fetch core blog data (only guaranteed columns)
             const { data: blogs } = await supabase
-                .from('blogs')
+                .from('blog_posts')
                 .select('id, title');
 
             // 1b. Fetch analytics (may not exist)
@@ -128,17 +128,25 @@ export default function AdminBlogOverview() {
                 });
             } catch { /* table may not exist */ }
 
-            // 2. Fetch Newsletter Count
-            const { count: newsCount } = await supabase
-                .from('newsletter_subscribers')
-                .select('*', { count: 'exact', head: true });
+            // 2. Fetch Newsletter Count (may not exist)
+            let newsCount = 0;
+            try {
+                const { count } = await supabase
+                    .from('newsletter_subscribers')
+                    .select('*', { count: 'exact', head: true });
+                newsCount = count || 0;
+            } catch { /* table may not exist */ }
 
-            // 3. Fetch Recent Events for Daily Trends
-            const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
-            const { data: events } = await supabase
-                .from('blog_user_events')
-                .select('created_at, event_type')
-                .gte('created_at', thirtyDaysAgo);
+            // 3. Fetch Recent Events for Daily Trends (may not exist)
+            let events: { created_at: string; event_type: string }[] = [];
+            try {
+                const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
+                const { data: eventData } = await supabase
+                    .from('blog_user_events')
+                    .select('created_at, event_type')
+                    .gte('created_at', thirtyDaysAgo);
+                events = (eventData as any[]) || [];
+            } catch { /* table may not exist */ }
 
             if (blogs) {
                 const metrics: ArticleMetric[] = (blogs as BlogRow[]).map((article) => ({
@@ -159,12 +167,12 @@ export default function AdminBlogOverview() {
                 setTopStats({
                     totalViews,
                     avgReadTime: avgRead,
-                    totalNewsletter: newsCount || 0,
+                    totalNewsletter: newsCount,
                     avgCompletion: avgScroll
                 });
             }
 
-            if (events) {
+            if (events.length > 0) {
                 const dayMap: Record<string, DailyStat> = {};
                 events.forEach(e => {
                     const d = format(new Date(e.created_at), 'MMM d');
@@ -219,16 +227,63 @@ export default function AdminBlogOverview() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <RefreshCw className="w-6 h-6 animate-spin text-primary" />
+            <div className="space-y-8 animate-in fade-in duration-700">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div className="space-y-2">
+                        <Skeleton className="h-10 w-64 bg-zinc-800/50" />
+                        <Skeleton className="h-4 w-96 bg-zinc-800/30" />
+                    </div>
+                    <Skeleton className="h-9 w-40 bg-zinc-800/50" />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4].map((i) => (
+                        <Card key={i} className="bg-zinc-900/40 border-zinc-800/50">
+                            <CardContent className="p-6 space-y-4">
+                                <div className="flex justify-between">
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-3 w-20 bg-zinc-800/30" />
+                                        <Skeleton className="h-8 w-24 bg-zinc-800/50" />
+                                    </div>
+                                    <Skeleton className="h-10 w-10 rounded-xl bg-zinc-800/50" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <Card className="lg:col-span-2 bg-zinc-900/30 border-zinc-800/50">
+                        <CardHeader>
+                            <Skeleton className="h-5 w-48 bg-zinc-800/50" />
+                        </CardHeader>
+                        <CardContent className="h-[300px]">
+                            <Skeleton className="w-full h-full bg-zinc-800/20" />
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-zinc-900/30 border-zinc-800/50">
+                        <CardHeader>
+                            <Skeleton className="h-5 w-48 bg-zinc-800/50" />
+                        </CardHeader>
+                        <CardContent className="p-4 space-y-4">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <div key={i} className="flex gap-3">
+                                    <Skeleton className="h-4 w-4 bg-zinc-800/30" />
+                                    <div className="flex-1 space-y-2">
+                                        <Skeleton className="h-3 w-full bg-zinc-800/50" />
+                                        <Skeleton className="h-2 w-24 bg-zinc-800/30" />
+                                    </div>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         );
     }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
-            <AdminBreadcrumb items={[{ label: 'Blog Settings', href: '/admin/cms/blogs' }, { label: 'Analytics' }]} />
-
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-1">
                     <h1 className="text-4xl font-serif text-white tracking-tight">Content Intelligence</h1>

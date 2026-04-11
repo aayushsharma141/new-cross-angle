@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { leadRepo } from "@/repositories";
 import { LeadPipeline } from "@/components/admin/leads/LeadPipeline";
@@ -6,7 +6,7 @@ import { LeadDetailSheet } from "@/components/admin/leads/LeadDetailSheet";
 import { Button } from "@/design-system/components/Button";
 import { Input } from "@/design-system/components/Input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader } from "@/components/admin/layout/PageHeader";
+import { PageSkeleton } from "@/components/ui/PageSkeleton";
 import { Card } from "@/design-system/components/Card";
 import {
   Table,
@@ -33,24 +33,46 @@ import {
   Flame,
   Thermometer,
   Snowflake,
+  TrendingUp,
+  MoreHorizontal,
+  Copy,
+  Trash2,
+  Eye,
+  Mail,
+  Phone,
+  CheckCircle,
+  AlertTriangle,
 } from "lucide-react";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { icons } from "@/design-system/tokens/icons";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { calculateLeadScore, getLeadTemperature, Lead } from "@/lib/leadScoring";
+import { calculateLeadScore, getLeadTemperature, getLeadHealth, buildForecast, formatINR, Lead } from "@/lib/leadScoring";
+import { validateStageAdvance, type LeadStatus } from "@/lib/validations";
 import { EmptyState, LoadingState } from "@/design-system/components/states";
 import { cn } from "@/lib/utils";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useLeadsRealtime } from "@/hooks/useLeadsRealtime";
+import { LastUpdatedBar } from "@/components/admin/leads/LastUpdatedBar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { AnalyticsKpiRow } from "@/components/admin/analytics/AnalyticsKpiRow";
+import type { LucideIcon } from "lucide-react";
 
 const NEW_LEAD_ID = "__new__";
+const EM_DASH = "\u2014";
 
 const STATUS_COLORS: Record<string, string> = {
   new: "bg-blue-500/10 text-blue-500 border-blue-500/20",
   contacted: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
   qualified: "bg-cyan-500/10 text-cyan-500 border-cyan-500/20",
   proposal: "bg-primary/10 text-primary border-primary/20",
+  negotiation: "bg-amber-500/10 text-amber-400 border-amber-500/20",
   won: "bg-success/10 text-success border-success/20",
   lost: "bg-error/10 text-error border-error/20",
 };
@@ -74,6 +96,14 @@ const TYPE_LABELS: Record<string, string> = {
   commercial: "Commercial",
 };
 
+/** Format a numeric INR budget value to a compact label like "₹4.5L" or "₹1.2Cr" */
+function formatBudgetINR(val: number | null | undefined): string | null {
+  if (!val || val <= 0) return null;
+  if (val >= 10_000_000) return `\u20b9${(val / 10_000_000).toFixed(1)}Cr`;
+  if (val >= 100_000) return `\u20b9${(val / 100_000).toFixed(1)}L`;
+  return `\u20b9${val.toLocaleString("en-IN")}`;
+}
+
 function TemperatureIcon({ score }: { score: number }) {
   if (score >= 70) return <Flame className={`${icons.xs} text-error`} />;
   if (score >= 40) return <Thermometer className={`${icons.xs} text-primary`} />;
@@ -83,7 +113,19 @@ function TemperatureIcon({ score }: { score: number }) {
 export default function AdminLeads() {
   const [view, setView] = useState<"board" | "list">("list");
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounce search input — 300ms delay prevents re-filtering on every keystroke
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [search]);
+
   const [statusFilter, setStatusFilter] = useState("all");
+  const [tempFilter, setTempFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -92,7 +134,10 @@ export default function AdminLeads() {
   const queryClient = useQueryClient();
   const isReadOnly = !isEditor;
 
-  const { data: leads = [], isLoading } = useQuery({
+  // Hybrid realtime: subscribe to changes, expose pending-update flag
+  const { lastUpdated, hasPendingUpdate, isConnected, refresh } = useLeadsRealtime();
+
+  const { data: leads = [], isLoading, isFetching } = useQuery({
     queryKey: ["leads"],
     queryFn: async (): Promise<Lead[]> => {
       const raw = await leadRepo.getLeads();
@@ -104,28 +149,38 @@ export default function AdminLeads() {
     },
   });
 
-  // Filter Leads
+  // Filter Leads — search + status + temperature + source
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
-      lead.name?.toLowerCase().includes(search.toLowerCase()) ||
-      lead.email?.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || lead.status === statusFilter;
-    return matchesSearch && matchesStatus;
+      lead.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      lead.email?.toLowerCase().includes(debouncedSearch.toLowerCase());
+
+    const matchesStatus = statusFilter === "all" || lead.status === statusFilter;
+
+    const score = lead.score || 0;
+    const temp = getLeadTemperature(score);
+    const matchesTemp = tempFilter === "all" || temp.priority === tempFilter;
+
+    const leadSource = lead.source || lead.lead_source || "";
+    const matchesSource = sourceFilter === "all" || leadSource === sourceFilter;
+
+    return matchesSearch && matchesStatus && matchesTemp && matchesSource;
   });
 
-  // Update Lead Mutation
+  // Update Lead Mutation — saves ALL editable fields (not just status)
   const updateMutation = useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Lead> & { id: string }): Promise<void> => {
-      await leadRepo.updateLeadStatus(id, updates.status ?? "");
+    mutationFn: async ({ id, ...patch }: Partial<Lead> & { id: string }): Promise<void> => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { score, created_at, updated_at, service, source_url, internal_notes, score_details, ...saveable } = patch;
+      await leadRepo.updateLead(id, saveable);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["leads"] });
-      toast({ title: "Lead Updated", description: "Changes saved successfully." });
+      toast({ title: "Lead Updated", description: "All changes saved successfully." });
       setIsSheetOpen(false);
     },
     onError: (err: Error) => {
-      toast({ variant: "destructive", title: "Error", description: err.message });
+      toast({ variant: "destructive", title: "Save Failed", description: err.message });
     },
   });
 
@@ -143,6 +198,8 @@ export default function AdminLeads() {
         notes: draft.notes,
         lead_source: draft.lead_source,
         lead_type: draft.lead_type,
+        scope: draft.scope,
+        timeline: draft.timeline,
       });
     },
     onSuccess: () => {
@@ -167,18 +224,33 @@ export default function AdminLeads() {
   });
 
   const handleDragMove = (leadId: string, newStatus: string): void => {
+    const lead = leads.find((l) => l.id === leadId);
+    if (!lead) return;
+
+    // Hygiene gate: validate required fields for stage advancement
+    const errors = validateStageAdvance(
+      lead as unknown as Record<string, unknown>,
+      newStatus as LeadStatus
+    );
+    if (errors.length > 0) {
+      toast({
+        variant: "destructive",
+        title: `Cannot advance to "${newStatus}"`,
+        description: errors.join(" · "),
+      });
+      return;
+    }
+
     updateMutation.mutate({ id: leadId, status: newStatus });
   };
 
   const handleExport = (): void => {
     const csvContent = [
-      ["Name", "Email", "Phone", "Status", "Source", "Type", "City", "Budget", "Score", "Date"],
+      ["Name", "Email", "Phone", "Status", "Source", "Type", "City", "Budget", "Score", "Temperature", "Date"],
       ...leads.map((l) => {
         const temp = getLeadTemperature(l.score || 0);
         const lSource = l.source || l.lead_source || "";
         const lType = l.category || l.lead_type || "";
-        const lBudget = l.budget || "";
-
         return [
           l.name,
           l.email,
@@ -187,13 +259,14 @@ export default function AdminLeads() {
           SOURCE_LABELS[lSource] || lSource,
           TYPE_LABELS[lType] || lType,
           l.city || "",
-          lBudget,
-          `${l.score || 0} (${temp.label})`,
+          l.budget || "",
+          `${l.score || 0}`,
+          temp.label,
           format(new Date(l.created_at || ""), "yyyy-MM-dd"),
         ];
       }),
     ]
-      .map((e) => e.join(","))
+      .map((e) => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(","))
       .join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -203,89 +276,147 @@ export default function AdminLeads() {
     link.click();
   };
 
+  const openNewLead = useCallback(() => {
+    setSelectedLead({
+      id: NEW_LEAD_ID,
+      name: "",
+      email: "",
+      status: "new",
+      created_at: new Date().toISOString(),
+    });
+    setIsSheetOpen(true);
+  }, []);
+
   // KPI summary
-  const kpis = {
-    total: leads.length,
-    hot: leads.filter((l) => (l.score || 0) >= 70).length,
-    won: leads.filter((l) => l.status === "won").length,
-    new: leads.filter((l) => l.status === "new").length,
-  };
+  const forecast = buildForecast(leads);
+  const pipelineValue = forecast.totalOpenValue;
+  const staleCount = forecast.stale.length;
+  const hotCount = leads.filter((l) => (l.score || 0) >= 70).length;
+  const wonCount = leads.filter((l) => l.status === "won").length;
+
+  const kpiMetrics: Parameters<typeof AnalyticsKpiRow>[0]["metrics"] = [
+    {
+      title: "Total Leads",
+      value: String(leads.length),
+      numericValue: leads.length,
+      icon: Users as LucideIcon,
+      variant: "secondary",
+    },
+    {
+      title: "Hot Leads",
+      value: String(hotCount),
+      numericValue: hotCount,
+      icon: Flame as LucideIcon,
+      variant: "accent",
+      change: `${Math.round((hotCount / Math.max(leads.length, 1)) * 100)}% of pipeline`,
+      trend: hotCount > 0 ? "up" : "neutral",
+    },
+    {
+      title: "Stale",
+      value: String(staleCount),
+      numericValue: staleCount,
+      icon: AlertTriangle as LucideIcon,
+      variant: "accent",
+      change: staleCount > 0 ? "Needs follow-up" : "All fresh",
+      trend: staleCount > 0 ? "down" : "up",
+    },
+    {
+      title: "Pipeline Value",
+      value: pipelineValue > 0 ? formatINR(pipelineValue) : EM_DASH,
+      icon: TrendingUp as LucideIcon,
+      variant: "gold",
+    },
+  ];
 
   return (
-    <div className="h-full flex flex-col pt-2 space-y-6">
-      {/* Actions */}
-      <div className="flex justify-end gap-3 w-full">
+    <div className="h-full flex flex-col space-y-4">
+      {/* Action Bar + Realtime indicator */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex-1">
+          <LastUpdatedBar
+            lastUpdated={lastUpdated}
+            hasPendingUpdate={hasPendingUpdate}
+            isConnected={isConnected}
+            onRefresh={refresh}
+            isRefreshing={isFetching}
+          />
+        </div>
         <Button variant="outline" onClick={handleExport}>
           <Download className={`${icons.sm} mr-2`} /> Export CSV
         </Button>
         {!isReadOnly && (
-          <Button variant="primary" onClick={() => {
-            setSelectedLead({
-              id: NEW_LEAD_ID,
-              name: "",
-              email: "",
-              status: "new",
-              created_at: new Date().toISOString(),
-            });
-            setIsSheetOpen(true);
-          }}>
+          <Button variant="primary" onClick={openNewLead}>
             <Plus className={`${icons.sm} mr-2`} /> Add Lead
           </Button>
         )}
       </div>
 
-      {/* Mini KPI Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Total Leads", value: kpis.total, color: "text-zinc-100" },
-          { label: "Hot Leads", value: kpis.hot, color: "text-red-500", icon: <Flame className={`${icons.sm} text-red-500`} /> },
-          { label: "New Leads", value: kpis.new, color: "text-blue-400" },
-          { label: "Won", value: kpis.won, color: "text-emerald-500" },
-        ].map((k) => (
-          <Card
-            key={k.label}
-            className="px-4 py-4 flex items-center justify-between shadow-none bg-zinc-900/40 border-zinc-800/50 backdrop-blur-md"
-          >
-            <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">{k.label}</span>
-            <div className="flex items-center gap-1.5">
-              {k.icon}
-              <span className={cn("text-2xl font-serif font-bold", k.color)}>{k.value}</span>
-            </div>
-          </Card>
-        ))}
-      </div>
+      {/* KPI Row */}
+      <AnalyticsKpiRow metrics={kpiMetrics} isLoading={isLoading} />
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 bg-zinc-900/40 backdrop-blur-md p-4 rounded-2xl border border-zinc-800/50">
-        <div className="relative flex-1 w-full max-w-md">
+      <div className="flex flex-col sm:flex-row items-center gap-3 bg-zinc-900/40 backdrop-blur-md p-3 rounded-2xl border border-zinc-800/50 analytics-glass">
+        {/* Search */}
+        <div className="relative flex-1 w-full max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
           <Input
-            placeholder="Search leads..."
+            placeholder="Search by name or email…"
             className="pl-10 bg-black/40 border-zinc-700/50 focus:border-primary/50 transition-all rounded-xl"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto ml-auto">
+        {/* Filters */}
+        <div className="flex items-center gap-2 w-full sm:w-auto ml-auto flex-wrap">
+          {/* Status filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[140px] bg-black/40 border-zinc-700/50 rounded-xl h-10 text-zinc-300">
-              <Users className="w-4 h-4 mr-2 text-zinc-500" />
+            <SelectTrigger className="w-[130px] bg-black/40 border-zinc-700/50 rounded-xl h-9 text-zinc-300 text-xs">
+              <Users className="w-3.5 h-3.5 mr-1.5 text-zinc-500" />
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent className="bg-zinc-900 border-zinc-800">
-              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="new">New</SelectItem>
               <SelectItem value="contacted">Contacted</SelectItem>
               <SelectItem value="qualified">Qualified</SelectItem>
               <SelectItem value="proposal">Proposal</SelectItem>
+              <SelectItem value="negotiation">Negotiation</SelectItem>
               <SelectItem value="won">Won</SelectItem>
               <SelectItem value="lost">Lost</SelectItem>
             </SelectContent>
           </Select>
 
-          <Tabs value={view} onValueChange={(v) => setView(v as "board" | "list")} className="w-[140px]">
-            <TabsList className="grid w-full grid-cols-2 h-10 bg-black/40 border-zinc-700/50 border shadow-none rounded-xl">
+          {/* Temperature filter */}
+          <Select value={tempFilter} onValueChange={setTempFilter}>
+            <SelectTrigger className="w-[120px] bg-black/40 border-zinc-700/50 rounded-xl h-9 text-zinc-300 text-xs">
+              <Thermometer className="w-3.5 h-3.5 mr-1.5 text-zinc-500" />
+              <SelectValue placeholder="Heat" />
+            </SelectTrigger>
+            <SelectContent className="bg-zinc-900 border-zinc-800">
+              <SelectItem value="all">All Temps</SelectItem>
+              <SelectItem value="hot">🔥 Hot (70+)</SelectItem>
+              <SelectItem value="warm">🌡️ Warm (40+)</SelectItem>
+              <SelectItem value="cold">❄️ Cold</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Source filter */}
+          <Select value={sourceFilter} onValueChange={setSourceFilter}>
+            <SelectTrigger className="w-[130px] bg-black/40 border-zinc-700/50 rounded-xl h-9 text-zinc-300 text-xs">
+              <SelectValue placeholder="Source" />
+            </SelectTrigger>
+            <SelectContent className="bg-zinc-900 border-zinc-800">
+              <SelectItem value="all">All Sources</SelectItem>
+              {Object.entries(SOURCE_LABELS).map(([k, v]) => (
+                <SelectItem key={k} value={k}>{v}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* View toggle */}
+          <Tabs value={view} onValueChange={(v) => setView(v as "board" | "list")} className="w-[100px]">
+            <TabsList className="grid w-full grid-cols-2 h-9 bg-black/40 border-zinc-700/50 border shadow-none rounded-xl">
               <TabsTrigger value="list" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-lg transition-all">
                 <ListIcon className={icons.sm} />
               </TabsTrigger>
@@ -299,28 +430,19 @@ export default function AdminLeads() {
 
       {/* Content Area */}
       {isLoading ? (
-        <LoadingState text="Loading leads..." className="py-20 bg-surface-card rounded-xl border border-border" />
+        <PageSkeleton variant="admin-content" />
       ) : filteredLeads.length === 0 ? (
         <EmptyState
           icon={Users}
           title="No leads found"
           description={
-            search || statusFilter !== "all"
-              ? "We couldn't find any leads matching your criteria."
+            search || statusFilter !== "all" || tempFilter !== "all" || sourceFilter !== "all"
+              ? "We couldn't find any leads matching your filters."
               : "Start capturing leads to build your sales pipeline."
           }
           action={
             !isReadOnly ? (
-              <Button variant="primary" onClick={() => {
-                setSelectedLead({
-                  id: NEW_LEAD_ID,
-                  name: "",
-                  email: "",
-                  status: "new",
-                  created_at: new Date().toISOString(),
-                });
-                setIsSheetOpen(true);
-              }}>
+              <Button variant="primary" onClick={openNewLead}>
                 <Plus className={`${icons.sm} mr-2`} /> Add your first lead
               </Button>
             ) : null
@@ -374,30 +496,31 @@ export default function AdminLeads() {
                         {/* Lead Type */}
                         <TableCell>
                           <span className="text-sm">
-                            {TYPE_LABELS[leadType || ""] || leadType || "—"}
+                            {TYPE_LABELS[leadType || ""] || leadType || EM_DASH}
                           </span>
                         </TableCell>
 
                         {/* Lead Source */}
                         <TableCell>
                           <span className="text-sm">
-                            {SOURCE_LABELS[leadSource || ""] || leadSource || "—"}
+                            {SOURCE_LABELS[leadSource || ""] || leadSource || EM_DASH}
                           </span>
                         </TableCell>
 
                         {/* City */}
                         <TableCell>
-                          <span className="text-sm">{lead.city || "—"}</span>
+                          <span className="text-sm">{lead.city || EM_DASH}</span>
                         </TableCell>
 
-                        {/* Score with temperature */}
+                        {/* Score with temperature badge */}
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <TemperatureIcon score={score} />
-                            <span className="text-sm font-semibold">
-                              {score}
-                            </span>
-                            <Badge variant="outline" className={cn("text-[10px] uppercase font-bold", temp.color, "bg-transparent")}>
+                            <span className="text-sm font-semibold tabular-nums">{score}</span>
+                            <Badge
+                              variant="outline"
+                              className={cn("text-[10px] uppercase font-bold", temp.color, "bg-transparent")}
+                            >
                               {temp.label}
                             </Badge>
                           </div>
@@ -406,7 +529,10 @@ export default function AdminLeads() {
                         {/* Status badge */}
                         <TableCell>
                           <Badge
-                            className={cn("capitalize px-2.5 py-1 text-[11px] font-semibold", STATUS_COLORS[lead.status] || "bg-surface-muted text-text-primary border-border")}
+                            className={cn(
+                              "capitalize px-2.5 py-1 text-[11px] font-semibold",
+                              STATUS_COLORS[lead.status] || "bg-surface-muted text-text-primary border-border"
+                            )}
                             variant="secondary"
                           >
                             {lead.status}
@@ -417,23 +543,67 @@ export default function AdminLeads() {
                         <TableCell className="text-sm text-text-muted">
                           {lead.created_at
                             ? format(new Date(lead.created_at), "MMM d, yyyy")
-                            : "—"}
+                            : EM_DASH}
                         </TableCell>
 
-                        {/* View action */}
+                        {/* Actions */}
                         <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-primary hover:text-primary hover:bg-primary/10"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedLead(lead);
-                              setIsSheetOpen(true);
-                            }}
-                          >
-                            View
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                className="opacity-0 group-hover:opacity-100 h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-44">
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedLead(lead);
+                                  setIsSheetOpen(true);
+                                }}
+                              >
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Details
+                              </DropdownMenuItem>
+                              {lead.email ? (
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(lead.email ?? "");
+                                  }}
+                                >
+                                  <Mail className="mr-2 h-4 w-4" />
+                                  Copy Email
+                                </DropdownMenuItem>
+                              ) : null}
+                              {lead.phone ? (
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(lead.phone ?? "");
+                                  }}
+                                >
+                                  <Phone className="mr-2 h-4 w-4" />
+                                  Copy Phone
+                                </DropdownMenuItem>
+                              ) : null}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-red-400 focus:text-red-300"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteMutation.mutate(lead.id);
+                                }}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Lead
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     );
@@ -458,6 +628,15 @@ export default function AdminLeads() {
         }}
         onDelete={(id) => deleteMutation.mutate(id)}
         isReadOnly={isReadOnly}
+        allLeads={leads}
+        onViewLead={(matchedLead) => {
+          // Close current sheet, then open the matched lead
+          setIsSheetOpen(false);
+          setTimeout(() => {
+            setSelectedLead(matchedLead);
+            setIsSheetOpen(true);
+          }, 150);
+        }}
       />
     </div>
   );

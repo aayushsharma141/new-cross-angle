@@ -1,0 +1,237 @@
+# 10 Improvement Roadmap: CrossAngle Interior
+
+**Auditor:** Antigravity Elite Protocol  
+**Priority Model:** Impact-to-Effort Ratio (High Impact + Low Effort → P0)
+
+---
+
+## Priority Legend
+
+| Priority | Definition | Timeline |
+| :--- | :--- | :--- |
+| **P0** | Critical — blocks production quality or creates risk | This week |
+| **P1** | High — significant quality/performance improvement | Next 2 weeks |
+| **P2** | Medium — professional polish and operational maturity | Next 30 days |
+| **P3** | Low — aspirational improvements for Elite tier | Next quarter |
+
+---
+
+## P0 — Critical (This Week)
+
+### 1. Fix ImageKit CDN Integration
+**Report:** [02_performance_audit.md](./02_performance_audit.md)  
+**Impact:** Performance (LCP -1.5s)  
+**Effort:** 2 hours  
+
+Fix the ImageKit URL endpoint configuration causing 404 errors. Verify `VITE_IMAGEKIT_URL_ENDPOINT` points to a valid ImageKit origin with the Supabase storage bucket correctly mapped.
+
+### ~~2. Fix Dead Social Links in Footer~~ ✅ Done 2026-04-11
+**Report:** [03_seo_audit.md](./03_seo_audit.md)  
+**Impact:** SEO + UX  
+
+All footer social links replaced with real URLs (Facebook, Instagram, LinkedIn, Pinterest, Twitter, YouTube). Social links also wired to admin panel `site_settings` table for dynamic updates.
+
+### ~~3. Fix WhatsApp Placeholder Number~~ ✅ Done 2026-04-11
+**Report:** [03_seo_audit.md](./03_seo_audit.md)  
+**Impact:** Lead conversion  
+
+Replaced `wa.me/1234567890` with `917909041132` across Navbar, FixedSocialBar, HubFinalCTA, ProjectPage, ProjectQuote. All components now use the `useSiteSettings` hook for dynamic updates from admin panel.
+
+### ~~4. Gate `inspect-schema` Edge Function~~ ✅ Done 2026-04-11
+**Report:** [06_security_audit.md](./06_security_audit.md)  
+**Impact:** Security  
+
+Redeployed `inspect-schema` with `verify_jwt: true` + `verifyAdmin()` RBAC check. Removed dangerous write operations. Function is now read-only and admin-only.
+
+### ~~5. Add `Disallow: /admin/` to robots.txt~~ ✅ Done 2026-04-11
+**Report:** [03_seo_audit.md](./03_seo_audit.md)  
+**Impact:** Security + SEO  
+
+Added `Disallow` rules for `/admin/`, `/admin/auth`, `/admin/login`, `/api/`, `/estimate/preview`.
+
+---
+
+## P1 — High Priority (Next 2 Weeks)
+
+### ~~6. Lazy-Load Below-Fold Sections~~ ✅ Done 2026-04-11
+**Report:** [02_performance_audit.md](./02_performance_audit.md)  
+**Impact:** Performance (TTI -1s)  
+
+All below-fold sections (`About`, `Services`, `Process`, `Portfolio`, `TactileJourney`, `BeforeAfterShowcase`, `Testimonials`) wrapped in `React.lazy()` + `LazySection` component with `IntersectionObserver` (300–400px rootMargin). Missing `shimmer` keyframe added to `index.css`.
+
+### ~~7. Fix `og:image` to Absolute URL~~ ✅ Done 2026-04-11
+**Report:** [03_seo_audit.md](./03_seo_audit.md)  
+**Impact:** Social sharing  
+
+Updated `index.html` with absolute URLs for `og:image` and `twitter:image`. Added `og:url`, `og:image:width`, `og:image:height` meta tags.
+
+### ~~8. Unify Lead Scoring Logic~~ ✅ Done 2026-04-11
+**Report:** [05_automation_audit.md](./05_automation_audit.md)  
+**Impact:** Data integrity  
+
+Deployed canonical `score-lead` edge function (v1). `submit-discovery-lead` now delegates to it. `LeadService.calculateLeadScore` delegates to `lib/leadScoring.ts`. Single model: budget(30)+category(20)+timeline(20)+contact(10)+source(15)+recency(5)=100. Buckets: hot≥70/warm≥40/cold<40 everywhere.
+
+### ~~9. Clean Migration Directory~~ ✅ Done 2026-04-11
+**Report:** [04_backend_audit.md](./04_backend_audit.md)  
+**Impact:** DX + deployment reliability  
+
+Moved 19 `.bak` files + 3 un-timestamped scripts to `supabase/migrations/_archive/`. Added `README.md` documenting what supersedes each archived file. Active migration count: 44 clean timestamped files.
+
+### ~~10. Extend Sentry Coverage & Alert Rules~~ ✅ Done 2026-04-11 (code) ⏳ Dashboard alert rules pending
+**Report:** [06_security_audit.md](./06_security_audit.md), [08_benchmark_comparison.md](./08_benchmark_comparison.md)  
+**Impact:** Observability  
+
+Frontend: `src/lib/sentry.ts` init with browser tracing + session replay + privacy scrubbing. Wired into `main.tsx`. Vite: `sourcemap: 'hidden'` — maps uploaded to Sentry, never served publicly. Edge functions: Sentry Deno SDK in `_lib/security.ts`; `serverErrorResponse()` auto-reports 5xx, `rateLimitResponse()` auto-reports 429s. All 19 edge functions covered. Alert rules YAML at `.agents/sentry/alert-rules.yml` — apply in Sentry UI.
+
+### ~~11. Delay WelcomePrompt Modal~~ ✅ Done 2026-04-11
+**Report:** [07_ui_ux_audit.md](./07_ui_ux_audit.md)  
+**Impact:** Bounce rate reduction  
+
+Updated `WelcomePrompt.tsx` to trigger at 50% scroll depth OR after 20 seconds. Removed the previous aggressive 5-second automatic pop-up.
+
+---
+
+## P2 — Medium Priority (Next 30 Days)
+
+### ~~12. Generate Dynamic Sitemap~~ ✅ Done 2026-04-11
+**Report:** [03_seo_audit.md](./03_seo_audit.md)  
+**Impact:** SEO (indexation of blog/projects)  
+
+Created a Supabase Edge Function (`sitemap`) that queries the `projects`, `blog_posts`, and `services` tables to dynamically generate and serve a standard `sitemap.xml` format.
+
+### ~~13. Add Schema.org `FAQPage` and `AggregateRating`~~ ✅ Done 2026-04-11
+**Report:** [03_seo_audit.md](./03_seo_audit.md)  
+**Impact:** Rich snippets in SERPs  
+
+Added `FAQPage` schema to the `Process.tsx` component mapping over stages, and `AggregateRating` schema to the `Testimonials.tsx` component calculating review scores dynamically.
+
+### ~~14. Unify Lead Tables~~ ✅ Done 2026-04-11
+**Report:** [04_backend_audit.md](./04_backend_audit.md)  
+**Impact:** Data integrity  
+
+Merged `estimate_leads` into the unified `leads` table with `lead_source` discriminator enum. Added estimator-specific columns (`area`, `city_tier`, `property_type`, `estimated_min/max`, `estimate_breakdown`, etc.). Updated `submit-estimate` edge function to single-insert. Refactored `AdminEstimateLeads`, `AdminDashboard`, `AdminHub`, and `EstimateLeadService` to query `leads WHERE lead_source = 'estimator'`. Regenerated Supabase TypeScript types.
+
+### ~~15. Move `getLeadStats` to Database~~ ✅ Done 2026-04-11
+**Report:** [04_backend_audit.md](./04_backend_audit.md)  
+**Impact:** Scalability  
+
+Created `get_lead_stats()` PostgreSQL RPC function that computes lead analytics server-side (total, hot/warm/cold breakdown, by-status, by-source, estimator lead count, avg estimate). Dashboard now calls the RPC instead of fetching all rows client-side.
+
+### ~~16. Add Webhook Retry Mechanism~~ ✅ Done 2026-04-11
+**Report:** [05_automation_audit.md](./05_automation_audit.md)  
+**Impact:** Lead pipeline reliability  
+
+Implemented a resilient webhook system using a `webhook_failures` table and a `retry-webhooks` Edge Function. Supports exponential backoff (5, 20, 45... mins) and marks as failed after 5 attempts. Triggered by DB polling.
+
+### ~~17. Add HMAC Webhook Signatures~~ ✅ Done 2026-04-11
+**Report:** [05_automation_audit.md](./05_automation_audit.md), [06_security_audit.md](./06_security_audit.md)  
+**Impact:** Security  
+
+Signed outbound webhook payloads (Make.com, Google Sheets, Retry mechanism) with HMAC-SHA256 using a shared secret `WEBHOOK_SIGNATURE_SECRET`. Evaluated headers as `X-CrossAngle-Signature`.
+
+### ~~18. Refactor `App.tsx` Provider Stack~~ ✅ Done 2026-04-11
+**Report:** [01_architecture_audit.md](./01_architecture_audit.md)  
+**Impact:** DX + maintainability  
+
+Extracted the 8+ nested providers (`QueryClientProvider`, `PostHogProvider`, `AdminProvider`, etc.) into a standalone `src/providers/CoreProviders.tsx` component, reducing indentation hell and improving the maintainability of `App.tsx`.
+
+### ~~19. Enforce Consent Before Analytics~~ ✅ Done 2026-04-11
+**Report:** [06_security_audit.md](./06_security_audit.md)  
+**Impact:** Privacy compliance  
+
+Ensured PostHog bypasses default initialization and only loads dynamically after "ACCEPT ALL" consent. Gated initialisation within `CookieConsentProvider` context, mirroring GA & Sentry patterns.
+
+### ~~20. Add `npm audit` to CI~~ ✅ Done 2026-04-11
+**Report:** [06_security_audit.md](./06_security_audit.md)  
+**Impact:** Supply chain security  
+
+Added `npm audit --audit-level=high` as a mandatory step in `.github/workflows/ci.yml`. Also created `.github/dependabot.yml` to automate security patches and dependency updates.
+
+---
+
+## P3 — Aspirational / Elite Tier (Next Quarter)
+
+### 21. Implement SSR or Pre-Rendering
+**Report:** [03_seo_audit.md](./03_seo_audit.md), [08_benchmark_comparison.md](./08_benchmark_comparison.md)  
+**Impact:** SEO + social sharing + performance  
+**Effort:** 2 weeks  
+
+Migrate to Next.js App Router or add `vite-plugin-ssr` for server-side rendering. This is the single highest-impact change for SEO.
+
+### 22. Add Light Mode Support
+**Report:** [08_benchmark_comparison.md](./08_benchmark_comparison.md)  
+**Impact:** Accessibility + user preference  
+**Effort:** 1 week  
+
+Support `prefers-color-scheme` media query with a light theme variant.
+
+### 23. Define SLOs and Health Endpoints
+**Report:** [08_benchmark_comparison.md](./08_benchmark_comparison.md)  
+**Impact:** Operational maturity  
+**Effort:** 3 days  
+
+Create a `/health` edge function, configure uptime monitoring (BetterUptime/Checkly), define SLOs for API response time and error rate.
+
+### 24. Implement Structured Logging
+**Report:** [06_security_audit.md](./06_security_audit.md)  
+**Impact:** Debuggability  
+**Effort:** 3 days  
+
+Replace `console.log`/`console.error` in edge functions with a structured logger (JSON format with severity, timestamp, request ID).
+
+### 25. Replace Stock Photography
+**Report:** [07_ui_ux_audit.md](./07_ui_ux_audit.md)  
+**Impact:** Brand authenticity  
+**Effort:** Ongoing  
+
+Replace all Unsplash stock images with actual project photography.
+
+### 26. Add Privacy Policy & DPDPA Rights Page
+**Report:** [08_benchmark_comparison.md](./08_benchmark_comparison.md)  
+**Impact:** Legal compliance  
+**Effort:** 1 day  
+
+Create `/privacy` route with data collection disclosures, retention policy, and user rights (access, deletion, portability).
+
+### 27. Implement Key Rotation Strategy
+**Report:** [08_benchmark_comparison.md](./08_benchmark_comparison.md)  
+**Impact:** Security  
+**Effort:** 2 hours  
+
+Document and schedule quarterly rotation of `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`.
+
+---
+
+## Impact Matrix
+
+```
+                    HIGH IMPACT
+                        │
+   - [x] **P0: Resolve ImageKit 404 Waterfall**
+    - [x] Implement path-aware `cdn.ts` logic.
+    - [x] Fix Origin configuration in ImageKit dashboard.
+    - [x] Verify images load with valid `tr:` parameters.
+- [x] **P1: Hardened Fallback Removal**
+    - [x] Purge all stock media from the data layer.
+    - [x] Implement "Empty Shell" placeholders in `OptimizedImage.tsx`.
+    - [x] Verify CMS-only data integrity.
+- [/] **P2: Full Observability Stack**
+    - [ ] Extend Sentry to Edge Functions (Deno SDK).
+    - [ ] Create Sentry Alert Rules for 5xx errors.
+    - [ ] Implement structured logging (`@repo/logger`).
+
+---
+
+## Estimated Timeline to Elite
+
+| Phase | Duration | Outcome |
+| :--- | :--- | :--- |
+| P0 fixes | 1 day | Remove active production risks |
+| P1 improvements | 2 weeks | Score moves from 6.8 → 7.5 |
+| P2 polish | 1 month | Score moves from 7.5 → 8.0 |
+| P3 aspirational | 1 quarter | Score moves from 8.0 → 8.5+ (Elite threshold) |
+
+---
+*Finding 10: Improvement Roadmap Finalized.*
+
+**Full Audit Complete.** All 10 reports have been generated and saved to `/audit-reports/`.

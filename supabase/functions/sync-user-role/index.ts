@@ -23,7 +23,7 @@ function mapStoredRole(role: string | null | undefined): SyncedRole | null {
 
 function mapProfileRole(role: string | null | undefined): SyncedRole | null {
     if (!role) return null;
-    if (role === "admin") return "super_admin";
+    if (isAppRole(role)) return role;
     if (role === "editor") return "admin";
     if (role === "user" || role === "viewer") return "viewer";
     return mapStoredRole(role);

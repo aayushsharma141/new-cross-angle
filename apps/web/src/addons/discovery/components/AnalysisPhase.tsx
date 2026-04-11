@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { UserSignals, AIAestheticResult, Archetype } from "@/types/discovery";
 import { visualImages } from "@/constants/discovery";
 import { toast } from "sonner";
+import { Image } from "@/components/ui/image";
 
 interface Props {
   userSignals: UserSignals;
@@ -129,7 +130,14 @@ const AnalysisPhase = ({ userSignals, fallbackArchetype, onComplete }: Props) =>
             right: i % 2 !== 0 ? "8%" : "auto",
           }}
         >
-          <img src={src} alt="" className="w-full h-full object-cover" style={{ animation: "ken-burns 20s ease-in-out infinite" }} />
+          <Image
+            src={src}
+            alt=""
+            className="h-full w-full"
+            width={720}
+            height={540}
+            style={{ animation: "ken-burns 20s ease-in-out infinite" }}
+          />
         </motion.div>
       ))}
 

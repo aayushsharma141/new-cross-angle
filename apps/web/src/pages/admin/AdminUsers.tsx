@@ -1,20 +1,29 @@
-import { JSX, useMemo, useState } from "react";
+import { JSX, useMemo, useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import {
     CheckCircle2,
+    Copy,
+    Eye,
+    EyeOff,
+    KeyRound,
     Loader2,
+    Lock,
     Mail,
     MoreHorizontal,
     Search,
     Shield,
     Trash2,
+    User,
     UserCog,
     UserPlus,
     Users,
+    X,
 } from "lucide-react";
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, invokeEdge } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
@@ -23,7 +32,6 @@ import {
     ROLE_DESCRIPTIONS,
     ROLE_LABELS,
 } from "@/lib/auth/rbac";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { UserFormSheet, type AdminUserRecord } from "@/components/admin/users/UserFormSheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,6 +39,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import {
     Select,
     SelectContent,
@@ -66,8 +76,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { icons } from "@/design-system/tokens/icons";
+import { changePasswordSchema } from "@/lib/auth-validation";
+import { cn } from "@/lib/utils";
 
-type UserAction = "activate" | "deactivate" | "delete";
+type UserAction = "activate" | "deactivate" | "delete" | "reset-password";
 type FilterRole = "all" | "super_admin" | "admin" | "viewer";
 type FilterStatus = "all" | "active" | "inactive" | "deleted";
 
@@ -75,6 +87,16 @@ interface ActionTarget {
     id: string;
     name: string;
     action: UserAction;
+}
+
+function getDisplayName(user: AdminUserRecord): string {
+    const trimmedName = user.full_name?.trim();
+    if (trimmedName) return trimmedName;
+
+    const emailHandle = user.email?.split("@")[0]?.trim();
+    if (emailHandle) return emailHandle;
+
+    return "Unnamed user";
 }
 
 const ROLE_CAPABILITIES: Record<"super_admin" | "admin" | "viewer", string[]> = {
@@ -128,7 +150,13 @@ function getStatusBadge(status: string | null) {
 }
 
 export default function AdminUsers(): JSX.Element {
-    const [activeTab, setActiveTab] = useState("users");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialTab = searchParams.get("tab") === "security"
+        ? "security"
+        : searchParams.get("tab") === "roles"
+            ? "roles"
+            : "users";
+    const [activeTab, setActiveTab] = useState(initialTab);
     const [search, setSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState<FilterRole>("all");
     const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
@@ -138,12 +166,148 @@ export default function AdminUsers(): JSX.Element {
     const [actionUser, setActionUser] = useState<ActionTarget | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
     const { toast } = useToast();
-    const { role: actorRole } = useAdminAuth();
+    const { role: actorRole, user: currentUser } = useAdminAuth();
+
+    // Security tab state
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmNewPassword, setConfirmNewPassword] = useState("");
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+    const [passwordErrors, setPasswordErrors] = useState<{ currentPassword?: string; newPassword?: string; confirmNewPassword?: string }>({});
+    const [userEmail, setUserEmail] = useState<string>("");
+    const [userRole, setUserRole] = useState<string>("");
+    const [passwordStrength, setPasswordStrength] = useState(0);
+
+    const handleTabChange = (nextTab: string) => {
+        setActiveTab(nextTab);
+        const nextParams = new URLSearchParams(searchParams);
+        if (nextTab === "users") {
+            nextParams.delete("tab");
+        } else {
+            nextParams.set("tab", nextTab);
+        }
+        setSearchParams(nextParams, { replace: true });
+    };
+
+    // Fetch current user info for security tab
+    useEffect(() => {
+        const fetchUserInfo = async (): Promise<void> => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                setUserEmail(user.email || "");
+                const { data: roleData } = await supabase
+                    .from('user_roles')
+                    .select('role')
+                    .eq('user_id', user.id)
+                    .single();
+                if (roleData) {
+                    setUserRole(roleData.role);
+                }
+            }
+        };
+        void fetchUserInfo();
+    }, []);
+
+    useEffect(() => {
+        calculatePasswordStrength(newPassword);
+    }, [newPassword]);
+
+    const calculatePasswordStrength = (password: string): void => {
+        let strength = 0;
+        if (password.length >= 8) strength += 25;
+        if (password.match(/[A-Z]/)) strength += 25;
+        if (password.match(/[0-9]/)) strength += 25;
+        if (password.match(/[^A-Za-z0-9]/)) strength += 25;
+        setPasswordStrength(strength);
+    };
+
+    const getStrengthColor = (score: number): string => {
+        if (score <= 25) return "bg-red-500";
+        if (score <= 50) return "bg-orange-500";
+        if (score <= 75) return "bg-yellow-500";
+        return "bg-green-500";
+    };
+
+    const getStrengthLabel = (score: number): string => {
+        if (score === 0) return "";
+        if (score <= 25) return "Weak";
+        if (score <= 50) return "Fair";
+        if (score <= 75) return "Good";
+        return "Strong";
+    };
+
+    const handleChangePassword = async (e: React.FormEvent): Promise<void> => {
+        e.preventDefault();
+        setPasswordErrors({});
+
+        const validation = changePasswordSchema.safeParse({
+            currentPassword,
+            newPassword,
+            confirmNewPassword
+        });
+
+        if (!validation.success) {
+            const fieldErrors: typeof passwordErrors = {};
+            validation.error.errors.forEach((err) => {
+                const field = err.path[0] as keyof typeof passwordErrors;
+                fieldErrors[field] = err.message;
+            });
+            setPasswordErrors(fieldErrors);
+            return;
+        }
+
+        setIsPasswordLoading(true);
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user?.email) throw new Error("User not found");
+
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: user.email,
+                password: currentPassword
+            });
+
+            if (signInError) {
+                setPasswordErrors({ currentPassword: "Current password is incorrect" });
+                setIsPasswordLoading(false);
+                return;
+            }
+
+            const { error: updateError } = await supabase.auth.updateUser({
+                password: newPassword
+            });
+
+            if (updateError) throw updateError;
+
+            toast({
+                title: "Password updated",
+                description: "Your password has been successfully changed.",
+            });
+
+            setCurrentPassword("");
+            setNewPassword("");
+            setConfirmNewPassword("");
+            setPasswordStrength(0);
+        } catch (err) {
+            toast({
+                title: "Error",
+                description: "Failed to update password. Please try again.",
+                variant: "destructive",
+                duration: 3000,
+            });
+        } finally {
+            setIsPasswordLoading(false);
+        }
+    };
 
     const actionPastTense: Record<UserAction, string> = {
         activate: "activated",
         deactivate: "deactivated",
         delete: "deleted",
+        "reset-password": "password reset email sent",
     };
 
     const {
@@ -193,16 +357,19 @@ export default function AdminUsers(): JSX.Element {
 
         setActionLoading(true);
         try {
-            const { data, error } = await supabase.functions.invoke("manage-user", {
-                body: { action: actionUser.action, userId: actionUser.id },
+            const { data, error } = await invokeEdge("manage-user", {
+                action: actionUser.action,
+                userId: actionUser.id,
             });
 
-            if (error) throw error;
-            if (data?.error) throw new Error(data.error);
+            if (error) throw new Error(error.message);
+            if (data?.error) throw new Error(String(data.error));
 
             toast({
-                title: "User updated",
-                description: `${actionUser.name} has been ${actionPastTense[actionUser.action]} successfully.`,
+                title: actionUser.action === "reset-password" ? "Reset email sent" : "User updated",
+                description: actionUser.action === "reset-password"
+                    ? `A password reset email has been sent to ${actionUser.name}.`
+                    : `${actionUser.name} has been ${actionPastTense[actionUser.action]} successfully.`,
             });
             await refetch();
         } catch (error) {
@@ -220,13 +387,11 @@ export default function AdminUsers(): JSX.Element {
 
     return (
         <div className="mx-auto max-w-7xl space-y-8 py-4 animate-in fade-in duration-700">
-            <AdminBreadcrumb items={[{ label: "Users" }]} />
-
             <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
                 <div className="space-y-1">
                     <h1 className="text-4xl font-serif tracking-tight text-white">User Access</h1>
                     <p className="max-w-xl text-sm font-sans text-zinc-500">
-                        Manage team accounts, keep role assignment tight, and control who can access the admin workspace.
+                        Manage team accounts, security credentials, and control who can access the admin workspace.
                     </p>
                 </div>
                 <Button onClick={openAddUser} className="rounded-xl shadow-lg shadow-primary/20">
@@ -235,7 +400,7 @@ export default function AdminUsers(): JSX.Element {
                 </Button>
             </div>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
                 <TabsList className="w-fit gap-1 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-1">
                     <TabsTrigger
                         value="users"
@@ -249,8 +414,15 @@ export default function AdminUsers(): JSX.Element {
                     >
                         Roles &amp; Access
                     </TabsTrigger>
+                    <TabsTrigger
+                        value="security"
+                        className="rounded-xl px-5 py-2.5 text-xs font-bold uppercase tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white"
+                    >
+                        Security
+                    </TabsTrigger>
                 </TabsList>
 
+                {/* ─── Users Tab ─── */}
                 <TabsContent value="users" className="space-y-6">
                     <div className="flex flex-col gap-3 rounded-2xl border border-zinc-800/50 bg-zinc-900/40 p-4 backdrop-blur-md lg:flex-row lg:items-center">
                         <div className="relative flex-1">
@@ -286,6 +458,14 @@ export default function AdminUsers(): JSX.Element {
                                 <SelectItem value="deleted">Deleted</SelectItem>
                             </SelectContent>
                         </Select>
+
+                        <Button
+                            onClick={openAddUser}
+                            className="rounded-xl shadow-lg shadow-primary/20 shrink-0"
+                        >
+                            <UserPlus className={`${icons.sm} mr-2`} />
+                            Add User
+                        </Button>
                     </div>
 
                     {isLoading ? (
@@ -321,8 +501,10 @@ export default function AdminUsers(): JSX.Element {
                                 <TableBody>
                                     {filteredUsers.map((user) => {
                                         const normalizedRole = normalizeRole(user.role);
-                                        const manageable = canManageRole(actorRole, normalizedRole);
+                                        const isSelf = currentUser?.id === user.id;
+                                        const manageable = !isSelf && canManageRole(actorRole, normalizedRole);
                                         const status = formatStatus(user.status);
+                                        const displayName = getDisplayName(user);
 
                                         return (
                                             <TableRow key={user.id} className="border-zinc-800/70">
@@ -336,7 +518,7 @@ export default function AdminUsers(): JSX.Element {
                                                         </Avatar>
                                                         <div className="flex flex-col">
                                                             <span className="font-medium text-zinc-100">
-                                                                {user.full_name || "Unnamed user"}
+                                                                {displayName}
                                                             </span>
                                                             <div className="flex items-center text-xs text-zinc-400">
                                                                 <Mail className="mr-1 h-3 w-3" />
@@ -377,67 +559,118 @@ export default function AdminUsers(): JSX.Element {
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
                                                         </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end" className="w-52">
+                                                        <DropdownMenuContent align="end" className="w-56">
                                                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                            <DropdownMenuItem
-                                                                onClick={() => navigator.clipboard.writeText(user.id)}
-                                                            >
-                                                                Copy user ID
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuSeparator />
 
-                                                            {manageable && status !== "deleted" ? (
-                                                                <DropdownMenuItem onClick={() => openEditUser(user)}>
-                                                                    <UserCog className="mr-2 h-4 w-4" />
-                                                                    Edit user
-                                                                </DropdownMenuItem>
-                                                            ) : null}
-
-                                                            {manageable && status === "inactive" ? (
+                                                            {user.email ? (
                                                                 <DropdownMenuItem
-                                                                    onClick={() =>
-                                                                        setActionUser({
-                                                                            id: user.id,
-                                                                            name: user.full_name || user.email || "This user",
-                                                                            action: "activate",
-                                                                        })
-                                                                    }
+                                                                    onClick={() => {
+                                                                        navigator.clipboard.writeText(user.email ?? "");
+                                                                    }}
                                                                 >
-                                                                    <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
-                                                                    Activate
+                                                                    <Copy className="mr-2 h-4 w-4" />
+                                                                    Copy Email
                                                                 </DropdownMenuItem>
                                                             ) : null}
 
-                                                            {manageable && status === "active" ? (
-                                                                <DropdownMenuItem
-                                                                    onClick={() =>
-                                                                        setActionUser({
-                                                                            id: user.id,
-                                                                            name: user.full_name || user.email || "This user",
-                                                                            action: "deactivate",
-                                                                        })
-                                                                    }
-                                                                >
-                                                                    <CheckCircle2 className="mr-2 h-4 w-4 rotate-45 text-amber-500" />
-                                                                    Deactivate
-                                                                </DropdownMenuItem>
-                                                            ) : null}
+                                                            {isSelf ? (
+                                                                <>
+                                                                    <DropdownMenuSeparator />
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => {
+                                                                            if (currentUser) {
+                                                                                const selfRecord: AdminUserRecord = {
+                                                                                    id: currentUser.id,
+                                                                                    email: currentUser.email ?? null,
+                                                                                    full_name: currentUser.user_metadata?.full_name ?? null,
+                                                                                    avatar_url: currentUser.user_metadata?.avatar_url ?? null,
+                                                                                    role: actorRole,
+                                                                                    status: "active",
+                                                                                    created_at: currentUser.created_at,
+                                                                                    last_sign_in_at: currentUser.last_sign_in_at ?? null,
+                                                                                };
+                                                                                openEditUser(selfRecord);
+                                                                            }
+                                                                        }}
+                                                                        className="text-primary focus:text-primary"
+                                                                    >
+                                                                        <UserCog className="mr-2 h-4 w-4" />
+                                                                        Edit Your Profile
+                                                                    </DropdownMenuItem>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <DropdownMenuSeparator />
 
-                                                            {manageable && status !== "deleted" ? (
-                                                                <DropdownMenuItem
-                                                                    className="text-red-400 focus:text-red-300"
-                                                                    onClick={() =>
-                                                                        setActionUser({
-                                                                            id: user.id,
-                                                                            name: user.full_name || user.email || "This user",
-                                                                            action: "delete",
-                                                                        })
-                                                                    }
-                                                                >
-                                                                    <Trash2 className="mr-2 h-4 w-4" />
-                                                                    Delete
-                                                                </DropdownMenuItem>
-                                                            ) : null}
+                                                                    {status !== "deleted" && (
+                                                                        <DropdownMenuItem onClick={() => openEditUser(user)}>
+                                                                            <UserCog className="mr-2 h-4 w-4" />
+                                                                            Edit User
+                                                                        </DropdownMenuItem>
+                                                                    )}
+
+                                                                    {!isSelf && manageable && status !== "deleted" && (
+                                                                        <DropdownMenuItem
+                                                                            onClick={() =>
+                                                                                setActionUser({
+                                                                                    id: user.id,
+                                                                                    name: displayName,
+                                                                                    action: "reset-password",
+                                                                                })
+                                                                            }
+                                                                        >
+                                                                            <KeyRound className="mr-2 h-4 w-4" />
+                                                                            Reset Password
+                                                                        </DropdownMenuItem>
+                                                                    )}
+
+                                                                    {manageable && status === "inactive" ? (
+                                                                        <DropdownMenuItem
+                                                                            onClick={() =>
+                                                                                setActionUser({
+                                                                                    id: user.id,
+                                                                                    name: displayName,
+                                                                                    action: "activate",
+                                                                                })
+                                                                            }
+                                                                        >
+                                                                            <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
+                                                                            Activate
+                                                                        </DropdownMenuItem>
+                                                                    ) : null}
+
+                                                                    {manageable && status === "active" ? (
+                                                                        <DropdownMenuItem
+                                                                            onClick={() =>
+                                                                                setActionUser({
+                                                                                    id: user.id,
+                                                                                    name: displayName,
+                                                                                    action: "deactivate",
+                                                                                })
+                                                                            }
+                                                                        >
+                                                                            <CheckCircle2 className="mr-2 h-4 w-4 rotate-45 text-amber-500" />
+                                                                            Deactivate
+                                                                        </DropdownMenuItem>
+                                                                    ) : null}
+
+                                                                    {manageable && status !== "deleted" ? (
+                                                                        <DropdownMenuItem
+                                                                            className="text-red-400 focus:text-red-300"
+                                                                            onClick={() =>
+                                                                                setActionUser({
+                                                                                    id: user.id,
+                                                                                    name: displayName,
+                                                                                    action: "delete",
+                                                                                })
+                                                                            }
+                                                                        >
+                                                                            <Trash2 className="mr-2 h-4 w-4" />
+                                                                            Delete
+                                                                        </DropdownMenuItem>
+                                                                    ) : null}
+                                                                </>
+                                                            )}
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
                                                 </TableCell>
@@ -450,6 +683,7 @@ export default function AdminUsers(): JSX.Element {
                     )}
                 </TabsContent>
 
+                {/* ─── Roles & Access Tab ─── */}
                 <TabsContent value="roles" className="space-y-6">
                     <div className="grid gap-4 lg:grid-cols-3">
                         {(["super_admin", "admin", "viewer"] as const).map((role) => (
@@ -498,6 +732,195 @@ export default function AdminUsers(): JSX.Element {
                         </CardContent>
                     </Card>
                 </TabsContent>
+
+                {/* ─── Security Tab (moved from System Settings) ─── */}
+                <TabsContent value="security" className="space-y-6">
+                    {/* Account Info */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                    >
+                        <Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
+                            <CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
+                                        <User className="text-primary h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <CardTitle className="text-lg font-serif">Account Information</CardTitle>
+                                        <CardDescription className="text-zinc-500">Your personal executive profile details.</CardDescription>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="p-6">
+                                <div className="grid gap-6 md:grid-cols-2">
+                                    <div className="space-y-1">
+                                        <Label className="text-muted-foreground text-xs uppercase tracking-wider">Email Address</Label>
+                                        <div className="flex items-center gap-2 font-medium text-lg">
+                                            {userEmail}
+                                            {userEmail && <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-muted-foreground text-xs uppercase tracking-wider">Role</Label>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary capitalize">
+                                                <Shield size={12} />
+                                                {userRole || "User"}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+
+                    {/* Change Password */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                    >
+                        <Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
+                            <CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
+                                        <Shield className="text-primary h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <CardTitle className="text-lg font-serif">Security Protocol</CardTitle>
+                                        <CardDescription className="text-zinc-500">Update your access credentials to maintain unit integrity.</CardDescription>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="p-6">
+                                <form onSubmit={handleChangePassword} className="space-y-6 max-w-md">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="currentPassword">Current Password</Label>
+                                        <div className="relative">
+                                            <Input
+                                                id="currentPassword"
+                                                type={showCurrentPassword ? "text" : "password"}
+                                                value={currentPassword}
+                                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                                className={cn(passwordErrors.currentPassword ? "border-destructive focus-visible:ring-destructive" : "")}
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                                aria-label={showCurrentPassword ? "Hide current password" : "Show current password"}
+                                                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+                                            >
+                                                {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                            </Button>
+                                        </div>
+                                        {passwordErrors.currentPassword && (
+                                            <p className="text-sm text-destructive flex items-center gap-1">
+                                                <X className="h-3 w-3" /> {passwordErrors.currentPassword}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="newPassword">New Password</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="newPassword"
+                                                    type={showNewPassword ? "text" : "password"}
+                                                    value={newPassword}
+                                                    onChange={(e) => setNewPassword(e.target.value)}
+                                                    className={cn(passwordErrors.newPassword ? "border-destructive focus-visible:ring-destructive" : "")}
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => setShowNewPassword(!showNewPassword)}
+                                                    aria-label={showNewPassword ? "Hide new password" : "Show new password"}
+                                                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+                                                >
+                                                    {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                </Button>
+                                            </div>
+                                        </div>
+
+                                        {/* Password Strength Meter */}
+                                        {newPassword && (
+                                            <div className="space-y-1.5">
+                                                <div className="flex justify-between items-center text-xs">
+                                                    <span className="text-muted-foreground">Strength</span>
+                                                    <span className={cn(
+                                                        "font-medium",
+                                                        passwordStrength <= 25 ? "text-red-500" :
+                                                            passwordStrength <= 50 ? "text-orange-500" :
+                                                                passwordStrength <= 75 ? "text-yellow-500" : "text-green-500"
+                                                    )}>
+                                                        {getStrengthLabel(passwordStrength)}
+                                                    </span>
+                                                </div>
+                                                <Progress value={passwordStrength} className="h-1.5" indicatorClassName={getStrengthColor(passwordStrength)} />
+                                                <ul className="text-xs text-muted-foreground list-disc list-inside space-y-0.5 pt-1">
+                                                    <li className={cn(newPassword.length >= 8 ? "text-green-600 font-medium" : "")}>At least 8 characters</li>
+                                                    <li className={cn(/[A-Z]/.test(newPassword) ? "text-green-600 font-medium" : "")}>One uppercase letter</li>
+                                                    <li className={cn(/[0-9]/.test(newPassword) ? "text-green-600 font-medium" : "")}>One number</li>
+                                                </ul>
+                                            </div>
+                                        )}
+                                        {passwordErrors.newPassword && (
+                                            <p className="text-sm text-destructive flex items-center gap-1">
+                                                <X className="h-3 w-3" /> {passwordErrors.newPassword}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="confirmNewPassword">Confirm New Password</Label>
+                                        <div className="relative">
+                                            <Input
+                                                id="confirmNewPassword"
+                                                type={showConfirmPassword ? "text" : "password"}
+                                                value={confirmNewPassword}
+                                                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                                className={cn(passwordErrors.confirmNewPassword ? "border-destructive focus-visible:ring-destructive" : "")}
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                aria-label={showConfirmPassword ? "Hide password confirmation" : "Show password confirmation"}
+                                                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+                                            >
+                                                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                            </Button>
+                                        </div>
+                                        {passwordErrors.confirmNewPassword && (
+                                            <p className="text-sm text-destructive flex items-center gap-1">
+                                                <X className="h-3 w-3" /> {passwordErrors.confirmNewPassword}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="pt-2">
+                                        <Button type="submit" disabled={isPasswordLoading} className="rounded-xl shadow-lg shadow-primary/20">
+                                            {isPasswordLoading ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                                    Processing...
+                                                </>
+                                            ) : (
+                                                "Update Protocol"
+                                            )}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                </TabsContent>
             </Tabs>
 
             <UserFormSheet
@@ -507,21 +930,30 @@ export default function AdminUsers(): JSX.Element {
                 mode={sheetMode}
                 actorRole={normalizeRole(actorRole)}
                 user={selectedUser}
+                isSelf={currentUser?.id === selectedUser?.id}
             />
 
             <AlertDialog open={!!actionUser} onOpenChange={(open) => !open && setActionUser(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Confirm action</AlertDialogTitle>
+                        <AlertDialogTitle>
+                            {actionUser?.action === "activate" ? "Activate user" : null}
+                            {actionUser?.action === "deactivate" ? "Deactivate user" : null}
+                            {actionUser?.action === "delete" ? "Delete user" : null}
+                            {actionUser?.action === "reset-password" ? "Reset password" : null}
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
                             {actionUser?.action === "activate"
-                                ? <>This will restore access for <b>{actionUser?.name}</b>.</>
+                                ? <>This will restore admin access for <b>{actionUser?.name}</b>.</>
                                 : null}
                             {actionUser?.action === "deactivate"
-                                ? <>This will deactivate <b>{actionUser?.name}</b> and block admin access.</>
+                                ? <>This will deactivate <b>{actionUser?.name}</b> and block their admin access.</>
                                 : null}
                             {actionUser?.action === "delete"
                                 ? <>This will soft delete <b>{actionUser?.name}</b> while preserving audit history.</>
+                                : null}
+                            {actionUser?.action === "reset-password"
+                                ? <>A password reset email will be sent to <b>{actionUser?.name}</b>. The admin performing this action will not see the password.</>
                                 : null}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
@@ -536,7 +968,7 @@ export default function AdminUsers(): JSX.Element {
                             className={actionUser?.action === "delete" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
                         >
                             {actionLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Confirm
+                            {actionUser?.action === "reset-password" ? "Send Reset Email" : "Confirm"}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

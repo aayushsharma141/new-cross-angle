@@ -39,7 +39,7 @@ export function mapStoredUserRole(role: string | null | undefined): AppRole | nu
 
 export function mapProfileRole(role: string | null | undefined): AppRole | null {
   if (!role) return null;
-  if (role === "admin") return "super_admin";
+  if (isAppRole(role)) return role;
   if (role === "editor") return "admin";
   if (role === "user") return "viewer";
   return mapStoredUserRole(role);

@@ -30,3 +30,19 @@
 # ─────────────────────────────────────────────────────────
 # ADD NEW ENTRIES BELOW THIS LINE
 # ─────────────────────────────────────────────────────────
+
+[2026-04-07T16:00:00Z] | big-pickle | UI | Full Testimonials CMS like Blog CMS | Added search, filters, bulk actions, grid/table view, stats dashboard
+[2026-04-07T15:00:00Z] | big-pickle | UI | Created TestimonialService with full CRUD | Fixed testimonial mapping; AdminTestimonials.tsx uses service pattern
+[2026-04-07T14:00:00Z] | big-pickle | UI | Removed duplicate breadcrumbs from admin pages | TopBar handles breadcrumb; removed from 14 individual pages and ModuleLayout
+[2026-04-07T12:00:00Z] | big-pickle | DB | Apply is_cms_editor() to leads/estimate_leads tables | Align with CMS table RLS; admins only for writes, anon INSERT preserved for public forms
+[2026-04-07T12:00:00Z] | big-pickle | DB | Restrict profiles SELECT | Users see own, admins see all; remove public SELECT
+[2026-04-07T12:00:00Z] | big-pickle | DB | Add lead_type and budget indexes | Performance optimization for lead filtering
+[2026-04-07T12:00:00Z] | big-pickle | DB | Keep anon INSERT for leads/estimate_leads | Required for contact form and estimator without authentication
+[2026-04-07T12:00:00Z] | big-pickle | DB | Migration requires Aayush approval | See task.md - supabase db push not run yet
+[2026-04-07T13:00:00Z] | Aayush | DB | DB hardening COMPLETED via Management API | Migration redundant - applied live. Two ideas merged: profiles tightening, composite index. Extra hardening on leads_master/raw_payload.
+[2026-04-07T13:00:00Z] | Aayush | DB | Use is_admin_or_editor() not is_cms_editor() | Matches existing policies; functionally equivalent
+[2026-04-07T13:00:00Z] | Aayush | ARCH | Edge Functions bypass RLS via service_role | No audit needed - confirmed safe
+
+[2026-04-08T12:00:00Z] | System | DB | Added 'crm_tasks', extended 'lead_status_enum' & 'loss_reason_enum' | Implementing Lead CRM workflows and tracking (handoffs, tasks, status).
+
+[2026-04-08T12:00:00Z] | System | ARCH | Centralize behavioral tracking to PostHog, isolate raw APIs from Frontend | Supabase continues to manage transactions and lead data, but a secure edge function 'reporting bridge' will sync PostHog data to a Supabase View/Table to securely power Admin analytics.

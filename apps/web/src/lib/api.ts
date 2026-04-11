@@ -1,8 +1,6 @@
-import { Project, projects as dummyProjects } from "@/data/projects";
+import { Project } from "@/data/projects";
 import { supabase } from "@/integrations/supabase/client";
 import { ServiceDetail } from "@repo/types";
-import defaultRes from "@/assets/portfolio-bedroom.jpg";
-import defaultCom from "@/assets/portfolio-office.jpg";
 
 // Hero content type no longer necessary as it's hardcoded but kept for signature consistency if used elsewhere, wait, we can remove it.
 
@@ -43,6 +41,8 @@ interface SupabaseItem {
   budget?: string;
   duration?: string;
   style?: string;
+  style_tags?: string[];
+  featured?: boolean;
   year_completed?: string | number;
   year?: string | number;
   cover_image_url?: string;
@@ -73,6 +73,19 @@ interface SupabaseItem {
 
 // Helper to map Supabase Project to Project interface
 const mapSupabaseToProject = (item: SupabaseItem): Project => {
+  // Parse description JSON if necessary
+  let descJson: Record<string, unknown> = {};
+  if (typeof item.description === 'string') {
+    try {
+      const parsed = JSON.parse(item.description);
+      descJson = (parsed && typeof parsed === 'object') ? parsed : {};
+    } catch {
+      // Ignore parse errors for older projects without JSON description
+    }
+  } else {
+    descJson = (item.description && typeof item.description === 'object') ? (item.description as Record<string, unknown>) : {};
+  }
+
   // Group gallery items by room
   const galleryMap = new Map<string, string[]>();
   if (item.project_gallery && Array.isArray(item.project_gallery)) {
@@ -96,10 +109,12 @@ const mapSupabaseToProject = (item: SupabaseItem): Project => {
     details: m.details || ""
   })) || [];
 
+  const heroImageFromDesc = typeof descJson.hero_image_url === 'string' ? descJson.hero_image_url : undefined;
+
   return {
     id: item.id,
-    slug: item.slug,
-    title: item.title,
+    slug: item.slug || item.id,
+    title: item.title || 'Untitled',
     client: item.client_name || item.client || "Client",
     location: item.location || "Location",
     type: item.type === "commercial" ? "commercial" : "residential",
@@ -107,9 +122,9 @@ const mapSupabaseToProject = (item: SupabaseItem): Project => {
     area: item.area || "-",
     budget: item.budget || "-",
     duration: item.duration || "-",
-    style: item.style || "-", // Check if style_tags is used instead
+    style: (item.style_tags && Array.isArray(item.style_tags) && item.style_tags.length > 0) ? item.style_tags.join(', ') : (item.style || "-"),
     year: Number(item.year_completed || item.year || new Date().getFullYear()),
-    heroImage: item.cover_image_url || item.hero_image || defaultRes,
+    heroImage: heroImageFromDesc || item.cover_image_url || item.hero_image || "",
     gallery: gallery,
     brief: item.brief || "",
     approach: item.approach || "",
@@ -134,12 +149,50 @@ export interface Blog {
   content?: string;
 }
 
+export interface Testimonial {
+  id: string;
+  quote: string;
+  author: string;
+  role: string;
+  rating?: number;
+  avatarUrl?: string | null;
+  active?: boolean;
+}
+
+interface SupabaseTestimonialItem {
+  id?: string;
+  author_name?: string;
+  author_role?: string;
+  avatar_url?: string | null;
+  content?: string;
+  rating?: number;
+  display_order?: number;
+  active?: boolean;
+  testimonial_quote?: string;
+  client_name?: string;
+  name?: string;
+  role?: string;
+  position?: string;
+}
+
+const mapSupabaseToTestimonial = (item: SupabaseTestimonialItem): Testimonial => {
+  return {
+    id: item.id || Math.random().toString(),
+    quote: item.content || item.testimonial_quote || "",
+    author: item.author_name || item.client_name || item.name || "Client",
+    role: item.author_role || item.role || item.position || "Homeowner",
+    rating: item.rating || 5,
+    avatarUrl: item.avatar_url || null,
+    active: item.active ?? true,
+  };
+};
+
 const mapSupabaseToBlog = (item: SupabaseItem): Blog => {
   return {
     id: item.id,
-    title: item.title,
+    title: item.title || 'Untitled',
     excerpt: item.excerpt || "",
-    image: item.cover_image || defaultRes,
+    image: item.cover_image || item.cover_image_url || "",
     category: "Interior Design", // Default for now, as schema doesn't have category yet
     date: new Date(item.created_at || new Date()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
     slug: item.slug || item.id,
@@ -148,26 +201,35 @@ const mapSupabaseToBlog = (item: SupabaseItem): Blog => {
 };
 
 const mapSupabaseToServiceDetail = (item: SupabaseItem): ServiceDetail => {
-  // Parse description if it's a string (JSONB)
-  const descJson = typeof item.description === 'string'
-    ? JSON.parse(item.description)
-    : item.description || {};
+  let descJson: Record<string, unknown> = {};
+  if (typeof item.description === 'string') {
+    try {
+      const parsed = JSON.parse(item.description);
+      descJson = (parsed && typeof parsed === 'object') ? parsed : {};
+    } catch {
+      console.warn('Failed to parse service description JSON for item:', item.id);
+      descJson = {};
+    }
+  } else {
+    descJson = (item.description && typeof item.description === 'object') ? (item.description as Record<string, unknown>) : {};
+  }
 
-  const catId = descJson.category_id || item.category_id || "residential";
-  const defImg = catId === "commercial" ? defaultCom : defaultRes;
+  const catId = (descJson.category_id as string) || item.category_id || "residential";
+
+  const getString = (val: unknown): string => typeof val === 'string' ? val : '';
+  const getStringArray = (val: unknown): string[] => Array.isArray(val) ? val.filter((v): v is string => typeof v === 'string') : [];
 
   return {
     id: item.id,
     created_at: item.created_at || new Date().toISOString(),
     title: item.name || item.title || "Unknown Service", // services table has 'name'
     slug: item.slug || item.id,
-    description: descJson.content || item.description || "",
-    icon: descJson.icon || item.icon || "Home",
+    description: getString(descJson.content) || getString(item.description) || "",
+    icon: getString(descJson.icon) || item.icon || "Home",
     tag: item.short_tag || item.tag,
-    hero_image: item.icon_url || item.hero_image || defImg,
+    hero_image: item.icon_url || item.hero_image || "",
     category_id: catId,
-    // Handle JSONB fields safely and joined relations
-    features: (descJson && typeof descJson !== 'string' ? descJson.features : undefined) || item.features || [],
+    features: getStringArray(descJson.features) || item.features || [],
     process_steps: (item.service_steps || item.process_steps || []).sort((a: SupabaseProcessStep, b: SupabaseProcessStep) => a.step_number - b.step_number).map((s: SupabaseProcessStep) => ({
       title: s.title,
       description: s.description
@@ -181,7 +243,7 @@ const mapSupabaseToServiceDetail = (item: SupabaseItem): ServiceDetail => {
 
 export const api = {
   getProjects: async (): Promise<Project[]> => {
-    if (!supabase) return dummyProjects;
+    if (!supabase) return [];
 
     try {
       // Check if we can reach supabase
@@ -196,28 +258,38 @@ export const api = {
         .order('display_order', { ascending: true });
 
       if (error) {
-        console.warn('Error fetching projects, falling back to static data:', error);
-        return dummyProjects;
+        console.warn('Error fetching projects from Supabase:', error);
+        return [];
       }
 
-      // If no data is returned from Supabase, return dummy data to avoid blank portfolio sections
       if (!data || data.length === 0) {
-        return dummyProjects;
+        return [];
       }
 
       return data.map(mapSupabaseToProject);
     } catch (e) {
-      console.warn('Exception during project fetch, falling back to static data:', e);
-      return dummyProjects;
+      console.warn('Exception during project fetch:', e);
+      return [];
     }
   },
 
   getBlogs: async (): Promise<Blog[]> => {
     if (!supabase) return [];
+    interface BlogRow {
+      id: string;
+      title: string | null;
+      excerpt: string | null;
+      cover_image_url: string | null;
+      tags: string[] | null;
+      published_at: string | null;
+      created_at: string | null;
+      slug: string | null;
+      content: string | null;
+    }
     const { data, error } = await supabase
-      .from('blogs')
+      .from('blog_posts')
       .select('*')
-      .eq('is_published', true)
+      .eq('status', 'published')
       .order('published_at', { ascending: false });
 
     if (error) {
@@ -225,8 +297,18 @@ export const api = {
       return [];
     }
 
-    return (data || []).map(mapSupabaseToBlog);
+    return (data || []).map((item: BlogRow) => ({
+      id: item.id,
+      title: item.title || 'Untitled',
+      excerpt: item.excerpt || '',
+      image: item.cover_image_url || '',
+      category: (item.tags && item.tags.length > 0) ? item.tags[0] : 'Interior Design',
+      date: new Date(item.published_at || item.created_at || new Date()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+      slug: item.slug || item.id,
+      content: typeof item.content === 'string' ? item.content : JSON.stringify(item.content),
+    }));
   },
+
 
   getServices: async (): Promise<ServiceDetail[]> => {
     if (!supabase) return [];
@@ -263,6 +345,71 @@ export const api = {
     }
 
     return mapSupabaseToServiceDetail(data);
+  },
+
+  getTestimonials: async (): Promise<Testimonial[]> => {
+    if (!supabase) return [];
+    
+    // First try a dedicated testimonials table
+    const { data, error } = await supabase
+      .from('testimonials')
+      .select('*');
+      // Removed .order('created_at') due to schema mismatch
+      
+    if (!error && data && data.length > 0) {
+      return data.map(mapSupabaseToTestimonial);
+    }
+    
+    // Fallback: extract from projects table if testimonials table fails/is empty
+    const { data: projData, error: projError } = await supabase
+      .from('projects')
+      .select('id, client_name, testimonial_quote, testimonial_role')
+      .neq('testimonial_quote', null);
+      
+    if (!projError && projData) {
+      return projData.map((p: Record<string, string>) => ({
+        id: p.id,
+        quote: p.testimonial_quote || '',
+        author: p.client_name || 'Client',
+        role: p.testimonial_role || 'Homeowner'
+      }));
+    }
+    
+    return [];
+  },
+
+  getFeaturedProjects: async (): Promise<Project[]> => {
+    if (!supabase) return [];
+
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select(`
+            *,
+            project_gallery (*),
+            project_materials (*),
+            project_categories (name)
+          `)
+        .eq('featured', true)
+        .order('display_order', { ascending: true })
+        .limit(3);
+
+      if (error) {
+        console.warn('Error fetching featured projects:', error);
+        return [];
+      }
+
+      if (!data || data.length === 0) {
+        // Fallback to top 3 projects if no featured ones
+        const fallback = await api.getProjects();
+        return fallback.slice(0, 3);
+      }
+
+      return data.map(mapSupabaseToProject);
+    } catch (e) {
+      console.warn('Exception during featured project fetch:', e);
+      return [];
+    }
   },
 
   // Stub other methods if used by context, or leave empty

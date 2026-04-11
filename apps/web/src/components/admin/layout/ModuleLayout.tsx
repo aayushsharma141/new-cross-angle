@@ -1,7 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 
 interface ModuleTab {
     label: string;
@@ -18,20 +17,10 @@ interface ModuleLayoutProps {
 export const ModuleLayout = ({ title, description, tabs, children }: ModuleLayoutProps) => {
     const location = useLocation();
 
-    // Find the currently active tab to display in the breadcrumb
-    const activeTab = tabs?.find(tab => location.pathname === tab.path || location.pathname.startsWith(`${tab.path}/`));
-
     return (
         <div className="flex flex-col h-full space-y-6">
             {/* Module Header */}
             <div className="flex flex-col space-y-4">
-                <AdminBreadcrumb
-                    items={[
-                        { label: "Admin Hub", href: "/admin" },
-                        { label: title, href: tabs && tabs.length > 0 ? tabs[0].path : undefined },
-                        ...(activeTab ? [{ label: activeTab.label }] : [])
-                    ]}
-                />
                 <div>
                     <h2 className="text-3xl font-serif text-white tracking-tight">{title}</h2>
                     <p className="text-zinc-500 mt-1">{description}</p>

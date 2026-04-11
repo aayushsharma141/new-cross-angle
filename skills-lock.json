@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "crm-automation": {
+      "source": "claude-office-skills/skills",
+      "sourceType": "github",
+      "computedHash": "c73ecbe9c1869423ee086685851e897a4a846d0b0887927945626e37d2b21aa3"
+    },
+    "crm-hygiene": {
+      "source": "guia-matthieu/clawfu-skills",
+      "sourceType": "github",
+      "computedHash": "3edcd4039f9d39a639cfdb868b63cdf0d9d34c59583dd9ec69c13143ffb7ba6f"
+    },
+    "crm-management": {
+      "source": "absolutelyskilled/absolutelyskilled",
+      "sourceType": "github",
+      "computedHash": "210cb846ffa56cc78b9a8973d2cb9cfa253f9a140170c4d58ee083835cef13f6"
+    }
+  }
+}

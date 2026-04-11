@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { icons } from "@/design-system/tokens/icons";
 import { Save, RotateCcw, Loader2, Clock, IndianRupee, MapPin, Paintbrush, HardHat, Eye, Plug, BrainCircuit, Target } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -164,8 +163,6 @@ export default function AdminEstimateRates() {
 
     return (
         <div className="flex flex-col space-y-6 animate-in fade-in duration-500 pb-20">
-            <AdminBreadcrumb items={[{ label: 'Rate Config' }]} />
-
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-3xl font-display font-bold text-[hsl(var(--admin-foreground))]">

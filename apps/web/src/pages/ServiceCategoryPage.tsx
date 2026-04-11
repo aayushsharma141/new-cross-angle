@@ -9,6 +9,7 @@ import NotFound from "./NotFound";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { Image } from "@/components/ui/image";
 
 const ServiceCategoryPage = () => {
     const { category: categorySlug } = useParams();
@@ -34,6 +35,7 @@ const ServiceCategoryPage = () => {
     // Filter services for this category
     // Matches service.category_id (db) with category.id (static)
     const categoryServices = (services || []).filter((s) => s.category_id === category.id);
+    const categoryHeroImage = categoryServices.find((service) => service.hero_image)?.hero_image;
 
 
     return (
@@ -50,7 +52,14 @@ const ServiceCategoryPage = () => {
                     {/* Hero Section */}
                     <div className="relative h-[50vh] flex items-center justify-center overflow-hidden">
                         <div className="absolute inset-0 z-0">
-                            <img src={category.heroImage} alt={category.title} className="w-full h-full object-cover" />
+                            <Image
+                                src={categoryHeroImage}
+                                alt={category.title}
+                                className="h-full w-full"
+                                width={1600}
+                                height={900}
+                                loading="eager"
+                            />
                             <div className="absolute inset-0 bg-black/50" />
                         </div>
                         <div className="relative z-10 text-center text-white px-4">
@@ -79,10 +88,13 @@ const ServiceCategoryPage = () => {
                                         className="group grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
                                     >
                                         <div className={`aspect-video rounded-2xl overflow-hidden ${index % 2 === 1 ? 'md:order-2' : ''}`}>
-                                            <img
+                                            <Image
                                                 src={service.hero_image}
                                                 alt={service.title}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                className="h-full w-full"
+                                                imageClassName="transition-transform duration-500 group-hover:scale-105"
+                                                width={900}
+                                                height={506}
                                             />
                                         </div>
                                         <div className={`${index % 2 === 1 ? 'md:order-1 md:text-right' : ''}`}>

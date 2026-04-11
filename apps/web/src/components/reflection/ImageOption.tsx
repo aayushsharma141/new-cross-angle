@@ -1,6 +1,7 @@
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { Check } from "lucide-react";
 import { useRef } from "react";
+import { Image } from "@/components/ui/image";
 
 interface ImageOptionProps {
   label: string;
@@ -54,10 +55,13 @@ const ImageOption = ({ label, imageSrc, isActive, onClick }: ImageOptionProps) =
           }
         `}
       >
-        <img
+        <Image
           src={imageSrc}
           alt={label}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full"
+          imageClassName="transition-transform duration-500 group-hover:scale-105"
+          width={560}
+          height={420}
           loading="lazy"
         />
         {/* Gradient overlay at bottom for caption */}

@@ -283,5 +283,113 @@ We partner with world leaders like **Hettich**, **Hafele**, and **Blum** to brin
         faq: [
             { question: "Does false ceiling reduce room height?", answer: "It typically takes 4-6 inches, which is negligible for the aesthetic return." }
         ]
+    },
+
+    {
+        id: "restaurant",
+        categoryId: "commercial",
+        title: "Restaurant & Cafe",
+        slug: "restaurant",
+        description: "Memorable dining atmospheres with hospitality-grade detailing.",
+        longDescription: `
+### Crafting Dining Experiences
+A successful restaurant or cafe is about more than just food; it's about the entire sensory experience. We specialize in designing hospitality spaces that captivate guests and streamline operations.
+
+### Durable & Beautiful
+Hospitality environments face immense wear and tear. We carefully select materials that offer both aesthetic appeal and commercial-grade durability, ensuring your space looks pristine even after years of high-volume service.
+        `,
+        heroImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200", 
+        galleryImages: [
+            "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=800",
+            "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800",
+            "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?q=80&w=800"
+        ],
+        features: [
+            "Optimized Seating Layouts",
+            "Acoustic Management",
+            "Atmospheric Lighting",
+            "Durable Finishes"
+        ],
+        processSteps: [
+            { title: "Concept Design", description: "Establishing the vibe and visual identity." },
+            { title: "Spatial Planning", description: "Balancing table count with guest comfort and staff flow." },
+            { title: "Material Detailing", description: "Specifying finishes that withstand heavy commercial use." },
+            { title: "Execution", description: "Coordinated build-out to meet your opening timeline." }
+        ],
+        faq: [
+            { question: "Do you design commercial kitchens too?", answer: "While we primarily focus on front-of-house design, we collaborate closely with commercial kitchen consultants for a seamless integration." }
+        ],
+        relatedServices: ["retail", "lighting"]
+    },
+    {
+        id: "lighting",
+        categoryId: "specialized",
+        title: "Lighting Design",
+        slug: "lighting",
+        description: "Architectural lighting that transforms ambience and elevates experience.",
+        longDescription: `
+### The Power of Light
+Lighting is the most transformative element of interior design. It has the power to dictate mood, highlight architectural features, and enhance functionality. Our specialized lighting design goes beyond basic illumination to create layered, dynamic environments.
+
+### Technical Precision
+We utilize advanced lighting plans that merge aesthetic goals with technical requirements. We consider color temperature (Kelvin), color rendering index (CRI), and beam angles to ensure perfect illumination for every unique space.
+        `,
+        heroImage: "https://images.unsplash.com/photo-1540932239986-30128078f3c5?q=80&w=1200",
+        galleryImages: [
+            "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?q=80&w=800",
+            "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?q=80&w=800",
+            "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?q=80&w=800"
+        ],
+        features: [
+            "Custom Lighting Layouts",
+            "Smart Home Integration",
+            "Ambient, Task & Accent Layers",
+            "Energy Efficient Solutions"
+        ],
+        processSteps: [
+            { title: "Analysis", description: "Evaluating natural light and spatial function." },
+            { title: "Design", description: "Developing a comprehensive lighting plan and fixture schedule." },
+            { title: "Implementation", description: "Precise electrical wiring and fixture installation." }
+        ],
+        faq: [
+            { question: "Can you integrate with smart home systems?", answer: "Yes, our lighting designs are fully compatible with modern smart home automation systems for complete control." }
+        ],
+        relatedServices: ["ceilings", "living-room"]
+    },
+    {
+        id: "custom-furniture",
+        categoryId: "specialized",
+        title: "Custom Furniture",
+        slug: "custom-furniture",
+        description: "Bespoke furniture crafted to your exact specifications.",
+        longDescription: `
+### Unique Pieces for Unique Spaces
+Standard furniture often falls short when you require specific dimensions, precise color matching, or uncompromising quality. Our custom furniture service bridges this gap by creating pieces that perfectly integrate into your space.
+
+### Superior Craftsmanship
+Every piece of custom furniture is handcrafted by skilled artisans. We use premium materials, from solid hardwoods to high-grade upholstery fabrics, ensuring longevity and exceptional comfort.
+        `,
+        heroImage: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1200",
+        galleryImages: [
+            "https://images.unsplash.com/photo-1538688423619-a8ddccfb10df?q=80&w=800",
+            "https://images.unsplash.com/photo-1505693314120-0a44176374b1?q=80&w=800",
+            "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=800"
+        ],
+        features: [
+            "Made-to-Measure Dimensions",
+            "Extensive Fabric & Finish Options",
+            "Ergonomic Considerations",
+            "Solid Wood Construction"
+        ],
+        processSteps: [
+            { title: "Conceptualization", description: "Sketching and selecting materials based on your requirements." },
+            { title: "Prototyping", description: "Reviewing shop drawings and fabric swatches." },
+            { title: "Fabrication", description: "Handcrafting in our dedicated workshop." },
+            { title: "Delivery", description: "Careful transportation and placement in your home." }
+        ],
+        faq: [
+            { question: "How long does custom furniture take to build?", answer: "Depending on the complexity, it usually takes 4-8 weeks from final approval." }
+        ],
+        relatedServices: ["living-room", "bedroom"]
     }
 ];

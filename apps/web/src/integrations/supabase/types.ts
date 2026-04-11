@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          event_type: string
+          id: string
+          occurred_at: string
+          payload: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          event_type: string
+          id?: string
+          occurred_at?: string
+          payload?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          occurred_at?: string
+          payload?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      analytics_events_default: {
+        Row: {
+          event_type: string
+          id: string
+          occurred_at: string
+          payload: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          event_type: string
+          id?: string
+          occurred_at?: string
+          payload?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          occurred_at?: string
+          payload?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       awards: {
         Row: {
           display_order: number | null
@@ -113,121 +161,293 @@ export type Database = {
         Row: {
           author_id: string | null
           content: string | null
+          content_json: Json | null
           cover_image: string | null
           created_at: string
           excerpt: string | null
+          featured_media_id: string | null
           id: string
           is_published: boolean | null
           published_at: string | null
           slug: string
+          status: string
           title: string
           updated_at: string
         }
         Insert: {
           author_id?: string | null
           content?: string | null
+          content_json?: Json | null
           cover_image?: string | null
           created_at?: string
           excerpt?: string | null
+          featured_media_id?: string | null
           id?: string
           is_published?: boolean | null
           published_at?: string | null
           slug: string
+          status?: string
           title: string
           updated_at?: string
         }
         Update: {
           author_id?: string | null
           content?: string | null
+          content_json?: Json | null
           cover_image?: string | null
           created_at?: string
           excerpt?: string | null
+          featured_media_id?: string | null
           id?: string
           is_published?: boolean | null
           published_at?: string | null
           slug?: string
+          status?: string
           title?: string
           updated_at?: string
         }
         Relationships: []
       }
-      estimate_leads: {
+      comments: {
         Row: {
-          admin_notes: string | null
-          area: number | null
-          budget: string | null
-          city: string | null
-          city_tier: string | null
+          author_id: string | null
+          content: string
           created_at: string | null
-          design_package: string | null
-          email: string
-          estimate_breakdown: Json | null
-          estimate_total_max: number | null
-          estimate_total_min: number | null
           id: string
-          lead_category: string | null
-          lead_score: number | null
-          name: string
-          notes: string | null
-          phone: string | null
-          property_type: string | null
-          scopes: string[] | null
-          site_visits: number | null
-          state: string | null
-          status: string
-          timeline: string | null
+          parent_id: string | null
+          path: unknown
+          project_id: string | null
           updated_at: string | null
         }
         Insert: {
-          admin_notes?: string | null
-          area?: number | null
-          budget?: string | null
-          city?: string | null
-          city_tier?: string | null
+          author_id?: string | null
+          content: string
           created_at?: string | null
-          design_package?: string | null
-          email: string
-          estimate_breakdown?: Json | null
-          estimate_total_max?: number | null
-          estimate_total_min?: number | null
           id?: string
-          lead_category?: string | null
-          lead_score?: number | null
-          name: string
-          notes?: string | null
-          phone?: string | null
-          property_type?: string | null
-          scopes?: string[] | null
-          site_visits?: number | null
-          state?: string | null
-          status?: string
-          timeline?: string | null
+          parent_id?: string | null
+          path?: unknown
+          project_id?: string | null
           updated_at?: string | null
         }
         Update: {
-          admin_notes?: string | null
-          area?: number | null
-          budget?: string | null
-          city?: string | null
-          city_tier?: string | null
+          author_id?: string | null
+          content?: string
           created_at?: string | null
-          design_package?: string | null
-          email?: string
-          estimate_breakdown?: Json | null
-          estimate_total_max?: number | null
-          estimate_total_min?: number | null
           id?: string
-          lead_category?: string | null
-          lead_score?: number | null
-          name?: string
-          notes?: string | null
-          phone?: string | null
-          property_type?: string | null
-          scopes?: string[] | null
-          site_visits?: number | null
-          state?: string | null
+          parent_id?: string | null
+          path?: unknown
+          project_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_versions: {
+        Row: {
+          content_json: Json
+          created_at: string | null
+          created_by: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+        }
+        Insert: {
+          content_json: Json
+          created_at?: string | null
+          created_by?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+        }
+        Update: {
+          content_json?: Json
+          created_at?: string | null
+          created_by?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      crm_tasks: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          due_at: string | null
+          id: string
+          lead_id: string
+          priority: string
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          lead_id: string
+          priority?: string
           status?: string
-          timeline?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          lead_id?: string
+          priority?: string
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_tasks_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gallery_categories: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      gallery_items: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          image_url: string
+          location: string | null
+          subtitle: string | null
+          title: string
+          updated_at: string | null
+          year: number | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url: string
+          location?: string | null
+          subtitle?: string | null
+          title: string
+          updated_at?: string | null
+          year?: number | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string
+          location?: string | null
+          subtitle?: string | null
+          title?: string
+          updated_at?: string | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "gallery_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hero_media: {
+        Row: {
+          animation_effect: string | null
+          created_at: string | null
+          cta_link: string | null
+          cta_text: string | null
+          display_order: number | null
+          duration_ms: number | null
+          headline: string | null
+          id: string
+          is_active: boolean | null
+          media_type: string
+          media_url: string
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          animation_effect?: string | null
+          created_at?: string | null
+          cta_link?: string | null
+          cta_text?: string | null
+          display_order?: number | null
+          duration_ms?: number | null
+          headline?: string | null
+          id?: string
+          is_active?: boolean | null
+          media_type?: string
+          media_url: string
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          animation_effect?: string | null
+          created_at?: string | null
+          cta_link?: string | null
+          cta_text?: string | null
+          display_order?: number | null
+          duration_ms?: number | null
+          headline?: string | null
+          id?: string
+          is_active?: boolean | null
+          media_type?: string
+          media_url?: string
+          title?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -272,64 +492,154 @@ export type Database = {
       }
       leads: {
         Row: {
+          archetype: string | null
+          area: number | null
           assigned_to: string | null
           budget: string | null
           city: string | null
+          city_tier: string | null
+          closed_at: string | null
+          consent: boolean | null
           created_at: string | null
           email: string
+          estimate_breakdown: Json | null
+          estimated_max: number | null
+          estimated_min: number | null
+          forecast_category: string | null
           id: string
           internal_notes: Json | null
+          investment_tier: string | null
+          last_activity_at: string | null
+          lead_score: number | null
           lead_source: Database["public"]["Enums"]["lead_source_enum"] | null
           lead_type: Database["public"]["Enums"]["lead_type_enum"] | null
           message: string
           name: string
+          next_step: string | null
           phone: string | null
+          project_type: string | null
+          property_type: string | null
           score: number | null
           score_details: Json | null
           service: string | null
           source_url: string | null
+          stale_flagged_at: string | null
+          start_timing: string | null
+          state: string | null
           status: Database["public"]["Enums"]["lead_status_enum"]
           updated_at: string | null
         }
         Insert: {
+          archetype?: string | null
+          area?: number | null
           assigned_to?: string | null
           budget?: string | null
           city?: string | null
+          city_tier?: string | null
+          closed_at?: string | null
+          consent?: boolean | null
           created_at?: string | null
           email: string
+          estimate_breakdown?: Json | null
+          estimated_max?: number | null
+          estimated_min?: number | null
+          forecast_category?: string | null
           id?: string
           internal_notes?: Json | null
+          investment_tier?: string | null
+          last_activity_at?: string | null
+          lead_score?: number | null
           lead_source?: Database["public"]["Enums"]["lead_source_enum"] | null
           lead_type?: Database["public"]["Enums"]["lead_type_enum"] | null
           message: string
           name: string
+          next_step?: string | null
           phone?: string | null
+          project_type?: string | null
+          property_type?: string | null
           score?: number | null
           score_details?: Json | null
           service?: string | null
           source_url?: string | null
+          stale_flagged_at?: string | null
+          start_timing?: string | null
+          state?: string | null
           status?: Database["public"]["Enums"]["lead_status_enum"]
           updated_at?: string | null
         }
         Update: {
+          archetype?: string | null
+          area?: number | null
           assigned_to?: string | null
           budget?: string | null
           city?: string | null
+          city_tier?: string | null
+          closed_at?: string | null
+          consent?: boolean | null
           created_at?: string | null
           email?: string
+          estimate_breakdown?: Json | null
+          estimated_max?: number | null
+          estimated_min?: number | null
+          forecast_category?: string | null
           id?: string
           internal_notes?: Json | null
+          investment_tier?: string | null
+          last_activity_at?: string | null
+          lead_score?: number | null
           lead_source?: Database["public"]["Enums"]["lead_source_enum"] | null
           lead_type?: Database["public"]["Enums"]["lead_type_enum"] | null
           message?: string
           name?: string
+          next_step?: string | null
           phone?: string | null
+          project_type?: string | null
+          property_type?: string | null
           score?: number | null
           score_details?: Json | null
           service?: string | null
           source_url?: string | null
+          stale_flagged_at?: string | null
+          start_timing?: string | null
+          state?: string | null
           status?: Database["public"]["Enums"]["lead_status_enum"]
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      media: {
+        Row: {
+          alt: string | null
+          created_at: string | null
+          file_name: string
+          file_type: string | null
+          id: string
+          size_bytes: number | null
+          title: string | null
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          alt?: string | null
+          created_at?: string | null
+          file_name: string
+          file_type?: string | null
+          id?: string
+          size_bytes?: number | null
+          title?: string | null
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          alt?: string | null
+          created_at?: string | null
+          file_name?: string
+          file_type?: string | null
+          id?: string
+          size_bytes?: number | null
+          title?: string | null
+          uploaded_by?: string | null
+          url?: string
         }
         Relationships: []
       }
@@ -411,41 +721,89 @@ export type Database = {
       page_sections: {
         Row: {
           body: string | null
+          content_json: Json | null
+          created_at: string | null
           cta_text: string | null
           cta_url: string | null
           extra: Json | null
           id: string
           image_url: string | null
+          order_index: number
           page: string
           section_key: string
+          section_type: string | null
+          status: string
           subtitle: string | null
           title: string | null
           updated_at: string | null
         }
         Insert: {
           body?: string | null
+          content_json?: Json | null
+          created_at?: string | null
           cta_text?: string | null
           cta_url?: string | null
           extra?: Json | null
           id?: string
           image_url?: string | null
+          order_index?: number
           page: string
           section_key: string
+          section_type?: string | null
+          status?: string
           subtitle?: string | null
           title?: string | null
           updated_at?: string | null
         }
         Update: {
           body?: string | null
+          content_json?: Json | null
+          created_at?: string | null
           cta_text?: string | null
           cta_url?: string | null
           extra?: Json | null
           id?: string
           image_url?: string | null
+          order_index?: number
           page?: string
           section_key?: string
+          section_type?: string | null
+          status?: string
           subtitle?: string | null
           title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      pages: {
+        Row: {
+          created_at: string | null
+          id: string
+          meta_desc: string | null
+          meta_title: string | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          meta_desc?: string | null
+          meta_title?: string | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          meta_desc?: string | null
+          meta_title?: string | null
+          slug?: string
+          status?: string
+          title?: string
           updated_at?: string | null
         }
         Relationships: []
@@ -460,6 +818,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_featured: boolean | null
+          rank: string | null
           title: string
           updated_at: string
           video_url: string | null
@@ -473,6 +832,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_featured?: boolean | null
+          rank?: string | null
           title: string
           updated_at?: string
           video_url?: string | null
@@ -486,6 +846,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_featured?: boolean | null
+          rank?: string | null
           title?: string
           updated_at?: string
           video_url?: string | null
@@ -500,7 +861,6 @@ export type Database = {
           deleted_by: string | null
           full_name: string | null
           id: string
-          last_login: string | null
           role: string | null
           status: string | null
           updated_at: string | null
@@ -512,7 +872,6 @@ export type Database = {
           deleted_by?: string | null
           full_name?: string | null
           id: string
-          last_login?: string | null
           role?: string | null
           status?: string | null
           updated_at?: string | null
@@ -524,7 +883,6 @@ export type Database = {
           deleted_by?: string | null
           full_name?: string | null
           id?: string
-          last_login?: string | null
           role?: string | null
           status?: string | null
           updated_at?: string | null
@@ -552,6 +910,357 @@ export type Database = {
         }
         Relationships: []
       }
+      project_gallery: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string
+          image_url: string
+          project_id: string | null
+          room_name: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url: string
+          project_id?: string | null
+          room_name?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string
+          project_id?: string | null
+          room_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_gallery_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_materials: {
+        Row: {
+          created_at: string | null
+          details: string | null
+          display_order: number | null
+          id: string
+          name: string
+          project_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: string | null
+          display_order?: number | null
+          id?: string
+          name: string
+          project_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: string | null
+          display_order?: number | null
+          id?: string
+          name?: string
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_materials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_views: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_views_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_views_2026_02: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
+      project_views_2026_03: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
+      project_views_2026_04: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
+      project_views_2026_05: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
+      project_views_2026_06: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
+      project_views_2026_07: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
+      project_views_2026_08: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
+      project_views_2026_09: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
+      project_views_2026_10: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
+      project_views_2026_11: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
+      project_views_2026_12: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
+      project_views_2027_01: {
+        Row: {
+          id: string
+          project_id: string
+          session_hash: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          session_hash: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          session_hash?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           category_id: string | null
@@ -566,6 +1275,7 @@ export type Database = {
           id: string
           location: string | null
           published_at: string | null
+          rank: string | null
           seo_description: string | null
           seo_title: string | null
           service_tag: string | null
@@ -591,6 +1301,7 @@ export type Database = {
           id?: string
           location?: string | null
           published_at?: string | null
+          rank?: string | null
           seo_description?: string | null
           seo_title?: string | null
           service_tag?: string | null
@@ -616,6 +1327,7 @@ export type Database = {
           id?: string
           location?: string | null
           published_at?: string | null
+          rank?: string | null
           seo_description?: string | null
           seo_title?: string | null
           service_tag?: string | null
@@ -638,12 +1350,42 @@ export type Database = {
           },
         ]
       }
+      raw_payload: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string | null
+          payload: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          payload: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          payload?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raw_payload_new_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_faqs: {
         Row: {
           answer: string
           display_order: number | null
           id: string
           question: string
+          rank: string | null
           service_id: string | null
         }
         Insert: {
@@ -651,6 +1393,7 @@ export type Database = {
           display_order?: number | null
           id?: string
           question: string
+          rank?: string | null
           service_id?: string | null
         }
         Update: {
@@ -658,6 +1401,7 @@ export type Database = {
           display_order?: number | null
           id?: string
           question?: string
+          rank?: string | null
           service_id?: string | null
         }
         Relationships: [
@@ -674,6 +1418,7 @@ export type Database = {
         Row: {
           description: string | null
           id: string
+          rank: string | null
           service_id: string | null
           step_number: number
           title: string
@@ -681,6 +1426,7 @@ export type Database = {
         Insert: {
           description?: string | null
           id?: string
+          rank?: string | null
           service_id?: string | null
           step_number: number
           title: string
@@ -688,6 +1434,7 @@ export type Database = {
         Update: {
           description?: string | null
           id?: string
+          rank?: string | null
           service_id?: string | null
           step_number?: number
           title?: string
@@ -711,6 +1458,7 @@ export type Database = {
           icon_url: string | null
           id: string
           name: string
+          rank: string | null
           seo_description: string | null
           seo_title: string | null
           short_description: string | null
@@ -726,6 +1474,7 @@ export type Database = {
           icon_url?: string | null
           id?: string
           name: string
+          rank?: string | null
           seo_description?: string | null
           seo_title?: string | null
           short_description?: string | null
@@ -741,6 +1490,7 @@ export type Database = {
           icon_url?: string | null
           id?: string
           name?: string
+          rank?: string | null
           seo_description?: string | null
           seo_title?: string | null
           short_description?: string | null
@@ -789,6 +1539,7 @@ export type Database = {
       site_settings: {
         Row: {
           about_text: string | null
+          about_video_url: string | null
           address: string | null
           admin_email: string | null
           business_hours: Json | null
@@ -818,6 +1569,7 @@ export type Database = {
         }
         Insert: {
           about_text?: string | null
+          about_video_url?: string | null
           address?: string | null
           admin_email?: string | null
           business_hours?: Json | null
@@ -847,6 +1599,7 @@ export type Database = {
         }
         Update: {
           about_text?: string | null
+          about_video_url?: string | null
           address?: string | null
           admin_email?: string | null
           business_hours?: Json | null
@@ -930,9 +1683,11 @@ export type Database = {
           author_name: string
           author_role: string | null
           avatar_url: string | null
+          city: string | null
           content: string
           display_order: number | null
           id: string
+          is_featured: boolean | null
           project_id: string | null
           rating: number | null
         }
@@ -941,9 +1696,11 @@ export type Database = {
           author_name: string
           author_role?: string | null
           avatar_url?: string | null
+          city?: string | null
           content: string
           display_order?: number | null
           id?: string
+          is_featured?: boolean | null
           project_id?: string | null
           rating?: number | null
         }
@@ -952,9 +1709,11 @@ export type Database = {
           author_name?: string
           author_role?: string | null
           avatar_url?: string | null
+          city?: string | null
           content?: string
           display_order?: number | null
           id?: string
+          is_featured?: boolean | null
           project_id?: string | null
           rating?: number | null
         }
@@ -989,11 +1748,82 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_failures: {
+        Row: {
+          attempt_count: number | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          last_attempt_at: string | null
+          next_retry_at: string | null
+          payload: Json
+          status: string
+          updated_at: string | null
+          webhook_url: string
+        }
+        Insert: {
+          attempt_count?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          next_retry_at?: string | null
+          payload: Json
+          status?: string
+          updated_at?: string | null
+          webhook_url: string
+        }
+        Update: {
+          attempt_count?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          next_retry_at?: string | null
+          payload?: Json
+          status?: string
+          updated_at?: string | null
+          webhook_url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      daily_project_kpis: {
+        Row: {
+          project_id: string | null
+          total_views: number | null
+          unique_views: number | null
+          view_date: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_views_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      get_admin_users: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          created_at: string
+          deleted_at: string
+          email: string
+          full_name: string
+          id: string
+          last_sign_in_at: string
+          role: Database["public"]["Enums"]["app_role"]
+          status: string
+        }[]
+      }
+      get_lead_stats: { Args: never; Returns: Json }
+      get_total_media_bytes: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1005,7 +1835,14 @@ export type Database = {
         Args: { project_id: string }
         Returns: undefined
       }
+      is_admin: { Args: { uid: string }; Returns: boolean }
       is_admin_or_editor: { Args: { _user_id: string }; Returns: boolean }
+      is_cms_editor: { Args: never; Returns: boolean }
+      text2ltree: { Args: { "": string }; Returns: unknown }
+      update_media_metadata: {
+        Args: { file_path: string; new_metadata: Json }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "super_admin" | "admin" | "viewer"
@@ -1038,7 +1875,7 @@ type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
 type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
-type Tables<
+export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
@@ -1067,7 +1904,7 @@ type Tables<
       : never
     : never
 
-type TablesInsert<
+export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
@@ -1092,7 +1929,7 @@ type TablesInsert<
       : never
     : never
 
-type TablesUpdate<
+export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
@@ -1117,7 +1954,7 @@ type TablesUpdate<
       : never
     : never
 
-type Enums<
+export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
@@ -1134,7 +1971,7 @@ type Enums<
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
-type CompositeTypes<
+export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
@@ -1151,7 +1988,7 @@ type CompositeTypes<
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
-const Constants = {
+export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "admin", "viewer"],
@@ -1178,4 +2015,3 @@ const Constants = {
     },
   },
 } as const
-

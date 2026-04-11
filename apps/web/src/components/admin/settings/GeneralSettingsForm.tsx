@@ -18,7 +18,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { siteSettingsSchema, SiteSettingsFormData } from "@/lib/validations";
-import { Loader2, Save, Globe, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
+import { Loader2, Save, Globe, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageCircle } from "lucide-react";
+
+const PinterestIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="12" x2="12" y2="22" />
+        <path d="M12 2C6.5 2 2 6.5 2 12c0 4.3 2.7 8 6.5 9.5" />
+        <path d="M12 12c.5-1.5 1.5-2.5 2.5-2.5" />
+        <path d="M14.5 9.5c1.5 0 2.5 1.5 2.5 3.5 0 2.5-2 4-4.5 4-2.5 0-3.5-1.5-3.5-3.5 0-3 3-5 5-5" />
+    </svg>
+);
 
 import { useKeyboardShortcut } from "@/hooks/use-keyboard-shortcut";
 
@@ -34,11 +43,15 @@ export function GeneralSettingsForm() {
             site_description: "",
             contact_email: "",
             contact_phone: "",
+            contact_whatsapp: "",
+            about_video_url: "",
             address: "",
             social_facebook: "",
             social_instagram: "",
             social_twitter: "",
             social_linkedin: "",
+            social_youtube: "",
+            social_pinterest: "",
         },
     });
 
@@ -67,11 +80,15 @@ export function GeneralSettingsForm() {
                     site_description: data.seo_description || "",
                     contact_email: data.email || "",
                     contact_phone: data.phone || "",
+                    contact_whatsapp: (data as { whatsapp?: string }).whatsapp || "",
+                    about_video_url: (data as { about_video_url?: string }).about_video_url || "",
                     address: data.address || "",
                     social_facebook: socialLinks.facebook || "",
                     social_instagram: socialLinks.instagram || "",
                     social_twitter: socialLinks.twitter || "",
                     social_linkedin: socialLinks.linkedin || "",
+                    social_youtube: socialLinks.youtube || "",
+                    social_pinterest: socialLinks.pinterest || "",
                 });
             }
         } catch (error) {
@@ -95,6 +112,8 @@ export function GeneralSettingsForm() {
                 instagram: values.social_instagram,
                 twitter: values.social_twitter,
                 linkedin: values.social_linkedin,
+                youtube: values.social_youtube,
+                pinterest: values.social_pinterest,
             };
 
             // Check if a row exists to decide between insert and update, 
@@ -116,6 +135,8 @@ export function GeneralSettingsForm() {
                         seo_description: values.site_description,
                         email: values.contact_email,
                         phone: values.contact_phone,
+                        whatsapp: values.contact_whatsapp || null,
+                        about_video_url: values.about_video_url || null,
                         address: values.address,
                         social_links: socialLinks,
                         updated_at: new Date().toISOString(),
@@ -130,6 +151,8 @@ export function GeneralSettingsForm() {
                         seo_description: values.site_description,
                         email: values.contact_email,
                         phone: values.contact_phone,
+                        whatsapp: values.contact_whatsapp || null,
+                        about_video_url: values.about_video_url || null,
                         address: values.address,
                         social_links: socialLinks,
                     });
@@ -264,6 +287,42 @@ export function GeneralSettingsForm() {
                                 </FormItem>
                             )}
                         />
+                        <FormField
+                            control={form.control}
+                            name="contact_whatsapp"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                        <MessageCircle className="w-4 h-4 text-green-500" /> WhatsApp
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="919999999999 (country code + number, no +)" {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Used for the WhatsApp chat button. Enter digits only (e.g. 917909041132)
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="about_video_url"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                        <Globe className="w-4 h-4" /> About Video URL
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="https://www.youtube.com/embed/..." {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Embed URL for the About page video (e.g., YouTube embed link)
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <div className="md:col-span-2">
                             <FormField
                                 control={form.control}
@@ -352,6 +411,36 @@ export function GeneralSettingsForm() {
                                     </FormLabel>
                                     <FormControl>
                                         <Input placeholder="https://linkedin.com/in/..." {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="social_youtube"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                        <Youtube className="w-4 h-4" /> YouTube
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="https://youtube.com/@..." {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="social_pinterest"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                        <PinterestIcon /> Pinterest
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="https://pinterest.com/..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

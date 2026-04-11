@@ -4,7 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, invokeEdge } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
     ASSIGNABLE_ROLES,
@@ -24,13 +24,13 @@ import {
 } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle,
-} from "@/components/ui/sheet";
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 const ACTIVE_STATUSES = ["active", "inactive"] as const;
 
@@ -62,6 +62,7 @@ interface UserFormSheetProps {
     mode: "add" | "edit";
     actorRole: AppRole | null;
     user?: AdminUserRecord | null;
+    isSelf?: boolean;
 }
 
 function getAllowedRoles(actorRole: AppRole | null): readonly AppRole[] {
@@ -86,6 +87,7 @@ export function UserFormSheet({
     mode,
     actorRole,
     user,
+    isSelf = false,
 }: UserFormSheetProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
@@ -115,20 +117,18 @@ export function UserFormSheet({
 
         try {
             if (mode === "add") {
-                const { data, error } = await supabase.functions.invoke("invite-user", {
-                    body: {
-                        email: values.email,
-                        role: values.role,
-                        fullName: values.fullName,
-                    },
+                const { data, error } = await invokeEdge("invite-user", {
+                    email: values.email,
+                    role: values.role,
+                    fullName: values.fullName,
                 });
 
                 if (error) {
-                    throw new Error(error.message || "Failed to add user");
+                    throw new Error(error.message);
                 }
 
                 if (data?.error) {
-                    throw new Error(data.error);
+                    throw new Error(String(data.error));
                 }
 
                 toast({
@@ -136,27 +136,32 @@ export function UserFormSheet({
                     description: `${values.email} will receive an invitation email.`,
                 });
             } else if (user) {
-                const { data, error } = await supabase.functions.invoke("manage-user", {
-                    body: {
-                        action: "update",
-                        userId: user.id,
-                        fullName: values.fullName,
-                        role: values.role,
-                        status: values.status,
-                    },
-                });
+                const body: Record<string, string> = {
+                    action: "update",
+                    userId: user.id,
+                    fullName: values.fullName,
+                };
+
+                if (!isSelf) {
+                    body.role = values.role;
+                    body.status = values.status;
+                }
+
+                const { data, error } = await invokeEdge("manage-user", body);
 
                 if (error) {
-                    throw new Error(error.message || "Failed to update user");
+                    throw new Error(error.message);
                 }
 
                 if (data?.error) {
-                    throw new Error(data.error);
+                    throw new Error(String(data.error));
                 }
 
                 toast({
-                    title: "User updated",
-                    description: `${values.fullName} has been updated successfully.`,
+                    title: isSelf ? "Profile updated" : "User updated",
+                    description: isSelf
+                        ? "Your profile has been updated successfully."
+                        : `${values.fullName} has been updated successfully.`,
                 });
             }
 
@@ -181,119 +186,139 @@ export function UserFormSheet({
         : "Update the account profile, role, and access state from a single place.";
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="right" className="w-full border-zinc-800 bg-zinc-950 text-zinc-100 sm:max-w-xl">
-                <SheetHeader className="space-y-2">
-                    <SheetTitle className="font-serif text-2xl text-white">{title}</SheetTitle>
-                    <SheetDescription className="text-zinc-400">
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-xl max-h-[90vh] flex flex-col overflow-hidden border-zinc-800 bg-zinc-950 text-zinc-100 sm:rounded-xl">
+                <DialogHeader className="shrink-0 pb-4 border-b border-zinc-800">
+                    <DialogTitle className="font-serif text-2xl text-white">{title}</DialogTitle>
+                    <DialogDescription className="text-zinc-400">
                         {description}
-                    </SheetDescription>
-                </SheetHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 flex h-full flex-col gap-6">
-                        <FormField
-                            control={form.control}
-                            name="fullName"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Name</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            {...field}
-                                            disabled={isSubmitting}
-                                            className="border-zinc-800 bg-zinc-900"
-                                            placeholder="Avery Kapoor"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            {...field}
-                                            disabled={isSubmitting || mode === "edit"}
-                                            className="border-zinc-800 bg-zinc-900"
-                                            placeholder="avery@example.com"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="role"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Role</FormLabel>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        value={field.value}
-                                        disabled={isSubmitting}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger className="border-zinc-800 bg-zinc-900">
-                                                <SelectValue placeholder="Select a role" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {allowedRoles.map((role) => (
-                                                <SelectItem key={role} value={role}>
-                                                    {ROLE_LABELS[role]}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <p className="text-xs text-zinc-500">
-                                        {ROLE_DESCRIPTIONS[field.value]}
-                                    </p>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {mode === "edit" ? (
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden gap-6">
+                        <div className="flex-1 overflow-y-auto space-y-4 pr-1">
                             <FormField
                                 control={form.control}
-                                name="status"
+                                name="fullName"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Access Status</FormLabel>
-                                        <Select
-                                            onValueChange={field.onChange}
-                                            value={field.value}
-                                            disabled={isSubmitting}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger className="border-zinc-800 bg-zinc-900">
-                                                    <SelectValue placeholder="Select access status" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="active">Active</SelectItem>
-                                                <SelectItem value="inactive">Inactive</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <p className="text-xs text-zinc-500">
-                                            Inactive accounts stay on record but cannot access the admin panel.
-                                        </p>
+                                        <FormLabel>Name</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                {...field}
+                                                disabled={isSubmitting}
+                                                className="border-zinc-800 bg-zinc-900"
+                                                placeholder="Avery Kapoor"
+                                            />
+                                        </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
-                        ) : null}
 
-                        <SheetFooter className="mt-auto border-t border-zinc-800 pt-6">
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                {...field}
+                                                disabled={isSubmitting || mode === "edit"}
+                                                className="border-zinc-800 bg-zinc-900"
+                                                placeholder="avery@example.com"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="role"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            Role
+                                            {isSelf && <span className="ml-2 text-xs text-muted-foreground">(read-only)</span>}
+                                        </FormLabel>
+                                        <Select
+                                            onValueChange={field.onChange}
+                                            value={field.value}
+                                            disabled={isSubmitting || isSelf}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger className="border-zinc-800 bg-zinc-900">
+                                                    <SelectValue placeholder="Select a role" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {allowedRoles.map((role) => (
+                                                    <SelectItem key={role} value={role}>
+                                                        {ROLE_LABELS[role]}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {isSelf ? (
+                                            <p className="text-xs text-muted-foreground">
+                                                Role changes require another admin.
+                                            </p>
+                                        ) : (
+                                            <p className="text-xs text-zinc-500">
+                                                {ROLE_DESCRIPTIONS[field.value]}
+                                            </p>
+                                        )}
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {mode === "edit" ? (
+                                <FormField
+                                    control={form.control}
+                                    name="status"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                Access Status
+                                                {isSelf && <span className="ml-2 text-xs text-muted-foreground">(read-only)</span>}
+                                            </FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                value={field.value}
+                                                disabled={isSubmitting || isSelf}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger className="border-zinc-800 bg-zinc-900">
+                                                        <SelectValue placeholder="Select access status" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="active">Active</SelectItem>
+                                                    <SelectItem value="inactive">Inactive</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            {isSelf ? (
+                                                <p className="text-xs text-muted-foreground">
+                                                    Status changes require another admin.
+                                                </p>
+                                            ) : (
+                                                <p className="text-xs text-zinc-500">
+                                                    Inactive accounts stay on record but cannot access the admin panel.
+                                                </p>
+                                            )}
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            ) : null}
+                        </div>
+
+                        <DialogFooter className="shrink-0 border-t border-zinc-800 pt-4">
                             <Button
                                 type="button"
                                 variant="outline"
@@ -311,10 +336,10 @@ export function UserFormSheet({
                                     </>
                                 ) : mode === "add" ? "Send Invite" : "Save Changes"}
                             </Button>
-                        </SheetFooter>
+                        </DialogFooter>
                     </form>
                 </Form>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     );
 }

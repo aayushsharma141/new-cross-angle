@@ -190,18 +190,20 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
     );
 
     const handleMiniResultComplete = useCallback(() => {
-        if (sessionId) track("step_completed", { stepName: "MiniResult", sessionId });
-        transitionToStage(getNextStage(Stage.MiniResult, mode));
-    }, [sessionId, transitionToStage, mode]);
-
-    const handleLeadCaptureComplete = useCallback(() => {
         if (sessionId) {
+            track("step_completed", { stepName: "MiniResult", sessionId });
+            // Track quiz completion here since results are shown next
             const totalSeconds = Math.floor((Date.now() - startTime) / 1000);
             trackQuizCompleted(sessionId, archetype.name, totalSeconds);
             completeSession(sessionId, archetype.name, totalSeconds);
         }
-        setStage(getNextStage(Stage.LeadCapture, mode));
-    }, [sessionId, mode, archetype.name, startTime]);
+        transitionToStage(getNextStage(Stage.MiniResult, mode));
+    }, [sessionId, transitionToStage, mode, archetype.name, startTime]);
+
+    const handleLeadCaptureComplete = useCallback(() => {
+        if (sessionId) track("step_completed", { stepName: "LeadCapture", sessionId });
+        // Lead gate is now the final step — no further navigation needed
+    }, [sessionId]);
 
     const normalizedScores: AestheticScores = {
         minimalism: normalizeScore(scores.minimalism),
@@ -214,7 +216,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
     const currentSignals: UserSignals = { ...signals, scores: normalizedScores };
 
     const isQuizStage = stage > Stage.Welcome && stage < Stage.Results;
-    const isResultsStage = stage === Stage.Results;
+    const isResultsStage = stage === Stage.Results || stage === Stage.LeadCapture;
 
     return (
         <div className={cn(
@@ -379,16 +381,6 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                                         onComplete={handleMiniResultComplete}
                                     />
                                 )}
-                                {stage === Stage.LeadCapture && (
-                                    <LeadGatePhase
-                                        key="gate"
-                                        sessionId={sessionId}
-                                        scores={normalizedScores}
-                                        archetype={archetype}
-                                        signals={currentSignals}
-                                        onComplete={handleLeadCaptureComplete}
-                                    />
-                                )}
                                 {stage === Stage.Results && (
                                     <Suspense fallback={
                                         <div className="w-full h-[60vh] flex items-center justify-center">
@@ -406,9 +398,22 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                                             sessionId={sessionId}
                                             signals={currentSignals}
                                             onRetake={handleRetake}
-                                            onComplete={onComplete ? () => onComplete({ scores: normalizedScores, signals: currentSignals, aiResult }) : undefined}
+                                            onComplete={() => {
+                                                transitionToStage(getNextStage(Stage.Results, mode));
+                                                if (onComplete) onComplete({ scores: normalizedScores, signals: currentSignals, aiResult });
+                                            }}
                                         />
                                     </Suspense>
+                                )}
+                                {stage === Stage.LeadCapture && (
+                                    <LeadGatePhase
+                                        key="gate"
+                                        sessionId={sessionId}
+                                        scores={normalizedScores}
+                                        archetype={archetype}
+                                        signals={currentSignals}
+                                        onComplete={handleLeadCaptureComplete}
+                                    />
                                 )}
                             </AnimatePresence>
                         </div>

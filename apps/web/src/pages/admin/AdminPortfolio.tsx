@@ -7,6 +7,7 @@ import { Button } from "@/design-system/components/Button";
 import { Input } from "@/design-system/components/Input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/admin/layout/PageHeader";
+import { ModuleHeader } from "@/components/admin/layout/ModuleHeader";
 import { EmptyState, LoadingState } from "@/design-system/components/states";
 import {
   Select,
@@ -24,7 +25,6 @@ import {
   TableRow,
 } from "@/design-system/components/Table";
 import { Badge } from "@/components/ui/badge";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { icons } from "@/design-system/tokens/icons";
 import { Loader2, Plus, Search, Pencil, Trash2, Image as ImageIcon, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +33,7 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 import type { ProjectWithCategory } from "@/repositories";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 export default function AdminPortfolio(): JSX.Element {
   const [searchParams] = useSearchParams();
@@ -164,19 +165,15 @@ export default function AdminPortfolio(): JSX.Element {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 py-4 animate-in fade-in duration-700">
-      <AdminBreadcrumb items={[{ label: 'Portfolio' }]} />
-
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-1">
-          <h1 className="text-4xl font-serif text-white tracking-tight">Portfolio</h1>
-          <p className="text-sm text-zinc-500 font-sans max-w-sm">Manage your collective project showcase and narrative.</p>
-        </div>
-        <div className="flex items-center gap-3">
+      <ModuleHeader
+        title="Portfolio"
+        description="Manage your collective project showcase and narrative."
+        action={
           <Button onClick={handleCreate} variant="primary" className="rounded-xl shadow-lg shadow-primary/20">
             <Plus className={`${icons.sm} mr-2`} /> Add Project
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-zinc-900/40 border border-zinc-800/50 backdrop-blur-md p-4 rounded-2xl">
         <div className="flex flex-1 w-full gap-4 items-center flex-wrap">
@@ -271,7 +268,7 @@ export default function AdminPortfolio(): JSX.Element {
                       <div className="w-12 h-12 rounded overflow-hidden relative border border-zinc-800 bg-black/40">
                         {item.cover_image_url ? (
                           <img
-                            src={item.cover_image_url}
+                            src={getOptimizedUrl(item.cover_image_url, { width: 160, height: 160, quality: 72 })}
                             alt={item.title}
                             className="w-full h-full object-cover"
                           />
@@ -359,15 +356,6 @@ export default function AdminPortfolio(): JSX.Element {
         variant="destructive"
         confirmText="Delete"
       />
-
-      {isFormOpen && (
-        <PortfolioFormDialog
-          open={isFormOpen}
-          onOpenChange={setIsFormOpen}
-          initialData={editingItem}
-          onSuccess={() => queryClient.invalidateQueries({ queryKey: ["projects"] })}
-        />
-      )}
 
       <BulkActionsToolbar
         selectedCount={selectedIds.size}

@@ -22,9 +22,13 @@ import {
     FolderOpen,
     Search,
     Sparkles,
+    Type,
+    Link as LinkIcon,
+    MousePointerClick,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
     Select,
@@ -37,7 +41,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 /* ─── Types ─── */
 type AnimationEffect = "none" | "ken-burns-in" | "ken-burns-out" | "pan-left" | "pan-right";
@@ -47,6 +51,9 @@ interface HeroMediaItem {
     media_url: string;
     media_type: "video" | "image";
     title: string | null;
+    headline: string | null;
+    cta_text: string | null;
+    cta_link: string | null;
     display_order: number;
     is_active: boolean;
     duration_ms: number;
@@ -150,7 +157,7 @@ function MediaPickerModal({ open, onClose, onSelect }: {
                         <h2 className="text-lg font-semibold text-white">Media Library</h2>
                         <span className="text-xs text-zinc-500">{filtered.length} files</span>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={onClose}>
+                    <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
                         <X className="w-5 h-5" />
                     </Button>
                 </div>
@@ -197,7 +204,7 @@ function MediaPickerModal({ open, onClose, onSelect }: {
                                             </div>
                                         </>
                                     ) : (
-                                        <img src={file.url} alt={file.name} className="w-full h-full object-cover" />
+                                        <img src={getOptimizedUrl(file.url, { width: 360, quality: 72 })} alt={file.name} className="w-full h-full object-cover" />
                                     )}
                                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
                                         <p className="text-[10px] text-white/80 truncate">{file.name.split("/").pop()}</p>
@@ -238,6 +245,9 @@ const AdminHero = () => {
     const [editType, setEditType] = useState<"video" | "image">("video");
     const [editDuration, setEditDuration] = useState(3000);
     const [editEffect, setEditEffect] = useState<AnimationEffect>("none");
+    const [editHeadline, setEditHeadline] = useState("");
+    const [editCtaText, setEditCtaText] = useState("");
+    const [editCtaLink, setEditCtaLink] = useState("");
 
     // Add form
     const [showAddForm, setShowAddForm] = useState(false);
@@ -246,6 +256,9 @@ const AdminHero = () => {
     const [newType, setNewType] = useState<"video" | "image">("video");
     const [newDuration, setNewDuration] = useState(4000);
     const [newEffect, setNewEffect] = useState<AnimationEffect>("none");
+    const [newHeadline, setNewHeadline] = useState("");
+    const [newCtaText, setNewCtaText] = useState("");
+    const [newCtaLink, setNewCtaLink] = useState("");
     const [urlError, setUrlError] = useState("");
 
     // Media picker
@@ -302,6 +315,9 @@ const AdminHero = () => {
                 media_url: url,
                 media_type: newType,
                 title: newTitle.trim() || null,
+                headline: newHeadline.trim() || null,
+                cta_text: newCtaText.trim() || null,
+                cta_link: newCtaLink.trim() || null,
                 display_order: nextOrder,
                 is_active: true,
                 duration_ms: newDuration,
@@ -316,6 +332,9 @@ const AdminHero = () => {
             setNewType("video");
             setNewDuration(4000);
             setNewEffect("none");
+            setNewHeadline("");
+            setNewCtaText("");
+            setNewCtaLink("");
             setShowAddForm(false);
             fetchItems();
         } catch (error) {
@@ -334,6 +353,9 @@ const AdminHero = () => {
         setEditType(item.media_type);
         setEditDuration(item.duration_ms);
         setEditEffect(item.animation_effect || "none");
+        setEditHeadline(item.headline || "");
+        setEditCtaText(item.cta_text || "");
+        setEditCtaLink(item.cta_link || "");
     };
 
     const cancelEditing = () => {
@@ -341,32 +363,56 @@ const AdminHero = () => {
     };
 
     const saveEditing = async (item: HeroMediaItem) => {
+        if (isSaving) return;
         const url = editUrl.trim();
         if (!url || !isValidUrl(url)) {
             toast({ title: "Invalid URL", description: "Please enter a valid URL", variant: "destructive" });
             return;
         }
 
+        setIsSaving(true);
         try {
+            const updatePayload = {
+                title: editTitle.trim() || null,
+                headline: editHeadline.trim() || null,
+                cta_text: editCtaText.trim() || null,
+                cta_link: editCtaLink.trim() || null,
+                media_url: url,
+                media_type: editType,
+                duration_ms: editDuration,
+                animation_effect: editType === "image" ? editEffect : "none",
+            };
+
             const { error } = await supabase
                 .from("hero_media")
-                .update({
-                    title: editTitle.trim() || null,
-                    media_url: url,
-                    media_type: editType,
-                    duration_ms: editDuration,
-                    animation_effect: editType === "image" ? editEffect : "none",
-                })
+                .update(updatePayload)
                 .eq("id", item.id);
 
             if (error) throw error;
 
-            toast({ title: "✓ Updated", description: `Changes saved for "${editTitle.trim() || "Untitled"}"` });
+            // Optimistically update local state to avoid full re-render flash
+            setItems((prev) =>
+                prev.map((i) =>
+                    i.id === item.id
+                        ? { ...i, ...updatePayload } as HeroMediaItem
+                        : i
+                )
+            );
             setEditingId(null);
-            fetchItems();
+            toast({ title: "✓ Updated", description: `Changes saved for "${editTitle.trim() || "Untitled"}"` });
+
+            // Quiet background refresh (no isLoading flicker)
+            const { data } = await supabase
+                .from("hero_media")
+                .select("*")
+                .order("display_order", { ascending: true });
+            if (data) setItems(data as HeroMediaItem[]);
         } catch (error) {
             const err = error as Error;
+            if (err.name === "AbortError") return; // Ignore abort errors
             toast({ title: "Error", description: err.message, variant: "destructive" });
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -461,8 +507,6 @@ const AdminHero = () => {
 
     return (
         <div className="space-y-8 max-w-5xl">
-            <AdminBreadcrumb items={[{ label: "Hero Media" }]} />
-
             {/* Header */}
             <div className="flex items-start justify-between gap-4">
                 <div>
@@ -598,6 +642,46 @@ const AdminHero = () => {
                                         </Select>
                                     </div>
                                 )}
+
+                                {/* ─── Headline & CTA Fields (Add Form) ─── */}
+                                <div className="md:col-span-2 border-t border-zinc-800 pt-4 mt-1">
+                                    <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <Type className="w-3.5 h-3.5" /> Slide Content (Optional)
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2 md:col-span-2">
+                                            <Label className="text-zinc-300">Headline</Label>
+                                            <Textarea
+                                                placeholder={"Don't just change your space.\nChange how you live in it."}
+                                                value={newHeadline}
+                                                onChange={(e) => setNewHeadline(e.target.value)}
+                                                rows={2}
+                                                className="resize-none"
+                                            />
+                                            <p className="text-[10px] text-zinc-600">Use line breaks for multi-line headlines. Leave blank for media-only slides.</p>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-zinc-300 flex items-center gap-1.5">
+                                                <MousePointerClick className="w-3.5 h-3.5 text-blue-400" /> CTA Button Text
+                                            </Label>
+                                            <Input
+                                                placeholder="e.g. Start Your Project"
+                                                value={newCtaText}
+                                                onChange={(e) => setNewCtaText(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-zinc-300 flex items-center gap-1.5">
+                                                <LinkIcon className="w-3.5 h-3.5 text-blue-400" /> CTA Link
+                                            </Label>
+                                            <Input
+                                                placeholder="/contact or https://..."
+                                                value={newCtaLink}
+                                                onChange={(e) => setNewCtaLink(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* URL Preview */}
@@ -607,7 +691,7 @@ const AdminHero = () => {
                                         {newType === "video" ? (
                                             <video src={newUrl} muted className="w-full h-full object-cover" preload="metadata" />
                                         ) : (
-                                            <img src={newUrl} alt="Preview" className="w-full h-full object-cover" />
+                                            <img src={getOptimizedUrl(newUrl, { width: 360, quality: 72 })} alt="Preview" className="w-full h-full object-cover" />
                                         )}
                                     </div>
                                     <div className="text-xs text-zinc-400">
@@ -767,6 +851,43 @@ const AdminHero = () => {
                                                     </Select>
                                                 </div>
                                             )}
+
+                                            {/* ─── Headline & CTA Fields (Edit Form) ─── */}
+                                            <div className="md:col-span-2 border-t border-zinc-700/50 pt-3 mt-1">
+                                                <h4 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                                                    <Type className="w-3 h-3" /> Slide Content
+                                                </h4>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                    <div className="space-y-1 md:col-span-2">
+                                                        <Label className="text-xs text-zinc-400">Headline</Label>
+                                                        <Textarea
+                                                            value={editHeadline}
+                                                            onChange={(e) => setEditHeadline(e.target.value)}
+                                                            placeholder="Multi-line headline text..."
+                                                            rows={2}
+                                                            className="resize-none text-sm"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <Label className="text-xs text-zinc-400">CTA Button Text</Label>
+                                                        <Input
+                                                            value={editCtaText}
+                                                            onChange={(e) => setEditCtaText(e.target.value)}
+                                                            placeholder="e.g. View Portfolio"
+                                                            className="h-9"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <Label className="text-xs text-zinc-400">CTA Link</Label>
+                                                        <Input
+                                                            value={editCtaLink}
+                                                            onChange={(e) => setEditCtaLink(e.target.value)}
+                                                            placeholder="/contact"
+                                                            className="h-9"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 ) : (
@@ -801,7 +922,7 @@ const AdminHero = () => {
                                                 </>
                                             ) : (
                                                 <img
-                                                    src={item.media_url}
+                                                    src={getOptimizedUrl(item.media_url, { width: 720, quality: 76 })}
                                                     alt={item.title || "Hero media"}
                                                     className="w-full h-full object-cover"
                                                 />
@@ -821,13 +942,24 @@ const AdminHero = () => {
                                                 </p>
                                             </div>
                                             <p className="text-xs text-zinc-600 truncate max-w-md">{item.media_url}</p>
-                                            <div className="flex items-center gap-3 mt-1.5">
+                                            {/* Headline & CTA preview */}
+                                            {item.headline && (
+                                                <p className="text-[11px] text-zinc-400 mt-1 truncate max-w-md italic">
+                                                    "{item.headline.replace(/\n/g, ' ')}"
+                                                </p>
+                                            )}
+                                            <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                                                 <span className="flex items-center gap-1 text-[10px] text-zinc-500">
                                                     <Clock className="w-3 h-3" /> {formatDuration(item.duration_ms)}
                                                 </span>
                                                 {item.media_type === "image" && item.animation_effect && item.animation_effect !== "none" && (
                                                     <span className="flex items-center gap-1 text-[10px] text-amber-400/70 bg-amber-400/5 px-1.5 py-0.5 rounded-full">
                                                         <Sparkles className="w-2.5 h-2.5" /> {getEffectLabel(item.animation_effect)}
+                                                    </span>
+                                                )}
+                                                {item.cta_text && (
+                                                    <span className="flex items-center gap-1 text-[10px] text-blue-400/70 bg-blue-400/5 px-1.5 py-0.5 rounded-full">
+                                                        <MousePointerClick className="w-2.5 h-2.5" /> {item.cta_text}
                                                     </span>
                                                 )}
                                                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${item.is_active ? "bg-emerald-500/10 text-emerald-400" : "bg-zinc-800 text-zinc-600"}`}>
@@ -930,7 +1062,7 @@ const AdminHero = () => {
                             <div className="rounded-xl overflow-hidden bg-zinc-900 aspect-video">
                                 {previewItem.media_type === "video" ? (
                                     <video
-                                        src={previewItem.media_url}
+                                        src={getOptimizedUrl(previewItem.media_url, { width: 1400, quality: 84 })}
                                         controls
                                         autoPlay
                                         muted

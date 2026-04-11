@@ -7,7 +7,8 @@
  * 1. Strict CORS — environment-configurable, never wildcard on credentialed routes.
  * 2. Persistent rate limiting — backed by Deno KV (survives function restarts).
  * 3. JWT authentication & RBAC — validates Supabase session tokens.
- * 4. Standard secure response helpers.
+ * 4. Standard secure response helpers that auto-report to Sentry.
+ * 5. Sentry Deno SDK integration — 5xx errors and rate-limit breaches reported automatically.
  * 
  * Usage:
  *   import { buildCorsHeaders, checkRateLimit, verifyAdmin } from "../_lib/security.ts";
@@ -18,6 +19,67 @@
 
 // @deno-types="https://esm.sh/@supabase/supabase-js@2.45.4/dist/module/index.d.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+
+// ─── Sentry Deno SDK ──────────────────────────────────────────────────────────
+// Uses the official Sentry Deno/Cloudflare Workers SDK.
+// DSN is read from the SENTRY_DSN environment variable. If not set,
+// sentryReport() is a silent no-op so functions work without Sentry configured.
+import * as SentryDeno from "https://deno.land/x/sentry@8.33.0/index.mjs";
+
+let _sentryInitialised = false;
+
+function getSentryClient() {
+    const dsn = Deno.env.get("SENTRY_DSN");
+    if (!dsn) return null;
+
+    if (!_sentryInitialised) {
+        SentryDeno.init({
+            dsn,
+            environment: Deno.env.get("DENO_ENV") ?? "production",
+            tracesSampleRate: 0.0, // Edge functions: capture errors only, no perf traces.
+            integrations: [],
+        });
+        _sentryInitialised = true;
+    }
+
+    return SentryDeno;
+}
+
+/**
+ * Reports an error or message to Sentry. Silent no-op if SENTRY_DSN is unset.
+ *
+ * @param fnName   - Name of the calling edge function (e.g. "submit-estimate")
+ * @param error    - The Error object or message string
+ * @param extra    - Optional key/value metadata (e.g. { status: 429, ip: "1.2.3.4" })
+ * @param level    - Sentry severity level (default: "error")
+ */
+export async function sentryReport(
+    fnName: string,
+    error: unknown,
+    extra: Record<string, unknown> = {},
+    level: "fatal" | "error" | "warning" | "info" = "error",
+): Promise<void> {
+    const sentry = getSentryClient();
+    if (!sentry) return;
+
+    sentry.withScope((scope: SentryDeno.Scope) => {
+        scope.setTag("edge_fn", fnName);
+        scope.setTag("runtime", "deno");
+        scope.setLevel(level);
+        scope.setExtras(extra);
+
+        if (error instanceof Error) {
+            sentry.captureException(error);
+        } else {
+            sentry.captureMessage(String(error), level);
+        }
+    });
+
+    // Flush ensures the event is sent before the function returns.
+    // If flush takes >2 s we proceed anyway (cold start budget).
+    await sentry.close(2_000).catch(() => {});
+}
+
 
 // ─── Environment Helpers ─────────────────────────────────────────────────────
 
@@ -205,8 +267,26 @@ export function rateLimitResponse(
     req: Request,
     result: RateLimitResult,
     corsOpts: CorsOptions = {},
+    fnName?: string,
 ): Response {
     const cors = buildCorsHeaders(req, corsOpts);
+
+    // Report rate-limit breaches to Sentry as warnings — they may indicate
+    // bot activity, scraping, or credential stuffing attempts.
+    if (fnName) {
+        sentryReport(
+            fnName,
+            "Rate limit exceeded",
+            {
+                remaining: result.remaining,
+                resetAt: new Date(result.resetAt).toISOString(),
+                path: new URL(req.url).pathname,
+                ip: req.headers.get("x-forwarded-for") ?? "unknown",
+            },
+            "warning",
+        ).catch(() => {});
+    }
+
     return new Response(
         JSON.stringify({
             error: "Too Many Requests",
@@ -341,7 +421,19 @@ export function serverErrorResponse(
     req: Request,
     message: string,
     corsOpts: CorsOptions = {},
+    fnName?: string,
+    originalError?: unknown,
 ): Response {
+    // Auto-report to Sentry — fire-and-forget (don't await to avoid blocking the response).
+    if (fnName ?? originalError) {
+        sentryReport(
+            fnName ?? "unknown-edge-fn",
+            originalError ?? new Error(message),
+            { message, path: new URL(req.url).pathname },
+            "error",
+        ).catch(() => {});
+    }
+
     return new Response(JSON.stringify({ error: message }), {
         status: 500,
         headers: { ...buildCorsHeaders(req, corsOpts), "Content-Type": "application/json" },
@@ -366,6 +458,146 @@ export function okResponse(
 
     return new Response(JSON.stringify(data), {
         status: 200,
-        headers: { ...cors, ...rlHeaders, "Content-Type": "application/json" },
+        headers: { ...cors, ...rlHeaders, "Content-Type": "application/json", "Connection": "keep-alive" },
     });
+}
+
+// ─── Security & Cache Headers ─────────────────────────────────────────────────
+
+/**
+ * Minimal CSP header for API-only Edge Functions.
+ * Not intended for HTML responses — use a dedicated CSP for those.
+ */
+export function buildSecurityHeaders(): Record<string, string> {
+    return {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "geolocation=(), camera=(), microphone=()",
+    };
+}
+
+/**
+ * Cache-Control header presets.
+ * Use 'no-store' for anything containing user data.
+ * Use 'public' only for fully public, non-personalised responses.
+ */
+export function buildCacheHeaders(preset: "no-store" | "private" | "public" = "no-store"): Record<string, string> {
+    const values = {
+        "no-store": "no-store, no-cache, must-revalidate",
+        "private": "private, max-age=0, must-revalidate",
+        "public": "public, max-age=300, stale-while-revalidate=60",
+    };
+    return { "Cache-Control": values[preset] };
+}
+
+// ─── Idempotency ──────────────────────────────────────────────────────────────
+
+const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1_000; // 24 hours
+
+/**
+ * Checks whether a request with the given idempotency key was already processed.
+ *
+ * Attack/bug prevented: duplicate lead inserts from double-clicks, network
+ * retries, or form re-submissions.
+ *
+ * Usage:
+ *   const idem = await checkIdempotency(key, "process-lead");
+ *   if (idem.duplicate) return idem.cachedResponse(req);
+ *   // ... process ...
+ *   await idem.markComplete();
+ */
+export async function checkIdempotency(
+    key: string,
+    namespace: string,
+): Promise<{ duplicate: boolean; markComplete: () => Promise<void> }> {
+    const kv = await getKv();
+    const kvKey = ["idem", namespace, key];
+    const existing = await kv.get<{ ts: number }>(kvKey);
+
+    if (existing.value) {
+        return {
+            duplicate: true,
+            markComplete: async () => { /* no-op — already marked */ },
+        };
+    }
+
+    return {
+        duplicate: false,
+        markComplete: async () => {
+            await kv.set(kvKey, { ts: Date.now() }, { expireIn: IDEMPOTENCY_TTL_MS });
+        },
+    };
+}
+
+// ─── Structured Logging ───────────────────────────────────────────────────────
+
+type LogLevel = "info" | "warn" | "error";
+
+/**
+ * Emits structured JSON logs compatible with Supabase Edge Function log ingestion.
+ * Prefer this over raw console.log() for searchable, filterable telemetry.
+ */
+export function structuredLog(
+    level: LogLevel,
+    fn: string,
+    message: string,
+    meta: Record<string, unknown> = {},
+): void {
+    const entry = {
+        ts: new Date().toISOString(),
+        level,
+        fn,
+        message,
+        ...meta,
+    };
+    if (level === "error") {
+        console.error(JSON.stringify(entry));
+    } else if (level === "warn") {
+        console.warn(JSON.stringify(entry));
+    } else {
+        console.log(JSON.stringify(entry));
+    }
+}
+
+// ─── Webhook Signature Helper ────────────────────────────────────────────────
+
+/**
+ * Signs a JSON payload for outbound webhooks using HMAC-SHA256.
+ * Generates a string in standard `t=<timestamp>,v1=<signature>` format 
+ * to be sent in the `X-CrossAngle-Signature` header.
+ * 
+ * @param payload - The exact JSON string being sent in the webhook body.
+ * @returns The signature string or null if WEBHOOK_SIGNATURE_SECRET is not configured.
+ */
+export async function signWebhookPayload(payload: string): Promise<string | null> {
+    const secret = Deno.env.get("WEBHOOK_SIGNATURE_SECRET");
+    if (!secret) return null;
+
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    const message = `${timestamp}.${payload}`;
+
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(secret);
+    const messageData = encoder.encode(message);
+
+    const cryptoKey = await crypto.subtle.importKey(
+        "raw",
+        keyData,
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+    );
+
+    const signatureBuffer = await crypto.subtle.sign(
+        "HMAC",
+        cryptoKey,
+        messageData
+    );
+
+    const signatureHex = Array.from(new Uint8Array(signatureBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+
+    return `t=${timestamp},v1=${signatureHex}`;
 }

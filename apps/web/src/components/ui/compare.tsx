@@ -4,6 +4,7 @@ import { SparklesCore } from "@/components/ui/sparkles";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { IconDotsVertical } from "@tabler/icons-react";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 interface CompareProps {
     firstImage?: string;
@@ -29,6 +30,8 @@ export const Compare = ({
     autoplay = false,
     autoplayDuration = 5000,
 }: CompareProps) => {
+    const firstImageSrc = getOptimizedUrl(firstImage, { width: 1200, quality: 82 });
+    const secondImageSrc = getOptimizedUrl(secondImage, { width: 1200, quality: 82 });
     const [sliderXPercent, setSliderXPercent] = useState(initialSliderPercentage);
     const [isDragging, setIsDragging] = useState(false);
 
@@ -208,7 +211,7 @@ export const Compare = ({
                         >
                             <img
                                 alt="first image"
-                                src={firstImage}
+                                src={firstImageSrc}
                                 className={cn(
                                     "absolute inset-0  z-20 rounded-2xl shrink-0 w-full h-full select-none object-cover",
                                     firstImageClassName
@@ -234,7 +237,7 @@ export const Compare = ({
                             secondImageClassname
                         )}
                         alt="second image"
-                        src={secondImage}
+                        src={secondImageSrc}
                         draggable={false}
                     />
                 ) : null}

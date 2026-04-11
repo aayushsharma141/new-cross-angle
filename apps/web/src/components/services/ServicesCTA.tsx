@@ -16,7 +16,7 @@ const ServicesCTA = () => {
         </h2>
         
         <p className="text-[1.05rem] text-[#EDEDED]/55 leading-[1.8] font-light mb-10 max-w-[60ch] mx-auto">
-          Book a consultation with our design intelligence team to discuss your residential or commercial requirements.
+          Book a free consultation with our design intelligence team to discuss your residential or commercial requirements.
         </p>
         
         <Link 

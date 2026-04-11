@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowRight, CheckCircle2, ChevronRight, Loader2, Sparkles, MoveRight } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronRight, Loader2, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -12,26 +12,20 @@ import { SchemaMarkup } from "@/components/SchemaMarkup";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import ReactMarkdown from 'react-markdown';
-import { Card, CardContent } from "@/components/ui/card";
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Image } from "@/components/ui/image";
 
 const ServiceDetailPage = () => {
     const { category: categorySlug, service: serviceSlug } = useParams();
-
-    // In a real app, this would be an API call. For now we filter locally to get "related" details.
+    const staticService = services.find((item) => item.slug === serviceSlug);
     const { data: service, isLoading } = useQuery({
         queryKey: ["service", serviceSlug],
-        queryFn: async () => {
-            // Simulate API delay if needed, or just return from constant
-            return services.find(s => s.slug === serviceSlug) || null;
-        },
+        queryFn: () => api.getServiceBySlug(serviceSlug || ""),
         enabled: !!serviceSlug,
+    });
+    const { data: allServices = [] } = useQuery({
+        queryKey: ["services"],
+        queryFn: api.getServices,
+        enabled: Boolean(staticService?.relatedServices?.length),
     });
 
     const category = serviceCategories.find((c) => c.slug === categorySlug);
@@ -49,8 +43,8 @@ const ServiceDetailPage = () => {
     }
 
     // Get related services data
-    const relatedServicesData = (service.relatedServices || [])
-        .map(id => services.find(s => s.id === id))
+    const relatedServicesData = (staticService?.relatedServices || [])
+        .map((slug) => allServices.find((item) => item.slug === slug))
         .filter(Boolean);
 
     return (
@@ -135,7 +129,15 @@ const ServiceDetailPage = () => {
                             >
                                 <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-[2rem] blur-xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
                                 <div className="relative aspect-square lg:aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-background">
-                                    <img src={service.heroImage} alt={service.title} className="w-full h-full object-cover transform group-hover:scale-105 transition duration-700" />
+                                    <Image
+                                        src={service.hero_image}
+                                        alt={service.title}
+                                        className="h-full w-full"
+                                        imageClassName="transform transition duration-700 group-hover:scale-105"
+                                        width={960}
+                                        height={720}
+                                        loading="eager"
+                                    />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                                 </div>
                             </motion.div>
@@ -143,48 +145,10 @@ const ServiceDetailPage = () => {
                     </section>
 
                     {/* Rich Content / Long Description */}
-                    {service.longDescription && (
+                    {staticService?.longDescription && (
                         <section className="py-16 border-t border-border/50">
                             <div className="container px-4 max-w-4xl mx-auto prose prose-lg prose-headings:font-serif prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-li:text-muted-foreground md:prose-xl">
-                                <ReactMarkdown>{service.longDescription}</ReactMarkdown>
-                            </div>
-                        </section>
-                    )}
-
-                    {/* Gallery Carousel (New) */}
-                    {service.galleryImages && service.galleryImages.length > 0 && (
-                        <section className="py-20 bg-muted/30">
-                            <div className="container px-4">
-                                <div className="text-center mb-12">
-                                    <h2 className="font-serif text-3xl md:text-4xl mb-3">Project Gallery</h2>
-                                    <p className="text-muted-foreground">Recent executions of {service.title}</p>
-                                </div>
-                                <Carousel className="w-full max-w-5xl mx-auto">
-                                    <CarouselContent>
-                                        {service.galleryImages.map((img, idx) => (
-                                            <CarouselItem key={idx} className="md:basis-1/2 lg:basis-1/3 pl-4">
-                                                <div className="p-1">
-                                                    <Card className="border-0 shadow-lg overflow-hidden">
-                                                        <CardContent className="flex aspect-[3/4] items-center justify-center p-0 relative group">
-                                                            <img
-                                                                src={img}
-                                                                alt={`Gallery ${idx + 1}`}
-                                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                                            />
-                                                        </CardContent>
-                                                    </Card>
-                                                </div>
-                                            </CarouselItem>
-                                        ))}
-                                    </CarouselContent>
-                                    <CarouselPrevious className="left-2 bg-background/80 backdrop-blur-sm" />
-                                    <CarouselNext className="right-2 bg-background/80 backdrop-blur-sm" />
-                                </Carousel>
-                                <div className="text-center mt-10">
-                                    <Button variant="link" className="text-primary text-lg" asChild>
-                                        <Link to={`/gallery?category=${service.slug}`}>View All Projects <MoveRight className="ml-2 w-4 h-4" /></Link>
-                                    </Button>
-                                </div>
+                                <ReactMarkdown>{staticService.longDescription}</ReactMarkdown>
                             </div>
                         </section>
                     )}
@@ -224,7 +188,7 @@ const ServiceDetailPage = () => {
                                 <div>
                                     <h3 className="font-serif text-3xl mb-8">Our Process</h3>
                                     <div className="space-y-0 relative pl-8 border-l-2 border-primary/20">
-                                        {(service.processSteps || []).map((step, i) => (
+                                        {(service.process_steps || []).map((step, i) => (
                                             <div key={i} className="mb-10 last:mb-0 relative">
                                                 <div className="absolute -left-[41px] w-6 h-6 rounded-full bg-background border-4 border-primary flex items-center justify-center top-1">
                                                 </div>
@@ -245,10 +209,17 @@ const ServiceDetailPage = () => {
                                 <h2 className="font-serif text-3xl mb-10 text-center">Complementary Services</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                                     {relatedServicesData.map((s) => (
-                                        <Link key={s.id} to={`/services/${s?.categoryId as string}/${s?.slug}`} className="group aspect-video relative overflow-hidden rounded-xl shadow-md block">
-                                            <img src={s?.heroImage} alt={s?.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                        <Link key={s.id} to={`/services/${s.category_id}/${s.slug}`} className="group aspect-video relative overflow-hidden rounded-xl shadow-md block">
+                                            <Image
+                                                src={s.hero_image}
+                                                alt={s.title || "Related service"}
+                                                className="h-full w-full"
+                                                imageClassName="transition-transform duration-500 group-hover:scale-110"
+                                                width={640}
+                                                height={360}
+                                            />
                                             <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                                                <h3 className="text-white text-xl font-bold font-serif">{s?.title}</h3>
+                                                <h3 className="text-white text-xl font-bold font-serif">{s.title}</h3>
                                             </div>
                                         </Link>
                                     ))}
@@ -278,29 +249,6 @@ const ServiceDetailPage = () => {
                         </div>
                     </section>
 
-                    {/* Final CTA */}
-                    <section className="py-24 bg-primary text-primary-foreground relative overflow-hidden">
-                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                        <div className="absolute inset-0 bg-gradient-to-r from-primary to-wine opacity-90"></div>
-                        <div className="container px-4 text-center relative z-10">
-                            <h2 className="font-serif text-3xl md:text-5xl mb-6 font-bold">Ready to transform your {service.title}?</h2>
-                            <p className="text-primary-foreground/90 text-xl mb-10 max-w-2xl mx-auto font-light">
-                                Schedule a free consultation to get a precise estimate and timeline for your project.
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <Button size="lg" variant="secondary" className="font-bold text-primary text-lg h-14 px-8" asChild>
-                                    <Link to="/contact-us">
-                                        Book Free Consultation <ArrowRight className="ml-2 w-5 h-5" />
-                                    </Link>
-                                </Button>
-                                <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary text-lg h-14 px-8 bg-transparent" asChild>
-                                    <Link to="/style-quiz">
-                                        Discover Your Aesthetic
-                                    </Link>
-                                </Button>
-                            </div>
-                        </div>
-                    </section>
                 </main>
                 <Footer />
             </div>

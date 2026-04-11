@@ -19,6 +19,7 @@ export const CmsModule = () => {
                 { label: "Team Members", path: "/admin/cms/team" },
                 { label: "Media", path: "/admin/cms/media" },
                 { label: "Hero Media", path: "/admin/cms/hero" },
+                { label: "Gallery", path: "/admin/cms/gallery" },
             ]}
         >
             <Outlet />

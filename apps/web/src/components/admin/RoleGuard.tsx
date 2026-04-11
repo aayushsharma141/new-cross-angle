@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AppRole } from "@/lib/auth/rbac";
 
 interface RoleGuardProps {
@@ -9,7 +9,17 @@ interface RoleGuardProps {
 }
 
 export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
-    const { role, loading } = useAuth();
+    const { role, loading, user } = useAuth();
+    // Give role resolution up to 3s after loading is done before blocking
+    const [roleTimeout, setRoleTimeout] = useState(false);
+
+    useEffect(() => {
+        if (!loading && user && role === null) {
+            const t = setTimeout(() => setRoleTimeout(true), 3000);
+            return () => clearTimeout(t);
+        }
+        setRoleTimeout(false);
+    }, [loading, user, role]);
 
     useEffect(() => {
         if (!loading && (!role || !allowedRoles.includes(role))) {
@@ -17,15 +27,19 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
         }
     }, [role, loading, allowedRoles]);
 
+    // Still loading auth state
     if (loading) {
         return null;
     }
 
+    // User exists but role hasn't resolved yet — wait (race condition window)
+    if (user && role === null && !roleTimeout) {
+        return null;
+    }
+
     if (!role || !allowedRoles.includes(role)) {
-        // We can't synchronously run toast during render, but we can return Navigate
         return <Navigate to="/admin" replace state={{ accessDenied: true, role }} />;
     }
 
     return <>{children}</>;
 };
-

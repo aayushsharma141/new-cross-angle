@@ -41,10 +41,11 @@ const AboutTimeline = () => {
   return (
     <section
       ref={containerRef}
-      className="relative py-24 md:py-32 bg-card overflow-hidden"
+      className="relative py-24 md:py-32 bg-background overflow-hidden"
     >
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-card to-background" />
+      {/* Background cinematic gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(209,175,110,0.05),transparent_70%)]" />
+      <div className="absolute inset-0 bg-noise opacity-[0.03]" />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
@@ -55,11 +56,11 @@ const AboutTimeline = () => {
           transition={{ duration: 0.6 }}
           className="max-w-3xl mx-auto text-center mb-16 md:mb-20"
         >
-          <span className="text-primary font-medium tracking-widest uppercase text-sm mb-4 block">
+          <span className="text-[#d1af6e] font-medium tracking-widest uppercase text-sm mb-4 block">
             Our Journey
           </span>
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Key <span className="text-primary">Milestones</span>
+            Key <span className="text-[#d1af6e]">Milestones</span>
           </h2>
           <p className="text-muted-foreground text-lg leading-relaxed">
             A decade of dedication, innovation, and excellence in interior design.
@@ -69,9 +70,9 @@ const AboutTimeline = () => {
         {/* Timeline */}
         <div className="max-w-4xl mx-auto relative">
           {/* Animated vertical line - centered on desktop */}
-          <div className="absolute left-8 md:left-1/2 md:-translate-x-px top-0 bottom-0 w-px bg-border/30">
+          <div className="absolute left-8 md:left-1/2 md:-translate-x-px top-0 bottom-0 w-px bg-white/5">
             <motion.div
-              className="w-full bg-gradient-to-b from-primary via-primary to-transparent"
+              className="w-full bg-gradient-to-b from-[#d1af6e] via-[#d1af6e] to-transparent shadow-[0_0_15px_rgba(209,175,110,0.8)]"
               style={{ height: lineHeight }}
             />
           </div>
@@ -96,13 +97,13 @@ const AboutTimeline = () => {
                 {/* Content */}
                 <div className={`flex-1 md:w-1/2 ${index % 2 === 0 ? "md:pr-16 md:text-right" : "md:pl-16"}`}>
                   <motion.div
-                    className="group bg-card/50 backdrop-blur-md border border-border/50 hover:border-primary/30 rounded-2xl p-6 md:p-8 transition-all duration-500 hover:shadow-xl"
+                    className="group bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-[#d1af6e]/40 rounded-3xl p-6 md:p-8 transition-all duration-700 hover:shadow-[0_12px_40px_rgba(209,175,110,0.12)] hover:bg-white/[0.05]"
                     whileHover={{ y: -5 }}
                   >
-                    <span className="inline-block text-primary font-serif text-3xl font-bold mb-2">
+                    <span className="inline-block text-[#d1af6e] font-serif text-3xl font-bold mb-2">
                       {milestone.year}
                     </span>
-                    <h3 className="font-serif text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    <h3 className="font-serif text-xl font-semibold text-foreground mb-2 group-hover:text-[#d1af6e] transition-colors">
                       {milestone.title}
                     </h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
@@ -114,13 +115,15 @@ const AboutTimeline = () => {
                 {/* Center dot */}
                 <div className="absolute left-8 md:left-1/2 -translate-x-1/2 flex items-center justify-center">
                   <motion.div
-                    className="w-4 h-4 rounded-full bg-background border-4 border-primary z-10"
+                    className="relative w-4 h-4 rounded-full bg-black border-[3px] border-[#d1af6e] z-10"
                     whileInView={{ scale: [0, 1.2, 1] }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.15 }}
-                  />
+                  >
+                    <div className="absolute inset-0 rounded-full bg-[#d1af6e]/40 animate-pulse" />
+                  </motion.div>
                   {/* Glow effect */}
-                  <div className="absolute w-8 h-8 rounded-full bg-primary/20 blur-sm -z-10" />
+                  <div className="absolute w-10 h-10 rounded-full bg-[#d1af6e]/30 blur-xl -z-10" />
                 </div>
 
                 {/* Spacer for alternating layout */}

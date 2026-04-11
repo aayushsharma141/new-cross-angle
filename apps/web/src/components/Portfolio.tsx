@@ -34,17 +34,24 @@ const ProjectCard = ({
     <div className="group flex flex-col mb-16 md:mb-32">
       <div 
         ref={cardRef}
-        className="relative overflow-hidden aspect-[4/5] md:aspect-[3/4] w-full cursor-pointer bg-black/5"
+        role="button"
+        tabIndex={0}
+        aria-label={`View ${project.title} project`}
+        className="relative overflow-hidden aspect-[4/5] md:aspect-[3/4] w-full cursor-pointer bg-black/5 focus-visible:ring-2 focus-visible:ring-site-crimson focus-visible:ring-offset-2 focus-visible:ring-offset-site-bg outline-none"
         onClick={() => openLightbox(index)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(index); } }}
       >
         <motion.div 
           className="absolute inset-[-20%] w-[140%] h-[140%]"
           style={{ y }}
         >
-          <img
+          <BaseImage
             src={project.heroImage}
             alt={project.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="h-full w-full"
+            imageClassName="transition-transform duration-700 group-hover:scale-105"
+            width={720}
+            height={960}
           />
         </motion.div>
 

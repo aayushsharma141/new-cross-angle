@@ -2,3 +2,6 @@ project_id = "ulsfahhephmugsdensaa"
 
 [functions.assign-first-admin]
 verify_jwt = false
+
+[functions.handle-new-lead]
+verify_jwt = false

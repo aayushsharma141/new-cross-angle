@@ -23,8 +23,8 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { Loader2, Plus, Edit2, Trash2, Shield } from "lucide-react";
+import { getOptimizedUrl } from "@/lib/cdn";
 import { useToast } from "@/hooks/use-toast";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { Card } from "@/design-system/components/Card";
 import { icons } from "@/design-system/tokens/icons";
 
@@ -109,8 +109,6 @@ export default function AdminTeamMembers() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 py-4 animate-in fade-in duration-700">
-            <AdminBreadcrumb items={[{ label: 'System' }, { label: 'Team Members' }]} />
-
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-1">
                     <h1 className="text-4xl font-serif text-white tracking-tight">Team Members</h1>
@@ -126,43 +124,45 @@ export default function AdminTeamMembers() {
                             <Plus className={icons.sm + " mr-2"} /> Add Member
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>{editingMember ? "Edit" : "Add"} Team Member</DialogTitle>
+                    <DialogContent className="max-w-md max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl border-zinc-800">
+                        <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
+                            <DialogTitle className="text-lg font-display">{editingMember ? "Edit" : "Add"} Team Member</DialogTitle>
                         </DialogHeader>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="tm-name" className="text-sm font-medium">Name</Label>
-                                <Input id="tm-name" name="name" defaultValue={editingMember?.name} required />
+                        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="tm-name" className="text-sm font-medium">Name</Label>
+                                    <Input id="tm-name" name="name" defaultValue={editingMember?.name} required />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="tm-designation" className="text-sm font-medium">Designation</Label>
+                                    <Input id="tm-designation" name="designation" defaultValue={editingMember?.role} required />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="tm-bio" className="text-sm font-medium">Bio</Label>
+                                    <Textarea id="tm-bio" name="bio" defaultValue={editingMember?.bio || ""} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="tm-photo" className="text-sm font-medium">Photo URL</Label>
+                                    <Input id="tm-photo" name="photo_url" defaultValue={editingMember?.image_url || ""} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="tm-order" className="text-sm font-medium">Display Order</Label>
+                                    <Input id="tm-order" type="number" name="display_order" defaultValue={editingMember?.display_order || 0} />
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <Checkbox id="is_published" name="is_published" defaultChecked={true} />
+                                    <Label htmlFor="is_published" className="text-sm font-medium leading-none">
+                                        Published
+                                    </Label>
+                                </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="tm-designation" className="text-sm font-medium">Designation</Label>
-                                <Input id="tm-designation" name="designation" defaultValue={editingMember?.role} required />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="tm-bio" className="text-sm font-medium">Bio</Label>
-                                <Textarea id="tm-bio" name="bio" defaultValue={editingMember?.bio || ""} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="tm-photo" className="text-sm font-medium">Photo URL</Label>
-                                <Input id="tm-photo" name="photo_url" defaultValue={editingMember?.image_url || ""} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="tm-order" className="text-sm font-medium">Display Order</Label>
-                                <Input id="tm-order" type="number" name="display_order" defaultValue={editingMember?.display_order || 0} />
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <Checkbox id="is_published" name="is_published" defaultChecked={true} />
-                                <Label htmlFor="is_published" className="text-sm font-medium leading-none">
-                                    Published
-                                </Label>
-                            </div>
-                            <DialogFooter>
-                                <Button type="submit" variant="primary" disabled={upsertMutation.isPending}>
+                            <div className="shrink-0 px-6 py-4 border-t border-zinc-800">
+                                <Button type="submit" variant="primary" disabled={upsertMutation.isPending} className="w-full">
                                     {upsertMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                     Save Changes
                                 </Button>
-                            </DialogFooter>
+                            </div>
                         </form>
                     </DialogContent>
                 </Dialog>
@@ -198,7 +198,7 @@ export default function AdminTeamMembers() {
                                 <TableRow key={member.id}>
                                     <TableCell>
                                         {member.image_url ? (
-                                            <img src={member.image_url} alt={member.name} className="w-10 h-10 rounded-full object-cover" />
+                                            <img src={getOptimizedUrl(member.image_url, { width: 96, height: 96, quality: 76 })} alt={member.name} className="w-10 h-10 rounded-full object-cover" />
                                         ) : (
                                             <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-xs">NA</div>
                                         )}
@@ -213,13 +213,13 @@ export default function AdminTeamMembers() {
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-2">
-                                            <Button variant="ghost" size="icon" onClick={() => {
+                                            <Button variant="ghost" size="icon" aria-label="Edit member" onClick={() => {
                                                 setEditingMember(member);
                                                 setIsDialogOpen(true);
                                             }} className="hover:bg-primary/5 text-zinc-400 hover:text-primary transition-colors">
                                                 <Edit2 className={icons.sm} />
                                             </Button>
-                                            <Button variant="ghost" size="icon" className="hover:bg-red-500/10 text-zinc-600 hover:text-red-500 transition-colors" onClick={() => {
+                                            <Button variant="ghost" size="icon" className="hover:bg-red-500/10 text-zinc-600 hover:text-red-500 transition-colors" aria-label="Delete member" onClick={() => {
                                                 if (confirm("Are you sure you want to delete this team member?")) {
                                                     deleteMutation.mutate(member.id);
                                                 }

@@ -14,7 +14,6 @@ const sections: Section[] = [
   { id: "portfolio", label: "Portfolio" },
   { id: "trust", label: "Why Us" },
   { id: "testimonials", label: "Testimonials" },
-  { id: "contact", label: "Contact" },
 ];
 
 const SectionNavDots = () => {

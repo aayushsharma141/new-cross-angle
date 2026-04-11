@@ -14,10 +14,10 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ServiceDetail } from "@repo/types";
+import { serviceSchema, formatZodErrors } from "@/lib/validations";
 import { FeaturesEditor, ProcessEditor, FAQEditor } from "@/components/admin/ServiceFormFields";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
 import {
@@ -180,6 +180,18 @@ const AdminServices = () => {
 
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
+
+        // Validate with Zod before saving
+        const validation = serviceSchema.safeParse(formData);
+        if (!validation.success) {
+            toast({
+                title: "Validation Error",
+                description: formatZodErrors(validation.error),
+                variant: "destructive",
+            });
+            return;
+        }
+
         setIsSaving(true);
 
         try {
@@ -312,14 +324,14 @@ const AdminServices = () => {
                             New Service
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-                        <DialogHeader>
-                            <DialogTitle>
+                    <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl">
+                        <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
+                            <DialogTitle className="text-xl font-display">
                                 {editingService ? "Edit Service" : "New Service"}
                             </DialogTitle>
                         </DialogHeader>
-                        <ScrollArea className="flex-1 pr-4">
-                            <form onSubmit={handleSubmit} className="space-y-6 pb-6">
+                        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
                                 <Tabs defaultValue="basic">
                                     <TabsList className="grid w-full grid-cols-4">
                                         <TabsTrigger value="basic">Basic Info</TabsTrigger>
@@ -416,8 +428,9 @@ const AdminServices = () => {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label>Description</Label>
+                                            <Label htmlFor="service-description">Description</Label>
                                             <Textarea
+                                                id="service-description"
                                                 value={formData.description}
                                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                                 rows={3}
@@ -425,8 +438,9 @@ const AdminServices = () => {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label>Tag (Optional)</Label>
+                                            <Label htmlFor="service-tag">Tag (Optional)</Label>
                                             <Input
+                                                id="service-tag"
                                                 value={formData.tag}
                                                 onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
                                                 placeholder="e.g. Popular"
@@ -455,18 +469,14 @@ const AdminServices = () => {
                                         />
                                     </TabsContent>
                                 </Tabs>
-
-                                <div className="flex justify-end gap-2 pt-4">
-                                    <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                                        Cancel
-                                    </Button>
-                                    <Button type="submit" variant="primary" disabled={isSaving}>
-                                        {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                                        {editingService ? "Update" : "Create"}
-                                    </Button>
-                                </div>
-                            </form>
-                        </ScrollArea>
+                            </div>
+                            <div className="shrink-0 px-6 py-4 border-t border-zinc-800 flex justify-end gap-2">
+                                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                                <Button type="submit" disabled={isSaving} className="bg-primary hover:bg-primary/90">
+                                    {isSaving ? "Saving..." : editingService ? "Update" : "Create"}
+                                </Button>
+                            </div>
+                        </form>
                     </DialogContent>
                 </Dialog>
             </PageHeader>
@@ -508,10 +518,10 @@ const AdminServices = () => {
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex justify-end gap-2">
-                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-white" onClick={() => handleEdit(service)}>
+                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-white" onClick={() => handleEdit(service)} aria-label="Edit service">
                                             <Pencil className="w-4 h-4" />
                                         </Button>
-                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-red-400" onClick={() => handleDelete(service.id)}>
+                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-red-400" onClick={() => handleDelete(service.id)} aria-label="Delete service">
                                             <Trash2 className="w-4 h-4" />
                                         </Button>
                                     </div>

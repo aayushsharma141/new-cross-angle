@@ -54,7 +54,7 @@ export default function AdminBlogPerformance() {
         setLoading(true);
         try {
             const { data: blogData, error: blogErr } = await supabase
-                .from("blogs")
+                .from("blog_posts")
                 .select("id, title, slug, is_published, created_at")
                 .order("created_at", { ascending: false });
 

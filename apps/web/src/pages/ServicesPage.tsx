@@ -11,17 +11,23 @@ import ServicesWhyUs from "@/components/services/ServicesWhyUs";
 import ServicesCTA from "@/components/services/ServicesCTA";
 import OurApproach from "@/components/services/OurApproach";
 import ServicesEngines from "@/components/services/ServicesEngines";
-import { ArrowRight, Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed, LucideIcon, Loader2 } from "lucide-react";
+import { Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed, LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { Image } from "@/components/ui/image";
 
 // Icon mapping helper
 const IconMap: Record<string, LucideIcon> = {
   Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed
 };
+
+const EmptyCategoryState = ({ label }: { label: string }) => (
+  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-sm text-[#EDEDED]/55">
+    No {label.toLowerCase()} services with published Supabase images are available yet.
+  </div>
+);
 
 
 const ServicesPage = () => {
@@ -36,26 +42,9 @@ const ServicesPage = () => {
   const commercialRaw = (services || []).filter(s => s.category_id === 'commercial');
   const specializedRaw = (services || []).filter(s => s.category_id === 'specialized');
 
-  // Fallback data when database is empty
-  const fallbackResidential = [
-    { id: 'r1', title: 'Living Room Design', description: 'Curated living spaces that balance aesthetics with everyday functionality.', slug: 'living-room', category_id: 'residential', hero_image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=75', icon: 'Sofa' },
-    { id: 'r2', title: 'Bedroom & Wardrobe', description: 'Personalized bedrooms with custom wardrobes and premium finishes.', slug: 'bedroom', category_id: 'residential', hero_image: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=75', icon: 'Bed' },
-    { id: 'r3', title: 'Kitchen & Dining', description: 'Modular kitchens with intelligent storage and hospitality-grade finishes.', slug: 'kitchen', category_id: 'residential', hero_image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=800&q=75', icon: 'UtensilsCrossed' },
-  ];
-  const fallbackCommercial = [
-    { id: 'c1', title: 'Office Design', description: 'Productive work environments engineered for performance and brand identity.', slug: 'office', category_id: 'commercial', icon: 'Building2' },
-    { id: 'c2', title: 'Retail Spaces', description: 'Engaging customer experiences through strategic spatial design.', slug: 'retail', category_id: 'commercial', icon: 'Palette' },
-    { id: 'c3', title: 'Restaurant & Cafe', description: 'Memorable dining atmospheres with hospitality-grade detailing.', slug: 'restaurant', category_id: 'commercial', icon: 'UtensilsCrossed' },
-  ];
-  const fallbackSpecialized = [
-    { id: 's1', title: 'Modular Kitchens', description: 'In-house manufactured modular solutions with precision engineering.', slug: 'modular-kitchen', category_id: 'specialized', icon: 'Lamp' },
-    { id: 's2', title: 'Custom Furniture', description: 'Bespoke furniture crafted to your exact specifications.', slug: 'custom-furniture', category_id: 'specialized', icon: 'Sofa' },
-    { id: 's3', title: 'Lighting Design', description: 'Architectural lighting that transforms ambience and elevates experience.', slug: 'lighting', category_id: 'specialized', icon: 'Lightbulb' },
-  ];
-
-  const residentialServices = residentialRaw.length > 0 ? residentialRaw : fallbackResidential;
-  const commercialServices = commercialRaw.length > 0 ? commercialRaw : fallbackCommercial;
-  const specializedServices = specializedRaw.length > 0 ? specializedRaw : fallbackSpecialized;
+  const residentialServices = residentialRaw;
+  const commercialServices = commercialRaw;
+  const specializedServices = specializedRaw;
 
   return (
     <>
@@ -123,11 +112,13 @@ const ServicesPage = () => {
                   >
                     <Link to={`/services/${service.category_id}/${service.slug}`} className="block bg-[#0A0A0A] border border-white/10 overflow-hidden transition-colors duration-350 hover:border-[#FF2A2A]/50 cursor-pointer group/card filter-none">
                       <div className="relative aspect-[3/4] overflow-hidden">
-                        <img
-                          src={service.hero_image || "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=75"}
+                        <Image
+                          src={service.hero_image}
                           alt={service.title}
-                          className="w-full h-full object-cover scale-[1.04] grayscale-[0.75] brightness-[0.72] transition-all duration-[time:900ms] ease-[timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover/card:grayscale-0 group-hover/card:brightness-[0.85] group-hover/card:scale-100"
-                          loading="lazy"
+                          className="h-full w-full"
+                          imageClassName="scale-[1.04] grayscale-[0.75] brightness-[0.72] transition-all duration-[time:900ms] ease-[timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover/card:grayscale-0 group-hover/card:brightness-[0.85] group-hover/card:scale-100"
+                          width={720}
+                          height={960}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/86 to-transparent to-[52%] pointer-events-none" />
                       </div>
@@ -146,6 +137,9 @@ const ServicesPage = () => {
                   </motion.div>
                 ))}
               </div>
+              {!isLoading && residentialServices.length === 0 && (
+                <EmptyCategoryState label="Residential" />
+              )}
             </div>
           </section>
 
@@ -213,6 +207,11 @@ const ServicesPage = () => {
                   );
                 })}
               </motion.div>
+              {!isLoading && commercialServices.length === 0 && (
+                <div className="mt-14">
+                  <EmptyCategoryState label="Commercial" />
+                </div>
+              )}
             </div>
           </section>
 
@@ -278,6 +277,11 @@ const ServicesPage = () => {
                   )
                 })}
               </div>
+              {!isLoading && specializedServices.length === 0 && (
+                <div className="mt-12">
+                  <EmptyCategoryState label="Specialized" />
+                </div>
+              )}
             </div>
           </section>
 

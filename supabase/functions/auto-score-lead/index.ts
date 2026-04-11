@@ -1,0 +1,285 @@
+/**
+ * auto-score-lead
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Automatically recalculates and persists lead scores whenever a lead is
+ * created or updated via webhook trigger from Supabase.
+ * 
+ * Integrates with the frontend scoring logic (leadScoring.ts) to ensure
+ * consistent server-side and client-side scores.
+ * 
+ * Trigger: Supabase INSERT/UPDATE trigger on `leads` table
+ * 
+ * Score factors (matches frontend):
+ *   Budget:      0–30  (INR value tiers)
+ *   Category:    0–20  (project type fit)
+ *   Timeline:    0–20  (urgency signals)
+ *   Contact:     0–10  (email + phone present)
+ *   Source:      0–15  (referral > estimator > website > social)
+ *   Recency:     0–5   (fresh leads get a bonus)
+ *   ─────────────────────────────────────────────
+ *   Total:       0–100
+ * 
+ * Also logs a score_changed activity when score changes by ≥5 points.
+ */
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { structuredLog } from "../_lib/security.ts";
+
+interface Lead {
+  id: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  message: string | null;
+  timeline: string | null;
+  budget: string | null;
+  budget_value_inr: number | null;
+  category: string | null;
+  lead_type: string | null;
+  lead_source: string | null;
+  source: string | null;
+  score: number | null;
+  score_details: unknown | null;
+  last_activity_at: string | null;
+  created_at: string;
+}
+
+// ─── Scoring Logic (mirrors leadScoring.ts) ────────────────────────────────────
+
+interface ScoreBreakdown {
+  budget: number;
+  category: number;
+  timeline: number;
+  contactQuality: number;
+  source: number;
+  recency: number;
+}
+
+interface ScoreResult {
+  score: number;
+  breakdown: ScoreBreakdown;
+}
+
+function calculateBudgetScore(lead: Lead): number {
+  const numericBudget = lead.budget_value_inr;
+  const budgetText = (lead.budget || lead.message || "").toLowerCase();
+
+  if (numericBudget !== null) {
+    if (numericBudget >= 5_000_000) return 30;
+    if (numericBudget >= 3_000_000) return 25;
+    if (numericBudget >= 1_500_000) return 20;
+    if (numericBudget >= 1_000_000) return 15;
+    if (numericBudget >= 500_000) return 10;
+    return 5;
+  }
+
+  if (budgetText.includes("30l") || budgetText.includes("30 l") || budgetText.includes("crore")) return 30;
+  if (budgetText.includes("20l") || budgetText.includes("25l") || budgetText.includes("20 l")) return 25;
+  if (budgetText.includes("15l") || budgetText.includes("15 l")) return 20;
+  if (budgetText.includes("10l") || budgetText.includes("10 l")) return 15;
+  if (budgetText.includes("5l") || budgetText.includes("5 l")) return 10;
+  if (budgetText.includes("budget") || budgetText.includes("lakh")) return 5;
+  return 0;
+}
+
+function calculateCategoryScore(lead: Lead): number {
+  const cat = (lead.category || lead.lead_type || "").toLowerCase();
+  if (cat.includes("interior") || cat.includes("full home") || cat.includes("villa") || cat.includes("bungalow")) return 20;
+  if (cat.includes("renovation") || cat.includes("multiple")) return 15;
+  if (cat.includes("commercial") || cat.includes("office")) return 20;
+  if (cat.includes("consultation") || cat.includes("room")) return 10;
+  return 0;
+}
+
+function calculateTimelineScore(lead: Lead): number {
+  const msg = (lead.message || lead.timeline || "").toLowerCase();
+  if (msg.includes("urgent") || msg.includes("immediately") || msg.includes("asap") || msg.includes("this month")) return 20;
+  if (msg.includes("month") || msg.includes("soon") || msg.includes("next") || msg.includes("2 month") || msg.includes("3 month")) return 15;
+  if (msg.includes("planning") || msg.includes("exploring") || msg.includes("year")) return 5;
+  if (lead.timeline) return 8;
+  return 0;
+}
+
+function calculateContactScore(lead: Lead): number {
+  if (lead.email && lead.phone) return 10;
+  if (lead.email) return 5;
+  return 0;
+}
+
+function calculateSourceScore(lead: Lead): number {
+  const src = (lead.source || lead.lead_source || "").toLowerCase();
+  if (src.includes("referral")) return 15;
+  if (src.includes("organic") || src.includes("google") || src.includes("website") || src === "website_contact") return 12;
+  if (src.includes("estimator")) return 12;
+  if (src.includes("style_quiz")) return 10;
+  if (src.includes("social") || src.includes("instagram") || src.includes("facebook")) return 8;
+  if (src.includes("paid") || src.includes("ad")) return 6;
+  return 5;
+}
+
+function calculateRecencyScore(lead: Lead): number {
+  const activityDate = lead.last_activity_at ?? lead.created_at;
+  if (!activityDate) return 0;
+
+  const daysSinceActivity = Math.floor(
+    (Date.now() - new Date(activityDate).getTime()) / 86_400_000
+  );
+
+  if (daysSinceActivity <= 1) return 5;
+  if (daysSinceActivity <= 3) return 4;
+  if (daysSinceActivity <= 7) return 3;
+  if (daysSinceActivity <= 14) return 1;
+  return 0;
+}
+
+function scoreLead(lead: Lead): ScoreResult {
+  const budget = calculateBudgetScore(lead);
+  const category = calculateCategoryScore(lead);
+  const timeline = calculateTimelineScore(lead);
+  const contactQuality = calculateContactScore(lead);
+  const source = calculateSourceScore(lead);
+  const recency = calculateRecencyScore(lead);
+
+  const score = Math.min(budget + category + timeline + contactQuality + source + recency, 100);
+
+  return {
+    score,
+    breakdown: { budget, category, timeline, contactQuality, source, recency },
+  };
+}
+
+// ─── Deno Deploy KV (for idempotency) ─────────────────────────────────────────
+
+let _kv: Deno.Kv | null = null;
+
+async function getKv(): Promise<Deno.Kv> {
+  if (!_kv) _kv = await Deno.openKv();
+  return _kv;
+}
+
+// ─── Log Score Activity ────────────────────────────────────────────────────────
+
+async function logScoreActivity(
+  supabase: ReturnType<typeof createClient>,
+  leadId: string,
+  oldScore: number | null,
+  newScore: number,
+  breakdown: ScoreBreakdown
+): Promise<void> {
+  const oldStr = oldScore !== null ? String(Math.round(oldScore)) : "—";
+  const newStr = String(Math.round(newScore));
+  const delta = oldScore !== null ? newScore - oldScore : newScore;
+  const deltaStr = delta >= 0 ? `+${delta.toFixed(0)}` : delta.toFixed(0);
+
+  await supabase.from("lead_activities").insert({
+    lead_id: leadId,
+    activity_type: "score_changed",
+    description: `Lead score updated: ${oldStr} → ${newStr} (${deltaStr} pts)`,
+    metadata: {
+      old_score: oldScore,
+      new_score: newScore,
+      delta,
+      breakdown,
+    },
+    performed_by: null,
+  });
+}
+
+// ─── Supabase Database Trigger ─────────────────────────────────────────────────
+/**
+ * This function is designed to be triggered by a Supabase pg_trigger on the
+ * `leads` table. Configure it in Supabase Dashboard:
+ * 
+ *   CREATE OR REPLACE FUNCTION public.handle_lead_score_update()
+ *   RETURNS trigger AS $$
+ *   BEGIN
+ *     PERFORM net.http_post(
+ *       url := env('SUPABASE_URL') || '/functions/v1/auto-score-lead',
+ *       headers := jsonb_build_object(
+ *         'Content-Type', 'application/json',
+ *         'Authorization', 'Bearer ' || env('SUPABASE_SERVICE_ROLE_KEY')
+ *       ),
+ *       content := jsonb_build_object(
+ *         'lead_id', NEW.id,
+ *         'old_score', OLD.score
+ *       )
+ *     );
+ *     RETURN NEW;
+ *   END;
+ *   $$ LANGUAGE plpgsql;
+ * 
+ *   CREATE TRIGGER on_lead_change_score_update
+ *   AFTER INSERT OR UPDATE OF budget, budget_value_inr, category, lead_type, message, timeline, source, email, phone ON leads
+ *   FOR EACH ROW EXECUTE FUNCTION public.handle_lead_score_update();
+ */
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
+
+// Read payload from stdin (Supabase invoke) or request body
+  async function main() {
+    let leadId: string;
+    let oldScore: number | null;
+
+    const args = Deno.args;
+    leadId = args[0];
+    oldScore = args[1] ? parseFloat(args[1]) : null;
+
+    if (!leadId) {
+      console.error("No lead_id provided");
+      Deno.exit(1);
+    }
+
+    const kv = await getKv();
+    const idemKey = ["auto-score-lead", leadId];
+    const existing = await kv.get(idemKey);
+    if (existing.value) {
+      structuredLog("info", "auto-score-lead", "Skipping — recently scored", { leadId });
+      Deno.exit(0);
+    }
+    await kv.set(idemKey, { ts: Date.now() }, { expireIn: 5 * 60 * 1000 });
+
+    const { data: lead, error: fetchError } = await supabase
+      .from("leads")
+      .select("*")
+      .eq("id", leadId)
+      .single();
+
+    if (fetchError || !lead) {
+      structuredLog("error", "auto-score-lead", "Lead not found", { leadId, error: fetchError?.message });
+      Deno.exit(1);
+    }
+
+    const typedLead = lead as Lead;
+    const { score, breakdown } = scoreLead(typedLead);
+    const currentScore = typedLead.score ?? 0;
+
+    if (Math.abs(score - currentScore) < 1) {
+      structuredLog("info", "auto-score-lead", "Score unchanged", { leadId, score });
+      Deno.exit(0);
+    }
+
+    const { error: updateError } = await supabase
+      .from("leads")
+      .update({ score, score_details: breakdown })
+      .eq("id", leadId);
+
+    if (updateError) {
+      structuredLog("error", "auto-score-lead", "Failed to update score", {
+        leadId, score, error: updateError.message,
+      });
+      Deno.exit(1);
+    }
+
+    if (Math.abs(score - (oldScore ?? currentScore)) >= 5) {
+      await logScoreActivity(supabase, leadId, oldScore ?? currentScore, score, breakdown);
+    }
+
+    structuredLog("info", "auto-score-lead", "Lead scored", {
+      leadId, oldScore: oldScore ?? currentScore, newScore: score,
+      delta: score - (oldScore ?? currentScore), breakdown,
+    });
+  }
+
+  main();

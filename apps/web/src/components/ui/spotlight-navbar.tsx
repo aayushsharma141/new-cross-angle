@@ -13,7 +13,7 @@ export interface SpotlightNavContainerProps {
 export function SpotlightNavContainer({
     children,
     className,
-    activeIndex = 0,
+    activeIndex = -1,
 }: SpotlightNavContainerProps) {
     const navRef = useRef<HTMLDivElement>(null);
     const [hoverX, setHoverX] = useState<number | null>(null);
@@ -105,7 +105,7 @@ export function SpotlightNavContainer({
                 ref={navRef}
                 className={cn(
                     "spotlight-nav spotlight-nav-bg glass-border spotlight-nav-shadow",
-                    "relative h-12 rounded-full transition-all duration-300 overflow-visible"
+                    "relative h-11 rounded-full transition-all duration-300 overflow-visible"
                 )}
                 style={{
                     ...((isDark
@@ -137,8 +137,9 @@ export function SpotlightNavContainer({
 
                     {/* 2. The Active State Ambience (Stays on Active) */}
                     <div
-                        className="absolute bottom-0 left-0 w-full h-[2px]"
+                        className="absolute bottom-0 left-0 w-full h-[2px] transition-opacity duration-300"
                         style={{
+                            opacity: activeIndex === -1 ? 0 : 1,
                             background: `
                   radial-gradient(
                     60px circle at var(--ambience-x) 0%, 

@@ -5,9 +5,12 @@ import { Button } from "@/components/ui/button";
 
 const AboutCTA = () => {
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden">
+    <section className="relative py-24 md:py-32 overflow-hidden border-t border-white/5">
       {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/80" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#0a0a0a]" />
+
+      {/* Gold Accents */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(209,175,110,0.1),transparent_50%)]" />
 
       {/* Animated shapes */}
       <motion.div
@@ -38,7 +41,7 @@ const AboutCTA = () => {
       {/* Grid pattern */}
       <div className="absolute inset-0 opacity-[0.03]">
         <div className="h-full w-full" style={{
-          backgroundImage: `linear-gradient(hsl(var(--primary-foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary-foreground)) 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(rgba(209,175,110,1) 1px, transparent 1px), linear-gradient(90deg, rgba(209,175,110,1) 1px, transparent 1px)`,
           backgroundSize: '60px 60px'
         }} />
       </div>
@@ -56,11 +59,11 @@ const AboutCTA = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6"
+            className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
           >
             Let's Create Something
             <br />
-            <span className="opacity-80">Beautiful Together</span>
+            <span className="text-[#d1af6e]">Beautiful Together</span>
           </motion.h2>
 
           <motion.p
@@ -68,7 +71,7 @@ const AboutCTA = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-primary-foreground/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed"
+            className="text-white/60 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed"
           >
             Ready to transform your space? Schedule a free consultation
             and let's discuss how we can bring your vision to life.
@@ -84,8 +87,7 @@ const AboutCTA = () => {
             <Button
               asChild
               size="lg"
-              variant="secondary"
-              className="group h-14 px-8 text-base rounded-full"
+              className="group h-14 px-8 text-base rounded-full bg-[#d1af6e] text-black hover:bg-[#b09258] transition-all duration-300 shadow-[0_0_20px_rgba(209,175,110,0.3)] hover:shadow-[0_0_30px_rgba(209,175,110,0.5)] border-none"
             >
               <Link to="/contact" className="flex items-center gap-2">
                 Get In Touch
@@ -99,7 +101,7 @@ const AboutCTA = () => {
               asChild
               size="lg"
               variant="outline"
-              className="group h-14 px-8 text-base rounded-full border-white/30 text-white hover:bg-white/10 hover:text-white"
+              className="group h-14 px-8 text-base rounded-full border-[#d1af6e]/30 text-white bg-transparent hover:bg-[#d1af6e]/10 hover:text-[#d1af6e] transition-all duration-300"
             >
               <a href="tel:+919304XXXXXX" className="flex items-center gap-2">
                 <Phone className="w-5 h-5" />
@@ -114,9 +116,9 @@ const AboutCTA = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-12 pt-8 border-t border-primary-foreground/10"
+            className="mt-12 pt-8 border-t border-white/10"
           >
-            <p className="text-primary-foreground/60 text-sm">
+            <p className="text-[#d1af6e]/80 text-sm tracking-wider uppercase font-medium">
               Free consultation • Personalized designs • Trusted by 500+ clients
             </p>
           </motion.div>

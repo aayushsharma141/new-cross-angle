@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FixedSocialBar from "@/components/FixedSocialBar";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import ScrollToTop from "@/components/ScrollToTop";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { api, Blog } from "@/lib/api";
@@ -12,6 +13,10 @@ import {
   Search, Clock, Eye, ArrowRight, ChevronLeft, ChevronRight,
   TrendingUp, Tag, Mail, Sparkles, BookOpen
 } from "lucide-react";
+import { OptimizedImage as Image } from "@/components/ui/OptimizedImage";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
 import { trackNewsletterSignup, trackTagClick } from "@/hooks/useBlogTracking";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -70,7 +75,21 @@ const BlogPage = () => {
   const sliderRef = useRef<HTMLDivElement>(null);
   const POSTS_PER_PAGE = 6;
 
+  useGSAP(() => {
+    if (!isLoading && blogPosts.length > 0) {
+      gsap.from(".blog-hero-content > *", {
+        y: 40,
+        opacity: 0,
+        duration: 1,
+        stagger: 0.15,
+        ease: "power4.out",
+        delay: 0.2
+      });
+    }
+  }, [isLoading, blogPosts]);
+
   useEffect(() => {
+
     const fetchBlogs = async () => {
       try {
         const data = await api.getBlogs();
@@ -153,23 +172,43 @@ const BlogPage = () => {
         <FixedSocialBar />
 
         {/* ═══════════════ 1. HERO FEATURED ARTICLE ═══════════════ */}
-        {featuredPost && (
+        {isLoading ? (
+          <section className="relative pt-24 pb-0 overflow-hidden" style={{ minHeight: "85vh" }}>
+            <div className="absolute inset-0 bg-zinc-900/50 animate-pulse" />
+            <div className="container mx-auto px-4 relative z-10 flex items-center" style={{ minHeight: "70vh" }}>
+              <div className="max-w-2xl space-y-6">
+                <Skeleton className="h-8 w-40 rounded-full bg-zinc-800/50" />
+                <Skeleton className="h-16 w-full bg-zinc-800/50" />
+                <Skeleton className="h-4 w-3/4 bg-zinc-800/30" />
+                <div className="flex gap-4">
+                   <Skeleton className="h-4 w-20 bg-zinc-800/30" />
+                   <Skeleton className="h-4 w-20 bg-zinc-800/30" />
+                </div>
+                <Skeleton className="h-12 w-48 bg-zinc-800/50" />
+              </div>
+            </div>
+          </section>
+        ) : featuredPost && (
           <section className="relative pt-24 pb-0 overflow-hidden" style={{ minHeight: "85vh" }}>
             {/* Background image */}
             <div className="absolute inset-0">
-              <img
-                src={featuredPost.image || "/placeholder.svg"}
+              <Image
+                src={featuredPost.image}
                 alt={featuredPost.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
+                imageClassName="object-cover"
                 loading="eager"
+                width={1200}
+                quality={90}
               />
               <div className="absolute inset-0" style={{
                 background: "linear-gradient(to right, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.3) 100%)"
               }} />
             </div>
 
-            <div className="container mx-auto px-4 relative z-10 flex items-center" style={{ minHeight: "70vh" }}>
+            <div className="container mx-auto px-4 relative z-10 flex items-center blog-hero-content" style={{ minHeight: "70vh" }}>
               <div className="max-w-2xl space-y-6">
+
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -264,7 +303,22 @@ const BlogPage = () => {
         </section>
 
         {/* ═══════════════ 3. TRENDING SLIDER ═══════════════ */}
-        {trendingPosts.length > 0 && (
+        {isLoading ? (
+          <section className="py-16" style={{ background: "#050505" }}>
+            <div className="container mx-auto px-4">
+              <Skeleton className="h-8 w-48 mb-8 bg-zinc-800/50" />
+              <div className="flex gap-6 overflow-hidden">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="flex-shrink-0 w-[300px] space-y-4">
+                    <Skeleton className="h-44 w-full rounded-xl bg-zinc-800/30" />
+                    <Skeleton className="h-4 w-3/4 bg-zinc-800/50" />
+                    <Skeleton className="h-3 w-1/2 bg-zinc-800/30" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : trendingPosts.length > 0 && (
           <section className="py-16" style={{ background: "#050505" }}>
             <div className="container mx-auto px-4">
               <div className="flex items-center justify-between mb-8">
@@ -302,11 +356,13 @@ const BlogPage = () => {
                       style={{ background: "#111", borderColor: "#222" }}
                     >
                       <div className="aspect-[16/10] overflow-hidden">
-                        <img
-                          src={post.image || "/placeholder.svg"}
+                        <Image
+                          src={post.image}
                           alt={post.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                          loading="lazy"
+                          className="w-full h-full"
+                          imageClassName="object-cover group-hover:scale-105 transition-transform duration-700"
+                          width={400}
+                          height={250}
                         />
                       </div>
                       <div className="p-4 space-y-2">
@@ -330,7 +386,7 @@ const BlogPage = () => {
           <div className="container mx-auto px-4">
             <h2 className="font-serif text-3xl font-bold text-white mb-2">Recent Articles</h2>
             <p className="text-sm mb-10" style={{ color: "#888" }}>
-              {filtered.length} article{filtered.length !== 1 ? "s" : ""} found
+              {isLoading ? "Loading articles..." : `${filtered.length} article${filtered.length !== 1 ? "s" : ""} found`}
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -338,8 +394,15 @@ const BlogPage = () => {
               <div className="lg:col-span-2">
                 {isLoading ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="rounded-xl overflow-hidden animate-pulse" style={{ background: "#111", height: 320 }} />
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                      <div key={i} className={`rounded-xl overflow-hidden border p-5 space-y-4 ${i === 1 ? "md:col-span-2" : ""}`} style={{ background: "#0D0D0D", borderColor: "#1a1a1a" }}>
+                        <Skeleton className={`w-full rounded-lg bg-zinc-800/30 ${i === 1 ? "aspect-[21/9]" : "aspect-[16/10]"}`} />
+                        <div className="space-y-3">
+                          <Skeleton className="h-3 w-24 bg-zinc-800/50" />
+                          <Skeleton className="h-6 w-full bg-zinc-800/50" />
+                          <Skeleton className="h-4 w-full bg-zinc-800/30" />
+                        </div>
+                      </div>
                     ))}
                   </div>
                 ) : paginatedPosts.length === 0 ? (
@@ -367,11 +430,13 @@ const BlogPage = () => {
                         >
                           <Link to={`/blog/${post.slug || post.id}`} className="block">
                             <div className={`overflow-hidden ${i === 0 ? "aspect-[21/9]" : "aspect-[16/10]"}`}>
-                              <img
-                                src={post.image || "/placeholder.svg"}
+                              <Image
+                                src={post.image}
                                 alt={post.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                loading="lazy"
+                                className="w-full h-full"
+                                imageClassName="object-cover group-hover:scale-105 transition-transform duration-700"
+                                width={i === 0 ? 800 : 400}
+                                height={i === 0 ? 400 : 250}
                               />
                             </div>
                           </Link>
@@ -438,17 +503,26 @@ const BlogPage = () => {
                     Categories
                   </h3>
                   <div className="space-y-1">
-                    {Object.entries(categoryCounts).map(([cat, count]) => (
-                      <button
-                        key={cat}
-                        onClick={() => { setActiveCategory(cat); setCurrentPage(1); }}
-                        className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm transition-all hover:bg-white/5"
-                        style={{ color: activeCategory === cat ? CRIMSON : "#999" }}
-                      >
-                        <span>{cat}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "#1a1a1a", color: "#666" }}>{count}</span>
-                      </button>
-                    ))}
+                    {isLoading ? (
+                      [1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className="flex justify-between items-center py-2">
+                           <Skeleton className="h-4 w-32 bg-zinc-800/30" />
+                           <Skeleton className="h-4 w-8 rounded-full bg-zinc-800/30" />
+                        </div>
+                      ))
+                    ) : (
+                      Object.entries(categoryCounts).map(([cat, count]) => (
+                        <button
+                          key={cat}
+                          onClick={() => { setActiveCategory(cat); setCurrentPage(1); }}
+                          className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm transition-all hover:bg-white/5"
+                          style={{ color: activeCategory === cat ? CRIMSON : "#999" }}
+                        >
+                          <span>{cat}</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "#1a1a1a", color: "#666" }}>{count}</span>
+                        </button>
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -479,7 +553,17 @@ const BlogPage = () => {
                     Most Read
                   </h3>
                   <div className="space-y-4">
-                    {blogPosts.slice(0, 4).map((post, i) => (
+                    {isLoading ? (
+                      [1, 2, 3, 4].map(i => (
+                        <div key={i} className="flex gap-3">
+                           <Skeleton className="h-8 w-8 bg-zinc-800/30" />
+                           <div className="flex-1 space-y-2">
+                             <Skeleton className="h-4 w-full bg-zinc-800/50" />
+                             <Skeleton className="h-3 w-16 bg-zinc-800/30" />
+                           </div>
+                        </div>
+                      ))
+                    ) : blogPosts.slice(0, 4).map((post, i) => (
                       <Link to={`/blog/${post.slug || post.id}`} key={post.id} className="flex gap-3 group">
                         <span className="text-2xl font-serif font-bold" style={{ color: `${CRIMSON}40` }}>{String(i + 1).padStart(2, "0")}</span>
                         <div>

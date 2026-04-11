@@ -27,9 +27,9 @@ import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { MediaGrid } from "@/components/admin/media/MediaGrid";
 import { MediaUploadZone } from "@/components/admin/media/MediaUploadZone";
 import { MediaDetailsSheet } from "@/components/admin/media/MediaDetailsSheet";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { icons } from "@/design-system/tokens/icons";
 import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
+import { ModuleHeader } from "@/components/admin/layout/ModuleHeader";
 
 interface MediaFile {
     id: string;
@@ -294,14 +294,11 @@ const AdminMedia = () => {
 
     return (
         <div className="space-y-6">
-            <AdminBreadcrumb items={[{ label: 'Media Library' }]} />
-
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="font-display text-3xl font-bold">Media Library</h1>
-                    <p className="text-muted-foreground mt-1">Manage images and files</p>
-                </div>
-                {!isReadOnly && (
+            <ModuleHeader
+                title="Media Library"
+                description="Manage images and files"
+                action={
+                !isReadOnly && (
                     <Button
                         variant="outline"
                         onClick={handleSyncStorage}
@@ -311,7 +308,7 @@ const AdminMedia = () => {
                         Sync Storage
                     </Button>
                 )}
-            </div>
+            />
 
             {/* Selection Bar */}
             <BulkActionsToolbar

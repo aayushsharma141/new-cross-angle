@@ -1,26 +1,33 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { AppBreadcrumb } from "@/components/AppBreadcrumb";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import { ArrowLeft, ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
 import ProjectHero from "@/components/project/ProjectHero";
 import ProjectStats from "@/components/project/ProjectStats";
 import ProjectGallery from "@/components/project/ProjectGallery";
+import ProjectStory from "@/components/project/ProjectStory";
+import ProjectPalette from "@/components/project/ProjectPalette";
+import ProjectQuote from "@/components/project/ProjectQuote";
+import ProjectMoodboard from "@/components/project/ProjectMoodboard";
+import ProjectAmbience from "@/components/project/ProjectAmbience";
+import ProjectHotspots from "@/components/project/ProjectHotspots";
 import { Compare } from "@/components/ui/compare";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const ProjectPage = () => {
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
     queryFn: api.getProjects
   });
+  const { settings } = useSiteSettings();
+  const whatsapp = settings?.whatsapp || "917909041132";
 
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -33,7 +40,6 @@ const ProjectPage = () => {
       if (project?.id) {
         const viewedKey = `viewed_project_${project.id}`;
         if (!sessionStorage.getItem(viewedKey)) {
-          // Fire and forget
           supabase.rpc('increment_project_view', { project_id: project.id }).then(({ error }) => {
             if (!error) {
               sessionStorage.setItem(viewedKey, 'true');
@@ -48,7 +54,20 @@ const ProjectPage = () => {
   }, [project?.id]);
 
   if (isLoading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-px h-16 bg-white/10 relative overflow-hidden">
+            <motion.div
+              className="absolute top-0 left-0 w-full h-full bg-primary/60"
+              animate={{ y: ['-100%', '100%'] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </div>
+          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground font-light">Loading</p>
+        </div>
+      </div>
+    );
   }
 
   if (!project) {
@@ -59,9 +78,11 @@ const ProjectPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-2xl font-bold mb-4 text-foreground">Project not found</h1>
+          <h1 className="text-2xl font-serif mb-4 text-foreground">Project not found</h1>
           <Link to="/gallery">
-            <Button>Back to Portfolio</Button>
+            <Button variant="outline" className="border-primary/30 text-primary hover:bg-primary hover:text-background">
+              Back to Portfolio
+            </Button>
           </Link>
         </motion.div>
       </div>
@@ -75,6 +96,12 @@ const ProjectPage = () => {
     .filter((p) => p.id !== project.id && p.type === project.type)
     .slice(0, 3);
 
+  // Derive a poetic tagline from the project brief (first sentence)
+  const tagline = project.brief ? (project.brief.split('.')[0]?.trim() + '.') : "A study in refined modern living.";
+
+  // Derive testimonial quote for quote section  
+  const quoteText = project.testimonial?.quote || "Every detail was considered. Every corner speaks with intention.";
+
   return (
     <>
       <Helmet>
@@ -83,259 +110,176 @@ const ProjectPage = () => {
       </Helmet>
 
       <Navbar />
-      <main className="bg-background">
-        <div className="pt-24">
-          <AppBreadcrumb />
-        </div>
-        <WhatsAppButton />
 
-        {/* Immersive Hero */}
+      <main className="bg-background">
+        {/* 1. Cinematic centered hero */}
         <ProjectHero
-          heroImage={project.heroImage}
-          title={project.title}
-          category={project.category}
-          style={project.style}
-          location={project.location}
+          heroImage={project.heroImage || ''}
+          title={project.title || 'Project Detail'}
+          category={project.category || ''}
+          style={project.style || ''}
+          location={project.location || ''}
+          tagline={tagline}
         />
 
-        {/* Stats Bar */}
-        <div className="container mx-auto px-4 -mt-12 relative z-20">
+        {/* 2. Stats Bar (floating over content) */}
+        <section className="px-6 max-w-7xl mx-auto w-full -mt-8 relative z-20 mb-16">
           <ProjectStats
-            location={project.location}
-            area={project.area}
-            duration={project.duration}
-            style={project.style}
-            year={project.year}
-            budget={project.budget}
+            location={project.location || 'N/A'}
+            area={project.area || 'N/A'}
+            duration={project.duration || 'N/A'}
+            style={project.style || 'N/A'}
+            year={project.year || 2024}
+            budget={project.budget || 'Premium'}
           />
-        </div>
+        </section>
 
-        {/* Main Content */}
-        <div className="container mx-auto px-4 py-16 md:py-24">
-          <div className="grid lg:grid-cols-3 gap-12">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-16">
-              {/* The Brief */}
-              <motion.section
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                <h2 className="text-2xl font-serif font-bold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-0.5 bg-primary" />
-                  The Brief
-                </h2>
-                <p className="text-muted-foreground leading-relaxed text-lg">
-                  {project.brief}
-                </p>
-              </motion.section>
+        {/* 3. Editorial Story Section */}
+        <section className="px-6 max-w-7xl mx-auto w-full">
+          <ProjectStory
+            brief={project.brief || ''}
+            approach={project.approach || ''}
+            title={project.title || ''}
+            image={project.gallery?.[0]?.images?.[1] || project.heroImage}
+          />
+        </section>
 
-              {/* Our Approach */}
-              <motion.section
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                <h2 className="text-2xl font-serif font-bold text-foreground mb-4 flex items-center gap-3">
-                  <span className="w-8 h-0.5 bg-primary" />
-                  Our Approach
-                </h2>
-                <p className="text-muted-foreground leading-relaxed text-lg">
-                  {project.approach}
-                </p>
-              </motion.section>
+        {/* 4. Color Palette & Tactile Materials */}
+        <section className="px-6 max-w-7xl mx-auto w-full">
+          <ProjectPalette materials={project.materials || []} />
+        </section>
 
-              {/* Before/After Slider */}
-              {project.gallery[0]?.images?.length >= 2 && (
-                <div className="space-y-4">
-                  <h3 className="text-xl font-serif font-semibold text-foreground flex items-center gap-3">
-                    <span className="w-6 h-0.5 bg-primary" />
-                    Transformation
-                  </h3>
-                  <Compare
-                    firstImage={project.gallery[0].images[0]}
-                    secondImage={project.gallery[0].images[1]}
-                    className="w-full aspect-[16/9] shadow-2xl"
-                    slideMode="hover"
-                  />
-                </div>
-              )}
-
-              {/* Gallery */}
-              <ProjectGallery gallery={project.gallery} title={project.title} />
-
-              {/* Materials & Finishes */}
-              <motion.section
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                <h2 className="text-2xl font-serif font-bold text-foreground mb-6 flex items-center gap-3">
-                  <span className="w-8 h-0.5 bg-primary" />
-                  Materials & Finishes
-                </h2>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {project.materials.map((material, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.1 }}
-                      whileHover={{ y: -3, scale: 1.02 }}
-                      className="p-5 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300"
-                    >
-                      <h4 className="font-semibold text-foreground mb-1">
-                        {material.name}
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        {material.details}
-                      </p>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.section>
-
-              {/* Client Testimonial */}
-              {project.testimonial && (
-                <motion.section
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6 }}
-                  className="relative p-8 md:p-10 rounded-2xl bg-primary/5 border border-primary/20 overflow-hidden"
-                >
-                  {/* Quote Icon */}
-                  <Quote className="absolute top-6 right-6 w-16 h-16 text-primary/10" />
-
-                  <blockquote className="text-lg md:text-xl italic text-foreground mb-6 relative z-10">
-                    "{project.testimonial.quote}"
-                  </blockquote>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                      <span className="text-primary font-bold text-lg">
-                        {project.testimonial.author.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground">
-                        {project.testimonial.author}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {project.testimonial.role}
-                      </p>
-                    </div>
-                  </div>
-                </motion.section>
-              )}
+        {/* 5. Before / After Spatial Transformation */}
+        {project.gallery && project.gallery[0]?.images?.length >= 2 && (
+          <section className="px-6 max-w-7xl mx-auto w-full mb-32">
+            <div className="text-center mb-12 flex flex-col items-center">
+              <span className="text-xs font-medium tracking-[0.2em] uppercase text-primary mb-4">Transformation</span>
+              <h2 className="text-3xl md:text-4xl text-white tracking-tight font-serif font-normal">From Vision to Reality</h2>
             </div>
+            
+            <div className="relative w-full aspect-[4/3] md:aspect-[21/9] rounded-[2rem] overflow-hidden group border border-white/10 select-none">
+              <Compare
+                firstImage={project.gallery[0].images[0]}
+                secondImage={project.gallery[0].images[1]}
+                className="w-full h-full object-cover"
+                slideMode="hover"
+              />
+            </div>
+          </section>
+        )}
 
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-28 space-y-6">
-                {/* CTA Card */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  className="p-6 rounded-2xl bg-primary text-primary-foreground relative overflow-hidden"
-                >
-                  {/* Background Pattern */}
-                  <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-0 right-0 w-32 h-32 border border-primary-foreground rounded-full -translate-y-1/2 translate-x-1/2" />
-                    <div className="absolute bottom-0 left-0 w-24 h-24 border border-primary-foreground rounded-full translate-y-1/2 -translate-x-1/2" />
-                  </div>
+        {/* 6. Interactive Detail Hotspots */}
+        <section className="px-6 max-w-7xl mx-auto w-full">
+          <ProjectHotspots image={project.gallery?.[0]?.images?.[0] || project.heroImage || ''} />
+        </section>
 
-                  <h3 className="font-semibold mb-2 relative z-10">Interested in Similar Design?</h3>
-                  <p className="text-primary-foreground/80 text-sm mb-4 relative z-10">
-                    Get a free consultation for your project
-                  </p>
-                  <Button
-                    asChild
-                    variant="secondary"
-                    className="w-full bg-background text-foreground hover:bg-background/90 relative z-10"
-                  >
-                    <Link to="/contact-us">
-                      Get Free Consultation
-                    </Link>
-                  </Button>
-                </motion.div>
-              </div>
+        {/* 7. Cinematic Gallery Stage */}
+        <section className="px-6 max-w-7xl mx-auto w-full">
+          <ProjectGallery gallery={project.gallery || []} title={project.title} />
+        </section>
+
+        {/* 8. Cinematic Quote */}
+        <ProjectQuote
+          quote={quoteText}
+          attribution={project.testimonial?.author || "Project Designer"}
+          whatsappNumber={whatsapp}
+        />
+
+        {/* 9. Ambient Lighting Experience */}
+        <section className="px-6 max-w-7xl mx-auto w-full">
+          <ProjectAmbience />
+        </section>
+
+        {/* 10. Inspired By Moodboard */}
+        <section className="px-6 max-w-7xl mx-auto w-full">
+          <ProjectMoodboard images={project.gallery?.[0]?.images?.map(img => ({ src: img, label: 'Inspiration' }))} />
+        </section>
+
+        {/* 11. Final Invitation CTA */}
+        <section className="py-40 md:py-64 px-6 relative overflow-hidden flex flex-col items-center justify-center min-h-[90vh] bg-neutral-950 border-t border-white/5 text-center">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(153,27,27,0.05)_0%,transparent_70%)] pointer-events-none" />
+          
+          <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
+            <h2 className="text-4xl md:text-6xl font-serif font-normal tracking-tight text-white mb-16 leading-[1.2]">
+              Your space is ready for its <br />
+              <span className="italic text-stone-300">next chapter.</span>
+            </h2>
+
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <Link to="/contact">
+                <button className="bg-primary text-white hover:bg-red-800 px-8 py-4 rounded-full text-[10px] font-medium tracking-[0.2em] transition-all shadow-lg shadow-red-900/20 uppercase w-full sm:w-auto">
+                  Book a Free Consultation
+                </button>
+              </Link>
+              <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer">
+                <button className="border border-white/10 hover:border-white/30 hover:bg-white/5 text-white px-8 py-4 rounded-full text-[10px] font-medium tracking-[0.2em] transition-all w-full sm:w-auto uppercase flex items-center justify-center gap-2">
+                  Chat with Designer
+                </button>
+              </a>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Project Navigation */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="border-t border-border bg-muted/30"
-        >
-          <div className="container mx-auto px-4 py-8">
+        <div className="border-t border-white/5">
+          <div className="max-w-7xl mx-auto px-6 py-10">
             <div className="flex justify-between items-center">
               {prevProject ? (
                 <motion.button
-                  whileHover={{ x: -5 }}
+                  whileHover={{ x: -4 }}
                   onClick={() => navigate(`/portfolio/${prevProject.slug}`)}
-                  className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors group"
+                  className="flex items-center gap-4 text-muted-foreground hover:text-foreground transition-colors group"
                 >
-                  <div className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all">
-                    <ChevronLeft className="w-5 h-5" />
+                  <div className="w-10 h-10 border border-white/10 flex items-center justify-center group-hover:border-primary/40 group-hover:text-primary transition-all">
+                    <ChevronLeft className="w-4 h-4" />
                   </div>
                   <div className="text-left">
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Previous</p>
-                    <p className="font-medium text-foreground">{prevProject.title}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-light">Previous</p>
+                    <p className="font-serif text-foreground text-sm">{prevProject.title}</p>
                   </div>
                 </motion.button>
-              ) : (
-                <div />
-              )}
+              ) : <div />}
 
               <Link
                 to="/gallery"
-                className="hidden sm:block text-muted-foreground hover:text-primary transition-colors font-medium"
+                className="hidden sm:block text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors font-light"
               >
-                View All Projects
+                All Projects
               </Link>
 
               {nextProject ? (
                 <motion.button
-                  whileHover={{ x: 5 }}
+                  whileHover={{ x: 4 }}
                   onClick={() => navigate(`/portfolio/${nextProject.slug}`)}
-                  className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors group"
+                  className="flex items-center gap-4 text-muted-foreground hover:text-foreground transition-colors group"
                 >
                   <div className="text-right">
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">Next</p>
-                    <p className="font-medium text-foreground">{nextProject.title}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-light">Next</p>
+                    <p className="font-serif text-foreground text-sm">{nextProject.title}</p>
                   </div>
-                  <div className="w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all">
-                    <ChevronRight className="w-5 h-5" />
+                  <div className="w-10 h-10 border border-white/10 flex items-center justify-center group-hover:border-primary/40 group-hover:text-primary transition-all">
+                    <ChevronRight className="w-4 h-4" />
                   </div>
                 </motion.button>
-              ) : (
-                <div />
-              )}
+              ) : <div />}
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Related Projects */}
-        {relatedProjects.length > 0 && (
-          <section className="py-16 md:py-24">
-            <div className="container mx-auto px-4">
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="text-3xl font-serif font-bold text-foreground mb-10"
-              >
-                Related Projects
-              </motion.h2>
-              <div className="grid md:grid-cols-3 gap-6">
+      {/* Related Projects */}
+      {relatedProjects.length > 0 && (
+        <section className="py-24 border-t border-white/5">
+          <div className="max-w-7xl mx-auto px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-12"
+            >
+              <p className="text-xs uppercase tracking-[0.3em] text-primary/60 mb-4 font-light">— Continue Exploring</p>
+              <h2 className="font-serif text-3xl md:text-4xl text-foreground">Related Projects</h2>
+            </motion.div>
+              <div className="grid md:grid-cols-3 gap-5">
                 {relatedProjects.map((rp, index) => (
                   <motion.div
                     key={rp.id}
@@ -345,20 +289,20 @@ const ProjectPage = () => {
                     transition={{ delay: index * 0.1 }}
                   >
                     <Link to={`/portfolio/${rp.slug}`} className="group block">
-                      <div className="aspect-[4/3] rounded-xl overflow-hidden mb-4 relative">
+                      <div className="aspect-[4/3] overflow-hidden mb-5 relative">
                         <motion.img
                           src={rp.heroImage}
                           alt={rp.title}
-                          className="w-full h-full object-cover"
-                          whileHover={{ scale: 1.1 }}
-                          transition={{ duration: 0.6 }}
+                          className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700"
+                          whileHover={{ scale: 1.06 }}
+                          transition={{ duration: 0.7 }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       </div>
-                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                      <h3 className="font-serif text-foreground group-hover:text-primary transition-colors duration-300 mb-1">
                         {rp.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground">{rp.location}</p>
+                      <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-light">{rp.location}</p>
                     </Link>
                   </motion.div>
                 ))}
@@ -366,7 +310,7 @@ const ProjectPage = () => {
             </div>
           </section>
         )}
-      </main >
+      </main>
 
       <Footer />
     </>

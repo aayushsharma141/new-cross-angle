@@ -1,5 +1,4 @@
 import { Outlet, Navigate, useLocation } from "react-router-dom";
-import { ModuleLayout } from "@/components/admin/layout/ModuleLayout";
 
 export const SystemModule = () => {
     const location = useLocation();
@@ -8,14 +7,8 @@ export const SystemModule = () => {
     }
 
     return (
-        <ModuleLayout
-            title="System Configuration"
-            description="Platform-wide settings and administrative controls."
-            tabs={[
-                { label: "Global Settings", path: "/admin/system/settings" },
-            ]}
-        >
+        <div className="flex-1 w-full h-full">
             <Outlet />
-        </ModuleLayout>
+        </div>
     );
 };

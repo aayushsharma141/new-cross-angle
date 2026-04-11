@@ -58,7 +58,7 @@ const MagneticFilterTabs = ({
       className={cn(
         "py-6 transition-all duration-300 z-40",
         isSticky
-          ? "sticky top-20 bg-background/80 backdrop-blur-xl border-b border-border/50"
+          ? "sticky top-20 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5"
           : "bg-transparent"
       )}
     >
@@ -79,11 +79,10 @@ const MagneticFilterTabs = ({
                 onMouseMove={(e) => handleMouseMove(e, category)}
                 onMouseLeave={handleMouseLeave}
                 className={cn(
-                  "relative px-6 py-3 rounded-full font-medium text-sm transition-all duration-300",
-                  "border backdrop-blur-sm",
+                  "relative px-4 py-3 text-[10px] uppercase tracking-[0.25em] font-light transition-all duration-300",
                   isActive
-                    ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/25"
-                    : "bg-card/50 text-foreground border-border/50 hover:border-primary/50"
+                    ? "text-[#D1AF6E]"
+                    : "text-white/30 hover:text-white/70"
                 )}
                 style={{
                   transform: isHovered
@@ -92,14 +91,14 @@ const MagneticFilterTabs = ({
                 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {/* Glow effect on hover */}
+                {/* Subtle hover bg */}
                 <AnimatePresence>
                   {isHovered && !isActive && (
                     <motion.div
-                      className="absolute inset-0 rounded-full bg-primary/10"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
+                      className="absolute inset-0 bg-white/5"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     />
                   )}
@@ -109,22 +108,21 @@ const MagneticFilterTabs = ({
                   {category.replace(/-/g, " ")}
                   {counts && counts[category] !== undefined && (
                     <span className={cn(
-                      "px-2 py-0.5 rounded-full text-xs",
+                      "text-[9px] tabular-nums",
                       isActive
-                        ? "bg-primary-foreground/20 text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
+                        ? "text-[#D1AF6E]/60"
+                        : "text-white/20"
                     )}>
                       {counts[category]}
                     </span>
                   )}
                 </span>
 
-                {/* Active indicator line */}
+                {/* Active indicator — gold line */}
                 {isActive && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute -bottom-1 left-1/2 w-8 h-1 bg-primary rounded-full"
-                    style={{ x: '-50%' }}
+                    className="absolute -bottom-px left-0 right-0 h-px bg-[#D1AF6E]/70"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}

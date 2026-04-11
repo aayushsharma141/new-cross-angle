@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, Loader2, Image as ImageIcon, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 interface MediaFile {
     id: string;
@@ -139,7 +140,7 @@ export function MediaPicker({ onSelect, trigger }: MediaPickerProps) {
                                     onClick={() => setSelectedFile(file.url)}
                                 >
                                     <img
-                                        src={file.url}
+                                        src={getOptimizedUrl(file.url, { width: 360, quality: 72 })}
                                         alt={file.name}
                                         className="w-full h-full object-cover"
                                         loading="lazy"

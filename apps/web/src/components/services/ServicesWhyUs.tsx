@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
+import { Image } from "@/components/ui/image";
 
 const whyUsPoints = [
   "Single Point of Accountability",
@@ -68,10 +69,13 @@ const ServicesWhyUs = () => {
            transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="relative aspect-[4/5] overflow-hidden rounded-[4px]">
-            <img 
+            <Image
               src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=75" 
               alt="Why CrossAngle" 
-              className="w-full h-full object-cover grayscale-[0.8] brightness-[0.8]"
+              className="h-full w-full"
+              imageClassName="grayscale-[0.8] brightness-[0.8]"
+              width={800}
+              height={1000}
             />
             {/* Red overlay gradient */}
             <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,42,42,0.1),transparent_60%)] pointer-events-none" />

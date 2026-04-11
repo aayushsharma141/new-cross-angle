@@ -2,6 +2,7 @@ import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SpotlightCard, CountUp } from "@/components/ReactBits";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SparklineChart } from "@/components/admin/analytics/SparklineChart";
 
 interface AdminKPIProps {
     title: string;
@@ -13,6 +14,7 @@ interface AdminKPIProps {
     icon: LucideIcon;
     variant?: "gold" | "secondary" | "accent";
     isLoading?: boolean;
+    sparklineData?: number[];
 }
 
 export function AdminKPI({
@@ -23,7 +25,8 @@ export function AdminKPI({
     trend,
     icon: Icon,
     variant = "gold",
-    isLoading = false
+    isLoading = false,
+    sparklineData,
 }: AdminKPIProps) {
     const variants = {
         gold: "text-[hsl(var(--admin-primary))] bg-[hsl(var(--admin-primary-muted))] border-[hsl(var(--admin-primary))]/20",
@@ -35,6 +38,12 @@ export function AdminKPI({
         gold: "rgba(212, 175, 55, 0.18)",
         secondary: "rgba(96, 165, 250, 0.18)",
         accent: "rgba(52, 211, 153, 0.18)",
+    };
+
+    const sparklineColors = {
+        gold: "hsl(var(--admin-primary))",
+        secondary: "hsl(var(--admin-info))",
+        accent: "hsl(var(--admin-success))",
     };
 
     // Use CountUp if a numeric value is provided and data is loaded (not "…")
@@ -83,8 +92,16 @@ export function AdminKPI({
                             )}
                         </div>
                     </div>
-                    <div className={cn("p-3 rounded-lg border backdrop-blur-sm", variants[variant])}>
-                        <Icon className="w-5 h-5" />
+                    
+                    <div className="flex flex-col items-end gap-3">
+                        <div className={cn("p-3 rounded-lg border backdrop-blur-sm", variants[variant])}>
+                            <Icon className="w-5 h-5" />
+                        </div>
+                        {sparklineData && !isLoading && (
+                            <div className="mt-auto">
+                                <SparklineChart data={sparklineData} color={sparklineColors[variant]} />
+                            </div>
+                        )}
                     </div>
                 </div>
 

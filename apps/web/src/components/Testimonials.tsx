@@ -5,13 +5,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Testimonial {
-  id: number;
+  id: string;
   author_name: string;
-  role: string;
-  project?: string;
+  author_role: string | null;
+  avatar_url: string | null;
   content: string;
-  rating: number;
-  image_url?: string;
+  rating: number | null;
+  project_id: string | null;
+  display_order: number;
+  active: boolean;
+  city: string | null;
 }
 
 const AnimatedStars = ({ rating, isVisible }: { rating: number; isVisible: boolean }) => {
@@ -62,7 +65,8 @@ const Testimonials = () => {
       const { data, error } = await supabase
         .from("testimonials")
         .select("*")
-        .eq("is_featured", true)
+        .eq("active", true)
+        .order("display_order", { ascending: true })
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -78,29 +82,41 @@ const Testimonials = () => {
   // Fallback data if DB is empty to maintain UI
   const displayTestimonials = testimonials.length > 0 ? testimonials : [
     {
-      id: 1,
+      id: "1",
       author_name: "Priya Sharma",
-      role: "Homeowner",
-      project: "3BHK Apartment, Jamshedpur",
+      author_role: "Homeowner",
+      avatar_url: null,
       content: "Crossangle Interior transformed our home beyond our expectations. Their attention to detail and creative vision made our space truly luxurious.",
       rating: 5,
+      project_id: null,
+      display_order: 0,
+      active: true,
+      city: "Jamshedpur",
     },
     {
-      id: 2,
+      id: "2",
       author_name: "Rajesh Kumar",
-      role: "Business Owner",
-      project: "Corporate Office, Kolkata",
+      author_role: "Business Owner",
+      avatar_url: null,
       content: "The team delivered an exceptional office design that perfectly reflects our brand identity. Professional, timely, and incredibly talented.",
       rating: 5,
+      project_id: null,
+      display_order: 1,
+      active: true,
+      city: "Kolkata",
     },
     {
-      id: 3,
+      id: "3",
       author_name: "Anita Desai",
-      role: "Apartment Owner",
-      project: "2BHK Renovation, Jamshedpur",
+      author_role: "Apartment Owner",
+      avatar_url: null,
       content: "From concept to completion, the entire experience was seamless. They understood our vision and executed it flawlessly.",
       rating: 5,
-    }
+      project_id: null,
+      display_order: 2,
+      active: true,
+      city: "Jamshedpur",
+    },
   ];
 
   useEffect(() => {
@@ -143,6 +159,7 @@ const Testimonials = () => {
           <span className="text-site-crimson text-sm uppercase tracking-[0.3em] font-medium border-b border-site-crimson/30 pb-2">
             Client Reviews
           </span>
+          <br></br>
           <h2 className="text-4xl md:text-5xl font-serif font-bold mt-6 mb-6 text-site-text-heading relative inline-block after:content-[''] after:block after:w-12 after:h-px after:bg-site-crimson after:mx-auto after:mt-3">
             What Our Clients Say
           </h2>
@@ -177,7 +194,7 @@ const Testimonials = () => {
                   )}
                 >
                   <AnimatedStars
-                    rating={item.rating}
+                    rating={item.rating ?? 5}
                     isVisible={index === activeIndex}
                   />
 
@@ -186,23 +203,27 @@ const Testimonials = () => {
                   </p>
 
                   <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                    <div className="w-14 h-14 rounded-full bg-site-crimson/10 border border-site-crimson/20 flex items-center justify-center shadow-lg shadow-site-crimson/10">
-                      <span className="text-site-crimson font-bold text-lg font-serif">
-                        {item.author_name.charAt(0)}
-                      </span>
-                    </div>
+                    {item.avatar_url ? (
+                      <img
+                        src={item.avatar_url}
+                        alt={item.author_name}
+                        className="w-14 h-14 rounded-full object-cover border border-site-crimson/20 shadow-lg"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-site-crimson/10 border border-site-crimson/20 flex items-center justify-center shadow-lg shadow-site-crimson/10">
+                        <span className="text-site-crimson font-bold text-lg font-serif">
+                          {item.author_name.charAt(0)}
+                        </span>
+                      </div>
+                    )}
                     <div className="text-left">
                       <h4 className="text-site-text-heading font-semibold text-lg tracking-wide">
                         {item.author_name}
                       </h4>
                       <p className="text-site-text-muted text-sm">
-                        {item.role}
+                        {item.author_role}
+                        {item.city ? ` · ${item.city}` : null}
                       </p>
-                      {item.project && (
-                        <p className="text-site-crimson/80 text-xs mt-0.5 font-medium uppercase tracking-widest">
-                          {item.project}
-                        </p>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -228,6 +249,38 @@ const Testimonials = () => {
           </div>
         </div>
       </div>
+      
+      {/* Schema.org AggregateRating */}
+      {displayTestimonials.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+             __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "LocalBusiness",
+              "name": "Crossangle Interior",
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": (displayTestimonials.reduce((acc, curr) => acc + (curr.rating || 5), 0) / displayTestimonials.length).toFixed(1),
+                "reviewCount": displayTestimonials.length
+              },
+              "review": displayTestimonials.map(t => ({
+                "@type": "Review",
+                "reviewRating": {
+                  "@type": "Rating",
+                  "ratingValue": t.rating || 5,
+                  "bestRating": "5"
+                },
+                "author": {
+                  "@type": "Person",
+                  "name": t.author_name
+                },
+                "reviewBody": t.content
+              }))
+            })
+          }}
+        />
+      )}
     </section>
   );
 };

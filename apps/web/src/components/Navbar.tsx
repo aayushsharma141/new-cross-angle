@@ -8,11 +8,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { navLinks } from "@/config/navigation";
 import { SpotlightNavContainer } from "@/components/ui/spotlight-navbar";
 import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { settings } = useSiteSettings();
+  const whatsapp = settings?.whatsapp || "917909041132";
+  const displayPhone = whatsapp.replace(/^91/, "+91 ");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -96,7 +100,7 @@ const Navbar = () => {
           {/* Phone + CTA - Enhanced */}
           <div className="hidden lg:flex items-center gap-6">
             <a
-              href="https://wa.me/917909041132"
+              href={`https://wa.me/${whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
@@ -109,7 +113,7 @@ const Navbar = () => {
               </span>
               <span className="flex items-center gap-2 font-medium">
                 <MessageCircle className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                +91 7909041132
+                {displayPhone}
               </span>
             </a>
             <Link to="/contact-us">
@@ -172,7 +176,7 @@ const Navbar = () => {
                   ))}
                   <div className="pt-4 mt-2 border-t border-border/50 flex flex-col gap-4">
                     <a
-                      href="https://wa.me/917909041132"
+                      href={`https://wa.me/${whatsapp}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 text-muted-foreground font-medium px-4"
@@ -180,7 +184,7 @@ const Navbar = () => {
                       <MessageCircle className="w-5 h-5 text-primary" />
                       <div>
                         <span className="text-[10px] uppercase tracking-wider text-primary block">Free Site Visit</span>
-                        <span>+91 7909041132</span>
+                        <span>{displayPhone}</span>
                       </div>
                     </a>
                     <Link to="/contact-us" onClick={() => setIsOpen(false)} className="w-full">

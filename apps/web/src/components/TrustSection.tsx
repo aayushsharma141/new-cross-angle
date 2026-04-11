@@ -38,12 +38,36 @@ const trustItems = [
 ];
 
 const brandPartners = [
-  { name: "Asian Paints", tagline: "Color Partner" },
-  { name: "Hafele", tagline: "Hardware Expert" },
-  { name: "Godrej", tagline: "Security Partner" },
-  { name: "Philips", tagline: "Lighting Partner" },
-  { name: "Hettich", tagline: "Fittings Partner" },
-  { name: "Jaquar", tagline: "Bath Solutions" },
+  { 
+    name: "Asian Paints", 
+    tagline: "Color Partner",
+    logo: "/asian%20paint.svg"
+  },
+  { 
+    name: "Hafele", 
+    tagline: "Hardware Expert",
+    logo: "/Hafele.png"
+  },
+  { 
+    name: "Godrej", 
+    tagline: "Security Partner",
+    logo: "/Godrej.svg"
+  },
+  { 
+    name: "Philips", 
+    tagline: "Lighting Partner",
+    logo: "/philips.png"
+  },
+  { 
+    name: "Hettich", 
+    tagline: "Fittings Partner",
+    logo: "/Hettich.svg"
+  },
+  { 
+    name: "Jaquar", 
+    tagline: "Bath Solutions",
+    logo: "/Jaquar.svg"
+  },
 ];
 
 const TrustSection = () => {
@@ -76,43 +100,9 @@ const TrustSection = () => {
       {/* Background is now clean bg-muted/5 with background/50 overlay as defined above */}
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Stat Counter Band — 4 blocks */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 mb-16 md:mb-20 border border-[rgba(237,234,230,0.08)]">
-          {[
-            { num: 14, suffix: "+", label: "YEARS EXPERIENCE", sub: "Crafting luxury interiors since 2011" },
-            { num: 488, suffix: "+", label: "HAPPY CLIENTS", sub: "Trusted by families across India" },
-            { num: 714, suffix: "+", label: "PROJECTS COMPLETED", sub: "Delivered with precision and care" },
-            { num: 22, suffix: "+", label: "DESIGN AWARDS", sub: "Recognized for excellence in design" }
-          ].map((stat, i) => (
-            <div
-              key={i}
-              className={cn(
-                "p-6 md:p-8 border-r border-b border-[rgba(237,234,230,0.08)]",
-                "last:border-r-0 hover:border-[rgba(237,234,230,0.35)]",
-                "transition-all duration-400 group",
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              )}
-              style={{ transitionDelay: `${i * 120}ms` }}
-            >
-              <div className="flex items-baseline gap-1">
-                <CountUp
-                  to={stat.num}
-                  duration={2.5}
-                  className="font-display text-3xl md:text-5xl font-light text-white"
-                />
-                <span className="text-site-crimson font-display text-lg md:text-2xl font-light">{stat.suffix}</span>
-              </div>
-              <p className="text-[10px] md:text-[11px] font-medium tracking-[0.22em] uppercase text-[#A3A09C] mt-2 md:mt-3">{stat.label}</p>
-              <p className="text-[10px] text-[#6B6B6B] mt-1 hidden md:block">{stat.sub}</p>
-            </div>
-          ))}
-        </div>
 
         {/* Section Header */}
         <div className="text-center mb-12 md:mb-16">
-          <span className="eyebrow justify-center">
-            Why Choose Us
-          </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mt-4">
             Trust & <em>Credibility</em>
           </h2>
@@ -154,30 +144,37 @@ const TrustSection = () => {
           )}
           style={{ transitionDelay: "500ms" }}
         >
-          <p className="text-sm text-muted-foreground/80 mb-6 uppercase tracking-wider text-center">
-            Trusted Brand Partners
-          </p>
+          <div className="flex items-center justify-center gap-6 mb-12">
+            <div className="h-[1px] w-8 md:w-16 bg-gradient-to-r from-transparent to-site-crimson/60" />
+            <p className="text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase text-site-crimson">
+              Trusted Brand Partners
+            </p>
+            <div className="h-[1px] w-8 md:w-16 bg-gradient-to-l from-transparent to-site-crimson/60" />
+          </div>
 
           {/* Marquee Container */}
-          <div className="relative overflow-hidden py-4">
+          <div className="relative overflow-hidden py-10">
             {/* Gradient Masks - matched to section background */}
-            <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-r from-background to-transparent z-10" />
-            <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-l from-background to-transparent z-10" />
+            <div className="absolute left-0 top-0 bottom-0 w-32 md:w-48 bg-gradient-to-r from-background to-transparent z-10" />
+            <div className="absolute right-0 top-0 bottom-0 w-32 md:w-48 bg-gradient-to-l from-background to-transparent z-10" />
 
             {/* Marquee Track */}
-            <div className="flex animate-marquee">
-              {[...brandPartners, ...brandPartners].map((partner, index) => (
+            <div className="flex animate-marquee items-center">
+              {[...brandPartners, ...brandPartners, ...brandPartners].map((partner, index) => (
                 <div
                   key={`${partner.name}-${index}`}
-                  className="flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 mx-3 md:mx-4 rounded-xl bg-white/5 border border-white/10 whitespace-nowrap min-w-[200px]"
+                  className="flex flex-col items-center justify-center gap-2 px-6 md:px-8 mx-2 md:mx-3 group"
                 >
-                  {/* Placeholder for Logo - Using colored initials/text for now as explicit logos needed */}
-                  <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shrink-0">
-                    <span className="text-black font-bold text-lg">{partner.name.charAt(0)}</span>
+                  <div className="h-14 md:h-20 w-36 md:w-56 flex items-center justify-center mb-1">
+                    <img 
+                      src={partner.logo} 
+                      alt={partner.name} 
+                      className="max-w-full max-h-full object-contain transition-all duration-500 opacity-90 group-hover:opacity-100 group-hover:scale-105 filter brightness-110 contrast-110"
+                    />
                   </div>
-                  <div>
-                    <span className="font-bold text-white text-base md:text-lg tracking-tight">{partner.name}</span>
-                    <span className="block text-xs text-white/50 font-medium">{partner.tagline}</span>
+                  <div className="text-center">
+                    <span className="block font-bold text-white text-sm md:text-base tracking-tight mb-0.5">{partner.name}</span>
+                    <span className="block text-[10px] text-white/40 font-medium uppercase tracking-[0.2em]">{partner.tagline}</span>
                   </div>
                 </div>
               ))}

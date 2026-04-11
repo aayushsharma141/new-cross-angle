@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Image } from "@/components/ui/image";
 
 const OurApproach = () => {
   const pillars = [
@@ -10,7 +11,7 @@ const OurApproach = () => {
   return (
     <section className="bg-[#0A0A0A] border-y border-white/10 overflow-hidden" style={{ padding: "clamp(72px,10vw,140px) clamp(20px,5vw,80px)" }}>
       <div className="max-w-[1400px] mx-auto">
-        
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 36 }}
@@ -30,9 +31,8 @@ const OurApproach = () => {
           transition={{ duration: 0.85, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           className="font-display font-normal text-[clamp(2.4rem,5.5vw,5.5rem)] leading-[1.04] tracking-[-0.02em] text-[#EDEDED]"
         >
-          We Design. We Execute.<br/>
-          We Deliver <em className="italic text-[#FF2A2A]">Complete</em><br/>
-          Environments.
+          We Design. We Execute.<br />
+          We Deliver <em className="italic text-[#FF2A2A]">Complete</em> Environments.
         </motion.h2>
 
         <motion.p
@@ -47,7 +47,7 @@ const OurApproach = () => {
 
         {/* 2-Column Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 mt-[52px] items-start" style={{ gap: "clamp(40px,6vw,96px)" }}>
-          
+
           {/* Left Column */}
           <div>
             <motion.p
@@ -96,35 +96,38 @@ const OurApproach = () => {
           >
             {/* Top right red glow */}
             <div className="absolute -top-[60px] -right-[60px] w-[280px] h-[280px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(255,42,42,0.09) 0%, transparent 65%)" }} />
-            
+
             {/* Grayscale background image */}
-            <img 
-              src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=75" 
-              alt="Architecture Background" 
-              className="absolute inset-0 w-full h-full object-cover opacity-[0.07] grayscale pointer-events-none"
+            <Image
+              src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=75"
+              alt="Architecture Background"
+              className="pointer-events-none absolute inset-0 h-full w-full"
+              imageClassName="opacity-[0.07] grayscale"
+              width={800}
+              height={640}
             />
-            
+
             <div className="relative z-10">
               <div className="font-label text-[9px] font-bold tracking-[0.22em] uppercase text-[#FF2A2A] border-b border-white/10 pb-[18px] mb-8">
                 Performance Indicators
               </div>
-              
+
               <div className="mb-[28px]">
                 <div className="font-display italic font-light text-[clamp(2.4rem,4.5vw,4.4rem)] leading-none text-[#EDEDED] mb-1.5">₹2–20Cr+</div>
                 <div className="font-label text-[9px] font-semibold tracking-[0.2em] uppercase text-[#EDEDED]/55">Project Value Delivered</div>
               </div>
-              
+
               <div className="w-10 h-[2px] bg-[#FF2A2A] my-7" />
-              
+
               <div className="mb-[28px]">
                 <div className="font-display italic font-light text-[clamp(2.4rem,4.5vw,4.4rem)] leading-none text-[#EDEDED] mb-1.5">95%</div>
                 <div className="font-label text-[9px] font-semibold tracking-[0.2em] uppercase text-[#EDEDED]/55">Execution Match Rate</div>
               </div>
-              
+
               <div className="w-10 h-[2px] bg-[#FF2A2A] my-7" />
-              
+
               <div>
-                <div className="font-display italic font-light text-[clamp(1.5rem,2.8vw,2.8rem)] leading-none text-[#EDEDED] mb-1.5 align-baseline">On-Time<br/>Delivery</div>
+                <div className="font-display italic font-light text-[clamp(1.5rem,2.8vw,2.8rem)] leading-none text-[#EDEDED] mb-1.5 align-baseline">On-Time<br />Delivery</div>
                 <div className="font-label text-[9px] font-semibold tracking-[0.2em] uppercase text-[#EDEDED]/55 mt-2">Focused & Guaranteed</div>
               </div>
             </div>

@@ -4,6 +4,7 @@ import { lifestyleQuestions } from "@/constants/discovery";
 import { LIFESTYLE_WEIGHTS } from "../core/weights";
 import { AestheticScores } from "@/types/discovery";
 import { ArrowRight, Check } from "lucide-react";
+import { Image } from "@/components/ui/image";
 
 interface Props {
   onComplete: (scores: Partial<AestheticScores>, labels?: string[]) => void;
@@ -115,11 +116,14 @@ const LifestyleReflection = ({ onComplete }: Props) => {
                             }`}
                           style={{ aspectRatio: "4/3" }}
                         >
-                          <img
+                          <Image
                             src={opt.image}
                             alt={opt.label}
-                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${isSelected ? "scale-105 brightness-95" : "group-hover:brightness-90"
+                            className="absolute inset-0 h-full w-full"
+                            imageClassName={`transition-all duration-500 ${isSelected ? "scale-105 brightness-95" : "group-hover:brightness-90"
                               }`}
+                            width={640}
+                            height={480}
                           />
                           {/* Dark gradient overlay at bottom for text */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />

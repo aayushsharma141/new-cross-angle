@@ -68,6 +68,8 @@ export default {
 					'bg-input': '#100D0A',
 					crimson: '#C41230',
 					'crimson-light': 'rgba(196, 18, 48, 0.3)',
+					gold: '#D1AF6E',
+					'gold-light': 'rgba(209, 175, 110, 0.3)',
 					stone: '#8B8B8B',
 					text: '#EDEAE6',
 					'text-heading': '#FFFFFF',
@@ -248,6 +250,16 @@ export default {
 					'50%': { 'background-position': '100% 100%' },
 					'100%': { 'background-position': '0% 0%' },
 				},
+				orbit: {
+					"0%": {
+					  transform:
+						"rotate(calc(var(--angle) * 1deg)) translateY(calc(var(--radius) * 1px)) rotate(calc(var(--angle) * -1deg))",
+					},
+					"100%": {
+					  transform:
+						"rotate(calc(var(--angle) * 1deg + 360deg)) translateY(calc(var(--radius) * 1px)) rotate(calc((var(--angle) * -1deg) - 360deg))",
+					},
+				},
 			},
 			animation: {
 				"fade-in": "fade-in 0.4s ease forwards",
@@ -273,6 +285,7 @@ export default {
 				'ripple': 'ripple 0.7s ease-out forwards',
 				'border-beam': 'border-beam calc(var(--duration)*1s) infinite linear',
 				'shine-pulse': 'shine-pulse 3s ease-in-out infinite',
+				'orbit': "orbit calc(var(--duration)*1s) linear infinite",
 			},
 			transitionTimingFunction: {
 				"luxury": "cubic-bezier(0.25, 0.1, 0.25, 1.0)",
@@ -305,22 +318,22 @@ export default {
 					boxShadow: "0 4px 20px hsl(0 0% 0% / 0.5)",
 				},
 				".btn-brand": {
-					background: "linear-gradient(135deg, hsl(355 85% 42%) 0%, hsl(355 90% 30%) 100%)",
-					border: "1px solid hsl(355 85% 42% / 0.4)",
-					boxShadow: "0 0 20px hsl(355 85% 42% / 0.25), inset 0 1px 0 hsl(0 0% 100% / 0.06)",
-					color: "hsl(0 0% 100%)",
+					background: "linear-gradient(135deg, hsl(43 90% 55%) 0%, hsl(38 90% 45%) 100%)",
+					border: "1px solid hsl(43 90% 55% / 0.4)",
+					boxShadow: "0 0 20px hsl(43 90% 55% / 0.25), inset 0 1px 0 hsl(0 0% 100% / 0.2)",
+					color: "hsl(0 0% 4%)",
 					letterSpacing: "0.08em",
 					textTransform: "uppercase",
 					fontSize: "0.75rem",
 					fontWeight: "700",
 					"&:hover": {
-						background: "linear-gradient(135deg, hsl(355 90% 45%) 0%, hsl(355 90% 35%) 100%)",
-						boxShadow: "0 0 28px hsl(355 85% 42% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.08)",
+						background: "linear-gradient(135deg, hsl(43 90% 50%) 0%, hsl(38 90% 40%) 100%)",
+						boxShadow: "0 0 28px hsl(43 90% 55% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.2)",
 						transform: "translateY(-1px)",
 					},
 					"&:active": {
 						transform: "translateY(0)",
-						background: "linear-gradient(135deg, hsl(355 95% 30%) 0%, hsl(355 95% 25%) 100%)",
+						background: "linear-gradient(135deg, hsl(43 90% 45%) 0%, hsl(38 90% 35%) 100%)",
 					},
 				},
 			});
