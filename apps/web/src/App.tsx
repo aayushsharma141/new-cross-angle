@@ -16,7 +16,8 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PageSkeleton } from "./components/ui/PageSkeleton";
 
 import { SmoothScroll } from "./components/layout/SmoothScroll";
-import { CoreProviders } from "./providers/CoreProviders";
+import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
 const POSTHOG_HOST = 'https://us.i.posthog.com';
@@ -418,6 +419,8 @@ const App = () => {
                             </BrowserRouter>
                           </ErrorBoundary>
       </SmoothScroll>
+      <SpeedInsights />
+      <Analytics />
     </CoreProviders>
   );
 };
