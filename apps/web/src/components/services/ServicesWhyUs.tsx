@@ -70,7 +70,7 @@ const ServicesWhyUs = () => {
         >
           <div className="relative aspect-[4/5] overflow-hidden rounded-[4px]">
             <Image
-              src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=75" 
+              src="/images/projects/discovery/visual-5.jpg" 
               alt="Why CrossAngle" 
               className="h-full w-full"
               imageClassName="grayscale-[0.8] brightness-[0.8]"

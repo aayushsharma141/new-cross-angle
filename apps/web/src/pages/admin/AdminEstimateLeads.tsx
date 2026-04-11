@@ -190,6 +190,7 @@ export default function AdminEstimateLeads() {
                                 <TableHead className="py-4 px-4 w-[40px]">
                                     <input
                                         type="checkbox"
+                                        aria-label="Select all leads"
                                         checked={selectedIds.size === (data?.length || 0) && (data?.length || 0) > 0}
                                         onChange={toggleSelectAll}
                                         className="rounded border-zinc-700"
@@ -220,6 +221,7 @@ export default function AdminEstimateLeads() {
                                         <TableCell className="py-3 px-4">
                                             <input
                                                 type="checkbox"
+                                                aria-label={`Select lead ${lead.name ?? lead.id}`}
                                                 checked={selectedIds.has(lead.id)}
                                                 onChange={() => toggleSelect(lead.id)}
                                                 className="rounded border-zinc-700"
@@ -239,6 +241,7 @@ export default function AdminEstimateLeads() {
                                         </TableCell>
                                         <TableCell className="py-3 px-4">
                                             <select
+                                                aria-label={`Status for ${lead.name ?? lead.id}`}
                                                 value={lead.status || 'new'}
                                                 onChange={(e) => handleStatusChange(lead.id, e.target.value as EstimateLeadStatus)}
                                                 className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer border-0 ${getStatusBadgeClass(lead.status)}`}

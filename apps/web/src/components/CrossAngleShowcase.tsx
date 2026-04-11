@@ -48,8 +48,8 @@ const hotspots: Hotspot[] = [
 ];
 
 // Placeholder high-quality images 
-const IMG_ANGLE_01 = "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=2000"; 
-const IMG_ANGLE_02 = "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&q=80&w=2000";
+const IMG_ANGLE_01 = "/images/projects/discovery/lifestyle-8.jpg"; 
+const IMG_ANGLE_02 = "/images/projects/discovery/visual-15.jpg";
 
 export const CrossAngleShowcase = () => {
   const [activeAngle, setActiveAngle] = useState<"angle01" | "angle02">("angle01");

@@ -74,7 +74,7 @@ const HubLightExperience = () => {
       >
         {/* Base Image */}
         <Image
-          src="https://images.unsplash.com/photo-1595526051245-4506e0005bd0?auto=format&fit=crop&q=80&w=2000"
+          src="/images/projects/discovery/lifestyle-5.jpg"
           alt="Interior lighting preview"
           className="absolute inset-0 h-full w-full"
           imageClassName="brightness-110"

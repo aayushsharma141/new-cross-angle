@@ -30,7 +30,7 @@ export const serviceCategories: ServiceCategory[] = [
         title: "Residential Design",
         slug: "residential",
         description: "Crafting personalized homes that reflect your lifestyle and personality.",
-        heroImage: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200",
+        heroImage: "/reality_render.jpg",
         icon: Home,
     },
     {
@@ -38,7 +38,7 @@ export const serviceCategories: ServiceCategory[] = [
         title: "Commercial Design",
         slug: "commercial",
         description: "Strategic design solutions that enhance productivity and brand value.",
-        heroImage: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200",
+        heroImage: "/images/projects/discovery/visual-16.jpg",
         icon: Building2,
     },
     {
@@ -46,7 +46,7 @@ export const serviceCategories: ServiceCategory[] = [
         title: "Specialized Executions",
         slug: "specialized",
         description: "Expert solutions for niche requirements like modular systems and lighting.",
-        heroImage: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200",
+        heroImage: "/images/projects/discovery/visual-12.jpg",
         icon: Lamp,
     },
 ];
@@ -72,11 +72,11 @@ Whether you prefer a **Minimalist Zen** aesthetic with clean lines and neutral t
 ### Premium Materials
 We use only high-grade materials for our joinery and soft furnishings, ensuring your living room not only looks stunning on day one but stands the test of time.
         `,
-        heroImage: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200",
+        heroImage: "/reality_render.jpg",
         galleryImages: [
-            "https://images.unsplash.com/photo-1615529182904-14819c35db37?q=80&w=800",
-            "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800",
-            "https://images.unsplash.com/photo-1616047006789-b7af5afb8c20?q=80&w=800"
+            "/images/projects/discovery/lifestyle-8.jpg",
+            "/images/projects/discovery/visual-3.jpg",
+            "/images/projects/portfolio-kitchen.jpg"
         ],
         features: [
             "Custom TV Units & Entertainment centers",
@@ -112,11 +112,11 @@ Our speciality lies in creating specialized storage solutions. From **Walk-in Cl
 ### Mood Lighting
 Lighting plays a crucial role in setting the mood. We integrate warm cove lighting in false ceilings, reading lights in headboards, and automated dimmer systems to help you transition from day to night effortlessly.
         `,
-        heroImage: "https://images.unsplash.com/photo-1616594039964-40891a90c309?q=80&w=1200",
+        heroImage: "/images/projects/discovery/lifestyle-7.jpg",
         galleryImages: [
-            "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?q=80&w=800",
-            "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?q=80&w=800",
-            "https://images.unsplash.com/photo-1505693314120-0a44176374b1?q=80&w=800"
+            "/hero_reality_render_1775299733746.png",
+            "/images/projects/discovery/visual-18.jpg",
+            "/images/projects/discovery/visual-10.jpg"
         ],
         features: [
             "Floor-to-Ceiling Wardrobes",
@@ -154,11 +154,11 @@ Kitchens face heat, moisture, and heavy use. That's why we use:
 *   **Quartz Countertops:** Stain and scratch resistant.
 *   **Soft-Close Hettich/Hafele Hardware:** For smooth, silent operation.
         `,
-        heroImage: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200",
+        heroImage: "/images/projects/discovery/visual-12.jpg",
         galleryImages: [
-            "https://images.unsplash.com/photo-1565538810643-b5bdb714032a?q=80&w=800",
-            "https://images.unsplash.com/photo-1484154218962-a1c00207bf9a?q=80&w=800",
-            "https://images.unsplash.com/photo-1563298723-dcfebaa392e3?q=80&w=800"
+            "/images/projects/discovery/visual-15.jpg",
+            "/images/projects/discovery/visual-13.jpg",
+            "/images/projects/discovery/visual-15.jpg"
         ],
         features: [
             "Modular Cabinetry",
@@ -185,7 +185,7 @@ Kitchens face heat, moisture, and heavy use. That's why we use:
         title: "Office Interiors",
         slug: "office",
         description: "Productive workspaces with ergonomic planning, conference rooms, and reception areas.",
-        heroImage: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200",
+        heroImage: "/images/projects/discovery/visual-16.jpg",
         features: [
             "Ergonomic Workstations",
             "Acoustic Meeting Pods",
@@ -209,7 +209,7 @@ Kitchens face heat, moisture, and heavy use. That's why we use:
         title: "Retail & Showroom",
         slug: "retail",
         description: "Engaging retail environments designed to maximize customer flow and product display.",
-        heroImage: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=1200",
+        heroImage: "/hero_reality_render_1775299733746.png",
         features: [
             "Strategic Product Displays",
             "Customer Flow Optimization",
@@ -244,7 +244,7 @@ We partner with world leaders like **Hettich**, **Hafele**, and **Blum** to brin
 *   **Tall Units:** For pantry storage that slides out effortlessly.
 *   **Corner Solutions:** Magic corners and carousels to utilize blind corners.
         `,
-        heroImage: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200",
+        heroImage: "/images/projects/discovery/visual-12.jpg",
         features: [
             "Hettich/Hafele Hardware",
             "Soft-close Mechanisms",
@@ -267,7 +267,7 @@ We partner with world leaders like **Hettich**, **Hafele**, and **Blum** to brin
         title: "False Ceiling & Lighting",
         slug: "ceilings",
         description: "Transformative ceiling designs that define spaces and house advanced lighting systems.",
-        heroImage: "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200",
+        heroImage: "/images/projects/discovery/visual-3.jpg",
         features: [
             "Gypsum & POP Designs",
             "Cove & Profile Lighting",
@@ -298,11 +298,11 @@ A successful restaurant or cafe is about more than just food; it's about the ent
 ### Durable & Beautiful
 Hospitality environments face immense wear and tear. We carefully select materials that offer both aesthetic appeal and commercial-grade durability, ensuring your space looks pristine even after years of high-volume service.
         `,
-        heroImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200", 
+        heroImage: "/images/projects/discovery/visual-10.jpg", 
         galleryImages: [
-            "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=800",
-            "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800",
-            "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?q=80&w=800"
+            "/images/projects/discovery/visual-17.jpg",
+            "/images/projects/discovery/visual-14.jpg",
+            "/images/projects/discovery/visual-9.jpg"
         ],
         features: [
             "Optimized Seating Layouts",
@@ -334,11 +334,11 @@ Lighting is the most transformative element of interior design. It has the power
 ### Technical Precision
 We utilize advanced lighting plans that merge aesthetic goals with technical requirements. We consider color temperature (Kelvin), color rendering index (CRI), and beam angles to ensure perfect illumination for every unique space.
         `,
-        heroImage: "https://images.unsplash.com/photo-1540932239986-30128078f3c5?q=80&w=1200",
+        heroImage: "/images/projects/discovery/visual-9.jpg",
         galleryImages: [
-            "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?q=80&w=800",
-            "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?q=80&w=800",
-            "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?q=80&w=800"
+            "/images/projects/discovery/visual-13.jpg",
+            "/images/projects/discovery/visual-4.jpg",
+            "/images/projects/discovery/visual-12.jpg"
         ],
         features: [
             "Custom Lighting Layouts",
@@ -369,11 +369,11 @@ Standard furniture often falls short when you require specific dimensions, preci
 ### Superior Craftsmanship
 Every piece of custom furniture is handcrafted by skilled artisans. We use premium materials, from solid hardwoods to high-grade upholstery fabrics, ensuring longevity and exceptional comfort.
         `,
-        heroImage: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1200",
+        heroImage: "/images/projects/discovery/visual-2.jpg",
         galleryImages: [
-            "https://images.unsplash.com/photo-1538688423619-a8ddccfb10df?q=80&w=800",
-            "https://images.unsplash.com/photo-1505693314120-0a44176374b1?q=80&w=800",
-            "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=800"
+            "/images/projects/discovery/visual-17.jpg",
+            "/images/projects/discovery/visual-10.jpg",
+            "/images/projects/discovery/visual-6.jpg"
         ],
         features: [
             "Made-to-Measure Dimensions",

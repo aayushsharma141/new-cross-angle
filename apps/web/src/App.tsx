@@ -14,6 +14,7 @@ import { CookieConsentBanner } from "./components/cookies/CookieConsentBanner";
 import { runWhenIdle } from "./lib/idle";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PageSkeleton } from "./components/ui/PageSkeleton";
+import { CoreProviders } from "./providers/CoreProviders";
 
 import { SmoothScroll } from "./components/layout/SmoothScroll";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -37,6 +38,7 @@ const ProjectPage = lazy(() => import("./pages/ProjectPage"));
 const PriceEstimator = lazy(() => import("./addons/calculators/pages/PriceEstimator"));
 const DiscoveryPage = lazy(() => import("./addons/discovery/pages/DiscoveryPage"));
 const BlueprintPage = lazy(() => import("./addons/discovery/pages/BlueprintPage"));
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Shared route wrappers
@@ -346,6 +348,8 @@ const AnimatedRoutes = () => {
                 path="/portfolio/:slug"
                 element={<PageTransition><ProjectPage /></PageTransition>}
               />
+              <Route path="/privacy" element={<PageTransition><PrivacyPage /></PageTransition>} />
+              <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
               <Route path="/about" element={<Navigate to="/about-us" replace />} />
               <Route path="/contact" element={<Navigate to="/contact-us" replace />} />
               <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />

@@ -6,6 +6,8 @@ import {
     checkRateLimit,
     getClientId,
     rateLimitResponse,
+    structuredLog,
+    getRequestId,
 } from "../_lib/security.ts";
 import {
     AppRole,
@@ -105,9 +107,12 @@ Deno.serve(async (req: Request) => {
     const preflight = handlePreflight(req, CORS_OPTS);
     if (preflight) return preflight;
 
+    const requestId = getRequestId(req);
+    const FN = "manage-user";
+
     const clientId = getClientId(req);
     const rl = await checkRateLimit(req, clientId, RATE_OPTS);
-    if (rl.limited) return rateLimitResponse(req, rl, CORS_OPTS);
+    if (rl.limited) return rateLimitResponse(req, rl, CORS_OPTS, FN, requestId);
 
     try {
         const corsHeaders = buildCorsHeaders(req, CORS_OPTS);
@@ -393,15 +398,15 @@ Deno.serve(async (req: Request) => {
         });
 
         if (auditError) {
-            console.error("Audit log insert failed:", auditError);
+            structuredLog("error", FN, "Audit log insert failed", { error: auditError }, requestId);
         }
 
         return new Response(JSON.stringify({ success: true }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
     } catch (error: unknown) {
-        console.error("Error in manage-user:", error);
         const msg = error instanceof Error ? error.message : "Unknown error";
+        structuredLog("error", FN, "Error in manage-user", { error: msg }, requestId);
         return new Response(JSON.stringify({ error: msg }), {
             status: 500,
             headers: { ...buildCorsHeaders(req, CORS_OPTS), "Content-Type": "application/json" },

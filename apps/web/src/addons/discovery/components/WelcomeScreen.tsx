@@ -382,7 +382,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
           ════════════════════════════════════════════════════════════ */}
       <section className="relative w-full min-h-[400px] flex justify-center items-center py-20 px-6 overflow-hidden">
         <Image
-          src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80" 
+          src="/images/projects/discovery/visual-2.jpg" 
           alt="Interior" 
           className="absolute inset-0 h-full w-full"
           width={1600}

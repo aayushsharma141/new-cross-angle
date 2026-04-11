@@ -370,7 +370,11 @@ export default function Footer() {
 
       {/* --- BOTTOM --- */}
       <div className="flex flex-col md:flex-row items-center justify-between py-[20px] px-[6vw] text-[11px] opacity-50 relative z-10 w-full mt-10 md:mt-20">
-        <div className="mb-4 md:mb-0">(c) 2026 CrossAngle Interior</div>
+        <div className="mb-4 md:mb-0 flex flex-wrap gap-4 items-center justify-center">
+          <span>(c) 2026 CrossAngle Interior</span>
+          <span className="hidden md:inline">|</span>
+          <Link to="/privacy" onClick={() => window.scrollTo(0,0)} className="hover:text-white transition-colors duration-300">Privacy & DPDPA Policy</Link>
+        </div>
         <button
           type="button"
           onClick={scrollToTop}

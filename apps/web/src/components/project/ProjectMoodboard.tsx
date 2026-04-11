@@ -3,15 +3,15 @@ import { Image } from "@/components/ui/image";
 
 const moodboardItems = [
   {
-    src: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&q=80&w=800",
+    src: "/images/projects/discovery/lifestyle-5.jpg",
     label: "Calm",
   },
   {
-    src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&q=80&w=800",
+    src: "/images/projects/portfolio-bedroom.jpg",
     label: "Warmth",
   },
   {
-    src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=800",
+    src: "/images/projects/discovery/lifestyle-4.jpg",
     label: "Silence",
   },
 ];

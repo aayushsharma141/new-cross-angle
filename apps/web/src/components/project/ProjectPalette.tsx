@@ -25,10 +25,10 @@ const ProjectPalette = ({ materials, palette = defaultPalette }: ProjectPaletteP
 
   // Fallback images for the visualizer if no specific images exist
   const materialImages = [
-    "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&q=80&w=1200", // Default
-    "https://images.unsplash.com/photo-1588656826685-618778fbc396?auto=format&fit=crop&q=80&w=1200", // Mat 1
-    "https://images.unsplash.com/photo-1620241608701-94ef138c7ec9?auto=format&fit=crop&q=80&w=1200", // Mat 2
-    "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&q=80&w=1200"  // Mat 3
+    "/images/projects/discovery/lifestyle-4.jpg", // Default
+    "/images/projects/discovery/lifestyle-7.jpg", // Mat 1
+    "/images/projects/discovery/visual-13.jpg", // Mat 2
+    "/images/projects/discovery/visual-10.jpg"  // Mat 3
   ];
 
   const currentImage = activeMaterial !== null && activeMaterial < materialImages.length - 1 

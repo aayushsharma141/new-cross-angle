@@ -4,19 +4,19 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const MOODS = [
   {
-    image: "https://images.unsplash.com/photo-1618221381711-42ca8ab6e908?q=80&w=1200&auto=format&fit=crop",
+    image: "/images/projects/discovery/visual-11.jpg",
     word: "Calm"
   },
   {
-    image: "https://images.unsplash.com/photo-1615874959474-d609969a20ed?q=80&w=1200&auto=format&fit=crop",
+    image: "/images/projects/discovery/lifestyle-2.jpg",
     word: "Warmth"
   },
   {
-    image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1200&auto=format&fit=crop",
+    image: "/images/projects/discovery/lifestyle-5.jpg",
     word: "Silence"
   },
   {
-    image: "https://images.unsplash.com/photo-1617103996702-96ff29b1c467?q=80&w=1200&auto=format&fit=crop",
+    image: "/images/projects/discovery/visual-2.jpg",
     word: "Luxury"
   }
 ];

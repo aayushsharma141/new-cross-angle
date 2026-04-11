@@ -1,0 +1,38 @@
+name: Key Rotation Reminder
+
+on:
+  schedule:
+    # Runs at 00:00 on the 1st of January, April, July, and October
+    - cron: '0 0 1 1,4,7,10 *'
+  workflow_dispatch:
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create rotation tracking issue
+        uses: imjohnbo/issue-bot@v3
+        with:
+          assignees: "admin"
+          labels: "security, maintenance"
+          title: "🔐 Quarterly Key Rotation Required: Supabase Keys"
+          body: |
+            ### Quarterly Key Rotation Required
+            
+            This is an automated reminder to rotate the critical Supabase access keys to comply with our security policies.
+            
+            **Keys to rotate:**
+            - `SUPABASE_ANON_KEY`
+            - `SUPABASE_SERVICE_ROLE_KEY`
+            
+            **Rotation Process:**
+            Please refer to the documented strategy in `.agents/security/KEY_ROTATION_STRATEGY.md` for the safe zero-downtime rotation methodology.
+            
+            **Post-Rotation Checklist:**
+            - [ ] Generate new keys in Supabase Dashboard.
+            - [ ] Update keys in Vercel / hosting environment variables.
+            - [ ] Update keys in GitHub Secrets (for CI/CD).
+            - [ ] Verify frontend login/signup flows functionality.
+            - [ ] Close this issue upon completion.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

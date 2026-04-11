@@ -133,7 +133,7 @@ const AdminAuth: React.FC = () => {
     <div className="min-h-screen bg-black relative flex items-center justify-center overflow-hidden p-6 admin-theme">
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=2574&auto=format&fit=crop"
+          src="/images/projects/discovery/lifestyle-5.jpg"
           alt="Interior Luxury"
           className="w-full h-full object-cover opacity-20 blur-xl scale-110"
         />

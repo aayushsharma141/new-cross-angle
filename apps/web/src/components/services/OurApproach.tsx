@@ -99,7 +99,7 @@ const OurApproach = () => {
 
             {/* Grayscale background image */}
             <Image
-              src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=75"
+              src="/images/projects/discovery/lifestyle-8.jpg"
               alt="Architecture Background"
               className="pointer-events-none absolute inset-0 h-full w-full"
               imageClassName="opacity-[0.07] grayscale"

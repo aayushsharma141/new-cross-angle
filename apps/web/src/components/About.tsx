@@ -158,7 +158,7 @@ const About = () => {
                
                <div className="relative w-full h-full overflow-hidden bg-site-bg">
                  <img 
-                   src="https://images.unsplash.com/photo-1600210491369-e753d80a41f3?auto=format&fit=crop&q=80&w=2000" 
+                   src="/hero_reality_render_1775299733746.png" 
                    alt="Elegant minimal interior" 
                    className="w-full h-full object-cover object-center grayscale-[0.3] contrast-110 brightness-90 group-hover:scale-105 transition-transform duration-[2.5s] ease-out"
                  />

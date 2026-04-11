@@ -18,7 +18,7 @@ const SPACES = [
     id: "living",
     name: "Living Rooms",
     headline: "Built for functional luxury",
-    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200&auto=format&fit=crop",
+    image: "/images/projects/discovery/visual-11.jpg",
     href: "/gallery?category=Living Room Interior"
   },
   {
@@ -39,7 +39,7 @@ const SPACES = [
     id: "wardrobe",
     name: "Wardrobes",
     headline: "Organized elegance",
-    image: "https://images.unsplash.com/photo-1595428774223-ef52624120d2?q=80&w=1200&auto=format&fit=crop",
+    image: "/blueprint_shell.jpg",
     href: "/gallery?category=Wardrobe"
   }
 ];
