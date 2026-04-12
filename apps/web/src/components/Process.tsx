@@ -191,7 +191,7 @@ const Process = () => {
 
     const rect = node.getBoundingClientRect();
     const scrollableDistance = rect.height - window.innerHeight;
-    const normalizedIndex = steps.length === 1 ? 0 : index / (steps.length - 1);
+    const normalizedIndex = steps.length <= 1 ? 0 : index / (steps.length - 1);
     const targetY = window.scrollY + rect.top + scrollableDistance * normalizedIndex;
 
     window.scrollTo({
@@ -236,7 +236,7 @@ const Process = () => {
                       "absolute inset-0 transition-opacity duration-700",
                       activeIndex === index ? "opacity-100" : "pointer-events-none opacity-0",
                     )}
-                    aria-hidden={activeIndex !== index}
+                    {...(activeIndex !== index ? { "aria-hidden": true } : {})}
                   >
                     <Image
                       src={step.image}
