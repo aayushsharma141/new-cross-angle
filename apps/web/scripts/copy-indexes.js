@@ -47,9 +47,19 @@ const routes = [
   '/admin/login',
   '/admin/reset-password',
   '/admin/dashboard',
-  '/admin/projects',
-  '/admin/leads',
-  '/admin/settings',
+  // CMS module
+  '/admin/cms/portfolio',
+  '/admin/cms/media',
+  '/admin/cms/blogs',
+  '/admin/cms/team',
+  '/admin/cms/testimonials',
+  // CRM module
+  '/admin/crm/leads',
+  '/admin/crm/estimates',
+  // Discovery module
+  '/admin/discovery/analytics',
+  // System module
+  '/admin/system/settings',
   ...projectSlugs.map(s => `/portfolio/${s}`),
 ];
 

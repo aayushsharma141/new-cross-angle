@@ -1,7 +1,7 @@
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { Check } from "lucide-react";
 import { useRef } from "react";
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 
 interface ImageOptionProps {
   label: string;

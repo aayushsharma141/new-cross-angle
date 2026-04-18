@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 
 import { supabase, invokeEdge } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
     canManageRole,
@@ -34,20 +34,20 @@ import {
 } from "@/lib/auth/rbac";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { UserFormSheet, type AdminUserRecord } from "@/components/admin/users/UserFormSheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/primitives/avatar";
+import { Badge } from "@/components/ui/primitives/badge";
+import { Button } from "@/components/ui/primitives/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/primitives/card";
+import { Input } from "@/components/ui/primitives/input";
+import { Label } from "@/components/ui/primitives/label";
+import { Progress } from "@/components/ui/primitives/progress";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/primitives/select";
 import {
     Table,
     TableBody,
@@ -55,7 +55,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/primitives/table";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -63,7 +63,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/primitives/dropdown-menu";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -73,10 +73,10 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@/components/ui/primitives/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/primitives/tabs";
 import { icons } from "@/design-system/tokens/icons";
-import { changePasswordSchema } from "@/lib/auth-validation";
+import { changePasswordSchema } from "@/lib/auth/auth-validation";
 import { cn } from "@/lib/utils";
 
 type UserAction = "activate" | "deactivate" | "delete" | "reset-password";

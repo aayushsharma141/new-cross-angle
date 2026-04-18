@@ -19,10 +19,10 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { LeadCard } from "./LeadCard";
-import { leadStatusOptions } from "@/lib/validations";
-import { formatINR, getLeadHealth } from "@/lib/leadScoring";
+import { leadStatusOptions } from "@/lib/validation/validations";
+import { formatINR, getLeadHealth } from "@/lib/scoring/leadScoring";
 import { cn } from "@/lib/utils";
-import type { Lead } from "@/lib/leadScoring";
+import type { Lead } from "@/lib/scoring/leadScoring";
 import { AlertTriangle } from "lucide-react";
 
 interface LeadPipelineProps {

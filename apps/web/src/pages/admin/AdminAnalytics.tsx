@@ -18,12 +18,12 @@ import {
 import { Link } from "react-router-dom";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
-import { PageSkeleton } from "@/components/ui/PageSkeleton";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { PageSkeleton } from "@/components/ui/enhanced/PageSkeleton";
+import { Button } from "@/components/ui/primitives/button";
+import { Calendar } from "@/components/ui/primitives/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/primitives/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/primitives/dialog";
+import { ScrollArea } from "@/components/ui/primitives/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/design-system/components/Table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, LineChart, Line, CartesianGrid, Legend, AreaChart, Area } from "recharts";
 import { icons } from "@/design-system/tokens/icons";

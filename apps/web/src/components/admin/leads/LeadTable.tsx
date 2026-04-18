@@ -2,8 +2,8 @@ import * as React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { ExternalLink, MoreHorizontal, Mail, Phone, MapPin, Calendar, Tag, ArrowUpDown, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/primitives/button';
+import { Checkbox } from '@/components/ui/primitives/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,15 +11,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/primitives/dropdown-menu';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
+} from '@/components/ui/primitives/dialog';
+import { Badge } from '@/components/ui/primitives/badge';
 import { DataTable } from '@/components/admin/DataTable';
 import type { Lead } from '@/repositories/interfaces/LeadRepository';
 import type { PaginatedResponse } from '@/services/types';

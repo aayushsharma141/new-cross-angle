@@ -4,7 +4,7 @@ import { visualImages } from "@/constants/discovery";
 import { VISUAL_WEIGHTS } from "../core/weights";
 import { AestheticScores } from "@/types/discovery";
 import { track } from "../infrastructure/analytics/tracker";
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 
 interface Props {
   sessionId: string | null;

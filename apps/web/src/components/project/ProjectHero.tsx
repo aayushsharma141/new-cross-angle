@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ArrowDown } from "lucide-react";
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 
 interface ProjectHeroProps {
   heroImage: string;

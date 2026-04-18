@@ -1,22 +1,22 @@
 import { Helmet } from "react-helmet-async";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FixedSocialBar from "@/components/FixedSocialBar";
-import ScrollToTop from "@/components/ScrollToTop";
-import { LogoAnimation } from "@/components/LogoAnimation";
-import ServicesHero from "@/components/services/ServicesHero";
-import ServicesMarquee from "@/components/services/ServicesMarquee";
-import ServicesProcess from "@/components/services/ServicesProcess";
-import ServicesWhyUs from "@/components/services/ServicesWhyUs";
-import ServicesCTA from "@/components/services/ServicesCTA";
-import OurApproach from "@/components/services/OurApproach";
-import ServicesEngines from "@/components/services/ServicesEngines";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import FixedSocialBar from "@/components/layout/FixedSocialBar";
+import ScrollToTop from "@/components/layout/ScrollToTop";
+import { LogoAnimation } from "@/components/shared/LogoAnimation";
+import ServicesHero from "@/components/home/Services/ServicesHero";
+import ServicesMarquee from "@/components/home/Services/ServicesMarquee";
+import ServicesProcess from "@/components/home/Services/ServicesProcess";
+import ServicesWhyUs from "@/components/home/Services/ServicesWhyUs";
+import ServicesCTA from "@/components/home/Services/ServicesCTA";
+import OurApproach from "@/components/home/Services/OurApproach";
+import ServicesEngines from "@/components/home/Services/ServicesEngines";
 import { Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed, LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 
 // Icon mapping helper
 const IconMap: Record<string, LucideIcon> = {

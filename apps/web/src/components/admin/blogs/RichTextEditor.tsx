@@ -9,7 +9,7 @@ import TextAlign from '@tiptap/extension-text-align';
 import HorizontalRule from '@tiptap/extension-horizontal-rule';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { createLowlight } from 'lowlight';
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/primitives/button";
 import { MediaPicker } from "@/components/admin/media/MediaPicker";
 import {
     Bold, Italic, Strikethrough, Underline as UnderlineIcon,

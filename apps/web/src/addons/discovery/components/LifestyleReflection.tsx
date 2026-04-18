@@ -4,7 +4,7 @@ import { lifestyleQuestions } from "@/constants/discovery";
 import { LIFESTYLE_WEIGHTS } from "../core/weights";
 import { AestheticScores } from "@/types/discovery";
 import { ArrowRight, Check } from "lucide-react";
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 
 interface Props {
   onComplete: (scores: Partial<AestheticScores>, labels?: string[]) => void;

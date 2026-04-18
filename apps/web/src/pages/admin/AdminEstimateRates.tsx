@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/primitives/button";
+import { Input } from "@/components/ui/primitives/input";
+import { Label } from "@/components/ui/primitives/label";
+import { Separator } from "@/components/ui/primitives/separator";
 import { icons } from "@/design-system/tokens/icons";
 import { Save, RotateCcw, Loader2, Clock, IndianRupee, MapPin, Paintbrush, HardHat, Eye, Plug, BrainCircuit, Target } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import type { PricingConfig } from "@/addons/calculators/components/data/types";
 import { DEFAULT_PRICING_CONFIG } from "@/addons/calculators/components/data/pricing-config";
 import { calculateEstimate } from "@/addons/calculators/components/data/calculation-engine";

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 
 const moodboardItems = [
   {

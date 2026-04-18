@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, Loader2, FileImage, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/primitives/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/primitives/alert";
 
 interface MediaUploadZoneProps {
     onUpload: (files: File[]) => Promise<void>;

@@ -6,7 +6,7 @@ import {
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from "@/components/ui/primitives/breadcrumb";
 import { Home } from "lucide-react";
 import { icons } from "@/design-system/tokens/icons";
 

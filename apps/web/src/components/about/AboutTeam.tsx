@@ -3,7 +3,7 @@ import { Instagram, Linkedin, Mail } from "lucide-react";
 import { ScrollReveal } from "../ui/scroll-reveal";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 
 interface TeamMemberData {
     id: string;

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { leadRepo } from "@/repositories";
-import { PageSkeleton } from "@/components/ui/PageSkeleton";
+import { PageSkeleton } from "@/components/ui/enhanced/PageSkeleton";
 import {
   calculateLeadScore,
   getLeadHealth,
@@ -10,8 +10,8 @@ import {
   formatINR,
   getWeightedValue,
   type Lead,
-} from "@/lib/leadScoring";
-import { leadStatusOptions } from "@/lib/validations";
+} from "@/lib/scoring/leadScoring";
+import { leadStatusOptions } from "@/lib/validation/validations";
 import {
   BarChart,
   Bar,

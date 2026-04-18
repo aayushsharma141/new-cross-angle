@@ -2,20 +2,20 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Plus, Pencil, Trash2, Loader2, RotateCcw, Star, Search } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/primitives/card";
+import { Button } from "@/components/ui/primitives/button";
+import { Input } from "@/components/ui/primitives/input";
+import { Textarea } from "@/components/ui/primitives/textarea";
+import { Label } from "@/components/ui/primitives/label";
+import { Switch } from "@/components/ui/primitives/switch";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+} from "@/components/ui/primitives/dialog";
+import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { icons } from "@/design-system/tokens/icons";
@@ -31,7 +31,7 @@ import { RichTextEditor } from "@/components/admin/blogs/RichTextEditor";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { MediaPicker } from "@/components/admin/media/MediaPicker";
 import { Image as ImageIcon, CheckSquare } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/ui/primitives/checkbox";
 import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 import { getOptimizedUrl } from "@/lib/cdn";
 import { ModuleHeader } from "@/components/admin/layout/ModuleHeader";

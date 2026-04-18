@@ -13,8 +13,8 @@
 
 import { useMemo } from "react";
 import { AlertTriangle, User, ArrowRight, ShieldCheck } from "lucide-react";
-import { detectDuplicate } from "@/lib/leadScoring";
-import type { Lead } from "@/lib/leadScoring";
+import { detectDuplicate } from "@/lib/scoring/leadScoring";
+import type { Lead } from "@/lib/scoring/leadScoring";
 import { cn } from "@/lib/utils";
 
 interface DuplicateBannerProps {

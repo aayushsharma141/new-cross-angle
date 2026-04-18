@@ -6,12 +6,12 @@ import {
     Image as ImageIcon, CheckSquare, Eye, EyeOff, Grid, List as ListIcon,
     ArrowUpDown, X, MoreVertical
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/primitives/card";
+import { Button } from "@/components/ui/primitives/button";
+import { Input } from "@/components/ui/primitives/input";
+import { Textarea } from "@/components/ui/primitives/textarea";
+import { Label } from "@/components/ui/primitives/label";
+import { Switch } from "@/components/ui/primitives/switch";
 import {
     Dialog,
     DialogContent,
@@ -19,15 +19,15 @@ import {
     DialogTitle,
     DialogDescription,
     DialogFooter,
-} from "@/components/ui/dialog";
+} from "@/components/ui/primitives/dialog";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useToast } from "@/hooks/use-toast";
+} from "@/components/ui/primitives/dropdown-menu";
+import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { getOptimizedUrl } from "@/lib/cdn";
@@ -40,8 +40,8 @@ import {
     TableHeader,
     TableRow,
 } from "@/design-system/components/Table";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/primitives/badge";
+import { Checkbox } from "@/components/ui/primitives/checkbox";
 import { cn } from "@/lib/utils";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 

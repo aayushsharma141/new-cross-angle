@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 
 import { supabase, invokeEdge } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import {
     ASSIGNABLE_ROLES,
     AppRole,
@@ -13,16 +13,16 @@ import {
     ROLE_LABELS,
     normalizeRole,
 } from "@/lib/auth/rbac";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/primitives/button";
+import { Input } from "@/components/ui/primitives/input";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+} from "@/components/ui/primitives/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/primitives/form";
 import {
     Dialog,
     DialogContent,
@@ -30,7 +30,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/primitives/dialog";
 
 const ACTIVE_STATUSES = ["active", "inactive"] as const;
 

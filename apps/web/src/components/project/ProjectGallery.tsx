@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 
 interface GalleryItem {
   room: string;

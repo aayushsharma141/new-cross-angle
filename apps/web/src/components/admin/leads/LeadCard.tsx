@@ -1,19 +1,19 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/primitives/card";
+import { Badge } from "@/components/ui/primitives/badge";
 import { Calendar, Phone, Mail, MapPin, AlertTriangle, CheckCircle, Clock, ArrowRight, ChevronsUpDown } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/primitives/avatar";
 import { Button } from "@/design-system/components/Button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/primitives/popover";
 import {
   calculateLeadScore,
   getLeadTemperature,
   getLeadHealth,
   formatINR,
   type Lead,
-} from "@/lib/leadScoring";
+} from "@/lib/scoring/leadScoring";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 

@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Lead, LeadPayload } from '@/repositories/interfaces/LeadRepository';
 import type { FilterParams, PaginatedResponse, PaginationParams, SortParams, UndoItem } from './types';
-import { calculateLeadScore as libCalculateScore, getLeadTemperature } from '@/lib/leadScoring';
+import { calculateLeadScore as libCalculateScore, getLeadTemperature } from '@/lib/scoring/leadScoring';
 
 const UNDO_TIMEOUT = 5000;
 const MAX_UNDO_ITEMS = 10;
@@ -154,7 +154,7 @@ export class LeadService {
    * Weights: budget(30) + category(20) + timeline(20) + contact(10) + source(15) + recency(5) = 100
    * Buckets : hot ≥ 70 | warm ≥ 40 | cold < 40
    *
-   * @deprecated For display/admin use, import calculateLeadScore from '@/lib/leadScoring' directly.
+   * @deprecated For display/admin use, import calculateLeadScore from '@/lib/scoring/leadScoring' directly.
    * This method exists for backward compatibility with getLeadStats().
    */
   calculateLeadScore(lead: Partial<Lead>): number {

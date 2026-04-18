@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { AnimatePresence, motion } from "framer-motion";
 import { LayoutGrid, Building2, PaintBucket, PenTool } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import EstimatorCard from "@/components/estimator/EstimatorCard";
 import { CostEstimator } from "@/addons/calculators/components/CostEstimator";
 

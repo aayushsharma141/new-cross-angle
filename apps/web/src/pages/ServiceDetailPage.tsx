@@ -1,18 +1,18 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ArrowRight, CheckCircle2, ChevronRight, Loader2, Sparkles } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import { Button } from "@/components/ui/primitives/button";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/primitives/accordion";
 import { serviceCategories, services } from "@/config/site-content";
 import NotFound from "./NotFound";
 import { motion } from "framer-motion";
-import { SchemaMarkup } from "@/components/SchemaMarkup";
+import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import ReactMarkdown from 'react-markdown';
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 
 const ServiceDetailPage = () => {
     const { category: categorySlug, service: serviceSlug } = useParams();

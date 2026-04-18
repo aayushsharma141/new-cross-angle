@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/primitives/button";
 import { X, Trash2, Globe, Archive } from "lucide-react";
 import { icons } from "@/design-system/tokens/icons";
 

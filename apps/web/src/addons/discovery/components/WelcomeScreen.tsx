@@ -12,7 +12,7 @@ import logoIcon from "@/assets/logo-icon.png";
 import { AnimatedBeam } from "@/components/magicui/animated-beam";
 import ShimmerButton from "@/components/magicui/shimmer-button";
 import { RetroGrid } from "@/components/magicui/retro-grid";
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 
 import type { DiscoveryConfig } from "./DiscoveryEngine";
 

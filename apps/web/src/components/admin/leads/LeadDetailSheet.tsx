@@ -8,15 +8,15 @@ import {
     DialogTitle,
     DialogDescription,
     DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { leadStatusOptions, lossReasonOptions, leadSchema, formatZodErrors } from "@/lib/validations";
+} from "@/components/ui/primitives/dialog";
+import { Button } from "@/components/ui/primitives/button";
+import { Label } from "@/components/ui/primitives/label";
+import { Input } from "@/components/ui/primitives/input";
+import { Textarea } from "@/components/ui/primitives/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/primitives/select";
+import { leadStatusOptions, lossReasonOptions, leadSchema, formatZodErrors } from "@/lib/validation/validations";
 import { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/primitives/tabs";
 import { LeadTimeline } from "@/components/admin/leads/LeadTimeline";
 import {
   Mail, Phone, MapPin, User, FileText, StickyNote, Copy,
@@ -25,12 +25,12 @@ import {
   Send, Loader2, CheckCheck,
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
-import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import type { Lead } from "@/lib/leadScoring";
-import type { LeadScoreBreakdown } from "@/lib/leadScoring";
-import { STAGE_WIN_PROBABILITY } from "@/lib/leadScoring";
+import { useToast } from "@/hooks/useToast";
+import { Card, CardContent } from "@/components/ui/primitives/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/primitives/tooltip";
+import type { Lead } from "@/lib/scoring/leadScoring";
+import type { LeadScoreBreakdown } from "@/lib/scoring/leadScoring";
+import { STAGE_WIN_PROBABILITY } from "@/lib/scoring/leadScoring";
 import { cn } from "@/lib/utils";
 import { useSendEmail } from "@/hooks/useSendEmail";
 import { DuplicateBanner } from "@/components/admin/leads/DuplicateBanner";

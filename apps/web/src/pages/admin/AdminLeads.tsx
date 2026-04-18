@@ -5,8 +5,8 @@ import { LeadPipeline } from "@/components/admin/leads/LeadPipeline";
 import { LeadDetailSheet } from "@/components/admin/leads/LeadDetailSheet";
 import { Button } from "@/design-system/components/Button";
 import { Input } from "@/design-system/components/Input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageSkeleton } from "@/components/ui/PageSkeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/primitives/tabs";
+import { PageSkeleton } from "@/components/ui/enhanced/PageSkeleton";
 import { Card } from "@/design-system/components/Card";
 import {
   Table,
@@ -22,7 +22,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/primitives/select";
 import {
   LayoutGrid,
   List as ListIcon,
@@ -44,11 +44,11 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { icons } from "@/design-system/tokens/icons";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
-import { calculateLeadScore, getLeadTemperature, getLeadHealth, buildForecast, formatINR, Lead } from "@/lib/leadScoring";
-import { validateStageAdvance, type LeadStatus } from "@/lib/validations";
+import { Badge } from "@/components/ui/primitives/badge";
+import { calculateLeadScore, getLeadTemperature, getLeadHealth, buildForecast, formatINR, Lead } from "@/lib/scoring/leadScoring";
+import { validateStageAdvance, type LeadStatus } from "@/lib/validation/validations";
 import { EmptyState, LoadingState } from "@/design-system/components/states";
 import { cn } from "@/lib/utils";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -60,7 +60,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/primitives/dropdown-menu";
 import { AnalyticsKpiRow } from "@/components/admin/analytics/AnalyticsKpiRow";
 import type { LucideIcon } from "lucide-react";
 

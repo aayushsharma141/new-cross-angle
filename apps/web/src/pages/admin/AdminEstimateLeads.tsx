@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import { Loader2, Users, Pencil, Trash2, MoreVertical } from 'lucide-react';
 import { icons } from '@/design-system/tokens/icons';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/primitives/button';
 
 import {
     Table,
@@ -13,14 +13,14 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/primitives/table";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useToast } from '@/hooks/use-toast';
+} from "@/components/ui/primitives/dropdown-menu";
+import { useToast } from '@/hooks/useToast';
 import { BulkActionsToolbar } from '@/components/admin/BulkActionsToolbar';
 import { ModuleHeader } from '@/components/admin/layout/ModuleHeader';
 
@@ -111,18 +111,46 @@ export default function AdminEstimateLeads() {
         }
     };
 
-    const handleBulkDelete = () => {
+    const handleBulkDelete = async () => {
         if (!confirm(`Are you sure you want to delete ${selectedIds.size} leads?`)) return;
-        
-        Promise.all(Array.from(selectedIds).map(id => 
-            supabase.from('leads').delete().eq('id', id)
-        )).then(() => {
-            queryClient.invalidateQueries({ queryKey: ['estimate-leads'] });
+
+        const idsToDelete = Array.from(selectedIds);
+        const results = await Promise.allSettled(
+            idsToDelete.map(id => supabase.from('leads').delete().eq('id', id))
+        );
+
+        const failed = results.filter(
+            (r): r is PromiseFulfilledResult<{ error: { message: string } }> =>
+                r.status === 'fulfilled' && r.value.error != null
+        );
+        const errored = results.filter(r => r.status === 'rejected');
+        const totalFailed = failed.length + errored.length;
+        const succeeded = idsToDelete.length - totalFailed;
+
+        queryClient.invalidateQueries({ queryKey: ['estimate-leads'] });
+
+        if (totalFailed === 0) {
             setSelectedIds(new Set());
-            toast({ title: `${selectedIds.size} leads deleted` });
-        }).catch((error: Error) => {
-            toast({ title: "Error deleting leads", description: error.message, variant: "destructive" });
-        });
+            toast({ title: `${succeeded} lead${succeeded !== 1 ? 's' : ''} deleted` });
+        } else {
+            // Clear only the ids that were successfully deleted
+            const failedIds = new Set(
+                idsToDelete.filter((_, i) => {
+                    const r = results[i];
+                    return r.status === 'rejected' || (r.status === 'fulfilled' && (r.value as { error: unknown }).error != null);
+                })
+            );
+            setSelectedIds(failedIds);
+            const messages = [
+                ...failed.map(r => r.value.error.message),
+                ...errored.map(r => r.status === 'rejected' ? String((r as PromiseRejectedResult).reason) : ''),
+            ].filter(Boolean).slice(0, 3).join('; ');
+            toast({
+                title: `${succeeded} deleted, ${totalFailed} failed`,
+                description: messages || 'Some leads could not be deleted. Check permissions.',
+                variant: 'destructive',
+            });
+        }
     };
 
     const getStatusBadgeClass = (status: string | null) => {

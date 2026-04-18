@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { UserSignals, AIAestheticResult, Archetype } from "@/types/discovery";
 import { visualImages } from "@/constants/discovery";
 import { toast } from "sonner";
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 
 interface Props {
   userSignals: UserSignals;

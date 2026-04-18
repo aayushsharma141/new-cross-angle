@@ -5,7 +5,7 @@ import { projectRepo } from "@/repositories";
 import { PortfolioFormDialog } from "@/components/admin/portfolio/PortfolioFormDialog";
 import { Button } from "@/design-system/components/Button";
 import { Input } from "@/design-system/components/Input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/primitives/tabs";
 import { PageHeader } from "@/components/admin/layout/PageHeader";
 import { ModuleHeader } from "@/components/admin/layout/ModuleHeader";
 import { EmptyState, LoadingState } from "@/design-system/components/states";
@@ -15,7 +15,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/primitives/select";
 import {
   Table,
   TableBody,
@@ -24,13 +24,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/design-system/components/Table";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/primitives/badge";
 import { icons } from "@/design-system/tokens/icons";
 import { Loader2, Plus, Search, Pencil, Trash2, Image as ImageIcon, Star } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/ui/primitives/checkbox";
 import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 import type { ProjectWithCategory } from "@/repositories";
 import { getOptimizedUrl } from "@/lib/cdn";

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { LeadHealth } from "@/lib/leadScoring";
+import type { LeadHealth } from "@/lib/scoring/leadScoring";
 import { AlertTriangle, CheckCircle, Clock, TrendingDown } from "lucide-react";
 
 interface LeadHealthScoreProps {

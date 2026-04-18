@@ -1,5 +1,5 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/primitives/toaster";
+import { Toaster as Sonner } from "@/components/ui/primitives/sonner";
 import {
   BrowserRouter,
   Navigate,
@@ -9,10 +9,10 @@ import {
 } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { Suspense, lazy, useEffect, useState } from "react";
-import { SchemaMarkup } from "./components/SchemaMarkup";
+import { SchemaMarkup } from "./components/shared/SchemaMarkup";
 import { CookieConsentBanner } from "./components/cookies/CookieConsentBanner";
 import { runWhenIdle } from "./lib/idle";
-import { ErrorBoundary } from "./components/ErrorBoundary";
+import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 import { PageSkeleton } from "./components/ui/PageSkeleton";
 import { CoreProviders } from "./providers/CoreProviders";
 
@@ -39,7 +39,7 @@ const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Shared route wrappers
-import PageTransition from "./components/PageTransition";
+import PageTransition from "./components/layout/PageTransition";
 
 // Admin routes
 import AdminAuth from "./pages/admin/AdminAuth";

@@ -1,7 +1,7 @@
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SpotlightCard, CountUp } from "@/components/ReactBits";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/primitives/skeleton";
 import { SparklineChart } from "@/components/admin/analytics/SparklineChart";
 
 interface AdminKPIProps {

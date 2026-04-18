@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ShieldCheck, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/primitives/button";
 import { useCookieConsent } from "./CookieConsentProvider";
 
 export const CookieConsentBanner = () => {

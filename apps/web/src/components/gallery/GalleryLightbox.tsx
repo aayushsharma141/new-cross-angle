@@ -3,7 +3,7 @@ import { useEffect, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 import { getOptimizedUrl } from "@/lib/cdn";
 
 interface LightboxItem {

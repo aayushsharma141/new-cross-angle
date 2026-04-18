@@ -10,8 +10,8 @@ import {
     Shield
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea } from "@/components/ui/primitives/scroll-area";
+import { Skeleton } from "@/components/ui/primitives/skeleton";
 import { DateRange } from "react-day-picker";
 
 interface ActivityItem {

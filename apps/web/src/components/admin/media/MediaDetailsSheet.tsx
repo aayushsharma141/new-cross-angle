@@ -4,9 +4,9 @@ import {
     DialogHeader,
     DialogTitle,
     DialogDescription,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+} from "@/components/ui/primitives/dialog";
+import { Button } from "@/components/ui/primitives/button";
+import { Separator } from "@/components/ui/primitives/separator";
 import {
     Download,
     Link,
@@ -18,10 +18,10 @@ import {
     Loader2
 } from "lucide-react";
 import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/primitives/badge";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { getOptimizedUrl } from "@/lib/cdn";
 
 interface MediaFile {

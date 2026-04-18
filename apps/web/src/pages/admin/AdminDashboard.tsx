@@ -18,18 +18,19 @@ import {
   ArrowRight,
   Clock,
   Send,
+  AlertTriangle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { InsightCard } from "@/components/admin/dashboard/InsightCard";
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
 import { QuickActionButton } from "@/components/admin/QuickActions";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/primitives/button";
 import { ProjectPipelineChart } from "@/components/admin/analytics/ProjectPipelineChart";
 import { LeadFunnelChart } from "@/components/admin/analytics/LeadFunnelChart";
 import { LeadSourceChart } from "@/components/admin/analytics/LeadSourceChart";
 import { RecentActivityFeed } from "@/components/admin/dashboard/RecentActivityFeed";
-import { CalendarDateRangePicker } from "@/components/ui/date-range-picker";
-import { useToast } from "@/hooks/use-toast";
+import { CalendarDateRangePicker } from "@/components/ui/enhanced/date-range-picker";
+import { useToast } from "@/hooks/useToast";
 import { DateRange } from "react-day-picker";
 import { subDays, endOfDay, formatDistanceToNow } from "date-fns";
 import { useSystem } from "@/context/SystemContext";
@@ -44,6 +45,8 @@ interface DashboardStats {
   avgEstimate: number;
   cmsUpdates: number;
   mediaBytes: number;
+  /** Number of data sources that failed to load. >0 means some KPIs show 0 due to errors. */
+  failedSources: number;
 }
 
 type TabType = "website" | "server" | "product" | "system" | "business";
@@ -136,7 +139,16 @@ const AdminDashboard = (): JSX.Element => {
         mediaQuery,
       ]);
 
-      // Helper to safely extract value from settled result
+      // Log and count failures so we surface them instead of silently rendering 0
+      const failedSources = settled.filter(r => r.status === 'rejected').length;
+      if (failedSources > 0) {
+        settled.forEach((r, i) => {
+          if (r.status === 'rejected') {
+            console.error(`[AdminDashboard] Data source #${i} failed:`, r.reason);
+          }
+        });
+      }
+
       const ok = <T,>(r: PromiseSettledResult<T>): T | null =>
         r.status === 'fulfilled' ? r.value : null;
 
@@ -177,6 +189,7 @@ const AdminDashboard = (): JSX.Element => {
         avgEstimate,
         cmsUpdates: (blogsRes as { count: number | null } | null)?.count || 0,
         mediaBytes,
+        failedSources,
       };
     },
   });
@@ -285,6 +298,17 @@ const AdminDashboard = (): JSX.Element => {
           })}
         </div>
       </div>
+
+      {/* ─── Data source failure warning ──────────────────────────────────────── */}
+      {stats && stats.failedSources > 0 && (
+        <div className="flex items-start gap-3 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-yellow-400 text-sm">
+          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+          <span>
+            <strong>{stats.failedSources}</strong> of 7 data source{stats.failedSources !== 1 ? 's' : ''} failed to
+            load. Some metrics may show 0 instead of real values. Check the browser console for details.
+          </span>
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-8">
         <div className="space-y-8">

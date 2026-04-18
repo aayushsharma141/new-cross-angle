@@ -1,28 +1,28 @@
 import { useState, useRef, useEffect } from "react";
 import { Loader2, Upload, X, ImagePlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/primitives/button";
+import { Input } from "@/components/ui/primitives/input";
+import { Textarea } from "@/components/ui/primitives/textarea";
+import { Label } from "@/components/ui/primitives/label";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@/components/ui/primitives/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/primitives/tabs";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+} from "@/components/ui/primitives/select";
+import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
-import { portfolioSchema, formatZodErrors } from "@/lib/validations";
-import { Switch } from "@/components/ui/switch";
+import { portfolioSchema, formatZodErrors } from "@/lib/validation/validations";
+import { Switch } from "@/components/ui/primitives/switch";
 import { getOptimizedUrl } from "@/lib/cdn";
 
 interface Category {

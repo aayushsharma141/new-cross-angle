@@ -1,9 +1,9 @@
 import { Helmet } from "react-helmet-async";
 import { useState, useCallback, useMemo } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FixedSocialBar from "@/components/FixedSocialBar";
-import ScrollToTop from "@/components/ScrollToTop";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import FixedSocialBar from "@/components/layout/FixedSocialBar";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 
 // Gallery-specific components
 import GalleryHero from "@/components/gallery/GalleryHero";

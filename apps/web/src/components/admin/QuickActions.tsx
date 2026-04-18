@@ -68,10 +68,10 @@ export function QuickActionButton({
 
 function QuickActions() {
     const actions = [
-        { label: "New Project", icon: Plus, gradient: "from-blue-500 to-blue-600", path: "/admin/portfolio" },
-        { label: "Add Lead", icon: UserPlus, gradient: "from-green-500 to-green-600", path: "/admin/leads" },
-        { label: "New Testimonial", icon: FileText, gradient: "from-purple-500 to-purple-600", path: "/admin/testimonials" },
-        { label: "Upload Media", icon: ImageIcon, gradient: "from-orange-500 to-orange-600", path: "/admin/media" },
+        { label: "New Project", icon: Plus, gradient: "from-blue-500 to-blue-600", path: "/admin/cms/portfolio" },
+        { label: "Add Lead", icon: UserPlus, gradient: "from-green-500 to-green-600", path: "/admin/crm/leads" },
+        { label: "New Testimonial", icon: FileText, gradient: "from-purple-500 to-purple-600", path: "/admin/cms/testimonials" },
+        { label: "Upload Media", icon: ImageIcon, gradient: "from-orange-500 to-orange-600", path: "/admin/cms/media" },
     ];
 
     return (

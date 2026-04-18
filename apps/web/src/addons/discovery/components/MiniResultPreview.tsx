@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Archetype, AestheticScores } from "@/types/discovery";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/primitives/button";
 
 interface Props {
     archetype: Archetype;

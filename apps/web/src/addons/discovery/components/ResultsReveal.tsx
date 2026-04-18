@@ -20,7 +20,7 @@ import {
 import { AestheticScores, Archetype, AIAestheticResult, UserSignals } from '@/types/discovery';
 import { visualImages } from '@/constants/discovery';
 import { trackResultLoaded } from '../infrastructure/analytics/tracker';
-import { Image } from '@/components/ui/image';
+import { Image } from '@/components/ui/enhanced/image';
 
 const StaggeredText: React.FC<{ text: string; className?: string }> = ({ text, className }) => {
   const charArray = text.split("");

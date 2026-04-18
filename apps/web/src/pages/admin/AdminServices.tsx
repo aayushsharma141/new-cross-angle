@@ -3,21 +3,21 @@ import { Plus, Pencil, Trash2, Loader2, ImagePlus, Briefcase } from "lucide-reac
 import { Card, CardContent } from "@/design-system/components/Card";
 import { Button } from "@/design-system/components/Button";
 import { Input } from "@/design-system/components/Input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/primitives/textarea";
+import { Label } from "@/components/ui/primitives/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/primitives/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/primitives/tabs";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+} from "@/components/ui/primitives/dialog";
+import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { ServiceDetail } from "@repo/types";
-import { serviceSchema, formatZodErrors } from "@/lib/validations";
+import { serviceSchema, formatZodErrors } from "@/lib/validation/validations";
 import { FeaturesEditor, ProcessEditor, FAQEditor } from "@/components/admin/ServiceFormFields";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
 import {

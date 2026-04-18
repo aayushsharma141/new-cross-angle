@@ -12,15 +12,15 @@ import {
 } from '@tanstack/react-table';
 import { ArrowLeft, ArrowRight, ChevronsLeft, ChevronsRight, Search, SlidersHorizontal, X } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/primitives/button';
+import { Input } from '@/components/ui/primitives/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/primitives/select';
 import { cn } from '@/lib/utils';
 
 interface DataTableProps<TData> {

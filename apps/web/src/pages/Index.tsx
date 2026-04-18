@@ -1,28 +1,28 @@
 import { lazy, Suspense } from "react";
 import { Helmet } from "react-helmet-async";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FixedSocialBar from "@/components/FixedSocialBar";
-import SectionNavDots from "@/components/SectionNavDots";
-import ScrollProgress from "@/components/ScrollProgress";
-import WelcomePrompt from "@/components/WelcomePrompt";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import FixedSocialBar from "@/components/layout/FixedSocialBar";
+import SectionNavDots from "@/components/layout/SectionNavDots";
+import ScrollProgress from "@/components/layout/ScrollProgress";
+import WelcomePrompt from "@/components/shared/WelcomePrompt";
 import { LazySection } from "@/components/performance/LazySection";
-import { SchemaMarkup } from "@/components/SchemaMarkup";
+import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
 import { SITE_CONSTANTS } from "@/lib/constants";
 
 // ── Above-fold: eager (loaded with initial bundle) ──────────────────────────
-import Hero from "@/components/Hero";
+import Hero from "@/components/home/Hero";
 
 // ── Below-fold: code-split + IntersectionObserver-triggered ─────────────────
-const About            = lazy(() => import("@/components/About"));
-const Services         = lazy(() => import("@/components/Services"));
-const Process          = lazy(() => import("@/components/Process"));
-const Portfolio        = lazy(() => import("@/components/Portfolio"));
-const TactileJourney   = lazy(() => import("@/components/TactileJourney").then(m => ({ default: m.TactileJourney })));
-const BeforeAfterShowcase = lazy(() => import("@/components/BeforeAfterShowcase").then(m => ({ default: m.BeforeAfterShowcase })));
-const TrustSection     = lazy(() => import("@/components/TrustSection"));
-const Testimonials     = lazy(() => import("@/components/Testimonials"));
-const MarqueeStrip     = lazy(() => import("@/components/MarqueeStrip").then(m => ({ default: m.MarqueeStrip })));
+const About            = lazy(() => import("@/components/home/About"));
+const Services         = lazy(() => import("@/components/home/Services"));
+const Process          = lazy(() => import("@/components/home/Process"));
+const Portfolio        = lazy(() => import("@/components/home/Portfolio"));
+const TactileJourney   = lazy(() => import("@/components/home/TactileJourney").then(m => ({ default: m.TactileJourney })));
+const BeforeAfterShowcase = lazy(() => import("@/components/home/BeforeAfterShowcase").then(m => ({ default: m.BeforeAfterShowcase })));
+const TrustSection     = lazy(() => import("@/components/home/TrustSection"));
+const Testimonials     = lazy(() => import("@/components/home/Testimonials"));
+const MarqueeStrip     = lazy(() => import("@/components/home/MarqueeStrip").then(m => ({ default: m.MarqueeStrip })));
 
 const Index = () => {
   return (

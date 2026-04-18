@@ -8,11 +8,11 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+} from "@/components/ui/primitives/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/primitives/avatar";
+import { Button } from "@/components/ui/primitives/button";
+import { Input } from "@/components/ui/primitives/input";
+import { Textarea } from "@/components/ui/primitives/textarea";
 import {
     Plus,
     Search,
@@ -26,7 +26,7 @@ import {
     Loader2,
     Users
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { getOptimizedUrl } from "@/lib/cdn";
 import {
     Dialog,
@@ -36,7 +36,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/components/ui/primitives/dialog";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -44,14 +44,14 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/primitives/dropdown-menu";
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle
-} from "@/components/ui/card";
+} from "@/components/ui/primitives/card";
 
 interface TeamMember {
     id: string;

@@ -7,9 +7,9 @@ import {
     Maximize2,
     ImageIcon
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from "@/components/ui/primitives/card";
+import { Button } from "@/components/ui/primitives/button";
+import { Checkbox } from "@/components/ui/primitives/checkbox";
 import { getOptimizedUrl } from "@/lib/cdn";
 
 interface MediaFile {

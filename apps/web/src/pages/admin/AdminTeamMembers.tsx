@@ -11,9 +11,8 @@ import {
 } from "@/design-system/components/Table";
 import { Button } from "@/design-system/components/Button";
 import { Input } from "@/design-system/components/Input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/primitives/label";
+import { Textarea } from "@/components/ui/primitives/textarea";
 import {
     Dialog,
     DialogContent,
@@ -21,10 +20,10 @@ import {
     DialogTitle,
     DialogTrigger,
     DialogFooter,
-} from "@/components/ui/dialog";
+} from "@/components/ui/primitives/dialog";
 import { Loader2, Plus, Edit2, Trash2, Shield } from "lucide-react";
 import { getOptimizedUrl } from "@/lib/cdn";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { Card } from "@/design-system/components/Card";
 import { icons } from "@/design-system/tokens/icons";
 
@@ -150,12 +149,7 @@ export default function AdminTeamMembers() {
                                     <Label htmlFor="tm-order" className="text-sm font-medium">Display Order</Label>
                                     <Input id="tm-order" type="number" name="display_order" defaultValue={editingMember?.display_order || 0} />
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                    <Checkbox id="is_published" name="is_published" defaultChecked={true} />
-                                    <Label htmlFor="is_published" className="text-sm font-medium leading-none">
-                                        Published
-                                    </Label>
-                                </div>
+
                             </div>
                             <div className="shrink-0 px-6 py-4 border-t border-zinc-800">
                                 <Button type="submit" variant="primary" disabled={upsertMutation.isPending} className="w-full">

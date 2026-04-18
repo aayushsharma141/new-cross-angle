@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Activity, BarChart3, Download, Filter, TrendingUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/primitives/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/primitives/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/primitives/tabs';
+import { Badge } from '@/components/ui/primitives/badge';
 import { KPIGrid, MetricCard } from '@/components/admin/dashboard/KPICard';
 import { AuditLogTable, AuditLogFilters } from '@/components/admin/logs/AuditLogTable';
 import { auditService } from '@/services/AuditService';
 import type { AuditAction, AuditEntityType, AuditLogStats } from '@/types/audit';
 import { ACTION_COLORS, ENTITY_LABELS } from '@/types/audit';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/useToast';
 import { format } from 'date-fns';
 
 export default function AdminAuditLogs() {

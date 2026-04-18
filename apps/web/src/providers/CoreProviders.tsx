@@ -1,9 +1,9 @@
 import { ReactNode } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/shared/theme-provider";
 import { CookieConsentProvider } from "@/components/cookies/CookieConsentProvider";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/primitives/tooltip";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { SystemProvider } from "@/context/SystemContext";
 import { AdminProvider } from "@/context/AdminContext";

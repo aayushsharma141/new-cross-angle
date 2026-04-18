@@ -1,5 +1,5 @@
 import { Bar, ComposedChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell, LabelList } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
 import { cn } from "@/lib/utils";
 
 interface FunnelLayer {

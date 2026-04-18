@@ -26,25 +26,25 @@ import {
     Link as LinkIcon,
     MousePointerClick,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/primitives/button";
+import { Input } from "@/components/ui/primitives/input";
+import { Textarea } from "@/components/ui/primitives/textarea";
+import { Label } from "@/components/ui/primitives/label";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
+} from "@/components/ui/primitives/select";
+import { Switch } from "@/components/ui/primitives/switch";
+import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { getOptimizedUrl } from "@/lib/cdn";
 
 /* ─── Types ─── */
-type AnimationEffect = "none" | "ken-burns-in" | "ken-burns-out" | "pan-left" | "pan-right";
+type AnimationEffect = "none" | "ken-burns-in" | "ken-burns-out" | "pan-left" | "pan-right" | "pan-up" | "pan-down" | "zoom-pan";
 
 interface HeroMediaItem {
     id: string;
@@ -76,6 +76,9 @@ const ANIMATION_EFFECTS: { value: AnimationEffect; label: string; description: s
     { value: "ken-burns-out", label: "Ken Burns — Zoom Out", description: "Starting zoomed, slowly pulling back" },
     { value: "pan-left", label: "Slow Pan Left", description: "Gentle horizontal pan to the left" },
     { value: "pan-right", label: "Slow Pan Right", description: "Gentle horizontal pan to the right" },
+    { value: "pan-up", label: "Pan Up", description: "Cinematic upward movement with subtle scale" },
+    { value: "pan-down", label: "Pan Down", description: "Cinematic downward movement with subtle scale" },
+    { value: "zoom-pan", label: "Zoom Pan", description: "Diagonal drift with progressive zoom — premium feel" },
 ];
 
 /* ─── Helpers ─── */
@@ -321,7 +324,7 @@ const AdminHero = () => {
                 display_order: nextOrder,
                 is_active: true,
                 duration_ms: newDuration,
-                animation_effect: newType === "image" ? newEffect : "none",
+                animation_effect: newEffect,
             });
 
             if (error) throw error;
@@ -380,7 +383,7 @@ const AdminHero = () => {
                 media_url: url,
                 media_type: editType,
                 duration_ms: editDuration,
-                animation_effect: editType === "image" ? editEffect : "none",
+                animation_effect: editEffect,
             };
 
             const { error } = await supabase
@@ -618,30 +621,28 @@ const AdminHero = () => {
                                     </div>
                                 </div>
 
-                                {/* Animation Effect (image only) */}
-                                {newType === "image" && (
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label className="text-zinc-300 flex items-center gap-2">
-                                            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                                            Animation Effect
-                                        </Label>
-                                        <Select value={newEffect} onValueChange={(v) => setNewEffect(v as AnimationEffect)}>
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {ANIMATION_EFFECTS.map(eff => (
-                                                    <SelectItem key={eff.value} value={eff.value}>
-                                                        <span className="flex items-center gap-2">
-                                                            {eff.label}
-                                                            <span className="text-zinc-500 text-xs">— {eff.description}</span>
-                                                        </span>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                )}
+                                {/* Animation Effect */}
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label className="text-zinc-300 flex items-center gap-2">
+                                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                                        Animation Effect
+                                    </Label>
+                                    <Select value={newEffect} onValueChange={(v) => setNewEffect(v as AnimationEffect)}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {ANIMATION_EFFECTS.map(eff => (
+                                                <SelectItem key={eff.value} value={eff.value}>
+                                                    <span className="flex items-center gap-2">
+                                                        {eff.label}
+                                                        <span className="text-zinc-500 text-xs">— {eff.description}</span>
+                                                    </span>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
                                 {/* ─── Headline & CTA Fields (Add Form) ─── */}
                                 <div className="md:col-span-2 border-t border-zinc-800 pt-4 mt-1">
@@ -829,28 +830,26 @@ const AdminHero = () => {
                                                 </div>
                                             </div>
 
-                                            {/* Animation Effect (image only) */}
-                                            {editType === "image" && (
-                                                <div className="space-y-1.5 md:col-span-2">
-                                                    <Label className="text-xs text-zinc-400 flex items-center gap-1.5">
-                                                        <Sparkles className="w-3 h-3 text-amber-400" />
-                                                        Animation Effect
-                                                    </Label>
-                                                    <Select value={editEffect} onValueChange={(v) => setEditEffect(v as AnimationEffect)}>
-                                                        <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                                                        <SelectContent>
-                                                            {ANIMATION_EFFECTS.map(eff => (
-                                                                <SelectItem key={eff.value} value={eff.value}>
-                                                                    <span className="flex items-center gap-2">
-                                                                        {eff.label}
-                                                                        <span className="text-zinc-500 text-xs">— {eff.description}</span>
-                                                                    </span>
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                            )}
+                                            {/* Animation Effect */}
+                                            <div className="space-y-1.5 md:col-span-2">
+                                                <Label className="text-xs text-zinc-400 flex items-center gap-1.5">
+                                                    <Sparkles className="w-3 h-3 text-amber-400" />
+                                                    Animation Effect
+                                                </Label>
+                                                <Select value={editEffect} onValueChange={(v) => setEditEffect(v as AnimationEffect)}>
+                                                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>
+                                                        {ANIMATION_EFFECTS.map(eff => (
+                                                            <SelectItem key={eff.value} value={eff.value}>
+                                                                <span className="flex items-center gap-2">
+                                                                    {eff.label}
+                                                                    <span className="text-zinc-500 text-xs">— {eff.description}</span>
+                                                                </span>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
 
                                             {/* ─── Headline & CTA Fields (Edit Form) ─── */}
                                             <div className="md:col-span-2 border-t border-zinc-700/50 pt-3 mt-1">
@@ -952,7 +951,7 @@ const AdminHero = () => {
                                                 <span className="flex items-center gap-1 text-[10px] text-zinc-500">
                                                     <Clock className="w-3 h-3" /> {formatDuration(item.duration_ms)}
                                                 </span>
-                                                {item.media_type === "image" && item.animation_effect && item.animation_effect !== "none" && (
+                                                {item.animation_effect && item.animation_effect !== "none" && (
                                                     <span className="flex items-center gap-1 text-[10px] text-amber-400/70 bg-amber-400/5 px-1.5 py-0.5 rounded-full">
                                                         <Sparkles className="w-2.5 h-2.5" /> {getEffectLabel(item.animation_effect)}
                                                     </span>

@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Image } from "@/components/ui/image";
+import { Button } from "@/components/ui/primitives/button";
+import { Image } from "@/components/ui/enhanced/image";
 
 const STYLES = [
   { id: "Modern", label: "Modern Minimal", description: "Clean lines, neutral tones, and functional elegance." },

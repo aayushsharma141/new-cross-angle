@@ -1,11 +1,11 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FixedSocialBar from "@/components/FixedSocialBar";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import ScrollToTop from "@/components/ScrollToTop";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import FixedSocialBar from "@/components/layout/FixedSocialBar";
+import { Button } from "@/components/ui/primitives/button";
+import { Skeleton } from "@/components/ui/primitives/skeleton";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { api, Blog } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,7 +13,7 @@ import {
   Search, Clock, Eye, ArrowRight, ChevronLeft, ChevronRight,
   TrendingUp, Tag, Mail, Sparkles, BookOpen
 } from "lucide-react";
-import { OptimizedImage as Image } from "@/components/ui/OptimizedImage";
+import { OptimizedImage as Image } from "@/components/ui/enhanced/OptimizedImage";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 

@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { ModuleLayout } from "@/components/admin/layout/ModuleLayout";
-import { PageSkeleton } from "@/components/ui/PageSkeleton";
+import { PageSkeleton } from "@/components/ui/enhanced/PageSkeleton";
 
 const CrmAnalytics = lazy(() => import("@/pages/admin/CrmAnalytics"));
 

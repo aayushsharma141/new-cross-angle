@@ -8,12 +8,12 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/ui/primitives/table";
+import { Badge } from "@/components/ui/primitives/badge";
 import { format } from "date-fns";
 import { Loader2, Activity } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/primitives/scroll-area";
 
 export function AuditLogTable() {
     const { data: logs = [], isLoading } = useQuery({

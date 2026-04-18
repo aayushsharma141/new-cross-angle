@@ -1,11 +1,11 @@
 import { Helmet } from "react-helmet-async";
 import { lazy, Suspense } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FixedSocialBar from "@/components/FixedSocialBar";
-import ScrollToTop from "@/components/ScrollToTop";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import FixedSocialBar from "@/components/layout/FixedSocialBar";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 import ContactHero from "@/components/contact/ContactHero";
-import CTAContact from "@/components/CTAContact";
+import CTAContact from "@/components/shared/CTAContact";
 import ContactFAQ from "@/components/contact/ContactFAQ";
 import SocialBar from "@/components/contact/SocialBar";
 

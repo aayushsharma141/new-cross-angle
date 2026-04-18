@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Check, ShieldCheck, Zap, BarChart3 } from "lucide-react";
-import { Image } from "@/components/ui/image";
+import { Image } from "@/components/ui/enhanced/image";
 import { cn } from "@/lib/utils";
 
 const whyUsPoints = [

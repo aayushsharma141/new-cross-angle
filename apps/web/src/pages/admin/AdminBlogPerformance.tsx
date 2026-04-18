@@ -14,9 +14,9 @@ import {
     Search,
     TrendingUp,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/primitives/button";
+import { Input } from "@/components/ui/primitives/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
 import {
     Table,
     TableBody,
@@ -25,7 +25,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/design-system/components/Table";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/primitives/badge";
 
 /* ───────────── Types ───────────── */
 interface ArticleRow {

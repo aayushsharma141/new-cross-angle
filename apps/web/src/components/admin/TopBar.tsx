@@ -1,5 +1,5 @@
 import { User, LogOut, Settings } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/primitives/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -7,8 +7,8 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+} from "@/components/ui/primitives/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/primitives/avatar";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { AdminBreadcrumb } from "./AdminBreadcrumb";

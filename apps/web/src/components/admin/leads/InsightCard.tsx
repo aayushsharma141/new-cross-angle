@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/primitives/card";
 import {
   TrendingUp,
   TrendingDown,

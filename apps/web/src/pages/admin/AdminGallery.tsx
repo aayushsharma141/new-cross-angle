@@ -3,13 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { icons } from '@/design-system/tokens/icons';
 import { Loader2, Plus, Pencil, Trash2, Image, GripVertical } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Card, CardContent } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/primitives/button';
+import { Input } from '@/components/ui/primitives/input';
+import { Textarea } from '@/components/ui/primitives/textarea';
+import { Label } from '@/components/ui/primitives/label';
+import { Switch } from '@/components/ui/primitives/switch';
+import { Card, CardContent } from '@/components/ui/primitives/card';
+import { useToast } from '@/hooks/useToast';
 import { MediaPicker } from '@/components/admin/media/MediaPicker';
 import { getOptimizedUrl } from '@/lib/cdn';
 import {
@@ -18,14 +18,14 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/components/ui/primitives/dialog";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/primitives/select";
 
 interface GalleryCategory {
     id: string;

@@ -1,19 +1,19 @@
 import { Helmet } from "react-helmet-async";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FixedSocialBar from "@/components/FixedSocialBar";
-import ScrollProgress from "@/components/ScrollProgress";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import FixedSocialBar from "@/components/layout/FixedSocialBar";
+import ScrollProgress from "@/components/layout/ScrollProgress";
 import { Suspense, lazy } from "react";
 
 // Lazy load components for the Hub
-const HubHero = lazy(() => import("@/components/portfolio/HubHero"));
-const SpaceNavigator = lazy(() => import("@/components/portfolio/SpaceNavigator"));
-const FeaturedJourneys = lazy(() => import("@/components/portfolio/FeaturedJourneys"));
-const StyleSelector = lazy(() => import("@/components/portfolio/StyleSelector"));
-const InspirationGallery = lazy(() => import("@/components/portfolio/InspirationGallery"));
-const HubLightExperience = lazy(() => import("@/components/portfolio/HubLightExperience"));
-const TrustSection = lazy(() => import("@/components/portfolio/TrustSection"));
-const HubFinalCTA = lazy(() => import("@/components/portfolio/HubFinalCTA"));
+const HubHero = lazy(() => import("@/components/home/Portfolio/HubHero"));
+const SpaceNavigator = lazy(() => import("@/components/home/Portfolio/SpaceNavigator"));
+const FeaturedJourneys = lazy(() => import("@/components/home/Portfolio/FeaturedJourneys"));
+const StyleSelector = lazy(() => import("@/components/home/Portfolio/StyleSelector"));
+const InspirationGallery = lazy(() => import("@/components/home/Portfolio/InspirationGallery"));
+const HubLightExperience = lazy(() => import("@/components/home/Portfolio/HubLightExperience"));
+const TrustSection = lazy(() => import("@/components/home/Portfolio/TrustSection"));
+const HubFinalCTA = lazy(() => import("@/components/home/Portfolio/HubFinalCTA"));
 
 const ProjectHubPage = () => {
   return (

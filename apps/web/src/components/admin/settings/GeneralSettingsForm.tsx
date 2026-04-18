@@ -2,9 +2,9 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/primitives/button";
+import { Input } from "@/components/ui/primitives/input";
+import { Textarea } from "@/components/ui/primitives/textarea";
 import {
     Form,
     FormControl,
@@ -13,12 +13,12 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/ui/form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+} from "@/components/ui/primitives/form";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/primitives/card";
+import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
-import { siteSettingsSchema, SiteSettingsFormData } from "@/lib/validations";
-import { Loader2, Save, Globe, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageCircle } from "lucide-react";
+import { siteSettingsSchema, SiteSettingsFormData } from "@/lib/validation/validations";
+import { Loader2, Save, Globe, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageCircle, Plus, Trash2, Send } from "lucide-react";
 
 const PinterestIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -29,7 +29,105 @@ const PinterestIcon = () => (
     </svg>
 );
 
-import { useKeyboardShortcut } from "@/hooks/use-keyboard-shortcut";
+import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
+
+/* ─── Sub-component: Telegram Chat IDs ────────────────────────────────────
+ * useState must be called at the top level of a React function component.
+ * Previously it was called inside a FormField render callback (invalid hook
+ * usage). This dedicated component fixes that violation.
+ * ────────────────────────────────────────────────────────────────────────── */
+import type { ControllerRenderProps } from "react-hook-form";
+
+function TelegramChatIdsField({ field }: { field: ControllerRenderProps<SiteSettingsFormData, "telegram_chat_ids"> }) {
+    const ids: string[] = field.value ?? [];
+    const [newId, setNewId] = useState("");
+
+    const addId = () => {
+        const trimmed = newId.trim();
+        if (!trimmed || ids.includes(trimmed)) return;
+        field.onChange([...ids, trimmed]);
+        setNewId("");
+    };
+
+    const removeId = (idx: number) => {
+        field.onChange(ids.filter((_, i) => i !== idx));
+    };
+
+    return (
+        <FormItem>
+            <FormLabel className="flex items-center gap-2">
+                <Send className="h-4 w-4 text-[#229ED9]" />
+                Chat IDs
+            </FormLabel>
+            <FormDescription className="text-xs">
+                Get your chat ID by messaging{" "}
+                <a
+                    href="https://t.me/userinfobot"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#229ED9] hover:underline"
+                >
+                    @userinfobot
+                </a>{" "}
+                on Telegram. Use negative IDs for groups/channels (e.g. <code>-1001234567890</code>).
+            </FormDescription>
+
+            {/* Existing IDs list */}
+            <div className="space-y-2">
+                {ids.length === 0 && (
+                    <p className="text-xs text-muted-foreground italic py-2">
+                        No chat IDs configured — add one below.
+                    </p>
+                )}
+                {ids.map((id, idx) => (
+                    <div
+                        key={id}
+                        className="flex items-center gap-2 rounded-md border border-[hsl(var(--admin-border))] bg-muted/20 px-3 py-2"
+                    >
+                        <Send className="h-3.5 w-3.5 shrink-0 text-[#229ED9]" />
+                        <code className="flex-1 text-sm font-mono">{id}</code>
+                        <button
+                            type="button"
+                            onClick={() => removeId(idx)}
+                            className="text-destructive hover:text-destructive/80 transition-colors p-1 rounded"
+                            aria-label={`Remove chat ID ${id}`}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </button>
+                    </div>
+                ))}
+            </div>
+
+            {/* Add new ID */}
+            <div className="flex gap-2 pt-1">
+                <Input
+                    placeholder="e.g. 1228126069 or -1001234567890"
+                    value={newId}
+                    onChange={(e) => setNewId(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            addId();
+                        }
+                    }}
+                    className="font-mono text-sm"
+                />
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addId}
+                    disabled={!newId.trim()}
+                    className="shrink-0 gap-1"
+                >
+                    <Plus className="h-4 w-4" />
+                    Add
+                </Button>
+            </div>
+            <FormMessage />
+        </FormItem>
+    );
+}
 
 export function GeneralSettingsForm() {
     const { toast } = useToast();
@@ -52,6 +150,7 @@ export function GeneralSettingsForm() {
             social_linkedin: "",
             social_youtube: "",
             social_pinterest: "",
+            telegram_chat_ids: [],
         },
     });
 
@@ -89,6 +188,7 @@ export function GeneralSettingsForm() {
                     social_linkedin: socialLinks.linkedin || "",
                     social_youtube: socialLinks.youtube || "",
                     social_pinterest: socialLinks.pinterest || "",
+                    telegram_chat_ids: (data as { telegram_chat_ids?: string[] }).telegram_chat_ids || [],
                 });
             }
         } catch (error) {
@@ -139,6 +239,7 @@ export function GeneralSettingsForm() {
                         about_video_url: values.about_video_url || null,
                         address: values.address,
                         social_links: socialLinks,
+                        telegram_chat_ids: values.telegram_chat_ids,
                         updated_at: new Date().toISOString(),
                     })
                     .eq("id", existingData.id);
@@ -155,6 +256,7 @@ export function GeneralSettingsForm() {
                         about_video_url: values.about_video_url || null,
                         address: values.address,
                         social_links: socialLinks,
+                        telegram_chat_ids: values.telegram_chat_ids,
                     });
                 error = insertError;
             }
@@ -194,7 +296,7 @@ export function GeneralSettingsForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form id="general-settings-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm">
                     <CardHeader className="bg-muted/30 border-b pb-4">
                         <div className="flex items-center gap-2">
@@ -444,6 +546,30 @@ export function GeneralSettingsForm() {
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                </Card>
+
+                {/* ─── Telegram Notifications ─────────────────────────────── */}
+                <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm">
+                    <CardHeader className="bg-muted/30 border-b pb-4">
+                        <div className="flex items-center gap-2">
+                            <Send className="h-5 w-5 text-[#229ED9]" />
+                            <div>
+                                <CardTitle className="text-base">Telegram Notifications</CardTitle>
+                                <CardDescription className="text-xs mt-0.5">
+                                    Chat IDs that receive lead alerts. Add personal, group, or channel IDs.
+                                </CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="telegram_chat_ids"
+                            render={({ field }) => (
+                                <TelegramChatIdsField field={field} />
                             )}
                         />
                     </CardContent>
