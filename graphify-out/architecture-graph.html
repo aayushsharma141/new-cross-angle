@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrossAngle Architecture Knowledge Graph</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: #f1f5f9;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+        #graph {
+            width: 100%;
+            height: 700px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .node-label {
+            font-size: 10px;
+            fill: #f1f5f9;
+            pointer-events: none;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .stat-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CrossAngle Interior - Architecture Knowledge Graph</h1>
+        <p class="subtitle">Interactive visualization of system components and their relationships</p>
+        <div id="graph"></div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #60a5fa;"></div>
+                <span>Technology</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #34d399;"></div>
+                <span>Feature</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #f472b6;"></div>
+                <span>Component</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #fbbf24;"></div>
+                <span>Library</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #a78bfa;"></div>
+                <span>Service/Pattern</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #f87171;"></div>
+                <span>Security</span>
+            </div>
+        </div>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value">588</div>
+                <div class="stat-label">Total Files</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">675K+</div>
+                <div class="stat-label">Lines of Code</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">46+</div>
+                <div class="stat-label">UI Components</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">22</div>
+                <div class="stat-label">Edge Functions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">53</div>
+                <div class="stat-label">DB Migrations</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const data = {
+            nodes: [
+                { id: "1", label: "CrossAngle\nMonorepo", type: "root", level: 0 },
+                { id: "2", label: "React/Vite\nFrontend", type: "tech", level: 1 },
+                { id: "3", label: "Supabase\nBackend", type: "tech", level: 1 },
+                { id: "4", label: "UI Components", type: "component", level: 2, count: 46 },
+                { id: "5", label: "Admin\nDashboard", type: "feature", level: 2 },
+                { id: "6", label: "Public\nWebsite", type: "feature", level: 2 },
+                { id: "7", label: "React Query", type: "library", level: 2 },
+                { id: "8", label: "React Router", type: "library", level: 2 },
+                { id: "9", label: "shadcn/ui", type: "library", level: 2 },
+                { id: "10", label: "Tailwind CSS", type: "library", level: 2 },
+                { id: "11", label: "AuthProvider", type: "component", level: 3 },
+                { id: "12", label: "RoleGuard", type: "component", level: 3 },
+                { id: "13", label: "LeadService", type: "service", level: 3 },
+                { id: "14", label: "BlogService", type: "service", level: 3 },
+                { id: "15", label: "Repositories", type: "service", level: 3 },
+                { id: "16", label: "Edge\nFunctions", type: "tech", level: 2, count: 22 },
+                { id: "17", label: "Price\nEstimator", type: "feature", level: 3 },
+                { id: "18", label: "Style Quiz", type: "feature", level: 3 },
+                { id: "19", label: "Real-time\nLeads", type: "feature", level: 3 },
+                { id: "20", label: "TypeScript", type: "library", level: 2 },
+                { id: "21", label: "RBAC", type: "security", level: 3 },
+                { id: "22", label: "RLS\nPolicies", type: "security", level: 2 },
+                { id: "23", label: "Migrations", type: "tech", level: 2, count: 53 },
+                { id: "24", label: "Lazy\nLoading", type: "library", level: 3 },
+                { id: "25", label: "Error\nBoundaries", type: "feature", level: 3 },
+                { id: "26", label: "Analytics", type: "feature", level: 3 },
+                { id: "27", label: "PostHog", type: "library", level: 3 },
+                { id: "28", label: "Framer\nMotion", type: "library", level: 3 },
+                { id: "29", label: "Zod\nValidation", type: "library", level: 3 }
+            ],
+            edges: [
+                { source: "1", target: "2", relation: "contains" },
+                { source: "1", target: "3", relation: "contains" },
+                { source: "2", target: "4", relation: "has" },
+                { source: "2", target: "5", relation: "has" },
+                { source: "2", target: "6", relation: "has" },
+                { source: "2", target: "7", relation: "uses" },
+                { source: "2", target: "8", relation: "uses" },
+                { source: "2", target: "9", relation: "uses" },
+                { source: "2", target: "10", relation: "uses" },
+                { source: "2", target: "28", relation: "uses" },
+                { source: "2", target: "29", relation: "uses" },
+                { source: "5", target: "11", relation: "has" },
+                { source: "5", target: "12", relation: "has" },
+                { source: "5", target: "13", relation: "uses" },
+                { source: "5", target: "19", relation: "has" },
+                { source: "5", target: "25", relation: "uses" },
+                { source: "6", target: "17", relation: "has" },
+                { source: "6", target: "18", relation: "has" },
+                { source: "6", target: "26", relation: "has" },
+                { source: "13", target: "15", relation: "uses" },
+                { source: "14", target: "15", relation: "uses" },
+                { source: "15", target: "3", relation: "connects" },
+                { source: "3", target: "16", relation: "has" },
+                { source: "3", target: "22", relation: "uses" },
+                { source: "3", target: "23", relation: "has" },
+                { source: "11", target: "21", relation: "implements" },
+                { source: "12", target: "21", relation: "implements" },
+                { source: "26", target: "27", relation: "uses" },
+                { source: "2", target: "24", relation: "uses" },
+                { source: "20", target: "2", relation: "written_in" },
+                { source: "20", target: "3", relation: "written_in" }
+            ]
+        };
+
+        const colors = {
+            root: "#ffffff",
+            tech: "#60a5fa",
+            feature: "#34d399",
+            component: "#f472b6",
+            library: "#fbbf24",
+            service: "#a78bfa",
+            security: "#f87171"
+        };
+
+        const width = document.getElementById('graph').clientWidth;
+        const height = 700;
+
+        const svg = d3.select("#graph")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        const g = svg.append("g");
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.2, 4])
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            });
+
+        svg.call(zoom);
+
+        const simulation = d3.forceSimulation(data.nodes)
+            .force("link", d3.forceLink(data.edges).id(d => d.id).distance(120))
+            .force("charge", d3.forceManyBody().strength(-400))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collision", d3.forceCollide().radius(50));
+
+        const links = g.append("g")
+            .selectAll("line")
+            .data(data.edges)
+            .join("line")
+            .attr("stroke", "#475569")
+            .attr("stroke-opacity", 0.6)
+            .attr("stroke-width", 2);
+
+        const nodes = g.append("g")
+            .selectAll("g")
+            .data(data.nodes)
+            .join("g")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        nodes.append("circle")
+            .attr("r", d => d.level === 0 ? 35 : d.level === 1 ? 28 : d.level === 2 ? 22 : 16)
+            .attr("fill", d => colors[d.type])
+            .attr("stroke", "#1e293b")
+            .attr("stroke-width", 2)
+            .style("filter", "drop-shadow(0 4px 6px rgba(0,0,0,0.3))");
+
+        nodes.append("text")
+            .attr("class", "node-label")
+            .attr("text-anchor", "middle")
+            .attr("dy", d => d.level === 0 ? 50 : d.level === 1 ? 45 : d.level === 2 ? 38 : 32)
+            .text(d => d.label)
+            .attr("font-size", d => d.level === 0 ? 12 : d.level === 1 ? 11 : d.level === 2 ? 10 : 9);
+
+        simulation.on("tick", () => {
+            links
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            nodes.attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        // Initial zoom to fit
+        svg.call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(0.9));
+    </script>
+</body>
+</html>

@@ -48,7 +48,7 @@ export class EstimateLeadService {
   }
 
   async updateStatus(id: string, status: EstimateLeadStatus): Promise<Lead> {
-    return this.updateEstimateLead(id, { status: status as any });
+    return this.updateEstimateLead(id, { status: status as Database['public']['Enums']['lead_status_enum'] });
   }
 
   async deleteEstimateLead(id: string): Promise<void> {
@@ -73,7 +73,7 @@ export class EstimateLeadService {
   async bulkUpdateStatus(ids: string[], status: EstimateLeadStatus): Promise<number> {
     const { error, count } = await supabase
       .from('leads')
-      .update({ status: status as any })
+      .update({ status: status as Database['public']['Enums']['lead_status_enum'] })
       .in('id', ids);
 
     if (error) throw error;

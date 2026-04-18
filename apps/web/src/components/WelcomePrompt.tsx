@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
+import { leadService } from "@/services/LeadService";
 import logoIcon from "@/assets/logo-icon.png";
 
 const WelcomePrompt = () => {
@@ -65,14 +65,15 @@ const WelcomePrompt = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from('leads').insert({
+      await leadService.createLead({
+        name: "Welcome Popup Lead",
         email,
         phone,
         lead_source: 'welcome_popup',
-        source_url: window.location.href
+        source_url: window.location.href,
+        source: 'Welcome-Popup',
+        form_data: { email, phone, submittedAt: new Date().toISOString() }
       });
-
-      if (error) throw error;
 
       toast({
         title: "Thank you!",

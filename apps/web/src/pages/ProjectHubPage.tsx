@@ -31,53 +31,67 @@ const ProjectHubPage = () => {
       <FixedSocialBar />
 
       <main className="bg-[#050505] text-white overflow-x-hidden">
-        <Suspense fallback={<div className="h-screen flex items-center justify-center bg-black">Loading Experience...</div>}>
-          <section id="hero">
+        <section id="hero">
+          <Suspense fallback={<div className="h-screen flex items-center justify-center bg-black text-white/50 text-sm tracking-widest uppercase">Loading Hero...</div>}>
             <HubHero />
-          </section>
+          </Suspense>
+        </section>
 
-          <section id="explore" className="py-24 text-center">
-            <div className="max-w-7xl mx-auto flex flex-col items-center">
+        <section id="explore" className="py-24 text-center">
+          <div className="max-w-7xl mx-auto flex flex-col items-center">
+            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading Explorer...</div>}>
               <SpaceNavigator />
-            </div>
-          </section>
+            </Suspense>
+          </div>
+        </section>
 
-          <section id="featured" className="bg-[#0a0a0a]">
-            <div className="max-w-7xl mx-auto">
+        <section id="featured" className="bg-[#0a0a0a]">
+          <div className="max-w-7xl mx-auto">
+            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading Journeys...</div>}>
               <FeaturedJourneys />
-            </div>
-          </section>
+            </Suspense>
+          </div>
+        </section>
 
-          <section id="styles" className="py-24 bg-black text-center">
-            <div className="max-w-7xl mx-auto flex flex-col items-center">
+        <section id="styles" className="py-24 bg-black text-center">
+          <div className="max-w-7xl mx-auto flex flex-col items-center">
+            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading Styles...</div>}>
               <StyleSelector />
-            </div>
-          </section>
+            </Suspense>
+          </div>
+        </section>
 
-          <section id="inspiration" className="py-24 bg-[#050505] text-center">
-            <div className="max-w-7xl mx-auto flex flex-col items-center">
+        <section id="inspiration" className="py-24 bg-[#050505] text-center">
+          <div className="max-w-7xl mx-auto flex flex-col items-center">
+            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading Inspiration...</div>}>
               <InspirationGallery />
-            </div>
-          </section>
+            </Suspense>
+          </div>
+        </section>
 
-          <section id="light-experience" className="bg-[#0a0a0a]">
-            <div className="max-w-7xl mx-auto">
+        <section id="light-experience" className="bg-[#0a0a0a]">
+          <div className="max-w-7xl mx-auto">
+            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading Experience...</div>}>
               <HubLightExperience />
-            </div>
-          </section>
+            </Suspense>
+          </div>
+        </section>
 
-          <section id="trust" className="py-24">
-            <div className="max-w-7xl mx-auto">
+        <section id="trust" className="py-24">
+          <div className="max-w-7xl mx-auto">
+            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading Trust metrics...</div>}>
               <TrustSection />
-            </div>
-          </section>
+            </Suspense>
+          </div>
+        </section>
 
-          <section id="cta">
-            <div className="max-w-7xl mx-auto">
+        <section id="cta">
+          <div className="max-w-7xl mx-auto">
+            <Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading CTA...</div>}>
               <HubFinalCTA />
-            </div>
-          </section>
-        </Suspense>
+            </Suspense>
+          </div>
+        </section>
       </main>
 
       <Footer />

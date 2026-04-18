@@ -60,7 +60,7 @@ export const projects: Project[] = [
     slug: "modern-culinary-space",
     title: "Modern Culinary Space",
     client: "Desai Family",
-    location: "Kolkata",
+    location: "Bistupur",
     type: "residential",
     category: "Residential",
     area: "300 sq.ft",

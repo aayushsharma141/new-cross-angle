@@ -54,7 +54,7 @@ interface BlogPost {
     cover_image: string;
     created_at: string;
     read_time_minutes: number;
-    views_count: number;
+    view_count: number;
     category?: string;
     author?: string;
     tags?: string[];
@@ -128,6 +128,18 @@ const BlogDetailPage = () => {
             }
         };
         fetchPost();
+    }, [slug]);
+
+    // Increment blog view count — once per session per slug
+    useEffect(() => {
+        if (!slug) return;
+        const sessionKey = `blog_viewed_${slug}`;
+        if (sessionStorage.getItem(sessionKey)) return;
+
+        sessionStorage.setItem(sessionKey, '1');
+        supabase.rpc('increment_blog_view', { post_slug: slug }).then(({ error }) => {
+            if (error) console.warn('View increment failed:', error.message);
+        });
     }, [slug]);
 
     useGSAP(() => {

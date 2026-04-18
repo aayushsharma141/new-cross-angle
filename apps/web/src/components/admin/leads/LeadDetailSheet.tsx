@@ -212,11 +212,12 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
                 <Tabs defaultValue="details" className="flex flex-col flex-1 overflow-hidden">
                     <div className="px-6 pt-4 shrink-0">
-                        <TabsList className="grid w-full grid-cols-4">
+                        <TabsList className="grid w-full grid-cols-5">
                             <TabsTrigger value="details">Details</TabsTrigger>
                             <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
                             <TabsTrigger value="email">Email</TabsTrigger>
                             <TabsTrigger value="activity">Activity</TabsTrigger>
+                            <TabsTrigger value="raw-data">Raw Data</TabsTrigger>
                         </TabsList>
                     </div>
 
@@ -394,7 +395,16 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                             "{formData.message || "No message provided."}"
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid gap-4 md:grid-cols-3">
+                                        <div className="grid gap-2">
+                                            <Label>Project Type</Label>
+                                            <Input
+                                                value={formData.project_type || ""}
+                                                onChange={(e) => setFormData({ ...formData, project_type: e.target.value })}
+                                                readOnly={isReadOnly}
+                                                placeholder="e.g. Apartment"
+                                            />
+                                        </div>
                                         <div className="grid gap-2">
                                             <Label>Budget</Label>
                                             <Input
@@ -413,7 +423,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                                 placeholder="e.g. Mumbai"
                                             />
                                         </div>
-                                        <div className="grid gap-2 col-span-2">
+                                        <div className="grid gap-2 md:col-span-3">
                                             <Label>Scope</Label>
                                             <Input
                                                 value={formData.scope || ""}
@@ -422,7 +432,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                                 placeholder="e.g. 3BHK Full Interior"
                                             />
                                         </div>
-                                        <div className="grid gap-2 col-span-2">
+                                        <div className="grid gap-2 md:col-span-3">
                                             <Label>Timeline</Label>
                                             <Input
                                                 value={formData.timeline || ""}
@@ -776,6 +786,17 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
                         <TabsContent value="activity" className="mt-0 h-full">
                             <LeadTimeline leadId={formData.id} />
+                        </TabsContent>
+
+                        <TabsContent value="raw-data" className="mt-0 h-full">
+                            <div className="space-y-4">
+                                <h3 className="font-semibold flex items-center gap-2 text-sm text-primary">
+                                    <FileText className="w-4 h-4" /> Raw Form Data
+                                </h3>
+                                <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-lg overflow-x-auto text-xs font-mono text-zinc-300">
+                                    <pre>{formData.form_data ? JSON.stringify(formData.form_data, null, 2) : "No raw form data available."}</pre>
+                                </div>
+                            </div>
                         </TabsContent>
                     </div>
                 </Tabs>

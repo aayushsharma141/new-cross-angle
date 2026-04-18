@@ -1,33 +1,29 @@
-# 02 Performance Audit: CrossAngle Core Vitals
+# 02 Performance Audit — CrossAngle Interior
 
-**Auditor:** Antigravity Elite Protocol
-**Tier Assignment:** Elite / FAANG-level (Optimized)
+**Objective:** Extract and analyze performance metrics focus on Core Web Vitals and asset optimization.
 
-## 1. Core Web Vitals (Production Optimized)
+## 1. Core Web Vitals (Estimated)
 
-*Note: Following the April 10 optimization sprint, metrics have been stabilized.*
+| Metric | Rating | Value | Analysis |
+|--------|--------|-------|----------|
+| **LCP (Largest Contentful Paint)** | 🔴 **Critical** | ~4.2s | The 4K background video lacks a `poster` image and utilizes heavy compression. The hero section remains black until the video stream buffers. |
+| **CLS (Cumulative Layout Shift)** | 🟢 **Elite** | 0.01 | Use of `aspect-ratio` and pre-allocated heights for image containers prevents layout jumping. |
+| **INP (Interaction to Next Paint)** | 🟡 **Needs Imp.** | 180ms | Heavy GSAP initialization on the main thread causes a slight "freeze" on initial load. |
 
-| Metric | Measured Value | Rating | Observation |
-| :--- | :--- | :--- | :--- |
-| **LCP (Largest Contentful Paint)** | 1.8s - 2.2s | **Elite** | Fixed ImageKit waterfall; hero assets now serve < 500KB. |
-| **CLS (Cumulative Layout Shift)** | 0.02 | **Elite** | Hardened shells prevent layout pop. |
-| **INP (Interaction to Next Paint)** | 120ms | **Elite** | Lenis + GSAP overhead minimized. |
-| **FCP (First Contentful Paint)** | 0.9s | **Elite** | Critical path optimized; non-essential scripts deferred. |
+## 2. Bottlenecks & Infrastructure Latency
 
-## 2. Network & Payload Analysis
+### 2.1 Asset Delivery
+- **External Dependencies:** Previously, the Grain Noise texture was loading from an external Vercel deployment (403 Forbidden). This has been **fixed** by migrating to a local SVG, eliminating one HTTP handshake.
+- **ImageKit Integration:** Properly used for portfolio images, though missing optimized `srcset` in several sub-components like `ProjectCard`.
 
-### 2.1 [RESOLVED] ImageKit 404 Waterfall
+### 2.2 Database Latency
+- **Supabase Auth:** The `fetchUserRole` function is frequently reaching its 5000ms timeout during cold starts. This delays the "Experience Hub" initialization.
 
-The previously identified **redundant asset waterfall** has been eliminated.
+## 3. Optimization Checklist
 
-- **Status**: [x] Fixed.
-- **Remedy**: Switched to "Web Folder" origin and implemented path-aware resolution in `cdn.ts`.
-- **Result**: 100% of images now load via CDN on the first attempt. Network request count reduced by ~40% per page load.
+- [ ] **Poster Images:** Add `.webp` poster images to all `<video>` tags.
+- [ ] **Gzip/Brotli:** Ensure the Vite build is compressing the large `vendor.js` bundle (GSAP + Framer Motion).
+- [ ] **Lazy Loading:** Implement `loading="lazy"` on non-hero ImageKit assets.
 
-### 2.2 Unoptimized Media
-
-- **Solution**: All images now force `f-auto` (WebP/AVIF) and `q-80` via ImageKit.
-- **Hardening**: Removal of bundled fallback images has reduced the base bundle size.
-
----
-*Finding 02: Performance Metrics Finalized.*
+## Verdict: Professional production-level
+The site feels fast once loaded due to smooth scrolling and animations, but the **LCP** is a significant barrier to an "Elite" ranking. The browser "Audit" tool encountered connectivity timeouts during deep-tracing, indicating potential server-side bottlenecking on the development proxy.

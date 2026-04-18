@@ -38,26 +38,35 @@ const ContactFAQ = () => {
                 className="overflow-hidden border-b last:border-b-0 transition-all duration-500"
                 style={{
                   borderColor: isOpen ? "rgba(209, 175, 110, 0.2)" : "var(--home-border-soft)",
-                  opacity: isDimmed ? 0.4 : 1,
+                  opacity: isDimmed ? 0.65 : 1,
                   transform: isDimmed ? "scale(0.99)" : "scale(1)",
                 }}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
-                  className="group flex w-full items-center justify-between gap-6 px-4 md:px-6 py-6 text-left focus:outline-none relative"
+                  className="group flex w-full items-center justify-between gap-6 px-4 md:px-6 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d1af6e]/50 relative"
                   aria-expanded={isOpen ? true : false}
+                  aria-controls={`contact-faq-panel-${index}`}
+                  id={`contact-faq-trigger-${index}`}
                 >
                   {/* Left glowing line indicator */}
                   <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 rounded-r-md bg-[#d1af6e] transition-all duration-500 ${isOpen ? 'h-[60%] shadow-[0_0_15px_rgba(209,175,110,0.8)]' : 'h-0'}`} />
-                  
-                  <span
-                    className={`text-base leading-7 transition-colors duration-300 md:text-lg pl-2 ${
-                      isOpen
-                        ? "text-[#d1af6e] font-medium"
-                        : "text-[var(--site-text)] group-hover:text-white"
-                    }`}
-                  >
-                    {faq.question}
+                   
+                  <span className="flex flex-1 flex-col gap-2 pl-2">
+                    {index === 0 && (
+                      <span className="inline-flex w-fit rounded-full border border-[#d1af6e]/30 bg-[#d1af6e]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#d1af6e]">
+                        Most asked
+                      </span>
+                    )}
+                    <span
+                      className={`text-base leading-7 transition-colors duration-300 md:text-lg ${
+                        isOpen
+                          ? "font-medium text-[#d1af6e]"
+                          : "text-[var(--site-text)] group-hover:text-white"
+                      }`}
+                    >
+                      {faq.question}
+                    </span>
                   </span>
                   <div
                     className={`relative flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-500 ${
@@ -77,6 +86,8 @@ const ContactFAQ = () => {
                   {isOpen && (
                     <motion.div
                       key="content"
+                      id={`contact-faq-panel-${index}`}
+                      aria-labelledby={`contact-faq-trigger-${index}`}
                       initial={{ height: 0, opacity: 0, marginTop: 0 }}
                       animate={{ height: "auto", opacity: 1, marginTop: 10 }}
                       exit={{ height: 0, opacity: 0, marginTop: 0 }}

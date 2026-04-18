@@ -1,0 +1,1 @@
+{"nodes": [{"id": "node_modules_opentelemetry_resources_build_src_detectors_platform_browser_serviceinstanceiddetector_js", "label": "ServiceInstanceIdDetector.js", "file_type": "code", "source_file": "node_modules\\@opentelemetry\\resources\\build\\src\\detectors\\platform\\browser\\ServiceInstanceIdDetector.js", "source_location": "L1"}], "edges": [], "raw_calls": []}

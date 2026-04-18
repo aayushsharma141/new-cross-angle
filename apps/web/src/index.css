@@ -86,16 +86,33 @@
     --site-crimson: #C41230;
     --site-crimson-90: rgba(196, 18, 48, 0.9);
     --site-crimson-30: rgba(196, 18, 48, 0.3);
+    --site-crimson-hover: #a30f27;
     --site-gold: #D1AF6E;
+    --site-gold-90: rgba(209, 175, 110, 0.9);
+    --site-gold-50: rgba(209, 175, 110, 0.5);
     --site-gold-30: rgba(209, 175, 110, 0.3);
+    --site-gold-10: rgba(209, 175, 110, 0.1);
+    --site-gold-hover: #c9a65d;
     --site-stone: #8B8B8B;
     --site-text: #EDEAE6;
     --site-text-heading: #FFFFFF;
     --site-text-muted: #A3A09C;
     --site-text-meta: #6B6B6B;
+    --site-text-90: rgba(237, 234, 230, 0.9);
+    --site-text-80: rgba(237, 234, 230, 0.8);
+    --site-text-70: rgba(237, 234, 230, 0.7);
+    --site-text-60: rgba(237, 234, 230, 0.6);
+    --site-text-50: rgba(237, 234, 230, 0.5);
+    --site-text-40: rgba(237, 234, 230, 0.4);
     --site-border: rgba(237, 234, 230, 0.08);
+    --site-border-strong: rgba(237, 234, 230, 0.14);
     --site-border-input: rgba(237, 234, 230, 0.1);
     --site-overlay-hero: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.75));
+    --site-focus: #D1AF6E;
+    --site-focus-ring: 0 0 0 3px rgba(209, 175, 110, 0.45);
+    --site-success: #22c55e;
+    --site-error: #ef4444;
+    --site-warning: #f59e0b;
 
     /* ── Home page design-system tokens ── */
     --home-glow-crimson: rgba(182, 24, 38, .18);
@@ -345,7 +362,7 @@
   }
 
   .stat-value {
-    font-family: 'Space Mono', 'JetBrains Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 2rem;
     color: hsl(43 85% 52%);
     text-shadow: 0 0 20px hsl(43 85% 52% / 0.4);
@@ -611,6 +628,36 @@ em,
   will-change: transform;
 }
 
+/* Pan Up */
+@keyframes heroPanUp {
+  0%   { transform: translateY(0) scale(1.05); }
+  100% { transform: translateY(-5%) scale(1.05); }
+}
+.hero-anim-pan-up {
+  animation: heroPanUp linear forwards;
+  will-change: transform;
+}
+
+/* Pan Down */
+@keyframes heroPanDown {
+  0%   { transform: translateY(-5%) scale(1.05); }
+  100% { transform: translateY(0) scale(1.05); }
+}
+.hero-anim-pan-down {
+  animation: heroPanDown linear forwards;
+  will-change: transform;
+}
+
+/* Zoom Pan - diagonal movement with slow scale for high-end feel */
+@keyframes heroZoomPan {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-3%, -3%) scale(1.12); }
+}
+.hero-anim-zoom-pan {
+  animation: heroZoomPan ease-out forwards;
+  will-change: transform;
+}
+
 /* ════════════════════════════════════╗
  *  Animated Logo Effects             ║
  * ════════════════════════════════════╝ */
@@ -684,7 +731,7 @@ em,
 }
 
 .home-noise {
-  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   background-size: 240px 240px;
   opacity: 0.04;
   mix-blend-mode: soft-light;
@@ -803,6 +850,9 @@ em,
   .hero-anim-kb-out,
   .hero-anim-pan-left,
   .hero-anim-pan-right,
+  .hero-anim-pan-up,
+  .hero-anim-pan-down,
+  .hero-anim-zoom-pan,
   .animate-marquee {
     animation: none !important;
   }

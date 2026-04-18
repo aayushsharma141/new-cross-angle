@@ -7,6 +7,8 @@ import SectionNavDots from "@/components/SectionNavDots";
 import ScrollProgress from "@/components/ScrollProgress";
 import WelcomePrompt from "@/components/WelcomePrompt";
 import { LazySection } from "@/components/performance/LazySection";
+import { SchemaMarkup } from "@/components/SchemaMarkup";
+import { SITE_CONSTANTS } from "@/lib/constants";
 
 // ── Above-fold: eager (loaded with initial bundle) ──────────────────────────
 import Hero from "@/components/Hero";
@@ -26,17 +28,17 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>Crossangle Interior | Premium Interior Design Studio in Jamshedpur &amp; Kolkata</title>
+        <title>Crossangle Interior | Premium Interior Design Studio in Jamshedpur</title>
         <meta
           name="description"
-          content="Transform your vision into exquisite living spaces with Crossangle Interior. Award-winning interior design for homes and commercial spaces in Jamshedpur and Kolkata. 500+ projects completed."
+          content="Transform your vision into exquisite living spaces with Crossangle Interior. Award-winning interior design for homes and commercial spaces in Jamshedpur. 500+ projects completed."
         />
         <meta
           name="keywords"
-          content="interior design, residential design, commercial design, luxury interiors, home design, space planning, Jamshedpur, Kolkata, modular kitchen, false ceiling"
+          content="interior design, residential design, commercial design, luxury interiors, home design, space planning, Jamshedpur, modular kitchen, false ceiling"
         />
         <meta property="og:title" content="Crossangle Interior | Premium Interior Design Studio" />
-        <meta property="og:description" content="Transform your vision into exquisite living spaces. Award-winning interior design in Jamshedpur &amp; Kolkata." />
+        <meta property="og:description" content="Transform your vision into exquisite living spaces. Award-winning interior design in Jamshedpur and nearby neighborhoods." />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/" />
       </Helmet>
@@ -144,6 +146,54 @@ const Index = () => {
         </div>
       </main>
       <Footer />
+
+      <SchemaMarkup
+        type="LocalBusiness"
+        data={{
+          name: "Crossangle Interior",
+          image: "https://crossangleinterior.com/reality_render.jpg",
+          "@id": "https://crossangleinterior.com",
+          url: "https://crossangleinterior.com",
+          telephone: `+${SITE_CONSTANTS.defaultWhatsApp}`, // Update with actual if available
+          address: [
+            {
+              "@type": "PostalAddress",
+              "streetAddress": "Jamshedpur Center",
+              "addressLocality": "Jamshedpur",
+              "addressRegion": "Jharkhand",
+              "postalCode": "831001",
+              "addressCountry": "IN"
+            }
+          ],
+          geo: {
+            "@type": "GeoCoordinates",
+            "latitude": "22.8046",
+            "longitude": "86.2029"
+          },
+          openingHoursSpecification: {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            "opens": "10:00",
+            "closes": "19:00"
+          },
+          sameAs: [
+            "https://www.facebook.com/crossangle",
+            "https://www.instagram.com/crossangle"
+          ]
+        }}
+      />
+      <SchemaMarkup
+        type="Service"
+        data={{
+          serviceType: "Interior Design",
+          provider: {
+            "@type": "LocalBusiness",
+            "name": "Crossangle Interior"
+          },
+          areaServed: ["Jamshedpur", "Mango", "Sakchi", "Bistupur", "Kadma", "Sonari", "Telco", "Golmuri", "Baridih", "Dimna", "Adityapur"],
+          description: "Premium interior design services for residential and commercial spaces."
+        }}
+      />
     </>
   );
 };

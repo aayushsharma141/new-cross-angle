@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { ExternalLink, MoreHorizontal, Mail, Phone, MapPin, Calendar, Tag, ArrowUpDown } from 'lucide-react';
+import { ExternalLink, MoreHorizontal, Mail, Phone, MapPin, Calendar, Tag, ArrowUpDown, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -12,6 +12,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/admin/DataTable';
 import type { Lead } from '@/repositories/interfaces/LeadRepository';
@@ -186,6 +193,40 @@ export function LeadTable({
         cell: ({ row }) => (
           <span className="text-sm">{row.original.service || 'N/A'}</span>
         ),
+      },
+      {
+        id: 'form_data',
+        header: 'Details',
+        cell: ({ row }) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const fd = (row.original as any).form_data as Record<string, unknown> | null | undefined;
+          if (!fd || typeof fd !== 'object' || Object.keys(fd).length === 0) {
+            return <span className="text-xs text-muted-foreground">—</span>;
+          }
+          return (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs px-2">
+                  <FileText className="h-3 w-3" />
+                  View
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Form Submission Data</DialogTitle>
+                </DialogHeader>
+                <div className="mt-2 space-y-2 rounded-md bg-muted/50 p-3 text-xs font-mono overflow-auto max-h-80">
+                  {Object.entries(fd).map(([key, value]) => (
+                    <div key={key} className="grid grid-cols-[140px_1fr] gap-2">
+                      <span className="font-semibold text-muted-foreground truncate">{key}:</span>
+                      <span className="break-all">{typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value ?? '')}</span>
+                    </div>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+          );
+        },
       },
       {
         accessorKey: 'created_at',

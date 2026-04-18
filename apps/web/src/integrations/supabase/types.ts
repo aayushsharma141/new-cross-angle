@@ -519,15 +519,17 @@ export type Database = {
           phone: string | null
           project_type: string | null
           property_type: string | null
-          score: number | null
-          score_details: Json | null
-          service: string | null
-          source_url: string | null
-          stale_flagged_at: string | null
-          start_timing: string | null
-          state: string | null
+          score?: number | null
+          score_details?: Json | null
+          service?: string | null
+          source?: string | null
+          source_url?: string | null
+          stale_flagged_at?: string | null
+          start_timing?: string | null
+          state?: string | null
           status: Database["public"]["Enums"]["lead_status_enum"]
-          updated_at: string | null
+          updated_at?: string | null
+          form_data?: Json | null
         }
         Insert: {
           archetype?: string | null
@@ -560,12 +562,14 @@ export type Database = {
           score?: number | null
           score_details?: Json | null
           service?: string | null
+          source?: string | null
           source_url?: string | null
           stale_flagged_at?: string | null
           start_timing?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["lead_status_enum"]
           updated_at?: string | null
+          form_data?: Json | null
         }
         Update: {
           archetype?: string | null
@@ -598,12 +602,14 @@ export type Database = {
           score?: number | null
           score_details?: Json | null
           service?: string | null
+          source?: string | null
           source_url?: string | null
           stale_flagged_at?: string | null
           start_timing?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["lead_status_enum"]
           updated_at?: string | null
+          form_data?: Json | null
         }
         Relationships: []
       }

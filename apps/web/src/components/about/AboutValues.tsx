@@ -13,23 +13,23 @@ interface ValueCardProps {
 const values = [
   {
     icon: Target,
-    title: "Client-Centric Approach",
-    description: "Your vision drives everything we do. We listen, understand, and deliver spaces that exceed expectations.",
+    title: "Execution-First Planning",
+    description: "Every project begins with a detailed scope, timeline, and budget framework — delivered before a single wall is touched.",
   },
   {
     icon: Lightbulb,
-    title: "Innovation & Creativity",
-    description: "We blend cutting-edge design trends with timeless aesthetics to create unique, inspiring spaces.",
+    title: "Design Intelligence",
+    description: "We blend function with aesthetic rigor — creating spaces built for everyday use, not just photographs.",
   },
   {
     icon: Award,
-    title: "Excellence in Execution",
-    description: "Meticulous attention to detail and premium craftsmanship define every project we undertake.",
+    title: "Turnkey Accountability",
+    description: "No sub-contracting surprises. We own the full project — materials, labour, timelines, and final handover.",
   },
   {
     icon: Users,
-    title: "Collaborative Partnership",
-    description: "We work closely with you throughout the journey, ensuring transparency and seamless communication.",
+    title: "Client Transparency",
+    description: "Real-time progress updates, clear milestones, and zero hidden costs. You always know where your project stands.",
   },
 ];
 
@@ -101,14 +101,14 @@ const ValueCard = ({ icon: Icon, title, description, index }: ValueCardProps) =>
 
         {/* Icon */}
         <motion.div
-          className="w-14 h-14 rounded-2xl bg-black/40 border border-white/10 group-hover:border-[#d1af6e]/40 group-hover:bg-[#d1af6e]/10 flex items-center justify-center mb-6 transition-all duration-700 shadow-inner group-hover:shadow-[0_0_15px_rgba(209,175,110,0.2)]"
+          className="w-14 h-14 rounded-2xl bg-black/40 border border-white/10 group-hover:border-[#FF2A2A]/30 group-hover:bg-[#FF2A2A]/10 flex items-center justify-center mb-6 transition-all duration-700 shadow-inner group-hover:shadow-[0_0_15px_rgba(255,42,42,0.15)]"
           whileHover={{ scale: 1.1, rotate: 5 }}
         >
-          <Icon className="w-7 h-7 text-muted-foreground group-hover:text-[#d1af6e] transition-colors duration-500 drop-shadow-[0_0_8px_rgba(209,175,110,0)] group-hover:drop-shadow-[0_0_8px_rgba(209,175,110,0.5)]" />
+          <Icon className="w-7 h-7 text-muted-foreground group-hover:text-[#FF2A2A] transition-colors duration-500" />
         </motion.div>
 
         {/* Content */}
-        <h3 className="font-serif text-xl font-semibold text-foreground mb-3 group-hover:text-[#d1af6e] transition-colors duration-300">
+        <h3 className="font-sans text-base font-semibold text-white mb-3 group-hover:text-[#FF2A2A] transition-colors duration-300">
           {title}
         </h3>
         <p className="text-muted-foreground text-sm leading-relaxed">
@@ -136,17 +136,18 @@ const AboutValues = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto text-center mb-16 md:mb-20"
+          className="max-w-3xl mx-auto text-center mb-12 md:mb-20 px-4"
         >
-          <span className="text-[#d1af6e] font-medium tracking-widest uppercase text-sm mb-4 block">
-            Our Values
+          <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#FF2A2A] mb-4 flex items-center justify-center gap-2">
+            <span className="inline-block w-5 h-[2px] bg-[#FF2A2A]" /> Our Principles
           </span>
-          <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Who We <span className="text-[#d1af6e]">Are</span>
+          <h2 className="font-sans text-[clamp(2rem,3.5vw,3.6rem)] font-normal text-white leading-[1.1] tracking-tight mb-5">
+            Designed for aesthetics.<br />
+            <span className="text-[#FF2A2A] font-semibold">Built for everyday use.</span>
           </h2>
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            Founded with a passion for design and a commitment to excellence, 
-            our team combines innovative concepts with meticulous attention to detail.
+          <p className="text-[clamp(0.85rem,0.95vw,0.95rem)] text-[#5E5E5E] leading-[1.8] max-w-[44ch] mx-auto">
+            Every project is delivered fully executed — not just designed.
+            Our principles drive every decision from brief to final handover.
           </p>
         </motion.div>
 

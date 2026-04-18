@@ -65,225 +65,208 @@ const ServicesPage = () => {
         <OurApproach />
 
         {/* RESIDENTIAL */}
-          <section id="residential" className="overflow-hidden" style={{ padding: "clamp(72px,10vw,140px) clamp(20px,5vw,80px)" }}>
-            <div className="max-w-[1400px] mx-auto">
-              <div className="flex flex-wrap justify-between items-end gap-5 mb-14">
-                <div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 36 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-                    className="flex items-center gap-3.5 mb-4 font-label text-[9px] font-bold tracking-[0.3em] uppercase text-[#FF2A2A]"
-                  >
-                    Domain I
-                    <div className="w-10 h-[1px] bg-[#FF2A2A]" />
-                  </motion.div>
-                  <motion.h2
-                    initial={{ opacity: 0, y: 36 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.85, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    className="font-display font-normal text-[clamp(2.4rem,5.5vw,5.5rem)] leading-[1.04] tracking-[-0.02em] text-[#EDEDED]"
-                  >
-                    Residential<br />
-                    <em className="italic text-[#FF2A2A]">Design</em>
-                  </motion.h2>
-                </div>
-                <motion.p
-                  initial={{ opacity: 0, y: 36 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="text-[0.92rem] text-[#EDEDED]/55 max-w-[34ch] font-light leading-[1.7] text-left md:text-right"
-                >
-                  Personalized turnkey interiors crafted for lifestyle, comfort, and long-term capital value.
-                </motion.p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[18px]">
-                {residentialServices.map((service, i) => (
-                  <motion.div
-                    key={service.id}
-                    initial={{ opacity: 0, y: 36 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.85, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    <Link to={`/services/${service.category_id}/${service.slug}`} className="block bg-[#0A0A0A] border border-white/10 overflow-hidden transition-colors duration-350 hover:border-[#FF2A2A]/50 cursor-pointer group/card filter-none">
-                      <div className="relative aspect-[3/4] overflow-hidden">
-                        <Image
-                          src={service.hero_image}
-                          alt={service.title}
-                          className="h-full w-full"
-                          imageClassName="scale-[1.04] grayscale-[0.75] brightness-[0.72] transition-all duration-[time:900ms] ease-[timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover/card:grayscale-0 group-hover/card:brightness-[0.85] group-hover/card:scale-100"
-                          width={720}
-                          height={960}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/86 to-transparent to-[52%] pointer-events-none" />
-                      </div>
-                      <div className="p-[18px_22px_26px] border-t border-white/10">
-                        <div className="font-display italic text-[1.45rem] font-normal mb-2 tracking-[-0.01em] text-[#EDEDED]">
-                          {service.title}
-                        </div>
-                        <p className="text-[0.82rem] text-[#EDEDED]/55 leading-[1.65] font-light mb-3.5 line-clamp-2">
-                          {service.description}
-                        </p>
-                        <span className="font-label text-[9px] font-bold tracking-[0.18em] uppercase text-[#FF2A2A] flex items-center gap-2 transition-all duration-250 group-hover/card:gap-3.5">
-                          Explore Service <span className="text-[12px] leading-none mb-[2px]">→</span>
-                        </span>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-              {!isLoading && residentialServices.length === 0 && (
-                <EmptyCategoryState label="Residential" />
-              )}
-            </div>
-          </section>
-
-        {/* COMMERCIAL */}
-          <section id="commercial" className="bg-[#0A0A0A] border-t border-white/10 overflow-hidden" style={{ padding: "clamp(72px,10vw,140px) clamp(20px,5vw,80px)" }}>
-            <div className="max-w-[1400px] mx-auto">
-              <div className="flex flex-wrap justify-between items-end gap-5 mb-14">
-                <div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 36 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-                    className="flex items-center gap-3.5 mb-4 font-label text-[9px] font-bold tracking-[0.3em] uppercase text-[#FF2A2A]"
-                  >
-                    Domain II
-                    <div className="w-10 h-[1px] bg-[#FF2A2A]" />
-                  </motion.div>
-                  <motion.h2
-                    initial={{ opacity: 0, y: 36 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.85, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    className="font-display font-normal text-[clamp(2.4rem,5.5vw,5.5rem)] leading-[1.04] tracking-[-0.02em] text-[#EDEDED]"
-                  >
-                    Commercial<br />
-                    <em className="italic text-[#FF2A2A]">&amp; Office</em>
-                  </motion.h2>
-                </div>
-                <motion.p
-                  initial={{ opacity: 0, y: 36 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="text-[0.92rem] text-[#EDEDED]/55 max-w-[34ch] font-light leading-[1.7] text-left md:text-right"
-                >
-                  Strategic interior solutions that amplify productivity, brand value, and customer experience.
-                </motion.p>
-              </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 36 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.85, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[1px] bg-white/10 border border-white/10 mt-14"
-              >
-                {commercialServices.map((service) => {
-                  const Icon = IconMap[service.icon] || Building2;
-                  return (
-                    <Link to={`/services/${service.category_id}/${service.slug}`} key={service.id} className="block group bg-[#000000] overflow-hidden transition-colors duration-300 hover:bg-[#0D0D0D] relative" style={{ padding: "clamp(28px,3vw,52px)" }}>
-                      {/* Red line reveal */}
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#FF2A2A] scale-y-0 origin-bottom transition-transform duration-400 ease-[timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:scale-y-100" />
-                      
-                      <div className="mb-6 text-[#EDEDED] grayscale-[1] brightness-[0.55] transition-all duration-300 group-hover:grayscale-0 group-hover:brightness-100">
-                        <Icon className="w-10 h-10 stroke-[1.5px]" />
-                      </div>
-                      <div className="font-display italic text-[2rem] font-normal mb-3.5 text-[#EDEDED]">
-                        {service.title}
-                      </div>
-                      <p className="text-[0.88rem] text-[#EDEDED]/55 leading-[1.75] font-light line-clamp-3">
-                        {service.description}
-                      </p>
-                    </Link>
-                  );
-                })}
-              </motion.div>
-              {!isLoading && commercialServices.length === 0 && (
-                <div className="mt-14">
-                  <EmptyCategoryState label="Commercial" />
-                </div>
-              )}
-            </div>
-          </section>
-
-        {/* SPECIALIZED */}
-          <section id="specialized" className="bg-[#0A0A0A] border-y border-white/10 overflow-hidden" style={{ padding: "clamp(72px,10vw,140px) clamp(20px,5vw,80px)" }}>
-            <div className="max-w-[1400px] mx-auto">
-              <div className="text-center mb-14 flex flex-col items-center">
+        <section id="residential" className="relative overflow-hidden py-24 lg:py-40 px-6">
+          <div className="absolute top-0 right-1/4 w-px h-full bg-white/[0.03]" />
+          <div className="max-w-[1400px] mx-auto relative z-10">
+            <div className="flex flex-col md:flex-row justify-between items-end gap-12 mb-20 border-b border-white/5 pb-12">
+              <div className="max-w-[600px]">
                 <motion.div
-                  initial={{ opacity: 0, y: 36 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex justify-center items-center gap-3.5 mb-4 font-label text-[9px] font-bold tracking-[0.3em] uppercase text-[#FF2A2A]"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  className="flex items-center gap-4 mb-6"
                 >
-                  <div className="w-10 h-[1px] bg-[#FF2A2A]" />
-                  Specialized Execution
+                  <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-crimson">Domain I</span>
+                  <div className="w-12 h-px bg-site-crimson/30" />
                 </motion.div>
                 <motion.h2
-                  initial={{ opacity: 0, y: 36 }}
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.85, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                  className="font-display font-normal text-[clamp(2.4rem,5.5vw,5.5rem)] leading-[1.04] tracking-[-0.02em] text-[#EDEDED]"
+                  viewport={{ once: true }}
+                  className="font-display font-normal text-[clamp(2.5rem,6vw,5rem)] leading-[1.05] tracking-tight text-white"
                 >
-                  Expert Solutions<br />
-                  for Specific <em className="italic text-[#FF2A2A]">Requirements</em>
+                  Residential<br />
+                  <em className="italic text-site-crimson font-medium underline underline-offset-[12px] decoration-white/10 decoration-[4px]">Design</em>
                 </motion.h2>
-                <motion.p
-                  initial={{ opacity: 0, y: 36 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="text-[0.95rem] text-[#EDEDED]/55 font-light max-w-[46ch] mx-auto mt-4 leading-[1.8]"
-                >
-                  Precision-crafted services requiring in-house manufacturing capability, specialist knowledge, and technical mastery at every stage.
-                </motion.p>
               </div>
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                className="text-[1.1rem] text-white/40 max-w-[36ch] font-light leading-relaxed md:text-right"
+              >
+                Personalized turnkey interiors crafted for lifestyle, comfort, and long-term capital value.
+              </motion.p>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[18px] mt-12">
-                {specializedServices.map((service, i) => {
-                  const Icon = IconMap[service.icon] || Lamp;
-                  return (
-                    <motion.div
-                      key={service.id}
-                      initial={{ opacity: 0, y: 36 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-50px" }}
-                      transition={{ duration: 0.85, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      <Link to={`/services/${service.category_id}/${service.slug}`} className="block border border-white/10 bg-[#000000] relative overflow-hidden transition-all duration-300 hover:border-[#FF2A2A]/35 hover:bg-[#050505] group" style={{ padding: "clamp(28px,3.5vw,50px)" }}>
-                        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-400" style={{ background: "radial-gradient(circle, rgba(255,42,42,0.07) 0%, transparent 70%)" }} />
-                        <div className="mb-[22px] text-[#EDEDED]">
-                          <Icon className="w-10 h-10 stroke-[1.5px]" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {residentialServices.map((service, i) => (
+                <motion.div
+                  key={service.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                >
+                  <Link to={`/services/${service.category_id}/${service.slug}`} className="group block relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#0a0a0a] border border-white/[0.08] transition-all duration-500 hover:border-site-crimson/50 hover:shadow-2xl hover:shadow-site-crimson/10 overflow-hidden">
+                    <Image
+                      src={service.hero_image}
+                      alt={service.title}
+                      className="absolute inset-0 h-full w-full"
+                      imageClassName="scale-105 grayscale-[0.5] brightness-[0.7] transition-all duration-700 group-hover:scale-100 group-hover:grayscale-0 group-hover:brightness-[0.85]"
+                      width={720}
+                      height={960}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
+                    <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                      <div className="font-display italic text-[1.75rem] text-white mb-3 group-hover:translate-x-2 transition-transform">
+                        {service.title}
+                      </div>
+                      <p className="text-[0.9rem] text-white/50 leading-relaxed font-light mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 line-clamp-2">
+                        {service.description}
+                      </p>
+                      <div className="flex items-center gap-3 text-site-crimson font-bold text-[9px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all group-hover:translate-y-0 translate-y-2">
+                        Detailed Briefing
+                        <div className="w-8 h-px bg-site-crimson" />
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+            {!isLoading && residentialServices.length === 0 && (
+              <EmptyCategoryState label="Residential" />
+            )}
+          </div>
+        </section>
+
+        {/* COMMERCIAL */}
+        <section id="commercial" className="relative bg-[#050505] border-y border-white/[0.05] overflow-hidden py-24 lg:py-48 px-6">
+          <div className="absolute left-1/4 w-px h-full bg-white/[0.03] pointer-events-none" />
+          <div className="max-w-[1400px] mx-auto relative z-10">
+            <div className="flex flex-col md:flex-row justify-between items-end gap-12 mb-20 border-b border-white/5 pb-12">
+              <div className="max-w-[600px]">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  className="flex items-center gap-4 mb-6"
+                >
+                  <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-crimson">Domain II</span>
+                  <div className="w-12 h-px bg-site-crimson/30" />
+                </motion.div>
+                <motion.h2
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="font-display font-normal text-[clamp(2.5rem,6vw,5rem)] leading-[1.05] tracking-tight text-white"
+                >
+                  Commercial<br />
+                  <em className="italic text-site-crimson font-medium underline underline-offset-[12px] decoration-white/10 decoration-[4px]">&amp; Office Space</em>
+                </motion.h2>
+              </div>
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                className="text-[1.1rem] text-white/40 max-w-[36ch] font-light leading-relaxed md:text-right"
+              >
+                Strategic interior solutions that amplify productivity, brand value, and customer experience.
+              </motion.p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.05] border border-white/[0.05] overflow-hidden rounded-2xl">
+              {commercialServices.map((service, i) => {
+                const Icon = IconMap[service.icon] || Building2;
+                return (
+                  <Link to={`/services/${service.category_id}/${service.slug}`} key={service.id} className="group relative bg-black p-10 lg:p-16 overflow-hidden transition-all duration-500 hover:bg-[#080808]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-site-crimson/[0.02] to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="relative z-10">
+                      <div className="mb-10 text-white/20 group-hover:text-site-crimson transition-colors duration-500">
+                        <Icon className="w-12 h-12 stroke-[1px]" />
+                      </div>
+                      <div className="font-display italic text-[2.25rem] text-white mb-6 group-hover:translate-x-2 transition-transform duration-500">
+                        {service.title}
+                      </div>
+                      <p className="text-[1rem] text-white/30 leading-relaxed font-light mb-10 group-hover:text-white/50 transition-colors line-clamp-3">
+                        {service.description}
+                      </p>
+                      <div className="flex items-center gap-3 text-site-crimson font-bold text-[9px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
+                        Capability Profile
+                        <div className="w-10 h-px bg-site-crimson" />
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+            {!isLoading && commercialServices.length === 0 && (
+              <div className="mt-14">
+                <EmptyCategoryState label="Commercial" />
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* SPECIALIZED */}
+        <section id="specialized" className="relative bg-black overflow-hidden py-24 lg:py-48 px-6">
+          <div className="max-w-[1400px] mx-auto relative z-10 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="flex justify-center items-center gap-4 mb-8"
+            >
+              <div className="w-12 h-px bg-site-crimson/30" />
+              <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-crimson">Domain III</span>
+              <div className="w-12 h-px bg-site-crimson/30" />
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="font-display font-normal text-[clamp(2.5rem,6vw,5.5rem)] leading-[1] tracking-tight text-white mb-16"
+            >
+              Specialist Execution &<br />
+              <em className="italic text-site-crimson font-medium">Bespoke Manufacturing.</em>
+            </motion.h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
+              {specializedServices.map((service, i) => {
+                const Icon = IconMap[service.icon] || Lamp;
+                return (
+                  <motion.div
+                    key={service.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <Link to={`/services/${service.category_id}/${service.slug}`} className="group block relative bg-[#050505] border border-white/[0.05] p-10 lg:p-14 rounded-2xl overflow-hidden transition-all duration-500 hover:border-site-crimson/30 hover:shadow-2xl hover:shadow-site-crimson/5">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-site-crimson/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="relative z-10">
+                        <div className="mb-8 p-3 w-fit rounded-xl bg-white/[0.02] border border-white/[0.05] text-white/20 group-hover:text-site-crimson group-hover:border-site-crimson/20 transition-all">
+                          <Icon className="w-10 h-10 stroke-[1.2px]" />
                         </div>
-                        <div className="font-display italic text-[1.75rem] font-normal mb-3 text-[#EDEDED]">
+                        <div className="font-display italic text-[1.85rem] text-white mb-4">
                           {service.title}
                         </div>
-                        <p className="text-[0.87rem] text-[#EDEDED]/55 leading-[1.7] font-light line-clamp-3">
+                        <p className="text-[1rem] text-white/30 leading-relaxed font-light line-clamp-3">
                           {service.description}
                         </p>
-                      </Link>
-                    </motion.div>
-                  )
-                })}
-              </div>
-              {!isLoading && specializedServices.length === 0 && (
-                <div className="mt-12">
-                  <EmptyCategoryState label="Specialized" />
-                </div>
-              )}
+                      </div>
+                    </Link>
+                  </motion.div>
+                )
+              })}
             </div>
-          </section>
+            {!isLoading && specializedServices.length === 0 && (
+              <div className="mt-12">
+                <EmptyCategoryState label="Specialized" />
+              </div>
+            )}
+          </div>
+        </section>
 
         <ServicesEngines />
 

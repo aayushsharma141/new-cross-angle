@@ -21,6 +21,10 @@
   ],
   "rewrites": [
     {
+      "source": "/ingest/:path*",
+      "destination": "https://us.i.posthog.com/:path*"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "https://xapjwemjbsrigeufxylj.supabase.co/functions/v1/sitemap"
     },

@@ -1,128 +1,265 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowDown } from "lucide-react";
 import portfolioBedroom from "@/assets/portfolio-bedroom.jpg";
 import portfolioKitchen from "@/assets/portfolio-kitchen.jpg";
 import portfolioOffice from "@/assets/portfolio-office.jpg";
 
-const HERO_IMAGES = [
-  {
-    url: portfolioBedroom,
-    title: "Serene Sanctuaries",
-    subtitle: "Designed for restful nights and peaceful mornings."
-  },
-  {
-    url: portfolioKitchen,
-    title: "Culinary Excellence",
-    subtitle: "The heart of your home, reimagined for efficiency."
-  },
-  {
-    url: portfolioOffice,
-    title: "Productive Environments",
-    subtitle: "Spaces that inspire creativity and professional growth."
-  }
+const HERO_IMAGES = [portfolioBedroom, portfolioKitchen, portfolioOffice];
+
+const wordCycles = [
+  { top: "Executed",  bottom: "Experienced" },
+  { top: "Delivered", bottom: "Remembered"  },
+  { top: "Refined",   bottom: "Lived In"    },
+];
+
+const captions = [
+  "Bedroom Suite · Noida Residence",
+  "Kitchen · Commercial Project · Gurugram",
+  "Office Suite · Corporate HQ · Delhi NCR",
+];
+
+const stats = [
+  { value: "₹2–20Cr+", label: "Projects Delivered" },
+  { value: "95%",       label: "Execution Match"    },
+  { value: "100%",      label: "Turnkey Scope"       },
 ];
 
 const HubHero = () => {
-  const [index, setIndex] = useState(0);
+  const [imgIndex, setImgIndex]   = useState(0);
+  const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 6000);
-    return () => clearInterval(timer);
+    const t = setInterval(() => setImgIndex((p) => (p + 1) % HERO_IMAGES.length), 6000);
+    return () => clearInterval(t);
   }, []);
 
+  useEffect(() => {
+    const t = setInterval(() => setWordIndex((p) => (p + 1) % wordCycles.length), 3500);
+    return () => clearInterval(t);
+  }, []);
+
+  const pair = wordCycles[wordIndex];
+
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-black">
-      {/* Cinematic Background Slider */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={index}
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 2, ease: [0.43, 0.13, 0.23, 0.96] }}
-          className="absolute inset-0 z-0"
-        >
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${HERO_IMAGES[index].url})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/80" />
-        </motion.div>
-      </AnimatePresence>
+    <section className="relative w-full min-h-[100vh] bg-black flex items-center pt-24 pb-16 overflow-hidden">
 
-      {/* Content Overlay */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="max-w-4xl"
-        >
-          <motion.span 
-            className="mb-4 inline-block text-[10px] uppercase tracking-[0.4em] text-white/60"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
+      {/* ── LAYOUT ── */}
+      <div className="w-full flex flex-col lg:flex-row items-center lg:items-stretch relative z-10 font-sans">
+
+        {/* ─────── LEFT ─────── */}
+        <div className="w-full lg:w-[54%] xl:w-[56%] flex flex-col justify-center gap-6
+                        px-6 sm:px-10 lg:pl-14 xl:pl-20 2xl:pl-28 lg:pr-12
+                        py-10 lg:py-0 min-h-[calc(100vh-6rem)]">
+
+          {/* Label */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-center gap-3 text-[10px] font-bold tracking-[0.32em] uppercase text-white/80"
           >
-            The Experience Hub
-          </motion.span>
-          <h1 className="mb-6 text-4xl font-extralight tracking-tight text-white md:text-6xl lg:text-7xl">
-            Not Just Interiors…<br />
-            <span className="italic text-white/90">Spaces That Reflect Who You Are</span>
-          </h1>
-          <p className="mx-auto mb-10 max-w-2xl text-lg font-light text-white/70 md:text-xl">
-            Explore designs crafted for real lifestyles, real homes, and real emotions. 
-            Every corner tells a story of identity and purpose.
-          </p>
+            <div className="w-7 h-[2px] bg-[#FF2A2A] shrink-0 shadow-[0_0_8px_rgba(255,42,42,0.5)]" />
+            Our Projects
+          </motion.div>
 
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button 
-              size="lg" 
-              className="group h-14 rounded-none bg-white px-10 text-[11px] uppercase tracking-[0.2em] text-black transition-all hover:bg-white/90"
-              onClick={() => document.getElementById('explore')?.scrollIntoView({ behavior: 'smooth' })}
+          {/* H1 — 3 clear lines, controlled size */}
+          <motion.div
+            initial={{ opacity: 0, y: 26 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <h1 className="font-sans text-[clamp(2.4rem,4.8vw,5.2rem)] font-normal text-white
+                           leading-[1.08] tracking-tight">
+              {/* Line 1 — static */}
+              Real Projects.
+
+              {/* Line 2 */}
+              <br />
+              Fully{" "}
+              <span
+                className="relative inline-flex overflow-hidden text-[#FF2A2A] font-semibold align-bottom"
+                style={{ minWidth: "5ch" }}
+              >
+                <AnimatePresence mode="popLayout">
+                  <motion.span
+                    key={pair.top}
+                    initial={{ y: "100%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: "-100%", opacity: 0 }}
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    className="whitespace-nowrap inline-block"
+                  >
+                    {pair.top}
+                  </motion.span>
+                </AnimatePresence>
+              </span>
+              .
+
+              {/* Line 3 */}
+              <br />
+              Fully{" "}
+              <span
+                className="relative inline-flex overflow-hidden text-[#FF2A2A] font-semibold align-bottom"
+                style={{ minWidth: "6ch" }}
+              >
+                <AnimatePresence mode="popLayout">
+                  <motion.span
+                    key={pair.bottom}
+                    initial={{ y: "100%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: "-100%", opacity: 0 }}
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    className="whitespace-nowrap inline-block"
+                  >
+                    {pair.bottom}
+                  </motion.span>
+                </AnimatePresence>
+              </span>
+              .
+            </h1>
+          </motion.div>
+
+          {/* Subtext */}
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="text-[clamp(0.88rem,1vw,1rem)] leading-[1.8] text-[#5E5E5E] max-w-[42ch]"
+          >
+            Every project reflects our turnkey approach — design intelligence,
+            execution precision, and hospitality-level detailing from concept to handover.
+          </motion.p>
+
+          {/* Data Strip */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-stretch gap-0 pt-1"
+          >
+            {stats.map((stat, i) => (
+              <div
+                key={i}
+                className={`flex flex-col gap-1 pr-8 ${
+                  i < stats.length - 1 ? "border-r border-[#222222] mr-8" : ""
+                }`}
+              >
+                <span className="text-[clamp(1.1rem,1.6vw,1.5rem)] font-bold text-white leading-none tracking-tight">
+                  {stat.value}
+                </span>
+                <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#484848]">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Value Points */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.36, ease: [0.22, 1, 0.36, 1] }}
+            className="space-y-2 text-[clamp(0.82rem,0.95vw,0.92rem)] text-[#757575] font-normal pt-1"
+          >
+            {[
+              "End-to-End Turnkey Execution",
+              "Residential, Commercial & Hospitality",
+              "Concept to Completion — No Gaps",
+            ].map((point, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-[5px] h-[5px] rounded-full bg-[#FF2A2A] shadow-[0_0_6px_rgba(255,42,42,0.8)] shrink-0" />
+                {point}
+              </div>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* ─────── RIGHT: CINEMATIC IMAGE ─────── */}
+        <div className="absolute right-6 xl:right-10 top-[10vh] bottom-[5vh]
+                        w-[43%] xl:w-[41%] 2xl:w-[39%]
+                        overflow-hidden border border-[#1C1C1C] z-20">
+
+          {/* Slider */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={imgIndex}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1.01 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.6, ease: [0.43, 0.13, 0.23, 0.96] }}
+              className="absolute inset-0"
             >
-              Explore Projects
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="h-14 rounded-none border-white/20 bg-transparent px-10 text-[11px] uppercase tracking-[0.2em] text-white backdrop-blur-md transition-all hover:bg-white/10 hover:text-white"
-              onClick={() => window.location.href = '/style-quiz'}
-            >
-              Find Your Style
-            </Button>
+              <div
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: `url(${HERO_IMAGES[imgIndex]})` }}
+              />
+              {/* Lighten overlay — let the photo breathe */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/55 pointer-events-none" />
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Top-left tag */}
+          <div className="absolute top-4 left-4 z-20 text-[8px] font-bold text-white/60
+                          tracking-[0.22em] uppercase bg-black/50 backdrop-blur-sm
+                          px-2.5 py-[5px] border border-white/[0.08]">
+            TURNKEY PROJECT
           </div>
-        </motion.div>
 
-        {/* Scroll Indicator */}
-        <motion.div 
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <span className="text-[9px] uppercase tracking-[0.3em] text-white/40">Scroll to Explore</span>
-          <ArrowDown className="h-4 w-4 text-white/40" />
-        </motion.div>
+          {/* Slide dots — top right */}
+          <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 p-1.5
+                          bg-black/40 backdrop-blur-sm border border-white/[0.07]">
+            {HERO_IMAGES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setImgIndex(i)}
+                aria-label={`Go to project ${i + 1}`}
+                className={`h-[2px] rounded-full transition-all duration-500 ${
+                  i === imgIndex ? "w-7 bg-[#FF2A2A]" : "w-3.5 bg-white/20"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Bottom caption pill */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={imgIndex + "-cap"}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="absolute bottom-5 left-4 right-4 z-20"
+            >
+              <span className="inline-flex items-center gap-2 bg-black/55 backdrop-blur-sm
+                               border border-white/[0.07] px-3 py-1.5">
+                <span className="w-[5px] h-[5px] rounded-full bg-[#FF2A2A] shrink-0" />
+                <span className="text-[9px] uppercase tracking-[0.22em] text-white/55 whitespace-nowrap">
+                  {captions[imgIndex]}
+                </span>
+              </span>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
       </div>
 
-      {/* Slide Indicators */}
-      <div className="absolute right-10 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-4">
-        {HERO_IMAGES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setIndex(i)}
-            className={`h-1 w-8 transition-all duration-500 ${
-              i === index ? "bg-white" : "bg-white/20"
-            }`}
-            aria-label={`Go to slide ${i + 1}`}
-          />
-        ))}
-      </div>
-    </div>
+      {/* Scroll cue — aligned under left content */}
+      <motion.div
+        className="absolute bottom-6 left-14 xl:left-20 flex items-center gap-3 z-20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1, duration: 1 }}
+      >
+        <motion.div
+          animate={{ x: [0, 6, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          className="w-6 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-white/30"
+        />
+        <span className="text-[8px] uppercase tracking-[0.3em] text-white/25">
+          Scroll to Explore
+        </span>
+      </motion.div>
+    </section>
   );
 };
 

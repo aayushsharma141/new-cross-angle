@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/all";
 import { Image } from "@/components/ui/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Ensure GSAP plugins are registered if in a browser environment
 if (typeof window !== "undefined") {
@@ -12,17 +14,18 @@ if (typeof window !== "undefined") {
 const wordPairs = [
   { top: "Intelligence", bottom: "Decoration" },
   { top: "Execution", bottom: "Incomplete" },
-  { top: "Experience", bottom: "Cold" },
+  { top: "Experience", bottom: "Forgettable" },
 ];
 
 const ServicesHero = () => {
   const [index, setIndex] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const revealRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLDivElement>(null);
+  // Separate ref for the interactive image box — used for Draggable bounds & percent calc
+  const imageBoxRef = useRef<HTMLDivElement>(null);
 
-  // Reality and Blueprint images (Concrete Shell vs Finished Interior)
-  const realityImage = "/reality_render.jpg"; 
+  const realityImage = "/reality_render.jpg";
   const blueprintImage = "/blueprint_shell.jpg";
 
   useEffect(() => {
@@ -33,39 +36,43 @@ const ServicesHero = () => {
   }, []);
 
   useEffect(() => {
-    if (!containerRef.current || !revealRef.current || !handleRef.current) return;
-
-    const container = containerRef.current;
+    const imageBox = imageBoxRef.current;
     const reveal = revealRef.current;
     const handle = handleRef.current;
 
-    // Set initial position
-    gsap.set(reveal, { clipPath: "inset(0 0 0 50%)" });
-    gsap.set(handle, { x: container.offsetWidth / 2 });
+    if (!imageBox || !reveal || !handle) return;
 
-    // Draggable Logic
+    // All coordinates are relative to the image box itself
+    const boxWidth = imageBox.offsetWidth;
+
+    // Start handle at 50% of the image box
+    gsap.set(handle, { x: boxWidth * 0.5 });
+    gsap.set(reveal, { clipPath: "inset(0 0 0 50%)" });
+
     const draggable = Draggable.create(handle, {
       type: "x",
-      bounds: container,
-      onDrag: function() {
-        const percent = (this.x / container.offsetWidth) * 100;
+      bounds: imageBox,            // ← constrained to the image box, not the full page
+      onDragStart: () => setIsDragging(true),
+      onDragEnd: () => setIsDragging(false),
+      onDrag: function () {
+        // percent relative to the image box width — this is what clipPath needs
+        const percent = Math.min(100, Math.max(0, (this.x / boxWidth) * 100));
         gsap.set(reveal, { clipPath: `inset(0 0 0 ${percent}%)` });
-      }
+      },
     });
 
-    // Intro Animation Sequence (Blueprint reveal)
+    // Intro animation: sweep from 50% → 35%
     const tl = gsap.timeline();
     tl.to(handle, {
-      x: container.offsetWidth * 0.35,
+      x: boxWidth * 0.35,
       duration: 1.5,
-      delay: 0.5,
-      ease: "expo.inOut"
-    })
-    .to(reveal, {
-      clipPath: "inset(0 0 0 35%)",
-      duration: 1.5,
-      ease: "expo.inOut"
-    }, "<");
+      delay: 0.8,
+      ease: "expo.inOut",
+    }).to(
+      reveal,
+      { clipPath: "inset(0 0 0 35%)", duration: 1.5, ease: "expo.inOut" },
+      "<"
+    );
 
     return () => {
       if (draggable[0]) draggable[0].kill();
@@ -75,204 +82,216 @@ const ServicesHero = () => {
   const currentPair = wordPairs[index];
 
   return (
-    <section 
-      ref={containerRef}
-      className="relative w-full h-[100vh] min-h-[700px] bg-[#000000] flex items-center overflow-hidden"
+    <section
+      className="relative w-full min-h-[100vh] bg-[#000000] flex items-center pt-28 lg:pt-24 pb-20 overflow-hidden"
     >
-      {/* Background Animated Grid (Original Style) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
-        <motion.div
-          animate={{
-            y: [0, -40],
-            opacity: [0.03, 0.05, 0.03]
-          }}
-          transition={{
-            y: { duration: 20, repeat: Infinity, ease: "linear" },
-            opacity: { duration: 10, repeat: Infinity, ease: "easeInOut" }
-          }}
-          className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:40px_40px]"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.1, 1],
-            opacity: [0.1, 0.15, 0.1]
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100vw] h-[100vw] max-w-[1200px] max-h-[1200px] rounded-full blur-[160px]"
-          style={{ background: "radial-gradient(circle, #FF2A2A 0%, transparent 70%)" }}
-        />
-      </div>
+      {/* Layout wrapper */}
+      <div className="w-full flex flex-col lg:flex-row items-center gap-10 lg:gap-0 relative z-10 font-sans h-full">
 
-      <div className="w-full max-w-[1600px] mx-auto px-6 lg:px-20 grid grid-cols-1 lg:grid-cols-2 items-center gap-16 relative z-10">
-        
-        {/* Left Side: EXACTLY AS BEFORE */}
-        <div className="hero-left-content space-y-8 max-w-2xl">
-          {/* Top Label */}
+        {/* ───────── LEFT CONTENT ───────── */}
+        <div className="hero-left-content w-full lg:w-[55%] xl:w-[58%] flex flex-col justify-center gap-7 px-6 sm:px-10 lg:pl-14 xl:pl-20 2xl:pl-28 lg:pr-10 py-10 lg:py-0">
+
+          {/* Label */}
           <motion.div
-            initial={{ opacity: 0, y: 36 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-            className="flex items-center gap-3.5 text-[10px] font-bold tracking-[0.3em] uppercase text-[#FF2A2A] font-label"
+            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-center gap-4 text-[11px] font-bold tracking-[0.3em] uppercase text-[#FFFFFF]"
           >
-            <div className="w-9 h-[1px] bg-[#FF2A2A] shrink-0" />
-            Our Services
+            <div className="w-8 h-[2px] bg-[#FF2A2A] shrink-0 shadow-[0_0_8px_rgba(255,42,42,0.6)]" />
+            OUR SERVICES
           </motion.div>
 
           {/* Main Heading */}
           <motion.div
-            initial={{ opacity: 0, y: 36 }}
+            initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           >
-            <h1 className="font-display text-[clamp(2rem,6vw,6rem)] font-normal text-[#EDEDED] leading-[1.06] tracking-[-0.02em]">
-              <span className="font-bold italic text-white underline decoration-[#FF2A2A]/80 decoration-[2px] underline-offset-[12px] drop-shadow-md">
-                Turnkey Interior
-              </span><br className="hidden sm:block" />
-              <span className="hidden sm:inline"> </span>Projects Delivered<br />
-              with <span className="text-[#FF2A2A] italic">Hospitality Precision.</span>
+            <h1 className="font-sans text-[clamp(2.4rem,4.8vw,5.2rem)] font-normal text-[#FFFFFF] leading-[1.08] tracking-tight">
+              Turnkey Interior Projects
+              <br />
+              Delivered with{" "}
+              <span className="text-[#FF2A2A] font-semibold">Precision.</span>
             </h1>
           </motion.div>
 
-          {/* Word-Swap Statement */}
+          {/* Word-Swap inline — no box */}
           <motion.div
-            initial={{ opacity: 0, y: 36 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="font-display text-[clamp(1.1rem,2.2vw,1.8rem)] font-light text-[#EDEDED]/60 italic border-l-[3px] border-[#FF2A2A] pl-5 flex items-center flex-wrap"
+            transition={{ duration: 0.8, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="font-sans text-[clamp(1.15rem,2vw,1.75rem)] font-light text-[#CCCCCC] leading-[1.4]"
           >
-            <span>Architecture Without&nbsp;</span>
-            <div className="relative inline-flex overflow-hidden text-[#FF2A2A] font-normal align-bottom">
+            Architecture Without{" "}
+            <span
+              className="relative inline-flex overflow-hidden text-[#FF2A2A] font-semibold align-bottom"
+              style={{ minWidth: "4.5ch" }}
+            >
               <AnimatePresence mode="popLayout">
-                <motion.div
-                  key={currentPair.top}
+                <motion.span
+                  key={currentPair.top + "-top"}
                   initial={{ y: "100%", opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: "-100%", opacity: 0 }}
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                   className="whitespace-nowrap inline-block"
                 >
                   {currentPair.top}
-                </motion.div>
+                </motion.span>
               </AnimatePresence>
-            </div>
-            <span>&nbsp;Is&nbsp;</span>
-            <div className="relative inline-flex overflow-hidden text-[#FF2A2A] font-normal align-bottom">
+            </span>
+            <br />
+            Is{" "}
+            <span
+              className="relative inline-flex overflow-hidden text-[#FF2A2A] font-semibold align-bottom"
+              style={{ minWidth: "6ch" }}
+            >
               <AnimatePresence mode="popLayout">
-                <motion.div
-                  key={currentPair.bottom}
+                <motion.span
+                  key={currentPair.bottom + "-bot"}
                   initial={{ y: "100%", opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: "-100%", opacity: 0 }}
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  className="whitespace-nowrap flex items-center pr-1"
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  className="whitespace-nowrap inline-block"
                 >
-                  {currentPair.bottom}<span>.</span>
-                </motion.div>
+                  {currentPair.bottom}.
+                </motion.span>
               </AnimatePresence>
-            </div>
+            </span>
           </motion.div>
 
-          {/* Vision Paragraph */}
+          {/* Paragraph */}
           <motion.p
-            initial={{ opacity: 0, y: 36 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="text-[clamp(0.95rem,1.3vw,1.1rem)] font-light leading-[1.75] text-[#EDEDED]/55 max-w-[52ch]"
+            transition={{ duration: 0.8, delay: 0.26, ease: [0.22, 1, 0.36, 1] }}
+            className="text-[clamp(0.9rem,1.1vw,1.05rem)] font-normal leading-[1.75] text-[#6B6B6B] max-w-[44ch]"
           >
-            We deliver fully managed interior environments combining design intelligence, 
-            execution precision, and hospitality-grade detailing — from concept sketch 
-            to final handover.
+            We deliver fully managed interior environments combining design intelligence,
+            execution precision, and premium detailing — from concept sketch to final handover.
           </motion.p>
 
-          {/* Tags */}
+          {/* Value Points */}
           <motion.div
-            initial={{ opacity: 0, y: 36 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-wrap gap-2.5"
+            transition={{ duration: 0.8, delay: 0.34, ease: [0.22, 1, 0.36, 1] }}
+            className="space-y-2.5 text-[clamp(0.85rem,1vw,1rem)] text-[#888888] font-normal"
           >
-            {["Strategic ROI", "Data-Driven Design", "End-to-End Turnkey"].map((tag, i) => (
-              <span key={i} className="font-label text-[9px] font-semibold tracking-[0.18em] uppercase border border-white/10 px-[18px] py-[9px] text-[#EDEDED]/55 hover:border-[#FF2A2A] hover:text-[#FF2A2A] transition-colors duration-300 cursor-default">
-                {tag}
-              </span>
-            ))}
+            {["End-to-End Execution", "Material Engineering", "Time-Bound Delivery"].map(
+              (point, i) => (
+                <div key={i} className="flex items-center gap-3.5">
+                  <div className="w-1 h-1 rounded-full bg-[#FF2A2A] shadow-[0_0_6px_rgba(255,42,42,0.9)] shrink-0" />
+                  {point}
+                </div>
+              )
+            )}
           </motion.div>
+
+
         </div>
 
-        {/* Right Side: Interactive Component (New Section) */}
-        <div className="relative h-[65vh] lg:h-[80vh] rounded-2xl overflow-hidden border border-white/5 shadow-2xl group/reveal scale-95 lg:scale-100">
-          
-          {/* Base Layer: Blueprint (Concrete Shell) */}
-          <div className="absolute inset-0 bg-[#080809] overflow-hidden">
+        {/* ───────── RIGHT: DRAG-TO-REVEAL ───────── */}
+        {/*
+          Positioned absolute so it can bleed to the right edge.
+          Margin-right (mr-6 xl:mr-10) = breathing room from browser border.
+          Top/bottom inset = vertical breathing room from section edges.
+        */}
+        <div
+          ref={imageBoxRef}
+          className="absolute right-6 xl:right-10 top-[12vh] bottom-[6vh] w-[42%] xl:w-[40%] 2xl:w-[38%] rounded-none overflow-hidden border border-[#1E1E1E] z-20"
+        >
+          {/* Base Layer: Blueprint / Structural */}
+          <motion.div
+            animate={{ scale: [1, 1.04, 1] }}
+            transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 bg-[#050505] overflow-hidden"
+          >
             <Image
-              src={blueprintImage} 
-              alt="Concrete Shell Blueprint" 
+              src={blueprintImage}
+              alt="Concrete Shell Blueprint"
               className="absolute inset-0 h-full w-full"
-              imageClassName="opacity-90 sepia-[.2] hue-rotate-[-30deg] saturate-50"
+              imageClassName="object-cover opacity-55 grayscale w-full h-full"
               width={1200}
               height={900}
             />
-            {/* Subtle red drafting grid overlay to maintain the 'Blueprint' technical vibe */}
-            <div className="absolute inset-0 opacity-[0.1] bg-[linear-gradient(to_right,#FF2A2A_1px,transparent_1px),linear-gradient(to_bottom,#FF2A2A_1px,transparent_1px)] bg-[size:32px_32px]" />
-            <div className="absolute top-6 left-32 text-[10px] font-mono text-white opacity-70 tracking-wider hidden md:block bg-black/40 px-2 py-1 rounded">
-              [STATE: RAW_CONCRETE_SHELL / STRUCTURAL]
-            </div>
-          </div>
+            <div className="absolute inset-0 opacity-[0.04] bg-[linear-gradient(to_right,#FFFFFF_1px,transparent_1px),linear-gradient(to_bottom,#FFFFFF_1px,transparent_1px)] bg-[size:40px_40px]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+          </motion.div>
 
-          {/* Reveal Layer: Reality */}
-          <div 
+          {/* Reveal Layer: Finished Interior */}
+          <motion.div
             ref={revealRef}
+            animate={{ scale: [1, 1.04, 1] }}
+            transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
             className="absolute inset-0 z-20 pointer-events-none overflow-hidden"
           >
             <Image
-              src={realityImage} 
-              alt="Reality Render" 
-              className="h-full w-full"
+              src={realityImage}
+              alt="Finished Interior"
+              className="absolute inset-0 h-full w-full"
+              imageClassName="object-cover w-full h-full"
               width={1200}
               height={900}
             />
-            <div className="absolute inset-0 bg-black/10" />
-          </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+          </motion.div>
 
           {/* Draggable Handle */}
-          <div 
+          <div
             ref={handleRef}
-            className="absolute top-0 bottom-0 w-[2px] bg-[#FF2A2A] z-30 cursor-ew-resize group"
-            style={{ touchAction: "none" }}
+            className={cn(
+              "absolute top-0 bottom-0 w-[3px] z-30 cursor-ew-resize transition-colors duration-200",
+              isDragging ? "bg-[#FF2A2A] shadow-[0_0_12px_rgba(255,42,42,0.6)]" : "bg-white/70"
+            )}
+            style={{ touchAction: "none", left: 0 }}
           >
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4">
-              <div className="relative w-12 h-12 rounded-full backdrop-blur-md bg-[#FF2A2A]/20 border border-[#FF2A2A] flex items-center justify-center shadow-[0_0_15px_rgba(255,42,42,0.5)]">
-                <div className="absolute inset-0 rounded-full bg-[#FF2A2A] animate-ping opacity-30" />
-                <div className="w-8 h-8 rounded-full bg-[#FF2A2A] flex items-center justify-center relative z-10 transition-transform group-hover:scale-110 group-active:scale-95">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                    <path d="M7 12h10M7 12l4-4M7 12l4 4" />
-                  </svg>
+            {/* Hit Area — wider invisible zone for easier grabbing */}
+            <div className="absolute inset-y-0 -left-4 -right-4" />
+
+            {/* Handle UI */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 pointer-events-none">
+              <div
+                className={cn(
+                  "w-12 h-12 bg-black border flex items-center justify-center transition-colors duration-200",
+                  isDragging
+                    ? "border-[#FF2A2A] shadow-[0_0_16px_rgba(255,42,42,0.5)]"
+                    : "border-white/40"
+                )}
+              >
+                <div
+                  className={cn(
+                    "flex items-center transition-colors duration-200",
+                    isDragging ? "text-[#FF2A2A]" : "text-white"
+                  )}
+                >
+                  <ChevronLeft className="w-4 h-4 -mr-0.5" />
+                  <ChevronRight className="w-4 h-4 -ml-0.5" />
                 </div>
               </div>
-              <div className="bg-[#FF2A2A]/90 backdrop-blur-sm text-white text-[9px] font-bold px-3 py-1.5 rounded-sm tracking-[0.2em] whitespace-nowrap shadow-lg border border-[#FF2A2A]/20">
-                DRAG
-              </div>
+
+              <motion.div
+                animate={isDragging ? { opacity: 0, scale: 0.85 } : { opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2 }}
+                className="bg-black/90 backdrop-blur-sm text-white text-[9px] font-bold px-3 py-1 tracking-[0.22em] whitespace-nowrap border border-white/10 uppercase"
+              >
+                DRAG TO REVEAL
+              </motion.div>
             </div>
           </div>
 
-          {/* Labels (Swapped) */}
-          <div className="absolute top-6 left-6 z-40 text-[9px] font-bold text-[#FF2A2A] tracking-[0.3em] uppercase bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-[#FF2A2A]/20">
-             Blueprint
+          {/* Corner Labels */}
+          <div className="absolute top-5 left-5 z-40 text-[9px] font-bold text-white/70 tracking-[0.2em] uppercase bg-black/60 backdrop-blur-sm px-2.5 py-1 border border-white/10">
+            STRUCTURAL
           </div>
-          <div className="absolute top-6 right-6 z-40 text-[9px] font-bold text-white tracking-[0.3em] uppercase bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
-             Reality
+          <div className="absolute top-5 right-5 z-40 text-[9px] font-bold text-[#FF2A2A] tracking-[0.2em] uppercase bg-black/60 backdrop-blur-sm px-2.5 py-1 border border-[#FF2A2A]/40">
+            FURNISHED
           </div>
         </div>
 
       </div>
-
-      {/* Meta-Annotations */}
-      <div className="absolute bottom-6 left-6 lg:left-20 z-10 flex items-center gap-6 opacity-40 pointer-events-none">
-        <div className="text-[10px] font-mono text-white/70 tracking-widest">[ CONFIDENTIAL INTEL ]</div>
-        <div className="w-12 h-[1px] bg-white/20" />
-        <div className="text-[10px] font-mono text-[#FF2A2A] tracking-widest">PROJECT ID: CRX-8092</div>
-      </div>
-
     </section>
   );
 };

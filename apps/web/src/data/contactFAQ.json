@@ -1,30 +1,26 @@
 [
   {
-    "question": "What services do you offer?",
-    "answer": "We provide end-to-end interior design solutions including concept development, space planning, 3D visualization, and turnkey execution."
+    "question": "What does a 'Turnkey' interior project actually mean?",
+    "answer": "Turnkey means we take total ownership. From the initial 3D design and layout straight to the final cleaning and handover. You won't have to hire contractors, chase vendors, or manage site workers—we handle the entire process to deliver a ready-to-move-in space."
   },
   {
-    "question": "Do you handle turnkey projects?",
-    "answer": "Yes. From initial concept to final handover, we manage the entire process to deliver a seamless experience."
+    "question": "I don't live in Jamshedpur, but my property is there. Can you handle it?",
+    "answer": "Absolutely. A large portion of our clients are NRIs or non-residents. We have a robust remote-coordination system where you receive regular video walk-throughs, progress photos, and milestone reports, giving you total peace of mind without needing a site visit."
   },
   {
-    "question": "How is pricing determined?",
-    "answer": "Pricing depends on project size, scope, materials, and customization level. Use our estimator for a quick range."
+    "question": "How is the pricing structured & is it transparent?",
+    "answer": "Our pricing is straightforward with zero hidden costs. After understanding your requirements, we provide a detailed quote that covers design, materials, labor, and execution. The budget we agree upon is the budget we stick to."
   },
   {
-    "question": "How long does a project take?",
-    "answer": "Timelines vary, but most projects range between 6–16 weeks depending on complexity."
+    "question": "How much of my time will this require?",
+    "answer": "As little or as much as you'd like. We'll need your input during the initial design sign-off and material selection phases. After that, we take over the heavy lifting while keeping you engaged through streamlined updates."
   },
   {
-    "question": "Can I customize everything?",
-    "answer": "Absolutely. Every project is tailored to your lifestyle, preferences, and functional needs."
+    "question": "How long does a typical full-home interior project take?",
+    "answer": "While every project is unique, most comprehensive residential turnkey executions take between 45 to 120 days, depending on the scale and complexity of custom fabrication."
   },
   {
-    "question": "Do you work outside the city?",
-    "answer": "Yes, we take on select projects across regions based on scope and alignment."
-  },
-  {
-    "question": "How do I know if your design style will match my taste?",
-    "answer": "We don't impose a style - we decode yours. Every project begins with understanding how you live, what you value, and how you want to feel in your space."
+    "question": "What happens after I submit my project brief?",
+    "answer": "One of our interior specialists will review your details to ensure we are the right fit. We'll then schedule a discovery call to deeply discuss your vision, after which we can map out a preliminary project trajectory and budget."
   }
 ]

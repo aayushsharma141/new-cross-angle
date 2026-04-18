@@ -87,6 +87,13 @@ export class LeadService {
       .single();
 
     if (error) throw error;
+
+    // Fire-and-forget: notify Telegram of the new lead.
+    // We do NOT await this so it never blocks or delays the form UX.
+    supabase.functions
+      .invoke('notify-telegram', { body: { record: data } })
+      .catch((err: unknown) => console.warn('[LeadService] Telegram notify failed:', err));
+
     return data as Lead;
   }
 

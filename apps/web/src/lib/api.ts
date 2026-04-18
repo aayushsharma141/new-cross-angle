@@ -138,7 +138,6 @@ const mapSupabaseToProject = (item: SupabaseItem): Project => {
 };
 
 export interface Blog {
-  // ... existing blog map code below ...
   id: string;
   title: string;
   excerpt: string;
@@ -147,6 +146,7 @@ export interface Blog {
   date: string;
   slug: string;
   content?: string;
+  view_count: number;
 }
 
 export interface Testimonial {
@@ -273,6 +273,58 @@ export const api = {
     }
   },
 
+  getProjectBySlug: async (slug: string): Promise<Project | null> => {
+    if (!supabase) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select(`
+            *,
+            project_gallery (*),
+            project_materials (*),
+            project_categories (name)
+          `)
+        .eq('slug', slug)
+        .single();
+
+      if (error || !data) {
+        return null;
+      }
+      return mapSupabaseToProject(data);
+    } catch (e) {
+      console.warn('Exception during project by slug fetch:', e);
+      return null;
+    }
+  },
+
+  getMinimalProjects: async (): Promise<Partial<Project>[]> => {
+    if (!supabase) return [];
+
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, title, slug, type, location, cover_image_url')
+        .order('display_order', { ascending: true });
+
+      if (error || !data) {
+        return [];
+      }
+      
+      return data.map(item => ({
+        id: item.id,
+        title: item.title,
+        slug: item.slug,
+        type: item.type,
+        location: item.location,
+        heroImage: item.cover_image_url
+      }));
+    } catch (e) {
+      console.warn('Exception during minimal projects fetch:', e);
+      return [];
+    }
+  },
+
   getBlogs: async (): Promise<Blog[]> => {
     if (!supabase) return [];
     interface BlogRow {
@@ -285,6 +337,7 @@ export const api = {
       created_at: string | null;
       slug: string | null;
       content: string | null;
+      view_count: number | null;
     }
     const { data, error } = await supabase
       .from('blog_posts')
@@ -306,6 +359,7 @@ export const api = {
       date: new Date(item.published_at || item.created_at || new Date()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
       slug: item.slug || item.id,
       content: typeof item.content === 'string' ? item.content : JSON.stringify(item.content),
+      view_count: item.view_count ?? 0,
     }));
   },
 

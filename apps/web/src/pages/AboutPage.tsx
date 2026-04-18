@@ -25,6 +25,7 @@ import AboutTeam from "@/components/about/AboutTeam";
 import { AppBreadcrumb } from "@/components/AppBreadcrumb";
 import { TactileMaterial } from "@/components/ui/TactileMaterial";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { SITE_CONSTANTS } from "@/lib/constants";
 
 const studioHighlights = [
   "Residential interiors shaped around daily rituals, comfort, and longevity.",
@@ -79,7 +80,7 @@ const workingStandards = [
 const AboutPage = () => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const { settings } = useSiteSettings();
-  const videoUrl = settings?.about_video_url || "https://www.youtube.com/embed/gJMCIaI7nKg";
+  const videoUrl = settings?.about_video_url || SITE_CONSTANTS.defaultYoutubeVideoUrl;
 
   return (
     <>
@@ -101,8 +102,6 @@ const AboutPage = () => {
 
         {/* Immersive Hero with Video */}
         <AboutHero videoUrl={videoUrl} onPlayVideo={() => setIsVideoOpen(true)} />
-
-        <AppBreadcrumb />
 
         <section className="relative overflow-hidden border-y border-white/5 bg-card/30 py-20 md:py-28">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(196,18,48,0.14),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.04),transparent_32%)]" />

@@ -35,90 +35,98 @@ const ServicesProcess = () => {
     offset: ["start center", "end center"],
   });
 
-  const rawLineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-  const lineHeight = useSpring(rawLineHeight, { stiffness: 100, damping: 30 });
+  const lineHeight = useSpring(scrollYProgress, { stiffness: 50, damping: 20 });
 
   return (
-    <section ref={containerRef} className="bg-[#030303] border-t border-white/10 overflow-hidden" style={{ padding: "clamp(72px,10vw,140px) clamp(20px,5vw,80px)" }}>
-      <div className="max-w-[1400px] mx-auto">
+    <section ref={containerRef} className="relative bg-[#020202] py-24 lg:py-40 overflow-hidden px-6">
+      {/* Structural Background Decoration */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
+        <div className="absolute top-0 left-1/4 w-px h-full bg-white/20" />
+        <div className="absolute top-0 right-1/4 w-px h-full bg-white/20" />
+      </div>
+
+      <div className="max-w-[1400px] mx-auto relative z-10">
         
         {/* Header */}
-        <div className="text-center mb-4 flex flex-col items-center">
-          <motion.div
-            initial={{ opacity: 0, y: 36 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-            className="flex items-center gap-[14px] mb-4 font-label text-[9px] font-bold tracking-[0.3em] uppercase text-[#FF2A2A]"
-          >
-            <div className="w-10 h-[1px] bg-[#FF2A2A]" />
-            Our Process
-            <div className="w-10 h-[1px] bg-[#FF2A2A]" />
-          </motion.div>
-          <motion.h2
-            initial={{ opacity: 0, y: 36 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.85, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="font-display font-normal text-[clamp(2.4rem,5.5vw,5.5rem)] leading-[1.04] tracking-[-0.02em] text-[#EDEDED]"
-          >
-            <em className="italic text-[#FF2A2A]">How</em> We Work
-          </motion.h2>
+        <div className="flex flex-col md:flex-row items-end justify-between mb-20 md:mb-32 border-b border-white/10 pb-12">
+          <div className="max-w-[600px] mb-8 md:mb-0">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="flex items-center gap-4 mb-6"
+            >
+              <div className="w-12 h-[1px] bg-site-crimson" />
+              <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-crimson">The Methodology</span>
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="font-display text-[clamp(2.5rem,6vw,5rem)] leading-[1.05] tracking-tight text-white mb-6"
+            >
+              Borrowing Precision from <br/> <span className="italic font-medium text-site-crimson underline decoration-white/10 decoration-[4px] underline-offset-[12px]">Hospitality Standards.</span>
+            </motion.h2>
+          </div>
           <motion.p
-            initial={{ opacity: 0, y: 36 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="text-[0.93rem] text-[#EDEDED]/55 font-light max-w-[46ch] mx-auto mt-[18px] leading-[1.8]"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="text-[1rem] text-white/40 font-light max-w-[32ch] leading-relaxed md:text-right"
           >
-            A four-stage methodology borrowed from hospitality industry standards and refined over 500+ projects across India.
+            Refined over 500+ premium projects across India, ensuring no ambiguity from brief to handover.
           </motion.p>
         </div>
 
         {/* Timeline Container */}
-        <div className="max-w-[780px] mx-auto">
-          <div className="relative mt-[60px]">
+        <div className="max-w-[1000px] mx-auto">
+          <div className="relative">
             
-            {/* Vertical Line */}
-            <div className="absolute left-[22px] top-0 bottom-8 w-[1px] bg-white/10 hidden sm:block">
+            {/* Vertical Line with Dynamic Progress */}
+            <div className="absolute left-[30px] top-0 bottom-0 w-px bg-white/5 hidden sm:block">
               <motion.div 
-                style={{ height: lineHeight }}
-                className="w-full bg-[#FF2A2A] shadow-[0_0_12px_rgba(255,42,42,0.8)]"
+                style={{ scaleY: lineHeight, originY: 0 }}
+                className="w-full h-full bg-gradient-to-b from-site-crimson via-site-crimson to-transparent shadow-[0_0_20px_rgba(196,18,48,0.5)]"
               />
             </div>
 
             {/* Steps */}
-            <div>
+            <div className="space-y-24 md:space-y-40">
               {steps.map((step, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 36 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.85, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                  className={`relative group ${index === steps.length - 1 ? 'pb-0' : 'pb-[60px]'} sm:pl-[76px]`}
-                >
+                <div key={index} className="relative group sm:pl-24">
                   {/* Step Dot */}
-                  <div className="absolute left-[16px] top-2 w-[14px] h-[14px] rounded-full bg-[#030303] border-[1.5px] border-[#FF2A2A] z-10 transition-all duration-350 ease-[timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:bg-[#FF2A2A] group-hover:shadow-[0_0_16px_rgba(255,42,42,0.5)] hidden sm:block" />
+                  <div className="absolute left-[24px] top-3 w-[14px] h-[14px] rounded-full bg-black border-[2px] border-site-crimson z-20 hidden sm:block">
+                     <motion.div 
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
+                        className="absolute inset-0 bg-site-crimson rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                     />
+                  </div>
 
-                  {/* Ghost Number */}
-                  <div className="absolute right-[-10px] -top-[22px] font-display italic font-light text-[clamp(4.5rem,9vw,7.5rem)] leading-none text-[#EDEDED]/[0.03] select-none pointer-events-none transition-colors duration-350 group-hover:text-[#FF2A2A]/[0.05]">
+                  {/* Ghost Number Elevation */}
+                  <div className="absolute right-0 -top-12 md:-top-20 font-display italic font-light text-[clamp(6rem,15vw,12rem)] leading-none text-white/[0.02] select-none pointer-events-none group-hover:text-site-crimson/[0.04] transition-colors duration-700">
                     {step.number}
                   </div>
 
-                  {/* Content */}
-                  <div className="relative z-10">
-                    <div className="font-label text-[8px] font-bold tracking-[0.22em] uppercase text-[#FF2A2A] mb-[7px]">
-                      {step.label}
+                  {/* Content Overhaul */}
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ margin: "-100px" }}
+                    className="relative z-10"
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <span className="font-bold text-[9px] tracking-[0.3em] uppercase text-site-crimson px-3 py-1 border border-site-crimson/30 rounded-full bg-site-crimson/5">{step.label}</span>
                     </div>
-                    <div className="font-display italic text-[clamp(1.5rem,3vw,2.3rem)] font-normal text-[#EDEDED] mb-3">
+                    <div className="font-display italic text-[clamp(1.8rem,4vw,3rem)] font-normal text-white mb-6 group-hover:translate-x-2 transition-transform duration-500">
                       {step.title}
                     </div>
-                    <p className="text-[0.93rem] text-[#EDEDED]/55 leading-[1.75] font-light max-w-[46ch]">
+                    <p className="text-[1.1rem] text-white/40 leading-relaxed font-light max-w-[50ch] border-l border-white/10 pl-8 group-hover:border-site-crimson/50 transition-colors">
                       {step.description}
                     </p>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </div>
               ))}
             </div>
           </div>

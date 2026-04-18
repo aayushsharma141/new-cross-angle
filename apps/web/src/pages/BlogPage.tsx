@@ -57,7 +57,7 @@ const cleanTitle = (title: string) => {
 
 /* ─────────────────────────── HELPER ─────────────────────────── */
 const readTime = (post: Blog) => `${Math.max(3, Math.ceil((post.excerpt?.length || 200) / 200))} min read`;
-const viewCount = (_post: Blog) => `${(Math.floor(Math.random() * 40) + 5) / 10}k views`;
+const formatViews = (count: number) => count >= 1000 ? `${(count / 1000).toFixed(1)}k views` : `${count} views`;
 
 /* ═══════════════════════════════════════════════════════════════
    BLOG PAGE
@@ -151,7 +151,9 @@ const BlogPage = () => {
       trackNewsletterSignup();
       setNewsletterDone(true);
       setNewsletterEmail("");
-    } catch { /* ignore dupe */ }
+    } catch (error) { 
+      console.error("Newsletter signup error:", error); 
+    }
     setNewsletterSubmitting(false);
   };
 
@@ -233,7 +235,7 @@ const BlogPage = () => {
                     <div className="flex flex-wrap items-center gap-4 text-sm mb-6" style={{ color: "#999" }}>
                       <span style={{ color: CRIMSON }}>{featuredPost.category || "Interior Design"}</span>
                       <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{readTime(featuredPost)}</span>
-                      <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{viewCount(featuredPost)}</span>
+                      <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{formatViews(featuredPost.view_count)}</span>
                       <span>{featuredPost.date}</span>
                     </div>
 
@@ -370,7 +372,7 @@ const BlogPage = () => {
                         <h3 className="text-sm font-semibold text-white line-clamp-2 group-hover:text-[#C41230] transition-colors">{cleanTitle(post.title)}</h3>
                         <div className="flex items-center gap-3 text-[11px]" style={{ color: "#666" }}>
                           <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{readTime(post)}</span>
-                          <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{viewCount(post)}</span>
+                          <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{formatViews(post.view_count)}</span>
                         </div>
                       </div>
                     </motion.div>
@@ -456,7 +458,7 @@ const BlogPage = () => {
                             <div className="flex items-center justify-between pt-2">
                               <div className="flex items-center gap-4 text-[11px]" style={{ color: "#555" }}>
                                 <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{readTime(post)}</span>
-                                <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{viewCount(post)}</span>
+                                <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{formatViews(post.view_count)}</span>
                               </div>
                               <Link
                                 to={`/blog/${post.slug || post.id}`}

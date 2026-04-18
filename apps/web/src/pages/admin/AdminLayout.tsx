@@ -3,19 +3,7 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { TopBar } from "@/components/admin/TopBar";
 
 const AdminLayout = (): JSX.Element | null => {
-  const { isAuthenticated, isLoading } = useAdminAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-lg font-medium font-serif">CrossAngle Intelligence</p>
-          <p className="text-sm text-zinc-500 mt-2 tracking-widest uppercase">Initializing Hub...</p>
-        </div>
-      </div>
-    );
-  }
+  const { isAuthenticated } = useAdminAuth();
 
   if (!isAuthenticated) return <Navigate to="/admin/auth" replace />;
 

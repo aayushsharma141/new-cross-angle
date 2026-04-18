@@ -20,20 +20,28 @@ import { Compare } from "@/components/ui/compare";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { SITE_CONSTANTS } from "@/lib/constants";
 
 const ProjectPage = () => {
-  const { data: projects = [], isLoading } = useQuery({
-    queryKey: ['projects'],
-    queryFn: api.getProjects
-  });
-  const { settings } = useSiteSettings();
-  const whatsapp = settings?.whatsapp || "917909041132";
-
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { settings } = useSiteSettings();
+  const whatsapp = settings?.whatsapp || SITE_CONSTANTS.defaultWhatsApp;
+
+  const { data: project, isLoading: isProjectLoading } = useQuery({
+    queryKey: ['project', slug],
+    queryFn: () => slug ? api.getProjectBySlug(slug) : null,
+    enabled: !!slug
+  });
+
+  const { data: projects = [], isLoading: isListLoading } = useQuery({
+    queryKey: ['minimalProjects'],
+    queryFn: api.getMinimalProjects
+  });
+
+  const isLoading = isProjectLoading || isListLoading;
 
   const currentIndex = projects.findIndex((p) => p.slug === slug);
-  const project = projects[currentIndex];
 
   useEffect(() => {
     const trackView = async () => {
@@ -123,7 +131,7 @@ const ProjectPage = () => {
         />
 
         {/* 2. Stats Bar (floating over content) */}
-        <section className="px-6 max-w-7xl mx-auto w-full -mt-8 relative z-20 mb-16">
+        <section className="px-6 max-w-7xl mx-auto w-full relative z-20 mb-16">
           <ProjectStats
             location={project.location || 'N/A'}
             area={project.area || 'N/A'}
@@ -206,7 +214,7 @@ const ProjectPage = () => {
             </h2>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <Link to="/contact">
+              <Link to="/contact-us">
                 <button className="bg-primary text-white hover:bg-red-800 px-8 py-4 rounded-full text-[10px] font-medium tracking-[0.2em] transition-all shadow-lg shadow-red-900/20 uppercase w-full sm:w-auto">
                   Book a Free Consultation
                 </button>

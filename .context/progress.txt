@@ -1,0 +1,13 @@
+[13:04:47] - Action taken: Research phase complete — read BlogPage.tsx, BlogDetailPage.tsx, Navbar.tsx, Hero.tsx, api.ts, navigation.ts, spotlight-navbar.tsx, Supabase schema - Result: Success
+[13:04:47] - Action taken: Generated task_2026-04-15.md with categorized checklist - Result: Success
+[13:11:00] - Action taken: Supabase migration applied — ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS view_count integer DEFAULT 0 - Result: Success
+[13:11:05] - Action taken: Supabase RPC created — increment_blog_view(post_slug text) with SECURITY DEFINER, GRANT to anon + authenticated - Result: Success
+[13:13:40] - Action taken: Fixed Navbar.tsx active link bug — removed Math.max(0, ...) wrapper, findIndex now returns -1 correctly for unmatched routes - Result: Success
+[13:14:00] - Action taken: Created Breadcrumb.tsx — dynamic, router-aware breadcrumb, hidden on /, crimson active segment, Home icon, nested route support - Result: Success
+[13:14:20] - Action taken: Updated api.ts Blog interface — added view_count: number field; updated BlogRow interface to include view_count; mapped view_count in getBlogs() - Result: Success
+[13:15:00] - Action taken: Removed fake viewCount() Math.random() helper from BlogPage.tsx — replaced with formatViews(count: number) using real post.view_count data - Result: Success
+[13:15:05] - Action taken: Replaced all 3 viewCount(post) call sites in BlogPage.tsx (lines 236, 373, 459) with formatViews(post.view_count) - Result: Success
+[13:15:30] - Action taken: Updated BlogDetailPage.tsx BlogPost interface — renamed views_count → view_count to match Supabase column name - Result: Success
+[13:15:35] - Action taken: Added increment_blog_view RPC call in BlogDetailPage.tsx useEffect — sessionStorage guard prevents duplicate increments per session per slug - Result: Success
+[13:22:00] - Action taken: Imported Breadcrumb into App.tsx, rendered globally in AnimatedRoutes public branch above <Routes> — breadcrumb self-manages visibility - Result: Success
+[13:24:00] - Action taken: ran npm run build — EXIT CODE 0, built in 41.97s, zero TypeScript errors - Result: Success

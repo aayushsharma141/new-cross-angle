@@ -882,7 +882,7 @@ const AdminHero = () => {
                                                         <Input
                                                             value={editCtaLink}
                                                             onChange={(e) => setEditCtaLink(e.target.value)}
-                                                            placeholder="/contact"
+                                                            placeholder="/contact-us"
                                                             className="h-9"
                                                         />
                                                     </div>

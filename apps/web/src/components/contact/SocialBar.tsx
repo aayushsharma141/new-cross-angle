@@ -102,7 +102,7 @@ const SocialBar = () => {
                   <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-white/90 transition-colors duration-300 group-hover:text-[#d1af6e]">
                     {social.name}
                   </span>
-                  <p className="mx-auto max-w-[16rem] text-sm leading-6 text-white/60 transition-colors duration-300 group-hover:text-white/80">
+                  <p className="mx-auto max-w-[16rem] text-sm leading-6 text-white/80 transition-colors duration-300 group-hover:text-white/90">
                     {social.detail}
                   </p>
                 </a>

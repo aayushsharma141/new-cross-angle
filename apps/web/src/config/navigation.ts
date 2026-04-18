@@ -23,4 +23,5 @@ export const navLinks: { name: string; href: string; hasMegaMenu?: boolean }[] =
   { name: "Projects", href: "/portfolio" },
   { name: "About", href: "/about-us" },
   { name: "Blog", href: "/blog" },
+  { name: "Contact", href: "/contact-us" },
 ];

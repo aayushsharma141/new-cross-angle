@@ -8,11 +8,13 @@ export default defineConfig(async ({ mode, command }) => {
 
 
     return {
+        root: path.resolve(__dirname, "./apps/web"),
         server: {
             host: "::",
             port: 8080,
         },
         plugins,
+        envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
         envDir: path.resolve(__dirname, "./apps/web"),
         publicDir: path.resolve(__dirname, "./apps/web/public"),
         resolve: {

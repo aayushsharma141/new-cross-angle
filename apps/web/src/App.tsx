@@ -20,9 +20,6 @@ import { SmoothScroll } from "./components/layout/SmoothScroll";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
 
-const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
-const POSTHOG_HOST = 'https://us.i.posthog.com';
-
 // Public pages
 const Index = lazy(() => import("./pages/Index"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -125,7 +122,7 @@ const ScrollToTop = () => {
 const DeferredExperienceEnhancements = () => {
   const [shouldEnhanceScroll, setShouldEnhanceScroll] = useState(false);
 
-  useEffect(() => runWhenIdle(() => setShouldEnhanceScroll(true), 1200), []);
+  useEffect(() => runWhenIdle(() => setShouldEnhanceScroll(true), 100), []);
 
   if (!shouldEnhanceScroll) {
     return null;
@@ -313,8 +310,8 @@ const AnimatedRoutes = () => {
           </Routes>
         </Suspense>
       ) : (
-        <AnimatePresence mode="wait">
-          <Suspense fallback={<PublicPageLoader />}>
+        <Suspense fallback={<PublicPageLoader />}>
+          <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<PageTransition><Index /></PageTransition>} />
               <Route path="/about-us" element={<PageTransition><AboutPage /></PageTransition>} />
@@ -354,8 +351,8 @@ const AnimatedRoutes = () => {
               <Route path="/contact" element={<Navigate to="/contact-us" replace />} />
               <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
             </Routes>
-          </Suspense>
-        </AnimatePresence>
+          </AnimatePresence>
+        </Suspense>
       )}
     </>
   );

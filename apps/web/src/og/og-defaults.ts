@@ -21,7 +21,7 @@ export interface OgData {
 export const DEFAULT_OG: OgData = {
   title: "Crossangle Interior | Premium Interior Design Studio",
   description:
-    "Transform your vision into exquisite living spaces. Award-winning interior design for homes and commercial spaces in Jamshedpur and Kolkata. 500+ projects completed.",
+    "Transform your vision into exquisite living spaces. Award-winning interior design for homes and commercial spaces in Jamshedpur and nearby neighborhoods. 500+ projects completed.",
   image: DEFAULT_OG_IMAGE,
   url: SITE_URL,
   type: "website",
@@ -32,19 +32,19 @@ export const STATIC_OG_MAP: Record<string, Partial<OgData>> = {
   "/about-us": {
     title: "About Us | Crossangle Interior",
     description:
-      "Meet the passionate design team behind Crossangle Interior — crafting premium residential and commercial spaces in Jamshedpur & Kolkata since 2015.",
+      "Meet the passionate design team behind Crossangle Interior — crafting premium residential and commercial spaces in Jamshedpur since 2015.",
     url: `${SITE_URL}/about-us`,
   },
   "/services": {
     title: "Interior Design Services | Crossangle Interior",
     description:
-      "Comprehensive interior design services: residential, commercial, modular kitchens, false ceilings, lighting design, and more across Jamshedpur and Kolkata.",
+      "Comprehensive interior design services: residential, commercial, modular kitchens, false ceilings, lighting design, and more across Jamshedpur and nearby neighborhoods.",
     url: `${SITE_URL}/services`,
   },
   "/services/residential": {
     title: "Residential Interior Design | Crossangle Interior",
     description:
-      "Personalized home interiors — living rooms, bedrooms, kitchens, and more. Crafted for your lifestyle and budget in Jamshedpur & Kolkata.",
+      "Personalized home interiors — living rooms, bedrooms, kitchens, and more. Crafted for your lifestyle and budget in Jamshedpur.",
     url: `${SITE_URL}/services/residential`,
   },
   "/services/commercial": {
@@ -62,7 +62,7 @@ export const STATIC_OG_MAP: Record<string, Partial<OgData>> = {
   "/gallery": {
     title: "Project Gallery | Crossangle Interior",
     description:
-      "Explore our curated gallery of luxurious interior design projects — residential and commercial spaces transformed across Jamshedpur and Kolkata.",
+      "Explore our curated gallery of luxurious interior design projects — residential and commercial spaces transformed across Jamshedpur and nearby neighborhoods.",
     url: `${SITE_URL}/gallery`,
   },
   "/portfolio": {
@@ -80,7 +80,7 @@ export const STATIC_OG_MAP: Record<string, Partial<OgData>> = {
   "/contact-us": {
     title: "Contact Us | Crossangle Interior",
     description:
-      "Ready to transform your space? Get in touch with the Crossangle Interior team today. Located in Jamshedpur, serving across Jharkhand and West Bengal.",
+       "Ready to transform your space? Get in touch with the Crossangle Interior team today. Located in Jamshedpur, serving Jamshedpur and nearby neighborhoods.",
     url: `${SITE_URL}/contact-us`,
   },
   "/estimate": {

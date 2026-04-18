@@ -1,0 +1,1 @@
+{"nodes": [{"id": "node_modules_posthog_js_lib_src_entrypoints_exception_autocapture_js", "label": "exception-autocapture.js", "file_type": "code", "source_file": "node_modules\\posthog-js\\lib\\src\\entrypoints\\exception-autocapture.js", "source_location": "L1"}], "edges": [], "raw_calls": []}

@@ -1,203 +1,231 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { Play, ChevronDown } from "lucide-react";
-import { useState } from "react";
-import { KineticText } from "@/components/ui/kinetic-text";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 interface AboutHeroProps {
   onPlayVideo?: () => void;
   videoUrl?: string;
 }
 
-const AboutHero = ({ onPlayVideo, videoUrl = "https://www.youtube.com/embed/gJMCIaI7nKg" }: AboutHeroProps) => {
+const stats = [
+  { value: "15+", label: "Years Experience" },
+  { value: "500+", label: "Projects Delivered" },
+  { value: "98%", label: "Client Satisfaction" },
+];
+
+const AboutHero = ({
+  videoUrl = "https://www.youtube.com/embed/gJMCIaI7nKg",
+}: AboutHeroProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isVideoHovered, setIsVideoHovered] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, 180]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
   return (
     <section
       ref={containerRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background"
+      className="relative w-full min-h-[100vh] bg-black flex items-center pt-24 pb-16 overflow-hidden"
     >
-      {/* Animated gradient mesh background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute top-1/3 left-1/4 w-[700px] h-[700px] rounded-full"
-          style={{
-            background: "radial-gradient(circle, rgba(209,175,110,0.08) 0%, transparent 70%)",
-          }}
-          animate={{
-            scale: [1, 1.3, 1],
-            x: [0, 60, 0],
-            y: [0, -40, 0],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] rounded-full"
-          style={{
-            background: "radial-gradient(circle, rgba(209,175,110,0.06) 0%, transparent 70%)",
-          }}
-          animate={{
-            scale: [1.2, 1, 1.2],
-            x: [0, -50, 0],
-            y: [0, 50, 0],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
+      {/* Subtle bg watermark — very low opacity */}
+      <div className="absolute inset-0 pointer-events-none select-none overflow-hidden flex flex-col justify-around opacity-[0.018]">
+        {[1, -1, 1].map((dir, i) => (
+          <motion.div
+            key={i}
+            className="whitespace-nowrap font-sans text-[9vh] font-black tracking-widest text-white"
+            animate={{ x: dir > 0 ? ["0%", "-50%"] : ["-50%", "0%"] }}
+            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          >
+            CROSS ANGLE INTERIOR • TURNKEY EXECUTION • ESTD 2010 • CROSS ANGLE INTERIOR • TURNKEY EXECUTION • ESTD 2010 •
+          </motion.div>
+        ))}
       </div>
 
-      {/* Noise texture */}
-      <div
-        className="absolute inset-0 opacity-[0.02] bg-noise"
-      />
+      {/* Layout */}
+      <motion.div
+        style={{ y, opacity }}
+        className="relative z-10 w-full flex flex-col lg:flex-row items-center lg:items-stretch gap-12 lg:gap-0 font-sans"
+      >
+        {/* ─────── LEFT: TEXT ─────── */}
+        <div className="w-full lg:w-[52%] xl:w-[54%] 2xl:w-[41%] flex flex-col justify-center gap-6
+                        px-6 sm:px-10 lg:pl-14 xl:pl-20 2xl:pl-28 lg:pr-12
+                        py-10 lg:py-0 min-h-[calc(100vh-6rem)]">
+          {/* Label */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-center gap-3 text-[10px] font-bold tracking-[0.32em] uppercase text-white/80"
+          >
+            <div className="w-7 h-[2px] bg-[#FF2A2A] shrink-0 shadow-[0_0_8px_rgba(255,42,42,0.5)]" />
+            About The Studio
+          </motion.div>
 
-      <motion.div style={{ y, opacity, scale }} className="relative z-10 container mx-auto px-4">
-        {/* Background Kinetic Text Marquee */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03] select-none flex flex-col justify-around overflow-hidden">
-          {[1, -1, 1].map((dir, i) => (
-            <motion.div
-              key={i}
-              className="whitespace-nowrap font-serif text-[10vh] font-bold"
-              animate={{ x: dir > 0 ? ["0%", "-50%"] : ["-50%", "0%"] }}
-              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          {/* H1 */}
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <h1 className="font-sans text-[clamp(2.4rem,4.8vw,5.2rem)] font-normal text-white leading-[1.08] tracking-tight">
+              We Design. We Execute.
+              <br />
+              We Deliver{" "}
+              <span className="text-[#FF2A2A] font-semibold"> Turnkey </span> Interiors.
+            </h1>
+          </motion.div>
+
+          {/* Subtext */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="text-[clamp(0.88rem,1vw,1rem)] leading-[1.8] text-[#5E5E5E] max-w-[44ch]"
+          >
+            For over 15 years, we've delivered fully managed interior projects —
+            combining design intelligence, execution precision, and
+            hospitality-level detailing from concept to final handover.
+          </motion.p>
+
+          {/* Trust line */}
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="text-[clamp(0.82rem,0.9vw,0.9rem)] text-[#444444] italic"
+          >
+            Every project is delivered as a complete, ready-to-live environment.
+          </motion.p>
+
+          {/* Data Strip */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.36, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-wrap items-stretch gap-y-4 pt-2"
+          >
+            {stats.map((stat, i) => (
+              <div
+                key={i}
+                className={`flex flex-col gap-1.5 pr-8 ${i < stats.length - 1 ? "border-r border-[#1E1E1E] mr-8" : ""
+                  }`}
+              >
+                <span className="text-[clamp(1.5rem,2.2vw,2.4rem)] font-bold text-white leading-none tracking-tight">
+                  {stat.value}
+                </span>
+                <span className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#444444]">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Value points */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.44, ease: [0.22, 1, 0.36, 1] }}
+            className="space-y-2 text-[clamp(0.82rem,0.95vw,0.92rem)] text-[#757575] pt-1"
+          >
+            {
+              ([
+                "Residential, Commercial & Hospitality",
+                "End-to-End Turnkey — No Sub-Contracting",
+                "Jamshedpur's Most-Referenced Interior Studio",
+              ]).map((point, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-[5px] h-[5px] rounded-full bg-[#FF2A2A] shadow-[0_0_6px_rgba(255,42,42,0.8)] shrink-0" />
+                  {point}
+                </div>
+              ))
+            }
+          </motion.div>
+
+          {/* Hero CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.52, ease: [0.22, 1, 0.36, 1] }}
+            className="pt-2"
+          >
+            <Link
+              to="/contact-us"
+              className="group inline-flex items-center gap-3 px-7 py-3.5 bg-[#FF2A2A] text-white text-[0.82rem] font-bold uppercase tracking-[0.18em] hover:bg-[#e02020] transition-colors duration-200"
             >
-              CROSS ANGLE INTERIOR • CINEMATIC SPATIAL ELEGANCE • ESTD 2010 • CROSS ANGLE INTERIOR • CINEMATIC SPATIAL ELEGANCE • ESTD 2010 •
-            </motion.div>
-          ))}
+              Start Your Project
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+            </Link>
+          </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Content Side */}
-          <div className="relative z-10">
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="mb-6"
-            >
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#d1af6e]/10 border border-[#d1af6e]/20 text-[#d1af6e] text-sm font-medium tracking-wider">
-                <span className="w-2 h-2 rounded-full bg-[#d1af6e] animate-[pulse_2s_ease-in-out_Infinity]" />
-                ABOUT THE STUDIO
-              </span>
-            </motion.div>
-
-            {/* Kinetic Title */}
-            <div className="mb-6 overflow-hidden">
-              <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[1.1]">
-                <KineticText preset="char-reveal" stagger={0.03} duration={0.8}>
-                  Cross Angle
-                </KineticText>
-                <div className="text-[#d1af6e] italic mt-2">
-                  <KineticText preset="char-reveal" stagger={0.03} delay={0.4} duration={0.8}>
-                    Interior
-                  </KineticText>
-                </div>
-              </h1>
-            </div>
-
-            {/* Description */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className="space-y-6"
-            >
-              <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-lg">
-                We believe true design transcends the ornamental; it is the <span className="text-foreground font-semibold italic">curation of atmosphere</span>.
-              </p>
-
-              <p className="text-muted-foreground text-lg leading-relaxed max-w-lg">
-                For over <span className="text-foreground font-semibold">15 years</span>, our studio has been the silent architect of Jamshedpur's most prestigious environments—dedicated to the <span className="text-[#d1af6e] font-medium tracking-wide">Architecture of Anticipation</span>.
-              </p>
-            </motion.div>
-
-            {/* Glassmorphism Stats Cards */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
-              className="mt-12 p-8 rounded-[2rem] bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] grid grid-cols-3 gap-8 relative overflow-hidden"
-            >
-              {/* Internal subtle glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#d1af6e]/5 via-transparent to-transparent opacity-50 pointer-events-none" />
-              
-              {[
-                { value: "15+", label: "Years" },
-                { value: "500+", label: "Projects" },
-                { value: "98%", label: "Clients" },
-              ].map((stat, index) => (
-                <div key={index} className="text-center group">
-                  <p className="text-3xl md:text-4xl font-serif font-bold text-[#d1af6e] drop-shadow-[0_0_10px_rgba(209,175,110,0.3)] group-hover:scale-110 transition-transform duration-500">
-                    {stat.value}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mt-1">
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
-            </motion.div>
+        {/* ─────── RIGHT: VIDEO ─────── */}
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="relative lg:absolute lg:right-6 xl:right-10 lg:top-[10vh] lg:bottom-[5vh]
+                     w-full lg:w-[45%] xl:w-[43%] 4xl:w-[41%]
+                     px-6 sm:px-10 lg:px-0
+                     flex flex-col gap-4 z-20"
+        >
+          {/* "Hear From The Founder" label */}
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-[2px] bg-[#FF2A2A] shadow-[0_0_6px_rgba(255,42,42,0.5)]" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/50">
+              Hear From The Founder
+            </span>
           </div>
 
-          {/* Video Side */}
+          {/* Video embed */}
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="relative"
+            whileHover={{ scale: 1.015 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="relative flex-1 overflow-hidden border border-[#1C1C1C]
+                       shadow-[0_0_0_1px_rgba(255,42,42,0.06),0_24px_60px_rgba(0,0,0,0.7)]
+                       group"
           >
-            <div
-              className="relative aspect-video rounded-[2rem] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.6)] border border-white/10 group backdrop-blur-3xl bg-black/50"
-            >
+            {/* Red glow on hover */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
+                            shadow-[inset_0_0_0_1px_rgba(255,42,42,0.15)] pointer-events-none z-10" />
+
+            <div className="aspect-video lg:absolute lg:inset-0 lg:w-full lg:h-full">
               <iframe
                 src={videoUrl}
-                title="Cross Angle Interior Video"
-                className="w-full h-full"
+                title="Founder — CrossAngle Interior"
+                className="w-full h-full lg:absolute lg:inset-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
             </div>
-
-            {/* Decorative elements */}
-            <div className="absolute -top-4 -right-4 w-32 h-32 border-2 border-[#d1af6e]/20 rounded-3xl -z-10 transition-transform duration-700 group-hover:rotate-[5deg] group-hover:border-[#d1af6e]/40" />
-            <div className="absolute -bottom-4 -left-4 w-24 h-24 border-2 border-white/10 rounded-3xl -z-10 transition-transform duration-700 group-hover:-rotate-[5deg]" />
           </motion.div>
-        </div>
+
+          {/* Below-video caption */}
+          <p className="text-[9px] uppercase tracking-[0.22em] text-[#3A3A3A] leading-relaxed">
+            How we approach turnkey interiors — from concept to final handover.
+          </p>
+        </motion.div>
       </motion.div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll cue */}
       <motion.div
+        className="absolute bottom-6 left-14 xl:left-20 flex items-center gap-3 z-20"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        transition={{ delay: 1.1, duration: 1 }}
       >
-        <span className="text-xs tracking-widest text-muted-foreground uppercase">
-          Scroll to explore
-        </span>
         <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <ChevronDown className="w-5 h-5 text-[#d1af6e]/80" />
-        </motion.div>
+          animate={{ x: [0, 6, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          className="w-6 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-white/25"
+        />
+        <span className="text-[8px] uppercase tracking-[0.3em] text-white/20">
+          Scroll to Explore
+        </span>
       </motion.div>
     </section>
   );

@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { runWhenIdle } from "@/lib/idle";
+import { initPostHog } from "@/lib/posthog";
 
 export type CookieConsent = "all" | "strict" | "unknown";
 
@@ -71,45 +72,13 @@ const loadGoogleAnalytics = (measurementId: string) => {
 };
 
 const loadPostHog = async () => {
-  const w = window as ConsentWindow;
-  const phKey = import.meta.env.VITE_POSTHOG_KEY;
-
-  if (!phKey || w.__crossanglePostHogLoaded) {
-    return;
-  }
-
-  const posthog = (await import("posthog-js")).default;
-  posthog.init(phKey, {
-    api_host: "https://app.posthog.com",
-    person_profiles: "identified_only",
-    capture_pageview: true,
-  });
-
-  w.__crossanglePostHogLoaded = true;
+  initPostHog();
 };
 
+// Sentry initialization is handled globally in main.tsx to capture boot errors.
+// Configuration for PII masking is defined in lib/sentry.ts.
 const loadSentry = async () => {
-  const w = window as ConsentWindow;
-  const dsn = import.meta.env.VITE_SENTRY_DSN;
-
-  if (!dsn || w.__crossangleSentryLoaded) {
-    return;
-  }
-
-  const Sentry = await import("@sentry/react");
-
-  Sentry.init({
-    dsn,
-    integrations: [
-      Sentry.browserTracingIntegration(),
-      Sentry.replayIntegration(),
-    ],
-    tracesSampleRate: 0.2,
-    replaysSessionSampleRate: 0.05,
-    replaysOnErrorSampleRate: 1,
-  });
-
-  w.__crossangleSentryLoaded = true;
+  // Identification logic can go here if needed after consent.
 };
 
 export const CookieConsentProvider = ({
@@ -149,7 +118,7 @@ export const CookieConsentProvider = ({
         loadGoogleAnalytics(gaMeasurementId);
       }
 
-      void loadSentry();
+      // Sentry is already initialized in main.tsx
       void loadPostHog();
     }, 1800);
   }, [consent]);

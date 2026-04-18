@@ -1,6 +1,6 @@
 # Cross Angle Interior — Web Application
 
-> A premium interior design marketing and lead-generation platform for **Cross Angle Interior** — a professional design studio based in Jamshedpur & Kolkata, India.
+> A premium interior design marketing and lead-generation platform for **Cross Angle Interior** — a professional design studio based in Jamshedpur, Jharkhand, India.
 
 ---
 
@@ -225,7 +225,7 @@ The admin console is bundled inside the same app and is accessible at `/admin/au
 - **Color theme:** Dark premium with gold/amber accents
 - **UI style:** Glassmorphism cards, subtle hover states, cinematic scroll animations
 - **Brand statement:** *"We don't design interiors. We design how they feel."*
-- **Studio presence:** Jamshedpur & Kolkata, India
+- **Studio presence:** Jamshedpur, Jharkhand, India
 - **Contact:** `hello@crossangle.com` | `+91 7909041132`
 
 ---

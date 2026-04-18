@@ -4,9 +4,12 @@ export interface LeadPayload {
     phone?: string | null;
     message?: string | null;
     source?: string | null;
+    form_data?: unknown | null;
     category?: string | null;
     city?: string | null;
     budget?: string | null;
+    project_type?: string | null;
+    property_type?: string | null;
     notes?: string | null;
     lead_source?: string | null;
     lead_type?: string | null;
@@ -24,6 +27,7 @@ export interface LeadPayload {
     stale_flagged_at?: string | null;
     last_activity_at?: string | null;
     closed_at?: string | null;
+    source_url?: string | null;
 }
 
 export interface Lead extends LeadPayload {

@@ -18,7 +18,7 @@ const trustItems = [
   {
     icon: Users,
     title: <span className="flex items-center"><CountUp to={500} duration={2} className="mr-1" />+ Happy Homes</span>,
-    description: "Recognized for excellence across Jharkhand & Kolkata"
+    description: "Recognized for excellence across Jamshedpur & nearby neighborhoods"
   },
   {
     icon: Wrench,

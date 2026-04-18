@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Image } from "@/components/ui/image";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 interface LightboxItem {
   image: string;
@@ -51,12 +52,21 @@ const GalleryLightbox = ({
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
-    if (isOpen) document.body.style.overflow = "hidden";
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
+  // Lock body scroll and prevent layout shift
+  useEffect(() => {
+    if (isOpen) {
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     };
-  }, [handleKeyDown, isOpen]);
+  }, [isOpen]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.touches[0].clientX);
@@ -184,17 +194,22 @@ const GalleryLightbox = ({
               onTouchEnd={handleTouchEnd}
               onClick={(e) => e.stopPropagation()}
             >
-              <AnimatePresence mode="wait">
-                <motion.img
+              <AnimatePresence mode="popLayout">
+                <motion.div
                   key={currentIndex}
-                  src={currentItem.image}
-                  alt={currentItem.title || currentItem.category}
-                  className="max-w-full max-h-[72vh] object-contain shadow-2xl"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.35, ease: "easeInOut" }}
-                />
+                  exit={{ opacity: 0, scale: 1.05 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="flex items-center justify-center h-full w-full max-h-[72vh] absolute"
+                >
+                  <img
+                    src={getOptimizedUrl(currentItem.image, { width: 1200, quality: 90 }) || currentItem.image}
+                    alt={currentItem.title || currentItem.category}
+                    className="max-w-full max-h-[72vh] object-contain shadow-2xl"
+                    loading="eager"
+                  />
+                </motion.div>
               </AnimatePresence>
             </div>
 
@@ -218,16 +233,17 @@ const GalleryLightbox = ({
 
               {/* Thumbnail strip (desktop only) */}
               <div className="hidden md:flex gap-1.5 max-w-md overflow-x-auto scrollbar-none">
-                {items.slice(Math.max(0, currentIndex - 3), currentIndex + 4).map((item, i) => {
-                  const realIndex = Math.max(0, currentIndex - 3) + i;
+                {items.map((item, idx) => {
+                  // Show current and nearby 3 thumbnails to keep it centered visually
+                  if (idx < currentIndex - 3 || idx > currentIndex + 3) return null;
                   return (
                     <button
-                      key={realIndex}
-                      onClick={() => onIndexChange(realIndex)}
-                      aria-label={`Go to image ${realIndex + 1}`}
+                      key={idx}
+                      onClick={() => onIndexChange(idx)}
+                      aria-label={`Go to image ${idx + 1}`}
                       className={cn(
                         "flex-shrink-0 w-14 h-10 overflow-hidden transition-all duration-300",
-                        realIndex === currentIndex
+                        idx === currentIndex
                           ? "ring-1 ring-[#D1AF6E] opacity-100"
                           : "opacity-30 hover:opacity-70"
                       )}
@@ -235,7 +251,7 @@ const GalleryLightbox = ({
                       <Image
                         src={item.image}
                         alt={item.category}
-                        className="h-full w-full"
+                        className="h-full w-full object-cover"
                         width={112}
                         height={80}
                       />

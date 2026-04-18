@@ -236,7 +236,7 @@ export default function Footer() {
       {/* Noise overlay */}
       <div
         className="absolute inset-0 opacity-5 pointer-events-none z-0"
-        style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}
+        style={{ backgroundImage: 'url(/noise.svg)' }}
       />
 
       <Particles />
@@ -328,7 +328,7 @@ export default function Footer() {
           ) : (
             <>
               <div className="text-[30px] font-serif mb-1">Jamshedpur</div>
-              <div className="text-[30px] font-serif">Kolkata</div>
+              <div className="text-[20px] font-serif text-white/55">Jharkhand, India</div>
             </>
           )}
           <LiveClock />

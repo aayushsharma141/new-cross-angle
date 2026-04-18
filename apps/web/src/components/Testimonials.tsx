@@ -103,7 +103,7 @@ const Testimonials = () => {
       project_id: null,
       display_order: 1,
       active: true,
-      city: "Kolkata",
+      city: "Sakchi",
     },
     {
       id: "3",

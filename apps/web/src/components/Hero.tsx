@@ -9,7 +9,7 @@ import SplitType from "split-type";
 import { Image } from "@/components/ui/image";
 
 /* ─── Types ─── */
-type AnimationEffect = "none" | "ken-burns-in" | "ken-burns-out" | "pan-left" | "pan-right";
+type AnimationEffect = "none" | "ken-burns-in" | "ken-burns-out" | "pan-left" | "pan-right" | "pan-up" | "pan-down" | "zoom-pan";
 
 interface HeroMediaItem {
   id: string;
@@ -29,15 +29,19 @@ const EFFECT_CLASS: Record<AnimationEffect, string> = {
   "ken-burns-out": "hero-anim-kb-out",
   "pan-left": "hero-anim-pan-left",
   "pan-right": "hero-anim-pan-right",
+  "pan-up": "hero-anim-pan-up",
+  "pan-down": "hero-anim-pan-down",
+  "zoom-pan": "hero-anim-zoom-pan",
 };
 
 /* ─── Fallback when CMS is empty ─── */
 
-/* ─── Cross-fade transition config ─── */
+/* ─── Vertical wipe transition (replaces cross-fade) ─── */
 const slideVariants = {
-  enter: { opacity: 0 },
-  center: { opacity: 1 },
-  exit: { opacity: 0 },
+  enter: { clipPath: "inset(100% 0% 0% 0%)", zIndex: 10 },
+  center: { clipPath: "inset(0% 0% 0% 0%)", zIndex: 10 },
+  // Keep the exiting slide fully visible but underneath the new one
+  exit: { clipPath: "inset(0% 0% 0% 0%)", zIndex: 0 },
 };
 
 const Hero = () => {
@@ -53,10 +57,10 @@ const Hero = () => {
   const fetchMedia = useCallback(async () => {
     try {
       const { data, error } = await supabase
-          .from("hero_media")
-          .select("*")
-          .eq("is_active", true)
-          .order("display_order", { ascending: true });
+        .from("hero_media")
+        .select("*")
+        .eq("is_active", true)
+        .order("display_order", { ascending: true });
 
       if (error) throw error;
       const items = (data as HeroMediaItem[] | null) || [];
@@ -81,6 +85,8 @@ const Hero = () => {
     if (mediaItems.length <= 1) return;
     const currentItem = mediaItems[currentIndex];
     const duration = currentItem?.duration_ms || 5000;
+
+    if (timerRef.current) clearTimeout(timerRef.current);
 
     timerRef.current = setTimeout(() => {
       setCurrentIndex((prev) => (prev + 1) % mediaItems.length);
@@ -107,41 +113,42 @@ const Hero = () => {
       duration: 0.8,
       stagger: 0.1,
     })
-    .from(title.chars, {
-      y: 80,
-      opacity: 0,
-      duration: 0.9,
-      stagger: 0.018,
-      // rotateZ removed — caused blue placeholder boxes during GSAP split
-    }, "-=0.6")
-    .from('.hero-body-text', {
-      y: 30,
-      opacity: 0,
-      duration: 1,
-    }, "-=0.8")
-    .from('.hero-cta-btn', {
-      y: 20,
-      opacity: 0,
-      duration: 0.8,
-      stagger: 0.2,
-    }, "-=0.8")
-    .from('.hero-trust-chip', {
-      scale: 0.8,
-      opacity: 0,
-      duration: 0.6,
-      stagger: 0.1,
-    }, "-=0.6")
-    .from('.hero-side-panel', {
-      x: 50,
-      opacity: 0,
-      duration: 1,
-    }, "-=1");
+      .from(title.chars, {
+        y: 80,
+        opacity: 0,
+        duration: 0.9,
+        stagger: 0.018,
+        // rotateZ removed — caused blue placeholder boxes during GSAP split
+      }, "-=0.6")
+      .from('.hero-body-text', {
+        y: 30,
+        opacity: 0,
+        duration: 1,
+      }, "-=0.8")
+      .from('.hero-cta-btn', {
+        y: 20,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.2,
+      }, "-=0.8")
+      .from('.hero-trust-chip', {
+        scale: 0.8,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+      }, "-=0.6")
+      .from('.hero-side-panel', {
+        x: 50,
+        opacity: 0,
+        duration: 1,
+      }, "-=1");
 
     return () => {
+      tl.kill();
       title.revert();
       kicker.revert();
     };
-  }, { scope: containerRef });
+  }, { scope: containerRef, dependencies: [] });
 
   const currentMedia = mediaItems[currentIndex];
 
@@ -152,7 +159,7 @@ const Hero = () => {
     >
       {/* ═══ Background slide ═══ */}
       <div className="absolute inset-0">
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           {currentMedia && (
             <motion.div
               key={currentMedia.id + "-" + currentIndex}
@@ -170,6 +177,8 @@ const Hero = () => {
                   loop
                   muted
                   playsInline
+                  preload="auto"
+                  poster="/hero_reality_render_1775299733746.png"
                   className="w-full h-full object-cover"
                 >
                   <source src={currentMedia.media_url} type="video/mp4" />
@@ -185,10 +194,10 @@ const Hero = () => {
                   loading="eager"
                   style={
                     currentMedia.animation_effect &&
-                    currentMedia.animation_effect !== "none"
+                      currentMedia.animation_effect !== "none"
                       ? {
-                          animationDuration: `${(currentMedia.duration_ms || 6500) / 1000}s`,
-                        }
+                        animationDuration: `${(currentMedia.duration_ms || 6500) / 1000}s`,
+                      }
                       : undefined
                   }
                 />
@@ -279,7 +288,7 @@ const Hero = () => {
               </span>
               <span className="hero-trust-chip home-chip">
                 <Sparkles className="h-3.5 w-3.5 text-[#D1AF6E]" />
-                <span>Jamshedpur &amp; Kolkata</span>
+                <span>Jamshedpur &amp; Nearby</span>
               </span>
             </div>
           </div>
@@ -301,7 +310,7 @@ const Hero = () => {
                   </p>
                   <div className="flex items-center gap-2 text-white/90">
                     <MapPin className="h-4 w-4 text-[#D1AF6E]" />
-                    <span className="text-sm">Jamshedpur and Kolkata</span>
+                    <span className="text-sm">Jamshedpur &amp; Nearby Neighborhoods</span>
                   </div>
                 </div>
 
@@ -339,11 +348,10 @@ const Hero = () => {
             <button
               key={i}
               onClick={() => setCurrentIndex(i)}
-              className={`h-1.5 rounded-full transition-all duration-500 ${
-                i === currentIndex
+              className={`h-1.5 rounded-full transition-all duration-500 ${i === currentIndex
                   ? "w-12 bg-white shadow-[0_0_18px_rgba(255,255,255,0.34)]"
                   : "w-4 bg-white/24 hover:bg-white/48"
-              }`}
+                }`}
               aria-label={`Go to slide ${i + 1}`}
             />
           ))}

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Image } from "@/components/ui/image";
+import { cn } from "@/lib/utils";
 
 const OurApproach = () => {
   const pillars = [
@@ -9,75 +10,69 @@ const OurApproach = () => {
   ];
 
   return (
-    <section className="bg-[#0A0A0A] border-y border-white/10 overflow-hidden" style={{ padding: "clamp(72px,10vw,140px) clamp(20px,5vw,80px)" }}>
-      <div className="max-w-[1400px] mx-auto">
+    <section className="relative bg-[#050505] border-y border-white/[0.05] overflow-hidden" style={{ padding: "clamp(100px,12vw,180px) clamp(20px,5vw,80px)" }}>
+      {/* Background Aesthetic */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_20%,rgba(196,30,58,0.03)_0%,transparent_50%)]" />
+      </div>
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 36 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-          className="flex items-center gap-[14px] mb-4 font-label text-[9px] font-bold tracking-[0.3em] uppercase text-[#FF2A2A]"
-        >
-          Our Approach
-          <div className="w-10 h-[1px] bg-[#FF2A2A]" />
-        </motion.div>
+      <div className="max-w-[1400px] mx-auto relative z-10">
+        <div className="flex flex-col mb-20">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="flex items-center gap-4 mb-6"
+          >
+            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-crimson">The Philosophy</span>
+            <div className="flex-1 h-[1px] bg-white/10" />
+          </motion.div>
 
-        <motion.h2
-          initial={{ opacity: 0, y: 36 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.85, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="font-display font-normal text-[clamp(2.4rem,5.5vw,5.5rem)] leading-[1.04] tracking-[-0.02em] text-[#EDEDED]"
-        >
-          We Design. We Execute.<br />
-          We Deliver <em className="italic text-[#FF2A2A]">Complete</em> Environments.
-        </motion.h2>
-
-        <motion.p
-          initial={{ opacity: 0, y: 36 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="font-display italic text-[clamp(1rem,1.8vw,1.3rem)] text-[#FF2A2A] font-light mt-4 mb-5"
-        >
-          Not Just Atmosphere — Full Turnkey Transformation.
-        </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="font-display font-normal text-[clamp(2.8rem,6vw,5.5rem)] leading-[1.05] tracking-tighter text-white"
+          >
+            We Design. We Execute.<br />
+            We Deliver <em className="italic text-site-crimson font-medium">Complete</em> Environments.
+          </motion.h2>
+        </div>
 
         {/* 2-Column Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 mt-[52px] items-start" style={{ gap: "clamp(40px,6vw,96px)" }}>
-
+        <div className="grid grid-cols-1 lg:grid-cols-2 mt-12 items-start gap-16 lg:gap-24">
           {/* Left Column */}
           <div>
             <motion.p
-              initial={{ opacity: 0, y: 36 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="text-[0.95rem] font-light text-[#EDEDED]/55 leading-[1.8] max-w-[44ch] mb-12"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="text-[1.1rem] font-light text-white/40 leading-relaxed max-w-[48ch] mb-16"
             >
               End-to-end project handling from the first concept sketch to the final furniture arrangement. A single point of accountability for every decision, supplier, and deadline.
             </motion.p>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col space-y-0">
               {pillars.map((pillar, i) => (
                 <motion.div
                   key={pillar.num}
-                  initial={{ opacity: 0, y: 36 }}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.85, delay: 0.3 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                  className={`grid grid-cols-[52px_1fr] gap-5 py-[26px] border-b border-white/10 transition-all duration-350 ease-[timing-function:cubic-bezier(0.22,1,0.36,1)] hover:pl-2.5 ${i === 0 ? 'border-t border-white/10' : ''}`}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className={cn(
+                    "group relative grid grid-cols-[60px_1fr] gap-8 py-10 transition-all duration-500 hover:bg-white/[0.02] px-4 -mx-4 rounded-xl",
+                    i !== pillars.length - 1 && "border-b border-white/[0.05]"
+                  )}
                 >
-                  <span className="font-display italic text-[1.5rem] text-[#FF2A2A] leading-none mt-1 cursor-default">
+                  <span className="font-display italic text-[1.75rem] text-site-crimson/40 group-hover:text-site-crimson transition-colors duration-500 pt-1">
                     {pillar.num}
                   </span>
                   <div>
-                    <div className="font-label text-[10px] font-bold tracking-[0.18em] uppercase mb-2 text-[#EDEDED]">
+                    <div className="font-bold text-[11px] tracking-[0.2em] uppercase mb-3 text-white">
                       {pillar.title}
                     </div>
-                    <p className="text-[0.88rem] text-[#EDEDED]/55 leading-[1.7] font-light">
+                    <p className="text-[0.95rem] text-white/40 leading-relaxed font-light group-hover:text-white/60 transition-colors">
                       {pillar.desc}
                     </p>
                   </div>
@@ -86,54 +81,67 @@ const OurApproach = () => {
             </div>
           </div>
 
-          {/* Right Column: Data Card */}
+          {/* Right Column: Premium Data Card */}
           <motion.div
-            initial={{ opacity: 0, y: 36 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.85, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="relative bg-[#0D0D0D] border border-white/10 overflow-hidden" style={{ padding: "clamp(32px,4vw,56px)" }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="relative bg-[#0d0d0d] border border-white/[0.08] p-10 lg:p-16 rounded-[2rem] overflow-hidden shadow-2xl"
           >
-            {/* Top right red glow */}
-            <div className="absolute -top-[60px] -right-[60px] w-[280px] h-[280px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(255,42,42,0.09) 0%, transparent 65%)" }} />
+            {/* Glossy Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+            <div className="absolute -top-1/4 -right-1/4 w-full h-full bg-site-crimson/10 blur-[100px] rounded-full" />
 
-            {/* Grayscale background image */}
-            <Image
-              src="/images/projects/discovery/lifestyle-8.jpg"
-              alt="Architecture Background"
-              className="pointer-events-none absolute inset-0 h-full w-full"
-              imageClassName="opacity-[0.07] grayscale"
-              width={800}
-              height={640}
-            />
-
-            <div className="relative z-10">
-              <div className="font-label text-[9px] font-bold tracking-[0.22em] uppercase text-[#FF2A2A] border-b border-white/10 pb-[18px] mb-8">
-                Performance Indicators
-              </div>
-
-              <div className="mb-[28px]">
-                <div className="font-display italic font-light text-[clamp(2.4rem,4.5vw,4.4rem)] leading-none text-[#EDEDED] mb-1.5">₹2–20Cr+</div>
-                <div className="font-label text-[9px] font-semibold tracking-[0.2em] uppercase text-[#EDEDED]/55">Project Value Delivered</div>
-              </div>
-
-              <div className="w-10 h-[2px] bg-[#FF2A2A] my-7" />
-
-              <div className="mb-[28px]">
-                <div className="font-display italic font-light text-[clamp(2.4rem,4.5vw,4.4rem)] leading-none text-[#EDEDED] mb-1.5">95%</div>
-                <div className="font-label text-[9px] font-semibold tracking-[0.2em] uppercase text-[#EDEDED]/55">Execution Match Rate</div>
-              </div>
-
-              <div className="w-10 h-[2px] bg-[#FF2A2A] my-7" />
-
+            <div className="relative z-10 flex flex-col h-full justify-between">
               <div>
-                <div className="font-display italic font-light text-[clamp(1.5rem,2.8vw,2.8rem)] leading-none text-[#EDEDED] mb-1.5 align-baseline">On-Time<br />Delivery</div>
-                <div className="font-label text-[9px] font-semibold tracking-[0.2em] uppercase text-[#EDEDED]/55 mt-2">Focused & Guaranteed</div>
+                <div className="font-bold text-[10px] tracking-[0.3em] uppercase text-site-crimson mb-12 flex items-center gap-3">
+                  <div className="w-8 h-px bg-site-crimson" />
+                  Performance Metrics
+                </div>
+
+                <div className="space-y-16">
+                  <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    className="group"
+                  >
+                    <div className="font-display italic font-light text-[clamp(2.5rem,5vw,5rem)] leading-none text-white mb-2 group-hover:text-site-crimson transition-colors duration-500">₹2–20Cr+</div>
+                    <div className="font-bold text-[10px] tracking-[0.2em] uppercase text-white/30">Project Value Threshold</div>
+                  </motion.div>
+
+                  <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="group"
+                  >
+                    <div className="font-display italic font-light text-[clamp(2.5rem,5vw,5rem)] leading-none text-white mb-2 group-hover:text-site-crimson transition-colors duration-500">95%</div>
+                    <div className="font-bold text-[10px] tracking-[0.2em] uppercase text-white/30">Execution Fidelity Rate</div>
+                  </motion.div>
+
+                  <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="group"
+                  >
+                    <div className="font-display italic font-light text-[clamp(1.8rem,3vw,3rem)] leading-none text-white mb-2 group-hover:text-site-crimson transition-colors duration-500">On-Time Delivery</div>
+                    <div className="font-bold text-[10px] tracking-[0.2em] uppercase text-white/30">Contractually Guaranteed</div>
+                  </motion.div>
+                </div>
+              </div>
+
+              <div className="mt-20 pt-10 border-t border-white/5 flex items-center justify-between">
+                <span className="text-white/20 text-[9px] uppercase tracking-widest">Global Sourcing • In-house Fab</span>
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-site-crimson shadow-[0_0_8px_rgba(196,30,58,0.8)]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                </div>
               </div>
             </div>
           </motion.div>
         </div>
-
       </div>
     </section>
   );
