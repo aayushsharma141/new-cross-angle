@@ -11,3 +11,14 @@
 [13:15:35] - Action taken: Added increment_blog_view RPC call in BlogDetailPage.tsx useEffect — sessionStorage guard prevents duplicate increments per session per slug - Result: Success
 [13:22:00] - Action taken: Imported Breadcrumb into App.tsx, rendered globally in AnimatedRoutes public branch above <Routes> — breadcrumb self-manages visibility - Result: Success
 [13:24:00] - Action taken: ran npm run build — EXIT CODE 0, built in 41.97s, zero TypeScript errors - Result: Success
+
+[2026-04-18 20:24] - Action taken: Fixed hardcoded "published" status badge in AdminServices.tsx — status now derives from service.active boolean (published when active === true, draft when false) - Result: Success
+[2026-04-18 20:24] - Action taken: Added active?: boolean to ServiceDetail type in packages/types/src/index.ts and carried through fetchServices mapper - Result: Success
+[2026-04-18 20:24] - Action taken: Made AdminServices handleSubmit transactional — if steps/FAQs insert fails after parent service upsert, orphaned service row is deleted (create path) and error surfaced - Result: Success
+[2026-04-18 20:24] - Action taken: Made AdminMedia handleUpload transactional — storage file rolled back if DB insert fails, preventing ghost storage objects - Result: Success
+[2026-04-18 20:24] - Action taken: Upgraded AdminMedia handleBulkDelete to Promise.allSettled — partial failures reported per-file; successful deletes complete even when some fail - Result: Success
+[2026-04-18 20:24] - Action taken: Created e2e/setup/admin-auth.ts global Playwright setup — authenticates with PLAYWRIGHT_ADMIN_EMAIL/PASSWORD env vars, writes browser storage state - Result: Success
+[2026-04-18 20:24] - Action taken: Rewrote e2e/admin-interactions.spec.ts — tests use storageState for valid admin session, navigate real live routes, include assertAuthenticated regression guards - Result: Success
+[2026-04-18 20:24] - Action taken: Updated playwright.config.ts — globalSetup + storageState reuse + setup project dependency added - Result: Success
+[2026-04-18 20:24] - Action taken: Added e2e/setup/.auth/, playwright-report/, test-results/ to .gitignore - Result: Success
+[2026-04-18 20:24] - Action taken: Build validation — npm run build EXIT CODE 0, zero TS errors - Result: Success

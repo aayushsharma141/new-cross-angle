@@ -76,8 +76,9 @@ Deno.serve(async (req: Request) => {
             return badRequestResponse(req, "Invalid JSON", {}, requestId);
         }
 
-        const { name, email, phone, consent, results } = body as {
+        const { name, email, phone, consent, results, session_id } = body as {
             name: string; email: string; phone?: string; consent?: boolean;
+            session_id?: string | null;
             results?: Record<string, any>;
         };
 
@@ -137,7 +138,11 @@ Deno.serve(async (req: Request) => {
                 lead_score: leadScore, // Redundant with score but keeping for backwards compatibility until cleanup
                 status: 'new',
                 internal_notes: {
+                    analytics_session_id: session_id ?? null,
                     raw_data: body.raw_data ?? null,
+                },
+                form_data: {
+                    analytics_session_id: session_id ?? null,
                 },
             }).select('id').single();
 

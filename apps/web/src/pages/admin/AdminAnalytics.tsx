@@ -34,7 +34,7 @@ interface SessionRow {
   completed_at: string | null;
   mode: string;
   is_completed: boolean;
-  last_stage: string;
+  last_stage: string | null;
   completion_time_seconds: number | null;
   user_agent: string | null;
   answers: Record<string, unknown>;
@@ -42,7 +42,7 @@ interface SessionRow {
 
 interface EventRow {
   id: string;
-  analytics_session_id: string;
+  analytics_session_id: string | null;
   event_type: string;
   stage_name: string | null;
   meta: Record<string, unknown>;
@@ -51,7 +51,7 @@ interface EventRow {
 
 interface LeadRow {
   id: string;
-  session_id: string;
+  session_id: string | null;
   name: string;
   email: string;
   phone: string | null;
@@ -100,6 +100,39 @@ const STAGE_LABELS: Record<string, string> = {
   results: "Results",
 };
 
+const STEP_NAME_TO_STAGE: Record<string, string> = {
+  Reflection: "reflection",
+  Lifestyle: "lifestyle",
+  VisualInstinct: "visual_instinct",
+  "Visual Instinct": "visual_instinct",
+  AdjectiveSelection: "adjective_selection",
+  Adjectives: "adjective_selection",
+  EmotionalMapping: "emotional_mapping",
+  Emotional: "emotional_mapping",
+  MaterialResonance: "material_resonance",
+  Material: "material_resonance",
+  LightCalibration: "light_calibration",
+  Light: "light_calibration",
+  PatternPreview: "pattern_preview",
+  Pattern: "pattern_preview",
+  Analysis: "analysis",
+  MiniResult: "results",
+  Results: "results",
+  LeadCapture: "results",
+};
+
+const getStageKey = (value: unknown): string | null => {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return null;
+  }
+
+  if (STAGE_ORDER.includes(value)) {
+    return value;
+  }
+
+  return STEP_NAME_TO_STAGE[value] ?? null;
+};
+
 function formatDuration(seconds: number): string {
   if (seconds < 60) return `${Math.round(seconds)} s`;
   const m = Math.floor(seconds / 60);
@@ -129,6 +162,7 @@ function computeDropoffs(sessions: SessionRow[]): StageDropoff[] {
   const incomplete = sessions.filter((s) => !s.is_completed);
   const counts: Record<string, number> = {};
   for (const s of incomplete) {
+    if (!s.last_stage) continue;
     counts[s.last_stage] = (counts[s.last_stage] ?? 0) + 1;
   }
   const total = incomplete.length || 1;
@@ -383,42 +417,164 @@ export default function AdminAnalytics() {
 
   const loadData = useCallback(async () => {
     setRefreshing(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let sessQuery: any = supabase.from("discovery_analytics_sessions")
-      .select("*, answers") // Include answers for new session table
-      .order("started_at", { ascending: false })
-      .limit(1000);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let evtQuery: any = supabase.from("discovery_analytics_events")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(5000);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const from = dateFrom ? startOfDay(dateFrom).toISOString() : null;
+    const to = dateTo ? endOfDay(dateTo).toISOString() : null;
+
+    const buildRangeQuery = (query: any, dateField: string) => {
+      let next = query;
+      if (from) {
+        next = next.gte(dateField, from);
+      }
+      if (to) {
+        next = next.lte(dateField, to);
+      }
+      return next;
+    };
+
+    const loadAddonAnalytics = async () => {
+      let sessQuery: any = supabase.from("addon_sessions")
+        .select("*")
+        .order("started_at", { ascending: false })
+        .limit(1000);
+      let evtQuery: any = supabase.from("addon_events")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(5000);
+
+      sessQuery = buildRangeQuery(sessQuery, "started_at");
+      evtQuery = buildRangeQuery(evtQuery, "created_at");
+
+      const [sessRes, evtRes] = await Promise.all([sessQuery, evtQuery]);
+
+      if (sessRes.error || evtRes.error) {
+        throw sessRes.error ?? evtRes.error;
+      }
+
+      const rawEvents = (evtRes.data ?? []) as Array<Record<string, unknown>>;
+      const normalizedEvents: EventRow[] = rawEvents.map((event) => {
+        const payload = (event.payload ?? {}) as Record<string, unknown>;
+        return {
+          id: String(event.id),
+          analytics_session_id: typeof payload.sessionId === "string" ? payload.sessionId : null,
+          event_type: String(event.event_name ?? "unknown"),
+          stage_name: getStageKey(payload.stepName),
+          meta: payload,
+          created_at: String(event.created_at),
+        };
+      });
+
+      const lastStageBySession = new Map<string, string | null>();
+      normalizedEvents.forEach((event) => {
+        if (event.analytics_session_id && event.stage_name) {
+          lastStageBySession.set(event.analytics_session_id, event.stage_name);
+        }
+      });
+
+      const normalizedSessions: SessionRow[] = ((sessRes.data ?? []) as Array<Record<string, unknown>>).map((session) => ({
+        id: String(session.id),
+        started_at: String(session.started_at),
+        completed_at: typeof session.completed_at === "string" ? session.completed_at : null,
+        mode: String(session.mode ?? "unknown"),
+        is_completed: Boolean(session.is_completed),
+        last_stage: lastStageBySession.get(String(session.id)) ?? (Boolean(session.is_completed) ? "results" : null),
+        completion_time_seconds: typeof session.total_seconds === "number" ? session.total_seconds : null,
+        user_agent: null,
+        answers: {},
+      }));
+
+      return { sessions: normalizedSessions, events: normalizedEvents };
+    };
+
+    const loadLegacyAnalytics = async () => {
+      let sessQuery: any = supabase.from("discovery_analytics_sessions")
+        .select("*, answers")
+        .order("started_at", { ascending: false })
+        .limit(1000);
+      let evtQuery: any = supabase.from("discovery_analytics_events")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(5000);
+
+      sessQuery = buildRangeQuery(sessQuery, "started_at");
+      evtQuery = buildRangeQuery(evtQuery, "created_at");
+
+      const [sessRes, evtRes] = await Promise.all([sessQuery, evtQuery]);
+
+      if (sessRes.error || evtRes.error) {
+        throw sessRes.error ?? evtRes.error;
+      }
+
+      return {
+        sessions: ((sessRes.data ?? []) as Array<Record<string, unknown>>).map((session) => ({
+          id: String(session.id),
+          started_at: String(session.started_at),
+          completed_at: typeof session.completed_at === "string" ? session.completed_at : null,
+          mode: String(session.mode ?? "unknown"),
+          is_completed: Boolean(session.is_completed),
+          last_stage: getStageKey(session.last_stage) ?? (typeof session.last_stage === "string" ? session.last_stage : null),
+          completion_time_seconds: typeof session.completion_time_seconds === "number" ? session.completion_time_seconds : null,
+          user_agent: typeof session.user_agent === "string" ? session.user_agent : null,
+          answers: (session.answers ?? {}) as Record<string, unknown>,
+        })),
+        events: ((evtRes.data ?? []) as Array<Record<string, unknown>>).map((event) => ({
+          id: String(event.id),
+          analytics_session_id: typeof event.analytics_session_id === "string" ? event.analytics_session_id : null,
+          event_type: String(event.event_type ?? "unknown"),
+          stage_name: getStageKey(event.stage_name) ?? (typeof event.stage_name === "string" ? event.stage_name : null),
+          meta: (event.meta ?? {}) as Record<string, unknown>,
+          created_at: String(event.created_at),
+        })),
+      };
+    };
+
     let leadsQuery: any = supabase.from("leads")
-      .select("*")
+      .select("id, name, email, phone, project_type, budget, start_timing, city, lead_source, source, source_url, created_at, internal_notes, form_data")
       .eq("lead_source", "style_quiz")
       .order("created_at", { ascending: false })
       .limit(500);
 
-    if (dateFrom) {
-      const from = startOfDay(dateFrom).toISOString();
-      sessQuery = sessQuery.gte("started_at", from);
-      evtQuery = evtQuery.gte("created_at", from);
-      leadsQuery = leadsQuery.gte("created_at", from);
-    }
-    if (dateTo) {
-      const to = endOfDay(dateTo).toISOString();
-      sessQuery = sessQuery.lte("started_at", to);
-      evtQuery = evtQuery.lte("created_at", to);
-      leadsQuery = leadsQuery.lte("created_at", to);
-    }
+    leadsQuery = buildRangeQuery(leadsQuery, "created_at");
 
-    const [sessRes, evtRes, leadsRes] = await Promise.all([sessQuery, evtQuery, leadsQuery]);
-    if (sessRes.data) setSessions(sessRes.data);
-    if (evtRes.data) setEvents(evtRes.data);
-    if (leadsRes.data) setLeads(leadsRes.data);
-    setLoading(false);
-    setRefreshing(false);
+    try {
+      const [{ sessions: nextSessions, events: nextEvents }, leadsRes] = await Promise.all([
+        loadAddonAnalytics().catch(() => loadLegacyAnalytics()),
+        leadsQuery,
+      ]);
+
+      const nextLeads: LeadRow[] = ((leadsRes.data ?? []) as Array<Record<string, unknown>>).map((lead) => {
+        const internalNotes = (lead.internal_notes ?? {}) as Record<string, unknown>;
+        const rawData = (internalNotes.raw_data ?? {}) as Record<string, unknown>;
+        const formData = (lead.form_data ?? {}) as Record<string, unknown>;
+
+        return {
+          id: String(lead.id),
+          session_id:
+            (typeof formData.analytics_session_id === "string" && formData.analytics_session_id) ||
+            (typeof internalNotes.analytics_session_id === "string" && internalNotes.analytics_session_id) ||
+            (typeof rawData.sessionId === "string" && rawData.sessionId) ||
+            null,
+          name: String(lead.name ?? ""),
+          email: String(lead.email ?? ""),
+          phone: typeof lead.phone === "string" ? lead.phone : null,
+          project_type: typeof lead.project_type === "string" ? lead.project_type : null,
+          budget_range: typeof lead.budget === "string" ? lead.budget : null,
+          timeline: typeof lead.start_timing === "string" ? lead.start_timing : null,
+          city: typeof lead.city === "string" ? lead.city : null,
+          lead_source: typeof lead.lead_source === "string" ? lead.lead_source : null,
+          utm_source: typeof lead.source === "string" ? lead.source : null,
+          utm_medium: null,
+          utm_campaign: typeof lead.source_url === "string" ? lead.source_url : null,
+          created_at: String(lead.created_at),
+        };
+      });
+
+      setSessions(nextSessions);
+      setEvents(nextEvents);
+      setLeads(nextLeads);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, [dateFrom, dateTo]);
 
   useEffect(() => {
@@ -450,7 +606,7 @@ export default function AdminAnalytics() {
   const exportEvents = () => {
     const headers = ["ID", "Session ID", "Event Type", "Stage", "Meta", "Created At"];
     const rows = events.map((e) => [
-      e.id, e.analytics_session_id, e.event_type,
+      e.id, e.analytics_session_id ?? "", e.event_type,
       e.stage_name ?? "", JSON.stringify(e.meta ?? {}), e.created_at,
     ]);
     downloadCsv(`events-${format(new Date(), "yyyy-MM-dd")}.csv`, toCsv(headers, rows));
@@ -461,7 +617,7 @@ export default function AdminAnalytics() {
     const rows = leads.map((l) => [
       l.id, l.name, l.email, l.phone ?? "", l.city ?? "",
       l.project_type ?? "", l.budget_range ?? "", l.timeline ?? "",
-      l.session_id, l.created_at,
+      l.session_id ?? "", l.created_at,
     ]);
     downloadCsv(`leads-${format(new Date(), "yyyy-MM-dd")}.csv`, toCsv(headers, rows));
   };
@@ -486,18 +642,21 @@ export default function AdminAnalytics() {
 
   // New analytics data for charts
   const analyticsData = useMemo(() => {
-    const dailyStatsMap: Record<string, { date: string; sessions: number; completions: number }> = {};
+    const dailyStatsMap: Record<string, { date: string; label: string; sessions: number; completions: number }> = {};
     sessions.forEach(s => {
-      const date = format(new Date(s.started_at), 'MMM d');
+      const startedAt = new Date(s.started_at);
+      const date = format(startedAt, 'yyyy-MM-dd');
       if (!dailyStatsMap[date]) {
-        dailyStatsMap[date] = { date, sessions: 0, completions: 0 };
+        dailyStatsMap[date] = { date, label: format(startedAt, 'MMM d'), sessions: 0, completions: 0 };
       }
       dailyStatsMap[date].sessions++;
       if (s.is_completed) {
         dailyStatsMap[date].completions++;
       }
     });
-    const dailyStats = Object.values(dailyStatsMap).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const dailyStats = Object.values(dailyStatsMap)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map(({ label, sessions, completions }) => ({ date: label, sessions, completions }));
 
     const serviceDistributionMap: Record<string, number> = {};
     sessions.forEach(s => {
@@ -1727,16 +1886,20 @@ export default function AdminAnalytics() {
       <Dialog open={!!selectedLead} onOpenChange={(open) => !open && setSelectedLead(null)}>
         <DialogContent className="max-w-lg p-0 gap-0">
           {selectedLead && (() => {
-            const linkedSession = sessions.find((s) => {
-              // Match via discovery_session_id if analytics sessions link to discovery sessions
-              return false;
-            });
+            const linkedSession = selectedLead.session_id
+              ? sessions.find((s) => s.id === selectedLead.session_id) ?? null
+              : null;
 
             return (<>
               <DialogHeader className="p-6 pb-4 border-b border-border">
                 <DialogTitle className="text-lg font-serif-display">{selectedLead.name}</DialogTitle>
                 <DialogDescription className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
                   Lead captured {new Date(selectedLead.created_at).toLocaleString()}
+                  {linkedSession && (
+                    <span className="text-[10px] uppercase tracking-wide">
+                      Session {linkedSession.is_completed ? "completed" : "in progress"}
+                    </span>
+                  )}
                   {(() => {
                     const intent = scoreLeadIntent(selectedLead);
                     return (
@@ -1884,7 +2047,11 @@ export default function AdminAnalytics() {
                     </div>
                     <div className="rounded-md border border-border p-3">
                       <span className="text-xs text-muted-foreground block mb-1">Last Stage</span>
-                      <span className="text-sm font-medium">{STAGE_LABELS[selectedSession.last_stage] ?? selectedSession.last_stage}</span>
+                      <span className="text-sm font-medium">
+                        {selectedSession.last_stage
+                          ? (STAGE_LABELS[selectedSession.last_stage] ?? selectedSession.last_stage)
+                          : "-"}
+                      </span>
                     </div>
                     <div className="rounded-md border border-border p-3">
                       <span className="text-xs text-muted-foreground block mb-1">Duration</span>

@@ -4,13 +4,13 @@ import Footer from "@/components/layout/Footer";
 import FixedSocialBar from "@/components/layout/FixedSocialBar";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { LogoAnimation } from "@/components/shared/LogoAnimation";
-import ServicesHero from "@/components/home/Services/ServicesHero";
-import ServicesMarquee from "@/components/home/Services/ServicesMarquee";
-import ServicesProcess from "@/components/home/Services/ServicesProcess";
-import ServicesWhyUs from "@/components/home/Services/ServicesWhyUs";
-import ServicesCTA from "@/components/home/Services/ServicesCTA";
-import OurApproach from "@/components/home/Services/OurApproach";
-import ServicesEngines from "@/components/home/Services/ServicesEngines";
+import ServicesHero from "@/components/services/ServicesHero";
+import ServicesMarquee from "@/components/services/ServicesMarquee";
+import ServicesProcess from "@/components/services/ServicesProcess";
+import ServicesWhyUs from "@/components/services/ServicesWhyUs";
+import ServicesCTA from "@/components/services/ServicesCTA";
+import OurApproach from "@/components/services/OurApproach";
+import ServicesEngines from "@/components/services/ServicesEngines";
 import { Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed, LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -177,7 +177,7 @@ const ServicesPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.05] border border-white/[0.05] overflow-hidden rounded-2xl">
               {commercialServices.map((service, i) => {
-                const Icon = IconMap[service.icon] || Building2;
+                const Icon = (service.icon ? IconMap[service.icon as keyof typeof IconMap] : undefined) || Building2;
                 return (
                   <Link to={`/services/${service.category_id}/${service.slug}`} key={service.id} className="group relative bg-black p-10 lg:p-16 overflow-hidden transition-all duration-500 hover:bg-[#080808]">
                     <div className="absolute inset-0 bg-gradient-to-br from-site-crimson/[0.02] to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -233,7 +233,7 @@ const ServicesPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
               {specializedServices.map((service, i) => {
-                const Icon = IconMap[service.icon] || Lamp;
+                const Icon = (service.icon ? IconMap[service.icon as keyof typeof IconMap] : undefined) || Lamp;
                 return (
                   <motion.div
                     key={service.id}

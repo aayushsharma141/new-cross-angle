@@ -49,7 +49,8 @@ const FeaturedJourneys = () => {
                 <motion.img 
                   src={project.heroImage} 
                   alt={project.title}
-                  className="h-full w-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                  style={{ transitionDuration: "2000ms" }}
                 />
               </div>
               {/* Floating Tag */}

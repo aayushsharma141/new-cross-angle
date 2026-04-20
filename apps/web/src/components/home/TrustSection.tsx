@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Award, Users, ShieldCheck, Wrench, Package, HeadphonesIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CountUp } from "./ReactBits";
+import { CountUp } from "@/components/ReactBits";
 import { motion } from "framer-motion";
 
 const trustItems = [

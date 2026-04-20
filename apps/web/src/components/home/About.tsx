@@ -1,7 +1,7 @@
 import { Award, Users, Clock, ArrowRight, Sparkles } from "lucide-react";
 import useCountUp from "@/hooks/useCountUp";
 import { Link } from "react-router-dom";
-import { ScrollReveal } from "./ui/scroll-reveal";
+import { ScrollReveal } from "../ui/enhanced/scroll-reveal";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { Button } from "@/components/ui/primitives/button";

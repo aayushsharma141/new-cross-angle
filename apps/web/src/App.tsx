@@ -11,10 +11,12 @@ import { AnimatePresence } from "framer-motion";
 import { Suspense, lazy, useEffect, useState } from "react";
 import { SchemaMarkup } from "./components/shared/SchemaMarkup";
 import { CookieConsentBanner } from "./components/cookies/CookieConsentBanner";
+import { useCookieConsent } from "./components/cookies/CookieConsentProvider";
 import { runWhenIdle } from "./lib/idle";
 import { ErrorBoundary } from "./components/shared/ErrorBoundary";
-import { PageSkeleton } from "./components/ui/PageSkeleton";
+import { PageSkeleton } from "./components/ui/enhanced/PageSkeleton";
 import { CoreProviders } from "./providers/CoreProviders";
+import { trackWebsitePageView } from "./lib/websiteTracking";
 
 import { SmoothScroll } from "./components/layout/SmoothScroll";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -137,7 +139,16 @@ const DeferredExperienceEnhancements = () => {
 
 const AnimatedRoutes = () => {
   const location = useLocation();
+  const { consent } = useCookieConsent();
   const isAdmin = location.pathname.startsWith("/admin");
+
+  useEffect(() => {
+    if (isAdmin || consent !== "all") {
+      return;
+    }
+
+    void trackWebsitePageView(location.pathname);
+  }, [consent, isAdmin, location.pathname]);
 
   return (
     <>

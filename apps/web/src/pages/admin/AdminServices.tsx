@@ -48,6 +48,7 @@ interface ServiceRecord {
     icon_url?: string;
     short_description?: string;
     short_tag?: string;
+    active?: boolean;
     service_steps?: { step_number: number; title: string; description: string }[];
     service_faqs?: { display_order: number; question: string; answer: string }[];
 }
@@ -115,10 +116,11 @@ const AdminServices = () => {
                     created_at: item.created_at,
                     title: item.name, // Mapping 'name' to 'title'
                     slug: item.slug,
-                    category_id: descJson.category_id || "residential", // Storing category in description or fallback
+                    active: item.active ?? true,
+                    category_id: descJson.category_id || "residential",
                     // Start: Schema mapping
                     description: descJson.content || item.short_description || "",
-                    hero_image: item.icon_url || "", // Using icon_url for hero image for now, or we store it in desc
+                    hero_image: item.icon_url || "",
                     icon: descJson.icon || "Home",
                     tag: item.short_tag || "",
                     features: descJson.features || [],
@@ -193,6 +195,7 @@ const AdminServices = () => {
         }
 
         setIsSaving(true);
+        const isCreate = !editingService;
 
         try {
             // Prepare the JSONB description object
@@ -207,7 +210,7 @@ const AdminServices = () => {
                 name: formData.title,
                 slug: formData.slug || generateSlug(formData.title || ""),
                 description: descriptionData,
-                icon_url: formData.hero_image, // Storing hero image in icon_url or maybe distinct column? DB has icon_url.
+                icon_url: formData.hero_image,
                 short_tag: formData.tag || null,
                 display_order: services.length + 1,
                 active: true
@@ -232,36 +235,39 @@ const AdminServices = () => {
             }
 
             if (serviceId) {
-                // Handle Steps
-                // First delete existing steps for this service
-                await supabase.from('service_steps').delete().eq('service_id', serviceId);
+                // Transactional child writes — if any fail, compensate on parent
+                try {
+                    // Steps: replace all
+                    await supabase.from('service_steps').delete().eq('service_id', serviceId);
+                    if (formData.process_steps && formData.process_steps.length > 0) {
+                        const stepsPayload = formData.process_steps.map((step, index) => ({
+                            service_id: serviceId,
+                            step_number: index + 1,
+                            title: step.title,
+                            description: step.description
+                        }));
+                        const { error: stepsError } = await supabase.from('service_steps').insert(stepsPayload);
+                        if (stepsError) throw stepsError;
+                    }
 
-                // Insert new steps
-                if (formData.process_steps && formData.process_steps.length > 0) {
-                    const stepsPayload = formData.process_steps.map((step, index) => ({
-                        service_id: serviceId,
-                        step_number: index + 1,
-                        title: step.title,
-                        description: step.description
-                    }));
-                    const { error: stepsError } = await supabase.from('service_steps').insert(stepsPayload);
-                    if (stepsError) throw stepsError;
-                }
-
-                // Handle FAQs
-                // First delete existing faqs
-                await supabase.from('service_faqs').delete().eq('service_id', serviceId);
-
-                // Insert new faqs
-                if (formData.faq && formData.faq.length > 0) {
-                    const faqPayload = formData.faq.map((f, index) => ({
-                        service_id: serviceId,
-                        display_order: index + 1,
-                        question: f.question,
-                        answer: f.answer
-                    }));
-                    const { error: faqError } = await supabase.from('service_faqs').insert(faqPayload);
-                    if (faqError) throw faqError;
+                    // FAQs: replace all
+                    await supabase.from('service_faqs').delete().eq('service_id', serviceId);
+                    if (formData.faq && formData.faq.length > 0) {
+                        const faqPayload = formData.faq.map((f, index) => ({
+                            service_id: serviceId,
+                            display_order: index + 1,
+                            question: f.question,
+                            answer: f.answer
+                        }));
+                        const { error: faqError } = await supabase.from('service_faqs').insert(faqPayload);
+                        if (faqError) throw faqError;
+                    }
+                } catch (childError) {
+                    // Compensate: if we just created the service, remove the orphaned row
+                    if (isCreate && serviceId) {
+                        await supabase.from('services').delete().eq('id', serviceId);
+                    }
+                    throw childError; // re-throw to outer catch for toast
                 }
             }
 
@@ -514,7 +520,7 @@ const AdminServices = () => {
                                     {service.category_id || "residential"}
                                 </TableCell>
                                 <TableCell>
-                                    <StatusBadge status={"published"} />
+                                    <StatusBadge status={service.active !== false ? "published" : "draft"} />
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex justify-end gap-2">

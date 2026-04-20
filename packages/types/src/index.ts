@@ -25,6 +25,7 @@ export interface ServiceDetail extends BaseEntity {
     category_id: string;
     icon?: string;
     tag?: string;
+    active?: boolean; // DB column; true = published, false = draft
     features: string[]; // Stored as JSONB in DB
     process_steps: ProcessStep[]; // Stored as JSONB in DB
     faq: FAQItem[]; // Stored as JSONB in DB

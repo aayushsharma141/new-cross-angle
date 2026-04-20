@@ -111,49 +111,58 @@ const AdminMedia = () => {
     }, []);
 
     const handleUpload = async (fileList: File[]) => {
-        try {
-            setIsUploading(true);
-            setUploadError(null);
+        setIsUploading(true);
+        setUploadError(null);
+        const { data: userData } = await supabase.auth.getUser();
+        let successCount = 0;
+        const errors: string[] = [];
 
-            const { data: userData } = await supabase.auth.getUser();
+        for (const file of fileList) {
+            const path = selectedFolder === 'all' ? file.name : `${selectedFolder}/${file.name}`;
+            const { error: storageError } = await supabase.storage.from(BUCKET_NAME).upload(path, file);
 
-            for (const file of fileList) {
-                const path = selectedFolder === 'all' ? file.name : `${selectedFolder}/${file.name}`;
-                const { error: storageError } = await supabase.storage.from(BUCKET_NAME).upload(path, file);
-
-                // If it already exists, we could just overwrite or ignore. Here we assume we want to proceed.
-                // Storage upload returns an error if already exists, unless upsert is true. Let's fallback gracefully if possible.
-                if (storageError && !storageError.message.includes('already exists')) {
-                    throw storageError;
-                }
-
-                const { data: publicUrlObj } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
-
-                // Insert into DB
-                const { error: dbError } = await supabase.from('media').insert({
-                    url: publicUrlObj.publicUrl,
-                    file_name: path,
-                    file_type: file.type,
-                    size_bytes: file.size,
-                    alt: file.name,
-                    title: file.name,
-                    uploaded_by: userData?.user?.id
-                });
-
-                if (dbError && dbError.code !== '23505') { // Ignore unique constraint if we handle it
-                    throw dbError;
-                }
+            if (storageError && !storageError.message.includes('already exists')) {
+                errors.push(`${file.name}: ${storageError.message}`);
+                continue;
             }
 
-            toast({ title: "Success", description: `${fileList.length} file(s) uploaded successfully` });
-            fetchFiles();
-        } catch (error) {
-            const err = error as Error;
-            setUploadError(err.message);
-            toast({ title: "Error", description: err.message, variant: "destructive" });
-        } finally {
-            setIsUploading(false);
+            const { data: publicUrlObj } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
+
+            // Insert into DB — roll back storage upload if DB insert fails
+            const { error: dbError } = await supabase.from('media').insert({
+                url: publicUrlObj.publicUrl,
+                file_name: path,
+                file_type: file.type,
+                size_bytes: file.size,
+                alt: file.name,
+                title: file.name,
+                uploaded_by: userData?.user?.id
+            });
+
+            if (dbError && dbError.code !== '23505') {
+                // Compensate: remove the orphaned storage file
+                await supabase.storage.from(BUCKET_NAME).remove([path]);
+                errors.push(`${file.name}: ${dbError.message}`);
+                continue;
+            }
+
+            successCount++;
         }
+
+        if (errors.length > 0) {
+            const msg = errors.join('; ');
+            setUploadError(msg);
+            toast({
+                title: `${successCount} of ${fileList.length} file(s) uploaded`,
+                description: `Failed: ${msg}`,
+                variant: "destructive"
+            });
+        } else {
+            toast({ title: "Success", description: `${successCount} file(s) uploaded successfully` });
+        }
+
+        fetchFiles();
+        setIsUploading(false);
     };
 
     const handleSingleDelete = async () => {
@@ -181,26 +190,39 @@ const AdminMedia = () => {
 
     const handleBulkDelete = async () => {
         if (selectedFiles.size === 0) return;
-        try {
-            const filesToRemove = Array.from(selectedFiles).map(id => files.find(f => f.id === id)?.name).filter(Boolean) as string[];
 
-            // Delete from storage
-            const { error: storageError } = await supabase.storage.from(BUCKET_NAME).remove(filesToRemove);
-            if (storageError) throw storageError;
+        const fileEntries = Array.from(selectedFiles)
+            .map(id => files.find(f => f.id === id))
+            .filter((f): f is MediaFile => !!f);
 
-            // Delete from DB
-            const { error: dbError } = await supabase.from('media').delete().in('id', Array.from(selectedFiles));
-            if (dbError) throw dbError;
+        const results = await Promise.allSettled(
+            fileEntries.map(async (f) => {
+                const { error: storageError } = await supabase.storage.from(BUCKET_NAME).remove([f.name]);
+                if (storageError) throw new Error(`Storage: ${storageError.message}`);
+                const { error: dbError } = await supabase.from('media').delete().eq('id', f.id);
+                if (dbError) throw new Error(`DB: ${dbError.message}`);
+                return f.id;
+            })
+        );
 
-            toast({ title: "Success", description: "Files deleted successfully" });
-            setSelectedFiles(new Set());
-            fetchFiles();
-        } catch (error) {
-            const err = error as Error;
-            toast({ title: "Error", description: err.message, variant: "destructive" });
-        } finally {
-            setBulkDeleteDialogOpen(false);
+        const succeeded = results.filter(r => r.status === 'fulfilled').length;
+        const failed = results
+            .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+            .map(r => r.reason instanceof Error ? r.reason.message : String(r.reason));
+
+        if (failed.length > 0) {
+            toast({
+                title: `${succeeded} of ${fileEntries.length} files deleted`,
+                description: `Errors: ${failed.join('; ')}`,
+                variant: 'destructive'
+            });
+        } else {
+            toast({ title: "Success", description: `${succeeded} file(s) deleted` });
         }
+
+        setSelectedFiles(new Set());
+        fetchFiles();
+        setBulkDeleteDialogOpen(false);
     };
 
     const handleSyncStorage = async () => {

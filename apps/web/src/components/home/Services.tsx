@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { serviceCategories } from "@/config/site-content";
-import { Squares } from "./ReactBits";
+import { Squares } from "@/components/ReactBits";
 import useScrollReveal from "@/hooks/useScrollReveal";
 import { Button } from "@/components/ui/primitives/button";
 import { Image } from "@/components/ui/enhanced/image";

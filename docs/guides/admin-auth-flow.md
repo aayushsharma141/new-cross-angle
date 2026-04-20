@@ -1,6 +1,7 @@
 # Admin Authentication Flow
 
 > **Source files**
+>
 > - `src/pages/admin/AdminAuth.tsx` — UI & view-state machine
 > - `src/components/auth/AuthProvider.tsx` — session, role, signOut
 > - `src/hooks/useAdminAuth.ts` — logout helper consumed by the admin sidebar
@@ -229,7 +230,7 @@ flowchart TD
 ## 7. Complete View Map at a Glance
 
 | `view` state | Screen | Entry trigger | Exit to |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `login` | Sign-In form | App load / navigate | `forgot`, `/admin` |
 | `forgot` | Email-for-reset form | "Forgot Password?" | `check-email`, `login` |
 | `check-email` | Mail sent confirmation | `handleForgot` success | `login` |
@@ -243,7 +244,7 @@ flowchart TD
 ## 8. Key Files Reference
 
 | File | Responsibility |
-|---|---|
+| --- | --- |
 | `src/pages/admin/AdminAuth.tsx` | All 7 view states, form handlers |
 | `src/components/auth/AuthProvider.tsx` | Session bootstrap, role fetch (3-tier), `signOut`, token refresh guard |
 | `src/hooks/useAdminAuth.ts` | `logout()` helper used by sidebar; wraps `signOut` + redirect |

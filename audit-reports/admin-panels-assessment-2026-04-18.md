@@ -501,3 +501,183 @@ The module should be treated as functional but not yet fully trustworthy for gov
 ## Assessment Limitation
 
 No authenticated admin credentials were available during this audit. Because of that, authenticated CRUD behavior was validated through code-path inspection, build verification, and test execution evidence rather than a full signed-in manual browser session across all modules.
+
+## Addendum: Analytics, Dashboard Accuracy, and PostHog Integration
+
+### Executive Finding
+
+The current admin analytics/dashboard layer is not reliably "fetching from PostHog." PostHog exists only as a client-side capture library in the current codebase, while the admin dashboard and analytics pages read from Supabase tables. That means dashboard accuracy currently depends on a database event pipeline that is incomplete, mismatched, or undocumented in this repository.
+
+### Confirmed Operational
+
+- PostHog initialization is consent-gated through [CookieConsentProvider.tsx](C:\Users\aayus\Desktop\main\apps\web\src\components\cookies\CookieConsentProvider.tsx:99) and [posthog.ts](C:\Users\aayus\Desktop\main\apps\web\src\lib\posthog.ts:20).
+- The PostHog client is initialized only after `"all"` consent and uses a production `/ingest` host proxy in [posthog.ts](C:\Users\aayus\Desktop\main\apps\web\src\lib\posthog.ts:10).
+- The admin dashboard does show an explicit degraded-data warning when a query promise rejects in [AdminDashboard.tsx](C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminDashboard.tsx:113).
+
+### Requires Attention/Fix
+
+#### Critical: Admin dashboard is not actually backed by PostHog
+
+Files:
+- [posthog.ts](C:\Users\aayus\Desktop\main\apps\web\src\lib\posthog.ts:45)
+- [AdminDashboard.tsx](C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminDashboard.tsx:113)
+- [AdminAnalytics.tsx](C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminAnalytics.tsx:387)
+
+Evidence:
+
+- PostHog client code only initializes and exposes `posthog.capture(...)`.
+- The admin dashboard reads from Supabase tables/functions such as `projects`, `leads`, `blog_posts`, `website_events`, and `get_total_media_bytes`.
+- The discovery analytics page reads `discovery_analytics_sessions` and `discovery_analytics_events`.
+- Repo-wide search found no browser-side admin query to PostHog and no server-side PostHog reporting sync implementation in the repo.
+
+Impact:
+
+- If the expectation is "dashboard numbers come from PostHog," that expectation is false in the current codebase.
+- PostHog may be collecting events, but the admin surfaces are not using it as the reporting source of truth.
+
+Recommendation:
+
+- Either:
+  - explicitly declare Supabase reporting tables as the current source of truth and maintain them properly, or
+  - complete the planned PostHog reporting bridge and make PostHog the true analytics source of truth.
+
+#### Critical: Discovery analytics source is internally mismatched
+
+Files:
+- [tracker.ts](C:\Users\aayus\Desktop\main\apps\web\src\addons\discovery\infrastructure\analytics\tracker.ts:4)
+- [AdminAnalytics.tsx](C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminAnalytics.tsx:387)
+- [2026-04-08-posthog-analytics-replan.md](C:\Users\aayus\Desktop\main\docs\plans\2026-04-08-posthog-analytics-replan.md:18)
+
+Evidence:
+
+- Discovery tracker writes to `addon_events` and `addon_sessions`.
+- Admin discovery analytics reads from `discovery_analytics_sessions` and `discovery_analytics_events`.
+- The repo plan explicitly calls out this mismatch: "Discovery analytics must stop writing to mismatched legacy tables (`addon_*` vs `discovery_analytics_*`)."
+
+Impact:
+
+- The admin analytics screen can be stale, empty, or disconnected from the actual events being recorded by the product.
+- Conversion/funnel numbers in admin analytics cannot currently be trusted without verifying production data independently.
+
+Recommendation:
+
+- Unify capture and reporting around one schema.
+- If PostHog is the future source of truth, stop direct writes to `addon_*` and replace admin reads with normalized reporting tables populated from PostHog.
+
+#### High: The intended PostHog architecture is documented but not implemented
+
+Files:
+- [2026-04-08-posthog-analytics-replan.md](C:\Users\aayus\Desktop\main\docs\plans\2026-04-08-posthog-analytics-replan.md:5)
+- [2026-04-08-posthog-analytics-replan.md](C:\Users\aayus\Desktop\main\docs\plans\2026-04-08-posthog-analytics-replan.md:18)
+
+Evidence:
+
+- The plan states that PostHog should become the "single source of truth for product analytics."
+- The same plan says admin dashboards should use a secure reporting bridge, not raw browser-side PostHog access.
+- I found no `posthog-reporting-sync` function and no `analytics_reporting_daily` reporting table implementation in the repo.
+
+Impact:
+
+- The current architecture is in a transitional state.
+- Team members may believe PostHog migration is complete when it is not.
+
+Recommendation:
+
+- Treat the current implementation as partial/incomplete.
+- Do not label admin analytics as PostHog-backed until the bridge exists and admin pages read from it.
+
+#### High: PostHog pageview capture is disabled, but no equivalent local writer was found for dashboard page-view counts
+
+Files:
+- [posthog.ts](C:\Users\aayus\Desktop\main\apps\web\src\lib\posthog.ts:31)
+- [AdminDashboard.tsx](C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminDashboard.tsx:113)
+- [20260313000000_production_alignment.sql](C:\Users\aayus\Desktop\main\supabase\migrations\20260313000000_production_alignment.sql:19)
+
+Evidence:
+
+- `capture_pageview: false` disables automatic PostHog pageview tracking.
+- Dashboard `Page Views` KPI reads from `website_events` filtered by `event_type = "page_view"`.
+- The repo contains the `website_events` table migration, but I did not find a corresponding writer in application code that inserts page views into that table.
+- Repo-wide search also found no `captureEvent(...)` callers beyond its definition in `posthog.ts`.
+
+Impact:
+
+- The dashboard page-view metric may be undercounted, permanently zero, or dependent on an external process not represented in this codebase.
+
+Recommendation:
+
+- Implement one clear page-view path:
+  - either manual PostHog page tracking plus reporting sync,
+  - or a direct `website_events` writer in the router layer.
+- Until then, treat dashboard page-view counts as unverified.
+
+#### High: Daily chart ordering logic in discovery analytics is date-fragile
+
+File:
+- [AdminAnalytics.tsx](C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminAnalytics.tsx:488)
+
+Evidence:
+
+- Daily buckets are keyed by `format(new Date(s.started_at), 'MMM d')`.
+- They are then sorted with `new Date(a.date).getTime()`.
+- This drops the year and relies on browser parsing of partial date strings.
+
+Impact:
+
+- Cross-year or locale-sensitive date ranges can sort incorrectly.
+- Trend charts can silently display misleading chronology.
+
+Recommendation:
+
+- Store bucket keys as ISO dates like `yyyy-MM-dd`.
+- Use formatted labels only at render time.
+
+#### Medium: Lead-to-session linking in admin analytics is currently nonfunctional
+
+File:
+- [AdminAnalytics.tsx](C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminAnalytics.tsx:1730)
+
+Evidence:
+
+- The code intended to find a linked session for a selected lead currently returns `false` unconditionally.
+
+Impact:
+
+- Operators cannot validate a lead against its originating analytics session through the admin detail flow.
+- This weakens attribution debugging and funnel QA.
+
+Recommendation:
+
+- Implement matching using the correct shared identifier, likely `session_id` or a normalized reporting join key.
+
+#### Medium: Supabase types are out of sync with analytics tables used by admin code
+
+Files:
+- [types.ts](C:\Users\aayus\Desktop\main\apps\web\src\integrations\supabase\types.ts:1)
+- [AdminAnalytics.tsx](C:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminAnalytics.tsx:387)
+- [tracker.ts](C:\Users\aayus\Desktop\main\apps\web\src\addons\discovery\infrastructure\analytics\tracker.ts:4)
+
+Evidence:
+
+- The generated Supabase types file includes neither `addon_sessions`/`addon_events` nor `discovery_analytics_sessions`/`discovery_analytics_events`.
+- Admin analytics and tracker code still reference those tables directly.
+
+Impact:
+
+- This reduces type safety exactly in the analytics area where schema drift is already present.
+
+Recommendation:
+
+- Regenerate Supabase types after analytics schema alignment.
+- Treat missing generated types as a schema-drift warning, not a cosmetic issue.
+
+### Bottom Line
+
+The analytics/dashboard layer should currently be described as:
+
+- `PostHog present for capture initialization`
+- `Supabase used for dashboard reporting`
+- `reporting bridge incomplete`
+- `discovery analytics data source mismatched`
+
+So the core accuracy risk is architectural, not just visual. The admin dashboard is not yet a trustworthy PostHog-backed analytics surface.

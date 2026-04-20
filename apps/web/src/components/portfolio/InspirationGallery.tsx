@@ -78,7 +78,8 @@ const InspirationGallery = () => {
             <motion.img 
               src={mood.image} 
               alt={mood.word}
-              className="h-full w-full object-cover transition-transform duration-[3000ms] group-hover:scale-110"
+              className="h-full w-full object-cover transition-transform group-hover:scale-110"
+              style={{ transitionDuration: "3000ms" }}
             />
             
             {/* Dark Overlay */}

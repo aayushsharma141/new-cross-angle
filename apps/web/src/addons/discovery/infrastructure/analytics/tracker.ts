@@ -1,7 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
+import { captureEvent } from "@/lib/posthog";
 import { v4 as uuidv4 } from "uuid";
 
 export const track = async (eventName: string, payload: Record<string, unknown>) => {
+    captureEvent(eventName, payload);
+
     try {
         await supabase.from("addon_events").insert({
             event_name: eventName,

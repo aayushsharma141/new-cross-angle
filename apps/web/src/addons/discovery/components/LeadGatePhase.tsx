@@ -42,6 +42,7 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                 name,
                 email,
                 phone,
+                session_id: sessionId,
                 consent: true,
                 results: {
                     archetype: archetype.name,
