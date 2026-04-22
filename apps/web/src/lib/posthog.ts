@@ -4,12 +4,10 @@ const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY || import.meta.env.NEXT_PUB
 const IS_PROD = import.meta.env.PROD;
 
 /**
- * In production/preview, we proxy PostHog requests through Vercel's Edge Network
- * via the /ingest rewrite in vercel.json. This bypasses many ad-blockers.
+ * All PostHog requests are proxied via /ingest to bypass ad-blockers.
+ * Handled by vite proxy locally, and vercel.json in production.
  */
-const POSTHOG_HOST = IS_PROD 
-  ? `${window.location.origin}/ingest` 
-  : (import.meta.env.VITE_POSTHOG_HOST || import.meta.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com');
+const POSTHOG_HOST = `${window.location.origin}/ingest`;
 
 let _initialized = false;
 
@@ -27,8 +25,9 @@ export const initPostHog = () => {
 
   posthog.init(POSTHOG_KEY, {
     api_host: POSTHOG_HOST,
+    defaults: '2026-01-30',
     person_profiles: 'identified_only', // RECOMMENDED: skip anonymous profiles for GDPR/CCPA
-    capture_pageview: false, // Pageviews are handled via router / manual capture
+    capture_pageview: true, // Let PostHog automatically capture $pageview, $pageleave, and scroll depth
     persistence: 'localStorage',
     autocapture: true,
     // Add Vercel-specific attribution if needed

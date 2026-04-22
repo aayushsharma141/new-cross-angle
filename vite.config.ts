@@ -12,6 +12,13 @@ export default defineConfig(async ({ mode, command }) => {
         server: {
             host: "::",
             port: 8080,
+            proxy: {
+                "/ingest": {
+                    target: "https://us.i.posthog.com",
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/ingest/, ""),
+                },
+            },
         },
         plugins,
         envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
