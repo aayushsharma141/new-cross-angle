@@ -49,7 +49,7 @@ const AdminAuth: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, role } = useAuth();
 
   // Countdown timer for resend cooldown
   useEffect(() => {
@@ -71,7 +71,8 @@ const AdminAuth: React.FC = () => {
       return;
     }
 
-    // Show error if role could not be resolved
+    // Show error if role could not be resolved — but do NOT redirect back to /admin
+    // This breaks the redirect loop: auth → admin → auth → admin...
     if (roleError) {
       toast({
         title: "Access Denied",
@@ -82,24 +83,29 @@ const AdminAuth: React.FC = () => {
       const newParams = new URLSearchParams(location.search);
       newParams.delete('error');
       navigate({ pathname: location.pathname, search: newParams.toString() }, { replace: true });
+      // Do NOT continue to the redirect logic below — stop here
       return;
-    }
-
-    // If user is already logged in and NOT in a special view, redirect to admin
-    if (user && !isSignedOut && view === 'login') {
-      setRedirecting(true);
-      navigate('/admin', { replace: true });
     }
 
     const hashParams = new URLSearchParams(location.hash.substring(1));
     if (hashParams.get('type') === 'recovery') {
       setView('reset-password');
+      return;
     }
 
     if (hashParams.get('error') === 'access_denied') {
       setView('expired');
+      return;
     }
-  }, [user, navigate, location, view, toast]);
+
+    // KEY FIX: Only redirect to /admin when BOTH user AND role are resolved.
+    // Previously, this fired as soon as `user` existed, racing ahead of role
+    // resolution and causing the "retrying... access denied" loop.
+    if (user && role && !isSignedOut && view === 'login') {
+      setRedirecting(true);
+      navigate('/admin', { replace: true });
+    }
+  }, [user, role, navigate, location, view, toast]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
