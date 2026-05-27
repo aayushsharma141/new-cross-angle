@@ -1,11 +1,6 @@
-/* ═══════════════════════════════════════════════
-   Interior Cost Estimator — Main Orchestrator
-   Fixed 3-panel split layout (Discovery-style)
-   Left 30%: Info  |  10%: Progress  |  60%: Content
-   ═══════════════════════════════════════════════ */
-
 import { useEffect, useRef } from "react";
 import { useCalculatorStore } from "./hooks/useCalculatorStore";
+import { X, ArrowLeft, ArrowRight } from "lucide-react";
 import { StepPropertyType } from "./steps/StepPropertyType";
 import { StepPropertyDetails } from "./steps/StepPropertyDetails";
 import { StepLocation } from "./steps/StepLocation";
@@ -14,8 +9,15 @@ import { StepServices } from "./steps/StepServices";
 import { StepAddons } from "./steps/StepAddons";
 import { StepTimeline } from "./steps/StepTimeline";
 import { StepResults } from "./steps/StepResults";
-import { THEME } from "./data/pricing-config";
+import { formatCurrency } from "./data/format-utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAnalytics } from "@/analytics/AnalyticsProvider";
+import { track } from "@/analytics/track";
+import { useToast } from "@/hooks/useToast";
+import { EstimatorBackground } from "@/addons/_shared/components/backgrounds/EstimatorBackground";
+import { ECOSYSTEM_COPY } from "@/addons/_shared/ecosystemCopy";
+import logoIcon from "@/assets/logo-icon.png";
+import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
 
 const STEP_LABELS = ["Type", "Details", "Location", "Investment", "Services", "Bespoke", "Timeline"];
 
@@ -29,50 +31,80 @@ const STEP_DESCRIPTIONS: Record<number, { title: string; subtitle: string }> = {
     6: { title: "Timeline & Contact", subtitle: "When do you plan to start, and how can we reach you?" },
 };
 
-const navBtnStyle = "px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-widest transition-all active:scale-[0.98]";
+interface CostEstimatorProps {
+    onBack?: () => void;
+}
 
-export function CostEstimator() {
+export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
+    const analytics = useAnalytics();
+    const { toast } = useToast();
     const {
         formData, currentStep, showResults, estimate,
-        canProceed, isSaving,
+        canProceed, validationMessage, isSaving,
+        discoveryApplied, discoveryName, discoveryRationale, dismissDiscovery,
         updateField, updateFields, nextStep, prevStep, goToStep,
-        reset, saveLead,
-    } = useCalculatorStore();
+        reset, saveLead, alcsEstimatorResponse,
+    } = useCalculatorStore(analytics);
+
+    const startedRef = useRef(false);
+    useEffect(() => {
+        if (!startedRef.current) {
+            startedRef.current = true;
+            track(analytics, "estimate_path_selected", { pathId: "calculator_started" });
+
+            if (discoveryApplied) {
+                const name = discoveryName || "your style profile";
+                toast({
+                    title: `Personalized for ${name}`,
+                    description:
+                        discoveryRationale ||
+                        "Pre-filled based on your style profile. Feel free to adjust anything.",
+                });
+            }
+        }
+    }, [analytics, toast, discoveryApplied, discoveryName, discoveryRationale]);
 
     useEffect(() => {
         if (showResults && estimate) {
             saveLead();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [showResults]);
+    }, [showResults, estimate, saveLead]);
 
-    // Refs for dynamic progress bar styles
-    const largeProgressBarRef = useRef<HTMLDivElement>(null);
-    const smallProgressBarRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const pct = ((currentStep + 1) / STEP_LABELS.length) * 100;
-        if (largeProgressBarRef.current) {
-            largeProgressBarRef.current.style.setProperty("--progress", `${pct}%`);
-        }
-        if (smallProgressBarRef.current) {
-            smallProgressBarRef.current.style.setProperty("--progress", `${pct}%`);
-        }
-    }, [currentStep]);
-
+    const progress = Math.round((currentStep / STEP_LABELS.length) * 100);
     const stepInfo = STEP_DESCRIPTIONS[currentStep] ?? STEP_DESCRIPTIONS[0];
 
-    /* ── Results mode: full-width, no side panels ── */
     if (showResults) {
         return (
-            <div className="w-full h-screen bg-site-bg overflow-y-auto font-sans relative">
-                <a href="/" className="absolute top-6 left-6 z-50 inline-flex items-center gap-2 px-4 py-2 bg-site-bg-card/50 backdrop-blur-md rounded-none text-xs font-bold uppercase tracking-widest text-site-text hover:bg-site-crimson hover:text-site-bg transition-all border border-site-border">
-                    <span>←</span> Home
-                </a>
-                <div className="max-w-4xl mx-auto px-6 py-10 lg:py-16">
+            <div className="w-full min-h-screen bg-[#faf8f5] text-[#1a1a1a] overflow-y-auto overflow-x-hidden font-sans relative flex justify-center items-start">
+                <EstimatorBackground />
+                
+                {/* Nav Header (Standalone) */}
+                <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4">
+                  <a
+                    href="/"
+                    className="flex items-center gap-2 sm:gap-3 shrink-0 group min-w-0 hover:opacity-75 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 rounded-lg"
+                    aria-label="Return to CrossAngle Home"
+                  >
+                    <img
+                      src={logoIcon}
+                      alt="Cross Angle Interior"
+                      className="h-11 md:h-16 w-auto transition-all duration-500 shrink-0 animate-in fade-in zoom-in duration-300"
+                    />
+                    <AnimatedLogo
+                      isScrolled={false}
+                      className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0 [&_span]:text-[#1a1a1a]"
+                    />
+                  </a>
+                </div>
+
+                <div className="w-full max-w-6xl px-6 pt-28 pb-16 relative z-10">
                     <StepResults
                         formData={formData}
                         estimate={estimate}
+                        discoveryApplied={discoveryApplied}
+                        discoveryName={discoveryName}
+                        discoveryRationale={discoveryRationale}
+                        alcsEstimatorResponse={alcsEstimatorResponse}
                         onReset={reset}
                         onBack={prevStep}
                     />
@@ -82,169 +114,214 @@ export function CostEstimator() {
     }
 
     return (
-        <div className="flex flex-col lg:flex-row w-full h-screen bg-site-bg font-sans overflow-hidden text-site-text">
+        <div className="h-[100dvh] grid grid-cols-1 md:grid-cols-[280px_1fr] bg-[#faf8f5] font-sans text-[#1a1a1a] relative overflow-hidden">
+            {/* Dark Premium Background */}
+            <EstimatorBackground />
 
-            {/* ═══ LEFT PANEL ═══ */}
-            <div
-                className="hidden lg:flex lg:w-[30%] min-w-[300px] h-full flex-col justify-between border-r border-site-border p-12 relative overflow-hidden shrink-0 bg-gradient-to-b from-site-bg-card to-site-bg"
-            >
-                {/* Subtle dot pattern overlay */}
-                <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle,_#fff_1px,_transparent_1px)] bg-[length:20px_20px]" />
-
-                <div className="relative z-10">
-                    <div className="text-[10px] text-site-crimson font-black uppercase tracking-[0.4em] mb-4">
+            {/* Sidebar */}
+            <aside aria-label="Estimator progress" className="hidden md:flex flex-col bg-[#ffffff] border-r border-[#e8e4dd] p-8 sticky top-0 h-[100dvh] overflow-y-auto z-20 shadow-[4px_0_16px_rgba(0,0,0,0.02)]">
+                <div className="flex items-center gap-2 mb-8">
+                    <img src={logoIcon} alt="CrossAngle Logo" className="h-5 w-auto shrink-0 animate-in fade-in duration-300" />
+                    <h1 className="text-[14px] tracking-[0.08em] uppercase text-[#8b6f47] font-semibold font-label m-0">
                         Cost Estimator
+                    </h1>
+                </div>
+                
+                {discoveryApplied && (
+                    <div role="status" aria-live="polite" className="mb-8 p-4 bg-site-gold-light rounded-[8px] border-l-[3px] border-[#8b6f47] text-[13px] relative bg-[#ffffff]/80 border border-[#1a1a1a]/[0.05]">
+                        <button type="button" onClick={dismissDiscovery} aria-label="Dismiss personalization banner" className="absolute top-2 right-2 text-[#8b6f47] hover:text-[#1a1a1a] transition-colors p-1 rounded-full hover:bg-[#8b6f47]/10">
+                            <X className="w-3 h-3" />
+                        </button>
+                        <span className="text-[9px] font-mono tracking-[0.2em] uppercase text-[#8b6f47] block mb-1">Discovery Blueprint</span>
+                        <strong className="text-[#1a1a1a]">Personalized for {discoveryName}</strong><br/>
+                        <span className="text-[#5a5a5a] mt-1 block">{discoveryRationale || ECOSYSTEM_COPY.estimatorWithBlueprint}</span>
                     </div>
-                    <h2 className="text-3xl font-black text-site-text-heading leading-tight tracking-tighter mb-6 uppercase">
-                        {stepInfo.title}
-                    </h2>
-                    <p className="text-site-text-muted text-sm leading-relaxed max-w-[240px]">
-                        {stepInfo.subtitle}
-                    </p>
+                )}
+
+                {/* Progress bar as in Discovery Engine */}
+                <div className="mb-8 relative">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-[#1a1a1a]/50">Journey</span>
+                        <motion.span
+                            key={progress}
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-[10px] font-mono text-[#8b6f47] font-semibold"
+                        >
+                            {progress}%
+                        </motion.span>
+                    </div>
+                    <div className="h-[2px] bg-[#1a1a1a]/[0.08] relative overflow-hidden rounded-full">
+                        <motion.div
+                            className="absolute inset-y-0 left-0 bg-[#8b6f47] shadow-[0_0_8px_rgba(139,111,71,0.3)]"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progress}%` }}
+                            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                        />
+                    </div>
                 </div>
 
-                <div className="relative z-10">
-                    <div className="w-10 h-0.5 bg-site-crimson/40 mb-6" />
-                    <h3 className="hidden lg:block text-xl font-serif font-bold text-site-text-heading mb-2">Estimate Your Dream Space</h3>
-                    <p className="text-[10px] text-site-text-meta font-bold uppercase tracking-[0.2em] leading-relaxed max-w-[200px]">
-                        Get a transparent, instant estimate for your interior design project. No hidden costs, just honest pricing.
-                    </p>
-                    {currentStep === 0 && (
-                        <a href="/" className="inline-flex items-center gap-2 mt-6 text-xs font-bold uppercase tracking-widest text-site-text hover:text-site-crimson transition-colors">
-                            <span className="text-lg">←</span> Home
-                        </a>
-                    )}
-                </div>
-            </div>
-
-            {/* ═══ MIDDLE PANEL ═══ */}
-            <div className="flex lg:flex-col lg:w-20 w-full h-auto lg:h-full items-center justify-between lg:justify-center border-b lg:border-b-0 lg:border-r border-site-border bg-site-bg-card/50 p-4 lg:p-0 relative shrink-0">
-                <div className="hidden lg:block absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px bg-site-border" />
-                <div
-                    ref={largeProgressBarRef}
-                    className="hidden lg:block absolute top-0 left-1/2 -translate-x-1/2 w-px bg-site-crimson transition-all duration-700 ease-out shadow-[0_0_15px_rgba(227, 83, 54,0.5)] h-[var(--progress)]"
-                />
-                <div className="lg:hidden absolute bottom-0 left-0 right-0 h-[2px] bg-site-border">
-                    <div
-                        ref={smallProgressBarRef}
-                        className="h-full bg-site-crimson transition-all duration-700 ease-out shadow-[0_0_10px_rgba(227, 83, 54,0.5)] w-[var(--progress)]"
+                {/* Stepper list with vertical spine line */}
+                <nav aria-label="Estimator steps">
+                <div className="relative">
+                    <div className="absolute left-[10px] top-[21px] bottom-[21px] w-[2px] bg-[#1a1a1a]/[0.08] -z-10" aria-hidden="true" />
+                    <motion.div 
+                        className="absolute left-[10px] top-[21px] w-[2px] bg-[#8b6f47] shadow-[0_0_8px_rgba(209,175,110,0.4)] origin-top -z-10"
+                        initial={{ scaleY: 0 }}
+                        animate={{ scaleY: currentStep / (STEP_LABELS.length - 1) }}
+                        style={{ bottom: "21px" }}
+                        transition={{ duration: 0.5, ease: "easeInOut" }}
+                        aria-hidden="true"
                     />
-                </div>
-
-                <div className="flex lg:flex-col items-center justify-between lg:justify-around lg:h-[85%] w-full relative z-10 px-4 lg:px-0">
-                    {STEP_LABELS.map((label, i) => {
-                        const done = i < currentStep;
-                        const active = i === currentStep;
-                        return (
-                            <button
-                                key={i}
-                                onClick={() => i < currentStep && goToStep(i)}
-                                title={label}
-                                className={`group flex flex-col items-center gap-1.5 transition-all outline-none ${i <= currentStep ? "cursor-pointer" : "cursor-default opacity-40"}`}
-                            >
-                                <div className={`
-                                    w-7 h-7 lg:w-8 lg:h-8 rounded-none flex items-center justify-center text-[10px] font-black transition-all duration-300
-                                    ${done ? "bg-site-crimson text-site-bg" : active ? "bg-site-crimson text-site-bg shadow-[0_0_15px_rgba(227, 83, 54,0.4)]" : "bg-site-bg-card text-site-text-meta border border-site-border"}
-                                    ${active ? "scale-110 ring-4 ring-site-crimson/20" : "scale-100"}
-                                `}>
-                                    {done ? "✓" : i + 1}
-                                </div>
-                                <span className={`
-                                    hidden lg:block text-[8px] font-black uppercase tracking-widest transition-colors duration-300
-                                    ${active ? "text-site-crimson" : done ? "text-site-text-muted" : "text-site-text-meta"}
-                                `}>
-                                    {label}
-                                </span>
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* ═══ RIGHT PANEL ═══ */}
-            <div className="flex-1 flex flex-col h-full relative overflow-hidden">
-                <div className="lg:hidden p-6 border-b border-site-border bg-site-bg/80 backdrop-blur-md">
-                    <div className="text-[9px] text-site-crimson font-black uppercase tracking-[0.3em] mb-1">
-                        {labelForStep(currentStep)}
-                    </div>
-                    <h2 className="text-xl font-black text-site-text-heading tracking-tight uppercase">
-                        {stepInfo.title}
-                    </h2>
-                </div>
-
-                <div className="flex-1 overflow-y-auto px-6 py-8 lg:px-16 lg:py-16 pb-32">
-                    <div className="max-w-2xl mx-auto">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={currentStep}
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                            >
-                                {currentStep === 0 && <StepPropertyType formData={formData} updateField={updateField} />}
-                                {currentStep === 1 && <StepPropertyDetails formData={formData} updateField={updateField} updateFields={updateFields} />}
-                                {currentStep === 2 && <StepLocation formData={formData} updateField={updateField} updateFields={updateFields} />}
-                                {currentStep === 3 && <StepBudget formData={formData} updateField={updateField} />}
-                                {currentStep === 4 && <StepServices formData={formData} updateField={updateField} />}
-                                {currentStep === 5 && <StepAddons formData={formData} updateField={updateField} />}
-                                {currentStep === 6 && <StepTimeline formData={formData} updateField={updateField} />}
-                            </motion.div>
-                        </AnimatePresence>
-                    </div>
-                </div>
-
-                <div className="absolute bottom-0 left-0 right-0 border-t border-site-border bg-site-bg/90 backdrop-blur-2xl p-4 pb-6 lg:px-16 lg:py-6 flex justify-between items-center z-20">
-                    <button
-                        onClick={prevStep}
-                        disabled={currentStep === 0}
-                        className={`
-                            ${navBtnStyle} text-site-text-muted border border-site-border hover:text-site-crimson hover:border-site-crimson/50 rounded-none
-                            ${currentStep === 0 ? "opacity-0 pointer-events-none" : "opacity-100"}
-                        `}
-                    >
-                        Back
-                    </button>
-
-                    <div className="hidden sm:flex flex-col items-center">
-                        <div className="text-[10px] text-site-text-meta font-black uppercase tracking-widest mb-1.5 grayscale opacity-50">
-                            Progress
-                        </div>
-                        <div className="flex gap-1">
-                            {STEP_LABELS.map((_, i) => (
-                                <div
+                    <ol className="space-y-1 relative z-10 m-0 p-0 list-none">
+                        {STEP_LABELS.map((label, i) => {
+                            const done = i < currentStep;
+                            const active = i === currentStep;
+                            const isClickable = i <= currentStep;
+                            return (
+                                <li 
                                     key={i}
-                                    className={`w-4 h-1 rounded-none transition-all duration-500 ${i <= currentStep ? "bg-site-crimson" : "bg-site-border"}`}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={nextStep}
-                        disabled={!canProceed || isSaving}
-                        className={`
-                            ${navBtnStyle} min-w-[140px] shadow-lg rounded-none
-                            ${canProceed ? "bg-site-crimson text-site-bg hover:bg-site-crimson/90 shadow-site-crimson/10" : "bg-site-bg-card text-site-text-meta cursor-not-allowed"}
-                        `}
-                    >
-                        {isSaving ? (
-                            <span className="flex items-center gap-2">
-                                <span className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                                Please wait
-                            </span>
-                        ) : currentStep === STEP_LABELS.length - 1 ? (
-                            "Get Estimate →"
-                        ) : (
-                            "Continue →"
-                        )}
-                    </button>
+                                    role="button"
+                                    tabIndex={isClickable ? 0 : -1}
+                                    aria-current={active ? "step" : undefined}
+                                    aria-label={`Step ${i + 1}: ${label}${done ? " (completed)" : active ? " (current)" : ""}`}
+                                    onClick={() => isClickable && goToStep(i)}
+                                    onKeyDown={(e) => { if (isClickable && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); goToStep(i); } }}
+                                    className={`flex items-center gap-3 py-2.5 text-[14px] transition-all duration-200 rounded-md px-1 -mx-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2 ${
+                                        isClickable 
+                                            ? "cursor-pointer text-[#1a1a1a] hover:text-[#8b6f47] hover:bg-[#8b6f47]/[0.04]" 
+                                            : "cursor-not-allowed text-[#5a5a5a]/40"
+                                    } ${active ? "text-[#1a1a1a] font-semibold" : done ? "text-[#8b6f47]" : ""}`}
+                                >
+                                    <div className={`w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center text-[11px] font-semibold shrink-0 transition-all duration-300 bg-white ${
+                                        active 
+                                            ? "border-[#8b6f47] bg-[#8b6f47] text-white shadow-[0_0_8px_rgba(209,175,110,0.4)]" 
+                                            : done 
+                                                ? "border-[#8b6f47] text-[#8b6f47]" 
+                                                : "border-[#1a1a1a]/[0.08] text-[#5a5a5a]/40"
+                                    }`} aria-hidden="true">
+                                        {done ? "✓" : i + 1}
+                                    </div>
+                                    <span>{label}</span>
+                                </li>
+                            );
+                        })}
+                    </ol>
                 </div>
-            </div>
+                </nav>
+
+                {/* Footer text pushed to bottom by mt-auto */}
+                <div className="mt-auto pt-4 border-t border-[#e8e4dd]">
+                    <p className="text-[10px] text-[#5a5a5a] leading-relaxed tracking-wide">
+                        Progress saved automatically.<br />
+                        You can leave and return anytime.
+                    </p>
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <main className="p-6 sm:p-8 md:px-[56px] md:py-[48px] w-full max-w-[760px] mx-auto h-[100dvh] flex flex-col relative z-10 overflow-y-auto scroll-smooth" aria-label="Estimator form">
+                {/* Mobile Header */}
+                <div className="md:hidden mb-6 border-b border-[#1a1a1a]/[0.06] pb-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <h1 className="text-[12px] tracking-[0.1em] uppercase text-[#8b6f47] font-semibold m-0">Cost Estimator</h1>
+                        <span className="text-[10px] font-mono text-[#8b6f47] font-semibold">{progress}%</span>
+                    </div>
+                    {/* Mobile progress bar */}
+                    <div className="h-[3px] bg-[#e8e4dd] rounded-full overflow-hidden mb-3">
+                        <motion.div
+                            className="h-full bg-[#8b6f47] rounded-full"
+                            animate={{ width: `${progress}%` }}
+                            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-[22px] h-[22px] rounded-full border-[1.5px] border-[#8b6f47] bg-[#8b6f47] text-white flex items-center justify-center text-[11px] font-semibold shrink-0 shadow-[0_0_8px_rgba(139,111,71,0.3)]" aria-hidden="true">
+                            {currentStep + 1}
+                        </div>
+                        <span className="text-[#1a1a1a] font-semibold text-[14px]">{STEP_LABELS[currentStep]}</span>
+                    </div>
+                </div>
+
+                <div className="flex-1 min-h-0">
+                    <div className="text-[12px] tracking-[0.1em] uppercase text-[#8b6f47] font-bold mb-2 font-mono" aria-hidden="true">Step {currentStep + 1} of {STEP_LABELS.length}</div>
+                    <h2 className="text-[28px] sm:text-[32px] md:text-[36px] font-semibold m-0 mb-2 tracking-tight font-serif text-[#1a1a1a]">{stepInfo.title}</h2>
+                    <p className="text-[15px] sm:text-[16px] md:text-[18px] text-[#1a1a1a]/70 font-medium mb-8 sm:mb-10">{stepInfo.subtitle}</p>
+                    {currentStep === 0 && (
+                        <div className="mb-8 rounded-[8px] border border-[#e8e4dd] bg-white/80 p-4 text-sm text-[#5a5a5a] shadow-[0_4px_18px_rgba(0,0,0,0.03)]">
+                            <span className="text-[#8b6f47] font-semibold">
+                                {discoveryApplied ? "Blueprint connected: " : "Blueprint optional: "}
+                            </span>
+                            {discoveryApplied
+                                ? `This estimate will carry ${discoveryName || "your Discovery profile"} into service and finish recommendations.`
+                                : ECOSYSTEM_COPY.estimatorWithoutBlueprint}
+                        </div>
+                    )}
+
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={currentStep}
+                            initial={{ opacity: 0, x: 16 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -16 }}
+                            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                        >
+                            {currentStep === 0 && <StepPropertyType formData={formData} updateField={updateField} />}
+                            {currentStep === 1 && <StepPropertyDetails formData={formData} updateField={updateField} updateFields={updateFields} />}
+                            {currentStep === 2 && <StepLocation formData={formData} updateField={updateField} updateFields={updateFields} />}
+                            {currentStep === 3 && <StepBudget formData={formData} updateField={updateField} />}
+                            {currentStep === 4 && <StepServices formData={formData} updateField={updateField} />}
+                            {currentStep === 5 && <StepAddons formData={formData} updateField={updateField} />}
+                            {currentStep === 6 && <StepTimeline formData={formData} updateField={updateField} />}
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
+
+                <div className="flex flex-col gap-2 mt-8 sm:mt-[40px] pt-[20px] sm:pt-[24px] border-t border-[#1a1a1a]/[0.06]">
+                    {/* Validation message */}
+                    {validationMessage && (
+                        <motion.p
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-[13px] text-amber-700 font-medium text-right"
+                            role="alert"
+                            aria-live="polite"
+                        >
+                            {validationMessage}
+                        </motion.p>
+                    )}
+                    <div className="flex gap-3 justify-between">
+                        <button 
+                            type="button"
+                            onClick={() => currentStep === 0 ? onBack?.() : prevStep()} 
+                            disabled={currentStep === 0 && !onBack} 
+                            aria-label={currentStep === 0 ? "Go back" : `Go to previous step: ${STEP_LABELS[currentStep - 1] || ""}`}
+                            className="px-5 sm:px-[28px] py-[12px] sm:py-[14px] bg-transparent border border-[#e8e4dd] text-[#1a1a1a] rounded-[10px] text-[14px] sm:text-[15px] font-semibold transition-all duration-200 hover:bg-[#8b6f47]/[0.04] hover:border-[#8b6f47]/40 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                        >
+                            <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Back</span>
+                        </button>
+                        <button 
+                            type="button"
+                            onClick={nextStep} 
+                            disabled={!canProceed || isSaving}
+                            aria-label={currentStep === STEP_LABELS.length - 1 ? "Get your estimate" : `Continue to ${STEP_LABELS[currentStep + 1] || "next step"}`}
+                            className="px-5 sm:px-[28px] py-[12px] sm:py-[14px] bg-[#8b6f47] text-white hover:bg-[#705939] rounded-[10px] text-[14px] sm:text-[15px] font-semibold transition-all duration-200 shadow-[0_4px_12px_rgba(139,111,71,0.2)] hover:shadow-[0_6px_20px_rgba(139,111,71,0.3)] active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                        >
+                            {isSaving ? (
+                                <>
+                                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true" />
+                                    Processing...
+                                </>
+                            ) : (
+                                <>
+                                    {currentStep === STEP_LABELS.length - 1 ? "Get Estimate" : "Continue"}
+                                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </div>
+            </main>
         </div>
     );
-}
-
-function labelForStep(step: number) {
-    return STEP_LABELS[step] || "Step";
 }
