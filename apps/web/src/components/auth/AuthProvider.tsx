@@ -19,6 +19,8 @@ interface AuthContextType {
     /** True when the user has any platform role. Kept for backward compat. */
     isViewer: boolean;
     loading: boolean;
+    /** True from the moment logout is initiated until navigation completes. */
+    loggingOut: boolean;
     signOut: () => Promise<void>;
 }
 
@@ -30,6 +32,7 @@ const AuthContext = createContext<AuthContextType>({
     isEditor: false,
     isViewer: false,
     loading: true,
+    loggingOut: false,
     signOut: async () => { },
 });
 
@@ -134,6 +137,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [session, setSession] = useState<Session | null>(null);
     const [role, setRole] = useState<AppRole | null>(null);
     const [loading, setLoading] = useState(true);
+    const [loggingOut, setLoggingOut] = useState(false);
     const analytics = useAnalytics();
 
     /**
@@ -379,6 +383,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     const signOut = async () => {
+        // Set loggingOut FIRST — this tells AuthGuard and AdminLayout
+        // to show a transition overlay instead of redirecting/flashing.
+        setLoggingOut(true);
         if (supabase) {
             await supabase.auth.signOut();
         }
@@ -403,6 +410,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             isEditor: isEditorRole,
             isViewer: isViewerRole,
             loading,
+            loggingOut,
             signOut
         }}>
             {children}

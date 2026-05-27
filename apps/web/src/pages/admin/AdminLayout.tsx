@@ -15,7 +15,7 @@ import { useSystem } from "@/context/SystemContext";
 import { useNavigate } from "react-router-dom";
 
 const AdminLayout = (): JSX.Element | null => {
-    const { isAuthenticated, isLoading, role } = useAdminAuth();
+    const { isAuthenticated, isLoading, role, logout } = useAdminAuth();
     const { can } = usePermissions();
     const location = useLocation();
     const [paletteOpen, setPaletteOpen] = useState(false);
@@ -91,13 +91,7 @@ const AdminLayout = (): JSX.Element | null => {
                         Retry Verification
                     </button>
                     <button
-                        onClick={() => {
-                            // Sign out and go to login cleanly
-                            Object.keys(sessionStorage).forEach(key => {
-                                if (key.startsWith('user_role_')) sessionStorage.removeItem(key);
-                            });
-                            window.location.replace("/admin/auth?signed-out=true");
-                        }}
+                        onClick={logout}
                         className="px-6 py-2.5 border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-muted))] rounded-xl hover:text-[hsl(var(--admin-text))] hover:border-[hsl(var(--admin-text))]/30 transition-colors text-sm"
                     >
                         Logout
