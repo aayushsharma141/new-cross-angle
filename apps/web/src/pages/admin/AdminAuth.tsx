@@ -27,7 +27,7 @@ import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
 import { Image } from "@/components/ui/enhanced/image";
 import logoIcon from "@/assets/logo-icon.png";
 
-type AuthView = 'login' | 'forgot' | 'check-email' | 'reset-password' | 'reset-success' | 'expired' | 'signed-out';
+type AuthView = 'login' | 'forgot' | 'check-email' | 'reset-password' | 'reset-success' | 'expired' | 'logged-out';
 
 // ─── Remember Me TTL ───────────────────────────────────────────────────────────
 // Mirrors the constant in AuthProvider.tsx. Kept local to avoid a circular
@@ -35,8 +35,18 @@ type AuthView = 'login' | 'forgot' | 'check-email' | 'reset-password' | 'reset-s
 const SESSION_EXPIRES_KEY = 'admin_session_expires';
 const REMEMBER_ME_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
+// Compute initial view from URL params to prevent login→logout flash bounce
+function getInitialView(): AuthView {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('signed-out') === 'true') return 'logged-out';
+  const hash = new URLSearchParams(window.location.hash.substring(1));
+  if (hash.get('type') === 'recovery') return 'reset-password';
+  if (hash.get('error') === 'access_denied') return 'expired';
+  return 'login';
+}
+
 const AdminAuth: React.FC = () => {
-  const [view, setView] = useState<AuthView>('login');
+  const [view, setView] = useState<AuthView>(getInitialView);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -65,9 +75,9 @@ const AdminAuth: React.FC = () => {
     const isSignedOut = searchParams.get('signed-out') === 'true';
     const roleError = searchParams.get('error') === 'role_unavailable' || searchParams.get('error') === 'unauthorized_role';
 
-    // Check for sign-out confirmation first to prevent redirect race conditions
+    // Check for logout confirmation first to prevent redirect race conditions
     if (isSignedOut && !user) {
-      setView('signed-out');
+      setView('logged-out');
       return;
     }
 
@@ -76,7 +86,7 @@ const AdminAuth: React.FC = () => {
     if (roleError) {
       toast({
         title: "Access Denied",
-        description: "Your admin role could not be verified. Please sign in again or contact the administrator.",
+        description: "Your admin role could not be verified. Please login again or contact the administrator.",
         variant: "destructive",
       });
       // Clear the error param from URL
@@ -115,7 +125,7 @@ const AdminAuth: React.FC = () => {
       if (error) throw error;
 
       // ─── Remember Me TTL ──────────────────────────────────────────────────────────
-      // If "Keep me signed in" is UNCHECKED, write a 24-hour expiry timestamp.
+      // If "Keep me logged in" is UNCHECKED, write a 24-hour expiry timestamp.
       // AuthProvider reads this on every page load and signs the user out
       // automatically once the TTL has passed.
       // If CHECKED, clear any previous expiry so the session has no TTL.
@@ -127,7 +137,7 @@ const AdminAuth: React.FC = () => {
       // NOTE: Do NOT navigate here. The useEffect below watches `user` from AuthProvider
       // and redirects once the SIGNED_IN event has processed and role has been resolved.
       // Navigating immediately would race with onAuthStateChange, arriving at AdminLayout
-      // before role is fetched and causing the 6-second "Verifying access…" hang.
+      // before role is fetched and causing the "Verifying access…" hang.
     } catch (err: unknown) {
       const error = err as { message?: string };
       let brandMessage = "An error occurred during authentication.";
@@ -287,7 +297,7 @@ const AdminAuth: React.FC = () => {
           <AnimatePresence mode="wait">
             {view === 'login' && (
               <motion.div key="login" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
-                <h1 className="text-3xl font-serif text-white mb-1">Admin Sign In</h1>
+                <h1 className="text-3xl font-serif text-white mb-1">Admin Login</h1>
                 <p className="text-xs text-zinc-500 mb-8 font-sans uppercase tracking-[0.2em]">Authorized admins only</p>
                 <form onSubmit={handleLogin} className="space-y-5">
                   <div className="space-y-1.5">
@@ -312,10 +322,10 @@ const AdminAuth: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2 px-1">
                     <Checkbox id="remember" checked={rememberMe} onCheckedChange={(c) => setRememberMe(c === true)} className="border-[hsl(220_15%_18%)] data-[state=checked]:bg-[hsl(38_92%_50%)] data-[state=checked]:border-[hsl(38_92%_50%)]" />
-                    <label htmlFor="remember" className="text-[11px] text-zinc-500 cursor-pointer select-none">Keep me signed in</label>
+                    <label htmlFor="remember" className="text-[11px] text-zinc-500 cursor-pointer select-none">Keep me logged in</label>
                   </div>
                   <Button type="submit" disabled={loading || redirecting} className="w-full h-12 mt-4 bg-gradient-to-r from-[hsl(38_92%_50%)] to-[hsl(38_92%_45%)] hover:from-[hsl(38_92%_55%)] hover:to-[hsl(38_92%_50%)] text-black font-bold rounded-2xl flex items-center justify-center gap-2 group transition-all duration-300 shadow-lg shadow-[hsl(38_92%_50%)/20%]">
-                    {(loading || redirecting) ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In"}
+                    {(loading || redirecting) ? <Loader2 className="w-4 h-4 animate-spin" /> : "Login"}
                     {!(loading || redirecting) && <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
                   </Button>
                 </form>
@@ -338,7 +348,7 @@ const AdminAuth: React.FC = () => {
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send Secure Link"}
                     {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
                   </Button>
-                  <button type="button" onClick={() => setView('login')} className="w-full text-center text-xs text-zinc-500 hover:text-white transition-colors">Return to Sign In</button>
+                  <button type="button" onClick={() => setView('login')} className="w-full text-center text-xs text-zinc-500 hover:text-white transition-colors">Return to Login</button>
                 </form>
               </motion.div>
             )}
@@ -398,7 +408,7 @@ const AdminAuth: React.FC = () => {
                 </button>
 
                 <button type="button" onClick={() => setView('login')} className="w-full text-center text-xs text-zinc-600 hover:text-zinc-400 transition-colors">
-                  &larr; Return to Sign In
+                  &larr; Return to Login
                 </button>
               </motion.div>
             )}
@@ -414,19 +424,19 @@ const AdminAuth: React.FC = () => {
               </motion.div>
             )}
 
-            {view === 'signed-out' && (
-              <motion.div key="signed-out" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
+            {view === 'logged-out' && (
+              <motion.div key="logged-out" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
                 <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                   <ShieldCheck className="w-8 h-8 text-emerald-500" />
                 </div>
-                <h1 className="text-3xl font-serif text-white mb-2">Signed Out</h1>
-                <p className="text-sm text-zinc-500 mb-3 font-sans">You've been signed out securely.</p>
-                <p className="text-[11px] text-zinc-600 mb-8 font-sans">For your security, you must sign in again to access the admin panel.</p>
+                <h1 className="text-3xl font-serif text-white mb-2">Logged Out</h1>
+                <p className="text-sm text-zinc-500 mb-3 font-sans">You've been logged out securely.</p>
+                <p className="text-[11px] text-zinc-600 mb-8 font-sans">For your security, you must login again to access the admin panel.</p>
                 <Button
                   onClick={() => { setView('login'); navigate('/admin/auth', { replace: true }); }}
                   className="w-full h-12 bg-gradient-to-r from-[hsl(38_92%_50%)] to-[hsl(38_92%_45%)] hover:from-[hsl(38_92%_55%)] hover:to-[hsl(38_92%_50%)] text-black font-bold rounded-2xl flex items-center justify-center gap-2 group transition-all duration-300 shadow-lg shadow-[hsl(38_92%_50%)/20%]"
                 >
-                  Sign In Again
+                  Login Again
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Button>
               </motion.div>
@@ -458,7 +468,7 @@ const AdminAuth: React.FC = () => {
                 <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6"><ShieldCheck className="w-8 h-8 text-emerald-500" /></div>
                 <h1 className="text-3xl font-serif text-white mb-2">Password Updated</h1>
                 <p className="text-sm text-zinc-500 mb-8 font-sans">Your secure credentials have been successfully updated.</p>
-                <Button onClick={() => setView('login')} className="w-full h-12 bg-zinc-100 text-black font-bold rounded-2xl">Return to Sign In</Button>
+                <Button onClick={() => setView('login')} className="w-full h-12 bg-zinc-100 text-black font-bold rounded-2xl">Return to Login</Button>
               </motion.div>
             )}
           </AnimatePresence>

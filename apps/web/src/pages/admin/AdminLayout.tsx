@@ -100,7 +100,7 @@ const AdminLayout = (): JSX.Element | null => {
                         }}
                         className="px-6 py-2.5 border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-muted))] rounded-xl hover:text-[hsl(var(--admin-text))] hover:border-[hsl(var(--admin-text))]/30 transition-colors text-sm"
                     >
-                        Sign Out
+                        Logout
                     </button>
                 </div>
             </div>
