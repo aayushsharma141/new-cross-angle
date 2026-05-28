@@ -4,17 +4,17 @@
 
 @layer base {
   :root {
-    /* Admin Theme - Dark Luxury */
-    --admin-bg: 220 25% 5%;
-    --admin-surface: 220 20% 10%;
-    --admin-surface-hover: 220 20% 14%;
-    --admin-card: 220 18% 8%;
-    --admin-border: 220 15% 18%;
-    --admin-border-subtle: 220 15% 14%;
+    /* Admin Theme - Dark Luxury (warmed up for CRM usability) */
+    --admin-bg: 225 20% 6%;
+    --admin-surface: 222 18% 11%;
+    --admin-surface-hover: 222 18% 15%;
+    --admin-card: 222 16% 9.5%;
+    --admin-border: 222 14% 19%;
+    --admin-border-subtle: 222 14% 15%;
     
     --admin-text: 220 14% 96%;
-    --admin-text-muted: 220 10% 60%;
-    --admin-text-subtle: 220 8% 45%;
+    --admin-text-muted: 220 10% 62%;
+    --admin-text-subtle: 220 8% 46%;
     
     --admin-primary: 38 92% 50%;
     --admin-primary-hover: 38 92% 45%;
@@ -40,10 +40,21 @@
   .admin-theme {
     @apply bg-[hsl(var(--admin-bg))] text-[hsl(var(--admin-text))] min-h-screen;
   }
+
+  /* Global autofill fix for all inputs in admin theme */
+  .admin-theme input:-webkit-autofill,
+  .admin-theme input:-webkit-autofill:hover, 
+  .admin-theme input:-webkit-autofill:focus, 
+  .admin-theme input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px hsl(var(--admin-surface)) inset !important;
+    -webkit-text-fill-color: hsl(var(--admin-text)) !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
   
-  /* Admin Card - Consistent styling */
+  /* Admin Card - Consistent styling with subtle elevation */
   .admin-card {
     @apply rounded-xl border bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] backdrop-blur-sm;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.15), 0 1px 2px -1px rgb(0 0 0 / 0.15);
   }
   
   .admin-card-hover {
@@ -64,6 +75,7 @@
   .admin-btn-primary {
     @apply inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-[hsl(var(--admin-primary))] px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-[hsl(var(--admin-primary-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-primary))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-bg))] disabled:pointer-events-none disabled:opacity-50;
   }
+
   
   /* Admin Button - Secondary */
   .admin-btn-secondary {
@@ -77,7 +89,7 @@
   
   /* Admin Button - Danger */
   .admin-btn-danger {
-    @apply inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-[hsl(var(--admin-danger))] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[hsl(var(--admin-danger))] / 90% focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-danger))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-bg))] disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-lg bg-[hsl(var(--admin-danger))] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[hsl(var(--admin-danger)/0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-danger))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-bg))] disabled:pointer-events-none disabled:opacity-50;
   }
   
   /* Admin Badge */
@@ -103,37 +115,37 @@
   }
   
   .admin-table-row {
-    @apply border-b border-[hsl(var(--admin-border-subtle))] transition-colors hover:bg-[hsl(var(--admin-surface))] / 50;
+    @apply border-b border-[hsl(var(--admin-border-subtle))] transition-colors hover:bg-[hsl(var(--admin-surface)/0.5)];
   }
   
   .admin-table-cell {
     @apply px-4 py-3 text-[hsl(var(--admin-text))];
   }
   
-  /* Admin Typography */
+  /* Admin Typography - slightly larger for CRM usability */
   .admin-title {
     @apply text-3xl font-serif font-bold tracking-tight text-[hsl(var(--admin-text))];
   }
   
   .admin-subtitle {
-    @apply text-sm text-[hsl(var(--admin-text-muted))];
+    @apply text-[13px] text-[hsl(var(--admin-text-muted))] leading-relaxed;
   }
   
   /* Admin Status Colors */
   .admin-status-success {
-    @apply bg-[hsl(var(--admin-success-muted))] text-[hsl(var(--admin-success))] border border-[hsl(var(--admin-success))] / 20;
+    @apply bg-[hsl(var(--admin-success-muted))] text-[hsl(var(--admin-success))] border border-[hsl(var(--admin-success)/0.2)];
   }
   
   .admin-status-warning {
-    @apply bg-[hsl(var(--admin-warning-muted))] text-[hsl(var(--admin-warning))] border border-[hsl(var(--admin-warning))] / 20;
+    @apply bg-[hsl(var(--admin-warning-muted))] text-[hsl(var(--admin-warning))] border border-[hsl(var(--admin-warning)/0.2)];
   }
   
   .admin-status-danger {
-    @apply bg-[hsl(var(--admin-danger-muted))] text-[hsl(var(--admin-danger))] border border-[hsl(var(--admin-danger))] / 20;
+    @apply bg-[hsl(var(--admin-danger-muted))] text-[hsl(var(--admin-danger))] border border-[hsl(var(--admin-danger)/0.2)];
   }
   
   .admin-status-info {
-    @apply bg-[hsl(var(--admin-info-muted))] text-[hsl(var(--admin-info))] border border-[hsl(var(--admin-info))] / 20;
+    @apply bg-[hsl(var(--admin-info-muted))] text-[hsl(var(--admin-info))] border border-[hsl(var(--admin-info)/0.2)];
   }
   
   .admin-status-neutral {
@@ -144,7 +156,7 @@
 @layer utilities {
   /* Admin glass effect */
   .admin-glass {
-    @apply bg-[hsl(var(--admin-card))] / 80 backdrop-blur-xl border border-[hsl(var(--admin-border))] / 50;
+    @apply bg-[hsl(var(--admin-card)/0.8)] backdrop-blur-xl border border-[hsl(var(--admin-border)/0.5)];
   }
   
   /* Admin glow effect */
@@ -166,4 +178,13 @@
   .admin-chart-6 { color: hsl(270 60% 60%); }
   .admin-chart-7 { color: hsl(180 60% 50%); }
   .admin-chart-8 { color: hsl(330 70% 55%); }
+
+  /* Hide scrollbars globally while keeping scroll functional (touch-friendly) */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

@@ -15,10 +15,10 @@ export const CrmModule = () => {
 
   return (
     <ModuleLayout
-      title="CRM & Lead Pipeline"
-      description="Track leads, manage your sales pipeline, and monitor deal health."
+      title="Lead Operations Center"
+      description="Track leads, manage follow-ups, and monitor deal health across your pipeline."
       tabs={[
-        { label: "Pipeline", path: "/admin/crm/leads" },
+        { label: "Pipeline Board", path: "/admin/crm/leads" },
         { label: "Analytics", path: "/admin/crm/analytics" },
       ]}
     >

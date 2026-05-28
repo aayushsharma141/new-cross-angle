@@ -31,16 +31,74 @@ interface LeadPipelineProps {
   onLeadClick: (lead: Lead) => void;
 }
 
-const STATUS_META: Record<string, { label: string; color: string; dot: string }> = {
-  new:                    { label: "New",                   color: "text-blue-400",   dot: "bg-blue-400" },
-  contacted:              { label: "Contacted",             color: "text-zinc-400",   dot: "bg-zinc-400" },
-  qualified:              { label: "Qualified",             color: "text-cyan-400",   dot: "bg-cyan-400" },
-  consultation_scheduled: { label: "Consultation",          color: "text-violet-400", dot: "bg-violet-400" },
-  proposal_sent:          { label: "Proposal Sent",         color: "text-amber-400",  dot: "bg-amber-400" },
-  final_review:           { label: "Final Review",          color: "text-orange-400", dot: "bg-orange-400" },
-  negotiation:            { label: "Negotiation",           color: "text-yellow-400", dot: "bg-yellow-400" },
-  won:                    { label: "Won ✓",                 color: "text-emerald-400",dot: "bg-emerald-400" },
-  lost:                   { label: "Lost",                  color: "text-red-400",    dot: "bg-red-400" },
+// ─── Psychologically meaningful stage labels + distinct colors ────────────────
+const STATUS_META: Record<
+  string,
+  { label: string; color: string; dot: string; border: string; bg: string }
+> = {
+  new: {
+    label: "New Inquiry",
+    color: "text-blue-400",
+    dot: "bg-blue-400",
+    border: "border-t-blue-500/70",
+    bg: "bg-blue-500/[0.03]",
+  },
+  contacted: {
+    label: "Contact Attempted",
+    color: "text-slate-400",
+    dot: "bg-slate-400",
+    border: "border-t-slate-400/70",
+    bg: "bg-slate-500/[0.03]",
+  },
+  qualified: {
+    label: "Interested",
+    color: "text-cyan-400",
+    dot: "bg-cyan-400",
+    border: "border-t-cyan-500/70",
+    bg: "bg-cyan-500/[0.03]",
+  },
+  consultation_scheduled: {
+    label: "Req. Gathering",
+    color: "text-violet-400",
+    dot: "bg-violet-400",
+    border: "border-t-violet-500/70",
+    bg: "bg-violet-500/[0.03]",
+  },
+  proposal_sent: {
+    label: "Proposal Sent",
+    color: "text-amber-400",
+    dot: "bg-amber-400",
+    border: "border-t-amber-500/70",
+    bg: "bg-amber-500/[0.03]",
+  },
+  final_review: {
+    label: "Final Review",
+    color: "text-orange-400",
+    dot: "bg-orange-400",
+    border: "border-t-orange-500/70",
+    bg: "bg-orange-500/[0.03]",
+  },
+  negotiation: {
+    label: "Negotiation",
+    color: "text-yellow-400",
+    dot: "bg-yellow-400",
+    border: "border-t-yellow-500/70",
+    bg: "bg-yellow-500/[0.03]",
+  },
+  won: {
+    label: "Won ✓",
+    color: "text-emerald-400",
+    dot: "bg-emerald-400",
+    border: "border-t-emerald-500/70",
+    bg: "bg-emerald-500/[0.03]",
+  },
+  lost: {
+    label: "Lost",
+    color: "text-red-400",
+    dot: "bg-red-400",
+    border: "border-t-red-500/70",
+    bg: "bg-red-500/[0.03]",
+  },
 };
 
 interface ColumnProps {
@@ -52,7 +110,13 @@ interface ColumnProps {
 
 const Column = ({ id, leads, onLeadClick, onLeadMove }: ColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({ id });
-  const meta = STATUS_META[id] ?? { label: id, color: "text-zinc-400", dot: "bg-zinc-400" };
+  const meta = STATUS_META[id] ?? {
+    label: id,
+    color: "text-zinc-400",
+    dot: "bg-zinc-400",
+    border: "border-t-zinc-600",
+    bg: "bg-zinc-600/5",
+  };
 
   // Column-level stats
   const staleCount = leads.filter((l) => getLeadHealth(l).isStale).length;
@@ -61,17 +125,19 @@ const Column = ({ id, leads, onLeadClick, onLeadMove }: ColumnProps) => {
   return (
     <div
       className={cn(
-        "flex flex-col min-w-[270px] max-w-[300px] w-full rounded-xl border border-[hsl(var(--admin-border))] transition-colors",
-        "bg-[hsl(var(--admin-surface))/40] backdrop-blur-sm",
-        isOver && "border-[hsl(var(--brand-primary))]/40 bg-[hsl(var(--brand-primary))]/5"
+        "flex flex-col min-w-[260px] max-w-[280px] w-full rounded-xl transition-all duration-200",
+        "border border-[hsl(var(--admin-border))]/40 border-t-[3px]",
+        meta.border,
+        meta.bg,
+        isOver && "border-[hsl(var(--admin-primary))]/40 bg-[hsl(var(--admin-primary))]/5 shadow-lg shadow-amber-500/5"
       )}
     >
       {/* Column Header */}
-      <div className="p-3 border-b border-[hsl(var(--admin-border))] shrink-0">
+      <div className="px-3.5 py-3 border-b border-[hsl(var(--admin-border))]/30 shrink-0">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <span className={cn("w-2 h-2 rounded-full shrink-0", meta.dot)} />
-            <h3 className={cn("font-semibold text-xs uppercase tracking-wider", meta.color)}>
+            <h3 className={cn("font-semibold text-[11px] uppercase tracking-wider", meta.color)}>
               {meta.label}
             </h3>
           </div>
@@ -79,20 +145,20 @@ const Column = ({ id, leads, onLeadClick, onLeadMove }: ColumnProps) => {
             {staleCount > 0 && (
               <span
                 title={`${staleCount} stale lead${staleCount > 1 ? "s" : ""}`}
-                className="flex items-center gap-0.5 text-[9px] text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded"
+                className="flex items-center gap-0.5 text-[9px] font-semibold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-md"
               >
                 <AlertTriangle className="h-2.5 w-2.5" /> {staleCount}
               </span>
             )}
-            <span className="text-[10px] font-semibold bg-muted/50 text-muted-foreground px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-bold bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-muted))] px-2 py-0.5 rounded-md border border-[hsl(var(--admin-border))]/30">
               {leads.length}
             </span>
           </div>
         </div>
         {/* Column pipeline value */}
         {columnValue > 0 && (
-          <p className="text-[10px] text-muted-foreground/70 mt-1 pl-3.5">
-            {formatINR(columnValue)}
+          <p className="text-[10px] text-[hsl(var(--admin-text-subtle))] mt-1.5 pl-4 font-medium">
+            Pipeline: {formatINR(columnValue)}
           </p>
         )}
       </div>
@@ -101,8 +167,8 @@ const Column = ({ id, leads, onLeadClick, onLeadMove }: ColumnProps) => {
       <div
         ref={setNodeRef}
         className={cn(
-          "flex-1 overflow-y-auto p-2 space-y-2 min-h-[160px] max-h-[calc(100vh-300px)]",
-          "scrollbar-thin scrollbar-thumb-muted-foreground/10 scrollbar-track-transparent"
+          "flex-1 overflow-y-auto p-2 space-y-2 min-h-[160px]",
+          "scrollbar-thin scrollbar-thumb-[hsl(var(--admin-border))]/30 scrollbar-track-transparent"
         )}
       >
         <SortableContext items={leads.map((l) => l.id)} strategy={verticalListSortingStrategy}>
@@ -114,9 +180,9 @@ const Column = ({ id, leads, onLeadClick, onLeadMove }: ColumnProps) => {
         {leads.length === 0 && (
           <div
             className={cn(
-              "h-24 flex items-center justify-center text-[10px] text-muted-foreground/50",
-              "border-2 border-dashed border-muted/30 rounded-lg transition-colors",
-              isOver && "border-[hsl(var(--brand-primary))]/30 bg-[hsl(var(--brand-primary))]/5 text-primary/50"
+              "h-24 flex items-center justify-center text-[11px] text-[hsl(var(--admin-text-subtle))]",
+              "border-2 border-dashed border-[hsl(var(--admin-border))]/20 rounded-lg transition-colors",
+              isOver && "border-[hsl(var(--admin-primary))]/30 bg-[hsl(var(--admin-primary))]/5 text-[hsl(var(--admin-primary))]/60"
             )}
           >
             {isOver ? "Drop here" : "No leads"}
@@ -176,7 +242,7 @@ export function LeadPipeline({ leads, onLeadMove, onLeadClick }: LeadPipelinePro
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex gap-3 overflow-x-auto pb-4 h-[calc(100vh-240px)] items-start px-0.5">
+      <div className="flex gap-3 overflow-x-auto pb-4 h-full items-start px-0.5">
         {columns.map((status) => (
             <Column
             key={status}
