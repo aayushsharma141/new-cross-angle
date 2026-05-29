@@ -13,7 +13,7 @@ export const EstimatorModule = () => {
             description="Manage pricing configurations and incoming project estimates."
             tabs={[
                 { label: "Lead Management", path: "/admin/estimator/leads" },
-                { label: "Rate Management", path: "/admin/estimator/rates" },
+                { label: "Configuration", path: "/admin/estimator/config" },
             ]}
         >
             <Outlet />

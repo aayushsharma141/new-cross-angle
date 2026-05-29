@@ -18,6 +18,7 @@ import {
 import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { getOptimizedUrl } from "@/lib/cdn";
+import type { FileObject } from "@supabase/storage-js";
 
 interface MediaFile {
     id: string;
@@ -62,8 +63,8 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
 
             if (data && !error) {
                 const folderFiles = data
-                    .filter((file) => file.name !== ".emptyFolderPlaceholder")
-                    .map((file) => {
+                    .filter((file: FileObject) => file.name !== ".emptyFolderPlaceholder")
+                    .map((file: FileObject) => {
                         const { data: { publicUrl } } = supabase.storage
                             .from(BUCKET_NAME)
                             .getPublicUrl(`${folder}/${file.name}`);
@@ -94,24 +95,41 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
             const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
             const filePath = `${folder}/${fileName}`;
 
-            const { error } = await supabase.storage
+            const { error: storageError } = await supabase.storage
                 .from(BUCKET_NAME)
                 .upload(filePath, file);
 
-            if (error) throw error;
+            if (storageError) throw storageError;
 
             const { data: { publicUrl } } = supabase.storage
                 .from(BUCKET_NAME)
                 .getPublicUrl(filePath);
 
+            const { data: userData } = await supabase.auth.getUser();
+
+            const { error: dbError } = await supabase.from('media').insert({
+                url: publicUrl,
+                file_name: filePath,
+                file_type: file.type || 'application/octet-stream',
+                size_bytes: file.size,
+                alt: file.name,
+                title: file.name,
+                uploaded_by: userData?.user?.id
+            });
+
+            if (dbError && dbError.code !== '23505') {
+                // Compensating delete if DB insert fails
+                await supabase.storage.from(BUCKET_NAME).remove([filePath]);
+                throw new Error(`Database record failed: ${dbError.message}`);
+            }
+
             toast({ title: "Upload successful" });
             onSelect(publicUrl);
             onOpenChange(false);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast({
                 title: "Upload failed",
-                description: error.message,
+                description: error instanceof Error ? error.message : "Unknown error",
                 variant: "destructive",
             });
         } finally {
@@ -170,6 +188,7 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
                     </Select>
                     <input
                         type="file"
+                        title="Upload image file"
                         ref={fileInputRef}
                         onChange={(e) => handleUpload(e.target.files)}
                         accept="image/*"
@@ -185,7 +204,7 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
                 <div className="flex-1 overflow-y-auto min-h-0">
                     {isLoading ? (
                         <div className="flex items-center justify-center h-40">
-                            <Loader2 className="w-6 h-6 animate-spin -admin-primary" />
+                            <Loader2 className="w-6 h-6 animate-spin text-[hsl(var(--admin-primary))]" />
                         </div>
                     ) : filteredFiles.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground">
@@ -199,8 +218,8 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
                                     key={file.id}
                                     onClick={() => handleSelect(file.url)}
                                     className={`aspect-square relative rounded-lg overflow-hidden border-2 transition-all ${selectedUrl === file.url
-                                            ? "-admin-primary ring-2 -admin-primary/30"
-                                            : "border-transparent hover:-admin-primary/50"
+                                            ? "border-[hsl(var(--admin-primary))] ring-2 ring-[hsl(var(--admin-primary)/0.3)]"
+                                            : "border-transparent hover:border-[hsl(var(--admin-primary)/0.5)]"
                                         }`}
                                 >
                                     <img
@@ -210,8 +229,8 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
                                         loading="lazy"
                                     />
                                     {selectedUrl === file.url && (
-                                        <div className="absolute inset-0 -admin-primary/20 flex items-center justify-center">
-                                            <Check className="w-8 h-8 -admin-primary bg-background rounded-full p-1" />
+                                        <div className="absolute inset-0 bg-[hsl(var(--admin-primary)/0.2)] flex items-center justify-center">
+                                            <Check className="w-8 h-8 text-[hsl(var(--admin-primary))] bg-background rounded-full p-1" />
                                         </div>
                                     )}
                                 </button>

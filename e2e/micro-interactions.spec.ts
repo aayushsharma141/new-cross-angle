@@ -370,7 +370,7 @@ test.describe('Tooltip Micro-Interactions', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Switch Toggle Micro-Interactions', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/admin/settings');
+    await page.goto('/admin/system/settings');
     await dismissCookieBanner(page);
   });
   test('Switch slides on toggle', async ({ page }) => {

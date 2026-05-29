@@ -6,14 +6,26 @@ import { Lightbulb } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-const FUNNEL_ORDER = ["new", "contacted", "qualified", "proposal", "won", "lost"];
-const FUNNEL_COLORS: Record<string, string> = {
-    new: "hsl(var(--admin-info))",
-    contacted: "hsl(var(--admin-primary))",
-    qualified: "hsl(var(--admin-success))",
-    proposal: "hsl(var(--admin-warning))",
-    won: "hsl(142 71% 45%)",
-    lost: "hsl(var(--admin-danger))",
+const FUNNEL_ORDER = ["new", "in_conversation", "meeting_planned", "quote_sent", "closing", "won", "lost"];
+
+const COLORS: Record<string, string> = {
+  new: "hsl(var(--admin-primary))",
+  in_conversation: "hsl(var(--admin-primary))",
+  meeting_planned: "hsl(var(--admin-primary))",
+  quote_sent: "hsl(var(--admin-primary))",
+  closing: "hsl(var(--admin-primary))",
+  won: "hsl(var(--admin-success))",
+  lost: "hsl(var(--admin-error))"
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  new: "New",
+  in_conversation: "In Conversation",
+  meeting_planned: "Meeting Planned",
+  quote_sent: "Quote Sent",
+  closing: "Closing",
+  won: "Won",
+  lost: "Lost"
 };
 
 export function LeadFunnelChart() {
@@ -39,10 +51,10 @@ export function LeadFunnelChart() {
                     const prevVal = idx > 0 ? (counts[arr[idx - 1]] || val) : val;
                     const conversion = prevVal > 0 ? Math.round((val / prevVal) * 100) : 100;
                     return {
-                        name: s.charAt(0).toUpperCase() + s.slice(1),
+                        name: STATUS_LABELS[s] ?? (s.charAt(0).toUpperCase() + s.slice(1)),
                         value: val,
                         conversion: idx === 0 ? "100%" : `${conversion}%`,
-                        color: FUNNEL_COLORS[s] ?? "hsl(var(--admin-foreground))",
+                        color: COLORS[s] ?? "hsl(var(--admin-foreground))",
                     };
                 });
         },

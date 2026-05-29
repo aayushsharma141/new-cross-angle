@@ -26,7 +26,7 @@
     },
     {
       "source": "/sitemap.xml",
-      "destination": "https://xapjwemjbsrigeufxylj.supabase.co/functions/v1/sitemap"
+      "destination": "https://iuuivmwqodefdrrrewol.supabase.co/functions/v1/sitemap"
     },
     {
       "source": "/((?!api|sitemap\\.xml|assets|.*\\..*).*)",

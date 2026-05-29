@@ -3,6 +3,7 @@ import { Award, Users, ShieldCheck, Wrench, Package, HeadphonesIcon } from "luci
 import { cn } from "@/lib/utils";
 import { CountUp } from "@/components/ReactBits";
 import { motion } from "framer-motion";
+import { Image } from "@/components/ui/enhanced/image";
 
 const trustItems = [
   {
@@ -166,15 +167,19 @@ const TrustSection = () => {
                   className="flex flex-col items-center justify-center gap-2 px-6 md:px-8 mx-2 md:mx-3 group"
                 >
                   <div className="h-14 md:h-20 w-36 md:w-56 flex items-center justify-center mb-1">
-                    <img 
+                    <Image 
                       src={partner.logo} 
                       alt={partner.name} 
-                      className="max-w-full max-h-full object-contain transition-all duration-500 opacity-90 group-hover:opacity-100 group-hover:scale-105 filter brightness-110 contrast-110"
+                      className="w-full h-full"
+                      imageClassName="object-contain transition-all duration-500 opacity-90 group-hover:opacity-100 group-hover:scale-105 filter brightness-110 contrast-110"
+                      width={224}
+                      height={80}
+                      loading="lazy"
                     />
                   </div>
                   <div className="text-center">
                     <span className="block font-bold text-white text-sm md:text-base tracking-tight mb-0.5">{partner.name}</span>
-                    <span className="block text-[10px] text-white/40 font-medium uppercase tracking-[0.2em]">{partner.tagline}</span>
+                    <span className="block text-[10px] text-white/60 font-medium uppercase tracking-[0.2em]">{partner.tagline}</span>
                   </div>
                 </div>
               ))}

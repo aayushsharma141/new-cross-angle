@@ -21,58 +21,19 @@ import { MoreHorizontal, Eye, Mail, Phone, Trash2, Flame, Thermometer, Snowflake
 import { cn } from "@/lib/utils";
 import { getLeadTemperature, Lead } from "@/lib/scoring/leadScoring";
 import { icons } from "@/design-system/tokens/icons";
-
-const STATUS_COLORS: Record<string, string> = {
-  new: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  contacted: "bg-slate-500/10 text-slate-400 border-slate-500/20",
-  qualified: "bg-cyan-500/10 text-cyan-500 border-cyan-500/20",
-  consultation_scheduled: "bg-violet-500/10 text-violet-400 border-violet-500/20",
-  proposal: "bg-primary/10 text-primary border-primary/20",
-  proposal_sent: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  negotiation: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  final_review: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-  won: "bg-success/10 text-success border-success/20",
-  lost: "bg-error/10 text-error border-error/20",
-};
-
-const STAGE_LABELS: Record<string, string> = {
-  new: "New Inquiry",
-  initial_contact: "Contact Attempted",
-  contacted: "Contact Attempted",
-  qualified: "Interested",
-  consultation_scheduled: "Req. Gathering",
-  proposal: "Proposal Sent",
-  proposal_sent: "Proposal Sent",
-  negotiation: "Negotiation",
-  final_review: "Final Review",
-  won: "Won",
-  lost: "Lost",
-};
-
-const SOURCE_LABELS: Record<string, string> = {
-  website_contact: "Website",
-  estimator: "Estimator",
-  style_quiz: "Aesthetic Discovery Engine",
-  aesthetic_discovery_engine: "Aesthetic Discovery Engine",
-  welcome_popup: "Welcome Popup",
-  discovery_engine: "Aesthetic Discovery Engine",
-  whatsapp: "WhatsApp",
-  instagram: "Instagram",
-  referral: "Referral",
-  other: "Other",
-};
-
-const TYPE_LABELS: Record<string, string> = {
-  interior: "Interior",
-  renovation: "Renovation",
-  consultation: "Consultation",
-  commercial: "Commercial",
-};
+import {
+  CRM_STAGE_LABELS,
+  CRM_STAGE_BADGE_CLASSES,
+  HOT_LEAD_THRESHOLD,
+  getCrmLeadTypeLabel,
+  getCrmSourceLabel,
+  applyCrmSavedView,
+} from "@/lib/crm";
 
 const EM_DASH = "\u2014";
 
 function TemperatureIcon({ score }: { score: number }) {
-  if (score >= 70) return <Flame className={`${icons.xs} text-error`} />;
+  if (score >= HOT_LEAD_THRESHOLD) return <Flame className={`${icons.xs} text-error`} />;
   if (score >= 40) return <Thermometer className={`${icons.xs} text-primary`} />;
   return <Snowflake className={`${icons.xs} text-blue-400`} />;
 }
@@ -85,18 +46,18 @@ interface LeadListViewProps {
 
 export function LeadListView({ leads, onLeadClick, onDeleteClick }: LeadListViewProps) {
   return (
-    <Card className="overflow-hidden shadow-none border">
-      <Table>
-        <TableHeader className="bg-surface">
-          <TableRow>
-            <TableHead>Lead</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Source</TableHead>
-            <TableHead>City</TableHead>
-            <TableHead>Score</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+    <Card className="overflow-hidden shadow-none border border-[hsl(var(--admin-border))]/60 bg-transparent rounded-xl">
+        <Table>
+        <TableHeader className="bg-[hsl(var(--admin-surface))]/50 border-b border-[hsl(var(--admin-border))]/60">
+          <TableRow className="h-11 hover:bg-transparent border-0">
+            <TableHead className="px-6 text-[11px] uppercase tracking-wider font-semibold text-[hsl(var(--admin-text-muted))] whitespace-nowrap">Lead</TableHead>
+            <TableHead className="px-4 text-[11px] uppercase tracking-wider font-semibold text-[hsl(var(--admin-text-muted))] whitespace-nowrap">Type</TableHead>
+            <TableHead className="px-4 text-[11px] uppercase tracking-wider font-semibold text-[hsl(var(--admin-text-muted))] whitespace-nowrap">Source</TableHead>
+            <TableHead className="px-4 text-[11px] uppercase tracking-wider font-semibold text-[hsl(var(--admin-text-muted))] whitespace-nowrap">City</TableHead>
+            <TableHead className="px-4 text-[11px] uppercase tracking-wider font-semibold text-[hsl(var(--admin-text-muted))] whitespace-nowrap">Score</TableHead>
+            <TableHead className="px-4 text-[11px] uppercase tracking-wider font-semibold text-[hsl(var(--admin-text-muted))] whitespace-nowrap">Status</TableHead>
+            <TableHead className="px-4 text-[11px] uppercase tracking-wider font-semibold text-[hsl(var(--admin-text-muted))] whitespace-nowrap">Date</TableHead>
+            <TableHead className="px-6 text-[11px] uppercase tracking-wider font-semibold text-[hsl(var(--admin-text-muted))] whitespace-nowrap text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -109,69 +70,72 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick }: LeadListView
             return (
               <TableRow
                 key={lead.id}
-                className="cursor-pointer group"
+                className="cursor-pointer group hover:bg-[hsl(var(--admin-surface))] h-20 transition-colors border-b border-[hsl(var(--admin-border))]/40"
                 onClick={() => onLeadClick(lead)}
               >
-                <TableCell>
-                  <div>
-                    <p className="font-semibold text-text-primary text-sm group-hover:text-primary transition-colors">{lead.name}</p>
-                    <p className="text-xs text-text-muted mt-0.5">{lead.email}</p>
+                <TableCell className="align-middle px-6">
+                  <div className="flex flex-col justify-center">
+                    <p className="font-semibold text-[hsl(var(--admin-text))] text-[14px] group-hover:text-[hsl(var(--admin-primary))] transition-colors tracking-tight">{lead.name}</p>
+                    <p className="text-[13px] text-[hsl(var(--admin-text-muted))] mt-1">{lead.email}</p>
                   </div>
                 </TableCell>
 
-                <TableCell>
-                  <span className="text-sm">
-                    {TYPE_LABELS[leadType || ""] || leadType || EM_DASH}
+                <TableCell className="align-middle px-4 whitespace-nowrap">
+                  <span className="text-[13px] font-medium text-[hsl(var(--admin-text-muted))] group-hover:text-[hsl(var(--admin-text))]/80 transition-colors">
+                    {leadType ? getCrmLeadTypeLabel(leadType) : EM_DASH}
                   </span>
                 </TableCell>
 
-                <TableCell>
-                  <span className="text-sm">
-                    {SOURCE_LABELS[leadSource || ""] || leadSource || EM_DASH}
+                <TableCell className="align-middle px-4 whitespace-nowrap">
+                  <span className="text-[13px] text-[hsl(var(--admin-text-muted))] group-hover:text-[hsl(var(--admin-text))]/80 transition-colors">
+                    {leadSource ? getCrmSourceLabel(leadSource) : EM_DASH}
                   </span>
                 </TableCell>
 
-                <TableCell>
-                  <span className="text-sm">{lead.city || EM_DASH}</span>
+                <TableCell className="align-middle px-4 whitespace-nowrap">
+                  <span className="text-[13px] text-[hsl(var(--admin-text-muted))] group-hover:text-[hsl(var(--admin-text))]/80 transition-colors">{lead.city || EM_DASH}</span>
                 </TableCell>
 
-                <TableCell>
+                <TableCell className="align-middle px-4 whitespace-nowrap">
                   <div className="flex items-center gap-2">
-                    <TemperatureIcon score={score} />
-                    <span className="text-sm font-semibold tabular-nums">{score}</span>
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-[hsl(var(--admin-background))] border border-[hsl(var(--admin-border))]/50">
+                      <TemperatureIcon score={score} />
+                    </div>
+                    <span className="text-sm font-semibold tabular-nums text-[hsl(var(--admin-text))]">{score}</span>
                     <Badge
                       variant="outline"
-                      className={cn("text-[10px] uppercase font-bold", temp.color, "bg-transparent")}
+                      className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border-0", temp.color, "bg-[hsl(var(--admin-background))]")}
                     >
                       {temp.label}
                     </Badge>
                   </div>
                 </TableCell>
 
-                <TableCell>
+                <TableCell className="align-middle px-4 whitespace-nowrap">
                   <Badge
                     className={cn(
-                      "capitalize px-2.5 py-1 text-[11px] font-semibold",
-                      STATUS_COLORS[lead.status] || "bg-surface-muted text-text-primary border-border"
+                      "capitalize px-3 py-1 text-[11px] font-semibold tracking-wide rounded-full border border-transparent shadow-none",
+                      CRM_STAGE_BADGE_CLASSES[lead.status as keyof typeof CRM_STAGE_BADGE_CLASSES] || "bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-muted))] border-[hsl(var(--admin-border))]/50"
                     )}
                     variant="secondary"
                   >
-                    {STAGE_LABELS[lead.status] || lead.status}
+                    {CRM_STAGE_LABELS[lead.status as keyof typeof CRM_STAGE_LABELS] || lead.status}
                   </Badge>
                 </TableCell>
 
-                <TableCell className="text-sm text-text-muted">
+                <TableCell className="align-middle px-4 whitespace-nowrap text-[13px] text-[hsl(var(--admin-text-muted))] font-medium group-hover:text-foreground/80 transition-colors">
                   {lead.created_at
                     ? format(new Date(lead.created_at), "MMM d, yyyy")
                     : EM_DASH}
                 </TableCell>
 
-                <TableCell className="text-right">
+                <TableCell className="px-6 align-middle text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        className="opacity-0 group-hover:opacity-100 h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                        className="opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100 h-8 w-8 p-0 text-[hsl(var(--admin-text-muted))] hover:text-foreground hover:bg-[hsl(var(--admin-border))]/30 transition-all rounded-full"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <MoreHorizontal className="h-4 w-4" />
                         <span className="sr-only">Open menu</span>

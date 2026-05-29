@@ -1,7 +1,7 @@
 
 "use client"
 
-import * as React from "react"
+import React, { useState } from "react"
 import { CalendarIcon } from "lucide-react"
 import { addDays, format, subDays, startOfMonth, startOfYear } from "date-fns"
 import { DateRange } from "react-day-picker"
@@ -31,7 +31,7 @@ export function CalendarDateRangePicker({
     date: DateRange | undefined
     setDate: (date: DateRange | undefined) => void
 }) {
-    const [isOpen, setIsOpen] = React.useState(false)
+    const [isOpen, setIsOpen] = useState(false)
 
     const handlePresetChange = (value: string) => {
         const today = new Date()

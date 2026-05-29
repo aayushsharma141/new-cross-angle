@@ -5,13 +5,15 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { leadService } from "@/services/LeadService";
 import useScrollReveal from "@/hooks/useScrollReveal";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import gsap from "gsap";
 import { Image } from "@/components/ui/enhanced/image";
 import { useLeadValidation } from "@/hooks/useLeadValidation";
 import useReducedMotion from "@/hooks/useReducedMotion";
 import { PROPERTY_TYPES } from "@/addons/calculators/components/data/pricing-config";
+import { useAnalytics } from "@/analytics/AnalyticsProvider";
+import { track } from "@/analytics/track";
 
 const reassurancePoints = [
   "Free first consultation",
@@ -49,6 +51,7 @@ const jamshedpurServiceAreas = [
 const AnimatedField = ({ 
   id, 
   label, 
+  hint,
   error, 
   touched, 
   children,
@@ -56,7 +59,8 @@ const AnimatedField = ({
   onBlur
 }: { 
   id: string; 
-  label: string; 
+  label: string;
+  hint?: string;
   error?: string; 
   touched?: boolean; 
   children: React.ReactNode;
@@ -68,7 +72,7 @@ const AnimatedField = ({
 
   const handleFocus = () => {
     if (!prefersReducedMotion) {
-      gsap.to(lineRef.current, { scaleX: 1, duration: 0.8, ease: "expo.out", transformOrigin: "left center" });
+      gsap.to(lineRef.current, { scaleX: 1, duration: 0.6, ease: "expo.out", transformOrigin: "left center" });
     } else {
       gsap.set(lineRef.current, { scaleX: 1 });
     }
@@ -84,28 +88,44 @@ const AnimatedField = ({
     if (onBlur) onBlur();
   };
 
+  const isInvalid = Boolean(touched && error);
+
   return (
-    <div className="group relative mb-8">
-      <label 
-        htmlFor={id} 
-        className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-white/85 transition-colors group-focus-within:text-[#d1af6e]"
+    <div className="group relative mb-6">
+      <div className="mb-2 flex items-center justify-between">
+        <label 
+          htmlFor={id} 
+          className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/70 transition-colors group-focus-within:text-[#d1af6e]"
+        >
+          {label}
+        </label>
+        {hint && !isInvalid && (
+          <span className="text-[10px] text-white/35 italic">{hint}</span>
+        )}
+        {isInvalid && (
+          <span className="text-[10px] font-medium text-red-400 flex items-center gap-1">
+            <span className="inline-block w-1 h-1 rounded-full bg-red-400" />
+            {error}
+          </span>
+        )}
+      </div>
+      <div 
+        className={`relative rounded-xl border transition-all duration-300 ${
+          isInvalid
+            ? 'border-red-500/60 bg-red-500/5'
+            : 'border-white/[0.12] bg-white/[0.04] group-focus-within:border-[#d1af6e]/60 group-focus-within:bg-[#d1af6e]/[0.03]'
+        }`}
+        onFocus={handleFocus} 
+        onBlur={handleBlurWrapper}
       >
-        {label}
-      </label>
-      <div className="relative" onFocus={handleFocus} onBlur={handleBlurWrapper}>
         {children}
-        {/* Base Structural Line */}
-        <div className="absolute bottom-0 left-0 h-[1px] w-full bg-white/20" aria-hidden="true" />
-        {/* Animated Drafting Line */}
+        {/* Focus glow line at bottom */}
         <div 
           ref={lineRef} 
-          className="absolute bottom-0 left-0 h-[1.5px] w-full bg-[#d1af6e] scale-x-0" 
+          className="absolute bottom-0 left-0 h-[2px] w-full rounded-b-xl bg-gradient-to-r from-[#d1af6e]/80 to-[#d1af6e]/20 scale-x-0" 
           aria-hidden="true"
         />
       </div>
-      {touched && error && (
-        <p id={`${id}-error`} className="absolute -bottom-5 left-0 text-[10px] font-medium uppercase tracking-wide text-red-400" aria-live="polite">{error}</p>
-      )}
     </div>
   );
 };
@@ -117,10 +137,26 @@ const slideVariants = {
 };
 
 const CTAContact = () => {
+  const [searchParams] = useSearchParams();
+  const interestParam = searchParams.get("interest");
+  const defaultMessage = interestParam 
+    ? `I'm interested in the "${interestParam}" look from the Inspiration Gallery. I'd like to know more about how we can build something similar for my space.` 
+    : "";
+
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    projectType: "",
+    projectBudget: "",
+    location: "",
+    message: defaultMessage
+  });
   const containerRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLImageElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -128,12 +164,16 @@ const CTAContact = () => {
   const statusRef = useRef<HTMLDivElement>(null);
   const { settings } = useSiteSettings();
   const prefersReducedMotion = useReducedMotion();
+  const analytics = useAnalytics();
+  const formStartedRef = useRef(false);
+
   const { 
     errors, 
     touched, 
     handleBlur, 
     handleChange, 
     validateForm,
+    validateField,
     setErrors,
     setTouched,
   } = useLeadValidation();
@@ -185,6 +225,23 @@ const CTAContact = () => {
 
   useScrollReveal(containerRef, ".reveal-elem", { y: 30, stagger: 0.08 });
 
+  // Fire contact_form_started once when the section first enters viewport
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !formStartedRef.current) {
+          formStartedRef.current = true;
+          track(analytics, "contact_form_started", { path: window.location.pathname });
+        }
+      },
+      { threshold: 0.25 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [analytics]);
+
   // Auto-focus first field
   useEffect(() => {
     if (step === 2) {
@@ -217,14 +274,27 @@ const CTAContact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const target = e.target as HTMLFormElement;
-    const formData = new FormData(target);
-    const data = Object.fromEntries(
-      Array.from(formData.entries()).map(([key, value]) => [key, typeof value === 'string' ? value.trim() : value])
-    ) as Record<string, string>;
+    const data = { ...formData };
+    for (const key in data) {
+      if (typeof data[key as keyof typeof data] === 'string') {
+        data[key as keyof typeof data] = data[key as keyof typeof data].trim();
+      }
+    }
 
     if (!validateForm(data)) {
-      focusFirstInvalidField();
+      const step1Fields = ['firstName', 'lastName', 'email', 'phone'];
+      const step2Fields = ['projectType'];
+      
+      const hasStep1Error = step1Fields.some(field => validateField(field, data[field as keyof typeof data]));
+      const hasStep2Error = step2Fields.some(field => validateField(field, data[field as keyof typeof data]));
+
+      if (hasStep1Error) {
+        setStep(1);
+      } else if (hasStep2Error) {
+        setStep(2);
+      }
+      
+      setTimeout(() => focusFirstInvalidField(), 300);
       return;
     }
 
@@ -260,10 +330,19 @@ const CTAContact = () => {
         title: "Message sent!",
         description: "We'll get back to you within 24 hours.",
       });
-      target.reset();
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        projectType: "",
+        projectBudget: "",
+        location: "",
+        message: defaultMessage
+      });
       setErrors({});
       setTouched({});
-      
+      track(analytics, "contact_form_submitted", { leadSource: payload.lead_source });
       // Scroll to success message
       setTimeout(scrollToStatus, 100);
 
@@ -282,8 +361,8 @@ const CTAContact = () => {
     }
   };
 
-  // Shared input classes for the blank/big form look
-  const inputClasses = "w-full bg-transparent border-none px-0 py-3 text-2xl md:text-3xl font-serif text-[var(--site-text)] placeholder:text-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d1af6e]/50 focus-visible:ring-offset-0 rounded-none shadow-none";
+  // Shared input classes — proper contrast on bordered pill
+  const inputClasses = "w-full bg-transparent border-none px-4 py-3.5 text-base font-medium text-white placeholder:text-white/60 focus-visible:outline-none rounded-xl shadow-none";
 
   return (
     <section id="contact" ref={containerRef} className="relative overflow-hidden px-4 py-24 md:py-32">
@@ -338,18 +417,24 @@ const CTAContact = () => {
               <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
                 <span className="home-kicker">Project Brief</span>
                 {step > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">
-                      Step {step} of 3
-                    </span>
-                    <div className="h-1.5 w-16 bg-white/10 rounded-full overflow-hidden">
-                      <motion.div 
-                        className="h-full bg-[#d1af6e]" 
-                        initial={{ width: 0 }} 
-                        animate={{ width: `${(step / 3) * 100}%` }} 
-                        transition={{ duration: 0.5, ease: 'easeInOut' }}
-                      />
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      {[1, 2, 3].map((s) => (
+                        <div
+                          key={s}
+                          className={`h-1.5 rounded-full transition-all duration-500 ${
+                            s < step
+                              ? 'w-6 bg-[#d1af6e]'
+                              : s === step
+                              ? 'w-10 bg-[#d1af6e]'
+                              : 'w-6 bg-white/10'
+                          }`}
+                        />
+                      ))}
                     </div>
+                    <span className="text-[10px] font-bold text-[#d1af6e] uppercase tracking-widest">
+                      {Math.round((step / 3) * 100)}%
+                    </span>
                   </div>
                 )}
               </div>
@@ -357,36 +442,43 @@ const CTAContact = () => {
               <form ref={formRef} onSubmit={handleSubmit} noValidate className="relative z-10 w-full overflow-hidden">
                 <AnimatePresence mode="wait">
                 {/* Step 1: Basic Contact Info */}
-                {step === 1 && (
-                  <motion.div 
+                {step === 1 && (                  <motion.div 
                     key="step1"
                     variants={slideVariants}
                     initial="enter"
                     animate="center"
                     exit="exit"
                     transition={{ duration: 0.4, ease: "easeInOut" }}
-                    className="space-y-4"
+                    className="space-y-2"
                   >
-                    <h3 className="text-xl font-serif text-white mb-6">Let's get the absolute basics out of the way.</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 md:gap-x-8">
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-white leading-snug">Who are we speaking with?</h3>
+                      <p className="text-sm text-white/45 mt-1">Takes less than 60 seconds · No spam, ever.</p>
+                    </div>
+
+                    {/* Name row */}
+                    <div className="grid grid-cols-2 gap-3">
                       <AnimatedField 
                         id="firstName" 
-                        label="First Name" 
+                        label="First Name"
+                        hint="e.g. Aayush"
                         error={errors.firstName} 
                         touched={touched.firstName}
                       >
-                        <motion.input
-                          whileFocus={{ scale: 1.02 }}
-                          transition={{ duration: 0.2 }}
+                        <input
                           ref={firstNameRef}
                           id="firstName"
                           name="firstName"
                           autoComplete="given-name"
-                          placeholder="John"
+                          placeholder="Aayush"
                           required
+                          value={formData.firstName}
                           onBlur={(e) => handleBlur('firstName', e.target.value)}
-                          onChange={(e) => handleChange('firstName', e.target.value)}
-                          aria-invalid={isFieldInvalid('firstName')}
+                          onChange={(e) => {
+                            setFormData(prev => ({ ...prev, firstName: e.target.value }));
+                            handleChange('firstName', e.target.value);
+                          }}
+                          {...(isFieldInvalid('firstName') ? { 'aria-invalid': 'true' as const } : {})}
                           aria-describedby={getFieldErrorId('firstName')}
                           className={inputClasses}
                         />
@@ -394,99 +486,120 @@ const CTAContact = () => {
 
                       <AnimatedField 
                         id="lastName" 
-                        label="Last Name" 
+                        label="Last Name"
                         error={errors.lastName} 
                         touched={touched.lastName}
                       >
-                        <motion.input
-                          whileFocus={{ scale: 1.02 }}
-                          transition={{ duration: 0.2 }}
+                        <input
                           id="lastName"
                           name="lastName"
                           autoComplete="family-name"
-                          placeholder="Doe"
+                          placeholder="Sharma"
                           required
+                          value={formData.lastName}
                           onBlur={(e) => handleBlur('lastName', e.target.value)}
-                          onChange={(e) => handleChange('lastName', e.target.value)}
-                          aria-invalid={isFieldInvalid('lastName')}
+                          onChange={(e) => {
+                            setFormData(prev => ({ ...prev, lastName: e.target.value }));
+                            handleChange('lastName', e.target.value);
+                          }}
+                          {...(isFieldInvalid('lastName') ? { 'aria-invalid': 'true' as const } : {})}
                           aria-describedby={getFieldErrorId('lastName')}
                           className={inputClasses}
                         />
                       </AnimatedField>
                     </div>
 
-                  <div className="mb-4 text-xs font-semibold uppercase tracking-widest text-[#d1af6e] opacity-80 mt-2">
-                    Where can we reach you?
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 md:gap-x-8">
+                    {/* Contact divider */}
+                    <div className="flex items-center gap-3 py-1">
+                      <div className="h-px flex-1 bg-white/[0.06]" />
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d1af6e]/70">How to reach you</span>
+                      <div className="h-px flex-1 bg-white/[0.06]" />
+                    </div>
+
+                    {/* Email */}
                     <AnimatedField 
                       id="email" 
-                      label="Email Address" 
+                      label="Email Address"
+                      hint="For project updates"
                       error={errors.email} 
                       touched={touched.email}
                     >
-                      <motion.input
-                        whileFocus={{ scale: 1.02 }}
-                        transition={{ duration: 0.2 }}
+                      <input
                         id="email"
                         name="email"
                         type="email"
+                        inputMode="email"
                         autoComplete="email"
-                        placeholder="john@example.com"
+                        placeholder="you@example.com"
                         required
+                        value={formData.email}
                         onBlur={(e) => handleBlur('email', e.target.value)}
-                        onChange={(e) => handleChange('email', e.target.value)}
-                        aria-invalid={isFieldInvalid('email')}
+                        onChange={(e) => {
+                          setFormData(prev => ({ ...prev, email: e.target.value }));
+                          handleChange('email', e.target.value);
+                        }}
+                        {...(isFieldInvalid('email') ? { 'aria-invalid': 'true' as const } : {})}
                         aria-describedby={getFieldErrorId('email')}
                         className={inputClasses}
                       />
                     </AnimatedField>
 
+                    {/* Phone — clearly editable bordered field */}
                     <AnimatedField 
                       id="phone" 
-                      label="Phone Number" 
+                      label="Mobile Number"
+                      hint="10-digit Indian number"
                       error={errors.phone} 
                       touched={touched.phone}
                     >
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl md:text-3xl font-serif text-[#d1af6e] select-none">
-                          +91
+                      <div className="flex items-center">
+                        <span className="flex items-center gap-1.5 pl-4 pr-3 py-3.5 border-r border-white/[0.12] text-xs font-bold text-[#d1af6e] select-none shrink-0 leading-none">
+                          🇮🇳 +91
                         </span>
-                        <motion.input
-                          whileFocus={{ scale: 1.02 }}
-                          transition={{ duration: 0.2 }}
+                        <input
                           id="phone"
                           name="phone"
                           type="tel"
-                          autoComplete="tel"
+                          inputMode="numeric"
+                          autoComplete="tel-national"
                           placeholder="98765 43210"
+                          maxLength={11}
                           required
+                          value={formData.phone}
                           onBlur={(e) => handleBlur('phone', e.target.value)}
-                          onChange={(e) => handleChange('phone', e.target.value)}
-                          aria-invalid={isFieldInvalid('phone')}
+                          onChange={(e) => {
+                            setFormData(prev => ({ ...prev, phone: e.target.value }));
+                            handleChange('phone', e.target.value);
+                          }}
+                          {...(isFieldInvalid('phone') ? { 'aria-invalid': 'true' as const } : {})}
                           aria-describedby={getFieldErrorId('phone')}
                           className={inputClasses}
                         />
                       </div>
                     </AnimatedField>
-                  </div>
                   
-                  <div className="pt-6 flex justify-end items-center border-t border-white/5 mt-4">
-                    <Button 
-                      asChild
-                      type="button" 
-                      onClick={() => {
-                        setStep(2);
-                      }} 
-                      className="bg-white/10 text-white hover:bg-[#d1af6e] hover:text-black uppercase tracking-widest text-[10px] sm:text-xs rounded-full px-6 transition-all duration-300"
-                    >
-                      <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} transition={{ duration: 0.2 }}>
-                        Next: Project Type <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                    {/* CTA footer */}
+                    <div className="pt-5 space-y-3 border-t border-white/5 mt-2">
+                      <p className="text-center text-[11px] text-white/60 tracking-wide">
+                        🔒 Your data stays private. No calls without your permission.
+                      </p>
+                      <motion.button
+                        type="button"
+                        onClick={() => setStep(2)}
+                        whileHover={{ scale: 1.02, boxShadow: "0 8px 32px rgba(182,24,38,0.25)" }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ duration: 0.2 }}
+                        className="w-full h-14 rounded-2xl bg-gradient-to-r from-[#b61826] to-[#870e20] text-white border border-white/10 font-bold text-sm uppercase tracking-[0.22em] flex items-center justify-center gap-3 shadow-[0_4px_20px_rgba(182,24,38,0.2)] relative overflow-hidden group"
+                      >
+                        {/* Gloss sweep */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+                        <span className="relative z-10">Continue to Project Type</span>
+                        <ArrowRight className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                       </motion.button>
-                    </Button>
-                  </div>
+                    </div>
                   </motion.div>
                 )}
+
 
                 {/* Step 2: Project Type */}
                 {step === 2 && (
@@ -504,8 +617,7 @@ const CTAContact = () => {
                       <fieldset
                         aria-labelledby="projectType-label"
                         aria-describedby={getFieldErrorId('projectType')}
-                        aria-invalid={isFieldInvalid('projectType')}
-                        tabIndex={-1}
+                        {...(isFieldInvalid('projectType') ? { 'aria-invalid': 'true' as const } : {})}
                         className="grid gap-3 sm:grid-cols-2"
                       >
                         {projectTypeOptions.map((option) => (
@@ -514,11 +626,13 @@ const CTAContact = () => {
                               type="radio"
                               name="projectType"
                               value={option.label}
+                              checked={formData.projectType === option.label}
                               onChange={(e) => {
+                                setFormData(prev => ({ ...prev, projectType: e.target.value }));
                                 handleBlur('projectType', e.target.value);
                                 handleChange('projectType', e.target.value);
                               }}
-                              aria-invalid={isFieldInvalid('projectType')}
+                              {...(isFieldInvalid('projectType') ? { 'aria-invalid': 'true' as const } : {})}
                               aria-describedby={getFieldErrorId('projectType')}
                               className="peer sr-only"
                             />
@@ -552,7 +666,7 @@ const CTAContact = () => {
                         onClick={() => {
                           setStep(3);
                         }} 
-                        className="bg-white/10 text-white hover:bg-[#d1af6e] hover:text-black uppercase tracking-widest text-[10px] sm:text-xs rounded-full px-6 transition-all duration-300"
+                        className="bg-white/10 text-white hover:bg-[#b61826] hover:text-white uppercase tracking-widest text-[10px] sm:text-xs rounded-full px-6 transition-all duration-300"
                       >
                         <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} transition={{ duration: 0.2 }}>
                           Next: Project Details <ArrowRight className="ml-2 h-3.5 w-3.5" />
@@ -603,8 +717,7 @@ const CTAContact = () => {
                       <fieldset
                         aria-labelledby="projectBudget-label"
                         aria-describedby={getFieldErrorId('projectBudget')}
-                        aria-invalid={isFieldInvalid('projectBudget')}
-                        tabIndex={-1}
+                        {...(isFieldInvalid('projectBudget') ? { 'aria-invalid': 'true' as const } : {})}
                         className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
                       >
                         {projectBudgetOptions.map((option) => (
@@ -613,11 +726,13 @@ const CTAContact = () => {
                               type="radio"
                               name="projectBudget"
                               value={option.value}
+                              checked={formData.projectBudget === option.value}
                               onChange={(e) => {
+                                setFormData(prev => ({ ...prev, projectBudget: e.target.value }));
                                 handleBlur('projectBudget', e.target.value);
                                 handleChange('projectBudget', e.target.value);
                               }}
-                              aria-invalid={isFieldInvalid('projectBudget')}
+                              {...(isFieldInvalid('projectBudget') ? { 'aria-invalid': 'true' as const } : {})}
                               aria-describedby={getFieldErrorId('projectBudget')}
                               className="peer sr-only"
                             />
@@ -649,11 +764,14 @@ const CTAContact = () => {
                           transition={{ duration: 0.2 }}
                           id="location"
                           name="location"
-                          defaultValue=""
+                          value={formData.location}
                           required
                           onBlur={(e) => handleBlur('location', e.target.value)}
-                          onChange={(e) => handleChange('location', e.target.value)}
-                          aria-invalid={isFieldInvalid('location')}
+                          onChange={(e) => {
+                            setFormData(prev => ({ ...prev, location: e.target.value }));
+                            handleChange('location', e.target.value);
+                          }}
+                          {...(isFieldInvalid('location') ? { 'aria-invalid': 'true' as const } : {})}
                           aria-describedby={getFieldErrorId('location')}
                           className="h-14 w-full appearance-none rounded-[18px] border border-white/10 bg-white/[0.02] px-4 pr-12 text-sm font-medium text-[var(--site-text)] outline-none transition-all duration-300 focus:border-[#d1af6e]/70 focus:ring-2 focus:ring-[#d1af6e]/30"
                         >
@@ -690,12 +808,16 @@ const CTAContact = () => {
                     transition={{ duration: 0.2 }}
                     id="message"
                     name="message"
+                    value={formData.message}
                     placeholder="E.g., I'm looking to renovate a 3BHK apartment in Kadma. We need full design and execution within the next 4 months..."
                     rows={3}
                     required
                     onBlur={(e) => handleBlur('message', e.target.value)}
-                    onChange={(e) => handleChange('message', e.target.value)}
-                    aria-invalid={isFieldInvalid('message')}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, message: e.target.value }));
+                      handleChange('message', e.target.value);
+                    }}
+                    {...(isFieldInvalid('message') ? { 'aria-invalid': 'true' as const } : {})}
                     aria-describedby={getFieldErrorId('message')}
                     className={`${inputClasses} resize-y min-h-[140px] text-lg md:text-xl leading-relaxed pb-6 placeholder:text-white/10`}
                   />
@@ -724,7 +846,7 @@ const CTAContact = () => {
                     <Button
                       asChild
                       size="lg"
-                      className="home-button-sweep bg-gradient-to-b from-[#d1af6e] to-[#b89554] text-black hover:scale-[1.02] group h-14 w-full sm:w-auto px-10 rounded-full text-[0.74rem] font-bold uppercase tracking-[0.24em] shrink-0 border-none relative overflow-hidden order-1 sm:order-2 shadow-[0_10px_30px_rgba(209,175,110,0.2)]"
+                      className="home-button-sweep bg-gradient-to-r from-[#b61826] to-[#870e20] text-white border border-white/10 hover:scale-[1.02] group h-14 w-full sm:w-auto px-10 rounded-full text-[0.74rem] font-bold uppercase tracking-[0.24em] shrink-0 relative overflow-hidden order-1 sm:order-2 shadow-[0_10px_30px_rgba(182,24,38,0.2)]"
                       disabled={isSubmitting}
                     >
                       <motion.button type="submit" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} transition={{ duration: 0.2 }}>
@@ -772,7 +894,10 @@ const CTAContact = () => {
                   size="lg"
                   className="home-button-sweep bg-white/5 hover:bg-white/10 border border-white/10 h-14 rounded-full text-[0.74rem] font-semibold uppercase tracking-[0.22em] text-white w-full justify-start px-6"
                 >
-                  <a href={`tel:${settings?.phone || '+917909041132'}`}>
+                  <a 
+                    href={`tel:${settings?.phone || '+917909041132'}`}
+                    onClick={() => track(analytics, "cta_clicked", { ctaId: "accelerated_call", destination: "tel" })}
+                  >
                     <Phone className="h-4 w-4 mr-3" />
                     <span>Call Studio</span>
                   </a>
@@ -784,6 +909,7 @@ const CTAContact = () => {
                 >
                   <a
                     href={`https://wa.me/${settings?.whatsapp || '917909041132'}?text=Hi!%20I'm%20interested%20in%20your%20interior%20design%20services.`}
+                    onClick={() => track(analytics, "cta_clicked", { ctaId: "accelerated_whatsapp", destination: "whatsapp" })}
                   >
                     <MessageCircle className="h-4 w-4 mr-3" />
                     <span>WhatsApp Connect</span>
@@ -817,7 +943,11 @@ const CTAContact = () => {
             </div>
 
             <div className="mt-8 rounded-[24px] border border-white/[0.04] bg-gradient-to-br from-[#d1af6e]/5 to-transparent p-6 backdrop-blur-md">
-              <Link to="/estimate" className="group flex items-center justify-between">
+              <Link
+                to="/estimate"
+                className="group flex items-center justify-between"
+                onClick={() => track(analytics, "estimate_path_selected", { pathId: "contact_page_cta" })}
+              >
                 <div>
                   <h4 className="text-sm font-serif font-semibold text-white group-hover:text-[#d1af6e] transition-colors">
                     Looking for numbers?

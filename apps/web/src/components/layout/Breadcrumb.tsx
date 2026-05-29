@@ -12,7 +12,7 @@ import { ChevronRight, Home } from "lucide-react";
 const SEGMENT_LABELS: Record<string, string> = {
   "about-us": "About",
   "contact-us": "Contact",
-  "style-quiz": "Style Quiz",
+  "aesthetic-discovery-engine": "Aesthetic Discovery Engine",
   blog: "Blog",
   services: "Services",
   portfolio: "Projects",
@@ -63,7 +63,7 @@ export default function Breadcrumb() {
           <li>
             <Link
               to="/"
-              className="flex items-center gap-1 text-white/40 hover:text-white/70 transition-colors duration-200"
+              className="flex items-center gap-1 text-white/60 hover:text-white/70 transition-colors duration-200"
             >
               <Home className="w-3 h-3" />
               <span className="sr-only sm:not-sr-only">Home</span>
@@ -83,7 +83,7 @@ export default function Breadcrumb() {
               ) : (
                 <Link
                   to={crumb.path}
-                  className="text-white/40 hover:text-white/70 transition-colors duration-200 truncate max-w-[160px]"
+                  className="text-white/60 hover:text-white/70 transition-colors duration-200 truncate max-w-[160px]"
                 >
                   {crumb.label}
                 </Link>

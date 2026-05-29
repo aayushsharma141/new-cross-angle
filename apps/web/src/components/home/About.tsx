@@ -7,6 +7,7 @@ import { useRef } from "react";
 import { Button } from "@/components/ui/primitives/button";
 import { DesignProcessVisual } from "./DesignProcessVisual";
 import { cn } from "@/lib/utils";
+import { Image } from "@/components/ui/enhanced/image";
 
 const stats = [
   { icon: Award, value: 15, suffix: "+", label: "Years Experience" },
@@ -82,7 +83,7 @@ const About = () => {
       />
       <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-site-bg via-transparent to-transparent z-0" />
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-6 md:px-16 lg:px-24 xl:px-32 relative z-10">
         {/* Minimalist Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-32 border-b border-white/5 pb-12">
           {stats.map((stat, index) => (
@@ -157,10 +158,14 @@ const About = () => {
                </div>
                
                <div className="relative w-full h-full overflow-hidden bg-site-bg">
-                 <img 
+                 <Image 
                    src="/hero_reality_render_1775299733746.png" 
                    alt="Elegant minimal interior" 
-                   className="w-full h-full object-cover object-center grayscale-[0.3] contrast-110 brightness-90 group-hover:scale-105 transition-transform duration-[2.5s] ease-out"
+                   className="w-full h-full"
+                   imageClassName="object-cover object-center grayscale-[0.3] contrast-110 brightness-90 group-hover:scale-105 transition-transform ease-out" 
+                   style={{ transitionDuration: '2500ms' }}
+                   width={1200}
+                   height={800}
                  />
                  <div className="absolute inset-0 bg-gradient-to-t from-site-bg-section via-site-bg-section/20 to-transparent opacity-90" />
                  <div className="absolute inset-0 bg-site-bg/10 mix-blend-overlay" />

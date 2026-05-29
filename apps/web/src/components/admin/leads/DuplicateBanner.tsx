@@ -41,7 +41,7 @@ export function DuplicateBanner({
     // Only run detection when there's a meaningful input
     if (!candidate.email && !candidate.phone) return null;
     return detectDuplicate(candidate, pool);
-  }, [candidate.email, candidate.phone, allLeads, currentId]);
+  }, [candidate, allLeads, currentId]);
 
   if (!result?.isDuplicate) return null;
 

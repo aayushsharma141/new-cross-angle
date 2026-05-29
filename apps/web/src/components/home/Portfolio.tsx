@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ArrowUpRight, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ArrowUpRight, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/primitives/dialog";
 import { cn } from "@/lib/utils";
@@ -120,25 +120,25 @@ const Portfolio = () => {
       <div className="container mx-auto px-4 md:px-12 relative z-10">
         
         {/* Header Setup */}
-        <div className="flex flex-col mb-20 md:mb-32">
-          <span className="text-site-crimson font-mono text-sm tracking-[0.3em] uppercase block mb-4">
+        <div className="flex flex-col mb-16 md:mb-32">
+          <span className="text-site-crimson font-mono text-sm tracking-[0.3em] uppercase block mb-6">
             Selected Works
           </span>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-            <h2 className="text-4xl md:text-5xl lg:text-7xl font-display font-medium text-site-text-heading leading-tight">
-              Curated <br />
-              <em className="text-site-text-muted not-italic">Excellence.</em>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 md:gap-12">
+            <h2 className="text-[clamp(2.25rem,8vw,4.5rem)] font-display font-medium text-site-text-heading leading-[1.15] md:leading-[1.1] tracking-tight">
+              Curated <br className="hidden md:block" />
+              <em className="text-site-text-muted not-italic"> Excellence.</em>
             </h2>
-            <div className="flex flex-wrap gap-2 md:max-w-md">
+            <div className="flex flex-wrap gap-3 md:max-w-md relative z-10">
               {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setActiveFilter(category)}
                   className={cn(
-                    "px-5 py-2 rounded-full text-xs font-mono uppercase tracking-widest transition-all duration-300",
+                    "px-5 py-2 rounded-full text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all duration-300 border border-white/5",
                     category === activeFilter
-                      ? "bg-site-crimson text-white"
-                      : "bg-transparent text-site-text-muted hover:text-site-text"
+                      ? "bg-site-crimson text-white border-site-crimson"
+                      : "bg-transparent text-site-text-muted hover:text-site-text hover:border-white/20"
                   )}
                 >
                   {category}
@@ -197,7 +197,7 @@ const Portfolio = () => {
 
       {/* Lightbox Dialog - Kept mostly intact */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent className="max-w-7xl bg-black/95 backdrop-blur-2xl border-none p-0 overflow-hidden h-[100dvh] w-screen max-h-none flex flex-col justify-center rounded-none shadow-2xl">
+        <DialogContent hideCloseButton className="max-w-7xl bg-black/95 backdrop-blur-2xl border-none p-0 overflow-hidden h-[100dvh] w-screen max-h-none flex flex-col justify-center rounded-none shadow-2xl">
           <VisuallyHidden>
             <DialogTitle>Project Preview: {filteredProjects[currentImageIndex]?.title}</DialogTitle>
           </VisuallyHidden>
@@ -210,35 +210,51 @@ const Portfolio = () => {
             <X className="w-6 h-6" />
           </button>
 
-          <button
-            title="Previous project"
-            onClick={() => navigateLightbox("prev")}
-            className="absolute left-6 top-1/2 -translate-y-1/2 z-50 p-4 text-white/50 hover:text-white transition-colors"
-          >
-            <ChevronLeft className="w-8 h-8" />
-          </button>
 
-          <button
-            title="Next project"
-            onClick={() => navigateLightbox("next")}
-            className="absolute right-6 top-1/2 -translate-y-1/2 z-50 p-4 text-white/50 hover:text-white transition-colors"
-          >
-            <ChevronRight className="w-8 h-8" />
-          </button>
 
-          <div className="w-full h-full flex flex-col items-center justify-center p-8 md:p-24">
-            <div className="w-full h-[70vh] flex items-center justify-center relative">
+          <motion.div 
+            key={currentImageIndex}
+            className="w-full h-full flex flex-col items-center justify-center p-8 md:p-24 cursor-grab active:cursor-grabbing"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.8}
+            onDragEnd={(e, { offset, velocity }) => {
+              const swipe = offset.x + velocity.x * 0.2;
+              if (swipe < -100) {
+                navigateLightbox("next");
+              } else if (swipe > 100) {
+                navigateLightbox("prev");
+              }
+            }}
+          >
+            <div className="w-full h-[65vh] flex items-center justify-center relative pointer-events-none">
               <BaseImage
                 src={filteredProjects[currentImageIndex]?.heroImage}
                 alt={filteredProjects[currentImageIndex]?.title}
                 className="max-w-full max-h-full object-contain drop-shadow-2xl"
+                draggable={false}
               />
             </div>
-            <div className="mt-8 text-center">
-              <h3 className="text-3xl font-display text-white mb-2">{filteredProjects[currentImageIndex]?.title}</h3>
-              <p className="text-sm font-mono tracking-widest uppercase text-white/50">{filteredProjects[currentImageIndex]?.category}</p>
+            <div className="mt-8 text-center pointer-events-auto flex flex-col items-center justify-center space-y-4">
+              <div>
+                <h3 className="text-3xl font-display text-white mb-2">{filteredProjects[currentImageIndex]?.title}</h3>
+                <p className="text-sm font-mono tracking-widest uppercase text-white/50">{filteredProjects[currentImageIndex]?.category}</p>
+              </div>
+              
+              <Link
+                to={`/portfolio/${filteredProjects[currentImageIndex]?.slug}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxOpen(false);
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                className="mt-6 inline-flex items-center space-x-2 border border-white/20 bg-white/5 backdrop-blur-md px-6 py-3 text-xs uppercase tracking-[0.2em] font-semibold text-white transition-all duration-300 hover:bg-white/10 hover:border-white/40 hover:scale-105"
+              >
+                <span>View Full Project</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </Link>
             </div>
-          </div>
+          </motion.div>
         </DialogContent>
       </Dialog>
     </section>

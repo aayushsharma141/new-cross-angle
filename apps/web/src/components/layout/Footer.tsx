@@ -161,9 +161,9 @@ const getFooterCopy = (pathname: string, cta: ReturnType<typeof useDynamicCTA>["
     "/estimate": {
       headlineStart: "Have an estimate?",
       headlineHighlight: "Now validate the scope.",
-      sub: "Use your calculator result as the first draft. We will help refine it into a realistic execution direction.",
+      sub: "Use your estimator result as the first draft. We will help refine it into a realistic execution direction.",
     },
-    "/style-quiz": {
+    "/aesthetic-discovery-engine": {
       headlineStart: "Found your style?",
       headlineHighlight: "Turn it into a room.",
       sub: "Your design signals are the beginning. We can translate them into material, lighting, and layout decisions.",
@@ -200,7 +200,7 @@ export default function Footer() {
   };
 
   const colStyle = "p-[clamp(30px,5vw,60px)] md:border-r border-white/5 border-b md:border-b-0 last:border-b-0";
-  const labelStyle = "font-sans text-[10px] tracking-[0.3em] text-white/30 mb-5";
+  const labelStyle = "font-sans text-[10px] tracking-[0.3em] text-white/50 mb-5";
 
   return (
     <footer
@@ -286,7 +286,7 @@ export default function Footer() {
           <Magnetic>
             <Link
               to={footerCopy.btn2Link}
-              className="inline-flex items-center justify-center px-8 py-4 bg-transparent border border-white/20 text-white rounded-full font-sans text-sm tracking-[0.15em] uppercase hover:bg-white/10 hover:border-white/40 transition-colors duration-300 w-full sm:w-auto text-center"
+              className="inline-flex items-center justify-center px-8 py-4 backdrop-blur-xl bg-white/35 border border-white/60 text-white rounded-full font-sans text-sm tracking-[0.15em] uppercase hover:bg-white hover:text-black transition-all duration-300 w-full sm:w-auto text-center font-bold"
             >
               {footerCopy.btn2}
             </Link>
@@ -295,7 +295,7 @@ export default function Footer() {
       </div>
 
       {/* --- GRID --- */}
-      <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-3 relative z-20 border-t border-white/5">
+      <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 relative z-20 border-t border-white/5">
         {/* Col 1 */}
         <motion.div
           className={colStyle}
@@ -320,7 +320,7 @@ export default function Footer() {
           initial={{ opacity: 0, y: 80 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+          transition={{ duration: 1, delay: 0.1, ease: "easeOut" }}
         >
           <div className={labelStyle}>// LOCATIONS</div>
           {settings?.address ? (
@@ -334,13 +334,39 @@ export default function Footer() {
           <LiveClock />
         </motion.div>
 
-        {/* Col 3 */}
+        {/* Col 3: Quick Links */}
         <motion.div
           className={colStyle}
           initial={{ opacity: 0, y: 80 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
+          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+        >
+          <div className={labelStyle}>// QUICK LINKS</div>
+          {[
+            { key: 'gallery', name: 'Gallery', path: '/gallery' },
+            { key: 'estimate', name: 'Cost Estimator', path: '/estimate' },
+            { key: 'aesthetic-discovery-engine', name: 'Aesthetic Discovery Engine', path: '/aesthetic-discovery-engine' },
+            { key: 'contact', name: 'Contact Us', path: '/contact-us' },
+          ].map(({ key, name, path }) => (
+            <Link
+              key={key}
+              to={path}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="block mb-3 text-[20px] transition-transform duration-300 hover:translate-x-[10px] hover:text-[#C41230] cursor-pointer text-white no-underline"
+            >
+              {name}
+            </Link>
+          ))}
+        </motion.div>
+
+        {/* Col 4: Socials */}
+        <motion.div
+          className={colStyle}
+          initial={{ opacity: 0, y: 80 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
         >
           <div className={labelStyle}>// SOCIALS</div>
           {[
@@ -369,19 +395,14 @@ export default function Footer() {
       </div>
 
       {/* --- BOTTOM --- */}
-      <div className="flex flex-col md:flex-row items-center justify-between py-[20px] px-[6vw] text-[11px] opacity-50 relative z-10 w-full mt-10 md:mt-20">
+      <div className="flex flex-col md:flex-row items-center justify-between pt-[20px] pb-[80px] md:pb-[20px] px-[6vw] text-[11px] opacity-50 relative z-10 w-full mt-10 md:mt-20">
         <div className="mb-4 md:mb-0 flex flex-wrap gap-4 items-center justify-center">
           <span>(c) 2026 CrossAngle Interior</span>
           <span className="hidden md:inline">|</span>
-          <Link to="/privacy" onClick={() => window.scrollTo(0,0)} className="hover:text-white transition-colors duration-300">Privacy & DPDPA Policy</Link>
+          <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors duration-300">Privacy & DPDPA Policy</Link>
+          <span className="hidden md:inline">|</span>
+          <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors duration-300">Terms & Conditions</Link>
         </div>
-        <button
-          type="button"
-          onClick={scrollToTop}
-          className="cursor-pointer bg-transparent p-0 text-inherit hover:text-white transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C41230]/70 focus-visible:ring-offset-4 focus-visible:ring-offset-black"
-        >
-          BACK TO TOP -&gt;
-        </button>
       </div>
 
       {/* --- BG TEXT --- */}

@@ -1,13 +1,22 @@
-import * as React from 'react';
+import React, { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { AdminButton } from './AdminButton';
+import { AdminBreadcrumb } from '@/components/admin/AdminBreadcrumb';
+import { breadcrumbsForPath, type BreadcrumbItem } from '@/lib/admin-routes';
 
 interface AdminPageHeaderProps {
   title: string;
   description?: string;
-  breadcrumbs?: { label: string; href?: string }[];
-  actions?: React.ReactNode;
-  children?: React.ReactNode;
+  /**
+   * Breadcrumb trail. When omitted, derived automatically from the current URL
+   * via `ADMIN_ROUTES`. Pass an empty array to hide breadcrumbs entirely.
+   * The "Admin" root is prepended by `AdminBreadcrumb` — do not include it here.
+   */
+  breadcrumbs?: BreadcrumbItem[];
+  /** Right-aligned action slot (buttons, dialog triggers, counters). */
+  actions?: ReactNode;
+  /** Content rendered below the title/actions row (filters, tabs, banners). */
+  children?: ReactNode;
   className?: string;
 }
 
@@ -19,34 +28,19 @@ export function AdminPageHeader({
   children,
   className,
 }: AdminPageHeaderProps) {
-  return (
-    <div className={cn('space-y-4', className)}>
-      {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav className="flex items-center gap-1 text-sm text-[hsl(var(--admin-text-muted))]">
-          {breadcrumbs.map((crumb, index) => (
-            <React.Fragment key={index}>
-              {index > 0 && <span className="mx-1">/</span>}
-              {crumb.href ? (
-                <a
-                  href={crumb.href}
-                  className="hover:text-[hsl(var(--admin-text))] transition-colors"
-                >
-                  {crumb.label}
-                </a>
-              ) : (
-                <span className="text-[hsl(var(--admin-text))]">{crumb.label}</span>
-              )}
-            </React.Fragment>
-          ))}
-        </nav>
-      )}
+  const location = useLocation();
+  const resolved = breadcrumbs ?? breadcrumbsForPath(location.pathname);
 
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="admin-title">{title}</h1>
-          {description && <p className="admin-subtitle mt-1">{description}</p>}
+  return (
+    <div className={cn('space-y-5', className)}>
+      {resolved.length > 0 && <AdminBreadcrumb items={resolved} />}
+
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between pb-5 border-b border-[hsl(var(--admin-border))]/50">
+        <div className="min-w-0">
+          <h1 className="admin-title text-2xl">{title}</h1>
+          {description && <p className="admin-subtitle mt-2 text-sm">{description}</p>}
         </div>
-        {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
+        {actions && <div className="flex items-center gap-3 shrink-0">{actions}</div>}
       </div>
 
       {children}
@@ -57,7 +51,7 @@ export function AdminPageHeader({
 interface AdminSectionHeaderProps {
   title: string;
   description?: string;
-  action?: React.ReactNode;
+  action?: ReactNode;
   className?: string;
 }
 

@@ -1,90 +1,58 @@
-import { supabase } from "@/integrations/supabase/client";
+﻿import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
-} from "@/components/ui/primitives/dialog";
+    Sheet,
+    SheetContent,
+    SheetTitle,
+    SheetDescription,
+} from "@/components/ui/primitives/sheet";
 import { Button } from "@/components/ui/primitives/button";
 import { Label } from "@/components/ui/primitives/label";
 import { Input } from "@/components/ui/primitives/input";
 import { Textarea } from "@/components/ui/primitives/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/primitives/select";
-import { leadStatusOptions, lossReasonOptions, leadSchema, formatZodErrors } from "@/lib/validation/validations";
-import { useState, useEffect } from "react";
+import { leadSchema, formatZodErrors } from "@/lib/validation/validations";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/primitives/tabs";
 import { LeadTimeline } from "@/components/admin/leads/LeadTimeline";
 import {
-  Mail, Phone, MapPin, User, FileText, StickyNote, Copy,
-  ExternalLink, TrendingUp, CheckCircle2, CircleDot,
-  Clock, ArrowRight, ChevronRight, UserCircle, Zap,
-  Send, Loader2, CheckCheck,
+  Mail, Phone, FileText, Copy,
+  CheckCircle2, CircleDot,
+  Clock, ChevronRight, UserCircle, Zap,
+  Send, Loader2, CheckCheck, MessageCircle, Trash2,
+  ChevronDown, Target, AlertTriangle, Lightbulb, Info,
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useToast } from "@/hooks/useToast";
-import { Card, CardContent } from "@/components/ui/primitives/card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/primitives/tooltip";
 import type { Lead } from "@/lib/scoring/leadScoring";
-import type { LeadScoreBreakdown } from "@/lib/scoring/leadScoring";
-import { STAGE_WIN_PROBABILITY } from "@/lib/scoring/leadScoring";
 import { cn } from "@/lib/utils";
 import { useSendEmail } from "@/hooks/useSendEmail";
-import { DuplicateBanner } from "@/components/admin/leads/DuplicateBanner";
+import { CRM_STAGES, CRM_STAGE_LABELS, isCrmStageId, type CrmStageId, FOLLOW_UP_SLA, STAGE_PLAYBOOK, STAGE_SUB_STATUSES } from "@/lib/crm/stages";
+import { getCrmSourceLabel } from "@/lib/crm/sources";
+import { LeadTaskList } from "@/components/admin/leads/LeadTaskList";
+import { ObjectionTracker } from "@/components/admin/leads/ObjectionTracker";
 
 interface LeadDetailSheetProps {
     lead: Lead | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSave: (lead: Lead) => void;
-    onDelete: (id: string) => void;
+    onDelete?: (id: string) => void;
     isReadOnly?: boolean;
-    /** All existing leads — used to power real-time duplicate detection */
     allLeads?: Lead[];
-    /** Called when user clicks "View" on a matched duplicate */
     onViewLead?: (lead: Lead) => void;
 }
 
-const PIPELINE_STAGES = [
-  { key: "new", label: "New" },
-  { key: "initial_contact", label: "Initial Contact" },
-  { key: "contacted", label: "Contacted" },
-  { key: "qualified", label: "Qualified" },
-  { key: "consultation_scheduled", label: "Consultation" },
-  { key: "proposal", label: "Proposal" },
-  { key: "proposal_sent", label: "Proposal Sent" },
-  { key: "negotiation", label: "Negotiation" },
-  { key: "final_review", label: "Final Review" },
-  { key: "won", label: "Won" },
-  { key: "lost", label: "Lost" },
-];
+type DetailTab = "activity" | "details" | "tasks" | "email";
 
-const FORECAST_OPTIONS = [
-  { value: "committed", label: "Committed", color: "text-emerald-500 bg-emerald-500/10" },
-  { value: "best_case", label: "Best Case", color: "text-blue-500 bg-blue-500/10" },
-  { value: "pipeline", label: "Pipeline", color: "text-amber-500 bg-amber-500/10" },
-  { value: "omitted", label: "Omitted", color: "text-muted-foreground bg-muted" },
-] as const;
-
-const SCORE_BREAKDOWN_LABELS: Record<keyof LeadScoreBreakdown, string> = {
-  budget: "Budget",
-  category: "Category fit",
-  timeline: "Timeline urgency",
-  contactQuality: "Contact quality",
-  source: "Lead source",
-  recency: "Recency bonus",
-};
-
-const SCORE_BREAKDOWN_MAX: Record<keyof LeadScoreBreakdown, number> = {
-  budget: 30,
-  category: 20,
-  timeline: 20,
-  contactQuality: 10,
-  source: 15,
-  recency: 5,
+const NEXT_ACTION_BY_STAGE: Record<CrmStageId, string> = {
+    new: "Send the initial response and confirm project basics.",
+    in_conversation: "Capture budget, city, and preferred meeting time.",
+    meeting_planned: "Prepare the meeting agenda and project references.",
+    quote_sent: "Follow up on quote feedback and decision timing.",
+    closing: "Confirm the final blocker, owner, and next step.",
+    won: "Add a closing note and hand off to delivery.",
+    lost: "Record the loss reason for win/loss reporting.",
 };
 
 const EMAIL_TEMPLATES = [
@@ -110,21 +78,32 @@ const EMAIL_TEMPLATES = [
 
 export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, isReadOnly = false, allLeads = [], onViewLead }: LeadDetailSheetProps) {
     const [formData, setFormData] = useState<Lead | null>(null);
-    // Track which template IDs were sent this session (keyed by template.id)
     const [sentTemplates, setSentTemplates] = useState<Record<string, "sending" | "sent" | "error">>({});
+    const [activeTab, setActiveTab] = useState<DetailTab>("activity");
+    const [showPlaybook, setShowPlaybook] = useState(false);
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const isNewLead = formData?.id === "__new__";
     const sendEmailMutation = useSendEmail();
 
+    const hasLoggedViewRef = useRef(false);
+
     useEffect(() => {
         if (lead) {
-            setFormData({ ...lead });
+            setFormData({ ...lead, status: isCrmStageId(lead.status) ? lead.status : "new" });
+            setActiveTab(lead.id === "__new__" ? "details" : "activity");
+            hasLoggedViewRef.current = false;
         }
     }, [lead]);
 
+    useEffect(() => {
+        if (!open) {
+            hasLoggedViewRef.current = false;
+        }
+    }, [open]);
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const logActivity = async (type: string, description: string, metadata: any = {}) => {
+    const logActivity = useCallback(async (type: string, description: string, metadata: any = {}) => {
         if (!formData?.id) return;
 
         try {
@@ -137,13 +116,11 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
             });
 
             if (error) throw error;
-
-            // Invalidate timeline query to show new activity
             queryClient.invalidateQueries({ queryKey: ['lead-timeline', formData.id] });
         } catch (error) {
             console.error("Error logging activity:", error);
         }
-    };
+    }, [formData?.id, queryClient]);
 
     const handleSave = () => {
         if (!formData) return;
@@ -160,6 +137,13 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
         onSave(formData);
     };
+
+    const setStage = (stage: CrmStageId) => {
+        if (!formData || isReadOnly) return;
+        setFormData({ ...formData, status: stage });
+    };
+
+    const activeStage: CrmStageId = formData && isCrmStageId(formData.status) ? formData.status : "new";
 
     const processTemplate = (templateBody: string, templateSubject: string) => {
         if (!formData) return { body: "", subject: "" };
@@ -200,616 +184,451 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
         logActivity("email_opened", `Opened mail client for: ${template.name}`, { template: template.name, subject });
     };
 
+    // Log view activity when sheet opens for an existing lead
+    useEffect(() => {
+        if (open && formData?.id && formData.id !== "__new__" && !hasLoggedViewRef.current) {
+            hasLoggedViewRef.current = true;
+            logActivity("lead_viewed", "Viewed lead details");
+        }
+    }, [open, formData?.id, logActivity]);
+
     if (!formData) return null;
 
+    const TABS: Array<{ id: DetailTab; label: string }> = [
+        { id: "activity", label: "Activity Logs" },
+        { id: "details", label: "Lead Details" },
+        { id: "tasks", label: "Tasks" },
+        { id: "email", label: "Send Email" },
+    ];
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border-zinc-800 bg-zinc-950 text-zinc-100 sm:rounded-xl p-0 gap-0">
-                <DialogHeader className="px-6 py-4 border-b border-zinc-800 shrink-0">
-                    <DialogTitle className="text-xl font-display text-white">Lead Details</DialogTitle>
-                    <DialogDescription className="text-zinc-400">View and manage lead information.</DialogDescription>
-                </DialogHeader>
-
-                <Tabs defaultValue="details" className="flex flex-col flex-1 overflow-hidden">
-                    <div className="px-6 pt-4 shrink-0">
-                        <TabsList className="grid w-full grid-cols-5">
-                            <TabsTrigger value="details">Details</TabsTrigger>
-                            <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
-                            <TabsTrigger value="email">Email</TabsTrigger>
-                            <TabsTrigger value="activity">Activity</TabsTrigger>
-                            <TabsTrigger value="raw-data">Raw Data</TabsTrigger>
-                        </TabsList>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto px-6 py-4">
-                        <TabsContent value="details" className="space-y-6 mt-0">
-                            {/* Status Bar */}
-                            <div className="flex flex-col gap-4 bg-muted/50 p-4 rounded-lg border">
-                                <div className="flex items-center justify-between">
-                                    <div className="space-y-1">
-                                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">Current Status</Label>
-                                        <Select
-                                            value={formData.status}
-                                            onValueChange={(val) => setFormData({ ...formData, status: val })}
-                                            disabled={isReadOnly}
-                                        >
-                                            <SelectTrigger className="w-[180px] bg-background h-8">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {leadStatusOptions.map((status) => (
-                                                    <SelectItem key={status} value={status} className="capitalize">
-                                                        {status.replace(/_/g, " ")}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        {/* Score with breakdown tooltip */}
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div className="text-right cursor-help">
-                                                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Lead Score</div>
-                                                    <div className="flex items-center gap-1">
-                                                        <span className={cn(
-                                                            "font-bold text-lg",
-                                                            (formData.score ?? 0) >= 70 && "text-red-500",
-                                                            (formData.score ?? 0) >= 40 && (formData.score ?? 0) < 70 && "text-amber-500",
-                                                            (formData.score ?? 0) < 40 && "text-blue-500"
-                                                        )}>
-                                                            {formData.score ?? "—"}
-                                                        </span>
-                                                        <Zap className="w-3.5 h-3.5 text-muted-foreground" />
-                                                    </div>
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="left" className="w-64 p-0">
-                                                <div className="p-3 space-y-2">
-                                                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Score Breakdown</div>
-                                                    {formData.score_details ? (
-                                                        <div className="space-y-1.5">
-                                                            {(Object.entries(formData.score_details) as [keyof LeadScoreBreakdown, number][]).map(([key, val]) => (
-                                                                <div key={key} className="flex items-center justify-between gap-3 text-xs">
-                                                                    <span className="text-muted-foreground">{SCORE_BREAKDOWN_LABELS[key] ?? key}</span>
-                                                                    <div className="flex items-center gap-2">
-                                                                        <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                                                                            <div
-                                                                                className="h-full bg-[hsl(var(--brand-primary))] rounded-full"
-                                                                                style={{ width: `${(val / SCORE_BREAKDOWN_MAX[key]) * 100}%` }}
-                                                                            />
-                                                                        </div>
-                                                                        <span className="font-mono font-medium w-6 text-right">{val}</span>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                            <div className="pt-1.5 border-t border-border flex justify-between text-xs font-semibold">
-                                                                <span>Total</span>
-                                                                <span className="font-mono">{formData.score ?? 0}/100</span>
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-xs text-muted-foreground">Score not yet calculated</div>
-                                                    )}
-                                                </div>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                        <div className="text-right">
-                                            <div className="text-xs text-muted-foreground uppercase tracking-wider">Date Received</div>
-                                            <div className="font-medium text-sm">
-                                                {formData.created_at ? format(new Date(formData.created_at), "PPP") : "N/A"}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {formData.status === "lost" && (
-                                    <div className="space-y-1">
-                                        <Label className="text-xs text-muted-foreground uppercase tracking-wider text-destructive">Loss Reason</Label>
-                                        <Select
-                                            value={formData.loss_reason || ""}
-                                            onValueChange={(val) => setFormData({ ...formData, loss_reason: val })}
-                                            disabled={isReadOnly}
-                                        >
-                                            <SelectTrigger className="w-[280px] bg-background/50 border-destructive/20 data-[state=open]:border-destructive">
-                                                <SelectValue placeholder="Select reason for lost lead..." />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {lossReasonOptions.map((reason) => (
-                                                    <SelectItem key={reason} value={reason} className="capitalize">
-                                                        {reason.replace(/_/g, " ")}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Duplicate Detection Banner — shown whenever email or phone could match */}
-                            {!isReadOnly && (formData.email || formData.phone) && (
-                                <DuplicateBanner
-                                    candidate={{ email: formData.email, phone: formData.phone }}
-                                    allLeads={allLeads}
-                                    currentId={isNewLead ? undefined : formData.id}
-                                    onViewLead={onViewLead}
-                                    className="mb-2"
-                                />
+                <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="admin-theme w-[95vw] sm:max-w-[880px] p-0 flex flex-col h-full bg-admin-bg border-l border-admin-border gap-0 z-[100] shadow-2xl text-admin-text">
+                {/* Stage progress */}
+                <div className="px-5 pt-4 pb-3 border-b border-admin-border">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="text-[11px] text-admin-text-muted flex items-center gap-2">
+                            <span>Lead in <span className="text-admin-text font-medium">{CRM_STAGE_LABELS[activeStage] || "New Inquiry"}</span></span>
+                            {STAGE_SUB_STATUSES[activeStage]?.length > 0 && (
+                                <>
+                                    <span className="text-admin-border-subtle">â€¢</span>
+                                    <select
+                                        value={formData.sub_status || ""}
+                                        onChange={(e) => setFormData({ ...formData, sub_status: e.target.value })}
+                                        disabled={isReadOnly}
+                                        title="Sub-status"
+                                        aria-label="Sub-status"
+                                        className="bg-transparent text-admin-text border-none focus:ring-0 text-[11px] font-medium p-0 cursor-pointer w-auto pr-4"
+                                    >
+                                        <option value="" className="bg-admin-surface text-admin-text-muted">- Set Sub-status -</option>
+                                        {STAGE_SUB_STATUSES[activeStage].map(sub => (
+                                            <option key={sub} value={sub} className="bg-admin-surface text-admin-text">{sub}</option>
+                                        ))}
+                                    </select>
+                                </>
                             )}
+                        </div>
+                    </div>
+                    {/* Stage stepper */}
+                    <div className="flex items-center gap-1 overflow-x-auto custom-scrollbar pb-1">
+                        {CRM_STAGES.map((stage, idx) => {
+                            const isActive = activeStage === stage.id;
+                            const activeIndex = CRM_STAGES.findIndex(s => s.id === activeStage);
+                            const isPast = activeIndex > idx; // strictly past
+                            const isCompleted = isPast;
 
-                            {/* Contact Info */}
-                            <div className="space-y-4">
-                                <h3 className="font-semibold flex items-center gap-2 text-sm -admin-primary">
-                                    <User className="w-4 h-4" /> Client Information
-                                </h3>
-                                <div className="grid gap-4 p-4 border rounded-lg bg-card">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="name">Full Name</Label>
-                                        <Input
-                                            id="name"
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            readOnly={isReadOnly}
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="email" className="flex items-center gap-2"><Mail className="w-3 h-3" /> Email</Label>
-                                            <Input
-                                                id="email"
-                                                value={formData.email || ""}
-                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                                readOnly={isReadOnly}
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="phone" className="flex items-center gap-2"><Phone className="w-3 h-3" /> Phone</Label>
-                                            <Input
-                                                id="phone"
-                                                value={formData.phone || ""}
-                                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                                readOnly={isReadOnly}
-                                            />
-                                        </div>
-                                    </div>
+                            return (
+                                <div key={stage.id} className="flex items-center gap-1 shrink-0">
+                                    <button
+                                        type="button"
+                                        onClick={() => setStage(stage.id)}
+                                        disabled={isReadOnly}
+                                        className={cn(
+                                            "flex items-center gap-1.5 h-7 px-3 rounded-md text-[11px] whitespace-nowrap transition-all border",
+                                            isActive 
+                                                ? "bg-blue-500/20 border-blue-500/40 text-blue-100 font-medium shadow-sm" 
+                                                : isCompleted 
+                                                    ? "bg-blue-500/5 border-blue-500/15 text-blue-300 hover:bg-blue-500/10" 
+                                                    : "bg-admin-surface border-admin-border text-admin-text-subtle hover:text-admin-text-muted hover:border-admin-border-subtle"
+                                        )}
+                                    >
+                                        {isActive ? (
+                                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.6)]" />
+                                        ) : isCompleted ? (
+                                            <CheckCircle2 className="w-3 h-3 text-blue-400/80" />
+                                        ) : null}
+                                        {stage.shortLabel}
+                                    </button>
+                                    {idx < CRM_STAGES.length - 1 && (
+                                        <div className={cn(
+                                            "w-3 h-px mx-1",
+                                            activeIndex >= idx + 1 ? "bg-blue-500/30" : "bg-admin-border"
+                                        )} />
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Header: name + actions */}
+                <div className="px-5 py-4 border-b border-admin-border flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1.5">
+                            <span className="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 uppercase">
+                                {formData.source ? getCrmSourceLabel(formData.source) : "MANUAL"}
+                            </span>
+                            {formData.score !== undefined && (
+                                <span className={cn(
+                                    "inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded border uppercase font-bold tracking-wider",
+                                    (formData.score ?? 0) >= 70 ? "text-rose-300 bg-rose-500/10 border-rose-500/20" :
+                                    (formData.score ?? 0) >= 40 ? "text-amber-300 bg-amber-500/10 border-amber-500/20" :
+                                    "text-blue-300 bg-blue-500/10 border-blue-500/20"
+                                )}>
+                                    <span className={cn("w-1.5 h-1.5 rounded-full shadow-sm",
+                                        (formData.score ?? 0) >= 70 ? "bg-[#EF4444]" :
+                                        (formData.score ?? 0) >= 40 ? "bg-[#F59E0B]" :
+                                        "bg-[#3B82F6]"
+                                    )} />
+                                    {(formData.score ?? 0) >= 70 ? "Hot" : (formData.score ?? 0) >= 40 ? "Warm" : "Cold"}
+                                </span>
+                            )}
+                        </div>
+                        {isNewLead ? (
+                            <Input
+                                value={formData.name || ""}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                placeholder="Enter lead name"
+                                className="text-[20px] font-semibold text-admin-text h-9 mt-1 bg-transparent border-admin-border-subtle focus-visible:ring-1 px-1 -ml-1"
+                            />
+                        ) : (
+                            <h2 className="text-[20px] font-semibold text-admin-text leading-tight">
+                                {formData.name || "Unknown Lead"}
+                            </h2>
+                        )}
+                        <div className="mt-2 text-[12px] text-admin-text-muted flex flex-wrap items-center gap-x-3 gap-y-2">
+                            <span className="flex items-center gap-1.5">
+                                <Phone className="w-3 h-3" />
+                                {isNewLead ? (
+                                    <Input
+                                        value={formData.phone || ""}
+                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        placeholder="Phone number"
+                                        className="h-7 text-[12px] bg-transparent border-admin-border-subtle w-32 px-1 -ml-1"
+                                    />
+                                ) : (
+                                    formData.phone || "No phone"
+                                )}
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                                <Mail className="w-3 h-3" />
+                                {isNewLead ? (
+                                    <Input
+                                        value={formData.email || ""}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        placeholder="Email address"
+                                        className="h-7 text-[12px] bg-transparent border-admin-border-subtle w-48 px-1 -ml-1"
+                                    />
+                                ) : (
+                                    formData.email || "No email"
+                                )}
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                                <span className="w-3 h-3 shrink-0 flex items-center justify-center">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                </span>
+                                {isNewLead ? (
+                                    <Input
+                                        value={formData.city || ""}
+                                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                        placeholder="City / Location"
+                                        className="h-7 text-[12px] bg-transparent border-admin-border-subtle w-32 px-1 -ml-1"
+                                    />
+                                ) : (
+                                    formData.city || "No location"
+                                )}
+                            </span>
+                        </div>
+                    </div>
+                    {!isNewLead && (
+                        <div className="flex items-center gap-1.5 shrink-0 mt-8">
+                            <Button variant="outline" size="sm" className="h-8 px-3 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-300 text-[12px] font-medium" onClick={() => formData.phone && window.open(`tel:${formData.phone}`, '_blank')}>
+                                <Phone className="w-3.5 h-3.5 mr-1.5" /> Call
+                            </Button>
+                            <Button variant="outline" size="sm" className="h-8 px-3 rounded-md bg-teal-500/10 hover:bg-teal-500/20 border-teal-500/30 text-teal-300 text-[12px] font-medium" onClick={() => {
+                                const cleanPhone = formData.phone?.replace(/\D/g, "");
+                                if (cleanPhone) window.open(`https://wa.me/${cleanPhone}`, '_blank');
+                            }}>
+                                <MessageCircle className="w-3.5 h-3.5 mr-1.5" /> WhatsApp
+                            </Button>
+                            <Button variant="outline" size="sm" className="h-8 px-3 rounded-md bg-blue-500/10 hover:bg-blue-500/20 border-blue-500/30 text-blue-300 text-[12px] font-medium" onClick={() => setActiveTab("email")}>
+                                <Mail className="w-3.5 h-3.5 mr-1.5" /> Email
+                            </Button>
+                        </div>
+                    )}
+                </div>
+
+                {/* NEXT ACTION banner */}
+                {!isNewLead && NEXT_ACTION_BY_STAGE[activeStage] && (
+                    <div className="mx-5 mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-md bg-amber-500/15 flex items-center justify-center shrink-0">
+                            <Clock className="w-4 h-4 text-amber-300" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="text-[11px] text-amber-300 uppercase tracking-wider font-semibold mb-0.5">Recommended Action</div>
+                            <div className="text-[14px] text-white font-medium">{NEXT_ACTION_BY_STAGE[activeStage]}</div>
+                            {FOLLOW_UP_SLA[activeStage]?.hours > 0 && (
+                                <div className="text-[11px] text-amber-200/70 mt-1 flex items-center gap-1">
+                                    <Target className="w-3 h-3" /> Follow up within <span className="font-semibold text-amber-200">{FOLLOW_UP_SLA[activeStage].label}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Stage Playbook Guide */}
+                {!isNewLead && STAGE_PLAYBOOK[activeStage] && (
+                    <div className="mx-5 mt-2">
+                        <button
+                            type="button"
+                            onClick={() => setShowPlaybook(!showPlaybook)}
+                            className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[11px] text-admin-text-muted hover:text-admin-text hover:bg-white/[0.03] transition-colors"
+                        >
+                            <span className="flex items-center gap-1.5"><Info className="w-3.5 h-3.5" /> Stage Guide: {CRM_STAGE_LABELS[activeStage]}</span>
+                            <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showPlaybook && "rotate-180")} />
+                        </button>
+                        {showPlaybook && (
+                            <div className="mt-1 p-3 rounded-lg bg-admin-bg border border-admin-border grid grid-cols-2 gap-3 text-[11px] animate-in fade-in slide-in-from-top-1 duration-200">
+                                <div>
+                                    <div className="text-admin-text-subtle uppercase tracking-wider mb-1 font-semibold flex items-center gap-1"><Target className="w-3 h-3" /> Goal</div>
+                                    <div className="text-white">{STAGE_PLAYBOOK[activeStage].goal}</div>
+                                </div>
+                                <div>
+                                    <div className="text-admin-text-subtle uppercase tracking-wider mb-1 font-semibold flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Exit Criteria</div>
+                                    <div className="text-white">{STAGE_PLAYBOOK[activeStage].exitCriteria}</div>
+                                </div>
+                                <div>
+                                    <div className="text-admin-text-subtle uppercase tracking-wider mb-1 font-semibold flex items-center gap-1"><AlertTriangle className="w-3 h-3 text-amber-400" /> Common Mistake</div>
+                                    <div className="text-amber-200/80">{STAGE_PLAYBOOK[activeStage].commonMistake}</div>
+                                </div>
+                                <div>
+                                    <div className="text-admin-text-subtle uppercase tracking-wider mb-1 font-semibold flex items-center gap-1"><Lightbulb className="w-3 h-3 text-blue-400" /> What This Means</div>
+                                    <div className="text-blue-200/80">{STAGE_PLAYBOOK[activeStage].meaning}</div>
                                 </div>
                             </div>
+                        )}
+                    </div>
+                )}
 
-                            {/* Project Details */}
-                            <div className="space-y-4">
-                                <h3 className="font-semibold flex items-center gap-2 text-sm -admin-primary">
-                                    <FileText className="w-4 h-4" /> Project Interest
-                                </h3>
-                                <div className="grid gap-4 p-4 border rounded-lg bg-card">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="service">Interested Service</Label>
+                {/* Tabs */}
+                <div className="mt-4 px-5 border-b border-admin-border flex items-center gap-1 shrink-0">
+                    <button 
+                        onClick={() => setActiveTab("details")}
+                        className={cn("h-9 px-3 text-[12px] font-medium -mb-px transition-colors", activeTab === "details" ? "text-admin-text border-b-2 border-admin-primary" : "text-admin-text-muted hover:text-admin-text")}>
+                        Details
+                    </button>
+                    {!isNewLead && (
+                        <button 
+                            onClick={() => setActiveTab("activity")}
+                            className={cn("h-9 px-3 text-[12px] font-medium -mb-px transition-colors", activeTab === "activity" ? "text-admin-text border-b-2 border-admin-primary" : "text-admin-text-muted hover:text-admin-text")}>
+                            Activity
+                        </button>
+                    )}
+                    <button 
+                        onClick={() => setActiveTab("email")}
+                        className={cn("h-9 px-3 text-[12px] font-medium -mb-px transition-colors", activeTab === "email" ? "text-admin-text border-b-2 border-admin-primary" : "text-admin-text-muted hover:text-admin-text")}>
+                        Email Drafts
+                    </button>
+                </div>
+
+                {/* Body Content */}
+                <div className="flex-1 overflow-y-auto p-5 space-y-6 bg-admin-card">
+                    
+                    {activeTab === "details" && (
+                        <>
+                            {/* Project Section */}
+                            <section>
+                                <h4 className="text-[11px] uppercase tracking-wider text-admin-text-subtle mb-2 font-semibold">Project</h4>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-admin-surface border border-admin-border rounded-md p-3">
+                                        <Label className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Type</Label>
                                         <Input
-                                            id="service"
                                             value={formData.category || ""}
                                             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                             readOnly={isReadOnly}
+                                            placeholder="e.g. Living Room + Kitchen"
+                                            className="h-8 text-[13px] text-admin-text bg-transparent border-0 px-0 focus-visible:ring-0"
                                         />
                                     </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="message">Initial Message</Label>
-                                        <div className="bg-muted p-3 rounded-md text-sm italic border">
-                                            "{formData.message || "No message provided."}"
-                                        </div>
+                                    <div className="bg-admin-surface border border-admin-border rounded-md p-3">
+                                        <Label className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Budget</Label>
+                                        <Input
+                                            value={formData.budget || ""}
+                                            onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                                            readOnly={isReadOnly}
+                                            placeholder="e.g. â‚¹3 - 5 L"
+                                            className="h-8 text-[13px] text-admin-text bg-transparent border-0 px-0 focus-visible:ring-0"
+                                        />
                                     </div>
-                                    <div className="grid gap-4 md:grid-cols-3">
-                                        <div className="grid gap-2">
-                                            <Label>Project Type</Label>
-                                            <Input
-                                                value={formData.project_type || ""}
-                                                onChange={(e) => setFormData({ ...formData, project_type: e.target.value })}
-                                                readOnly={isReadOnly}
-                                                placeholder="e.g. Apartment"
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label>Budget</Label>
-                                            <Input
-                                                value={formData.budget || ""}
-                                                onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                                                readOnly={isReadOnly}
-                                                placeholder="e.g. 10-15 L"
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label>City</Label>
-                                            <Input
-                                                value={formData.city || ""}
-                                                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                                                readOnly={isReadOnly}
-                                                placeholder="e.g. Mumbai"
-                                            />
-                                        </div>
-                                        <div className="grid gap-2 md:col-span-3">
-                                            <Label>Scope</Label>
-                                            <Input
-                                                value={formData.scope || ""}
-                                                onChange={(e) => setFormData({ ...formData, scope: e.target.value })}
-                                                readOnly={isReadOnly}
-                                                placeholder="e.g. 3BHK Full Interior"
-                                            />
-                                        </div>
-                                        <div className="grid gap-2 md:col-span-3">
-                                            <Label>Timeline</Label>
-                                            <Input
-                                                value={formData.timeline || ""}
-                                                onChange={(e) => setFormData({ ...formData, timeline: e.target.value })}
-                                                readOnly={isReadOnly}
-                                                placeholder="e.g. Need to move in 2 months"
-                                            />
+                                    <div className="bg-admin-surface border border-admin-border rounded-md p-3">
+                                        <Label className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Move-in by</Label>
+                                        <Input
+                                            value={formData.timeline || ""}
+                                            onChange={(e) => setFormData({ ...formData, timeline: e.target.value })}
+                                            readOnly={isReadOnly}
+                                            placeholder="e.g. August 2026"
+                                            className="h-8 text-[13px] text-admin-text bg-transparent border-0 px-0 focus-visible:ring-0"
+                                        />
+                                    </div>
+                                    <div className="bg-admin-surface border border-admin-border rounded-md p-3">
+                                        <Label className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Assigned to</Label>
+                                        <div className="text-[13px] text-admin-text-muted mt-1 h-8 flex items-center">
+                                            Auto-assigned
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </section>
 
-                            {/* Notes */}
-                            <div className="space-y-4">
-                                <h3 className="font-semibold flex items-center gap-2 text-sm -admin-primary">
-                                    <StickyNote className="w-4 h-4" /> Internal Notes
-                                </h3>
+                            {/* Source Section */}
+                            <section>
+                                <h4 className="text-[11px] uppercase tracking-wider text-admin-text-subtle mb-2 font-semibold">Source</h4>
+                                <div className="bg-admin-surface border border-admin-border rounded-md p-3">
+                                    <div className="text-[13px] text-admin-text mb-1">
+                                        {formData.source ? getCrmSourceLabel(formData.source) : "Manual Entry"}
+                                    </div>
+                                    <div className="text-[11px] text-admin-text-muted">
+                                        Added on {formData.created_at ? format(new Date(formData.created_at), "PPP 'at' p") : "Just now"}
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Notes / Message Section */}
+                            <section>
+                                <h4 className="text-[11px] uppercase tracking-wider text-admin-text-subtle mb-2 font-semibold">Internal Notes & Message</h4>
                                 <Textarea
-                                    className="min-h-[100px]"
-                                    placeholder="Add notes about budget, timeline, or meeting outcomes..."
-                                    value={formData.notes || ""}
-                                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                                    value={formData.message || formData.notes || ""}
+                                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                     readOnly={isReadOnly}
+                                    placeholder="Add notes, requirements, or copy their initial message here..."
+                                    className="min-h-[120px] bg-admin-surface border-admin-border text-[13px] text-admin-text placeholder:text-admin-text-subtle"
                                 />
-                            </div>
+                            </section>
 
-                            {/* CRM Intelligence */}
-                            <div className="space-y-4">
-                                <h3 className="font-semibold flex items-center gap-2 text-sm -admin-primary">
-                                    <Zap className="w-4 h-4" /> CRM Intelligence
-                                </h3>
-                                <div className="grid gap-3 p-4 border rounded-lg bg-card">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="next_step" className="flex items-center gap-2">
-                                            <ArrowRight className="w-3 h-3" /> Next Step
-                                        </Label>
-                                        <Input
-                                            id="next_step"
-                                            placeholder="e.g. Send proposal, Follow up call"
-                                            value={formData.next_step || ""}
-                                            onChange={(e) => setFormData({ ...formData, next_step: e.target.value })}
-                                            readOnly={isReadOnly}
-                                        />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="assigned_to" className="flex items-center gap-2">
-                                            <UserCircle className="w-3 h-3" /> Assigned To
-                                        </Label>
-                                        <Input
-                                            id="assigned_to"
-                                            placeholder="e.g. rahul@crossangle.com"
-                                            value={formData.assigned_to || ""}
-                                            onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
-                                            readOnly={isReadOnly}
-                                        />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="forecast_category">Forecast Category</Label>
-                                        <Select
-                                            value={formData.forecast_category || ""}
-                                            onValueChange={(val) => setFormData({ ...formData, forecast_category: val as Lead["forecast_category"] })}
-                                            disabled={isReadOnly}
-                                        >
-                                            <SelectTrigger className="bg-background">
-                                                <SelectValue placeholder="Select forecast category..." />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {FORECAST_OPTIONS.map((opt) => (
-                                                    <SelectItem key={opt.value} value={opt.value}>
-                                                        <span className={cn("inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium", opt.color)}>
-                                                            {opt.label}
-                                                        </span>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value="pipeline" className="mt-0 space-y-6">
-                            {/* Stage Stepper */}
-                            <div className="space-y-3">
-                                <h3 className="font-semibold flex items-center gap-2 text-sm -admin-primary">
-                                    <TrendingUp className="w-4 h-4" /> Pipeline Stage
-                                </h3>
-                                <div className="relative">
-                                    <div className="flex overflow-x-auto pb-2 gap-1">
-                                        {PIPELINE_STAGES.map((stage, idx) => {
-                                            const isActive = formData.status === stage.key;
-                                            const isPast = PIPELINE_STAGES.findIndex(s => s.key === formData.status) > idx;
-                                            const isWon = formData.status === "won";
-                                            const isLost = formData.status === "lost";
-
-                                            return (
-                                                <div key={stage.key} className="flex items-center gap-1 shrink-0">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => !isReadOnly && setFormData({ ...formData, status: stage.key })}
-                                                        disabled={isReadOnly}
-                                                        className={cn(
-                                                            "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-medium border transition-all whitespace-nowrap",
-                                                            isActive && "bg-[hsl(var(--brand-primary))] text-white border-[hsl(var(--brand-primary))] shadow-sm",
-                                                            isPast && !isLost && "bg-emerald-500/10 text-emerald-600 border-emerald-500/30",
-                                                            isLost && isPast && "bg-red-500/10 text-red-500 border-red-500/30",
-                                                            !isActive && !isPast && "bg-muted/50 text-muted-foreground border-border hover:border-foreground/20",
-                                                        )}
-                                                    >
-                                                        {isActive && <CircleDot className="w-2.5 h-2.5 animate-pulse" />}
-                                                        {isPast && !isActive && <CheckCircle2 className="w-2.5 h-2.5" />}
-                                                        {!isPast && !isActive && <CircleDot className="w-2.5 h-2.5" />}
-                                                        {stage.label}
-                                                    </button>
-                                                    {idx < PIPELINE_STAGES.length - 1 && (
-                                                        <ChevronRight className="w-3 h-3 text-muted-foreground/40 shrink-0" />
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Days in Stage */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <Card className="bg-card">
-                                    <CardContent className="p-4 pt-3 space-y-1">
-                                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Days in Stage</div>
-                                        <div className="text-2xl font-display font-bold text-[hsl(var(--brand-primary))]">
-                                            {formData.created_at ? Math.max(1, differenceInDays(new Date(), new Date(formData.created_at))) : "—"}
-                                        </div>
-                                        <div className="text-[10px] text-muted-foreground">since creation</div>
-                                    </CardContent>
-                                </Card>
-                                <Card className="bg-card">
-                                    <CardContent className="p-4 pt-3 space-y-1">
-                                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Win Probability</div>
-                                        <div className="text-2xl font-display font-bold text-emerald-500">
-                                            {Math.round((STAGE_WIN_PROBABILITY[formData.status] ?? 0) * 100)}%
-                                        </div>
-                                        <div className="text-[10px] text-muted-foreground">
-                                            {formData.status === "won" ? "Deal closed" : formData.status === "lost" ? "Deal lost" : "at this stage"}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </div>
-
-                            {/* Forecast Category */}
-                            <div className="space-y-3">
-                                <h3 className="font-semibold text-sm">Forecast Category</h3>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {FORECAST_OPTIONS.map((opt) => {
-                                        const isSelected = formData.forecast_category === opt.value;
-                                        return (
-                                            <button
-                                                key={opt.value}
-                                                type="button"
-                                                onClick={() => !isReadOnly && setFormData({ ...formData, forecast_category: opt.value as Lead["forecast_category"] })}
-                                                disabled={isReadOnly}
-                                                className={cn(
-                                                    "flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-all text-left",
-                                                    isSelected
-                                                        ? "border-[hsl(var(--brand-primary))] bg-[hsl(var(--brand-primary))]/5 text-foreground"
-                                                        : "border-border bg-muted/30 text-muted-foreground hover:border-foreground/20"
-                                                )}
-                                            >
-                                                <span className={cn("w-2 h-2 rounded-full shrink-0", isSelected ? "bg-[hsl(var(--brand-primary))]" : "bg-current opacity-40")} />
-                                                {opt.label}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Stage Metadata */}
-                            {(formData.stale_flagged_at || formData.closed_at || formData.assigned_to) && (
-                                <div className="space-y-2">
-                                    <h3 className="font-semibold text-sm text-muted-foreground">Timestamps</h3>
-                                    <div className="space-y-1.5 text-xs">
-                                        {formData.assigned_to && (
-                                            <div className="flex items-center gap-2">
-                                                <UserCircle className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                                                <span className="text-muted-foreground">Assigned:</span>
-                                                <span className="font-medium">{formData.assigned_to}</span>
-                                            </div>
-                                        )}
-                                        {formData.stale_flagged_at && (
-                                            <div className="flex items-center gap-2">
-                                                <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                                                <span className="text-muted-foreground">Stale flagged:</span>
-                                                <span className="font-medium text-amber-500">{format(new Date(formData.stale_flagged_at), "PPP")}</span>
-                                            </div>
-                                        )}
-                                        {formData.closed_at && (
-                                            <div className="flex items-center gap-2">
-                                                {formData.status === "won"
-                                                    ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                                                    : <CircleDot className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                                                }
-                                                <span className="text-muted-foreground">Closed:</span>
-                                                <span className="font-medium">{format(new Date(formData.closed_at), "PPP")}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+                            {/* Objection Tracker Section */}
+                            {!isNewLead && (
+                                <section className="pt-4 border-t border-admin-border">
+                                    <ObjectionTracker leadId={formData.id} isReadOnly={isReadOnly} />
+                                </section>
                             )}
-                        </TabsContent>
-
-                        <TabsContent value="email" className="mt-0 space-y-4">
-                            {/* Header */}
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h3 className="font-semibold text-sm">Email Templates</h3>
-                                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                                        Sends directly to <span className="text-foreground font-medium">{formData.email || "(no email)"}</span> via Resend
-                                    </p>
-                                </div>
-                                {!formData.email && (
-                                    <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-1 rounded-md">
-                                        ⚠️ No email address
-                                    </span>
-                                )}
-                            </div>
-
-                            {/* Template cards */}
-                            <div className="grid gap-3">
-                                {EMAIL_TEMPLATES.map(template => {
-                                    const { body, subject } = processTemplate(template.body, template.subject);
-                                    const sendState = sentTemplates[template.id];
-                                    const hasSent = sendState === "sent";
-                                    const isSending = sendState === "sending";
-
-                                    const handleSend = async (e: React.MouseEvent) => {
-                                        e.stopPropagation();
-                                        if (!formData.email || !formData.id || isReadOnly) return;
-                                        setSentTemplates(p => ({ ...p, [template.id]: "sending" }));
-                                        try {
-                                            await sendEmailMutation.mutateAsync({
-                                                lead_id: formData.id,
-                                                to_email: formData.email,
-                                                to_name: formData.name || "there",
-                                                subject,
-                                                body,
-                                                template_id: template.id,
-                                            });
-                                            setSentTemplates(p => ({ ...p, [template.id]: "sent" }));
-                                            toast({ title: "Email sent", description: `"${template.name}" delivered to ${formData.email}` });
-                                            // Refresh activity timeline
-                                            void queryClient.invalidateQueries({ queryKey: ["lead-timeline", formData.id] });
-                                        } catch (err) {
-                                            setSentTemplates(p => ({ ...p, [template.id]: "error" }));
-                                            const msg = err instanceof Error ? err.message : "Send failed";
-                                            toast({ variant: "destructive", title: "Send failed", description: msg });
-                                        }
-                                    };
-
-                                    return (
-                                        <Card
-                                            key={template.id}
-                                            className={cn(
-                                                "border transition-colors group",
-                                                hasSent ? "border-emerald-500/40 bg-emerald-500/5" : "hover:border-amber-500/30"
-                                            )}
-                                        >
-                                            <CardContent className="p-4">
-                                                <div className="flex justify-between items-start mb-2 gap-2">
-                                                    <div className="min-w-0">
-                                                        <h4 className="font-medium text-sm truncate">{template.name}</h4>
-                                                        <div className="text-[10px] text-muted-foreground mt-0.5">
-                                                            Subject: {subject}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Action buttons */}
-                                                    <div className="flex gap-1 shrink-0">
-                                                        {/* Copy */}
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="h-7 w-7"
-                                                                    onClick={(e) => { e.stopPropagation(); copyToClipboard(body, template.name); }}
-                                                                >
-                                                                    <Copy className="h-3 w-3" />
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>Copy body</TooltipContent>
-                                                        </Tooltip>
-
-                                                        {/* mailto */}
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="h-7 w-7"
-                                                                    onClick={(e) => { e.stopPropagation(); openMailClient(template); }}
-                                                                >
-                                                                    <ExternalLink className="h-3 w-3" />
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>Open in mail client</TooltipContent>
-                                                        </Tooltip>
-
-                                                        {/* Send via Resend */}
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <Button
-                                                                    size="icon"
-                                                                    className={cn(
-                                                                        "h-7 w-7 transition-all",
-                                                                        hasSent
-                                                                            ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
-                                                                            : sendState === "error"
-                                                                                ? "bg-red-500/20 text-red-400"
-                                                                                : "bg-amber-500/10 hover:bg-amber-500/20 text-amber-400"
-                                                                    )}
-                                                                    disabled={!formData.email || isSending || isReadOnly}
-                                                                    onClick={handleSend}
-                                                                >
-                                                                    {isSending ? (
-                                                                        <Loader2 className="h-3 w-3 animate-spin" />
-                                                                    ) : hasSent ? (
-                                                                        <CheckCheck className="h-3 w-3" />
-                                                                    ) : (
-                                                                        <Send className="h-3 w-3" />
-                                                                    )}
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>
-                                                                {hasSent ? "Sent ✓" : isSending ? "Sending…" : "Send via Resend"}
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    </div>
-                                                </div>
-
-                                                {/* Body preview */}
-                                                <p className="text-xs text-muted-foreground line-clamp-2 bg-muted/50 p-2 rounded">
-                                                    {body}
-                                                </p>
-
-                                                {/* Sent confirmation */}
-                                                {hasSent && (
-                                                    <div className="flex items-center gap-1.5 mt-2 text-[10px] text-emerald-500">
-                                                        <CheckCheck className="h-3 w-3" />
-                                                        Sent to {formData.email}
-                                                    </div>
-                                                )}
-                                            </CardContent>
-                                        </Card>
-                                    );
-                                })}
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value="activity" className="mt-0 h-full">
-                            <LeadTimeline leadId={formData.id} />
-                        </TabsContent>
-
-                        <TabsContent value="raw-data" className="mt-0 h-full">
-                            <div className="space-y-4">
-                                <h3 className="font-semibold flex items-center gap-2 text-sm text-primary">
-                                    <FileText className="w-4 h-4" /> Raw Form Data
-                                </h3>
-                                <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-lg overflow-x-auto text-xs font-mono text-zinc-300">
-                                    <pre>{formData.form_data ? JSON.stringify(formData.form_data, null, 2) : "No raw form data available."}</pre>
-                                </div>
-                            </div>
-                        </TabsContent>
-                    </div>
-                </Tabs>
-
-                <DialogFooter className="px-6 py-4 border-t border-zinc-800 shrink-0 gap-2">
-                    {!isReadOnly && (
-                        <>
-                            {!isNewLead && <Button variant="destructive" onClick={() => onDelete(formData.id)} size="sm">Delete</Button>}
-                            <Button onClick={handleSave} className="bg-[hsl(var(--brand-primary))]" size="sm">{isNewLead ? "Create Lead" : "Save Changes"}</Button>
                         </>
                     )}
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+
+                    {activeTab === "tasks" && !isNewLead && (
+                        <div className="bg-admin-surface rounded-md border border-admin-border p-4 h-full">
+                            <LeadTaskList leadId={formData.id} isReadOnly={isReadOnly} />
+                        </div>
+                    )}
+
+                    {activeTab === "activity" && !isNewLead && (
+                        <div className="bg-admin-surface rounded-md border border-admin-border p-4 h-full min-h-[300px]">
+                            <LeadTimeline leadId={formData.id} />
+                        </div>
+                    )}
+
+                    {activeTab === "email" && (
+                         <div className="space-y-4">
+                            {EMAIL_TEMPLATES.map(template => {
+                                const { body, subject } = processTemplate(template.body, template.subject);
+                                const sendState = sentTemplates[template.id];
+                                
+                                return (
+                                    <div key={template.id} className="bg-admin-surface rounded-md border border-admin-border overflow-hidden">
+                                        <div className="bg-admin-surface-hover px-4 py-3 border-b border-admin-border flex justify-between items-center">
+                                            <div className="font-semibold text-[13px] text-admin-text flex items-center gap-2">
+                                                <Mail className="w-4 h-4 text-admin-text-muted" />
+                                                {template.name}
+                                            </div>
+                                            <Button variant="ghost" size="sm" className="h-7 text-[11px] font-bold uppercase text-admin-text-muted hover:text-admin-text" onClick={() => copyToClipboard(body, template.name)}>
+                                                <Copy className="w-3.5 h-3.5 mr-1.5" /> Copy Draft
+                                            </Button>
+                                        </div>
+                                        <div className="p-4 space-y-3">
+                                            <div className="text-[13px] font-medium text-admin-text">
+                                                <span className="text-admin-text-subtle mr-2">Subject:</span> {subject}
+                                            </div>
+                                            <div className="text-[13px] text-admin-text-muted whitespace-pre-wrap bg-admin-card p-3 rounded border border-admin-border leading-relaxed">
+                                                {body}
+                                            </div>
+                                            <div className="flex justify-end pt-2">
+                                                <Button 
+                                                    size="sm" 
+                                                    className={cn(
+                                                        "h-8 px-4 text-[12px] font-semibold transition-all",
+                                                        sendState === "sent" ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-admin-primary text-black hover:bg-admin-primary-hover"
+                                                    )}
+                                                    onClick={() => {
+                                                        if (!formData?.email) {
+                                                            toast({ variant: "destructive", title: "Missing Email", description: "Cannot send email without an address." });
+                                                            return;
+                                                        }
+                                                        setSentTemplates(prev => ({ ...prev, [template.id]: "sending" }));
+                                                        sendEmailMutation.mutate(
+                                                            {
+                                                                lead_id: formData.id,
+                                                                to_email: formData.email,
+                                                                to_name: formData.name || "there",
+                                                                subject,
+                                                                body,
+                                                                template_id: template.id,
+                                                            },
+                                                            {
+                                                                onSuccess: () => {
+                                                                    setSentTemplates(prev => ({ ...prev, [template.id]: "sent" }));
+                                                                    logActivity("email_sent", `Sent email template: ${template.name}`, { template: template.name, subject });
+                                                                    toast({ title: "Email Sent", description: `Sent to ${formData.email}` });
+                                                                },
+                                                                onError: () => setSentTemplates(prev => ({ ...prev, [template.id]: "error" }))
+                                                            }
+                                                        );
+                                                    }}
+                                                    disabled={sendState === "sending" || sendState === "sent" || !formData?.email}
+                                                >
+                                                    {sendState === "sending" ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : 
+                                                     sendState === "sent" ? <CheckCheck className="w-3.5 h-3.5 mr-1.5" /> : 
+                                                     <Send className="w-3.5 h-3.5 mr-1.5" />}
+                                                    {sendState === "sending" ? "Sending..." : sendState === "sent" ? "Sent Successfully" : "Send via CrossAngle"}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer */}
+                <div className="border-t border-admin-border bg-admin-surface px-5 py-4 flex items-center justify-between shrink-0">
+                    <div className="text-[11px] text-admin-text-subtle">
+                        {isNewLead ? "New Lead Entry" : "Editing Lead Details"}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {onDelete && !isNewLead && (
+                            <Button variant="ghost" className="h-9 px-3 rounded-md text-[13px] font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10" onClick={() => onDelete(formData.id || "")}>
+                                <Trash2 className="w-4 h-4 mr-1.5" /> Delete
+                            </Button>
+                        )}
+                        <Button variant="ghost" className="h-9 px-4 rounded-md text-[13px] font-medium text-admin-text-muted hover:text-admin-text hover:bg-admin-surface-hover" onClick={() => onOpenChange(false)}>
+                            Discard
+                        </Button>
+                        {!isReadOnly && (
+                            <Button className="h-9 px-5 rounded-md bg-admin-primary hover:bg-admin-primary-hover text-black text-[13px] font-bold shadow-md" onClick={handleSave}>
+                                Save changes
+                            </Button>
+                        )}
+                    </div>
+                </div>
+            </SheetContent>
+        </Sheet>
     );
 }

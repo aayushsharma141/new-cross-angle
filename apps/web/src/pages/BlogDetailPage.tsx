@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/primitives/button";
 import { Skeleton } from "@/components/ui/primitives/skeleton";
 import { useToast } from "@/hooks/useToast";
 import React from "react";
+import DOMPurify from "dompurify";
 import { motion, AnimatePresence } from "framer-motion";
 import { Image } from "@/components/ui/enhanced/image";
 import gsap from "gsap";

@@ -7,7 +7,6 @@ import {
   useState,
 } from "react";
 import { runWhenIdle } from "@/lib/idle";
-import { initPostHog } from "@/lib/posthog";
 
 export type CookieConsent = "all" | "strict" | "unknown";
 
@@ -71,9 +70,7 @@ const loadGoogleAnalytics = (measurementId: string) => {
   w.__crossangleAnalyticsLoaded = true;
 };
 
-const loadPostHog = async () => {
-  initPostHog();
-};
+
 
 // Sentry initialization is handled globally in main.tsx to capture boot errors.
 // Configuration for PII masking is defined in lib/sentry.ts.
@@ -119,7 +116,6 @@ export const CookieConsentProvider = ({
       }
 
       // Sentry is already initialized in main.tsx
-      void loadPostHog();
     }, 1800);
   }, [consent]);
 

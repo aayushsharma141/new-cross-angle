@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { FileQuestion, Inbox, Search, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AdminButton } from './AdminButton';

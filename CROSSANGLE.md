@@ -1,23 +1,23 @@
 # CROSSANGLE.md — Immutable Project Reference
-# This file is the permanent truth about this codebase.
-# Agents READ this. Never rewrite it unless Aayush approves.
-# For things that change, use .context/state.md instead.
+
+> This file is the permanent truth about this codebase.
+> Agents READ this. Never rewrite it unless Aayush approves.
+> For things that change, use .context/state.md instead.
 
 ---
 
 ## Project
-Cross Angle Interior — UHNW Luxury Interior Design Studio
-GitHub: https://github.com/aayushsharma141/new-cross-angle
-Docs: https://crossdocs-86hkteyq.manus.space
-Public: https://cross-angle-v2.surge.sh
-Admin: localhost:4173/admin (dev build)
-Root: C:\Users\aayus\Desktop\main\
+
+Cross Angle Interior — UHNW Luxury Interior Design Studio GitHub:
+<https://github.com/aayushsharma141/new-cross-angle> Docs:
+<https://crossdocs-86hkteyq.manus.space> Public: <https://cross-angle-v2.surge.sh>
+Admin: localhost:4173/admin (dev build) Root: C:\Users\aayus\Desktop\main\
 
 ---
 
 ## Monorepo Structure
 
-```
+```text
 new-cross-angle/
 ├── apps/web/          ← Main React app (frontend + admin)
 ├── packages/types/    ← Shared TypeScript type definitions
@@ -25,7 +25,7 @@ new-cross-angle/
 ├── .context/          ← Agent session memory (gitignored)
 ├── prompt.md          ← Ralph Loop / agent boot instructions
 ├── PRD.md             ← Task specification (read-only for agents)
-├── progress.txt       ← Task completion log (agents append only)
+├──        ← Task completion log (agents append only)
 └── CROSSANGLE.md      ← This file
 ```
 
@@ -33,7 +33,7 @@ new-cross-angle/
 
 ## Auth Flow
 
-```
+```text
 1. AdminAuth.tsx        → supabase.auth.signInWithPassword()
 2. AuthProvider.tsx     → wraps app, manages onAuthStateChange
 3. AdminLayout.tsx      → route guard, redirects unauthenticated → /admin/login
@@ -43,6 +43,7 @@ new-cross-angle/
 ```
 
 **Edge functions that require service_role (bypass RLS):**
+
 - `manage-user` — suspend, delete, unsuspend
 - `invite-user` — send invite emails
 - `assign-first-admin` — initial setup
@@ -51,7 +52,7 @@ new-cross-angle/
 
 ## Data Flow Pattern
 
-```
+```text
 User action
   → React component
     → useQuery / useMutation (@tanstack/react-query)
@@ -68,22 +69,23 @@ On mutation success: `queryClient.invalidateQueries({ queryKey: [...] })`
 
 ## Edge Functions (Deno/TypeScript)
 
-| Function | Trigger | Purpose |
-|---|---|---|
-| `assign-first-admin` | Manual | Set first user as admin |
-| `auto-reply-lead` | DB trigger / manual | Send email to new leads |
-| `generate-caption` | Manual | AI caption for images |
-| `process-lead` | DB trigger | Score and categorize leads |
-| `notify-hot-lead` | DB trigger | Alert on high-value leads |
-| `submit-discovery-lead` | Form submit | Process discovery questionnaire |
-| `manage-user` | Admin action | Suspend/delete/unsuspend users |
-| `invite-user` | Admin action | Send team invite emails |
-| `rate_limiter` | Middleware | Protect public endpoints |
+| Function                | Trigger             | Purpose                         |
+| ----------------------- | ------------------- | ------------------------------- |
+| `assign-first-admin`    | Manual              | Set first user as admin         |
+| `auto-reply-lead`       | DB trigger / manual | Send email to new leads         |
+| `generate-caption`      | Manual              | AI caption for images           |
+| `process-lead`          | DB trigger          | Score and categorize leads      |
+| `notify-hot-lead`       | DB trigger          | Alert on high-value leads       |
+| `submit-discovery-lead` | Form submit         | Process discovery questionnaire |
+| `manage-user`           | Admin action        | Suspend/delete/unsuspend users  |
+| `invite-user`           | Admin action        | Send team invite emails         |
+| `rate_limiter`          | Middleware          | Protect public endpoints        |
 
 Call pattern:
+
 ```typescript
-const { data, error } = await supabase.functions.invoke('function-name', {
-  body: { ...payload }
+const { data, error } = await supabase.functions.invoke("function-name", {
+  body: { ...payload },
 });
 ```
 
@@ -220,7 +222,7 @@ CREATE TABLE profiles (
 
 ## RLS Policy Summary
 
-```
+```text
 Public (anon) role:
   ✅ INSERT → leads, estimate_leads (rate limited via edge function)
   ❌ SELECT → leads, estimate_leads (no scraping)
@@ -238,35 +240,35 @@ Admin only (via edge function + service_role):
 
 ## Key Custom Hooks
 
-| Hook | File | Purpose |
-|---|---|---|
-| `useAdminAuth` | hooks/useAdminAuth.ts | Auth state, session, role |
-| `useLanguage` | hooks/useLanguage.tsx | i18n language switching |
-| `useCountUp` | hooks/useCountUp.ts | Animated number counters for KPIs |
-| `useApi` | hooks/useApi.ts | Generic API call wrapper |
+| Hook           | File                  | Purpose                           |
+| -------------- | --------------------- | --------------------------------- |
+| `useAdminAuth` | hooks/useAdminAuth.ts | Auth state, session, role         |
+| `useLanguage`  | hooks/useLanguage.tsx | i18n language switching           |
+| `useCountUp`   | hooks/useCountUp.ts   | Animated number counters for KPIs |
+| `useApi`       | hooks/useApi.ts       | Generic API call wrapper          |
 
 ---
 
 ## Field Name Trap Reference (Bugs That Already Happened)
 
-| Wrong | Correct | Table |
-|---|---|---|
-| `full_name` | `name` | `leads` |
-| `service` | `lead_source` | `leads` |
-| `source` | `lead_source` | `leads` |
-| `title` | `name` | `services` |
-| `author` | `name` | `testimonials` |
-| `client_name` | `name` | `testimonials` |
-| `is_active` | `active` | `testimonials` |
-| `is_featured` | `active` | `testimonials` |
-| `tags` | `category_id` | `projects` |
-| `username` | `full_name` | `profiles` |
+| Wrong         | Correct       | Table          |
+| ------------- | ------------- | -------------- |
+| `full_name`   | `name`        | `leads`        |
+| `service`     | `lead_source` | `leads`        |
+| `source`      | `lead_source` | `leads`        |
+| `title`       | `name`        | `services`     |
+| `author`      | `name`        | `testimonials` |
+| `client_name` | `name`        | `testimonials` |
+| `is_active`   | `active`      | `testimonials` |
+| `is_featured` | `active`      | `testimonials` |
+| `tags`        | `category_id` | `projects`     |
+| `username`    | `full_name`   | `profiles`     |
 
 ---
 
 ## Migration Rules
 
-```
+```text
 1. Never edit past migration files
 2. New file naming: supabase/migrations/YYYYMMDDHHMMSS_description.sql
 3. Always run: supabase db push (or supabase db reset --no-confirmation for dev)

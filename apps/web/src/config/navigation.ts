@@ -20,7 +20,7 @@ export const servicesMenu = {
 export const navLinks: { name: string; href: string; hasMegaMenu?: boolean }[] = [
   { name: "Home", href: "/" },
   { name: "Services", href: "/services", hasMegaMenu: false },
-  { name: "Projects", href: "/portfolio" },
+  { name: "Portfolio", href: "/portfolio" },
   { name: "About", href: "/about-us" },
   { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/contact-us" },

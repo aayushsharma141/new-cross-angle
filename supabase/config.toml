@@ -1,7 +1,14 @@
-project_id = "ulsfahhephmugsdensaa"
+project_id = "iuuivmwqodefdrrrewol"
 
 [functions.assign-first-admin]
 verify_jwt = false
 
 [functions.handle-new-lead]
 verify_jwt = false
+
+[functions.health]
+verify_jwt = false
+
+[functions.aesthetic-ai]
+verify_jwt = false
+

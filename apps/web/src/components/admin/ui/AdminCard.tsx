@@ -1,7 +1,7 @@
-import * as React from 'react';
+import React, { forwardRef, HTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
-interface AdminCardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface AdminCardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'hover' | 'glass' | 'bordered';
   padding?: 'none' | 'sm' | 'default' | 'lg';
 }
@@ -13,7 +13,7 @@ const paddingStyles = {
   lg: 'p-8',
 };
 
-export const AdminCard = React.forwardRef<HTMLDivElement, AdminCardProps>(
+export const AdminCard = forwardRef<HTMLDivElement, AdminCardProps>(
   ({ className, variant = 'default', padding = 'default', children, ...props }, ref) => {
     const variantClasses = {
       default: 'admin-card',
@@ -35,10 +35,10 @@ export const AdminCard = React.forwardRef<HTMLDivElement, AdminCardProps>(
 );
 AdminCard.displayName = 'AdminCard';
 
-interface AdminCardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+interface AdminCardHeaderProps extends HTMLAttributes<HTMLDivElement> {
   title?: string;
   description?: string;
-  action?: React.ReactNode;
+  action?: ReactNode;
 }
 
 export function AdminCardHeader({
@@ -75,7 +75,7 @@ export function AdminCardHeader({
   );
 }
 
-export function AdminCardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
+export function AdminCardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
       className={cn('text-lg font-semibold text-[hsl(var(--admin-text))]', className)}
@@ -87,7 +87,7 @@ export function AdminCardTitle({ className, ...props }: React.HTMLAttributes<HTM
 export function AdminCardDescription({
   className,
   ...props
-}: React.HTMLAttributes<HTMLParagraphElement>) {
+}: HTMLAttributes<HTMLParagraphElement>) {
   return (
     <p
       className={cn('text-sm text-[hsl(var(--admin-text-muted))]', className)}
@@ -99,14 +99,14 @@ export function AdminCardDescription({
 export function AdminCardContent({
   className,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn('', className)} {...props} />;
 }
 
 export function AdminCardFooter({
   className,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn('flex items-center pt-4 border-t border-[hsl(var(--admin-border))] mt-4', className)}

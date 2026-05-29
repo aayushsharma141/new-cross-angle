@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Vite dev-server artifacts (auto-generated, never commit)
+vite.config.ts.timestamp-*.mjs
+*.tsbuildinfo

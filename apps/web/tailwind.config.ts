@@ -11,6 +11,9 @@ export default {
 	],
 	theme: {
 		extend: {
+			screens: {
+				xs: "400px",
+			},
 			fontFamily: {
 				display: ["'Cormorant Garamond'", "serif", ...fontFamily.serif],
 				sans: ["'DM Sans'", "system-ui", "sans-serif", ...fontFamily.sans],
@@ -77,6 +80,19 @@ export default {
 					'text-meta': '#6B6B6B',
 					border: 'rgba(237, 234, 230, 0.08)',
 					'border-input': 'rgba(237, 234, 230, 0.1)',
+				},
+				kiro: {
+					bg: '#faf8f5',
+					surface: '#ffffff',
+					ink: '#1a1a1a',
+					inkSoft: '#5a5a5a',
+					line: '#e8e4dd',
+					accent: '#8b6f47',
+					accentSoft: '#f3ede2',
+					hard: '#d64545',
+					soft: '#e89c3a',
+					note: '#d4b73a',
+					good: '#4a8a5c'
 				},
 				admin: {
 					background: "hsl(var(--admin-background) / <alpha-value>)",
@@ -301,7 +317,7 @@ export default {
 	plugins: [
 		tailwindcssAnimate,
 		typography,
-		function ({ addComponents, addUtilities }: { addComponents: (components: Record<string, unknown>) => void, addUtilities: (utilities: Record<string, unknown>) => void }) {
+		function ({ addComponents, addUtilities }) {
 			addComponents({
 				".glass": {
 					background: "hsl(0 0% 100% / 0.02)",

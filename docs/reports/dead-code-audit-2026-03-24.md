@@ -1,4 +1,9 @@
 # Dead Code Audit - 2026-03-24
+> ⚠️ **OUTDATED** — This audit was performed on 2026-03-24 before the project restructuring.
+> File paths referencing `src/components/ui/*.tsx` are now at `src/components/ui/primitives/` or `src/components/ui/enhanced/`.
+> Hooks like `use-toast.ts` are now `useToast.ts` (camelCase). Re-run the audit for current results.
+
+
 
 ## Scope
 

@@ -3,13 +3,13 @@
   --surface: #0f0f0f;
   --surface2: #161616;
   --border: rgba(255, 255, 255, 0.07);
-  --accent: #E35336;
+  --accent: #D1AF6E;
   --accent2: #D4C4A0;
   --gold: #BFA27A;
   --text: #F0EDE8;
   --muted: #7A7671;
   --dim: #3A3733;
-  --glow: rgba(227, 83, 54, 0.15);
+  --glow: rgba(209, 175, 110, 0.15);
   --r: 2px;
 }
 
@@ -56,7 +56,7 @@
 #cursor-ring {
   width: 36px;
   height: 36px;
-  border: 1px solid rgba(227, 83, 54, 0.5);
+  border: 1px solid rgba(209, 175, 110, 0.5);
   border-radius: 50%;
   position: fixed;
   top: 0;
@@ -246,7 +246,7 @@ nav a:hover::after {
 .cta-btn:hover {
   background: #d4b87a;
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(227, 83, 54, 0.4);
+  box-shadow: 0 8px 24px rgba(209, 175, 110, 0.4);
 }
 
 /* ── SECTIONS (Scoped) ────────────────────────────────────────── */
@@ -289,7 +289,7 @@ nav a:hover::after {
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(ellipse at 20% 50%, rgba(227, 83, 54, 0.08) 0%, transparent 70%);
+  background: radial-gradient(ellipse at 20% 50%, rgba(209, 175, 110, 0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -381,7 +381,7 @@ nav a:hover::after {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(135deg, transparent 40%, rgba(227, 83, 54, 0.04) 100%),
+    linear-gradient(135deg, transparent 40%, rgba(209, 175, 110, 0.04) 100%),
     repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255, 255, 255, 0.02) 60px),
     repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255, 255, 255, 0.02) 60px);
   pointer-events: none;
@@ -406,7 +406,7 @@ nav a:hover::after {
 }
 
 .stat-cell:hover {
-  background: rgba(227, 83, 54, 0.04);
+  background: rgba(209, 175, 110, 0.04);
 }
 
 .stat-cell:nth-child(even) {
@@ -546,7 +546,7 @@ nav a:hover::after {
 }
 
 .pillar:hover {
-  border-color: rgba(227, 83, 54, 0.3);
+  border-color: rgba(209, 175, 110, 0.3);
   transform: translateY(-2px);
 }
 
@@ -762,7 +762,7 @@ nav a:hover::after {
 }
 
 .perf-card:hover {
-  border-color: rgba(227, 83, 54, 0.4);
+  border-color: rgba(209, 175, 110, 0.4);
 }
 
 .perf-meter {
@@ -895,7 +895,7 @@ nav a:hover::after {
 .comp-tech {
   padding: 4px 10px;
   background: var(--glow);
-  border: 1px solid rgba(227, 83, 54, 0.2);
+  border: 1px solid rgba(209, 175, 110, 0.2);
   font-family: 'DM Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.1em;
@@ -926,7 +926,7 @@ nav a:hover::after {
 }
 
 .bento:hover {
-  border-color: rgba(227, 83, 54, 0.3);
+  border-color: rgba(209, 175, 110, 0.3);
   transform: translateY(-3px);
 }
 
@@ -1135,7 +1135,7 @@ nav a:hover::after {
   border-radius: 20px;
   box-shadow:
     8px 8px 20px rgba(0, 0, 0, 0.5),
-    -4px -4px 12px rgba(227, 83, 54, 0.08),
+    -4px -4px 12px rgba(209, 175, 110, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
@@ -1168,19 +1168,19 @@ nav a:hover::after {
 
 .l1 {
   top: 10px;
-  background: rgba(227, 83, 54, 0.7);
+  background: rgba(209, 175, 110, 0.7);
   animation-delay: 0s;
 }
 
 .l2 {
   top: 34px;
-  background: rgba(227, 83, 54, 0.4);
+  background: rgba(209, 175, 110, 0.4);
   animation-delay: 0.4s;
 }
 
 .l3 {
   top: 58px;
-  background: rgba(227, 83, 54, 0.2);
+  background: rgba(209, 175, 110, 0.2);
   animation-delay: 0.8s;
 }
 
@@ -1768,8 +1768,8 @@ nav a:hover::after {
   position: absolute;
   width: 60px;
   height: 60px;
-  border: 1px solid rgba(227, 83, 54, 0.5);
-  background: rgba(227, 83, 54, 0.05);
+  border: 1px solid rgba(209, 175, 110, 0.5);
+  background: rgba(209, 175, 110, 0.05);
   left: 50%;
   top: 50%;
   margin-left: -30px;
@@ -1814,7 +1814,7 @@ nav a:hover::after {
   width: 80px;
   height: 80px;
   position: relative;
-  border: 1px dashed rgba(227, 83, 54, 0.3);
+  border: 1px dashed rgba(209, 175, 110, 0.3);
   border-radius: 50%;
   animation: rotate3d 4s linear infinite;
 }
@@ -1835,7 +1835,7 @@ nav a:hover::after {
 .orbit-inner {
   width: 40px;
   height: 40px;
-  border: 1px dashed rgba(227, 83, 54, 0.5);
+  border: 1px dashed rgba(209, 175, 110, 0.5);
   border-radius: 50%;
   position: absolute;
   top: 50%;
@@ -1860,7 +1860,7 @@ nav a:hover::after {
 .spline-sim {
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 50% 50%, rgba(227, 83, 54, 0.1), transparent 70%);
+  background: radial-gradient(circle at 50% 50%, rgba(209, 175, 110, 0.1), transparent 70%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1871,7 +1871,7 @@ nav a:hover::after {
   height: 80px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, var(--accent2), var(--accent));
-  box-shadow: 0 0 40px rgba(227, 83, 54, 0.4), inset -10px -10px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 40px rgba(209, 175, 110, 0.4), inset -10px -10px 20px rgba(0, 0, 0, 0.5);
   animation: float-orb 4s ease-in-out infinite;
 }
 

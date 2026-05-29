@@ -63,7 +63,7 @@ const GalleryCTA = () => {
 
         {/* Supporting text */}
         <motion.p
-          className="text-sm md:text-base text-white/30 font-light leading-relaxed mb-12 max-w-xl mx-auto"
+          className="text-sm md:text-base text-white/60 font-light leading-relaxed mb-12 max-w-xl mx-auto"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}

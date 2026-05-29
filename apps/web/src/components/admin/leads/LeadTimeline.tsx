@@ -64,7 +64,7 @@ export function LeadTimeline({ leadId }: LeadTimelineProps) {
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
-            return data as LeadActivity[];
+            return (data ?? []) as unknown as LeadActivity[];
         }
     });
 
@@ -101,12 +101,24 @@ export function LeadTimeline({ leadId }: LeadTimelineProps) {
                             </p>
                         )}
 
-                        {activity.metadata && Object.keys(activity.metadata).length > 0 && (
-                            <div className="mt-2 text-xs bg-muted/50 p-2 rounded border font-mono">
-                                {JSON.stringify(activity.metadata).slice(0, 100)}
-                                {JSON.stringify(activity.metadata).length > 100 && "..."}
-                            </div>
-                        )}
+                        {activity.metadata && Object.keys(activity.metadata).length > 0 && (() => {
+                            const meta = activity.metadata as Record<string, unknown>;
+                            const parts: string[] = [];
+                            if (meta.old_status && meta.new_status) parts.push(`${meta.old_status} → ${meta.new_status}`);
+                            if (meta.note) parts.push(String(meta.note));
+                            if (parts.length === 0) {
+                                Object.entries(meta)
+                                    .filter(([, v]) => v != null && typeof v !== "object")
+                                    .slice(0, 3)
+                                    .forEach(([k, v]) => parts.push(`${k.replace(/_/g, " ")}: ${v}`));
+                            }
+                            const summary = parts.join(" · ");
+                            return summary ? (
+                                <p className="mt-2 text-xs text-muted-foreground/80">
+                                    {summary}
+                                </p>
+                            ) : null;
+                        })()}
                     </div>
                 </div>
             ))}

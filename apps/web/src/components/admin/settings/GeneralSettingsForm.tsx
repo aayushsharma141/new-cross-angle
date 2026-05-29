@@ -296,20 +296,16 @@ export function GeneralSettingsForm() {
 
     return (
         <Form {...form}>
-            <form id="general-settings-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form id="general-settings-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid lg:grid-cols-2 gap-4">
                 <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm">
-                    <CardHeader className="bg-muted/30 border-b pb-4">
+                    <CardHeader className="bg-muted/30 border-b py-3 px-5">
                         <div className="flex items-center gap-2">
-                            <div className="p-2 bg-blue-100 rounded-lg">
-                                <Globe className="text-blue-600 h-5 w-5" />
-                            </div>
-                            <div>
-                                <CardTitle className="text-lg">General Information</CardTitle>
-                                <CardDescription>Basic information about your website.</CardDescription>
-                            </div>
+                            <Globe className="text-blue-500 h-4 w-4" />
+                            <CardTitle className="text-sm">General Information</CardTitle>
                         </div>
                     </CardHeader>
-                    <CardContent className="p-6 grid gap-4">
+                    <CardContent className="p-5 grid gap-3">
                         <FormField
                             control={form.control}
                             name="site_name"
@@ -332,13 +328,10 @@ export function GeneralSettingsForm() {
                                     <FormControl>
                                         <Textarea
                                             placeholder="A brief description of your site for SEO..."
-                                            className="min-h-[100px]"
+                                            className="min-h-[80px]"
                                             {...field}
                                         />
                                     </FormControl>
-                                    <FormDescription>
-                                        Used for meta tags and SEO purposes.
-                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -347,18 +340,13 @@ export function GeneralSettingsForm() {
                 </Card>
 
                 <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm">
-                    <CardHeader className="bg-muted/30 border-b pb-4">
+                    <CardHeader className="bg-muted/30 border-b py-3 px-5">
                         <div className="flex items-center gap-2">
-                            <div className="p-2 bg-green-100 rounded-lg">
-                                <Phone className="text-green-600 h-5 w-5" />
-                            </div>
-                            <div>
-                                <CardTitle className="text-lg">Contact Information</CardTitle>
-                                <CardDescription>How customers can reach you.</CardDescription>
-                            </div>
+                            <Phone className="text-green-500 h-4 w-4" />
+                            <CardTitle className="text-sm">Contact Information</CardTitle>
                         </div>
                     </CardHeader>
-                    <CardContent className="p-6 grid gap-4 md:grid-cols-2">
+                    <CardContent className="p-5 grid gap-3 grid-cols-2">
                         <FormField
                             control={form.control}
                             name="contact_email"
@@ -425,7 +413,7 @@ export function GeneralSettingsForm() {
                                 </FormItem>
                             )}
                         />
-                        <div className="md:col-span-2">
+                        <div className="col-span-2">
                             <FormField
                                 control={form.control}
                                 name="address"
@@ -444,20 +432,17 @@ export function GeneralSettingsForm() {
                         </div>
                     </CardContent>
                 </Card>
+                </div>
 
+                <div className="grid lg:grid-cols-2 gap-4">
                 <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm">
-                    <CardHeader className="bg-muted/30 border-b pb-4">
+                    <CardHeader className="bg-muted/30 border-b py-3 px-5">
                         <div className="flex items-center gap-2">
-                            <div className="p-2 bg-indigo-100 rounded-lg">
-                                <Globe className="text-indigo-600 h-5 w-5" />
-                            </div>
-                            <div>
-                                <CardTitle className="text-lg">Social Media</CardTitle>
-                                <CardDescription>Links to your social media profiles.</CardDescription>
-                            </div>
+                            <Globe className="text-indigo-500 h-4 w-4" />
+                            <CardTitle className="text-sm">Social Media</CardTitle>
                         </div>
                     </CardHeader>
-                    <CardContent className="p-6 grid gap-4 md:grid-cols-2">
+                    <CardContent className="p-5 grid gap-3 grid-cols-2">
                         <FormField
                             control={form.control}
                             name="social_facebook"
@@ -553,18 +538,13 @@ export function GeneralSettingsForm() {
 
                 {/* ─── Telegram Notifications ─────────────────────────────── */}
                 <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm">
-                    <CardHeader className="bg-muted/30 border-b pb-4">
+                    <CardHeader className="bg-muted/30 border-b py-3 px-5">
                         <div className="flex items-center gap-2">
-                            <Send className="h-5 w-5 text-[#229ED9]" />
-                            <div>
-                                <CardTitle className="text-base">Telegram Notifications</CardTitle>
-                                <CardDescription className="text-xs mt-0.5">
-                                    Chat IDs that receive lead alerts. Add personal, group, or channel IDs.
-                                </CardDescription>
-                            </div>
+                            <Send className="h-4 w-4 text-[#229ED9]" />
+                            <CardTitle className="text-sm">Telegram Notifications</CardTitle>
                         </div>
                     </CardHeader>
-                    <CardContent className="p-6 space-y-4">
+                    <CardContent className="p-5 space-y-3">
                         <FormField
                             control={form.control}
                             name="telegram_chat_ids"
@@ -574,6 +554,7 @@ export function GeneralSettingsForm() {
                         />
                     </CardContent>
                 </Card>
+                </div>
 
                 <div className="flex justify-end">
                     <Button type="submit" size="lg" disabled={isLoading} className="bg-[hsl(var(--brand-primary))]">

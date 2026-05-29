@@ -1,4 +1,5 @@
 import { Outlet, Navigate, useLocation } from "react-router-dom";
+import { ModuleLayout } from "@/components/admin/layout/ModuleLayout";
 
 export const DiscoveryModule = () => {
     const location = useLocation();
@@ -7,8 +8,15 @@ export const DiscoveryModule = () => {
     }
 
     return (
-        <div className="flex-1 w-full h-full">
+        <ModuleLayout
+            title="Discovery Engine"
+            description="Manage the style quiz flow, analytics, and configuration."
+            tabs={[
+                { label: "Analytics", path: "/admin/discovery/analytics" },
+                { label: "Configuration", path: "/admin/discovery/config" },
+            ]}
+        >
             <Outlet />
-        </div>
+        </ModuleLayout>
     );
 };

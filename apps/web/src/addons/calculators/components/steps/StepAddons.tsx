@@ -1,9 +1,19 @@
 /* Step 6 — Add-ons */
 
 import { useMemo } from "react";
+import { motion } from "framer-motion";
 import type { CalculatorFormData } from "../data/types";
-import { ADDONS, THEME, DEFAULT_PRICING_CONFIG } from "../data/pricing-config";
+import { useFlowConfig } from "@/hooks/useFlowConfig";
+import { ADDONS as DEFAULT_ADDONS, DEFAULT_PRICING_CONFIG } from "../data/pricing-config";
 import { formatCurrency } from "../data/format-utils";
+import {
+    selectableCardClassLight,
+    CARD_INTERACTIONS,
+    cardListContainer,
+    cardListItem,
+    breathingAnimationLight,
+    breathingTransitionLight,
+} from "@/addons/_shared/card-styles";
 
 interface Props {
     formData: CalculatorFormData;
@@ -11,6 +21,8 @@ interface Props {
 }
 
 export function StepAddons({ formData, updateField }: Props) {
+    const { data: addons = DEFAULT_ADDONS } = useFlowConfig<typeof DEFAULT_ADDONS>("addons");
+
     const addonTotal = useMemo(() => {
         let total = 0;
         const c = DEFAULT_PRICING_CONFIG.addons;
@@ -46,7 +58,7 @@ export function StepAddons({ formData, updateField }: Props) {
         }
     };
 
-    const getAddonCost = (addon: typeof ADDONS[number]): string => {
+    const getAddonCost = (addon: typeof DEFAULT_ADDONS[number]): string => {
         if (addon.unit === "per_sqft") return `${formatCurrency(formData.area * addon.cost)}`;
         if (addon.unit === "per_room" && addon.id === "wardrobes") {
             const count = formData.wardrobes || formData.bedrooms;
@@ -57,91 +69,69 @@ export function StepAddons({ formData, updateField }: Props) {
 
     return (
         <div>
-            <h2 className="text-2xl font-bold mb-1 text-site-text-heading uppercase">
-                Bespoke Commissions
-            </h2>
-            <p className="text-site-text-muted mb-6 text-sm">
-                Curate your residence with signature add-ons
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {ADDONS.map(addon => {
+            <motion.div
+                variants={cardListContainer}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
+            >
+                {addons.map(addon => {
                     const active = isActive(addon.id);
                     return (
-                        <button
+                        <motion.button
+                            type="button"
                             key={addon.id}
                             title={`Add ${addon.label}`}
+                            variants={cardListItem}
+                            whileHover={CARD_INTERACTIONS.whileHover}
+                            whileTap={CARD_INTERACTIONS.whileTap}
                             onClick={() => toggleAddon(addon.id)}
-                            className={`group border-2 rounded-none p-4 text-left transition-all duration-300 relative overflow-hidden ${active ? "bg-site-crimson/5 border-site-crimson shadow-[0_0_20px_-5px_rgba(227, 83, 54,0.2)]" : "bg-site-bg-card border-site-border shadow-none"
-                                }`}
+                            className={selectableCardClassLight(active, "group p-4 text-left")}
                         >
-                            <div className="flex justify-between items-start mb-3">
+                            {active && (
+                                <motion.span
+                                    aria-hidden="true"
+                                    className="absolute inset-0 pointer-events-none"
+                                    animate={breathingAnimationLight}
+                                    transition={breathingTransitionLight}
+                                />
+                            )}
+                            
+                            <div className="flex justify-between items-start mb-3 relative z-10">
                                 <span className="text-3xl filter drop-shadow-sm">{addon.icon}</span>
-                                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-none uppercase tracking-wider transition-colors ${active ? "bg-site-crimson text-site-bg" : "bg-site-bg-card-hover text-site-text-meta"
+                                <span className={`text-[9px] font-bold px-2 py-0.5 uppercase tracking-wider transition-colors ${active ? "bg-[#8b6f47] text-white" : "bg-[#1a1a1a]/10 text-[#5a5a5a]"
                                     }`}>
                                     {active ? "SELECTED" : "ADD"}
                                 </span>
                             </div>
 
-                            <div className="mb-1">
-                                <div className={`font-bold text-sm ${active ? "text-site-crimson" : "text-site-text-heading"}`}>
+                            <div className="mb-1 relative z-10">
+                                <div className={`font-bold text-sm transition-colors ${active ? "text-[#8b6f47]" : "text-[#1a1a1a]"}`}>
                                     {addon.label}
                                 </div>
-                                <div className="text-site-text-muted text-[11px] leading-relaxed mt-0.5">
+                                <div className="text-[#5a5a5a] text-[11px] leading-relaxed mt-0.5">
                                     {addon.desc}
                                 </div>
                             </div>
 
-                            <div className="mt-3 font-bold text-sm text-site-crimson">
+                            <div className="mt-3 font-black text-sm text-[#8b6f47] relative z-10">
                                 {getAddonCost(addon)}
                             </div>
-
-                            {active && (
-                                <div className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center">
-                                    <div className="w-full h-full bg-site-crimson/10 absolute rotate-45 translate-x-4 -translate-y-4" />
-                                </div>
-                            )}
-                        </button>
+                        </motion.button>
                     );
                 })}
-            </div>
+            </motion.div>
 
-            {/* Wardrobes counter */}
-            {formData.wardrobes > 0 && (
-                <div className="bg-site-bg-card border border-site-border rounded-none p-4 mt-4 flex items-center justify-between shadow-lg">
-                    <div>
-                        <span className="text-site-text-heading text-sm font-medium">Walk-in Wardrobe Suites</span>
-                        <p className="text-[10px] text-site-text-meta uppercase tracking-tighter">One suite per master bedroom recommended</p>
-                    </div>
-                    <div className="flex items-center gap-3 bg-site-bg/30 p-1.5 rounded-none border border-site-border">
-                        <button
-                            title="Decrease wardobes"
-                            onClick={() => updateField("wardrobes", Math.max(1, formData.wardrobes - 1))}
-                            className="w-8 h-8 flex items-center justify-center bg-site-bg-card-hover hover:bg-site-crimson hover:text-site-bg text-site-text rounded-none transition-colors border border-site-border"
-                        >−</button>
-                        <span className="text-site-text-heading font-bold w-6 text-center text-sm">{formData.wardrobes}</span>
-                        <button
-                            title="Increase wardrobes"
-                            onClick={() => updateField("wardrobes", Math.min(10, formData.wardrobes + 1))}
-                            className="w-8 h-8 flex items-center justify-center bg-site-bg-card-hover hover:bg-site-crimson hover:text-site-bg text-site-text rounded-none transition-colors border border-site-border"
-                        >+</button>
-                    </div>
-                </div>
-            )}
-
-            {/* Total */}
             {addonTotal > 0 && (
-                <div className="bg-site-crimson/5 border-l-4 border-site-crimson rounded-none p-4 mt-4 flex justify-between items-center shadow-md animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="flex flex-col">
-                        <span className="text-site-text-meta text-xs font-semibold uppercase tracking-widest">Bespoke Inclusions</span>
-                        <span className="text-site-text-meta/70 text-[10px] mt-0.5">Added to final valuation</span>
-                    </div>
-                    <span className="text-xl font-black italic tracking-tight text-site-crimson">
-                        {formatCurrency(addonTotal)}
-                    </span>
-                </div>
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6 p-4 bg-[#8b6f47]/5 border border-[#8b6f47]/20 rounded-[8px] flex justify-between items-center"
+                >
+                    <span className="text-[#1a1a1a] font-bold text-sm">Add-ons Subtotal</span>
+                    <span className="text-[#8b6f47] font-black text-lg">{formatCurrency(addonTotal)}</span>
+                </motion.div>
             )}
-
         </div>
     );
 }

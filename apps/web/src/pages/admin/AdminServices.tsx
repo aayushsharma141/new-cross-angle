@@ -29,7 +29,7 @@ import {
     TableRow,
 } from "@/design-system/components/Table";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import { PageHeader } from "@/components/admin/layout/PageHeader";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { EmptyState, LoadingState } from "@/design-system/components/states";
 
 const ICONS = ["Home", "Building2", "Palette", "Lightbulb", "Sofa", "PenTool", "Lamp", "UtensilsCrossed", "Bed"];
@@ -195,7 +195,6 @@ const AdminServices = () => {
         }
 
         setIsSaving(true);
-        const isCreate = !editingService;
 
         try {
             // Prepare the JSONB description object
@@ -206,70 +205,34 @@ const AdminServices = () => {
                 category_id: formData.category_id
             };
 
-            const servicePayload = {
-                name: formData.title,
-                slug: formData.slug || generateSlug(formData.title || ""),
-                description: descriptionData,
-                icon_url: formData.hero_image,
-                short_tag: formData.tag || null,
-                display_order: services.length + 1,
-                active: true
-            };
+            const stepsPayload = formData.process_steps?.map((step, index) => ({
+                step_number: index + 1,
+                title: step.title,
+                description: step.description
+            })) || [];
 
-            let serviceId = editingService?.id;
+            const faqPayload = formData.faq?.map((f, index) => ({
+                display_order: index + 1,
+                question: f.question,
+                answer: f.answer
+            })) || [];
 
-            if (editingService) {
-                const { error } = await supabase
-                    .from('services')
-                    .update(servicePayload)
-                    .eq('id', editingService.id);
-                if (error) throw error;
-            } else {
-                const { data, error } = await supabase
-                    .from('services')
-                    .insert([servicePayload])
-                    .select()
-                    .single();
-                if (error) throw error;
-                serviceId = data.id;
-            }
+            const { error: rpcError } = await supabase.rpc('upsert_service', {
+                p_service_id: editingService?.id || null,
+                p_name: formData.title,
+                p_slug: formData.slug || generateSlug(formData.title || ""),
+                p_description: descriptionData,
+                p_icon_url: formData.hero_image || null,
+                p_short_tag: formData.tag || null,
+                p_display_order: editingService
+                    ? (services.findIndex(s => s.id === editingService.id) + 1) || 1
+                    : services.length + 1,
+                p_active: true,
+                p_steps: stepsPayload,
+                p_faqs: faqPayload
+            });
 
-            if (serviceId) {
-                // Transactional child writes — if any fail, compensate on parent
-                try {
-                    // Steps: replace all
-                    await supabase.from('service_steps').delete().eq('service_id', serviceId);
-                    if (formData.process_steps && formData.process_steps.length > 0) {
-                        const stepsPayload = formData.process_steps.map((step, index) => ({
-                            service_id: serviceId,
-                            step_number: index + 1,
-                            title: step.title,
-                            description: step.description
-                        }));
-                        const { error: stepsError } = await supabase.from('service_steps').insert(stepsPayload);
-                        if (stepsError) throw stepsError;
-                    }
-
-                    // FAQs: replace all
-                    await supabase.from('service_faqs').delete().eq('service_id', serviceId);
-                    if (formData.faq && formData.faq.length > 0) {
-                        const faqPayload = formData.faq.map((f, index) => ({
-                            service_id: serviceId,
-                            display_order: index + 1,
-                            question: f.question,
-                            answer: f.answer
-                        }));
-                        const { error: faqError } = await supabase.from('service_faqs').insert(faqPayload);
-                        if (faqError) throw faqError;
-                    }
-                } catch (childError) {
-                    // Compensate: if we just created the service, remove the orphaned row
-                    if (isCreate && serviceId) {
-                        await supabase.from('services').delete().eq('id', serviceId);
-                    }
-                    throw childError; // re-throw to outer catch for toast
-                }
-            }
+            if (rpcError) throw rpcError;
 
             toast({
                 title: editingService ? "Service updated!" : "Service created!",
@@ -319,18 +282,16 @@ const AdminServices = () => {
 
     return (
         <div className="space-y-8">
-            <PageHeader
-                title="Services"
-                description="Manage your service offerings"
-            >
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <ModuleActions>
                     <DialogTrigger asChild>
                         <Button variant="primary" onClick={handleNewService}>
                             <Plus className="w-4 h-4 mr-2" />
                             New Service
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl">
+                </ModuleActions>
+                <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl">
                         <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
                             <DialogTitle className="text-xl font-display">
                                 {editingService ? "Edit Service" : "New Service"}
@@ -483,9 +444,8 @@ const AdminServices = () => {
                                 </Button>
                             </div>
                         </form>
-                    </DialogContent>
-                </Dialog>
-            </PageHeader>
+                </DialogContent>
+            </Dialog>
 
             <Card className="bg-white/5 border-white/10 backdrop-blur-sm mt-8">
                 <Table>

@@ -1,4 +1,5 @@
-import * as React from 'react';
+import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Activity, BarChart3, Download, Filter, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
@@ -12,15 +13,51 @@ import type { AuditAction, AuditEntityType, AuditLogStats } from '@/types/audit'
 import { ACTION_COLORS, ENTITY_LABELS } from '@/types/audit';
 import { useToast } from '@/hooks/useToast';
 import { format } from 'date-fns';
+import { AdminPageHeader } from '@/components/admin/ui/AdminPageHeader';
 
 export default function AdminAuditLogs() {
   const { toast } = useToast();
-  const [page, setPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(25);
-  const [search, setSearch] = React.useState('');
-  const [selectedAction, setSelectedAction] = React.useState<AuditAction | null>(null);
-  const [selectedEntity, setSelectedEntity] = React.useState<AuditEntityType | null>(null);
-  const [selectedUser, setSelectedUser] = React.useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Derived states
+  const activeTab = searchParams.get('tab') === 'actions'
+    ? 'actions'
+    : searchParams.get('tab') === 'entities'
+      ? 'entities'
+      : 'all';
+
+  const page = parseInt(searchParams.get('page') || '1', 10) || 1;
+  const pageSize = parseInt(searchParams.get('pageSize') || '25', 10) || 25;
+  const search = searchParams.get('q') || '';
+  const selectedAction = (searchParams.get('action') as AuditAction) || null;
+  const selectedEntity = (searchParams.get('entity') as AuditEntityType) || null;
+  const selectedUser = searchParams.get('user') || null;
+
+  const updateParams = (updates: Record<string, string | null>) => {
+    const nextParams = new URLSearchParams(searchParams);
+    let filterOrSearchChanged = false;
+    for (const [key, value] of Object.entries(updates)) {
+      if (['q', 'action', 'entity', 'user'].includes(key)) {
+        const currentValue = searchParams.get(key);
+        if ((currentValue || '') !== (value || '')) {
+          filterOrSearchChanged = true;
+        }
+      }
+      if (value === null || value === '') {
+        nextParams.delete(key);
+      } else {
+        nextParams.set(key, value);
+      }
+    }
+    if (filterOrSearchChanged) {
+      nextParams.delete('page');
+    }
+    setSearchParams(nextParams, { replace: true });
+  };
+
+  const handleTabChange = (nextTab: string) => {
+    updateParams({ tab: nextTab === 'all' ? null : nextTab });
+  };
 
   const { data: logsData, isLoading, refetch } = useQuery({
     queryKey: ['audit_logs', page, pageSize, search, selectedAction, selectedEntity, selectedUser],
@@ -86,33 +123,36 @@ export default function AdminAuditLogs() {
 
   const handlePaginationChange = (newPage: number, newPageSize: number) => {
     if (newPageSize !== pageSize) {
-      setPageSize(newPageSize);
-      setPage(1);
+      updateParams({
+        pageSize: newPageSize.toString(),
+        page: '1',
+      });
     } else {
-      setPage(newPage);
+      updateParams({
+        page: newPage.toString(),
+      });
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Logs & Audit</h1>
-          <p className="text-muted-foreground">
-            Track all system activities, admin actions, and security events
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => handleExport('csv')}>
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => handleExport('json')}>
-            <Download className="h-4 w-4 mr-2" />
-            Export JSON
-          </Button>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Logs & Audit"
+        description="Track all system activities, admin actions, and security events"
+        breadcrumbs={[]}
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={() => handleExport('csv')}>
+              <Download className="h-4 w-4 mr-2" />
+              Export CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleExport('json')}>
+              <Download className="h-4 w-4 mr-2" />
+              Export JSON
+            </Button>
+          </>
+        }
+      />
 
       <KPIGrid columns={4}>
         <MetricCard
@@ -124,14 +164,14 @@ export default function AdminAuditLogs() {
         <MetricCard
           title="Top Action"
           value={getTopKey(statsData?.byAction) || 'N/A'}
-          subtitle={`${statsData?.byAction[getTopKey(statsData?.byAction) as AuditAction] || 0} occurrences`}
+          subtitle={`${(statsData?.byAction && getTopKey(statsData.byAction) ? statsData.byAction[getTopKey(statsData.byAction) as AuditAction] : 0)} occurrences`}
           icon={<TrendingUp className="h-4 w-4" />}
           color="success"
         />
         <MetricCard
           title="Most Active Entity"
           value={ENTITY_LABELS[getTopKey(statsData?.byEntity) as AuditEntityType] || 'N/A'}
-          subtitle={`${statsData?.byEntity[getTopKey(statsData?.byEntity)] || 0} entries`}
+          subtitle={`${(statsData?.byEntity && getTopKey(statsData.byEntity) ? statsData.byEntity[getTopKey(statsData.byEntity) as AuditEntityType] : 0)} entries`}
           icon={<BarChart3 className="h-4 w-4" />}
           color="warning"
         />
@@ -143,7 +183,7 @@ export default function AdminAuditLogs() {
         />
       </KPIGrid>
 
-      <Tabs defaultValue="all" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
         <TabsList>
           <TabsTrigger value="all">All Activity</TabsTrigger>
           <TabsTrigger value="actions">By Action</TabsTrigger>
@@ -160,15 +200,16 @@ export default function AdminAuditLogs() {
                   selectedAction={selectedAction}
                   selectedEntity={selectedEntity}
                   selectedUser={selectedUser}
-                  onActionChange={setSelectedAction}
-                  onEntityChange={setSelectedEntity}
-                  onUserChange={setSelectedUser}
+                  onActionChange={(action) => updateParams({ action })}
+                  onEntityChange={(entity) => updateParams({ entity })}
+                  onUserChange={(user) => updateParams({ user })}
                 />
               </div>
             </CardHeader>
             <CardContent>
               <AuditLogTable
                 logs={logsData?.data || []}
+                search={search}
                 pagination={
                   logsData
                     ? {
@@ -182,10 +223,10 @@ export default function AdminAuditLogs() {
                 loading={isLoading}
                 users={users}
                 onPaginationChange={handlePaginationChange}
-                onSearchChange={setSearch}
-                onActionFilterChange={setSelectedAction}
-                onEntityFilterChange={setSelectedEntity}
-                onUserFilterChange={setSelectedUser}
+                onSearchChange={(q) => updateParams({ q })}
+                onActionFilterChange={(action) => updateParams({ action })}
+                onEntityFilterChange={(entity) => updateParams({ entity })}
+                onUserFilterChange={(user) => updateParams({ user })}
                 onRefresh={() => refetch()}
                 selectedAction={selectedAction}
                 selectedEntity={selectedEntity}
@@ -208,7 +249,7 @@ export default function AdminAuditLogs() {
                     <div
                       key={action}
                       className="rounded-lg border p-4 cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => setSelectedAction(selectedAction === action ? null : (action as AuditAction))}
+                      onClick={() => updateParams({ action: selectedAction === action ? null : action, tab: 'all' })}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <Badge
@@ -242,7 +283,7 @@ export default function AdminAuditLogs() {
                   <div
                     key={entity}
                     className="rounded-lg border p-4 cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => setSelectedEntity(selectedEntity === entity ? null : (entity as AuditEntityType))}
+                    onClick={() => updateParams({ entity: selectedEntity === entity ? null : entity, tab: 'all' })}
                   >
                     <p className="font-medium mb-1">{ENTITY_LABELS[entity as AuditEntityType] || entity}</p>
                     <p className="text-2xl font-bold">{count}</p>

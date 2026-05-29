@@ -22,6 +22,8 @@ interface SystemContextType {
     refreshHealth: () => void;
     notifications: SystemNotification[];
     addNotification: (note: SystemNotification) => void;
+    maintenanceMode: boolean;
+    setMaintenanceMode: (active: boolean) => void;
 }
 
 const SystemContext = createContext<SystemContextType | undefined>(undefined);
@@ -36,6 +38,7 @@ export const SystemProvider = ({ children }: { children: ReactNode }) => {
     });
 
     const [notifications, setNotifications] = useState<SystemNotification[]>([]);
+    const [maintenanceMode, setMaintenanceMode] = useState(false);
 
     const refreshHealth = useCallback(async () => {
         try {
@@ -69,7 +72,7 @@ export const SystemProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <SystemContext.Provider value={{ health, refreshHealth, notifications, addNotification }}>
+        <SystemContext.Provider value={{ health, refreshHealth, notifications, addNotification, maintenanceMode, setMaintenanceMode }}>
             {children}
         </SystemContext.Provider>
     );

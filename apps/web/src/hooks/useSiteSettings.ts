@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface SiteSettings {
@@ -20,6 +20,8 @@ export interface SiteSettings {
   seo_description: string | null;
   ga_measurement_id: string | null;
   fb_pixel_id: string | null;
+  posthog_api_key: string | null;
+  posthog_host: string | null;
   admin_email: string | null;
   nav_links: Record<string, unknown>[] | null;
   footer_columns: Record<string, unknown>[] | null;
@@ -53,6 +55,8 @@ const defaultSettings: SiteSettings = {
   seo_description: null,
   ga_measurement_id: null,
   fb_pixel_id: null,
+  posthog_api_key: null,
+  posthog_host: null,
   admin_email: null,
   nav_links: null,
   footer_columns: null,
@@ -69,50 +73,43 @@ const defaultSettings: SiteSettings = {
 
 
 export function useSiteSettings(): UseSiteSettingsResult {
-  const [settings, setSettings] = useState<SiteSettings | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const { data: settings, isLoading, error, refetch } = useQuery({
+    queryKey: ['siteSettings'],
+    queryFn: async () => {
+      try {
+        const { data, error: fetchError } = await supabase
+          .from("site_settings")
+          .select("*")
+          .limit(1)
+          .maybeSingle();
 
-  const fetchSettings = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+        if (fetchError) {
+          throw fetchError;
+        }
 
-      const { data, error: fetchError } = await supabase
-        .from("site_settings")
-        .select("*")
-        .limit(1)
-        .maybeSingle();
-
-      if (fetchError) {
-        throw fetchError;
+        if (data) {
+          return {
+            ...defaultSettings,
+            ...data,
+            social_links: { ...defaultSettings.social_links, ...(data.social_links as Record<string, string> || {}) },
+          } as SiteSettings;
+        }
+        return defaultSettings;
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          console.error("Error fetching site settings:", err);
+        }
+        return defaultSettings; // Fallback gracefully
       }
-
-      if (data) {
-        setSettings({
-          ...defaultSettings,
-          ...data,
-          social_links: { ...defaultSettings.social_links, ...(data.social_links as Record<string, string> || {}) },
-        } as SiteSettings);
-      } else {
-        setSettings(defaultSettings);
-      }
-    } catch (err) {
-      console.error("Error fetching site settings:", err);
-      setSettings(defaultSettings);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchSettings();
-  }, []);
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 1, // Only retry once
+  });
 
   return {
-    settings,
-    loading,
-    error,
-    refetch: fetchSettings,
+    settings: settings ?? defaultSettings,
+    loading: isLoading,
+    error: error as Error | null,
+    refetch: () => refetch(),
   };
 }

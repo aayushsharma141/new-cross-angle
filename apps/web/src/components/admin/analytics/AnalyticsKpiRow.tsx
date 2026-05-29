@@ -10,6 +10,7 @@ interface KpiData {
     icon: LucideIcon;
     variant?: "gold" | "secondary" | "accent";
     sparklineData?: number[];
+    tooltip?: string;
 }
 
 interface AnalyticsKpiRowProps {

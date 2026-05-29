@@ -1,6 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
 import { STORAGE_STATE } from './e2e/setup/admin-auth';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Read from default ".env.local" file.
+dotenv.config({ path: path.resolve(__dirname, '.env.local') });
 
 /**
  * Playwright configuration.
@@ -23,7 +31,7 @@ export default defineConfig({
   reporter: [['html', { outputFolder: 'e2e/reports' }], ['list']],
 
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:8080',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:5173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -74,7 +82,7 @@ export default defineConfig({
 
   webServer: {
     command: 'npm run dev:web',
-    url: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:8080',
+    url: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

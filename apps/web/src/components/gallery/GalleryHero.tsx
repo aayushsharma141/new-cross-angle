@@ -48,7 +48,6 @@ const GalleryHero = ({ totalCount, categoryCount }: GalleryHeroProps) => {
     });
 
     return () => timers.forEach((t) => clearInterval(t));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const titleText = "Our Works";
@@ -96,7 +95,7 @@ const GalleryHero = ({ totalCount, categoryCount }: GalleryHeroProps) => {
         animate={{ opacity: 1 }}
         transition={{ delay: 2 }}
       >
-        <span className="text-[10px] uppercase tracking-[0.3em] text-white/30 [writing-mode:vertical-rl]">
+        <span className="text-[10px] uppercase tracking-[0.3em] text-white/60 [writing-mode:vertical-rl]">
           Scroll
         </span>
         <motion.div

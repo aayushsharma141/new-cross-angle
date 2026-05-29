@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { supabase } from "@/integrations/supabase/client";
 import {
     Table,
@@ -9,7 +10,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/primitives/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/primitives/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/primitives/avatar";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import { Textarea } from "@/components/ui/primitives/textarea";
@@ -28,6 +29,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { getOptimizedUrl } from "@/lib/cdn";
+import { Image } from "@/components/ui/enhanced/image";
 import {
     Dialog,
     DialogContent,
@@ -218,29 +220,24 @@ CREATE POLICY "Allow admin full access" ON team_members
 
     return (
         <div className="container mx-auto py-8 px-4 max-w-7xl">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-serif font-bold tracking-tight">Team Management</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Manage the visionaries behind Cross Angle Interior.
-                    </p>
-                </div>
-                <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                    setIsDialogOpen(open);
-                    if (!open) {
-                        setEditingMember(null);
-                        setSelectedImage(null);
-                    }
-                }}>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) {
+                    setEditingMember(null);
+                    setSelectedImage(null);
+                }
+            }}>
+                <ModuleActions>
                     <DialogTrigger asChild>
                         <Button className="gap-2">
                             <Plus className="w-4 h-4" /> Add Member
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl border-zinc-800">
-                        <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
-                            <DialogTitle>{editingMember ? "Edit Team Member" : "Add Team Member"}</DialogTitle>
-                            <DialogDescription>
+                </ModuleActions>
+                <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl border-zinc-800">
+                    <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
+                        <DialogTitle>{editingMember ? "Edit Team Member" : "Add Team Member"}</DialogTitle>
+                        <DialogDescription>
                                 Fill in the details to curate your team profile.
                             </DialogDescription>
                         </DialogHeader>
@@ -265,10 +262,12 @@ CREATE POLICY "Allow admin full access" ON team_members
                                     <div className="flex items-center gap-4">
                                         <div className="relative w-20 h-20 rounded-full overflow-hidden border bg-muted flex-shrink-0">
                                             {(editingMember?.image_url || selectedImage) ? (
-                                                <img
-                                                    src={getOptimizedUrl(selectedImage || editingMember?.image_url || "", { width: 160, height: 160, quality: 78 })}
+                                                <Image
+                                                    src={selectedImage || editingMember?.image_url || ""}
                                                     alt="Profile"
-                                                    className="w-full h-full object-cover"
+                                                    width={160}
+                                                    quality={78}
+                                                    imageClassName="w-full h-full object-cover"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -345,7 +344,6 @@ CREATE POLICY "Allow admin full access" ON team_members
                         </form>
                     </DialogContent>
                 </Dialog>
-            </div>
 
             <MediaPickerModal
                 open={isMediaPickerOpen}
@@ -399,7 +397,14 @@ CREATE POLICY "Allow admin full access" ON team_members
                                 <TableRow key={member.id}>
                                     <TableCell>
                                         <Avatar className="h-10 w-10 border">
-                                            <AvatarImage src={getOptimizedUrl(member.image_url || "", { width: 96, height: 96, quality: 76 })} />
+                                            <Image
+                                                src={member.image_url || ""}
+                                                alt={member.name}
+                                                width={96}
+                                                height={96}
+                                                quality={76}
+                                                imageClassName="w-full h-full object-cover"
+                                            />
                                             <AvatarFallback>{member.name[0]}</AvatarFallback>
                                         </Avatar>
                                     </TableCell>

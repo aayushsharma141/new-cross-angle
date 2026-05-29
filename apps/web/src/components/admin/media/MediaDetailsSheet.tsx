@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/primitives/badge";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/useToast";
 import { getOptimizedUrl } from "@/lib/cdn";
@@ -51,10 +51,14 @@ export function MediaDetailsSheet({ file, open, onClose, onDelete, onCopyUrl, is
         file ? { caption: file.caption || "", altText: file.alt || "" } : null
     );
 
-    // Update local state when file changes
-    if (file && aiMetadata === null && (file.caption || file.alt)) {
-        setAiMetadata({ caption: file.caption || "", altText: file.alt || "" });
-    }
+    // Reset AI metadata when viewing a different file
+    useEffect(() => {
+        if (file) {
+            setAiMetadata({ caption: file.caption || "", altText: file.alt || "" });
+        } else {
+            setAiMetadata(null);
+        }
+    }, [file?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!file) return null;
 

@@ -55,7 +55,7 @@ const StyleSelector = () => {
                 />
               )}
               <h3 className={`text-xl font-light transition-colors duration-300 ${
-                activeStyle === style.id ? "text-white" : "text-white/40 group-hover:text-white/60"
+                activeStyle === style.id ? "text-white" : "text-white/60 group-hover:text-white/60"
               }`}>
                 {style.label}
               </h3>
@@ -98,7 +98,7 @@ const StyleSelector = () => {
                     </div>
                     <div className="flex-grow">
                       <h4 className="text-lg font-light text-white">{project.title}</h4>
-                      <p className="text-xs text-white/40 uppercase tracking-widest">{project.location}</p>
+                      <p className="text-xs text-white/60 uppercase tracking-widest">{project.location}</p>
                     </div>
                     <div className="pr-4 opacity-0 transition-opacity group-hover:opacity-100">
                       <Button variant="ghost" size="sm" className="text-site-gold uppercase tracking-[0.2em] text-[10px]">
@@ -109,8 +109,8 @@ const StyleSelector = () => {
                 ))
               ) : (
                 <div className="flex h-full flex-col items-center justify-center border border-dashed border-white/10 p-20 text-center">
-                  <p className="text-xs text-white/30 uppercase tracking-[0.3em]">No projects in this style yet</p>
-                  <p className="mt-4 text-sm font-light text-white/40 italic">We are currently crafting new spaces in this category.</p>
+                  <p className="text-xs text-white/60 uppercase tracking-[0.3em]">No projects in this style yet</p>
+                  <p className="mt-4 text-sm font-light text-white/60 italic">We are currently crafting new spaces in this category.</p>
                 </div>
               )}
             </motion.div>

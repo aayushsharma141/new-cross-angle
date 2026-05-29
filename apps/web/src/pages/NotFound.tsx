@@ -10,10 +10,9 @@ const NotFoundGlass = () => {
 
   return (
     <div 
-      className="flex min-h-screen items-center justify-center p-6 bg-cover bg-center bg-no-repeat"
+      className="flex min-h-screen items-center justify-center p-6 bg-cover bg-center bg-no-repeat bg-[#050505]"
       style={{
-        // Replace with your actual background image filename/path
-        backgroundImage: "url('/404-background.jpg')",
+        backgroundImage: "url('/reality_render.jpg')",
       }}
     >
       {/* This is the "Glass" container. Key classes:

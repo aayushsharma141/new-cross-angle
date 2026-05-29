@@ -121,7 +121,7 @@ export function MediaPicker({ onSelect, trigger }: MediaPickerProps) {
                 <ScrollArea className="flex-1 p-6">
                     {isLoading ? (
                         <div className="flex justify-center items-center h-full min-h-[200px]">
-                            <Loader2 className="h-8 w-8 animate-spin -admin-primary" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--admin-primary))]" />
                         </div>
                     ) : filteredFiles.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-muted-foreground">
@@ -134,8 +134,8 @@ export function MediaPicker({ onSelect, trigger }: MediaPickerProps) {
                                 <div
                                     key={file.id}
                                     className={cn(
-                                        "group relative aspect-square rounded-lg border overflow-hidden cursor-pointer transition-all hover:-admin-primary",
-                                        selectedFile === file.url && "ring-2 -admin-primary -admin-primary"
+                                        "group relative aspect-square rounded-lg border overflow-hidden cursor-pointer transition-all hover:border-[hsl(var(--admin-primary))]",
+                                        selectedFile === file.url && "ring-2 ring-[hsl(var(--admin-primary))] border-[hsl(var(--admin-primary))]"
                                     )}
                                     onClick={() => setSelectedFile(file.url)}
                                 >
@@ -146,8 +146,8 @@ export function MediaPicker({ onSelect, trigger }: MediaPickerProps) {
                                         loading="lazy"
                                     />
                                     {selectedFile === file.url && (
-                                        <div className="absolute inset-0 -admin-primary/20 flex items-center justify-center">
-                                            <div className="-admin-primary -admin-primary-foreground rounded-full p-1">
+                                        <div className="absolute inset-0 bg-[hsl(var(--admin-primary)/0.2)] flex items-center justify-center">
+                                            <div className="bg-[hsl(var(--admin-primary))] text-black rounded-full p-1">
                                                 <Check className="w-4 h-4" />
                                             </div>
                                         </div>

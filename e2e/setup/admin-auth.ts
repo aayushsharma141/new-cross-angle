@@ -9,11 +9,24 @@
  * e2e/setup/.auth/admin.json and reused by every test via storageState.
  */
 
-import { chromium } from '@playwright/test';
+import { chromium, type Page } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const STORAGE_STATE = path.join(__dirname, '.auth', 'admin.json');
+
+async function dismissCookieBanner(page: Page) {
+  const banner = page.locator('aside[aria-live="polite"]');
+  if (!(await banner.isVisible().catch(() => false))) return;
+
+  const accept = banner.locator('button').filter({ hasText: /accept/i }).first();
+  await accept.click({ timeout: 3_000 }).catch(() => undefined);
+  await banner.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => undefined);
+}
 
 async function globalSetup() {
   const email = process.env.PLAYWRIGHT_ADMIN_EMAIL;
@@ -38,6 +51,7 @@ async function globalSetup() {
   try {
     // Navigate to the admin login page and sign in
     await page.goto(`${baseURL}/admin`);
+    await dismissCookieBanner(page);
 
     // Wait for the login form
     const emailInput = page.locator('input[type="email"], input[name="email"]').first();
@@ -47,12 +61,26 @@ async function globalSetup() {
     await emailInput.waitFor({ state: 'visible', timeout: 15_000 });
     await emailInput.fill(email);
     await passwordInput.fill(password);
-    await submitBtn.click();
+    await submitBtn.click({ force: true });
 
-    // Wait until redirected away from the login page
-    await page.waitForURL((url) => !url.pathname.includes('/admin/login') && url.pathname.startsWith('/admin'), {
-      timeout: 20_000,
+    // Wait until the authenticated admin shell is reached. `/admin/auth` is
+    // also an admin-prefixed path, so do not treat it as a successful login.
+    await page.waitForURL(
+      (url) =>
+        (url.pathname === '/admin' || url.pathname.startsWith('/admin/')) &&
+        !url.pathname.includes('/admin/auth') &&
+        !url.pathname.includes('/admin/login'),
+      { timeout: 20_000 },
+    ).catch(async (error) => {
+      const visibleText = (await page.locator('body').innerText().catch(() => '')).slice(0, 800);
+      throw new Error(
+        `Admin login did not reach the authenticated shell. Current URL: ${page.url()}. ` +
+        `Visible page text: ${visibleText || '(empty)'}. Root cause: ${String(error)}`,
+      );
     });
+    if (page.url().includes('/admin/auth') || page.url().includes('/admin/login')) {
+      throw new Error(`Admin login did not complete; still on ${page.url()}`);
+    }
 
     // Persist the auth state
     const dir = path.dirname(STORAGE_STATE);

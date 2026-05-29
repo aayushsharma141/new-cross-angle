@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useMemo, useEffect, type ReactNode } from 'react';
 import { Command } from 'cmdk';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -19,12 +19,13 @@ import {
   LayoutDashboard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { usePermissions } from '@/hooks/usePermissions';
+import { ADMIN_ROUTES } from '@/lib/admin-routes';
 
 interface CommandItem {
   id: string;
   label: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   href?: string;
   action?: () => void;
   badge?: string;
@@ -39,83 +40,90 @@ interface CommandPaletteProps {
 
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const navigate = useNavigate();
-  const { role } = useAdminAuth();
-  const isSuperAdmin = role === 'super_admin';
-  const [search, setSearch] = React.useState('');
+  const { hasRole } = usePermissions();
+  const isSuperAdmin = hasRole('super_admin');
+  const [search, setSearch] = useState('');
 
-  const adminCommands: CommandItem[] = React.useMemo(() => [
+  const adminCommands: CommandItem[] = useMemo(() => [
     {
       id: 'dashboard',
-      label: 'Dashboard',
+      label: ADMIN_ROUTES.dashboard.label,
       icon: <LayoutDashboard className="h-4 w-4" />,
-      href: '/admin/dashboard',
+      href: ADMIN_ROUTES.dashboard.path,
       category: 'Navigation',
     },
     {
       id: 'portfolio',
-      label: 'Portfolio',
+      label: ADMIN_ROUTES.cmsPortfolio.label,
       icon: <Image className="h-4 w-4" />,
-      href: '/admin/cms/portfolio',
+      href: ADMIN_ROUTES.cmsPortfolio.path,
+      category: 'CMS',
+    },
+    {
+      id: 'transformations',
+      label: ADMIN_ROUTES.cmsTransformations.label,
+      icon: <Image className="h-4 w-4" />,
+      href: ADMIN_ROUTES.cmsTransformations.path,
       category: 'CMS',
     },
     {
       id: 'blogs',
-      label: 'Blog Posts',
+      label: ADMIN_ROUTES.cmsBlogs.label,
       icon: <FileText className="h-4 w-4" />,
-      href: '/admin/cms/blogs',
+      href: ADMIN_ROUTES.cmsBlogs.path,
       category: 'CMS',
     },
     {
       id: 'services',
-      label: 'Services',
+      label: ADMIN_ROUTES.cmsServices.label,
       icon: <FolderOpen className="h-4 w-4" />,
-      href: '/admin/cms/services',
+      href: ADMIN_ROUTES.cmsServices.path,
       category: 'CMS',
     },
     {
       id: 'leads',
       label: 'Lead Management',
       icon: <Users className="h-4 w-4" />,
-      href: '/admin/crm/leads',
+      href: ADMIN_ROUTES.crmLeads.path,
       category: 'CRM',
     },
     {
       id: 'estimate-leads',
       label: 'Estimate Requests',
       icon: <Calculator className="h-4 w-4" />,
-      href: '/admin/estimator/leads',
+      href: ADMIN_ROUTES.estimatorLeads.path,
       category: 'Estimator',
     },
     {
       id: 'discovery-analytics',
-      label: 'Discovery Analytics',
+      label: ADMIN_ROUTES.discoveryAnalytics.label,
       icon: <BarChart3 className="h-4 w-4" />,
-      href: '/admin/discovery/analytics',
+      href: ADMIN_ROUTES.discoveryAnalytics.path,
       category: 'Analytics',
     },
     {
       id: 'users',
       label: 'User Management',
       icon: <Users className="h-4 w-4" />,
-      href: '/admin/access',
+      href: ADMIN_ROUTES.access.path,
       category: 'Admin',
     },
     ...(isSuperAdmin ? [{
       id: 'settings',
-      label: 'System Settings',
+      label: ADMIN_ROUTES.systemSettings.label,
       icon: <Settings className="h-4 w-4" />,
-      href: '/admin/system/settings',
+      href: ADMIN_ROUTES.systemSettings.path,
       category: 'System',
     }] : []),
   ], [isSuperAdmin]);
 
-  const quickActions: CommandItem[] = React.useMemo(() => [
+  const quickActions: CommandItem[] = useMemo(() => [
     {
       id: 'add-project',
       label: 'Add New Project',
       icon: <Plus className="h-4 w-4" />,
       action: () => {
-        navigate('/admin/cms/portfolio?action=new');
+        navigate(`${ADMIN_ROUTES.cmsPortfolio.path}?action=new`);
         onOpenChange(false);
       },
       category: 'Quick Actions',
@@ -125,7 +133,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label: 'Create Blog Post',
       icon: <Plus className="h-4 w-4" />,
       action: () => {
-        navigate('/admin/cms/blogs?action=new');
+        navigate(`${ADMIN_ROUTES.cmsBlogs.path}?action=new`);
         onOpenChange(false);
       },
       category: 'Quick Actions',
@@ -134,7 +142,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       id: 'view-leads',
       label: 'View All Leads',
       icon: <Users className="h-4 w-4" />,
-      href: '/admin/crm/leads',
+      href: ADMIN_ROUTES.crmLeads.path,
       category: 'Quick Actions',
     },
   ], [navigate, onOpenChange]);
@@ -148,7 +156,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     }
   };
 
-  const groupedCommands = React.useMemo(() => {
+  const groupedCommands = useMemo(() => {
     const groups: Record<string, CommandItem[]> = {};
     
     [...adminCommands, ...quickActions].forEach((cmd) => {
@@ -160,7 +168,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     return groups;
   }, [adminCommands, quickActions]);
 
-  const filteredGroups = React.useMemo(() => {
+  const filteredGroups = useMemo(() => {
     if (!search.trim()) return groupedCommands;
 
     const filtered: Record<string, CommandItem[]> = {};
@@ -180,7 +188,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     return filtered;
   }, [search, groupedCommands]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
@@ -276,7 +284,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 }
 
 export function useCommandPalette() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   return {
     open,

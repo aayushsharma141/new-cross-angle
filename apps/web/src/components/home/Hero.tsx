@@ -3,9 +3,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import SplitType from "split-type";
+
 import { Image } from "@/components/ui/enhanced/image";
 
 /* ─── Types ─── */
@@ -66,7 +64,20 @@ const Hero = () => {
         .order("display_order", { ascending: true });
 
       if (error) throw error;
-      const items = (data as HeroMediaItem[] | null) || [];
+      let items = (data as HeroMediaItem[] | null) || [];
+      
+      // Patch known broken Pexels link from seed data
+      items = items.map(item => {
+        if (item.media_url && item.media_url.includes('11630727')) {
+          return {
+            ...item,
+            media_type: 'image',
+            media_url: '/hero_reality_render_1775299733746.png'
+          };
+        }
+        return item;
+      });
+      
       setMediaItems(items);
     } catch {
       setMediaItems([]);
@@ -100,58 +111,44 @@ const Hero = () => {
     };
   }, [currentIndex, mediaItems]);
 
-  /* ─── GSAP Entrance Animations ─── */
-  const containerRef = useRef<HTMLDivElement>(null);
+  /* ─── Framer Motion Animation Variants ─── */
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
 
-  useGSAP(() => {
-    // Split headlines for staggered character animation
-    const title = new SplitType('.hero-title', { types: 'chars,words' });
-    const kicker = new SplitType('.hero-kicker-text', { types: 'words' });
+  const itemUp = {
+    hidden: { y: 30, opacity: 0 },
+    show: { 
+      y: 0, 
+      opacity: 1, 
+      transition: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] as const } 
+    },
+  };
 
-    const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+  const popIn = {
+    hidden: { scale: 0.8, opacity: 0 },
+    show: { 
+      scale: 1, 
+      opacity: 1, 
+      transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const } 
+    },
+  };
 
-    tl.from('.hero-kicker-text .word', {
-      y: 20,
-      opacity: 0,
-      duration: 0.8,
-      stagger: 0.1,
-    })
-      .from(title.chars, {
-        y: 80,
-        opacity: 0,
-        duration: 0.9,
-        stagger: 0.018,
-        // rotateZ removed — caused blue placeholder boxes during GSAP split
-      }, "-=0.6")
-      .from('.hero-body-text', {
-        y: 30,
-        opacity: 0,
-        duration: 1,
-      }, "-=0.8")
-      .from('.hero-cta-btn', {
-        y: 20,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.2,
-      }, "-=0.8")
-      .from('.hero-trust-chip', {
-        scale: 0.8,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-      }, "-=0.6")
-      .from('.hero-side-panel', {
-        x: 50,
-        opacity: 0,
-        duration: 1,
-      }, "-=1");
-
-    return () => {
-      tl.kill();
-      title.revert();
-      kicker.revert();
-    };
-  }, { scope: containerRef, dependencies: [] });
+  const slideLeft = {
+    hidden: { x: 50, opacity: 0 },
+    show: { 
+      x: 0, 
+      opacity: 1, 
+      transition: { duration: 1, ease: [0.25, 0.1, 0.25, 1] as const, delay: 0.8 } 
+    },
+  };
 
   const currentMedia = mediaItems[currentIndex];
 
@@ -162,6 +159,17 @@ const Hero = () => {
     >
       {/* ═══ Background slide ═══ */}
       <div className="absolute inset-0">
+        {/* Static fallback shown while loading or if CMS is empty */}
+        <Image
+          src="/hero_reality_render_1775299733746.png"
+          alt=""
+          width={1920}
+          height={1080}
+          className="absolute inset-0 w-full h-full"
+          imageClassName="object-cover"
+          style={{ display: mediaItems.length > 0 ? 'none' : 'block' }}
+        />
+
         <AnimatePresence>
           {currentMedia && (
             <motion.div
@@ -211,25 +219,32 @@ const Hero = () => {
 
         {/* ── Overlays (exact surge.sh match) ── */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_28%,rgba(182,24,38,0.16),transparent_28%)]" />
+        {/* Stronger mobile background darkening to ensure text contrast against bright photos */}
+        <div className="absolute inset-0 bg-black/60 md:bg-transparent" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.88)_0%,rgba(0,0,0,0.62)_32%,rgba(0,0,0,0.18)_64%,rgba(0,0,0,0.45)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black via-black/55 to-transparent" />
       </div>
 
       {/* ═══ Content: split-grid layout ═══ */}
-      <div ref={containerRef} className="container mx-auto h-full px-6 md:px-10 relative z-20">
-        <div className="grid h-full items-end lg:grid-cols-[minmax(0,1fr)_320px] gap-8 pb-10 pt-28 md:pt-32 md:pb-14">
+      <div className="container mx-auto h-full px-6 md:px-16 lg:px-24 xl:px-32 relative z-20">
+        <div className="grid h-full items-end lg:grid-cols-[minmax(0,1fr)_320px] gap-8 pb-[clamp(7rem,18vh,12rem)] md:pb-[clamp(5rem,12vh,10rem)] pt-[clamp(7rem,15vh,12rem)]">
           {/* ── Left column: headline + CTAs + trust chips ── */}
-          <div className="max-w-[46rem] self-center">
+          <motion.div 
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="max-w-[46rem] self-center"
+          >
             {/* Kicker */}
-            <span className="home-kicker mb-6">
-              <span className="hero-kicker-text">Premier Interior Design Studio</span>
-            </span>
+            <motion.span variants={itemUp} className="home-kicker mb-6 inline-block">
+              <span className="hero-kicker-text drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Premier Interior Design Studio</span>
+            </motion.span>
 
-            {/* Headline — overflow-hidden clips chars during GSAP entry animation */}
-            {/* DO NOT add padding/margin inside this wrapper; it will shift clipping */}
-            <div className="overflow-hidden mb-6">
-              <h1
-                className="hero-title font-display text-[clamp(3.35rem,8vw,7.6rem)] font-semibold text-white leading-[0.94] tracking-[-0.05em] max-w-[12ch]"
+            {/* Headline */}
+            <div className="mb-6">
+              <motion.h1
+                variants={itemUp}
+                className="hero-title font-display text-[clamp(2.5rem,8vw,7.6rem)] font-semibold text-white leading-[0.96] tracking-[-0.05em] max-w-full sm:max-w-[12ch]"
                 style={{
                   textShadow:
                     "0 10px 38px rgba(0,0,0,0.42), 0 2px 10px rgba(0,0,0,0.24)",
@@ -244,21 +259,22 @@ const Hero = () => {
                 >
                   Dream Home.
                 </span>
-              </h1>
+              </motion.h1>
             </div>
 
             {/* Body */}
-            <p
+            <motion.p
+              variants={itemUp}
               className="hero-body-text home-body text-base md:text-lg lg:text-xl mb-10 max-w-[35rem]"
               style={{ textShadow: "0 1px 10px rgba(0,0,0,0.45)" }}
             >
               Award-winning interior design for homes and commercial spaces,
               shaped with editorial restraint, practical clarity, and execution
               you can trust from concept to handover.
-            </p>
+            </motion.p>
 
             {/* CTA buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <motion.div variants={itemUp} className="flex flex-col sm:flex-row gap-4 mb-8">
               <div className="hero-cta-btn">
                 <Link
                   to="/gallery"
@@ -277,27 +293,30 @@ const Hero = () => {
                   <ArrowRight className="ml-3 h-4 w-4 opacity-60" />
                 </Link>
               </div>
-            </div>
+            </motion.div>
 
             {/* Trust chips */}
-            <div className="flex flex-wrap gap-3">
-              <span className="hero-trust-chip home-chip">
+            <motion.div variants={itemUp} className="flex flex-wrap gap-3">
+              <motion.span variants={popIn} className="hero-trust-chip home-chip bg-black/40 backdrop-blur-md border-white/10">
                 <Sparkles className="h-3.5 w-3.5 text-[#D1AF6E]" />
                 <span>500+ Projects Delivered</span>
-              </span>
-              <span className="hero-trust-chip home-chip">
+              </motion.span>
+              <motion.span variants={popIn} className="hero-trust-chip home-chip bg-black/40 backdrop-blur-md border-white/10">
                 <Sparkles className="h-3.5 w-3.5 text-[#D1AF6E]" />
                 <span>15+ Years of Design Experience</span>
-              </span>
-              <span className="hero-trust-chip home-chip">
+              </motion.span>
+              <motion.span variants={popIn} className="hero-trust-chip home-chip bg-black/40 backdrop-blur-md border-white/10">
                 <Sparkles className="h-3.5 w-3.5 text-[#D1AF6E]" />
                 <span>Jamshedpur &amp; Nearby</span>
-              </span>
-            </div>
-          </div>
+              </motion.span>
+            </motion.div>
+          </motion.div>
 
           {/* ── Right column: info card (desktop only) ── */}
-          <div
+          <motion.div
+            variants={slideLeft}
+            initial="hidden"
+            animate="show"
             className="hero-side-panel hidden lg:flex self-end justify-end"
           >
             <div className="home-panel w-full max-w-[320px] p-6 rounded-none">
@@ -321,13 +340,13 @@ const Hero = () => {
                 <div className="grid grid-cols-2 gap-4 border-t border-white/10 pt-4">
                   <div>
                     <p className="text-3xl font-display text-white">500+</p>
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/42 mt-1">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/60 mt-1">
                       Projects
                     </p>
                   </div>
                   <div>
                     <p className="text-3xl font-display text-white">45</p>
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/42 mt-1">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/60 mt-1">
                       Day Delivery Promise
                     </p>
                   </div>
@@ -340,7 +359,7 @@ const Hero = () => {
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 

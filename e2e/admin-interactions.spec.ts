@@ -8,15 +8,15 @@
  * Route map (from App.tsx as of April 2026):
  *   /admin/dashboard
  *   /admin/crm/leads
- *   /admin/crm/pipeline
+ *   /admin/estimate/rates
  *   /admin/cms/portfolio
  *   /admin/cms/blogs
  *   /admin/cms/services
  *   /admin/cms/media
  *   /admin/cms/team
  *   /admin/system/settings
- *   /admin/users
- *   /admin/testimonials
+ *   /admin/system/access
+ *   /admin/cms/testimonials
  */
 
 import { test, expect, Page } from '@playwright/test';
@@ -112,11 +112,11 @@ test.describe('Admin Leads Table', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ADMIN LEAD PIPELINE
+// ADMIN ESTIMATOR RATES
 // ─────────────────────────────────────────────────────────────────────────────
-test.describe('Admin Lead Pipeline', () => {
+test.describe('Admin Estimator Rates', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/admin/crm/pipeline');
+    await page.goto('/admin/estimate/rates');
     await waitForAdminShell(page);
     await assertAuthenticated(page);
   });
@@ -281,7 +281,7 @@ test.describe('Admin System Settings', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Admin Testimonials', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/admin/testimonials');
+    await page.goto('/admin/cms/testimonials');
     await waitForAdminShell(page);
     await assertAuthenticated(page);
   });

@@ -38,7 +38,7 @@ const REMEMBER_ME_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 // Compute initial view from URL params to prevent login→logout flash bounce
 function getInitialView(): AuthView {
   const params = new URLSearchParams(window.location.search);
-  if (params.get('signed-out') === 'true') return 'logged-out';
+  if (params.get('logged-out') === 'true') return 'logged-out';
   const hash = new URLSearchParams(window.location.hash.substring(1));
   if (hash.get('type') === 'recovery') return 'reset-password';
   if (hash.get('error') === 'access_denied') return 'expired';
@@ -72,11 +72,11 @@ const AdminAuth: React.FC = () => {
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const isSignedOut = searchParams.get('signed-out') === 'true';
+    const isLoggedOut = searchParams.get('logged-out') === 'true';
     const roleError = searchParams.get('error') === 'role_unavailable' || searchParams.get('error') === 'unauthorized_role';
 
     // Check for logout confirmation first to prevent redirect race conditions
-    if (isSignedOut && !user) {
+    if (isLoggedOut && !user) {
       setView('logged-out');
       return;
     }
@@ -111,7 +111,7 @@ const AdminAuth: React.FC = () => {
     // KEY FIX: Only redirect to /admin when BOTH user AND role are resolved.
     // Previously, this fired as soon as `user` existed, racing ahead of role
     // resolution and causing the "retrying... access denied" loop.
-    if (user && role && !isSignedOut && view === 'login') {
+    if (user && role && !isLoggedOut && view === 'login') {
       setRedirecting(true);
       navigate('/admin', { replace: true });
     }

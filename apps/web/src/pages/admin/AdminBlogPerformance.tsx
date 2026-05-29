@@ -105,6 +105,11 @@ export default function AdminBlogPerformance() {
     const sorted = [...articles]
         .filter((a) => a.title.toLowerCase().includes(search.toLowerCase()))
         .sort((a, b) => {
+            if (sortKey === "created_at") {
+                const av = new Date(a.created_at ?? 0).getTime();
+                const bv = new Date(b.created_at ?? 0).getTime();
+                return sortDir === "asc" ? av - bv : bv - av;
+            }
             const av = (a[sortKey] as number) ?? 0;
             const bv = (b[sortKey] as number) ?? 0;
             return sortDir === "asc" ? av - bv : bv - av;

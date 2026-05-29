@@ -1,85 +1,27 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { usePermissions } from "@/hooks/usePermissions";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import {
     Loader2,
     Plus,
-    Trash2,
-    GripVertical,
-    Eye,
-    EyeOff,
-    Video,
-    Image as ImageIcon,
-    Play,
-    Save,
     X,
-    Pencil,
-    Check,
+    Save,
     ExternalLink,
-    Clock,
-    ArrowUp,
-    ArrowDown,
-    FolderOpen,
-    Search,
-    Sparkles,
-    Type,
-    Link as LinkIcon,
-    MousePointerClick,
+    Video,
 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
-import { Label } from "@/components/ui/primitives/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/primitives/select";
-import { Switch } from "@/components/ui/primitives/switch";
+import { Image } from "@/components/ui/enhanced/image";
 import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { getOptimizedUrl } from "@/lib/cdn";
 
-/* ─── Types ─── */
-type AnimationEffect = "none" | "ken-burns-in" | "ken-burns-out" | "pan-left" | "pan-right" | "pan-up" | "pan-down" | "zoom-pan";
-
-interface HeroMediaItem {
-    id: string;
-    media_url: string;
-    media_type: "video" | "image";
-    title: string | null;
-    headline: string | null;
-    cta_text: string | null;
-    cta_link: string | null;
-    display_order: number;
-    is_active: boolean;
-    duration_ms: number;
-    animation_effect: AnimationEffect;
-    created_at: string;
-    updated_at: string;
-}
-
-interface MediaLibraryFile {
-    id: string;
-    name: string;
-    url: string;
-    type: "video" | "image";
-}
-
-/* ─── Constants ─── */
-const ANIMATION_EFFECTS: { value: AnimationEffect; label: string; description: string }[] = [
-    { value: "none", label: "None", description: "Static display" },
-    { value: "ken-burns-in", label: "Ken Burns — Zoom In", description: "Slow zoom into the image" },
-    { value: "ken-burns-out", label: "Ken Burns — Zoom Out", description: "Starting zoomed, slowly pulling back" },
-    { value: "pan-left", label: "Slow Pan Left", description: "Gentle horizontal pan to the left" },
-    { value: "pan-right", label: "Slow Pan Right", description: "Gentle horizontal pan to the right" },
-    { value: "pan-up", label: "Pan Up", description: "Cinematic upward movement with subtle scale" },
-    { value: "pan-down", label: "Pan Down", description: "Cinematic downward movement with subtle scale" },
-    { value: "zoom-pan", label: "Zoom Pan", description: "Diagonal drift with progressive zoom — premium feel" },
-];
+// Decomposed Hero sub-components
+import { HeroMediaItem, AnimationEffect } from "@/components/admin/hero/types";
+import { HeroItemFormFields } from "@/components/admin/hero/HeroItemFormFields";
+import { HeroItemDisplay } from "@/components/admin/hero/HeroItemDisplay";
+import { HeroMediaPickerModal } from "@/components/admin/hero/HeroMediaPickerModal";
 
 /* ─── Helpers ─── */
 const isValidUrl = (str: string) => {
@@ -93,146 +35,11 @@ const isValidUrl = (str: string) => {
 
 const formatDuration = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
 
-const getFileType = (name: string): "video" | "image" => {
-    const ext = name.split(".").pop()?.toLowerCase() || "";
-    return ["mp4", "webm", "ogg", "mov"].includes(ext) ? "video" : "image";
-};
-
-const getEffectLabel = (effect: AnimationEffect) =>
-    ANIMATION_EFFECTS.find(e => e.value === effect)?.label || "None";
-
-/* ─── Media Picker Modal ─── */
-function MediaPickerModal({ open, onClose, onSelect }: {
-    open: boolean;
-    onClose: () => void;
-    onSelect: (url: string, type: "video" | "image", name: string) => void;
-}) {
-    const [files, setFiles] = useState<MediaLibraryFile[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [search, setSearch] = useState("");
-
-    useEffect(() => {
-        if (!open) return;
-        (async () => {
-            setLoading(true);
-            try {
-                const { data, error } = await supabase
-                    .from("media")
-                    .select("id, file_name, url")
-                    .order("created_at", { ascending: false });
-                if (error) throw error;
-                setFiles((data || []).map(f => ({
-                    id: f.id,
-                    name: f.file_name,
-                    url: f.url,
-                    type: getFileType(f.file_name),
-                })));
-            } catch {
-                setFiles([]);
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, [open]);
-
-    const filtered = files.filter(f =>
-        f.name.toLowerCase().includes(search.toLowerCase())
-    );
-
-    if (!open) return null;
-
-    return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-6"
-            onClick={onClose}
-        >
-            <div
-                className="bg-zinc-900 border border-zinc-700/50 rounded-xl max-w-4xl w-full max-h-[80vh] flex flex-col shadow-2xl"
-                onClick={e => e.stopPropagation()}
-            >
-                {/* Header */}
-                <div className="flex items-center justify-between p-5 border-b border-zinc-800">
-                    <div className="flex items-center gap-3">
-                        <FolderOpen className="w-5 h-5 text-site-crimson" />
-                        <h2 className="text-lg font-semibold text-white">Media Library</h2>
-                        <span className="text-xs text-zinc-500">{filtered.length} files</span>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
-                        <X className="w-5 h-5" />
-                    </Button>
-                </div>
-
-                {/* Search */}
-                <div className="p-4 border-b border-zinc-800">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                        <Input
-                            placeholder="Search media files..."
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            className="pl-10"
-                        />
-                    </div>
-                </div>
-
-                {/* Grid */}
-                <div className="flex-1 overflow-y-auto p-4">
-                    {loading ? (
-                        <div className="flex items-center justify-center py-16">
-                            <Loader2 className="w-6 h-6 animate-spin text-site-crimson" />
-                        </div>
-                    ) : filtered.length === 0 ? (
-                        <div className="text-center py-16">
-                            <FolderOpen className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
-                            <p className="text-zinc-400">No media files found</p>
-                            <p className="text-zinc-600 text-xs mt-1">Upload files in the Media tab first</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                            {filtered.map(file => (
-                                <button
-                                    key={file.id}
-                                    onClick={() => onSelect(file.url, file.type, file.name)}
-                                    className="group relative aspect-square rounded-lg overflow-hidden bg-zinc-800 border border-zinc-700/50 hover:border-site-crimson/50 transition-all duration-200 hover:ring-2 hover:ring-site-crimson/20"
-                                    title={file.name}
-                                >
-                                    {file.type === "video" ? (
-                                        <>
-                                            <video src={file.url} muted preload="metadata" className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                                                <Play className="w-6 h-6 text-white/70" />
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <img src={getOptimizedUrl(file.url, { width: 360, quality: 72 })} alt={file.name} className="w-full h-full object-cover" />
-                                    )}
-                                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                                        <p className="text-[10px] text-white/80 truncate">{file.name.split("/").pop()}</p>
-                                    </div>
-                                    <div className="absolute top-1.5 right-1.5">
-                                        {file.type === "video"
-                                            ? <Video className="w-3 h-3 text-blue-400" />
-                                            : <ImageIcon className="w-3 h-3 text-emerald-400" />
-                                        }
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
-        </motion.div>
-    );
-}
-
 /* ─── Component ─── */
 const AdminHero = () => {
     const { toast } = useToast();
-    const { isAdmin, isEditor } = useAdminAuth();
-    const canEdit = isAdmin || isEditor;
+    const { can } = usePermissions();
+    const canEdit = can('content', 'edit');
 
     const [items, setItems] = useState<HeroMediaItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -510,15 +317,8 @@ const AdminHero = () => {
 
     return (
         <div className="space-y-8 max-w-5xl">
-            {/* Header */}
-            <div className="flex items-start justify-between gap-4">
-                <div>
-                    <h1 className="font-display text-3xl font-bold text-white">Hero Media</h1>
-                    <p className="text-zinc-400 mt-1 text-sm">
-                        Manage the rotating visuals in your homepage hero section. Drag to reorder.
-                    </p>
-                </div>
-                {canEdit && (
+            {canEdit && (
+                <ModuleActions>
                     <Button
                         onClick={() => {
                             setShowAddForm(!showAddForm);
@@ -535,9 +335,8 @@ const AdminHero = () => {
                             <><Plus className="w-4 h-4 mr-2" /> Add Media</>
                         )}
                     </Button>
-                )}
-            </div>
-
+                </ModuleActions>
+            )}
             {/* ─── Add Form ─── */}
             <AnimatePresence>
                 {showAddForm && (
@@ -553,137 +352,33 @@ const AdminHero = () => {
                                 Add New Hero Media
                             </h2>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div className="space-y-2">
-                                    <Label className="text-zinc-300">Media URL <span className="text-site-crimson">*</span></Label>
-                                    <div className="flex gap-2">
-                                        <Input
-                                            ref={addUrlRef}
-                                            placeholder="https://videos.pexels.com/..."
-                                            value={newUrl}
-                                            onChange={(e) => {
-                                                setNewUrl(e.target.value);
-                                                if (urlError) setUrlError("");
-                                            }}
-                                            className={`flex-1 ${urlError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            className="shrink-0"
-                                            onClick={() => { setPickerTarget("add"); setPickerOpen(true); }}
-                                        >
-                                            <FolderOpen className="w-4 h-4 mr-2" /> Browse
-                                        </Button>
-                                    </div>
-                                    {urlError && <p className="text-xs text-red-400">{urlError}</p>}
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-zinc-300">Title</Label>
-                                    <Input
-                                        placeholder="e.g. Living Room Reveal"
-                                        value={newTitle}
-                                        onChange={(e) => setNewTitle(e.target.value)}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-zinc-300">Media Type</Label>
-                                    <Select value={newType} onValueChange={(v) => setNewType(v as "video" | "image")}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="video">
-                                                <span className="flex items-center gap-2">
-                                                    <Video className="w-3.5 h-3.5 text-blue-400" /> Video
-                                                </span>
-                                            </SelectItem>
-                                            <SelectItem value="image">
-                                                <span className="flex items-center gap-2">
-                                                    <ImageIcon className="w-3.5 h-3.5 text-emerald-400" /> Image
-                                                </span>
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-zinc-300">Display Duration</Label>
-                                    <div className="flex items-center gap-2">
-                                        <Input
-                                            type="number"
-                                            min={1000}
-                                            max={30000}
-                                            step={500}
-                                            value={newDuration}
-                                            onChange={(e) => setNewDuration(Math.max(1000, parseInt(e.target.value) || 4000))}
-                                        />
-                                        <span className="text-xs text-zinc-500 whitespace-nowrap">{formatDuration(newDuration)}</span>
-                                    </div>
-                                </div>
-
-                                {/* Animation Effect */}
-                                <div className="space-y-2 md:col-span-2">
-                                    <Label className="text-zinc-300 flex items-center gap-2">
-                                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                                        Animation Effect
-                                    </Label>
-                                    <Select value={newEffect} onValueChange={(v) => setNewEffect(v as AnimationEffect)}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {ANIMATION_EFFECTS.map(eff => (
-                                                <SelectItem key={eff.value} value={eff.value}>
-                                                    <span className="flex items-center gap-2">
-                                                        {eff.label}
-                                                        <span className="text-zinc-500 text-xs">— {eff.description}</span>
-                                                    </span>
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                {/* ─── Headline & CTA Fields (Add Form) ─── */}
-                                <div className="md:col-span-2 border-t border-zinc-800 pt-4 mt-1">
-                                    <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                        <Type className="w-3.5 h-3.5" /> Slide Content (Optional)
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2 md:col-span-2">
-                                            <Label className="text-zinc-300">Headline</Label>
-                                            <Textarea
-                                                placeholder={"Don't just change your space.\nChange how you live in it."}
-                                                value={newHeadline}
-                                                onChange={(e) => setNewHeadline(e.target.value)}
-                                                rows={2}
-                                                className="resize-none"
-                                            />
-                                            <p className="text-[10px] text-zinc-600">Use line breaks for multi-line headlines. Leave blank for media-only slides.</p>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-zinc-300 flex items-center gap-1.5">
-                                                <MousePointerClick className="w-3.5 h-3.5 text-blue-400" /> CTA Button Text
-                                            </Label>
-                                            <Input
-                                                placeholder="e.g. Start Your Project"
-                                                value={newCtaText}
-                                                onChange={(e) => setNewCtaText(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-zinc-300 flex items-center gap-1.5">
-                                                <LinkIcon className="w-3.5 h-3.5 text-blue-400" /> CTA Link
-                                            </Label>
-                                            <Input
-                                                placeholder="/contact or https://..."
-                                                value={newCtaLink}
-                                                onChange={(e) => setNewCtaLink(e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <HeroItemFormFields
+                                url={newUrl}
+                                setUrl={(val) => {
+                                    setNewUrl(val);
+                                    if (urlError) setUrlError("");
+                                }}
+                                title={newTitle}
+                                setTitle={setNewTitle}
+                                type={newType}
+                                setType={setNewType}
+                                duration={newDuration}
+                                setDuration={setNewDuration}
+                                effect={newEffect}
+                                setEffect={setNewEffect}
+                                headline={newHeadline}
+                                setHeadline={setNewHeadline}
+                                ctaText={newCtaText}
+                                setCtaText={setNewCtaText}
+                                ctaLink={newCtaLink}
+                                setCtaLink={setNewCtaLink}
+                                urlError={urlError}
+                                onBrowse={() => {
+                                    setPickerTarget("add");
+                                    setPickerOpen(true);
+                                }}
+                                urlRef={addUrlRef}
+                            />
 
                             {/* URL Preview */}
                             {newUrl && isValidUrl(newUrl) && (
@@ -692,7 +387,13 @@ const AdminHero = () => {
                                         {newType === "video" ? (
                                             <video src={newUrl} muted className="w-full h-full object-cover" preload="metadata" />
                                         ) : (
-                                            <img src={getOptimizedUrl(newUrl, { width: 360, quality: 72 })} alt="Preview" className="w-full h-full object-cover" />
+                                            <Image 
+                                                src={newUrl} 
+                                                width={360} 
+                                                quality={72} 
+                                                alt="Preview" 
+                                                imageClassName="w-full h-full object-cover" 
+                                            />
                                         )}
                                     </div>
                                     <div className="text-xs text-zinc-400">
@@ -754,276 +455,44 @@ const AdminHero = () => {
                                     }
                                 `}
                             >
-                                {isEditing ? (
-                                    /* ─── Inline Edit Mode ─── */
-                                    <div className="p-5 space-y-4">
-                                        <div className="flex items-center justify-between">
-                                            <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                                                <Pencil className="w-3.5 h-3.5 text-site-crimson" />
-                                                Editing: {item.title || "Untitled"}
-                                            </h3>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-site-crimson hover:bg-[#A30E28] h-8 text-xs"
-                                                    onClick={() => saveEditing(item)}
-                                                >
-                                                    <Check className="w-3.5 h-3.5 mr-1" /> Save
-                                                </Button>
-                                                <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={cancelEditing}>
-                                                    Cancel
-                                                </Button>
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-1.5">
-                                                <Label className="text-xs text-zinc-400">Title</Label>
-                                                <Input
-                                                    value={editTitle}
-                                                    onChange={(e) => setEditTitle(e.target.value)}
-                                                    placeholder="Title"
-                                                />
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <Label className="text-xs text-zinc-400">Media URL</Label>
-                                                <div className="flex gap-2">
-                                                    <Input
-                                                        value={editUrl}
-                                                        onChange={(e) => setEditUrl(e.target.value)}
-                                                        placeholder="https://..."
-                                                        className="flex-1"
-                                                    />
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="shrink-0 h-9"
-                                                        onClick={() => { setPickerTarget("edit"); setPickerOpen(true); }}
-                                                    >
-                                                        <FolderOpen className="w-3.5 h-3.5 mr-1.5" /> Browse
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <Label className="text-xs text-zinc-400">Type</Label>
-                                                <Select value={editType} onValueChange={(v) => setEditType(v as "video" | "image")}>
-                                                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="video"><span className="flex items-center gap-2"><Video className="w-3 h-3" /> Video</span></SelectItem>
-                                                        <SelectItem value="image"><span className="flex items-center gap-2"><ImageIcon className="w-3 h-3" /> Image</span></SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <Label className="text-xs text-zinc-400">Duration</Label>
-                                                <div className="flex items-center gap-2">
-                                                    <Input
-                                                        type="number"
-                                                        min={1000}
-                                                        max={30000}
-                                                        step={500}
-                                                        value={editDuration}
-                                                        onChange={(e) => setEditDuration(Math.max(1000, parseInt(e.target.value) || 4000))}
-                                                        className="h-9"
-                                                    />
-                                                    <span className="text-xs text-zinc-500">{formatDuration(editDuration)}</span>
-                                                </div>
-                                            </div>
-
-                                            {/* Animation Effect */}
-                                            <div className="space-y-1.5 md:col-span-2">
-                                                <Label className="text-xs text-zinc-400 flex items-center gap-1.5">
-                                                    <Sparkles className="w-3 h-3 text-amber-400" />
-                                                    Animation Effect
-                                                </Label>
-                                                <Select value={editEffect} onValueChange={(v) => setEditEffect(v as AnimationEffect)}>
-                                                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                                                    <SelectContent>
-                                                        {ANIMATION_EFFECTS.map(eff => (
-                                                            <SelectItem key={eff.value} value={eff.value}>
-                                                                <span className="flex items-center gap-2">
-                                                                    {eff.label}
-                                                                    <span className="text-zinc-500 text-xs">— {eff.description}</span>
-                                                                </span>
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            {/* ─── Headline & CTA Fields (Edit Form) ─── */}
-                                            <div className="md:col-span-2 border-t border-zinc-700/50 pt-3 mt-1">
-                                                <h4 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                                                    <Type className="w-3 h-3" /> Slide Content
-                                                </h4>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                    <div className="space-y-1 md:col-span-2">
-                                                        <Label className="text-xs text-zinc-400">Headline</Label>
-                                                        <Textarea
-                                                            value={editHeadline}
-                                                            onChange={(e) => setEditHeadline(e.target.value)}
-                                                            placeholder="Multi-line headline text..."
-                                                            rows={2}
-                                                            className="resize-none text-sm"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <Label className="text-xs text-zinc-400">CTA Button Text</Label>
-                                                        <Input
-                                                            value={editCtaText}
-                                                            onChange={(e) => setEditCtaText(e.target.value)}
-                                                            placeholder="e.g. View Portfolio"
-                                                            className="h-9"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <Label className="text-xs text-zinc-400">CTA Link</Label>
-                                                        <Input
-                                                            value={editCtaLink}
-                                                            onChange={(e) => setEditCtaLink(e.target.value)}
-                                                            placeholder="/contact-us"
-                                                            className="h-9"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    /* ─── Display Mode ─── */
-                                    <div className="flex items-center gap-4 p-4">
-                                        {/* Drag Handle */}
-                                        <div className="cursor-grab active:cursor-grabbing text-zinc-600 hover:text-zinc-400 transition-colors flex-shrink-0">
-                                            <GripVertical className="w-5 h-5" />
-                                        </div>
-
-                                        {/* Order Badge */}
-                                        <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400 flex-shrink-0">
-                                            {index + 1}
-                                        </div>
-
-                                        {/* Thumbnail */}
-                                        <div
-                                            className="w-28 h-18 rounded-lg overflow-hidden bg-zinc-800 flex-shrink-0 relative group cursor-pointer"
-                                            onClick={() => setPreviewItem(item)}
-                                        >
-                                            {item.media_type === "video" ? (
-                                                <>
-                                                    <video
-                                                        src={item.media_url}
-                                                        muted
-                                                        className="w-full h-full object-cover"
-                                                        preload="metadata"
-                                                    />
-                                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <Play className="w-6 h-6 text-white fill-white" />
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <img
-                                                    src={getOptimizedUrl(item.media_url, { width: 720, quality: 76 })}
-                                                    alt={item.title || "Hero media"}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            )}
-                                        </div>
-
-                                        {/* Info */}
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                {item.media_type === "video" ? (
-                                                    <Video className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                                                ) : (
-                                                    <ImageIcon className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                                                )}
-                                                <p className="text-sm font-medium text-zinc-200 truncate">
-                                                    {item.title || "Untitled"}
-                                                </p>
-                                            </div>
-                                            <p className="text-xs text-zinc-600 truncate max-w-md">{item.media_url}</p>
-                                            {/* Headline & CTA preview */}
-                                            {item.headline && (
-                                                <p className="text-[11px] text-zinc-400 mt-1 truncate max-w-md italic">
-                                                    "{item.headline.replace(/\n/g, ' ')}"
-                                                </p>
-                                            )}
-                                            <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                                                <span className="flex items-center gap-1 text-[10px] text-zinc-500">
-                                                    <Clock className="w-3 h-3" /> {formatDuration(item.duration_ms)}
-                                                </span>
-                                                {item.animation_effect && item.animation_effect !== "none" && (
-                                                    <span className="flex items-center gap-1 text-[10px] text-amber-400/70 bg-amber-400/5 px-1.5 py-0.5 rounded-full">
-                                                        <Sparkles className="w-2.5 h-2.5" /> {getEffectLabel(item.animation_effect)}
-                                                    </span>
-                                                )}
-                                                {item.cta_text && (
-                                                    <span className="flex items-center gap-1 text-[10px] text-blue-400/70 bg-blue-400/5 px-1.5 py-0.5 rounded-full">
-                                                        <MousePointerClick className="w-2.5 h-2.5" /> {item.cta_text}
-                                                    </span>
-                                                )}
-                                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${item.is_active ? "bg-emerald-500/10 text-emerald-400" : "bg-zinc-800 text-zinc-600"}`}>
-                                                    {item.is_active ? "Active" : "Hidden"}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        {/* Toggle Active */}
-                                        <div className="flex items-center gap-2 flex-shrink-0">
-                                            <Switch
-                                                checked={item.is_active}
-                                                onCheckedChange={() => handleToggleActive(item)}
-                                                disabled={!canEdit}
-                                            />
-                                        </div>
-
-                                        {/* Actions */}
-                                        {canEdit && (
-                                            <div className="flex items-center gap-1 flex-shrink-0">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-zinc-500 hover:text-zinc-300"
-                                                    onClick={() => moveItem(index, "up")}
-                                                    disabled={index === 0}
-                                                    title="Move up"
-                                                >
-                                                    <ArrowUp className="w-3.5 h-3.5" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-zinc-500 hover:text-zinc-300"
-                                                    onClick={() => moveItem(index, "down")}
-                                                    disabled={index === items.length - 1}
-                                                    title="Move down"
-                                                >
-                                                    <ArrowDown className="w-3.5 h-3.5" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-zinc-500 hover:text-blue-400"
-                                                    onClick={() => startEditing(item)}
-                                                    title="Edit"
-                                                >
-                                                    <Pencil className="w-3.5 h-3.5" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-zinc-500 hover:text-red-400"
-                                                    onClick={() => {
-                                                        setItemToDelete(item);
-                                                        setDeleteDialogOpen(true);
-                                                    }}
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                                <HeroItemDisplay
+                                    item={item}
+                                    index={index}
+                                    isEditing={isEditing}
+                                    canEdit={canEdit}
+                                    isSaving={isSaving}
+                                    itemsLength={items.length}
+                                    onStartEdit={startEditing}
+                                    onCancelEdit={cancelEditing}
+                                    onSaveEdit={saveEditing}
+                                    onToggleActive={handleToggleActive}
+                                    onMoveItem={moveItem}
+                                    onDeleteClick={(itm) => {
+                                        setItemToDelete(itm);
+                                        setDeleteDialogOpen(true);
+                                    }}
+                                    onPreviewClick={(itm) => setPreviewItem(itm)}
+                                    onBrowseMedia={() => {
+                                        setPickerTarget("edit");
+                                        setPickerOpen(true);
+                                    }}
+                                    editTitle={editTitle}
+                                    setEditTitle={setEditTitle}
+                                    editUrl={editUrl}
+                                    setEditUrl={setEditUrl}
+                                    editType={editType}
+                                    setEditType={setEditType}
+                                    editDuration={editDuration}
+                                    setEditDuration={setEditDuration}
+                                    editEffect={editEffect}
+                                    setEditEffect={setEditEffect}
+                                    editHeadline={editHeadline}
+                                    setEditHeadline={setEditHeadline}
+                                    editCtaText={editCtaText}
+                                    setEditCtaText={setEditCtaText}
+                                    editCtaLink={editCtaLink}
+                                    setEditCtaLink={setEditCtaLink}
+                                />
                             </Reorder.Item>
                         );
                     })}
@@ -1068,10 +537,10 @@ const AdminHero = () => {
                                         className="w-full h-full object-contain"
                                     />
                                 ) : (
-                                    <img
+                                    <Image
                                         src={previewItem.media_url}
                                         alt={previewItem.title || "Preview"}
-                                        className="w-full h-full object-contain"
+                                        imageClassName="w-full h-full object-contain"
                                     />
                                 )}
                             </div>
@@ -1099,7 +568,7 @@ const AdminHero = () => {
             />
 
             {/* Media Picker Modal */}
-            <MediaPickerModal
+            <HeroMediaPickerModal
                 open={pickerOpen}
                 onClose={() => setPickerOpen(false)}
                 onSelect={(url, type, name) => {

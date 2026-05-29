@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronRight } from "lucide-react";
 import { TactileMaterial } from "@/components/ui/enhanced/TactileMaterial";
+import { Image } from "@/components/ui/enhanced/image";
+
+const MotionImage = motion(Image);
 
 interface Hotspot {
   id: string;
@@ -66,10 +69,11 @@ export const CrossAngleShowcase = () => {
     <section className="relative w-full h-[100svh] min-h-[600px] bg-site-bg overflow-hidden flex flex-col justify-end pb-[10vh]">
       {/* Cinematic Backgrounds */}
       <div className="absolute inset-0 z-0">
-        <motion.img 
+        <MotionImage 
           src={IMG_ANGLE_01} 
           alt="Angle 01"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full"
+          imageClassName="object-cover"
           initial={false}
           animate={{ 
             opacity: activeAngle === "angle01" ? 1 : 0, 
@@ -77,11 +81,14 @@ export const CrossAngleShowcase = () => {
             filter: activeHotspot ? "brightness(0.6) blur(2px)" : "brightness(1) blur(0px)"
           }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
+          width={1920}
+          height={1080}
         />
-        <motion.img 
+        <MotionImage 
           src={IMG_ANGLE_02} 
           alt="Angle 02"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full"
+          imageClassName="object-cover"
           initial={false}
           animate={{ 
             opacity: activeAngle === "angle02" ? 1 : 0, 
@@ -89,6 +96,8 @@ export const CrossAngleShowcase = () => {
             filter: activeHotspot ? "brightness(0.6) blur(2px)" : "brightness(1) blur(0px)"
           }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
+          width={1920}
+          height={1080}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
       </div>
@@ -173,7 +182,7 @@ export const CrossAngleShowcase = () => {
           <button
             onClick={() => setActiveAngle("angle01")}
             className={`relative px-6 py-3 rounded-full text-[10px] uppercase tracking-[0.2em] font-medium transition-colors z-10 ${
-              activeAngle === "angle01" ? "text-black" : "text-white/40 hover:text-white"
+              activeAngle === "angle01" ? "text-black" : "text-white/60 hover:text-white"
             }`}
           >
             01. The Lounge
@@ -188,7 +197,7 @@ export const CrossAngleShowcase = () => {
           <button
             onClick={() => setActiveAngle("angle02")}
             className={`relative px-6 py-3 rounded-full text-[10px] uppercase tracking-[0.2em] font-medium transition-colors z-10 ${
-              activeAngle === "angle02" ? "text-black" : "text-white/40 hover:text-white"
+              activeAngle === "angle02" ? "text-black" : "text-white/60 hover:text-white"
             }`}
           >
             02. The Entry

@@ -1,9 +1,9 @@
-import * as React from 'react';
+import React, { forwardRef, HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'primary';
 
-interface AdminBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+interface AdminBadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
   size?: 'sm' | 'default' | 'lg';
   dot?: boolean;
@@ -24,7 +24,7 @@ const sizeStyles = {
   lg: 'px-3 py-1 text-sm',
 };
 
-export const AdminBadge = React.forwardRef<HTMLSpanElement, AdminBadgeProps>(
+export const AdminBadge = forwardRef<HTMLSpanElement, AdminBadgeProps>(
   ({ className, variant = 'neutral', size = 'default', dot, children, ...props }, ref) => {
     return (
       <span

@@ -1,8 +1,8 @@
-import * as React from "react";
+import React, { useState, useEffect, forwardRef, ImgHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 import { getOptimizedUrl } from "@/lib/cdn";
 
-interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
   imageClassName?: string;
   width?: number;
@@ -10,15 +10,15 @@ interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   quality?: number;
 }
 
-export const Image = React.forwardRef<HTMLImageElement, ImageProps>(
+export const Image = forwardRef<HTMLImageElement, ImageProps>(
   ({ className, imageClassName, src, alt, fallbackSrc, width, height, quality, onLoad, onError, ...props }, ref) => {
     const optimizedSrc = getOptimizedUrl(src, { width, height, quality });
-    const [isLoading, setIsLoading] = React.useState(true);
-    const [error, setError] = React.useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(false);
     const displaySrc = error ? (fallbackSrc || src || optimizedSrc) : optimizedSrc;
     const hasRenderableSrc = Boolean(displaySrc);
 
-    React.useEffect(() => {
+    useEffect(() => {
       setIsLoading(Boolean(src));
       setError(false);
     }, [src]);

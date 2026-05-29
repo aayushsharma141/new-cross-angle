@@ -83,7 +83,7 @@ const ServicesHero = () => {
 
   return (
     <section
-      className="relative w-full min-h-[100vh] bg-[#000000] flex items-center pt-28 lg:pt-24 pb-20 overflow-hidden"
+      className="relative w-full min-h-[100vh] bg-[#000000] flex items-center pt-28 lg:pt-24 pb-24 lg:pb-20 overflow-hidden"
     >
       {/* Layout wrapper */}
       <div className="w-full flex flex-col lg:flex-row items-center gap-10 lg:gap-0 relative z-10 font-sans h-full">
@@ -201,7 +201,11 @@ const ServicesHero = () => {
         */}
         <div
           ref={imageBoxRef}
-          className="absolute right-6 xl:right-10 top-[12vh] bottom-[6vh] w-[42%] xl:w-[40%] 2xl:w-[38%] rounded-none overflow-hidden border border-[#1E1E1E] z-20"
+          className="relative lg:absolute w-full lg:right-6 xl:right-10 lg:top-[12vh] lg:bottom-[6vh]
+            h-[55vw] sm:h-[45vw] lg:h-auto
+            lg:w-[42%] xl:w-[40%] 2xl:w-[38%]
+            mx-4 sm:mx-6 lg:mx-0
+            rounded-none overflow-hidden border border-[#1E1E1E] z-20"
         >
           {/* Base Layer: Blueprint / Structural */}
           <motion.div

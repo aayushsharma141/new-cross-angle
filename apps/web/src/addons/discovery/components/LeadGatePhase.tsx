@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/primitives/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { UserSignals, AestheticScores, Archetype } from "@/types/discovery";
-import { track, trackLeadGateSubmitted } from "../infrastructure/analytics/tracker";
+import { trackLeadGateViewed, trackLeadGateSubmitted } from "../infrastructure/analytics/tracker";
+import { useAnalytics } from "@/analytics/AnalyticsProvider";
 
 interface Props {
     sessionId: string | null;
@@ -21,12 +22,14 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const analytics = useAnalytics();
+    const analyticsTrack = analytics.track.bind(analytics);
 
     useEffect(() => {
         if (sessionId) {
-            track("gate_viewed", { sessionId, archetype: archetype.name });
+            trackLeadGateViewed(analyticsTrack, sessionId, archetype.name);
         }
-    }, [sessionId, archetype.name]);
+    }, [sessionId, archetype.name, analyticsTrack]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -37,7 +40,9 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
 
         setIsSubmitting(true);
         try {
-            // Structure the payload for the edge function
+            // Strip large computed objects not needed in DB
+            const { consultationIntelligence: _ci, ...signalsForDB } = signals as UserSignals & { consultationIntelligence?: unknown };
+
             const payload = {
                 name,
                 email,
@@ -48,9 +53,8 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                     archetype: archetype.name,
                     scores: scores,
                     project_type: signals.reflectionAnswers?.find(a => a.question.includes('space'))?.answer || 'residential',
-                    // Defaulting for MVP if not specified in quiz
                 },
-                raw_data: signals
+                raw_data: signalsForDB
             };
 
             const { data, error } = await supabase.functions.invoke("submit-discovery-lead", {
@@ -61,20 +65,23 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                 if (data?.error === "Email already registered") {
                     toast.success("Welcome back! Your aesthetic results are ready.");
                 } else {
-                    console.error("Submission error:", error || data?.error);
-                    toast.error("There was a problem saving your profile, but you can still view your results.");
+                    // Non-critical — user still gets their results
+                    console.warn("Submission error (non-blocking):", error || data?.error);
+                    // Silent fail — don't show error toast, just proceed to results
                 }
             } else {
                 toast.success("Profile saved successfully.");
+                if (data?.slug) {
+                    try { localStorage.setItem("ca_quiz_slug", data.slug); } catch (e) { console.warn("Could not save slug:", e); }
+                }
                 if (sessionId) {
-                    trackLeadGateSubmitted(sessionId, email);
+                    trackLeadGateSubmitted(analyticsTrack, sessionId, email);
                 }
             }
 
             onComplete();
         } catch (err) {
             console.error("Submission exception:", err);
-            // Even if it fails, let them see results for better UX
             onComplete();
         } finally {
             setIsSubmitting(false);
@@ -86,80 +93,85 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="max-w-md mx-auto w-full"
+            className="flex h-full w-full items-center justify-center p-4 md:p-8 bg-transparent"
         >
-            <div className="text-center mb-10">
-                <h2 className="font-serif-display text-3xl font-medium mb-4">
-                    Save Your Blueprint
-                </h2>
-                <p className="text-muted-foreground leading-relaxed">
-                    Love your results? Enter your details to save your Spatial Identity Blueprint and receive a personalized design consultation from our team.
-                </p>
-            </div>
+            <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-black/5 max-w-[500px] w-full flex flex-col relative overflow-hidden">
+                {/* Top thin line detail */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-[#233526]" />
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-4">
-                    <div>
-                        <label htmlFor="name" className="block text-xs uppercase tracking-premium text-muted-foreground mb-2">
-                            Full Name *
-                        </label>
-                        <Input
-                            id="name"
-                            type="text"
-                            required
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="bg-background/50 border-input h-12"
-                            placeholder="Your name"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="email" className="block text-xs uppercase tracking-premium text-muted-foreground mb-2">
-                            Email Address *
-                        </label>
-                        <Input
-                            id="email"
-                            type="email"
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="bg-background/50 border-input h-12"
-                            placeholder="you@example.com"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="phone" className="block text-xs uppercase tracking-premium text-muted-foreground mb-2">
-                            Phone Number <span className="text-foreground/30">(Optional)</span>
-                        </label>
-                        <Input
-                            id="phone"
-                            type="tel"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            className="bg-background/50 border-input h-12"
-                            placeholder="+1 (555) 000-0000"
-                        />
-                    </div>
+                <div className="text-center mb-10">
+                    <p className="tracking-[0.15em] text-[10px] uppercase font-bold text-[#5a5a5a] mb-4">ALMOST THERE</p>
+                    <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-[#1a1a1a] font-serif leading-tight">
+                        Save Your Blueprint
+                    </h2>
+                    <p className="text-[#5a5a5a] text-sm leading-relaxed font-light">
+                        Love your results? Enter your details to save your Spatial Identity Blueprint and receive a personalized design consultation from our team.
+                    </p>
                 </div>
 
-                <Button
-                    type="submit"
-                    disabled={isSubmitting || !name.trim() || !email.trim()}
-                    className="w-full h-14 text-base tracking-wide group relative overflow-hidden"
-                >
-                    {isSubmitting ? (
-                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                    ) : (
-                        <>
-                            <span className="relative z-10 flex items-center justify-center gap-2">
-                                Save & Get Consultation
-                                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                            </span>
-                            <div className="absolute inset-0 bg-primary/10 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-                        </>
-                    )}
-                </Button>
-            </form>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="space-y-4">
+                        <div>
+                            <label htmlFor="name" className="block text-[11px] uppercase tracking-[0.15em] text-[#5a5a5a] mb-2 font-semibold">
+                                Full Name *
+                            </label>
+                            <Input
+                                id="name"
+                                type="text"
+                                required
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="bg-[#faf8f5] border border-[#e8e4dd] h-14 rounded-xl text-[#1a1a1a] placeholder:text-[#a0a0a0] focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:bg-white focus-visible:border-[#233526] transition-all px-4"
+                                placeholder="Your name"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="email" className="block text-[11px] uppercase tracking-[0.15em] text-[#5a5a5a] mb-2 font-semibold">
+                                Email Address *
+                            </label>
+                            <Input
+                                id="email"
+                                type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="bg-[#faf8f5] border border-[#e8e4dd] h-14 rounded-xl text-[#1a1a1a] placeholder:text-[#a0a0a0] focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:bg-white focus-visible:border-[#233526] transition-all px-4"
+                                placeholder="you@example.com"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="phone" className="block text-[11px] uppercase tracking-[0.15em] text-[#5a5a5a] mb-2 font-semibold">
+                                Phone Number <span className="text-[#8c8c8c] lowercase tracking-normal font-normal ml-1">(Optional)</span>
+                            </label>
+                            <Input
+                                id="phone"
+                                type="tel"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                className="bg-[#faf8f5] border border-[#e8e4dd] h-14 rounded-xl text-[#1a1a1a] placeholder:text-[#a0a0a0] focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:bg-white focus-visible:border-[#233526] transition-all px-4"
+                                placeholder="+1 (555) 000-0000"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="pt-4">
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting || !name.trim() || !email.trim()}
+                            className="w-full h-14 bg-[#233526] text-white disabled:bg-[#e8e4dd] disabled:text-[#5a5a5a] disabled:opacity-100 rounded-xl text-sm font-semibold hover:bg-[#1a281c] transition-all duration-300 shadow-md group disabled:shadow-none"
+                        >
+                            {isSubmitting ? (
+                                <Loader2 className="w-5 h-5 animate-spin mx-auto text-white/70" />
+                            ) : (
+                                <span className="flex items-center justify-center gap-2">
+                                    Save & Get Consultation
+                                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                                </span>
+                            )}
+                        </Button>
+                    </div>
+                </form>
+            </div>
         </motion.div>
     );
 };

@@ -39,7 +39,7 @@ const ProjectHubPage = () => {
 
         <section id="explore" className="py-24 text-center">
           <div className="max-w-7xl mx-auto flex flex-col items-center">
-            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading Explorer...</div>}>
+            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Explorer...</div>}>
               <SpaceNavigator />
             </Suspense>
           </div>
@@ -47,7 +47,7 @@ const ProjectHubPage = () => {
 
         <section id="featured" className="bg-[#0a0a0a]">
           <div className="max-w-7xl mx-auto">
-            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading Journeys...</div>}>
+            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Journeys...</div>}>
               <FeaturedJourneys />
             </Suspense>
           </div>
@@ -55,7 +55,7 @@ const ProjectHubPage = () => {
 
         <section id="styles" className="py-24 bg-black text-center">
           <div className="max-w-7xl mx-auto flex flex-col items-center">
-            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading Styles...</div>}>
+            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Styles...</div>}>
               <StyleSelector />
             </Suspense>
           </div>
@@ -63,7 +63,7 @@ const ProjectHubPage = () => {
 
         <section id="inspiration" className="py-24 bg-[#050505] text-center">
           <div className="max-w-7xl mx-auto flex flex-col items-center">
-            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading Inspiration...</div>}>
+            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Inspiration...</div>}>
               <InspirationGallery />
             </Suspense>
           </div>
@@ -71,7 +71,7 @@ const ProjectHubPage = () => {
 
         <section id="light-experience" className="bg-[#0a0a0a]">
           <div className="max-w-7xl mx-auto">
-            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading Experience...</div>}>
+            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Experience...</div>}>
               <HubLightExperience />
             </Suspense>
           </div>
@@ -79,7 +79,7 @@ const ProjectHubPage = () => {
 
         <section id="trust" className="py-24">
           <div className="max-w-7xl mx-auto">
-            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading Trust metrics...</div>}>
+            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Trust metrics...</div>}>
               <TrustSection />
             </Suspense>
           </div>
@@ -87,7 +87,7 @@ const ProjectHubPage = () => {
 
         <section id="cta">
           <div className="max-w-7xl mx-auto">
-            <Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center text-white/30 text-xs tracking-widest uppercase">Loading CTA...</div>}>
+            <Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading CTA...</div>}>
               <HubFinalCTA />
             </Suspense>
           </div>

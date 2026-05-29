@@ -1,3 +1,5 @@
+import type { PaginationParams, FilterParams, SortParams } from '@/services/types';
+
 export interface LeadPayload {
     name: string;
     email: string;
@@ -22,6 +24,8 @@ export interface LeadPayload {
     loss_reason?: string | null;
     // CRM intelligence fields
     next_step?: string | null;
+    sub_status?: string | null;
+    _has_overdue_tasks?: boolean;
     forecast_category?: 'committed' | 'best_case' | 'pipeline' | 'omitted' | null;
     assigned_to?: string | null;
     stale_flagged_at?: string | null;
@@ -46,9 +50,27 @@ export interface Lead extends LeadPayload {
 
 export interface LeadRepository {
     submitLead(payload: LeadPayload): Promise<void>;
-    getLeads(): Promise<Lead[]>;
+    getLeads(filters?: FilterParams): Promise<Lead[]>;
+    getLeadsPaginated(
+        params?: PaginationParams & FilterParams & SortParams
+    ): Promise<{ data: Lead[]; total: number }>;
+    getLeadById(id: string): Promise<Lead | null>;
+    createLead(payload: LeadPayload): Promise<Lead>;
+    updateLeadAndReturn(id: string, updates: Partial<Lead>): Promise<Lead>;
     updateLeadStatus(id: string, status: string): Promise<void>;
     /** Persist any subset of Lead fields — the canonical save method */
     updateLead(id: string, patch: Partial<LeadPayload>): Promise<void>;
     deleteLead(id: string): Promise<void>;
+    bulkUpdateStatus(ids: string[], status: string): Promise<number>;
+    bulkDelete(ids: string[]): Promise<number>;
+    getLeadStats(): Promise<{
+        total: number;
+        hot: number;
+        warm: number;
+        cold: number;
+        byStatus: Record<string, number>;
+        bySource: Record<string, number>;
+        avgResponseTime: number;
+    }>;
+    notifyTelegram(lead: Lead): Promise<void>;
 }

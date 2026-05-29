@@ -15,7 +15,7 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
 
     useEffect(() => {
         if (!loading && user && role === null) {
-            const t = setTimeout(() => setRoleTimeout(true), 3000);
+            const t = setTimeout(() => setRoleTimeout(true), 8000);
             return () => clearTimeout(t);
         }
         setRoleTimeout(false);

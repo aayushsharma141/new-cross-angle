@@ -1,5 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
-import type { Lead, LeadPayload } from '@/repositories/interfaces/LeadRepository';
+import type { Lead, LeadPayload, LeadRepository } from '@/repositories/interfaces/LeadRepository';
+import { leadRepo } from '@/repositories/SupabaseLeadRepo';
 import type { FilterParams, PaginatedResponse, PaginationParams, SortParams, UndoItem } from './types';
 import { calculateLeadScore as libCalculateScore, getLeadTemperature } from '@/lib/scoring/leadScoring';
 
@@ -9,104 +9,47 @@ const MAX_UNDO_ITEMS = 10;
 export class LeadService {
   private undoStack: UndoItem<Lead>[] = [];
 
+  constructor(private repo: LeadRepository = leadRepo) {}
+
   async getLeadsPaginated(
     params: PaginationParams & FilterParams & SortParams = {}
   ): Promise<PaginatedResponse<Lead>> {
     const {
       page = 1,
       pageSize = 25,
-      search,
-      status,
-      category,
-      dateFrom,
-      dateTo,
-      column = 'created_at',
-      direction = 'desc'
     } = params;
 
-    let query = supabase
-      .from('leads')
-      .select('*', { count: 'exact' });
-
-    if (search) {
-      query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
-    }
-    if (status) {
-      query = query.eq('status', status);
-    }
-    if (category) {
-      query = query.eq('category', category);
-    }
-    if (dateFrom) {
-      query = query.gte('created_at', dateFrom);
-    }
-    if (dateTo) {
-      query = query.lte('created_at', dateTo);
-    }
+    const { data, total } = await this.repo.getLeadsPaginated(params);
 
     const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-
-    query = query
-      .order(column, { ascending: direction === 'asc' })
-      .range(from, to);
-
-    const { data, error, count } = await query;
-
-    if (error) throw error;
 
     return {
-      data: (data || []) as Lead[],
-      total: count || 0,
+      data,
+      total,
       page,
       pageSize,
-      totalPages: Math.ceil((count || 0) / pageSize),
-      hasMore: to < (count || 0) - 1,
+      totalPages: Math.ceil(total / pageSize),
+      hasMore: from + pageSize < total,
     };
   }
 
   async getLeadById(id: string): Promise<Lead | null> {
-    const { data, error } = await supabase
-      .from('leads')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') return null;
-      throw error;
-    }
-    return data as Lead;
+    return this.repo.getLeadById(id);
   }
 
   async createLead(payload: LeadPayload): Promise<Lead> {
-    const { data, error } = await supabase
-      .from('leads')
-      .insert(payload)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const data = await this.repo.createLead(payload);
 
     // Fire-and-forget: notify Telegram of the new lead.
     // We do NOT await this so it never blocks or delays the form UX.
-    supabase.functions
-      .invoke('notify-telegram', { body: { record: data } })
+    this.repo.notifyTelegram(data)
       .catch((err: unknown) => console.warn('[LeadService] Telegram notify failed:', err));
 
-    return data as Lead;
+    return data;
   }
 
   async updateLead(id: string, updates: Partial<Lead>): Promise<Lead> {
-    const { data, error } = await supabase
-      .from('leads')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as Lead;
+    return this.repo.updateLeadAndReturn(id, updates);
   }
 
   async updateLeadStatus(id: string, status: string): Promise<Lead> {
@@ -114,12 +57,7 @@ export class LeadService {
   }
 
   async deleteLead(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('leads')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    await this.repo.deleteLead(id);
   }
 
   async softDeleteLead(id: string): Promise<Lead> {
@@ -130,23 +68,11 @@ export class LeadService {
   }
 
   async bulkUpdateStatus(ids: string[], status: string): Promise<number> {
-    const { error, count } = await supabase
-      .from('leads')
-      .update({ status, updated_at: new Date().toISOString() })
-      .in('id', ids);
-
-    if (error) throw error;
-    return count || ids.length;
+    return this.repo.bulkUpdateStatus(ids, status);
   }
 
   async bulkDelete(ids: string[]): Promise<number> {
-    const { error, count } = await supabase
-      .from('leads')
-      .delete()
-      .in('id', ids);
-
-    if (error) throw error;
-    return count || ids.length;
+    return this.repo.bulkDelete(ids);
   }
 
   /**
@@ -178,18 +104,7 @@ export class LeadService {
     bySource: Record<string, number>;
     avgResponseTime: number;
   }> {
-    const { data, error } = await supabase.rpc('get_lead_stats');
-    if (error) throw error;
-
-    return data as {
-      total: number;
-      hot: number;
-      warm: number;
-      cold: number;
-      byStatus: Record<string, number>;
-      bySource: Record<string, number>;
-      avgResponseTime: number;
-    };
+    return this.repo.getLeadStats();
   }
 
   pushToUndoStack(lead: Lead): void {

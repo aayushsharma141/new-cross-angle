@@ -33,33 +33,26 @@ export interface LeadHealth {
 // ============================================================
 
 /** Minimum days of inactivity before a lead is considered stale per stage */
+/** Minimum days of inactivity before a lead is considered stale per stage */
 export const STALENESS_THRESHOLDS: Record<string, number> = {
-  new: 7,
-  initial_contact: 10,
-  contacted: 14,
-  qualified: 21,
-  consultation_scheduled: 14,
-  proposal: 30,
-  proposal_sent: 30,
-  negotiation: 21,
-  final_review: 14,
-  won: 999,
-  lost: 999,
+  new: 2,           // 2 days to attempt contact
+  in_conversation: 7,     // 7 days to plan meeting
+  meeting_planned: 14,     // 14 days to send quote
+  quote_sent: 7, // 7 days to close
+  closing: 7,      // 7 days decision time
+  won: 0,
+  lost: 0
 };
 
 /** Win probability by stage (for weighted pipeline value) */
 export const STAGE_WIN_PROBABILITY: Record<string, number> = {
   new: 0.05,
-  initial_contact: 0.10,
-  contacted: 0.15,
-  qualified: 0.30,
-  consultation_scheduled: 0.40,
-  proposal: 0.50,
-  proposal_sent: 0.50,
-  negotiation: 0.70,
-  final_review: 0.80,
+  in_conversation: 0.15,
+  meeting_planned: 0.40,
+  quote_sent: 0.60,
+  closing: 0.85,
   won: 1.0,
-  lost: 0.0,
+  lost: 0.0
 };
 
 // ============================================================
@@ -194,13 +187,13 @@ export function getLeadHealth(lead: Lead): LeadHealth {
 
   // Freshness
   const lastActivity = lead.last_activity_at || lead.created_at;
-  if (!lastActivity) return { isStale: false, freshnessDays: 0 };
-
-  const activityDate = new Date(lastActivity);
-  if (isNaN(activityDate.getTime())) return { isStale: false, freshnessDays: 0 };
+  if (!lead.created_at) return { isStale: false, freshnessDays: 0, completeness: 0, riskLevel: 'low' };
+  
+  const createdDate = new Date(lead.created_at);
+  if (isNaN(createdDate.getTime())) return { isStale: false, freshnessDays: 0, completeness: 0, riskLevel: 'low' };
   
   const freshnessDays = Math.floor(
-    (Date.now() - activityDate.getTime()) / 86_400_000
+    (Date.now() - createdDate.getTime()) / 86_400_000
   );
 
   const threshold = STALENESS_THRESHOLDS[lead.status] ?? 14;

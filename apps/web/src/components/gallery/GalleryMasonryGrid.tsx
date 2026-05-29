@@ -59,7 +59,7 @@ const GalleryMasonryGrid = ({ items, onItemClick }: GalleryMasonryGridProps) => 
             className="text-center py-24"
           >
             <div className="w-16 h-px bg-[#D1AF6E]/30 mx-auto mb-8" />
-            <p className="text-[11px] uppercase tracking-[0.3em] text-white/30 font-light">
+            <p className="text-[11px] uppercase tracking-[0.3em] text-white/60 font-light">
               No projects in this category
             </p>
           </motion.div>

@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
     Loader2,
@@ -10,7 +10,7 @@ import {
     List,
     CheckSquare,
     Square,
-    Trash2
+    CloudDownload,
 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
@@ -29,7 +29,9 @@ import { MediaUploadZone } from "@/components/admin/media/MediaUploadZone";
 import { MediaDetailsSheet } from "@/components/admin/media/MediaDetailsSheet";
 import { icons } from "@/design-system/tokens/icons";
 import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
-import { ModuleHeader } from "@/components/admin/layout/ModuleHeader";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
+import { queryKeys } from "@/lib/queryKeys";
+import type { Tables } from "@/integrations/supabase/types";
 
 interface MediaFile {
     id: string;
@@ -42,20 +44,49 @@ interface MediaFile {
     caption?: string;
 }
 
+type MediaRow = Tables<"media">;
+
 const FOLDERS = ["portfolio", "services", "blogs", "general"];
 const BUCKET_NAME = "media";
+
+/** Derive a display folder from the raw file_name stored in DB. */
+const deriveFolder = (fileName: string): string => {
+    const isImageKit = fileName.startsWith("imagekit:");
+    const rawPath = isImageKit ? fileName.replace("imagekit:", "") : fileName;
+    const parts = rawPath.replace(/^\//, "").split("/");
+    if (isImageKit) return parts.length > 1 ? parts[0] : "imagekit";
+    return parts.length > 1 ? parts[0] : "general";
+};
+
+const fetchMediaFiles = async (): Promise<MediaFile[]> => {
+    const { data, error } = await supabase
+        .from("media")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return data.map((file: MediaRow) => ({
+        id: file.id,
+        name: file.file_name,
+        url: file.url,
+        folder: deriveFolder(file.file_name),
+        size: file.size_bytes || 0,
+        created_at: file.created_at,
+        alt: file.alt || undefined,
+        caption: file.title || undefined,
+    }));
+};
 
 const AdminMedia = () => {
     const { toast } = useToast();
     const { isEditor } = useAdminAuth();
+    const queryClient = useQueryClient();
     const [searchParams] = useSearchParams();
     const urlSearch = searchParams.get("search");
     const urlFile = searchParams.get("file");
     const deepLinkHandled = useRef(false);
 
-    const [files, setFiles] = useState<MediaFile[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isUploading, setIsUploading] = useState(false);
     const [selectedFolder, setSelectedFolder] = useState<string>("all");
     const [selectedType, setSelectedType] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState(urlSearch ?? "");
@@ -67,206 +98,283 @@ const AdminMedia = () => {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
     const [fileToDelete, setFileToDelete] = useState<MediaFile | null>(null);
-
     const [uploadError, setUploadError] = useState<string | null>(null);
+    const [isSyncingImageKit, setIsSyncingImageKit] = useState(false);
 
-    const fetchFiles = async () => {
-        try {
-            setIsLoading(true);
-            const { data, error } = await supabase
-                .from('media')
-                .select('*')
-                .order('created_at', { ascending: false });
+    // ── Data fetching ─────────────────────────────────────────────────────────
 
-            if (error) throw error;
+    const { data: files = [], isLoading } = useQuery({
+        queryKey: queryKeys.media.all,
+        queryFn: fetchMediaFiles,
+    });
 
-            const formattedFiles: MediaFile[] = data.map(file => ({
-                id: file.id,
-                name: file.file_name,
-                url: file.url,
-                folder: file.file_name.split('/').length > 1 ? file.file_name.split('/')[0] : 'general',
-                size: file.size_bytes || 0,
-                created_at: file.created_at,
-                alt: file.alt || undefined,
-                caption: file.title || undefined,
-            }));
-            setFiles(formattedFiles);
-            // Deep-link from command palette: ?file=<name> or ?search=<query>
-            if (urlFile && !deepLinkHandled.current) {
-                deepLinkHandled.current = true;
-                const target = formattedFiles.find((f) => f.name === urlFile);
-                if (target) setPreviewFile(target);
-            }
-        } catch (error) {
-            const err = error as Error;
-            toast({ title: "Error", description: err.message, variant: "destructive" });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
+    // Deep-link from command palette: ?file=<name>
     useEffect(() => {
-        fetchFiles();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const handleUpload = async (fileList: File[]) => {
-        setIsUploading(true);
-        setUploadError(null);
-        const { data: userData } = await supabase.auth.getUser();
-        let successCount = 0;
-        const errors: string[] = [];
-
-        for (const file of fileList) {
-            const path = selectedFolder === 'all' ? file.name : `${selectedFolder}/${file.name}`;
-            const { error: storageError } = await supabase.storage.from(BUCKET_NAME).upload(path, file);
-
-            if (storageError && !storageError.message.includes('already exists')) {
-                errors.push(`${file.name}: ${storageError.message}`);
-                continue;
-            }
-
-            const { data: publicUrlObj } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
-
-            // Insert into DB — roll back storage upload if DB insert fails
-            const { error: dbError } = await supabase.from('media').insert({
-                url: publicUrlObj.publicUrl,
-                file_name: path,
-                file_type: file.type,
-                size_bytes: file.size,
-                alt: file.name,
-                title: file.name,
-                uploaded_by: userData?.user?.id
-            });
-
-            if (dbError && dbError.code !== '23505') {
-                // Compensate: remove the orphaned storage file
-                await supabase.storage.from(BUCKET_NAME).remove([path]);
-                errors.push(`${file.name}: ${dbError.message}`);
-                continue;
-            }
-
-            successCount++;
+        if (urlFile && !deepLinkHandled.current && files.length > 0) {
+            deepLinkHandled.current = true;
+            const target = files.find((f) => f.name === urlFile);
+            if (target) setPreviewFile(target);
         }
+    }, [files, urlFile]);
 
-        if (errors.length > 0) {
-            const msg = errors.join('; ');
-            setUploadError(msg);
-            toast({
-                title: `${successCount} of ${fileList.length} file(s) uploaded`,
-                description: `Failed: ${msg}`,
-                variant: "destructive"
-            });
-        } else {
+    // ── Upload mutation ───────────────────────────────────────────────────────
+
+    const uploadMutation = useMutation({
+        mutationFn: async (fileList: File[]) => {
+            const { data: userData } = await supabase.auth.getUser();
+            let successCount = 0;
+            const errors: string[] = [];
+
+            for (const file of fileList) {
+                const folder = selectedFolder === "all" ? "general" : selectedFolder;
+                const path = `${folder}/${file.name}`;
+
+                const { error: storageError } = await supabase.storage
+                    .from(BUCKET_NAME)
+                    .upload(path, file, { upsert: true });
+
+                const storageErrCode =
+                    storageError && typeof (storageError as Record<string, unknown>).error === "string"
+                        ? (storageError as Record<string, unknown>).error as string
+                        : "";
+                const isAlreadyExistsError =
+                    storageError &&
+                    (storageError.message.toLowerCase().includes("already exists") ||
+                        storageError.message.toLowerCase().includes("duplicate") ||
+                        storageErrCode === "Duplicate");
+
+                if (storageError && !isAlreadyExistsError) {
+                    errors.push(`${file.name}: ${storageError.message}`);
+                    continue;
+                }
+
+                const { data: publicUrlObj } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
+
+                const { error: dbError } = await supabase.from("media").upsert(
+                    {
+                        url: publicUrlObj.publicUrl,
+                        file_name: path,
+                        file_type: file.type,
+                        size_bytes: file.size,
+                        alt: file.name,
+                        title: file.name,
+                        uploaded_by: userData?.user?.id,
+                    },
+                    { onConflict: "file_name" }
+                );
+
+                if (dbError) {
+                    if (!isAlreadyExistsError) {
+                        await supabase.storage.from(BUCKET_NAME).remove([path]);
+                    }
+                    errors.push(`${file.name}: ${dbError.message}`);
+                    continue;
+                }
+
+                successCount++;
+            }
+
+            if (errors.length > 0) {
+                throw { successCount, total: fileList.length, errors };
+            }
+            return { successCount };
+        },
+        onSuccess: ({ successCount }) => {
             toast({ title: "Success", description: `${successCount} file(s) uploaded successfully` });
-        }
+            setUploadError(null);
+            void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
+        },
+        onError: (err: any) => {
+            if (err.errors) {
+                const msg = err.errors.join("; ");
+                setUploadError(msg);
+                toast({
+                    title: `${err.successCount} of ${err.total} file(s) uploaded`,
+                    description: `Failed: ${msg}`,
+                    variant: "destructive",
+                });
+                void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
+            } else {
+                toast({ title: "Error", description: (err as Error).message, variant: "destructive" });
+            }
+        },
+    });
 
-        fetchFiles();
-        setIsUploading(false);
-    };
+    // ── Delete mutation ───────────────────────────────────────────────────────
 
-    const handleSingleDelete = async () => {
-        if (!fileToDelete) return;
-        try {
-            // Delete from storage
-            const { error: storageError } = await supabase.storage.from(BUCKET_NAME).remove([fileToDelete.name]);
-            if (storageError) throw storageError;
-
-            // Delete from DB
-            const { error: dbError } = await supabase.from('media').delete().eq('id', fileToDelete.id);
+    const deleteMutation = useMutation({
+        mutationFn: async (file: MediaFile) => {
+            const { error: dbError } = await supabase.from("media").delete().eq("id", file.id);
             if (dbError) throw dbError;
 
+            const { error: storageError } = await supabase.storage
+                .from(BUCKET_NAME)
+                .remove([file.name]);
+            if (storageError) console.error("Storage delete failed:", storageError);
+        },
+        onSuccess: () => {
             toast({ title: "Success", description: "File deleted successfully" });
             setPreviewFile(null);
-            fetchFiles();
-        } catch (error) {
-            const err = error as Error;
+            void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
+        },
+        onError: (err: Error) => {
             toast({ title: "Error", description: err.message, variant: "destructive" });
-        } finally {
+        },
+        onSettled: () => {
             setDeleteDialogOpen(false);
             setFileToDelete(null);
-        }
-    };
+        },
+    });
 
-    const handleBulkDelete = async () => {
-        if (selectedFiles.size === 0) return;
+    // ── Bulk delete mutation ──────────────────────────────────────────────────
 
-        const fileEntries = Array.from(selectedFiles)
-            .map(id => files.find(f => f.id === id))
-            .filter((f): f is MediaFile => !!f);
+    const bulkDeleteMutation = useMutation({
+        mutationFn: async (fileIds: Set<string>) => {
+            const fileEntries = Array.from(fileIds)
+                .map((id) => files.find((f) => f.id === id))
+                .filter((f): f is MediaFile => !!f);
 
-        const results = await Promise.allSettled(
-            fileEntries.map(async (f) => {
-                const { error: storageError } = await supabase.storage.from(BUCKET_NAME).remove([f.name]);
-                if (storageError) throw new Error(`Storage: ${storageError.message}`);
-                const { error: dbError } = await supabase.from('media').delete().eq('id', f.id);
-                if (dbError) throw new Error(`DB: ${dbError.message}`);
-                return f.id;
-            })
-        );
+            const results = await Promise.allSettled(
+                fileEntries.map(async (f) => {
+                    const { error: dbError } = await supabase.from("media").delete().eq("id", f.id);
+                    if (dbError) throw new Error(`DB: ${dbError.message}`);
+                    const { error: storageError } = await supabase.storage
+                        .from(BUCKET_NAME)
+                        .remove([f.name]);
+                    if (storageError) console.error(`Storage: ${storageError.message}`);
+                    return f.id;
+                })
+            );
 
-        const succeeded = results.filter(r => r.status === 'fulfilled').length;
-        const failed = results
-            .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
-            .map(r => r.reason instanceof Error ? r.reason.message : String(r.reason));
+            const succeeded = results.filter((r) => r.status === "fulfilled").length;
+            const failed = results
+                .filter((r): r is PromiseRejectedResult => r.status === "rejected")
+                .map((r) => (r.reason instanceof Error ? r.reason.message : String(r.reason)));
 
-        if (failed.length > 0) {
-            toast({
-                title: `${succeeded} of ${fileEntries.length} files deleted`,
-                description: `Errors: ${failed.join('; ')}`,
-                variant: 'destructive'
-            });
-        } else {
-            toast({ title: "Success", description: `${succeeded} file(s) deleted` });
-        }
+            return { succeeded, total: fileEntries.length, failed };
+        },
+        onSuccess: ({ succeeded, total, failed }) => {
+            if (failed.length > 0) {
+                toast({
+                    title: `${succeeded} of ${total} files deleted`,
+                    description: `Errors: ${failed.join("; ")}`,
+                    variant: "destructive",
+                });
+            } else {
+                toast({ title: "Success", description: `${succeeded} file(s) deleted` });
+            }
+            setSelectedFiles(new Set());
+            void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
+            setBulkDeleteDialogOpen(false);
+        },
+    });
 
-        setSelectedFiles(new Set());
-        fetchFiles();
-        setBulkDeleteDialogOpen(false);
-    };
+    // ── Sync: Supabase Storage ────────────────────────────────────────────────
 
-    const handleSyncStorage = async () => {
-        try {
-            setIsLoading(true);
+    const syncStorageMutation = useMutation({
+        mutationFn: async () => {
             const { data: userData } = await supabase.auth.getUser();
-
             let syncedCount = 0;
+
             for (const folder of FOLDERS) {
-                const { data: storageFiles } = await supabase.storage.from(BUCKET_NAME).list(folder === 'general' ? '' : folder, { limit: 100 });
+                const { data: storageFiles } = await supabase.storage
+                    .from(BUCKET_NAME)
+                    .list(folder === "general" ? "" : folder, { limit: 100 });
                 if (!storageFiles) continue;
 
                 for (const file of storageFiles) {
-                    if (file.name === '.emptyFolderPlaceholder' || !file.metadata) continue;
-
-                    const path = folder === 'general' ? file.name : `${folder}/${file.name}`;
-                    const { data: existing } = await supabase.from('media').select('id').eq('file_name', path).maybeSingle();
+                    if (file.name === ".emptyFolderPlaceholder" || !file.metadata) continue;
+                    const path = folder === "general" ? file.name : `${folder}/${file.name}`;
+                    const { data: existing } = await supabase
+                        .from("media")
+                        .select("id")
+                        .eq("file_name", path)
+                        .maybeSingle();
                     if (!existing) {
-                        const { data: publicUrlObj } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
-                        await supabase.from('media').insert({
+                        const { data: publicUrlObj } = supabase.storage
+                            .from(BUCKET_NAME)
+                            .getPublicUrl(path);
+                        await supabase.from("media").insert({
                             url: publicUrlObj.publicUrl,
                             file_name: path,
-                            file_type: file.metadata?.mimetype || 'unknown',
+                            file_type: file.metadata?.mimetype || "unknown",
                             size_bytes: file.metadata?.size || 0,
                             alt: file.name,
                             title: file.name,
-                            uploaded_by: userData?.user?.id
+                            uploaded_by: userData?.user?.id,
                         });
                         syncedCount++;
                     }
                 }
             }
+            return syncedCount;
+        },
+        onSuccess: (syncedCount) => {
             toast({ title: "Success", description: `Synced ${syncedCount} missing files from storage` });
-            fetchFiles();
-        } catch (error) {
-            const err = error as Error;
+            void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
+        },
+        onError: (err: Error) => {
             toast({ title: "Error syncing", description: err.message, variant: "destructive" });
+        },
+    });
+
+    // ── Sync: ImageKit ────────────────────────────────────────────────────────
+
+    const handleSyncImageKit = async () => {
+        setIsSyncingImageKit(true);
+        try {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+            if (!session) throw new Error("Not authenticated");
+
+            const res = await fetch(
+                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sync-imagekit`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${session.access_token}`,
+                        "Content-Type": "application/json",
+                        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                    },
+                    body: JSON.stringify({ limit: 1000 }),
+                }
+            );
+
+            const result = await res.json();
+
+            if (!res.ok) {
+                throw new Error(result.error || `HTTP ${res.status}`);
+            }
+
+            toast({
+                title: "ImageKit sync complete",
+                description:
+                    `${result.upserted} file(s) imported from ImageKit.` +
+                    (result.errors?.length ? ` ${result.errors.length} error(s).` : ""),
+            });
+            void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            if (msg.includes("Failed to fetch") || msg.includes("IMAGEKIT_PRIVATE_KEY") || msg.includes("404")) {
+                toast({
+                    title: "Setup required",
+                    description:
+                        "Deploy the sync-imagekit Edge Function and set IMAGEKIT_PRIVATE_KEY as a Supabase secret.",
+                    variant: "destructive",
+                });
+            } else {
+                toast({ title: "ImageKit sync failed", description: msg, variant: "destructive" });
+            }
         } finally {
-            setIsLoading(false);
+            setIsSyncingImageKit(false);
         }
     };
 
+    // ── Selection & filtering ─────────────────────────────────────────────────
+
     const toggleFileSelection = (id: string) => {
-        setSelectedFiles(prev => {
+        setSelectedFiles((prev) => {
             const next = new Set(prev);
             if (next.has(id)) next.delete(id);
             else next.add(id);
@@ -281,17 +389,19 @@ const AdminMedia = () => {
         setTimeout(() => setCopiedUrl(null), 2000);
     };
 
-    const filteredFiles = files.filter(file => {
-        const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const filteredFiles = files.filter((file) => {
+        const q = searchQuery.toLowerCase();
+        const matchesSearch =
+            file.name.toLowerCase().includes(q) || file.url.toLowerCase().includes(q);
         const matchesFolder = selectedFolder === "all" || file.folder === selectedFolder;
-
         let matchesType = true;
         if (selectedType === "image") {
-            matchesType = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name);
+            matchesType =
+                /\.(jpg|jpeg|png|gif|webp|svg|avif)$/i.test(file.name) ||
+                /\.(jpg|jpeg|png|gif|webp|svg|avif)$/i.test(file.url);
         } else if (selectedType === "video") {
             matchesType = /\.(mp4|webm|ogg)$/i.test(file.name);
         }
-
         return matchesFolder && matchesSearch && matchesType;
     });
 
@@ -299,12 +409,13 @@ const AdminMedia = () => {
         if (selectedFiles.size === filteredFiles.length && filteredFiles.length > 0) {
             setSelectedFiles(new Set());
         } else {
-            setSelectedFiles(new Set(filteredFiles.map(f => f.id)));
+            setSelectedFiles(new Set(filteredFiles.map((f) => f.id)));
         }
     };
 
-    const isSelectionMode = selectedFiles.size > 0;
     const isReadOnly = !isEditor;
+
+    // ── Render ────────────────────────────────────────────────────────────────
 
     if (isLoading) {
         return (
@@ -316,28 +427,44 @@ const AdminMedia = () => {
 
     return (
         <div className="space-y-6">
-            <ModuleHeader
-                title="Media Library"
-                description="Manage images and files"
-                action={
-                !isReadOnly && (
+            {/* Action buttons */}
+            {!isReadOnly && (
+                <ModuleActions>
                     <Button
                         variant="outline"
-                        onClick={handleSyncStorage}
-                        disabled={isLoading}
+                        onClick={() => syncStorageMutation.mutate()}
+                        disabled={syncStorageMutation.isPending || isSyncingImageKit}
                     >
-                        {isLoading ? <Loader2 className={`${icons.sm} mr-2 animate-spin`} /> : <FolderOpen className={`${icons.sm} mr-2`} />}
+                        {syncStorageMutation.isPending ? (
+                            <Loader2 className={`${icons.sm} mr-2 animate-spin`} />
+                        ) : (
+                            <FolderOpen className={`${icons.sm} mr-2`} />
+                        )}
                         Sync Storage
                     </Button>
-                )}
-            />
 
-            {/* Selection Bar */}
+                    <Button
+                        variant="outline"
+                        onClick={handleSyncImageKit}
+                        disabled={syncStorageMutation.isPending || isSyncingImageKit}
+                        title="Import all files uploaded directly to ImageKit"
+                    >
+                        {isSyncingImageKit ? (
+                            <Loader2 className={`${icons.sm} mr-2 animate-spin`} />
+                        ) : (
+                            <CloudDownload className={`${icons.sm} mr-2`} />
+                        )}
+                        {isSyncingImageKit ? "Importing…" : "Import from ImageKit"}
+                    </Button>
+                </ModuleActions>
+            )}
+
+            {/* Bulk selection toolbar */}
             <BulkActionsToolbar
                 selectedCount={selectedFiles.size}
                 onClear={() => setSelectedFiles(new Set())}
                 onDelete={() => setBulkDeleteDialogOpen(true)}
-                isDeleting={false}
+                isDeleting={bulkDeleteMutation.isPending}
             />
 
             {/* Filters */}
@@ -351,6 +478,7 @@ const AdminMedia = () => {
                         className="pl-10"
                     />
                 </div>
+
                 <Select value={selectedFolder} onValueChange={setSelectedFolder}>
                     <SelectTrigger className="w-[150px]">
                         <FolderOpen className="w-4 h-4 mr-2" />
@@ -358,6 +486,7 @@ const AdminMedia = () => {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">All Folders</SelectItem>
+                        <SelectItem value="imagekit">ImageKit</SelectItem>
                         {FOLDERS.map((folder) => (
                             <SelectItem key={folder} value={folder} className="capitalize">
                                 {folder}
@@ -365,6 +494,7 @@ const AdminMedia = () => {
                         ))}
                     </SelectContent>
                 </Select>
+
                 <Button variant="outline" size="sm" onClick={toggleSelectAll}>
                     {selectedFiles.size === filteredFiles.length && filteredFiles.length > 0 ? (
                         <>
@@ -378,6 +508,7 @@ const AdminMedia = () => {
                         </>
                     )}
                 </Button>
+
                 <div className="flex border rounded-md overflow-hidden">
                     <Button
                         variant={viewMode === "grid" ? "secondary" : "ghost"}
@@ -398,40 +529,46 @@ const AdminMedia = () => {
                 </div>
             </div>
 
-            {/* Drop Zone */}
+            {/* Upload zone */}
             {!isReadOnly && (
                 <MediaUploadZone
-                    onUpload={handleUpload}
-                    isUploading={isUploading}
+                    onUpload={(fileList) => uploadMutation.mutate(fileList)}
+                    isUploading={uploadMutation.isPending}
                     selectedFolder={selectedFolder}
                     errorMessage={uploadError}
                 />
             )}
 
-            {/* Files Grid/List */}
+            {/* Files grid/list */}
             <MediaGrid
                 files={filteredFiles}
                 viewMode={viewMode}
                 selectedFiles={selectedFiles}
                 onToggleSelection={toggleFileSelection}
                 onPreview={setPreviewFile}
-                onDelete={(file) => { setFileToDelete(file); setDeleteDialogOpen(true); }}
+                onDelete={(file) => {
+                    setFileToDelete(file);
+                    setDeleteDialogOpen(true);
+                }}
                 onCopyUrl={copyToClipboard}
                 copiedUrl={copiedUrl}
                 isReadOnly={isReadOnly}
             />
 
-            {/* Image Details Sheet */}
+            {/* File details sheet */}
             <MediaDetailsSheet
                 file={previewFile}
                 open={!!previewFile}
                 onClose={() => setPreviewFile(null)}
-                onDelete={(file) => { setFileToDelete(file); setDeleteDialogOpen(true); }}
+                onDelete={(file) => {
+                    setFileToDelete(file);
+                    setDeleteDialogOpen(true);
+                }}
                 onCopyUrl={copyToClipboard}
                 isReadOnly={isReadOnly}
             />
 
-            {/* Single Delete Confirmation */}
+            {/* Single delete confirm */}
             <ConfirmDialog
                 open={deleteDialogOpen}
                 onOpenChange={setDeleteDialogOpen}
@@ -439,10 +576,10 @@ const AdminMedia = () => {
                 description={`Are you sure you want to delete "${fileToDelete?.name}"? This action cannot be undone.`}
                 confirmText="Delete"
                 variant="destructive"
-                onConfirm={handleSingleDelete}
+                onConfirm={() => fileToDelete && deleteMutation.mutate(fileToDelete)}
             />
 
-            {/* Bulk Delete Confirmation */}
+            {/* Bulk delete confirm */}
             <ConfirmDialog
                 open={bulkDeleteDialogOpen}
                 onOpenChange={setBulkDeleteDialogOpen}
@@ -450,7 +587,7 @@ const AdminMedia = () => {
                 description={`Are you sure you want to delete ${selectedFiles.size} files? This action cannot be undone.`}
                 confirmText="Delete All"
                 variant="destructive"
-                onConfirm={handleBulkDelete}
+                onConfirm={() => bulkDeleteMutation.mutate(selectedFiles)}
             />
         </div>
     );

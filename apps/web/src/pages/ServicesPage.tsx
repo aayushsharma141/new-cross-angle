@@ -93,7 +93,7 @@ const ServicesPage = () => {
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="text-[1.1rem] text-white/40 max-w-[36ch] font-light leading-relaxed md:text-right"
+                className="text-[1.1rem] text-white/60 max-w-[36ch] font-light leading-relaxed md:text-right"
               >
                 Personalized turnkey interiors crafted for lifestyle, comfort, and long-term capital value.
               </motion.p>
@@ -169,7 +169,7 @@ const ServicesPage = () => {
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="text-[1.1rem] text-white/40 max-w-[36ch] font-light leading-relaxed md:text-right"
+                className="text-[1.1rem] text-white/60 max-w-[36ch] font-light leading-relaxed md:text-right"
               >
                 Strategic interior solutions that amplify productivity, brand value, and customer experience.
               </motion.p>
@@ -188,7 +188,7 @@ const ServicesPage = () => {
                       <div className="font-display italic text-[2.25rem] text-white mb-6 group-hover:translate-x-2 transition-transform duration-500">
                         {service.title}
                       </div>
-                      <p className="text-[1rem] text-white/30 leading-relaxed font-light mb-10 group-hover:text-white/50 transition-colors line-clamp-3">
+                      <p className="text-[1rem] text-white/60 leading-relaxed font-light mb-10 group-hover:text-white/50 transition-colors line-clamp-3">
                         {service.description}
                       </p>
                       <div className="flex items-center gap-3 text-site-crimson font-bold text-[9px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
@@ -251,7 +251,7 @@ const ServicesPage = () => {
                         <div className="font-display italic text-[1.85rem] text-white mb-4">
                           {service.title}
                         </div>
-                        <p className="text-[1rem] text-white/30 leading-relaxed font-light line-clamp-3">
+                        <p className="text-[1rem] text-white/60 leading-relaxed font-light line-clamp-3">
                           {service.description}
                         </p>
                       </div>

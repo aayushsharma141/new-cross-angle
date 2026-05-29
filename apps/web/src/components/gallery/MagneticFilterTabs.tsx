@@ -82,7 +82,7 @@ const MagneticFilterTabs = ({
                   "relative px-4 py-3 text-[10px] uppercase tracking-[0.25em] font-light transition-all duration-300",
                   isActive
                     ? "text-[#D1AF6E]"
-                    : "text-white/30 hover:text-white/70"
+                    : "text-white/60 hover:text-white/70"
                 )}
                 style={{
                   transform: isHovered

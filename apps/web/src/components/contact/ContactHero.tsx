@@ -1,5 +1,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import { useAnalytics } from "@/analytics/AnalyticsProvider";
+import { track } from "@/analytics/track";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -13,6 +15,7 @@ const fadeUp = {
 const ContactHero = () => {
   const containerRef = useRef<HTMLElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.2 });
+  const analytics = useAnalytics();
 
   return (
     <section
@@ -79,16 +82,18 @@ const ContactHero = () => {
                500+ Projects Delivered • 15+ Years • End-to-End Turnkey
              </span>
              <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-               <button onClick={() => {
-                 document.getElementById('contact-form-section')?.scrollIntoView({ behavior: 'smooth' });
-               }} className="w-full sm:w-auto bg-[#d1af6e] text-black hover:bg-[#b89554] px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest transition-all hover:scale-[1.05] active:scale-[0.97]">
-                 Start Your Project
-               </button>
-               <button onClick={() => {
-                 window.location.href = `https://wa.me/917909041132?text=Hi!%20I'm%20interested%20in%20your%20interior%20design%20services.`;
-               }} className="w-full sm:w-auto bg-white/5 border border-white/10 text-white hover:bg-white/10 px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest transition-all hover:scale-[1.05] active:scale-[0.97]">
-                 WhatsApp Connect
-               </button>
+                <button onClick={() => {
+                  track(analytics, "cta_clicked", { ctaId: "hero_start_project", destination: "#contact-form-section" });
+                  document.getElementById('contact-form-section')?.scrollIntoView({ behavior: 'smooth' });
+                }} className="w-full sm:w-auto bg-[#d1af6e] text-black hover:bg-[#b89554] px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest transition-all hover:scale-[1.05] active:scale-[0.97]">
+                  Start Your Project
+                </button>
+                <button onClick={() => {
+                  track(analytics, "cta_clicked", { ctaId: "hero_whatsapp", destination: "whatsapp" });
+                  window.location.href = `https://wa.me/917909041132?text=Hi!%20I'm%20interested%20in%20your%20interior%20design%20services.`;
+                }} className="w-full sm:w-auto bg-white/5 border border-white/10 text-white hover:bg-white/10 px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest transition-all hover:scale-[1.05] active:scale-[0.97]">
+                  WhatsApp Connect
+                </button>
              </div>
           </motion.div>
 

@@ -2,53 +2,104 @@ import { useState } from "react";
 import { Compare } from "@/components/ui/enhanced/compare";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { transformationStories } from "@/data/transformationStories";
+import { transformationStories as fallbackStories } from "@/data/transformationStories";
+import { ArrowRight, Quote, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { getOptimizedUrl } from "@/lib/cdn";
 import { Image } from "@/components/ui/enhanced/image";
-import { Star, ArrowRight, Quote } from "lucide-react";
 
 export const BeforeAfterShowcase = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const current = transformationStories[activeIndex];
+
+  interface DBStory {
+    id: string;
+    title: string;
+    location: string;
+    before_media: string;
+    after_media: string;
+    challenge: string;
+    design_moves: string[] | null;
+    products_used: { name: string; brand: string; spec: string }[] | null;
+    outcome_metric: string;
+    testimonial_quote?: string | null;
+    testimonial_client_name?: string | null;
+  }
+
+  const { data: dbStories } = useQuery({
+    queryKey: ["transformation-stories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("transformation_stories")
+        .select("*")
+        .eq("active", true)
+        .order("display_order", { ascending: true });
+      
+      if (error || !data?.length) return null;
+      
+      return (data as unknown as DBStory[]).map((s) => ({
+        id: s.id,
+        title: s.title,
+        location: s.location,
+        beforeMedia: s.before_media,
+        afterMedia: s.after_media,
+        challenge: s.challenge,
+        designMoves: s.design_moves || [],
+        productsUsed: s.products_used || [],
+        outcomeMetric: s.outcome_metric,
+        testimonial: s.testimonial_quote
+          ? { quote: s.testimonial_quote, clientName: s.testimonial_client_name || "Client" }
+          : undefined,
+      }));
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const stories = dbStories && dbStories.length > 0 ? dbStories : fallbackStories;
+  const current = stories[activeIndex] || stories[0];
+
+  const goNext = () => setActiveIndex((i) => (i + 1) % stories.length);
+  const goPrev = () => setActiveIndex((i) => (i - 1 + stories.length) % stories.length);
 
   return (
-    <section className="py-24 lg:py-32 bg-[#0a0a09] relative overflow-hidden">
-      {/* Background Subtle Glows */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-site-crimson/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-site-gold/5 rounded-full blur-[120px]" />
+    <section className="py-20 lg:py-28 bg-[#060504] relative overflow-hidden">
+      {/* Ambient glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/3 -left-32 w-[40rem] h-[40rem] bg-site-crimson/4 rounded-full blur-[150px]" />
+        <div className="absolute bottom-1/4 -right-32 w-[40rem] h-[40rem] bg-site-gold/4 rounded-full blur-[150px]" />
       </div>
 
       <div className="container mx-auto px-6 lg:px-12 relative z-10">
-        {/* Header Block */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
-          <div className="max-w-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-px w-8 bg-site-gold/50" />
-              <span className="text-[10px] uppercase tracking-[0.3em] text-site-gold font-bold">
-                The Transformation
-              </span>
-            </div>
-            <h2 className="font-display text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.03em] text-white">
-              Before & After
-            </h2>
+        {/* Section Header */}
+        <div className="max-w-3xl mb-14">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="h-px w-10 bg-site-gold" />
+            <span className="text-[11px] uppercase tracking-[0.3em] text-site-gold font-semibold">
+              Real Transformations
+            </span>
           </div>
-          <p className="text-white/40 text-sm md:text-base max-w-sm leading-relaxed font-light italic">
-            Drag the interactive slider to experience the measured, visceral change we bring to actual spaces. A shift from the mundane to the extraordinary.
+          <h2 className="font-display text-[clamp(2.2rem,4.5vw,4rem)] leading-[1] tracking-[-0.02em] text-white mb-4">
+            See the Difference We Make
+          </h2>
+          <p className="text-white/45 text-base leading-relaxed max-w-xl">
+            Every project starts with a vision and ends with a space that transforms how you live. 
+            Slide to reveal the before and after.
           </p>
         </div>
 
-        {/* Main Interactive Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-20">
-          {/* Slider Column */}
-          <div className="lg:col-span-8 group/slider">
-            <div className="relative aspect-[4/3] md:aspect-video rounded-2xl overflow-hidden border border-white/5 shadow-2xl bg-[#111]">
+        {/* Main Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          {/* Slider + Controls */}
+          <div className="lg:col-span-7">
+            {/* Compare Slider */}
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-white/8 shadow-2xl bg-[#0a0a09]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={current.id}
-                  initial={{ opacity: 0, scale: 1.02 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
                   className="w-full h-full"
                 >
                   <Compare
@@ -63,94 +114,141 @@ export const BeforeAfterShowcase = () => {
                   />
                 </motion.div>
               </AnimatePresence>
-            </div>
-            
-            {/* Metadata Footer */}
-            <div className="mt-8 flex items-baseline justify-between border-t border-white/5 pt-6">
-              <div>
-                <h3 className="text-xl text-white font-display tracking-tight mb-1">
-                  {current.title}
-                </h3>
-                <div className="flex items-center gap-2">
-                   <span className="text-[9px] uppercase tracking-[0.2em] text-site-gold font-bold">Location:</span>
-                   <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-medium">{current.location}</span>
-                </div>
-              </div>
-              <div className="text-right">
-                 <span className="text-[10px] text-white/30 font-mono tracking-tighter">PROJECT_ID // {current.id.toUpperCase()}</span>
-              </div>
-            </div>
-          </div>
 
-          {/* Testimonial & Details Column */}
-          <div className="lg:col-span-4 space-y-12">
-            <div className="space-y-8 h-full flex flex-col justify-center">
-              {/* Stars */}
-              <div className="flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={14} className="fill-site-gold text-site-gold" />
+              {/* Before/After labels */}
+              <div className="absolute bottom-4 left-4 px-3 py-1.5 bg-black/70 backdrop-blur-sm rounded-full text-[10px] uppercase tracking-wider text-white/80 font-medium">
+                Before
+              </div>
+              <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-black/70 backdrop-blur-sm rounded-full text-[10px] uppercase tracking-wider text-site-gold font-medium">
+                After
+              </div>
+            </div>
+
+            {/* Navigation Bar */}
+            <div className="flex items-center justify-between mt-5">
+              {/* Thumbnails */}
+              <div className="flex gap-2 overflow-x-auto flex-1" style={{ scrollbarWidth: 'none' }}>
+                {stories.map((item, index) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveIndex(index)}
+                    aria-label={`View ${item.title}`}
+                    title={`View ${item.title}`}
+                    className={cn(
+                      "relative flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden transition-all duration-300",
+                      activeIndex === index
+                        ? "ring-2 ring-site-gold ring-offset-1 ring-offset-[#060504]"
+                        : "opacity-40 grayscale hover:opacity-80 hover:grayscale-0"
+                    )}
+                  >
+                    <Image 
+                      src={item.afterMedia} 
+                      alt={item.title} 
+                      className="w-full h-full" 
+                      imageClassName="object-cover"
+                      width={128}
+                      height={96}
+                      quality={75}
+                    />
+                  </button>
                 ))}
               </div>
 
-              {/* Quote Block */}
-              <div className="relative">
-                <Quote className="absolute -top-8 -left-6 text-white/5 w-20 h-20 -z-10" />
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={current.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <p className="text-lg md:text-xl text-white/70 leading-relaxed font-light italic mb-6">
-                      "{current.testimonial?.quote || "Transformation that exceeds expectations. Every detail was meticulously planned and executed."}"
-                    </p>
-                    <div className="flex items-center gap-4">
-                      <div className="h-px w-6 bg-site-crimson" />
-                      <span className="text-xs uppercase tracking-[0.2em] text-white font-bold">
-                        — {current.testimonial?.clientName || "VALUED CLIENT"}
-                      </span>
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-
-              {/* Consultation Button */}
-              <div className="pt-8">
-                <button className="group flex items-center gap-4 text-[11px] uppercase tracking-[0.2em] font-bold text-white border border-white/10 px-8 py-4 rounded-sm hover:bg-white hover:text-black transition-all duration-300">
-                  Get a Similar Consultation
-                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+              {/* Arrows */}
+              <div className="flex gap-2 ml-4 shrink-0">
+                <button 
+                  onClick={goPrev} 
+                  className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 transition-colors"
+                  aria-label="Previous project"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={goNext} 
+                  className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 transition-colors"
+                  aria-label="Next project"
+                >
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Thumbnail Navigation */}
-        <div className="flex justify-center gap-6 mt-12 overflow-x-auto pb-4 no-scrollbar">
-          {transformationStories.map((item, index) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveIndex(index)}
-              aria-label={`View ${item.title} transformation`}
-              title={item.title}
-              className={cn(
-                "relative flex-shrink-0 w-24 md:w-32 aspect-video rounded-lg overflow-hidden transition-all duration-500",
-                activeIndex === index 
-                  ? "ring-2 ring-site-gold ring-offset-4 ring-offset-[#0a0a09] scale-105" 
-                  : "opacity-40 grayscale hover:opacity-100 hover:grayscale-0"
-              )}
-            >
-              <Image
-                src={item.afterMedia}
-                alt={item.title}
-                className="w-full h-full object-cover"
-                width={200}
-                height={120}
-              />
-            </button>
-          ))}
+          {/* Project Details Panel */}
+          <div className="lg:col-span-5">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.4 }}
+                className="h-full flex flex-col"
+              >
+                {/* Project Title & Location */}
+                <div className="mb-6">
+                  <h3 className="text-2xl lg:text-3xl font-display text-white tracking-tight mb-2">
+                    {current.title}
+                  </h3>
+                  <div className="flex items-center gap-4 text-white/60 text-xs">
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="w-3 h-3" /> {current.location}
+                    </span>
+                    {current.outcomeMetric && (
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3 h-3" /> {current.outcomeMetric.split("—")[0]?.trim()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Challenge */}
+                <div className="mb-6 pb-6 border-b border-white/5">
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-site-crimson font-semibold mb-2 block">The Challenge</span>
+                  <p className="text-white/60 text-sm leading-relaxed">{current.challenge}</p>
+                </div>
+
+                {/* Design Moves */}
+                <div className="mb-6 pb-6 border-b border-white/5">
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-site-gold font-semibold mb-3 block">Our Design Moves</span>
+                  <ul className="space-y-2">
+                    {current.designMoves.slice(0, 3).map((move, i) => (
+                      <li key={i} className="flex gap-3 text-sm text-white/55 leading-relaxed">
+                        <span className="text-site-gold/70 font-mono text-xs mt-0.5 shrink-0">0{i + 1}</span>
+                        <span>{move}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Testimonial */}
+                {current.testimonial && (
+                  <div className="mb-6 relative">
+                    <Quote className="absolute -top-2 -left-1 w-8 h-8 text-white/5" />
+                    <p className="text-white/70 text-sm italic leading-relaxed pl-4 border-l-2 border-site-gold/30">
+                      "{current.testimonial.quote.length > 120
+                        ? current.testimonial.quote.slice(0, 120) + "..."
+                        : current.testimonial.quote}"
+                    </p>
+                    <span className="text-[11px] text-white/60 mt-2 block pl-4">
+                      — {current.testimonial.clientName}
+                    </span>
+                  </div>
+                )}
+
+                {/* CTA */}
+                <div className="mt-auto pt-4">
+                  <a
+                    href="/contact-us"
+                    className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-bold text-site-gold hover:text-white transition-colors duration-300 group"
+                  >
+                    <span>Get a Similar Transformation</span>
+                    <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                  </a>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </section>

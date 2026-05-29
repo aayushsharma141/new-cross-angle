@@ -1,6 +1,6 @@
-// Sentry MUST be initialized before React mounts — placed first.
-import { initSentry } from './lib/sentry';
-initSentry();
+// Sentry deferred — loads after first paint to reduce initial bundle impact.
+const idleCallback = window.requestIdleCallback || ((cb: () => void) => setTimeout(cb, 1));
+idleCallback(() => { import('./lib/sentry').then(({ initSentry }) => initSentry()); });
 
 import { createRoot } from 'react-dom/client';
 import App from './App';

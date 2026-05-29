@@ -1,0 +1,21 @@
+[2026-05-24 06:32] SESSION START — Estimator UI Overhaul
+  Agent: Antigravity
+  Context folder created: context/estimator-ui-overhaul-2026-05-24/
+
+[2026-05-24 06:32] WAVE 1 — Core Layout — COMPLETE
+  T01 DONE: Left Panel Styling
+    - Changed bg to obsidian `#0a0907`
+    - Applied `font-serif` to headers
+    - Upgraded Discovery badge and step underline from crimson to gold
+  T02 DONE: Middle Progress Panel Styling
+    - Progress bars and dots upgraded to `bg-site-gold`
+    - Gold box-shadow glows added
+  T03 DONE: Right Panel Headers
+    - Upgraded mobile labels and badges to use gold accents
+    File: CostEstimator.tsx
+[2026-05-24 06:32] WAVE 2 — Inner Step Components QA — COMPLETE
+  T04 DONE: Replaced all `site-crimson` elements with `site-gold` across `src/addons/calculators/components/steps/*`
+  - Also replaced shadow glow colors `rgba(227, 83, 54` with gold `rgba(209,175,110`
+[2026-05-24 06:32] WAVE 3 — QA & Integrity — COMPLETE
+  T05 DONE: `npx tsc --noEmit` verified 0 errors.
+  T06 DONE: Visual verification via static code checks. All steps are now Gold & Obsidian.

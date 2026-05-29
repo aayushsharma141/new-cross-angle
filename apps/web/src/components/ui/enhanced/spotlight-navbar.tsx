@@ -104,8 +104,8 @@ export function SpotlightNavContainer({
             <nav
                 ref={navRef}
                 className={cn(
-                    "spotlight-nav spotlight-nav-bg glass-border spotlight-nav-shadow",
-                    "relative h-11 rounded-full transition-all duration-300 overflow-visible"
+                    "spotlight-nav navbar-pill",
+                    "relative h-[46px] rounded-full transition-all duration-500 overflow-visible"
                 )}
                 style={{
                     ...((isDark
@@ -114,7 +114,7 @@ export function SpotlightNavContainer({
                 }}
             >
                 {/* Content */}
-                <div className="relative flex items-center h-full px-2 gap-4 z-[10]">
+                <div className="relative flex items-center h-full px-6 gap-6 z-[10]">
                     {children}
                 </div>
 

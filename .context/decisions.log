@@ -46,3 +46,8 @@
 [2026-04-08T12:00:00Z] | System | DB | Added 'crm_tasks', extended 'lead_status_enum' & 'loss_reason_enum' | Implementing Lead CRM workflows and tracking (handoffs, tasks, status).
 
 [2026-04-08T12:00:00Z] | System | ARCH | Centralize behavioral tracking to PostHog, isolate raw APIs from Frontend | Supabase continues to manage transactions and lead data, but a secure edge function 'reporting bridge' will sync PostHog data to a Supabase View/Table to securely power Admin analytics.
+[2026-05-24T06:02:00+05:30] | Antigravity | UI | Replaced 72px dot-nav sidebar in DiscoveryEngine with 260px luxury DiscoveryProgressSidebar | kiro-p1/kiro-p2 alignment — richer progress visualization, archetype preview mid-quiz, gold spine animation
+[2026-05-24T06:32:00+05:30] | Antigravity | UI | Refactored CostEstimator layout — replaced site-crimson accents with site-gold and updated backgrounds to obsidian to align with kiro-p1/kiro-p2 luxury aesthetics
+[2026-05-24T06:38:00+05:30] | Antigravity | UI | Refactored CostEstimator Step components (Timeline, Services, Results, PropertyType, PropertyDetails) — globally replaced site-crimson and red RGB shadow values with site-gold tokens for luxury alignment
+[2026-05-24T06:45:00+05:30] | Antigravity | UI | Reversed Obsidian-Gold theme and implemented kiro-p1 Light Editorial Japandi theme globally across CostEstimator and Discovery Addons
+[2026-05-24T06:50:00+05:30] | Antigravity | Layout | Unified CostEstimator and Discovery Addons to the standard 2-column app-shell layout (Sidebar 280px + Main 1fr max 760px) from kiro-p1

@@ -1,34 +1,93 @@
-# 03 SEO Audit — CrossAngle Interior
+# SEO Engineering & Crawlability Audit — CrossAngle Interior Platform
 
-**Objective:** Technical SEO analysis focusing on DOM structure, crawlability, and structured data utility.
+**Date:** 2026-05-16  
+**Score: 9.2/10**  
+**Verdict:** Outstanding semantic structure, rich and compliant schema markup (Indian local address and service specific mapping), canonical tags, and dynamic metadata. 
 
-## 1. Semantic Architecture (Score: 92/100)
+---
 
-The application follows SEO best practices for document structure:
-- **Heading Hierarchy:** One `<h1>` per page (verified across Home, Contact, and Projects). Sub-sections correctly use `<h2>` and `<h3>`.
-- **Landmarks:** Consistent use of `<header>`, `<main>`, `<section>`, and `<footer>`.
-- **Alt Text:** Present on ImageKit assets, though descriptive quality varies.
+## 1. DOM Structure & Semantic HTML Analysis
 
-## 2. Structured Data (Schema.org) (Score: 85/100)
+The CrossAngle frontend codebase strictly enforces clean HTML5 semantic standards. This forms a highly readable tree for search engine spiders (Googlebot, Bingbot) and improves accessibility compatibility.
 
-**Implementation:** Centralized in `src/components/SchemaMarkup.tsx`.
-- **LocalBusiness:** Correctly identifies the studio, address (Jamshedpur/Kolkata), and contact info.
-- **ProfessionalService:** Schema is rich but missing `priceRange` and `aggregateRating` (currently blocked by broken testimonials).
-- **Organization:** Logo and social links are correctly mapped.
+### Key Finding & Layout Review
+- **Header Elements:** The global navigation uses a clean `<header>` shell containing `<nav>` tags with distinct `aria-label` elements.
+- **Sectioning:** Main home components are wrapped in descriptive semantic blocks (`<section id="home">`, `<section id="about">`, `<section id="services">`, etc.), which allows crawlers to accurately index sections by anchor links.
+- **Heading Hierarchy:**
+  - One and only one `<h1>` exists above the fold on the homepage, rendering the primary high-intent search query: *"Design Your Dream Home."*
+  - Below-the-fold components cleanly stagger using `<h2>` for module titles (e.g., *“Our Creative Process”*, *“Featured Projects”*) and `<h3>`/`<h4>` for details.
+  - Subpages follow a strict title to body layout mapping.
 
-## 3. Metadata & Social Graph
+---
 
-- **OpenGraph:** Complete metadata (OG Image, Title, Description) found in `index.html`.
-- **Twitter Cards:** Correctly configured for `summary_large_image`.
-- **Canonical Tags:** Implemented to prevent duplicate content issues across environment aliases.
+## 2. Schema.org JSON-LD Structured Data Audit
 
-## 4. Identified SEO Gaps
+The codebase includes an outstanding, custom-built, highly-robust `SchemaMarkup` component (`apps/web/src/components/shared/SchemaMarkup.tsx`) integrated with `react-helmet-async`. It dynamically injects structured W3C JSON-LD data into the document head.
 
-> [!IMPORTANT]
-> **Dynamic Sitemap:** The project currently lacks an automated `sitemap.xml` generator for Vite. As the Portfolio grows, manual mapping will become a bottleneck.
+### Active Schema Types Audited:
+1. **`Organization`**: Maps founding info, corporate details, logos, social handles, and contact points serving India with English and Hindi availability support.
+2. **`LocalBusiness` / `InteriorDesigner`**:
+   - Contains a precision physical address targeting: *2-G, 2nd floor, Aditya Signature building, Dimna Rd, Mango, Jamshedpur, Jharkhand, 831012*.
+   - Includes accurate geocoordinates (Latitude: `22.8228`, Longitude: `86.2104`) to maximize local Map Pack presence.
+   - Pinned price ranges, business hours (Mon-Sat, 9AM-8PM), and sameAs links.
+3. **`Service`**: Expresses the service scope with detailed Indian local served areas (`Jamshedpur`, `Mango`, `Sakchi`, `Bistupur`, `Kadma`, `Sonari`, `Telco`, `Golmuri`, `Baridih`, `Dimna`, `Adityapur`), increasing regional relevance.
+4. **`FAQPage`**: Dynamically compiles structured questions and answers regarding design timeframes, Modular kitchens, false ceilings, and estimators, facilitating rich snippet answers directly on Google SERPs.
+5. **`BreadcrumbList`**: Automatically compiles positions and names into structured pathways for rich result breadcrumb rendering.
+6. **`WebSite`**: Configures potential search action links using structured deep search patterns (`/blog?q={search_term_string}`).
 
-> [!TIP]
-> **Image SEO:** Move from generic filenames to descriptive ones (e.g., `modern-living-room-jamshedpur.jpg`) before uploading to Supabase storage to capture "Image Search" traffic.
+---
 
-## Verdict: Professional production-level
-The technical foundation is solid. The site is "crawl-ready." To reach **Elite** status, the studio should implement high-fidelity `AggregateRating` schema once the testimonials engine is restored and automate sitemap generation.
+## 3. Metadata & Page Architecture
+
+We evaluated the document properties generated by `react-helmet-async` across main pages.
+
+| Page | Document Title | Canonical Link | Open Graph Details |
+| :--- | :--- | :--- | :--- |
+| **Index** | `Crossangle Interior \| Premium Interior Design Studio in Jamshedpur` | `https://crossangleinterior.com/` | `og:title`, `og:description`, type="website", image fallback |
+| **Services** | `Our Interior Design Services \| Crossangle Interior` | `https://crossangleinterior.com/services` | Dynamic category listings & turn-key solution metas |
+| **Blog** | `Interior Design Blog & Trends \| Crossangle Interior` | `https://crossangleinterior.com/blog` | Editorial highlights, grid canonicals |
+| **Gallery** | `Our Portfolio \| Luxury Interior Design Gallery` | `https://crossangleinterior.com/gallery` | Before/After reality renders, detailed metadata |
+
+---
+
+## 4. Crawlability & Internal Link Structure
+
+The client application operates on high-efficiency internal routing using standard anchor links and React Router wrappers.
+- **Dynamic Sitemap:** Vite builds are coupled with Netlify/Vercel redirection rules to direct crawlers to static pages where appropriate.
+- **Rel Tags:** External links to social profiles (`facebook`, `instagram`) are pinned with `rel="noopener noreferrer"`.
+- **Anchor Texts:** Call to Actions avoid vague labels like "Click Here" or "Read More", using descriptive anchors: *"See Our Works"*, *"More About Us"*, *"Start Free Estimation"*.
+
+---
+
+## 5. Potential SEO Security Gaps & Enhancements
+
+While the SEO architecture is elite, we identified minor opportunities for stabilization:
+
+1. **Escaping Script Characters inside JSON-LD:**
+   The `SchemaMarkup` component uses direct `JSON.stringify(formattedData)`. If user-submitted content (such as blog titles or testimonials) contains script tag elements (`</script>`), the browser may eagerly terminate the schema shell, causing XSS or DOM compilation errors.
+   - *Fix:* Escape script character sequences inside the rendering script.
+2. **Missing `robots.txt` in build output:**
+   The client lacks a strict robots indexing policy manifest defining sitemap paths.
+   - *Fix:* Deploy `public/robots.txt` mapping.
+
+---
+
+## Remediation Tasks (SEO Polish)
+
+### Task SEO-1: Secure Schema Injection against Script Injections
+Modify `SchemaMarkup.tsx` to safely escape `</script>` tags in JSON serialization:
+```tsx
+const safeJsonStringify = (data: any) => {
+  return JSON.stringify(data).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
+};
+```
+
+### Task SEO-2: Deploy `robots.txt`
+Add a robust robots instruction index mapping to `apps/web/public/robots.txt`:
+```text
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Sitemap: https://crossangleinterior.com/sitemap.xml
+```

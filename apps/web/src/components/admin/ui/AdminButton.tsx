@@ -1,16 +1,16 @@
-import * as React from 'react';
+import React, { forwardRef, ButtonHTMLAttributes, ReactNode, HTMLAttributes } from 'react';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline';
 type ButtonSize = 'sm' | 'default' | 'lg' | 'icon';
 
-interface AdminButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface AdminButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -28,7 +28,7 @@ const sizeStyles: Record<ButtonSize, string> = {
   icon: 'h-10 w-10 rounded-lg',
 };
 
-export const AdminButton = React.forwardRef<HTMLButtonElement, AdminButtonProps>(
+export const AdminButton = forwardRef<HTMLButtonElement, AdminButtonProps>(
   (
     {
       className,
@@ -71,7 +71,7 @@ AdminButton.displayName = 'AdminButton';
 export function AdminButtonGroup({
   className,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn('inline-flex -space-x-px rtl:space-x-reverse', className)}

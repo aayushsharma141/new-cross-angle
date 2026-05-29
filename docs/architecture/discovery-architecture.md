@@ -1,8 +1,3 @@
-Below is a **clean Markdown conversion of your HTML architecture document**, preserving the structure, technical details, and insights. I also added **clarifying notes** where it helps explain the engine’s strategic effectiveness.
-
-Source: 
-
----
 
 # CrossAngle — Discovery Engine Architecture Map
 

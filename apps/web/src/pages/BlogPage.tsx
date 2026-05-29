@@ -10,7 +10,7 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { api, Blog } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search, Clock, Eye, ArrowRight, ChevronLeft, ChevronRight,
+  Search, Clock, Eye, ArrowRight,
   TrendingUp, Tag, Mail, Sparkles, BookOpen
 } from "lucide-react";
 import { OptimizedImage as Image } from "@/components/ui/enhanced/OptimizedImage";
@@ -72,7 +72,10 @@ const BlogPage = () => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSubmitting, setNewsletterSubmitting] = useState(false);
   const [newsletterDone, setNewsletterDone] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
+  const [isDragging, setIsDragging] = useState(false);
   const POSTS_PER_PAGE = 6;
 
   useGSAP(() => {
@@ -102,6 +105,29 @@ const BlogPage = () => {
     };
     fetchBlogs();
   }, []);
+
+  useEffect(() => {
+    const updateConstraints = () => {
+      if (containerRef.current && sliderRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const scrollWidth = sliderRef.current.scrollWidth;
+        setDragConstraints({
+          right: 0,
+          left: Math.min(0, -(scrollWidth - containerWidth)),
+        });
+      }
+    };
+
+    updateConstraints();
+    setTimeout(updateConstraints, 300);
+    const imgs = sliderRef.current?.querySelectorAll("img");
+    imgs?.forEach((img) => img.addEventListener("load", updateConstraints));
+    window.addEventListener("resize", updateConstraints);
+    return () => {
+      imgs?.forEach((img) => img.removeEventListener("load", updateConstraints));
+      window.removeEventListener("resize", updateConstraints);
+    };
+  }, [blogPosts]);
 
   /* ── Filtering ── */
   const filtered = useMemo(() => {
@@ -136,10 +162,7 @@ const BlogPage = () => {
   }, [blogPosts]);
 
   /* ── Slider scroll ── */
-  const scrollSlider = (dir: "left" | "right") => {
-    if (!sliderRef.current) return;
-    sliderRef.current.scrollBy({ left: dir === "left" ? -340 : 340, behavior: "smooth" });
-  };
+  // Removed manual scroll since we are using drag gestures
 
   /* ── Newsletter ── */
   const handleNewsletter = async (e: React.FormEvent) => {
@@ -209,7 +232,7 @@ const BlogPage = () => {
             </div>
 
             <div className="container mx-auto px-4 relative z-10 flex items-center blog-hero-content" style={{ minHeight: "70vh" }}>
-              <div className="max-w-2xl space-y-6">
+              <div className="max-w-2xl space-y-6 md:pl-14">
 
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -322,33 +345,34 @@ const BlogPage = () => {
           </section>
         ) : trendingPosts.length > 0 && (
           <section className="py-16" style={{ background: "#050505" }}>
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4" ref={containerRef}>
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <TrendingUp className="w-5 h-5" style={{ color: CRIMSON }} />
                   <h2 className="font-serif text-2xl font-bold text-white">Trending Articles</h2>
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => scrollSlider("left")} aria-label="Scroll left" className="p-2 rounded-full border transition-colors hover:border-[#C41230]" style={{ borderColor: "#333" }}>
-                    <ChevronLeft className="w-4 h-4 text-white" />
-                  </button>
-                  <button onClick={() => scrollSlider("right")} aria-label="Scroll right" className="p-2 rounded-full border transition-colors hover:border-[#C41230]" style={{ borderColor: "#333" }}>
-                    <ChevronRight className="w-4 h-4 text-white" />
-                  </button>
-                </div>
               </div>
 
-              <div
-                ref={sliderRef}
-                className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide"
-                style={{ scrollSnapType: "x mandatory" }}
-              >
+              <div className="overflow-hidden w-full">
+                <motion.div
+                  ref={sliderRef}
+                  drag="x"
+                  dragConstraints={dragConstraints}
+                  dragElastic={0.2}
+                  dragTransition={{ power: 0.2, timeConstant: 200 }}
+                  dragMomentum={true}
+                  onDragStart={() => setIsDragging(true)}
+                  onDragEnd={() => setTimeout(() => setIsDragging(false), 50)}
+                  style={{ touchAction: "pan-y" }}
+                  className="flex w-max gap-6 pb-4 cursor-grab active:cursor-grabbing"
+                >
                 {trendingPosts.map((post, i) => (
                   <Link
                     key={post.id}
                     to={`/blog/${post.slug || post.id}`}
-                    className="flex-shrink-0 w-[300px] group"
-                    style={{ scrollSnapAlign: "start" }}
+                    className="flex-shrink-0 w-[300px] group block"
+                    draggable={false}
+                    onClick={(e) => { if (isDragging) e.preventDefault(); }}
                   >
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
@@ -361,10 +385,11 @@ const BlogPage = () => {
                         <Image
                           src={post.image}
                           alt={post.title}
-                          className="w-full h-full"
+                          className="w-full h-full pointer-events-none"
                           imageClassName="object-cover group-hover:scale-105 transition-transform duration-700"
                           width={400}
                           height={250}
+                          draggable={false}
                         />
                       </div>
                       <div className="p-4 space-y-2">
@@ -378,6 +403,7 @@ const BlogPage = () => {
                     </motion.div>
                   </Link>
                 ))}
+                </motion.div>
               </div>
             </div>
           </section>

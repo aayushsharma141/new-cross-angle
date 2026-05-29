@@ -3,7 +3,7 @@ export type Lang = "en" | "hi";
 const translations: Record<Lang, Record<string, string>> = {
   en: {
     // Welcome Screen
-    welcome_subtitle: "DESIGN DISCOVERY",
+    welcome_subtitle: "AESTHETIC DISCOVERY ENGINE",
     welcome_title: "Find Your Design Style",
     welcome_desc: "A simple, guided journey to help you discover the spaces, textures, and looks that feel most like you.",
     welcome_scroll: "Scroll to learn more ↓",
@@ -24,7 +24,7 @@ const translations: Record<Lang, Record<string, string>> = {
     welcome_step_identity_desc: "See your personalized design style",
     welcome_begin: "Ready to Start?",
     welcome_begin_desc: "Pick how much time you want to spend.",
-    welcome_quick: "QUICK QUIZ",
+    welcome_quick: "QUICK DISCOVERY",
     welcome_quick_desc: "About 2 minutes · 3 steps",
     welcome_deep: "FULL JOURNEY",
     welcome_deep_desc: "About 5 minutes · All steps",

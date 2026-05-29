@@ -104,6 +104,9 @@ export function RichTextEditor({
             return;
         }
 
+        // Block dangerous protocols
+        if (/^\s*(javascript|data|vbscript):/i.test(url)) return;
+
         editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
     };
 

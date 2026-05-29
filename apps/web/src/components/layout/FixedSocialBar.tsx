@@ -90,9 +90,21 @@ const FixedSocialBar: React.FC = () => {
 
   return (
     <>
-      {/* Desktop left sticky bar - positioned slightly inward */}
-      <aside className="hidden md:flex fixed left-4 top-1/2 -translate-y-1/2 z-50 flex-col">
-        <ul className="flex flex-col space-y-3">
+      {/* Desktop left sticky bar – flush at viewport edge with frosted-glass backing strip.
+           Icons are w-10 h-10 (40 px), so right-edge = 40 px. Pages with px-4 container
+           (12 px margin at 1440 px wide) clear the bar because the backing strip acts as
+           a visual separator and the tooltip expands rightward. */}
+      <aside
+        className="hidden md:flex fixed left-0 top-1/2 -translate-y-1/2 z-50 flex-col items-center py-3 rounded-r-2xl"
+        style={{
+          background: 'rgba(10,10,10,0.70)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderRight: '1px solid rgba(255,255,255,0.06)',
+          boxShadow: '2px 0 20px rgba(0,0,0,0.4)',
+        }}
+      >
+        <ul className="flex flex-col space-y-2 px-1">
           {links.map((link, idx) => (
             <li key={idx}>
               <a
@@ -102,28 +114,28 @@ const FixedSocialBar: React.FC = () => {
                 aria-label={link.label}
                 onMouseEnter={() => setHoveredIndex(idx)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                className="group relative flex items-center justify-center w-11 h-11 rounded-full shadow-lg transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background"
+                className="group relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-primary/50"
                 style={{
-                  background: hoveredIndex === idx ? link.hoverBg : 'hsl(var(--card) / 0.95)',
-                  color: hoveredIndex === idx ? link.hoverColor : 'hsl(var(--foreground))',
-                  transform: hoveredIndex === idx ? 'scale(1.15) translateX(4px)' : 'scale(1)',
+                  background: hoveredIndex === idx ? link.hoverBg : 'transparent',
+                  color: hoveredIndex === idx ? link.hoverColor : 'rgba(255,255,255,0.55)',
+                  transform: hoveredIndex === idx ? 'scale(1.12)' : 'scale(1)',
                   boxShadow: hoveredIndex === idx
-                    ? '0 8px 25px -5px hsl(var(--primary) / 0.3)'
-                    : '0 4px 15px -3px hsl(var(--foreground) / 0.15)',
+                    ? '0 6px 20px -4px hsl(var(--primary) / 0.35)'
+                    : 'none',
                 }}
               >
                 <span className="sr-only">{link.label}</span>
                 {link.icon}
 
-                {/* Tooltip label on hover */}
+                {/* Tooltip label – appears to the right */}
                 <span
-                  className="absolute left-full ml-3 px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap pointer-events-none transition-all duration-300"
+                  className="absolute left-full ml-2 px-2.5 py-1 text-xs font-medium rounded-md whitespace-nowrap pointer-events-none transition-all duration-200"
                   style={{
                     opacity: hoveredIndex === idx ? 1 : 0,
-                    transform: hoveredIndex === idx ? 'translateX(0)' : 'translateX(-8px)',
+                    transform: hoveredIndex === idx ? 'translateX(0)' : 'translateX(-6px)',
                     background: 'hsl(var(--card))',
                     color: 'hsl(var(--foreground))',
-                    boxShadow: '0 4px 12px -2px hsl(var(--foreground) / 0.1)',
+                    boxShadow: '0 4px 12px -2px rgba(0,0,0,0.3)',
                   }}
                 >
                   {link.label}
@@ -134,39 +146,7 @@ const FixedSocialBar: React.FC = () => {
         </ul>
       </aside>
 
-      {/* Mobile bottom bar - auto-hides on scroll down */}
-      <motion.nav
-        className="md:hidden fixed bottom-6 left-1/2 z-50 w-max"
-        initial={{ x: "-50%", y: 0, opacity: 1 }}
-        animate={{ x: "-50%", y: isHidden ? 150 : 0, opacity: isHidden ? 0 : 1 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-      >
-        <ul className="flex items-center gap-3 rounded-full px-5 py-3 backdrop-blur-md bg-card/90 shadow-xl border border-border/30">
-          {links.map((link, idx) => (
-            <li key={idx}>
-              <a
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={link.label}
-                onMouseEnter={() => setHoveredIndex(idx + 100)}
-                onMouseLeave={() => setHoveredIndex(null)}
-                onTouchStart={() => setHoveredIndex(idx + 100)}
-                onTouchEnd={() => setTimeout(() => setHoveredIndex(null), 150)}
-                className="w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ease-out active:scale-95"
-                style={{
-                  background: hoveredIndex === idx + 100 ? link.hoverBg : 'hsl(var(--muted))',
-                  color: hoveredIndex === idx + 100 ? link.hoverColor : 'hsl(var(--foreground))',
-                  transform: hoveredIndex === idx + 100 ? 'scale(1.1)' : 'scale(1)',
-                }}
-              >
-                <span className="sr-only">{link.label}</span>
-                {link.icon}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </motion.nav>
+      {/* Mobile bottom bar - Removed as per audit to avoid overlap */}
     </>
   );
 };

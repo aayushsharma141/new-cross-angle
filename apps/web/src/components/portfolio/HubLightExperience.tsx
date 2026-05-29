@@ -84,8 +84,8 @@ const HubLightExperience = () => {
 
         {/* Overlay blend layer — transitions between modes */}
         <div
-          className={`absolute inset-0 pointer-events-none transition-all duration-[1500ms] ease-in-out
-            ${mode.overlayClass} ${mode.overlayOpacity} ${mode.blendMode}`}
+          className={`absolute inset-0 pointer-events-none transition-all ease-in-out ${mode.overlayClass} ${mode.overlayOpacity} ${mode.blendMode}`}
+          style={{ transitionDuration: '1500ms' }}
         />
 
         {/* Mode Pill Controls */}

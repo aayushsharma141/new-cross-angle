@@ -1,92 +1,98 @@
 import { motion } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import portfolioBedroom from "@/assets/portfolio-bedroom.jpg";
-import portfolioKitchen from "@/assets/portfolio-kitchen.jpg";
-import portfolioOffice from "@/assets/portfolio-office.jpg";
+
+const IK = "https://ik.imagekit.io/wdrs8y61o/cross-angle/tr:q-85,f-auto,w-900";
 
 const SPACES = [
   {
     id: "bedroom",
     name: "Bedroom Spaces",
     headline: "Designed for restful nights",
-    image: portfolioBedroom,
+    image: `${IK}/images/projects/discovery/visual-13.jpg`,
     href: "/gallery?category=Bedroom Interior"
   },
   {
     id: "living",
     name: "Living Rooms",
     headline: "Built for functional luxury",
-    image: "/images/projects/discovery/visual-11.jpg",
+    image: `${IK}/images/projects/discovery/visual-11.jpg`,
     href: "/gallery?category=Living Room Interior"
   },
   {
     id: "kitchen",
     name: "Modular Kitchens",
     headline: "Heart of the home",
-    image: portfolioKitchen,
+    image: `${IK}/images/projects/discovery/visual-10.jpg`,
     href: "/gallery?category=Modular Kitchen"
   },
   {
     id: "commercial",
     name: "Commercial Spaces",
     headline: "Productivity redefined",
-    image: portfolioOffice,
+    image: `${IK}/images/projects/discovery/visual-17.jpg`,
     href: "/gallery?category=Commercial"
   },
   {
     id: "wardrobe",
     name: "Wardrobes",
     headline: "Organized elegance",
-    image: "/blueprint_shell.jpg",
+    image: `${IK}/images/projects/discovery/visual-15.jpg`,
     href: "/gallery?category=Wardrobe"
   }
 ];
 
 const SpaceNavigator = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
+  const [isDragging, setIsDragging] = useState(false);
 
-  const scroll = (dir: "left" | "right") => {
-    if (!containerRef.current) return;
-    const card = containerRef.current.querySelector(".snap-card") as HTMLElement;
-    const offset = card ? card.offsetWidth + 32 : 480;
-    containerRef.current.scrollBy({ left: dir === "right" ? offset : -offset, behavior: "smooth" });
-  };
+  useEffect(() => {
+    const updateConstraints = () => {
+      if (containerRef.current && scrollRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const scrollWidth = scrollRef.current.scrollWidth;
+        setDragConstraints({
+          right: 0,
+          left: Math.min(0, -(scrollWidth - containerWidth)),
+        });
+      }
+    };
+
+    updateConstraints();
+    setTimeout(updateConstraints, 300);
+    const imgs = scrollRef.current?.querySelectorAll("img");
+    imgs?.forEach((img) => img.addEventListener("load", updateConstraints));
+    window.addEventListener("resize", updateConstraints);
+    return () => {
+      imgs?.forEach((img) => img.removeEventListener("load", updateConstraints));
+      window.removeEventListener("resize", updateConstraints);
+    };
+  }, []);
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-hidden" ref={containerRef}>
       <div className="container mx-auto px-6 mb-16 text-center">
         <span className="mb-4 block text-[10px] uppercase tracking-[0.4em] text-site-gold">Choose Your World</span>
         <h2 className="text-3xl font-light tracking-tight text-white md:text-5xl mb-6">Space-Based Exploration</h2>
-        <p className="mx-auto max-w-md text-sm font-light leading-relaxed text-white/50 mb-8">
+        <p className="mx-auto max-w-md text-sm font-light leading-relaxed text-white/50 mb-0">
           Navigate through our portfolio by the spaces that matter to you.
           Each category is a curated journey of spatial storytelling.
         </p>
-        
-        {/* Arrow Controls */}
-        <div className="flex items-center justify-center gap-3">
-          <button
-            onClick={() => scroll("left")}
-            aria-label="Previous"
-            className="w-11 h-11 rounded-full border border-white/15 flex items-center justify-center text-white/50 hover:border-[#c9a96e] hover:text-[#c9a96e] transition-all duration-300"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <button
-            onClick={() => scroll("right")}
-            aria-label="Next"
-            className="w-11 h-11 rounded-full border border-white/15 flex items-center justify-center text-white/50 hover:border-[#c9a96e] hover:text-[#c9a96e] transition-all duration-300"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
       </div>
 
-      <div 
-        ref={containerRef}
-        className="flex w-full gap-8 overflow-x-hidden pb-12 no-scrollbar px-[10vw]"
-        style={{ scrollSnapType: "x mandatory" }}
+      <motion.div 
+        ref={scrollRef}
+        drag="x"
+        dragConstraints={dragConstraints}
+        dragElastic={0.2}
+        dragTransition={{ power: 0.2, timeConstant: 200 }}
+        dragMomentum={true}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={() => setTimeout(() => setIsDragging(false), 50)}
+        style={{ touchAction: "pan-y" }}
+        className="flex w-max gap-8 pb-12 px-[10vw] cursor-grab active:cursor-grabbing"
       >
         {SPACES.map((space, index) => (
           <motion.div
@@ -95,16 +101,22 @@ const SpaceNavigator = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: index * 0.1 }}
-            className="snap-card group relative w-[300px] md:w-[450px] flex-shrink-0 cursor-pointer overflow-hidden"
-            style={{ scrollSnapAlign: "center" }}
+            className="group relative w-[300px] md:w-[450px] flex-shrink-0 cursor-pointer overflow-hidden"
           >
-            <Link to={space.href}>
+            <Link 
+              to={space.href} 
+              draggable={false} 
+              onClick={(e) => { if (isDragging) e.preventDefault(); }} 
+              className="block"
+            >
               <div className="relative aspect-[3/4] overflow-hidden">
                 {/* Background Image with Zoom */}
                 <motion.img 
                   src={space.image} 
                   alt={space.name}
-                  className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                  draggable={false}
+                  onDragStart={(e) => e.preventDefault()}
+                  className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110 pointer-events-none"
                 />
                 
                 {/* Gradient Overlays */}
@@ -130,7 +142,7 @@ const SpaceNavigator = () => {
             </Link>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 };

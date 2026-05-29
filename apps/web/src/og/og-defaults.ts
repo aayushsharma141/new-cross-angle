@@ -84,10 +84,22 @@ export const STATIC_OG_MAP: Record<string, Partial<OgData>> = {
     url: `${SITE_URL}/contact-us`,
   },
   "/estimate": {
-    title: "Get a Free Estimate | Crossangle Interior",
+    title: "Free Cost Estimator | Crossangle Interior",
     description:
-      "Use our price estimator to get an instant ballpark estimate for your interior design project — no commitment required.",
+      "Use our cost estimator to get an instant ballpark estimate for your interior design project — no commitment required.",
     url: `${SITE_URL}/estimate`,
+  },
+  "/style-quiz": {
+    title: "Aesthetic Discovery Engine | Cross Angle Interior",
+    description:
+      "Uncover your unique design language with our Aesthetic Discovery Engine. A guided journey through instinct, emotion, and texture — in under 4 minutes.",
+    url: `${SITE_URL}/style-quiz`,
+  },
+  "/aesthetic-discovery-engine": {
+    title: "Aesthetic Discovery Engine | Cross Angle Interior",
+    description:
+      "Uncover your unique design language with our Aesthetic Discovery Engine. A guided journey through instinct, emotion, and texture — in under 4 minutes.",
+    url: `${SITE_URL}/aesthetic-discovery-engine`,
   },
 };
 

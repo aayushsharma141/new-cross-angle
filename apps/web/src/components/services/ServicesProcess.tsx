@@ -73,7 +73,7 @@ const ServicesProcess = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="text-[1rem] text-white/40 font-light max-w-[32ch] leading-relaxed md:text-right"
+            className="text-[1rem] text-white/60 font-light max-w-[32ch] leading-relaxed md:text-right"
           >
             Refined over 500+ premium projects across India, ensuring no ambiguity from brief to handover.
           </motion.p>
@@ -122,7 +122,7 @@ const ServicesProcess = () => {
                     <div className="font-display italic text-[clamp(1.8rem,4vw,3rem)] font-normal text-white mb-6 group-hover:translate-x-2 transition-transform duration-500">
                       {step.title}
                     </div>
-                    <p className="text-[1.1rem] text-white/40 leading-relaxed font-light max-w-[50ch] border-l border-white/10 pl-8 group-hover:border-site-crimson/50 transition-colors">
+                    <p className="text-[1.1rem] text-white/60 leading-relaxed font-light max-w-[50ch] border-l border-white/10 pl-8 group-hover:border-site-crimson/50 transition-colors">
                       {step.description}
                     </p>
                   </motion.div>

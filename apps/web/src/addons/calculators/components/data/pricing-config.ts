@@ -7,20 +7,21 @@ import type { PricingConfig, CityTier } from "./types";
 
 /* ─── Theme tokens (used by components) ─── */
 
+/* ─── Theme tokens (used by components) ─── */
+
 export const THEME = {
-    RED: "#E35336",       // Map RED to site.gold
-    RED_LIGHT: "#E3C488", // Map RED_LIGHT to site.gold-light
-    BG: "#0F0F10",        // site.bg
-    CARD: "#141414",      // site.bg-card
-    CARD2: "#1E1E1E",     // site.bg-card-hover
-    BORDER: "#1F1F1F",    // site.border
+    ACCENT: "#D1AF6E",       // site-gold — primary brand accent
+    ACCENT_LIGHT: "#E3C488", // site-gold-light
+    BG: "#0F0F10",           // site-bg
+    CARD: "#141414",         // site-bg-card
+    CARD2: "#1E1E1E",        // site-bg-card-hover
+    BORDER: "#1F1F1F",       // site-border
     BORDER2: "#2A2A2A",
     TEXT: "#F5F5F5",
     MUTED: "#A0A0A0",
     MUTED2: "#707070",
     GREEN: "#43a047",
     AMBER: "#fb8c00",
-    GOLD: "#E35336",      // site.gold
 } as const;
 
 /* ─── Property Types ─── */
@@ -141,6 +142,23 @@ export const TIERS: Record<CityTier, { label: string; multiplier: number; color:
     tier1: { label: "Tier-1 City", multiplier: 1.1, color: "#f4a261" },
     tier2: { label: "Tier-2 City", multiplier: 1.0, color: "#80cbc4" },
 };
+
+/* ─── Investment Presets ─── */
+
+export const INVESTMENT_PRESETS = [
+    { label: "Essential", range: "₹40–60 L", value: 5000000, color: "#80cbc4" },
+    { label: "Premium", range: "₹80 L – 1.5 Cr", value: 12000000, color: "#64b5f6" },
+    { label: "Luxury", range: "₹2.5 – 5 Cr", value: 35000000, color: "#f4a261" },
+    { label: "Legacy", range: "₹10 Cr+", value: 100000000, color: "#e57373" },
+];
+
+/* ─── Timeline Options ─── */
+
+export const TIMELINE_OPTIONS = [
+    { label: "Immediate", desc: "Ready to start now", icon: "⚡" },
+    { label: "1-3 Months", desc: "Planning ahead", icon: "📅" },
+    { label: "3+ Months", desc: "Just exploring", icon: "🔍" },
+];
 
 /* ─── Services (C1–C5) ─── */
 

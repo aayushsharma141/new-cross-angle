@@ -1,4 +1,3 @@
-
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
 import { useQuery } from "@tanstack/react-query";
@@ -8,8 +7,9 @@ const SOURCE_COLORS: Record<string, string> = {
     website_contact: "hsl(var(--admin-primary))",
     estimator: "hsl(var(--admin-info))",
     style_quiz: "hsl(var(--admin-success))",
+    aesthetic_discovery_engine: "hsl(var(--admin-success))",
     welcome_popup: "hsl(270 60% 60%)",
-    discovery_engine: "hsl(var(--admin-danger))",
+    discovery_engine: "hsl(var(--admin-success))",
     whatsapp: "hsl(145 63% 42%)",
     instagram: "hsl(330 70% 55%)",
     referral: "hsl(var(--admin-warning))",
@@ -19,9 +19,10 @@ const SOURCE_COLORS: Record<string, string> = {
 const SOURCE_LABELS: Record<string, string> = {
     website_contact: "Website",
     estimator: "Estimator",
-    style_quiz: "Style Quiz",
+    style_quiz: "Aesthetic Discovery Engine",
+    aesthetic_discovery_engine: "Aesthetic Discovery Engine",
     welcome_popup: "Welcome Popup",
-    discovery_engine: "Discovery Engine",
+    discovery_engine: "Aesthetic Discovery Engine",
     whatsapp: "WhatsApp",
     instagram: "Instagram",
     referral: "Referral",

@@ -26,7 +26,7 @@ const ENGINES: Engine[] = [
     subheading: "Know Your Style. Before You Begin.",
     description:
       "Most clients arrive with inspiration images and a vague sense of what they want. Our Discovery Engine translates that ambiguity into a precise aesthetic profile — your spatial DNA. Answer a curated set of questions and receive a design archetype, mood alignment, and a personalised brief your designer can act on from day one.",
-    primaryCta: { label: "Begin Discovery", href: "/style-quiz" },
+    primaryCta: { label: "Begin Discovery", href: "/aesthetic-discovery-engine" },
     secondaryCta: { label: "How It Works", href: "/services#discovery" },
     icon: <Compass strokeWidth={1.5} className="w-4 h-4" />,
     glowColor: "rgba(196, 30, 58, 0.12)",
@@ -176,7 +176,7 @@ function EngineBlock({ engine }: { engine: Engine }) {
               >
                 [ {engine.system} ]
               </span>
-              <span className="text-[8px] text-white/30 uppercase tracking-[0.2em] font-medium">Precision Instrument</span>
+              <span className="text-[8px] text-white/60 uppercase tracking-[0.2em] font-medium">Precision Instrument</span>
             </div>
           </motion.div>
 
@@ -268,7 +268,7 @@ function EngineBlock({ engine }: { engine: Engine }) {
             <motion.div variants={fadeUp} className="w-full sm:w-auto flex justify-start sm:justify-center">
               <Link
                 to={engine.secondaryCta.href}
-                className="group flex items-center justify-center gap-3 text-white/40 hover:text-[#C41E3A] transition-colors duration-300"
+                className="group flex items-center justify-center gap-3 text-white/60 hover:text-[#C41E3A] transition-colors duration-300"
                 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: 500 }}
               >
                 <span className="w-6 h-px bg-current transition-all duration-300 group-hover:w-8" />

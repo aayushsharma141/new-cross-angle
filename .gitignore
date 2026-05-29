@@ -11,8 +11,24 @@ coverage
 .vercel
 .env*.local
 
+# Supabase
+supabase/functions/node_modules/
+
 # Playwright
 e2e/setup/.auth/
 e2e/reports/
 playwright-report/
 test-results/
+
+# Generated outputs
+graphify-out/
+*.cpuprofile
+*.log
+
+# AI agent context (not project source)
+.context/
+.trae/
+.gemini/
+.agents/
+.claude/
+skills-lock.json

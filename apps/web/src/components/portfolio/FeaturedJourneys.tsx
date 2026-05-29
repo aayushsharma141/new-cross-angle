@@ -25,7 +25,7 @@ const FeaturedJourneys = () => {
   return (
     <div className="container mx-auto py-32 px-6">
       <div className="mb-24 text-center">
-        <span className="mb-6 block text-[11px] uppercase tracking-[0.5em] text-white/40">Featured Journeys</span>
+        <span className="mb-6 block text-[11px] uppercase tracking-[0.5em] text-white/60">Featured Journeys</span>
         <h2 className="text-4xl font-extralight tracking-tight text-white md:text-6xl italic">
           Hero-Level Chronicles
         </h2>
@@ -76,11 +76,11 @@ const FeaturedJourneys = () => {
 
               <div className="flex flex-wrap gap-8 pt-4 border-t border-white/10">
                 <div>
-                  <p className="text-[9px] uppercase tracking-[0.2em] text-white/30">Budget Range</p>
+                  <p className="text-[9px] uppercase tracking-[0.2em] text-white/60">Budget Range</p>
                   <p className="text-sm text-white">{project.budget}</p>
                 </div>
                 <div>
-                  <p className="text-[9px] uppercase tracking-[0.2em] text-white/30">Timeline</p>
+                  <p className="text-[9px] uppercase tracking-[0.2em] text-white/60">Timeline</p>
                   <p className="text-sm text-white">{project.duration || "4-6 Weeks"}</p>
                 </div>
               </div>

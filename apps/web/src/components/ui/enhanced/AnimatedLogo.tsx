@@ -60,7 +60,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
 
   return (
     <div
-      className={cn("flex flex-wrap items-center font-serif font-bold cursor-pointer group", className)}
+      className={cn("flex flex-row items-center font-serif font-bold cursor-pointer group shrink-0", className)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => {
@@ -73,7 +73,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         variants={word1Variants}
         initial="hidden"
         animate="visible"
-        className={cn("flex mr-2 text-site-crimson", isHovered && "is-hovered")}
+        className={cn("flex mr-1.5 sm:mr-2 text-[#D1AF6E] tracking-tighter sm:tracking-tight text-[clamp(0.9rem,3vw,1.4rem)]", isHovered && "is-hovered")}
       >
         {word1.split("").map((letter, i) => (
           <motion.span
@@ -96,7 +96,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         variants={word2Variants}
         initial="hidden"
         animate="visible"
-        className="flex text-site-crimson"
+        className="flex text-[#D1AF6E] tracking-tighter sm:tracking-tight text-[clamp(0.9rem,3vw,1.4rem)]"
       >
         {word2.split("").map((letter, i) => (
           <motion.span

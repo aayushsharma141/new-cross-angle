@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { serviceCategories } from "@/config/site-content";
-import { Squares } from "@/components/ReactBits";
+import { Squares } from "@/components/ReactBits/index";
 import useScrollReveal from "@/hooks/useScrollReveal";
 import { Button } from "@/components/ui/primitives/button";
 import { Image } from "@/components/ui/enhanced/image";
@@ -58,7 +58,7 @@ const Services = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-6">
-                      <span className="text-xs font-mono text-white/30 tracking-widest uppercase">
+                      <span className="text-xs font-mono text-white/60 tracking-widest uppercase">
                         0{index + 1}
                       </span>
                       <h3 className={`font-display text-2xl md:text-3xl lg:text-4xl transition-colors duration-500 ${isHovered ? "text-white" : "text-white/50"}`}>

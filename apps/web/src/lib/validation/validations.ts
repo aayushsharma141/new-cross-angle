@@ -98,14 +98,13 @@ export type TestimonialFormData = z.infer<typeof testimonialSchema>;
 // ==========================================
 // LEAD VALIDATION
 // ==========================================
+// Lead statuses aligned with CRM_STAGES (single source of truth: lib/crm/stages.ts)
 export const leadStatusOptions = [
     "new",
-    "contacted",
-    "qualified",
-    "consultation_scheduled",
-    "proposal_sent",
-    "negotiation",
-    "final_review",
+    "in_conversation",
+    "meeting_planned",
+    "quote_sent",
+    "closing",
     "won",
     "lost"
 ] as const;
@@ -138,7 +137,7 @@ export const leadSchema = z.object({
     service: z.string().optional(),
     status: z.enum(leadStatusOptions).default("new"),
     loss_reason: z.enum(lossReasonOptions).optional().nullable(),
-    source: z.string().default("contact_form"),
+    source: z.string().nullish().transform(v => v ?? "contact_form"),
     notes: z.string().optional(),
     // Qualification parameters
     city: z.string().optional().nullable(),
@@ -147,6 +146,7 @@ export const leadSchema = z.object({
     timeline: z.string().optional().nullable(),
     // CRM intelligence fields
     next_step: z.string().optional().nullable(),
+    sub_status: z.string().optional().nullable(),
     forecast_category: z.enum(forecastCategoryOptions).optional().nullable(),
     assigned_to: z.string().optional().nullable(),
     budget_value_inr: z.number().optional().nullable(),
@@ -160,16 +160,16 @@ export type LeadFormData = z.infer<typeof leadSchema>;
 
 /** Fields required before allowing stage advancement */
 const STAGE_ADVANCE_REQUIREMENTS: Partial<Record<LeadStatus, { fields: string[]; messages: string[] }>> = {
-    qualified: {
+    meeting_planned: {
         fields: ["phone", "city"],
-        messages: ["Phone number required for qualified leads", "City required for qualified leads"],
+        messages: ["Phone number required before scheduling meeting", "City required before scheduling meeting"],
     },
-    proposal_sent: {
+    quote_sent: {
         fields: ["phone", "city", "budget"],
         messages: [
-            "Phone number required before sending proposal",
-            "City required before sending proposal",
-            "Budget required before sending proposal",
+            "Phone number required before sending quote",
+            "City required before sending quote",
+            "Budget required before sending quote",
         ],
     },
     won: {

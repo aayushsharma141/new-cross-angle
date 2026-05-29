@@ -16,7 +16,7 @@ export default defineConfig(async ({ mode, command }) => {
                 "/ingest": {
                     target: "https://us.i.posthog.com",
                     changeOrigin: true,
-                    rewrite: (path) => path.replace(/^\/ingest/, ""),
+                    rewrite: (p: string) => p.replace(/^\/ingest/, ""),
                 },
             },
         },
@@ -25,6 +25,7 @@ export default defineConfig(async ({ mode, command }) => {
         envDir: path.resolve(__dirname, "./apps/web"),
         publicDir: path.resolve(__dirname, "./apps/web/public"),
         resolve: {
+            dedupe: ["react", "react-dom", "react/jsx-runtime"],
             alias: {
                 "@": path.resolve(__dirname, "./apps/web/src"),
                 "@repo/ui": path.resolve(__dirname, "./packages/ui/src"),
@@ -62,7 +63,11 @@ export default defineConfig(async ({ mode, command }) => {
                         charts: ["recharts"],
                         db: ["@supabase/supabase-js"],
                         forms: ["react-hook-form", "@hookform/resolvers", "zod"],
-                        utils: ["date-fns", "gsap"]
+                        utils: ["date-fns", "gsap"],
+                        "html2canvas": ["html2canvas"],
+                        "sentry": ["@sentry/react"],
+                        "editor": ["@tiptap/react", "@tiptap/starter-kit", "@tiptap/extension-link", "@tiptap/extension-image", "@tiptap/extension-placeholder", "@tiptap/extension-text-align", "@tiptap/extension-underline", "@tiptap/extension-horizontal-rule", "@tiptap/extension-code-block-lowlight"],
+                        "particles": ["@tsparticles/engine", "@tsparticles/react", "@tsparticles/slim"],
                     },
                 },
             },

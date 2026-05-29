@@ -33,7 +33,7 @@ const ServicesMarquee = () => {
             but here we're using scroll-linked motion for elite feel */}
         {[...items, ...items].map((item, idx) => (
           <div key={idx} className="flex items-center gap-12">
-            <span className="text-[10px] md:text-xs font-bold tracking-[0.4em] text-white/40 uppercase font-label">
+            <span className="text-[10px] md:text-xs font-bold tracking-[0.4em] text-white/60 uppercase font-label">
               {item}
             </span>
             <div className="w-1.5 h-1.5 rounded-full bg-[#FF2A2A]/40" />

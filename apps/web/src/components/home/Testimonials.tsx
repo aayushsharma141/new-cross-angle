@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Star, Quote } from "lucide-react";
+import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { motion, AnimatePresence } from "framer-motion";
+import { getOptimizedUrl } from "@/lib/cdn";
+import { Image } from "@/components/ui/enhanced/image";
 
 interface Testimonial {
   id: string;
@@ -17,55 +20,136 @@ interface Testimonial {
   city: string | null;
 }
 
-const AnimatedStars = ({ rating, isVisible }: { rating: number; isVisible: boolean }) => {
-  const [animatedRating, setAnimatedRating] = useState(0);
-
-  useEffect(() => {
-    if (isVisible) {
-      let current = 0;
-      const interval = setInterval(() => {
-        current += 0.5;
-        setAnimatedRating(Math.min(current, rating));
-        if (current >= rating) clearInterval(interval);
-      }, 100);
-      return () => clearInterval(interval);
-    }
-  }, [isVisible, rating]);
-
+const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) => {
+  const sz = size === "md" ? "w-5 h-5" : "w-3.5 h-3.5";
   return (
-    <div className="flex gap-1" role="img" aria-label={`${rating} out of 5 stars`}>
-      {[1, 2, 3, 4, 5].map((star) => (
+    <div className="flex gap-1">
+      {[...Array(5)].map((_, i) => (
         <Star
-          key={star}
+          key={i}
           className={cn(
-            "w-5 h-5 transition-all duration-300",
-            animatedRating >= star
-              ? "text-site-crimson fill-site-crimson scale-110"
-              : "text-site-text-meta/30"
+            sz,
+            i < rating
+              ? "fill-site-gold text-site-gold drop-shadow-[0_0_5px_rgba(209,175,110,0.7)]"
+              : "fill-white/10 text-white/10"
           )}
-          style={{
-            transitionDelay: `${star * 100}ms`,
-            transform: animatedRating >= star ? "scale(1.1)" : "scale(1)",
-          }}
         />
       ))}
     </div>
   );
 };
 
-const Testimonials = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
+const TestimonialCard = ({
+  item,
+  featured,
+  index,
+}: {
+  item: Testimonial;
+  featured: boolean;
+  index: number;
+}) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.45, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
+      className={cn(
+        "relative p-7 rounded-2xl border flex flex-col h-full group overflow-hidden transition-all duration-500",
+        featured
+          ? "bg-[#151412] border-site-gold/25 shadow-[0_0_50px_rgba(209,175,110,0.10)] md:-translate-y-3 z-10 ring-1 ring-site-gold/10"
+          : "bg-[#0d0d0c] border-white/[0.06] hover:border-site-gold/15 hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
+      )}
+    >
+      {featured && (
+        <div className="absolute inset-0 bg-gradient-to-br from-[rgba(209,175,110,0.06)] via-transparent to-[rgba(180,40,40,0.02)] pointer-events-none" />
+      )}
 
-  const { data: testimonials = [] } = useQuery({
+      <Quote
+        className={cn(
+          "absolute -top-1 right-4 w-16 h-16 transition-all duration-500 pointer-events-none",
+          featured ? "opacity-10 text-site-gold" : "opacity-[0.04] text-white group-hover:opacity-[0.08]"
+        )}
+      />
+
+      {/* Stars */}
+      <div className="mb-5 relative z-10">
+        <StarRating rating={item.rating ?? 5} />
+      </div>
+
+      {/* Content */}
+      <p
+        className={cn(
+          "leading-relaxed font-light italic flex-grow relative z-10 mb-7",
+          featured
+            ? "text-white/85 text-[1.0rem] md:text-[1.1rem]"
+            : "text-white/60 text-[0.93rem] md:text-[1.0rem] group-hover:text-white/75 transition-colors duration-300"
+        )}
+      >
+        &ldquo;{item.content}&rdquo;
+      </p>
+
+      {/* Author */}
+      <div className="flex items-center gap-3.5 mt-auto pt-5 border-t border-white/[0.06] relative z-10">
+        {item.avatar_url ? (
+          <Image
+            src={item.avatar_url}
+            alt={item.author_name}
+            className="w-10 h-10 rounded-full flex-shrink-0"
+            imageClassName="object-cover border border-white/10"
+            width={80}
+            height={80}
+          />
+        ) : (
+          <div
+            className={cn(
+              "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border transition-colors duration-300",
+              featured
+                ? "bg-site-gold/15 border-site-gold/30"
+                : "bg-white/[0.05] border-white/10 group-hover:bg-site-gold/10 group-hover:border-site-gold/20"
+            )}
+          >
+            <span
+              className={cn(
+                "font-bold font-serif text-sm",
+                featured ? "text-site-gold" : "text-white/60 group-hover:text-site-gold/70 transition-colors duration-300"
+              )}
+            >
+              {item.author_name.charAt(0).toUpperCase()}
+            </span>
+          </div>
+        )}
+        <div className="min-w-0">
+          <h4 className="text-white font-medium text-sm truncate">{item.author_name}</h4>
+          <p className="text-white/35 text-xs mt-0.5 truncate">
+            {[item.author_role, item.city].filter(Boolean).join(" · ")}
+          </p>
+        </div>
+        {featured && (
+          <div className="ml-auto">
+            <span className="text-[9px] uppercase tracking-[0.2em] text-site-gold/70 font-bold bg-site-gold/8 border border-site-gold/20 px-2 py-0.5 rounded-full">
+              Featured
+            </span>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+const Testimonials = () => {
+  const [page, setPage] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const { data: testimonials = [], isLoading } = useQuery({
     queryKey: ["public-testimonials"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("testimonials")
         .select("*")
         .eq("active", true)
+        .is("project_id", null)
         .order("display_order", { ascending: true })
         .order("created_at", { ascending: false });
 
@@ -79,205 +163,187 @@ const Testimonials = () => {
     gcTime: 30 * 60 * 1000,
   });
 
-  // Fallback data if DB is empty to maintain UI
-  const displayTestimonials = testimonials.length > 0 ? testimonials : [
-    {
-      id: "1",
-      author_name: "Priya Sharma",
-      author_role: "Homeowner",
-      avatar_url: null,
-      content: "Crossangle Interior transformed our home beyond our expectations. Their attention to detail and creative vision made our space truly luxurious.",
-      rating: 5,
-      project_id: null,
-      display_order: 0,
-      active: true,
-      city: "Jamshedpur",
-    },
-    {
-      id: "2",
-      author_name: "Rajesh Kumar",
-      author_role: "Business Owner",
-      avatar_url: null,
-      content: "The team delivered an exceptional office design that perfectly reflects our brand identity. Professional, timely, and incredibly talented.",
-      rating: 5,
-      project_id: null,
-      display_order: 1,
-      active: true,
-      city: "Sakchi",
-    },
-    {
-      id: "3",
-      author_name: "Anita Desai",
-      author_role: "Apartment Owner",
-      avatar_url: null,
-      content: "From concept to completion, the entire experience was seamless. They understood our vision and executed it flawlessly.",
-      rating: 5,
-      project_id: null,
-      display_order: 2,
-      active: true,
-      city: "Jamshedpur",
-    },
-  ];
+  const PER_PAGE = 3;
+  const totalPages = testimonials.length > 0 ? Math.ceil(testimonials.length / PER_PAGE) : 0;
+  const safePage = totalPages > 0 ? Math.min(page, totalPages - 1) : 0;
+  const visibleCards = testimonials.slice(safePage * PER_PAGE, safePage * PER_PAGE + PER_PAGE);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
+    if (totalPages > 0 && page >= totalPages) setPage(0);
+  }, [totalPages, page]);
 
   useEffect(() => {
-    if (isPaused) return;
-
+    if (isPaused || totalPages <= 1) return;
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % displayTestimonials.length);
-    }, 5000);
+      setPage((prev) => (prev + 1) % totalPages);
+    }, 6000);
     return () => clearInterval(interval);
-  }, [isPaused, displayTestimonials.length]);
+  }, [isPaused, totalPages]);
+
+  if (!isLoading && testimonials.length === 0) return null;
+
+  const avgRating =
+    testimonials.length > 0
+      ? (testimonials.reduce((s, t) => s + (t.rating ?? 5), 0) / testimonials.length).toFixed(1)
+      : "5.0";
 
   return (
-    <section
-      id="testimonials"
-      ref={sectionRef}
-      className="py-24 md:py-32 relative overflow-hidden"
-    >
-      <div className="absolute inset-0 bg-site-bg-section z-0" />
+    <section id="testimonials" className="py-20 md:py-28 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[#080807]" />
+      {/* Top rule */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-site-gold/25 to-transparent" />
+      {/* Bottom rule */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Section Header */}
+
+        {/* ── Header ── */}
         <div className="text-center mb-16">
-          <span className="text-site-crimson text-sm uppercase tracking-[0.3em] font-medium border-b border-site-crimson/30 pb-2">
-            Client Reviews
-          </span>
-          <br></br>
-          <h2 className="text-4xl md:text-5xl font-serif font-bold mt-6 mb-6 text-site-text-heading relative inline-block after:content-[''] after:block after:w-12 after:h-px after:bg-site-crimson after:mx-auto after:mt-3">
-            What Our Clients Say
+          {/* Eyebrow */}
+          <div className="inline-flex items-center gap-3 mb-5">
+            <div className="h-px w-8 bg-site-gold/40" />
+            <span className="text-[10px] uppercase tracking-[0.35em] text-site-gold font-bold">
+              Client Reviews
+            </span>
+            <div className="h-px w-8 bg-site-gold/40" />
+          </div>
+
+          {/* Heading — using site-gold color directly, no gradient clip */}
+          <h2 className="font-display text-[clamp(2.4rem,6vw,4.5rem)] leading-[0.95] tracking-[-0.02em] text-white mb-6">
+            What Our{" "}
+            <em className="not-italic text-site-gold">Clients</em>{" "}
+            Say
           </h2>
-          <p className="max-w-2xl mx-auto text-lg text-site-text-muted font-light">
-            Real stories from homeowners and businesses we've had the privilege to work with.
-          </p>
+
+          {/* Rating summary */}
+          {!isLoading && testimonials.length > 0 && (
+            <div className="flex items-center justify-center gap-2.5 mt-4">
+              <StarRating rating={5} size="md" />
+              <span className="text-site-gold font-bold text-lg font-display">{avgRating}</span>
+              <span className="text-white/20">·</span>
+              <span className="text-white/60 text-sm">
+                {testimonials.length} verified review{testimonials.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Testimonial Slider */}
+        {/* ── Cards ── */}
         <div
-          className="relative max-w-5xl mx-auto"
+          ref={containerRef}
+          className="relative max-w-6xl mx-auto"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          {/* Main Card */}
-          <div className="bg-site-bg-card backdrop-blur-md border border-site-border rounded-none p-8 md:p-12 relative overflow-hidden group">
+          {/* Glow behind featured */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45%] h-[65%] bg-site-gold/6 blur-[90px] rounded-full pointer-events-none hidden md:block" />
 
-
-            <Quote className="absolute top-8 left-8 w-12 h-12 text-site-crimson/10" />
-
-            <div className="relative z-10 min-h-[300px] flex items-center justify-center">
-              {displayTestimonials.map((item, index) => (
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
+              {Array.from({ length: 3 }).map((_, i) => (
                 <div
-                  key={item.id}
-                  className={cn(
-                    "absolute inset-0 flex flex-col items-center justify-center text-center transition-all duration-700 ease-in-out px-4",
-                    index === activeIndex
-                      ? "opacity-100 translate-x-0 scale-100"
-                      : index < activeIndex
-                        ? "opacity-0 -translate-x-full scale-95 pointer-events-none"
-                        : "opacity-0 translate-x-full scale-95 pointer-events-none"
-                  )}
+                  key={i}
+                  className="rounded-2xl border border-white/[0.06] bg-[#0d0d0c] p-7 h-[300px] animate-pulse"
                 >
-                  <AnimatedStars
-                    rating={item.rating ?? 5}
-                    isVisible={index === activeIndex}
-                  />
-
-                  <p className="text-xl md:text-2xl text-site-text mt-8 mb-8 leading-relaxed italic font-light max-w-3xl">
-                    "{item.content}"
-                  </p>
-
-                  <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                    {item.avatar_url ? (
-                      <img
-                        src={item.avatar_url}
-                        alt={item.author_name}
-                        className="w-14 h-14 rounded-full object-cover border border-site-crimson/20 shadow-lg"
-                      />
-                    ) : (
-                      <div className="w-14 h-14 rounded-full bg-site-crimson/10 border border-site-crimson/20 flex items-center justify-center shadow-lg shadow-site-crimson/10">
-                        <span className="text-site-crimson font-bold text-lg font-serif">
-                          {item.author_name.charAt(0)}
-                        </span>
-                      </div>
-                    )}
-                    <div className="text-left">
-                      <h4 className="text-site-text-heading font-semibold text-lg tracking-wide">
-                        {item.author_name}
-                      </h4>
-                      <p className="text-site-text-muted text-sm">
-                        {item.author_role}
-                        {item.city ? ` · ${item.city}` : null}
-                      </p>
+                  <div className="flex gap-1.5 mb-5">
+                    {Array.from({ length: 5 }).map((_, j) => (
+                      <div key={j} className="w-3.5 h-3.5 rounded bg-white/10" />
+                    ))}
+                  </div>
+                  <div className="space-y-2.5 mb-7">
+                    <div className="h-3.5 bg-white/[0.05] rounded w-full" />
+                    <div className="h-3.5 bg-white/[0.05] rounded w-5/6" />
+                    <div className="h-3.5 bg-white/[0.05] rounded w-4/6" />
+                    <div className="h-3.5 bg-white/[0.05] rounded w-3/6 mt-1" />
+                  </div>
+                  <div className="flex items-center gap-3 pt-5 border-t border-white/[0.05]">
+                    <div className="w-10 h-10 rounded-full bg-white/10 flex-shrink-0" />
+                    <div className="space-y-2 flex-1">
+                      <div className="h-3 bg-white/10 rounded w-28" />
+                      <div className="h-2 bg-white/[0.05] rounded w-20" />
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Navigation Dots */}
-          <div className="flex justify-center mt-8 gap-3">
-            {displayTestimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveIndex(index)}
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={safePage}
                 className={cn(
-                  "h-1.5 rounded-full transition-all duration-300",
-                  index === activeIndex
-                    ? "w-8 bg-site-crimson shadow-lg shadow-site-crimson/30"
-                    : "w-2 bg-site-text-meta/30 hover:bg-site-crimson/50"
+                  "grid grid-cols-1 gap-5 md:gap-6",
+                  visibleCards.length >= 3
+                    ? "md:grid-cols-3"
+                    : visibleCards.length === 2
+                    ? "md:grid-cols-2 max-w-4xl mx-auto"
+                    : "max-w-lg mx-auto"
                 )}
-                aria-label={`Go to testimonial ${index + 1}`}
-              />
-            ))}
-          </div>
+              >
+                {visibleCards.map((item, i) => (
+                  <TestimonialCard
+                    key={item.id}
+                    item={item}
+                    featured={visibleCards.length === 3 && i === 1}
+                    index={i}
+                  />
+                ))}
+              </motion.div>
+            </AnimatePresence>
+          )}
+
+          {/* Pagination */}
+          {!isLoading && totalPages > 1 && (
+            <div className="flex items-center justify-center gap-5 mt-10">
+              <button
+                onClick={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
+                className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/35 hover:border-site-gold/40 hover:text-site-gold hover:bg-site-gold/5 transition-all duration-300"
+                aria-label="Previous reviews"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <div className="flex gap-1.5 items-center">
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i)}
+                    className={cn(
+                      "h-1 rounded-full transition-all duration-300",
+                      i === safePage
+                        ? "w-8 bg-site-gold"
+                        : "w-1.5 bg-white/15 hover:bg-site-gold/40"
+                    )}
+                    aria-label={`Go to page ${i + 1}`}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={() => setPage((p) => (p + 1) % totalPages)}
+                className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/35 hover:border-site-gold/40 hover:text-site-gold hover:bg-site-gold/5 transition-all duration-300"
+                aria-label="Next reviews"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
-      
-      {/* Schema.org AggregateRating */}
-      {displayTestimonials.length > 0 && (
+
+      {testimonials.length > 0 && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-             __html: JSON.stringify({
+            __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
-              "name": "Crossangle Interior",
-              "aggregateRating": {
+              name: "Crossangle Interior",
+              aggregateRating: {
                 "@type": "AggregateRating",
-                "ratingValue": (displayTestimonials.reduce((acc, curr) => acc + (curr.rating || 5), 0) / displayTestimonials.length).toFixed(1),
-                "reviewCount": displayTestimonials.length
+                ratingValue: avgRating,
+                reviewCount: testimonials.length,
               },
-              "review": displayTestimonials.map(t => ({
-                "@type": "Review",
-                "reviewRating": {
-                  "@type": "Rating",
-                  "ratingValue": t.rating || 5,
-                  "bestRating": "5"
-                },
-                "author": {
-                  "@type": "Person",
-                  "name": t.author_name
-                },
-                "reviewBody": t.content
-              }))
-            })
+            }).replace(/<\/script/gi, '<\\/script'),
           }}
         />
       )}

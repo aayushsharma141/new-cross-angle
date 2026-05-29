@@ -49,7 +49,7 @@ const HubHero = () => {
         {/* ─────── LEFT ─────── */}
         <div className="w-full lg:w-[54%] xl:w-[56%] flex flex-col justify-center gap-6
                         px-6 sm:px-10 lg:pl-14 xl:pl-20 2xl:pl-28 lg:pr-12
-                        py-10 lg:py-0 min-h-[calc(100vh-6rem)]">
+                        py-10 lg:py-0 min-h-[60vh] lg:min-h-[calc(100vh-6rem)]">
 
           {/* Label */}
           <motion.div
@@ -175,9 +175,9 @@ const HubHero = () => {
         </div>
 
         {/* ─────── RIGHT: CINEMATIC IMAGE ─────── */}
-        <div className="absolute right-6 xl:right-10 top-[10vh] bottom-[5vh]
-                        w-[43%] xl:w-[41%] 2xl:w-[39%]
-                        overflow-hidden border border-[#1C1C1C] z-20">
+        <div className="relative lg:absolute w-full lg:w-[43%] xl:w-[41%] 2xl:w-[39%] 
+                        h-[50vh] lg:h-auto lg:top-[10vh] lg:bottom-[5vh] lg:right-6 xl:right-10 
+                        overflow-hidden border border-[#1C1C1C] z-20 mt-8 lg:mt-0">
 
           {/* Slider */}
           <AnimatePresence mode="wait">

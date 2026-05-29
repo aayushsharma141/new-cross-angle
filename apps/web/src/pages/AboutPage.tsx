@@ -26,6 +26,8 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { TactileMaterial } from "@/components/ui/enhanced/TactileMaterial";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { SITE_CONSTANTS } from "@/lib/constants";
+import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
+
 
 const studioHighlights = [
   "Residential interiors shaped around daily rituals, comfort, and longevity.",
@@ -95,6 +97,41 @@ const AboutPage = () => {
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/about-us" />
       </Helmet>
+
+      <SchemaMarkup
+        type="BreadcrumbList"
+        data={{
+          items: [
+            { name: "Home", url: "/" },
+            { name: "About Us", url: "/about-us" }
+          ]
+        }}
+      />
+
+      <SchemaMarkup
+        type="Organization"
+        data={{
+          name: "Cross Angle Interior",
+          url: "https://crossangleinterior.com/about-us",
+          description: "Over a decade of expertise transforming residential and commercial spaces into stunning, functional premium environments."
+        }}
+      />
+
+      <SchemaMarkup
+        type="Person"
+        data={{
+          name: "Aayush Sharma",
+          jobTitle: "Founder & Lead Architect",
+          worksFor: {
+            "@type": "Organization",
+            name: "Cross Angle Interior"
+          },
+          sameAs: [
+            "https://www.linkedin.com/in/aayushsharma",
+            SITE_CONSTANTS.socials.instagram
+          ]
+        }}
+      />
 
       <Navbar />
       <main id="main-content" className="min-h-screen relative z-10">

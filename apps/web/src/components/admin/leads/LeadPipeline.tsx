@@ -17,179 +17,175 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
+  rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { LeadCard } from "./LeadCard";
 import { leadStatusOptions } from "@/lib/validation/validations";
-import { formatINR, getLeadHealth } from "@/lib/scoring/leadScoring";
+import { formatINR } from "@/lib/scoring/leadScoring";
 import { cn } from "@/lib/utils";
 import type { Lead } from "@/lib/scoring/leadScoring";
-import { AlertTriangle } from "lucide-react";
+import { Filter, Plus, CheckCircle2, Inbox, Info } from "lucide-react";
+import { CRM_STAGES, getCrmStageMeta, STAGE_PLAYBOOK, type CrmStageId } from "@/lib/crm/stages";
 
 interface LeadPipelineProps {
   leads: Lead[];
   onLeadMove: (leadId: string, newStatus: string) => void;
   onLeadClick: (lead: Lead) => void;
+  onAddLead?: (status: string) => void;
+  onStageFilter?: (status: string) => void;
+  statusFilter?: string;
 }
-
-// ─── Psychologically meaningful stage labels + distinct colors ────────────────
-const STATUS_META: Record<
-  string,
-  { label: string; color: string; dot: string; border: string; bg: string }
-> = {
-  new: {
-    label: "New Inquiry",
-    color: "text-blue-400",
-    dot: "bg-blue-400",
-    border: "border-t-blue-500/70",
-    bg: "bg-blue-500/[0.03]",
-  },
-  contacted: {
-    label: "Contact Attempted",
-    color: "text-slate-400",
-    dot: "bg-slate-400",
-    border: "border-t-slate-400/70",
-    bg: "bg-slate-500/[0.03]",
-  },
-  qualified: {
-    label: "Interested",
-    color: "text-cyan-400",
-    dot: "bg-cyan-400",
-    border: "border-t-cyan-500/70",
-    bg: "bg-cyan-500/[0.03]",
-  },
-  consultation_scheduled: {
-    label: "Req. Gathering",
-    color: "text-violet-400",
-    dot: "bg-violet-400",
-    border: "border-t-violet-500/70",
-    bg: "bg-violet-500/[0.03]",
-  },
-  proposal_sent: {
-    label: "Proposal Sent",
-    color: "text-amber-400",
-    dot: "bg-amber-400",
-    border: "border-t-amber-500/70",
-    bg: "bg-amber-500/[0.03]",
-  },
-  final_review: {
-    label: "Final Review",
-    color: "text-orange-400",
-    dot: "bg-orange-400",
-    border: "border-t-orange-500/70",
-    bg: "bg-orange-500/[0.03]",
-  },
-  negotiation: {
-    label: "Negotiation",
-    color: "text-yellow-400",
-    dot: "bg-yellow-400",
-    border: "border-t-yellow-500/70",
-    bg: "bg-yellow-500/[0.03]",
-  },
-  won: {
-    label: "Won ✓",
-    color: "text-emerald-400",
-    dot: "bg-emerald-400",
-    border: "border-t-emerald-500/70",
-    bg: "bg-emerald-500/[0.03]",
-  },
-  lost: {
-    label: "Lost",
-    color: "text-red-400",
-    dot: "bg-red-400",
-    border: "border-t-red-500/70",
-    bg: "bg-red-500/[0.03]",
-  },
-};
 
 interface ColumnProps {
   id: string;
   leads: Lead[];
   onLeadClick: (l: Lead) => void;
   onLeadMove: (leadId: string, newStatus: string) => void;
+  onAddLead?: (status: string) => void;
+  onStageFilter?: (status: string) => void;
+  isSingleColumn?: boolean;
 }
 
-const Column = ({ id, leads, onLeadClick, onLeadMove }: ColumnProps) => {
+const Column = ({ id, leads, onLeadClick, onLeadMove, onAddLead, onStageFilter, isSingleColumn }: ColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({ id });
-  const meta = STATUS_META[id] ?? {
+  
+  const meta = getCrmStageMeta(id) ?? {
     label: id,
-    color: "text-zinc-400",
-    dot: "bg-zinc-400",
-    border: "border-t-zinc-600",
-    bg: "bg-zinc-600/5",
+    shortLabel: id,
+    dotClass: "bg-zinc-400",
+    borderTopClass: "border-t-zinc-600",
   };
 
-  // Column-level stats
-  const staleCount = leads.filter((l) => getLeadHealth(l).isStale).length;
   const columnValue = leads.reduce((acc, l) => acc + (l.budget_value_inr ?? 0), 0);
-
-  return (
-    <div
-      className={cn(
-        "flex flex-col min-w-[260px] max-w-[280px] w-full rounded-xl transition-all duration-200",
-        "border border-[hsl(var(--admin-border))]/40 border-t-[3px]",
-        meta.border,
-        meta.bg,
-        isOver && "border-[hsl(var(--admin-primary))]/40 bg-[hsl(var(--admin-primary))]/5 shadow-lg shadow-amber-500/5"
-      )}
-    >
-      {/* Column Header */}
-      <div className="px-3.5 py-3 border-b border-[hsl(var(--admin-border))]/30 shrink-0">
-        <div className="flex items-center justify-between">
+  
+  // Special Won column style
+  if (id === "won" && !isSingleColumn) {
+    return (
+      <section
+        ref={setNodeRef}
+        className={cn(
+          "w-[260px] shrink-0 bg-admin-surface border border-admin-border border-t-2 rounded-lg flex flex-col max-h-[calc(100vh-250px)] opacity-80 hover:opacity-100 transition duration-200",
+          meta.borderTopClass,
+          isOver && "border-admin-primary/50 bg-admin-surface-hover shadow-lg shadow-amber-500/5"
+        )}
+      >
+        <header className="px-4 py-3 flex items-center justify-between border-b border-admin-border">
           <div className="flex items-center gap-2">
-            <span className={cn("w-2 h-2 rounded-full shrink-0", meta.dot)} />
-            <h3 className={cn("font-semibold text-[11px] uppercase tracking-wider", meta.color)}>
-              {meta.label}
-            </h3>
-          </div>
-          <div className="flex items-center gap-1.5">
-            {staleCount > 0 && (
-              <span
-                title={`${staleCount} stale lead${staleCount > 1 ? "s" : ""}`}
-                className="flex items-center gap-0.5 text-[9px] font-semibold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-md"
-              >
-                <AlertTriangle className="h-2.5 w-2.5" /> {staleCount}
-              </span>
-            )}
-            <span className="text-[10px] font-bold bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-muted))] px-2 py-0.5 rounded-md border border-[hsl(var(--admin-border))]/30">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            <h3 className="text-[12px] font-semibold text-admin-text tracking-wide">{meta.label}</h3>
+            <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded">
               {leads.length}
             </span>
           </div>
+        </header>
+        <div className="p-3 text-[12px] text-admin-text-subtle flex flex-col items-center justify-center gap-2 mt-4">
+          <span className="text-emerald-400 text-[20px] font-semibold">
+            {formatINR(columnValue)}
+          </span>
+          <span>Total value won</span>
+          <button
+            type="button"
+            onClick={() => onStageFilter?.("won")}
+            className="mt-2 text-[12px] text-admin-text-muted hover:text-admin-text underline-offset-2 hover:underline"
+          >
+            Filter to won leads
+          </button>
         </div>
-        {/* Column pipeline value */}
-        {columnValue > 0 && (
-          <p className="text-[10px] text-[hsl(var(--admin-text-subtle))] mt-1.5 pl-4 font-medium">
-            Pipeline: {formatINR(columnValue)}
-          </p>
-        )}
-      </div>
+        
+        {/* Invisible drop zone for drag & drop to Won */}
+        <div className="flex-1 min-h-[100px]" />
+      </section>
+    );
+  }
 
-      {/* Column Body */}
+  // Normal Column
+  return (
+    <section
+      className={cn(
+        "bg-admin-surface border border-admin-border border-t-2 rounded-lg flex flex-col max-h-[calc(100vh-250px)] transition-all",
+        meta.borderTopClass,
+        isOver && "border-admin-primary/50 bg-admin-surface-hover shadow-lg shadow-amber-500/5",
+        isSingleColumn ? "w-full" : "w-[300px] shrink-0"
+      )}
+    >
+      {/* Header */}
+      <header className="px-4 py-3 flex items-center justify-between border-b border-admin-border shrink-0">
+        <div className="flex items-center gap-2">
+          <span className={cn("w-2 h-2 rounded-full", meta.dotClass)}></span>
+          <h3 className="text-[12px] font-semibold text-admin-text tracking-wide">{meta.label}</h3>
+          <span className="text-[10px] bg-admin-surface-hover text-admin-text-muted px-1.5 py-0.5 rounded">
+            {leads.length}
+          </span>
+          {/* Stage Guide tooltip */}
+          {STAGE_PLAYBOOK[id as CrmStageId] && (
+            <span className="relative group cursor-help">
+              <Info className="w-3 h-3 text-admin-text-subtle group-hover:text-admin-text transition-colors" />
+              <span className="absolute left-0 top-full mt-2 w-56 p-2.5 rounded-lg bg-admin-bg border border-admin-border-subtle text-[10px] text-admin-text opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-xl">
+                <span className="block text-admin-text-subtle uppercase tracking-wider font-semibold mb-1">Goal</span>
+                <span className="block mb-2">{STAGE_PLAYBOOK[id as CrmStageId].goal}</span>
+                <span className="block text-admin-text-subtle uppercase tracking-wider font-semibold mb-1">Exit criteria</span>
+                <span className="block">{STAGE_PLAYBOOK[id as CrmStageId].exitCriteria}</span>
+              </span>
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+           {columnValue > 0 && (
+             <span className="text-[10px] text-admin-text-subtle">{formatINR(columnValue)}</span>
+           )}
+           <button
+             type="button"
+             onClick={() => onStageFilter?.(id)}
+             className="w-6 h-6 rounded hover:bg-admin-surface-hover grid place-items-center"
+             aria-label={`Filter leads to ${meta.label}`}
+             title={`Filter to ${meta.label}`}
+           >
+             <Filter className="w-3.5 h-3.5 text-admin-text-subtle" />
+           </button>
+        </div>
+      </header>
+
+      {/* Body */}
       <div
         ref={setNodeRef}
         className={cn(
-          "flex-1 overflow-y-auto p-2 space-y-2 min-h-[160px]",
-          "scrollbar-thin scrollbar-thumb-[hsl(var(--admin-border))]/30 scrollbar-track-transparent"
+          "p-4 overflow-y-auto flex-1 min-h-[150px] custom-scrollbar",
+          isSingleColumn ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-max items-start" : "flex flex-col gap-2"
         )}
       >
-        <SortableContext items={leads.map((l) => l.id)} strategy={verticalListSortingStrategy}>
-          {leads.map((lead) => (
-            <LeadCard key={lead.id} lead={lead} onClick={onLeadClick} onStageChange={onLeadMove} />
-          ))}
-        </SortableContext>
-
-        {leads.length === 0 && (
-          <div
-            className={cn(
-              "h-24 flex items-center justify-center text-[11px] text-[hsl(var(--admin-text-subtle))]",
-              "border-2 border-dashed border-[hsl(var(--admin-border))]/20 rounded-lg transition-colors",
-              isOver && "border-[hsl(var(--admin-primary))]/30 bg-[hsl(var(--admin-primary))]/5 text-[hsl(var(--admin-primary))]/60"
-            )}
-          >
-            {isOver ? "Drop here" : "No leads"}
+        {leads.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8 px-3 text-center">
+            <div className="w-10 h-10 rounded-full bg-admin-bg grid place-items-center mb-2">
+              <Inbox className="w-4 h-4 text-admin-text-subtle" />
+            </div>
+            <div className="text-[11px] text-admin-text-subtle leading-snug">
+              {id === "new" 
+                ? "New leads from your website, estimator, and WhatsApp appear here automatically."
+                : "Drag leads here, or they'll arrive when you move them forward."}
+            </div>
           </div>
+        ) : (
+          <SortableContext items={leads.map((l) => l.id)} strategy={isSingleColumn ? rectSortingStrategy : verticalListSortingStrategy}>
+            {leads.map((lead) => (
+              <div key={lead.id} className={isSingleColumn ? "h-fit" : ""}>
+                <LeadCard lead={lead} onClick={onLeadClick} onStageChange={onLeadMove} />
+              </div>
+            ))}
+          </SortableContext>
         )}
       </div>
-    </div>
+
+      {/* Footer */}
+      <footer className="px-3 py-2 border-t border-admin-border shrink-0">
+        <button
+          type="button"
+          onClick={() => onAddLead?.(id)}
+          className="w-full h-8 rounded-md text-[12px] text-admin-text-subtle hover:text-admin-text hover:bg-admin-surface-hover flex items-center justify-center gap-1.5 transition-colors"
+        >
+          <Plus className="w-3.5 h-3.5" /> Add lead here
+        </button>
+      </footer>
+    </section>
   );
 };
 
@@ -199,7 +195,7 @@ const dropAnimation: DropAnimation = {
   }),
 };
 
-export function LeadPipeline({ leads, onLeadMove, onLeadClick }: LeadPipelineProps) {
+export function LeadPipeline({ leads, onLeadMove, onLeadClick, onAddLead, onStageFilter, statusFilter }: LeadPipelineProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(
@@ -207,9 +203,15 @@ export function LeadPipeline({ leads, onLeadMove, onLeadClick }: LeadPipelinePro
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const columns = leadStatusOptions;
+  let columns = CRM_STAGES.map((stage) => stage.id);
+  if (statusFilter && statusFilter !== "all") {
+    columns = columns.filter(id => id === statusFilter);
+  } else {
+    columns = columns.filter(id => id !== "lost");
+  }
+  
   const isLeadStatus = (v: string): v is (typeof leadStatusOptions)[number] =>
-    (columns as readonly string[]).includes(v);
+    (CRM_STAGES.map(s => s.id) as readonly string[]).includes(v);
 
   const handleDragStart = (event: DragStartEvent) =>
     setActiveId(event.active.id as string);
@@ -242,22 +244,27 @@ export function LeadPipeline({ leads, onLeadMove, onLeadClick }: LeadPipelinePro
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex gap-3 overflow-x-auto pb-4 h-full items-start px-0.5">
-        {columns.map((status) => (
+      <div className="px-1 pb-8 overflow-x-auto h-full flex-1 min-h-0 custom-scrollbar">
+        <div className="flex gap-4 min-w-max h-full">
+          {columns.map((status) => (
             <Column
-            key={status}
-            id={status}
-            leads={leads.filter((l) => l.status === status)}
-            onLeadClick={onLeadClick}
-            onLeadMove={onLeadMove}
-          />
-        ))}
+              key={status}
+              id={status}
+              leads={leads.filter((l) => l.status === status)}
+              onLeadClick={onLeadClick}
+              onLeadMove={onLeadMove}
+              onAddLead={onAddLead}
+              onStageFilter={onStageFilter}
+              isSingleColumn={columns.length === 1}
+            />
+          ))}
+        </div>
       </div>
 
       <DragOverlay dropAnimation={dropAnimation}>
         {activeLead ? (
-          <div className="rotate-2 scale-105 shadow-2xl rounded-xl">
-            <LeadCard lead={activeLead} onClick={() => {}} />
+          <div className="rotate-2 scale-105 shadow-2xl rounded-xl w-[280px]">
+            <LeadCard lead={activeLead} isPreview />
           </div>
         ) : null}
       </DragOverlay>

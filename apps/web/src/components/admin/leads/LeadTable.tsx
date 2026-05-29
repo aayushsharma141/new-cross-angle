@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useMemo } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { ExternalLink, MoreHorizontal, Mail, Phone, MapPin, Calendar, Tag, ArrowUpDown, FileText } from 'lucide-react';
@@ -23,21 +23,15 @@ import { Badge } from '@/components/ui/primitives/badge';
 import { DataTable } from '@/components/admin/DataTable';
 import type { Lead } from '@/repositories/interfaces/LeadRepository';
 import type { PaginatedResponse } from '@/services/types';
+import { CRM_STAGE_BADGE_CLASSES, CRM_TEMPERATURES } from '@/lib/crm';
 
-const temperatureStyles = {
-  hot: 'bg-red-500/10 text-red-500 border-red-500/20',
-  warm: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
-  cold: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-};
-
-const statusStyles: Record<string, string> = {
-  new: 'bg-green-500/10 text-green-500 border-green-500/20',
-  contacted: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-  qualified: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
-  proposal: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-  won: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-  lost: 'bg-gray-500/10 text-gray-500 border-gray-500/20',
-};
+const temperatureStyles: Record<string, string> = CRM_TEMPERATURES.reduce(
+  (acc, t) => {
+    acc[t.id] = t.badgeClass;
+    return acc;
+  },
+  {} as Record<string, string>,
+);
 
 interface LeadTableProps {
   leads: Lead[];
@@ -67,7 +61,7 @@ export function LeadTable({
   onDeleteLead,
   onBulkAction,
 }: LeadTableProps) {
-  const columns: ColumnDef<Lead>[] = React.useMemo(
+  const columns: ColumnDef<Lead>[] = useMemo(
     () => [
       {
         id: 'select',
@@ -116,9 +110,9 @@ export function LeadTable({
           return (
             <Badge
               variant="outline"
-              className={statusStyles[status] || 'bg-gray-500/10 text-gray-500'}
+              className={CRM_STAGE_BADGE_CLASSES[status as keyof typeof CRM_STAGE_BADGE_CLASSES] || 'bg-gray-500/10 text-gray-500'}
             >
-              {status}
+              {status.replace('_', ' ')}
             </Badge>
           );
         },
@@ -269,13 +263,13 @@ export function LeadTable({
                 <DropdownMenuLabel className="text-xs text-muted-foreground">
                   Change Status
                 </DropdownMenuLabel>
-                {['new', 'contacted', 'qualified', 'proposal', 'won', 'lost'].map((status) => (
+                {['new', 'in_conversation', 'meeting_planned', 'quote_sent', 'closing', 'won', 'lost'].map((status) => (
                   <DropdownMenuItem
                     key={status}
                     onClick={() => onStatusChange?.(lead.id, status)}
                     disabled={lead.status === status}
                   >
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                    {status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>

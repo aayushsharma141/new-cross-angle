@@ -14,9 +14,9 @@ This document outlines the verification steps for the major UX/UI overhaul of th
 
 ### A. Branding & Navigation (Global)
 - [ ] **Navigation Menu**: Verify the main nav link says **"Discovery"** (not Quiz).
-- [ ] **Home Page Hero**: Verify the CTA button says **"Discover Your Aesthetic"** and links to `/discovery`.
-- [ ] **Service Pages**: Check "Residential" or "Commercial" service pages; the footer CTA should link to `/discovery`.
-- [ ] **URL Redirects**: Visiting `/quiz` should automatically redirect to `/discovery`.
+- [ ] **Home Page Hero**: Verify the CTA button says **"Discover Your Aesthetic"** and links to `/style-quiz`.
+- [ ] **Service Pages**: Check "Residential" or "Commercial" service pages; the footer CTA should link to `/style-quiz`.
+- [ ] **URL Redirects**: Visiting `/quiz` should automatically redirect to `/style-quiz`.
 
 ### B. Discovery Engine Experience (Desktop)
 
@@ -62,5 +62,5 @@ This document outlines the verification steps for the major UX/UI overhaul of th
 
 ## 4. Next Steps for User
 1.  **Run the App**: Ensure `npm run dev:web` is running.
-2.  **Open Browser**: Go to `http://localhost:5173/discovery`.
+2.  **Open Browser**: Go to `http://localhost:5173/style-quiz`.
 3.  **Walk Through**: Follow the checklist above to verify the experience "feels" premium.

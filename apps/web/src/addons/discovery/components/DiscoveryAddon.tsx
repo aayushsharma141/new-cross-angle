@@ -1,5 +1,6 @@
 import React from 'react';
 import { DiscoveryEngine, DiscoveryConfig } from './DiscoveryEngine';
+import { QuizErrorBoundary } from './QuizErrorBoundary';
 import { AestheticScores, UserSignals, AIAestheticResult } from '@/types/discovery';
 
 interface DiscoveryAddonProps {
@@ -9,8 +10,10 @@ interface DiscoveryAddonProps {
 
 export const DiscoveryAddon: React.FC<DiscoveryAddonProps> = ({ config, onComplete }) => {
     return (
-        <div className="discovery-addon-container overflow-hidden bg-background w-full min-h-[100dvh] relative">
-            <DiscoveryEngine config={config} onComplete={onComplete} />
-        </div>
+        <QuizErrorBoundary>
+            <div className="discovery-addon-container overflow-hidden bg-background w-full min-h-[100dvh] relative">
+                <DiscoveryEngine config={config} onComplete={onComplete} />
+            </div>
+        </QuizErrorBoundary>
     );
 };

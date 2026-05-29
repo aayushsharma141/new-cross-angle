@@ -193,22 +193,22 @@ export class UserService {
   private async logAction(
     action: string, 
     targetUserId: string, 
-    metadata: Record<string, unknown>, 
+    details: Record<string, unknown>, 
     performedBy: string
   ): Promise<void> {
     const { error } = await supabase
       .from('audit_logs')
       .insert({
         action,
-        resource_type: 'user',
-        resource_id: targetUserId,
+        entity_type: 'user',
+        entity_id: targetUserId,
         user_id: performedBy,
-        metadata,
+        details,
         ip_address: 'client',
       });
 
     if (error) {
-      console.error('Failed to log action:', error);
+      console.error('[UserService] Failed to log action:', error.message);
     }
   }
 

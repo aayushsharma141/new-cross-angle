@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@400;500&display=optional');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -453,6 +452,7 @@
   /* Premium Analytics Utilities */
   .analytics-glass {
     background: linear-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.06);
   }
@@ -483,10 +483,26 @@
     box-shadow: 0 0 40px -10px rgba(212, 175, 55, 0.05);
   }
 
-
+  /* Container Wide */
+  .container-wide {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    max-width: 1600px;
+  }
 }
 
 @layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   .crisp-edges {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: pixelated;
@@ -582,6 +598,26 @@ em,
   color: var(--site-crimson);
   font-style: italic;
 }
+
+/* Elite Navbar Pill Style */
+.navbar-pill {
+  background: rgba(10, 10, 10, 0.65);
+  -webkit-backdrop-filter: blur(20px) saturate(200%);
+  backdrop-filter: blur(20px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.8),
+              inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  transform: translateY(0);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.navbar-pill:hover {
+  background: rgba(15, 15, 15, 0.75);
+  border-color: rgba(209, 175, 110, 0.4);
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.9),
+              0 0 20px rgba(209, 175, 110, 0.1);
+}
+
 
 /* ════════════════════════════════════╗
  *  Hero Image Animation Effects      ║
@@ -767,11 +803,13 @@ em,
   background: linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(5,5,5,0.78);
   border: 1px solid var(--home-border-soft);
   box-shadow: var(--home-shadow);
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
 }
 .home-panel-muted {
   background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.016)), rgba(5,5,5,0.56);
   border: 1px solid rgba(255,255,255,0.06);
+  -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
 }
 
@@ -922,3 +960,57 @@ em,
 .text-fluid-3xl { font-size: clamp(1.5rem,   1.25rem + 1.25vw, 1.875rem);}
 .text-fluid-4xl { font-size: clamp(1.875rem, 1.5rem  + 1.875vw,2.25rem); }
 .text-fluid-5xl { font-size: clamp(2.25rem,  1.75rem + 2.5vw,  3rem);    }
+
+/* ═══════════════════════════════════════════════════════════════
+   PRINT STYLES — Style Quiz Blueprint PDF Export
+   ═══════════════════════════════════════════════════════════════ */
+@media print {
+  body { background: #040404 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .discovery-addon-container { overflow: visible !important; height: auto !important; }
+  /* Hide non-essential elements */
+  nav, footer, .fixed, [class*="sticky"], [class*="scroll-hint"],
+  button, a[href="/contact-us"], a[href="/portfolio"] { display: none !important; }
+  /* Show all sections */
+  section { break-inside: avoid; page-break-inside: avoid; }
+  /* Ensure colors print */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REDUCED MOTION — Accessibility for vestibular disorders
+   ═══════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-pulse, .animate-spin, .animate-bounce { animation: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CUSTOM SCROLLBAR
+   ═══════════════════════════════════════════════════════════════ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(43 74% 49% / 0.4) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: hsl(43 74% 49% / 0.3);
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: hsl(43 74% 49% / 0.6);
+}

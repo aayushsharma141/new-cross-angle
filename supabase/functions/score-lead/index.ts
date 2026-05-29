@@ -97,6 +97,7 @@ function calculateSourceScore(source: string | null): number {
     'whatsapp': 60,
     'estimator': 70,
     'style_quiz': 65,
+    'aesthetic_discovery_engine': 65,
     'website_contact': 45,
     'search': 50,
     'direct': 40,

@@ -45,7 +45,7 @@ const ServiceDetailPage = () => {
     // Get related services data
     const relatedServicesData = (staticService?.relatedServices || [])
         .map((slug) => allServices.find((item) => item.slug === slug))
-        .filter(Boolean);
+        .filter((s): s is (typeof allServices)[number] => s !== undefined);
 
     return (
         <>
@@ -117,7 +117,7 @@ const ServiceDetailPage = () => {
                                         <Link to="/contact-us">Get a Free Quote <ArrowRight className="ml-2 w-5 h-5" /></Link>
                                     </Button>
                                     <Button size="lg" variant="outline" className="rounded-full px-8 py-6 text-lg" asChild>
-                                        <Link to="/estimate">Calculate Cost</Link>
+                                        <Link to="/estimate">Get Your Estimate</Link>
                                     </Button>
                                 </div>
                             </motion.div>

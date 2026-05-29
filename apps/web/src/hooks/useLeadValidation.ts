@@ -48,11 +48,12 @@ export const useLeadValidation = () => {
   const validatePhone = (phone: string): string => {
     if (!phone) return "Phone number is required";
     
-    // Strict Indian Phone Validation (10 digits starting with 6-9)
-    // We assume the +91 is handled by the UI/Prefix
-    const cleanPhone = phone.replace(/\D/g, '');
-    if (cleanPhone.length !== 10) return "Phone number must be exactly 10 digits";
-    if (!/^[6-9]\d{9}$/.test(cleanPhone)) return "Please enter a valid Indian mobile number";
+    // Robust Phone Validation (Supports international formats)
+    // Allows optional +, country code, and 10-15 digits total
+    const phoneRegex = /^(\+?\d{1,3}[- ]?)?\d{10,14}$/;
+    if (!phoneRegex.test(phone.replace(/[\s\-()]/g, ''))) {
+      return "Please enter a valid phone number";
+    }
     
     return "";
   };

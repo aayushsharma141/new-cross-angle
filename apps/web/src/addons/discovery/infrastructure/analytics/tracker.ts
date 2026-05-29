@@ -1,62 +1,96 @@
-import { supabase } from "@/integrations/supabase/client";
-import { captureEvent } from "@/lib/posthog";
+/**
+ * tracker.ts — Discovery Engine analytics helpers
+ *
+ * Migration: Task 4 of posthog-analytics-replan.md
+ *
+ * REMOVED: Direct writes to `addon_events` and `addon_sessions` supabase tables.
+ * ADDED:   Pure, dependency-injectable helpers that map to the typed `AnalyticsEventMap`.
+ *
+ * Lead persistence (submit-discovery-lead Edge Function) is intentionally
+ * kept in LeadGatePhase.tsx — only behavioral analytics move here.
+ */
+
 import { v4 as uuidv4 } from "uuid";
+import type { AnalyticsEventMap } from "@/analytics/events";
 
-export const track = async (eventName: string, payload: Record<string, unknown>) => {
-    captureEvent(eventName, payload);
+// ── Dependency-injectable track function type ─────────────────────────────────
 
-    try {
-        await supabase.from("addon_events").insert({
-            event_name: eventName,
-            payload,
-            created_at: new Date().toISOString(),
-        });
-    } catch (error) {
-        console.warn("Analytics tracking failed:", error);
-    }
+/**
+ * Any function that accepts (eventName, properties) — matches the
+ * AnalyticsClient.track signature from posthog-client.ts, making
+ * these helpers trivially testable with vi.fn().
+ */
+export type TrackFn = <K extends keyof AnalyticsEventMap>(
+    event: K,
+    properties: AnalyticsEventMap[K]
+) => void;
+
+// ── Session management (no Supabase side effects) ─────────────────────────────
+
+/**
+ * Generates a new session ID for funnel stitching.
+ * No longer persists to `addon_sessions` — PostHog correlation
+ * is done via the sessionId property on each event.
+ */
+export const startSession = (_mode: "quick" | "deep"): string => uuidv4();
+
+/**
+ * No-op: session completion is now captured via `trackQuizCompleted`.
+ * Retained to avoid breaking existing call sites while Task 4 is in progress.
+ * @deprecated Call trackQuizCompleted instead.
+ */
+export const completeSession = (
+    _sessionId: string,
+    _archetype: string,
+    _totalSeconds: number
+): void => {
+    // Intentional noop — quiz_completed event carries all required data.
 };
 
-export const startSession = async (mode: "quick" | "deep"): Promise<string> => {
-    const sessionId = uuidv4();
-    try {
-        await supabase.from("addon_sessions").insert({
-            id: sessionId,
-            started_at: new Date().toISOString(),
-            mode,
-            is_completed: false,
-        });
-    } catch (error) {
-        console.warn("Session start failed:", error);
-    }
-    return sessionId;
-};
+// ── Named event helpers (PostHog contract) ────────────────────────────────────
 
-export const completeSession = async (sessionId: string, archetype: string, totalSeconds: number) => {
-    try {
-        await supabase.from("addon_sessions").update({
-            is_completed: true,
-            archetype,
-            total_seconds: totalSeconds,
-            completed_at: new Date().toISOString(),
-        }).eq("id", sessionId);
-    } catch (error) {
-        console.warn("Session completion failed:", error);
-    }
-};
+export const trackQuizStarted = (
+    track: TrackFn,
+    sessionId: string,
+    mode: "quick" | "deep"
+) => track("quiz_started", { sessionId, mode });
 
-// ─── Funnel-Critical Named Event Helpers ───
-// These four events are the minimum required to measure funnel health:
-//   completion rate = quiz_completed / quiz_started
-//   conversion rate = lead_gate_submitted / result_loaded
+export const trackQuizStepViewed = (
+    track: TrackFn,
+    sessionId: string,
+    stepName: string,
+    stepIndex?: number
+) => track("quiz_step_viewed", { sessionId, stepName, stepIndex });
 
-export const trackQuizStarted = (sessionId: string, mode: "quick" | "deep") =>
-    track("quiz_started", { sessionId, mode });
+export const trackQuizStepCompleted = (
+    track: TrackFn,
+    sessionId: string,
+    stepName: string,
+    durationMs?: number
+) => track("quiz_step_completed", { sessionId, stepName, durationMs });
 
-export const trackQuizCompleted = (sessionId: string, archetype: string, totalSeconds: number) =>
-    track("quiz_completed", { sessionId, archetype, totalSeconds });
+export const trackQuizCompleted = (
+    track: TrackFn,
+    sessionId: string,
+    archetype: string,
+    totalSeconds: number
+) => track("quiz_completed", { sessionId, archetype, totalSeconds });
 
-export const trackResultLoaded = (sessionId: string, archetype: string) =>
-    track("result_loaded", { sessionId, archetype });
+export const trackResultLoaded = (
+    track: TrackFn,
+    sessionId: string,
+    archetype: string
+) => track("result_loaded", { sessionId, archetype });
 
-export const trackLeadGateSubmitted = (sessionId: string, email: string, leadScore?: number) =>
-    track("lead_gate_submitted", { sessionId, email, leadScore });
+export const trackLeadGateViewed = (
+    track: TrackFn,
+    sessionId: string,
+    archetype: string
+) => track("lead_gate_viewed", { sessionId, archetype });
+
+export const trackLeadGateSubmitted = (
+    track: TrackFn,
+    sessionId: string,
+    email: string,
+    leadScore?: number
+) => track("lead_gate_submitted", { sessionId, email, leadScore });

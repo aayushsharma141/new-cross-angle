@@ -76,7 +76,17 @@ export class GalleryService {
       .order('display_order', { ascending: true });
 
     if (categorySlug) {
-      query = query.eq('category.slug', categorySlug);
+      // Resolve the category_id by first fetching the category with that slug.
+      // PostgREST does not support .eq('joined_relation.field', value) for row filtering.
+      const { data: catData } = await supabase
+        .from('gallery_categories')
+        .select('id')
+        .eq('slug', categorySlug)
+        .single();
+
+      if (catData?.id) {
+        query = query.eq('category_id', catData.id);
+      }
     }
 
     const { data, error } = await query;

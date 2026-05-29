@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { ReactNode } from 'react';
 import { TrendingUp, TrendingDown, Minus, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -7,7 +7,7 @@ interface KPIProps {
   value: string | number;
   change?: number;
   changeLabel?: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   trend?: 'up' | 'down' | 'neutral';
   className?: string;
 }
@@ -60,7 +60,7 @@ export function KPI({
 }
 
 interface KPIGridProps {
-  children: React.ReactNode;
+  children: ReactNode;
   columns?: 1 | 2 | 3 | 4;
   className?: string;
 }
@@ -84,7 +84,7 @@ interface MetricCardProps {
   title: string;
   value: number | string;
   subtitle?: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   progress?: number;
   color?: 'primary' | 'success' | 'warning' | 'danger';
   className?: string;
@@ -172,7 +172,7 @@ export function ConversionFunnel({ stages, className }: ConversionFunnelProps) {
               <div className="flex items-center gap-2">
                 {stage.value !== undefined && (
                   <span className="text-muted-foreground">
-                    ${stage.value.toLocaleString()}
+                    ₹{stage.value.toLocaleString()}
                   </span>
                 )}
                 <span className="font-mono text-muted-foreground">

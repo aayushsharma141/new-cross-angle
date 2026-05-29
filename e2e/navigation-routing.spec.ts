@@ -13,8 +13,8 @@ test.describe('Page Navigation', () => {
   });
 
   test('About page loads', async ({ page }) => {
-    await page.goto('/about');
-    await expect(page).toHaveURL(/\/about/);
+    await page.goto('/about-us');
+    await expect(page).toHaveURL(/\/about-us/);
     await expect(page.locator('main')).toBeVisible({ timeout: 5000 });
   });
 
@@ -38,7 +38,7 @@ test.describe('Page Navigation', () => {
 
   test('Contact page loads', async ({ page }) => {
     await page.goto('/contact-us');
-    await expect(page).toHaveURL(/\/contact/);
+    await expect(page).toHaveURL(/\/contact-us/);
     await expect(page.locator('main')).toBeVisible({ timeout: 5000 });
   });
 
@@ -49,14 +49,14 @@ test.describe('Page Navigation', () => {
   });
 
   test('Discovery quiz page loads', async ({ page }) => {
-    await page.goto('/discovery');
-    await expect(page).toHaveURL(/\/discovery/);
+    await page.goto('/aesthetic-discovery-engine');
+    await expect(page).toHaveURL(/\/aesthetic-discovery-engine/);
     await page.waitForTimeout(2000);
   });
 
   test('Estimator page loads', async ({ page }) => {
-    await page.goto('/estimator');
-    await expect(page).toHaveURL(/\/estimator/);
+    await page.goto('/estimate');
+    await expect(page).toHaveURL(/\/estimate/);
     await expect(page.locator('main')).toBeVisible({ timeout: 5000 });
   });
 
@@ -75,10 +75,10 @@ test.describe('Navigation Links', () => {
   });
 
   test('Click About in nav navigates', async ({ page }) => {
-    const aboutLink = page.locator('nav a[href="/about"], header a[href="/about"]').first();
+    const aboutLink = page.locator('nav a[href="/about-us"], header a[href="/about-us"]').first();
     if (await aboutLink.isVisible()) {
       await aboutLink.click();
-      await expect(page).toHaveURL(/\/about/);
+      await expect(page).toHaveURL(/\/about-us/);
     }
   });
 
@@ -110,7 +110,7 @@ test.describe('Navigation Links', () => {
     const contactLink = page.locator('nav a[href="/contact-us"], header a[href="/contact-us"]').first();
     if (await contactLink.isVisible()) {
       await contactLink.click();
-      await expect(page).toHaveURL(/\/contact/);
+      await expect(page).toHaveURL(/\/contact-us/);
     }
   });
 
@@ -133,10 +133,10 @@ test.describe('Footer Navigation', () => {
   });
 
   test('Footer About link navigates', async ({ page }) => {
-    const aboutLink = page.locator('footer a[href="/about"]').first();
+    const aboutLink = page.locator('footer a[href="/about-us"]').first();
     if (await aboutLink.isVisible()) {
       await aboutLink.click();
-      await expect(page).toHaveURL(/\/about/);
+      await expect(page).toHaveURL(/\/about-us/);
     }
   });
 
@@ -152,7 +152,7 @@ test.describe('Footer Navigation', () => {
     const contactLink = page.locator('footer a[href="/contact-us"]').first();
     if (await contactLink.isVisible()) {
       await contactLink.click();
-      await expect(page).toHaveURL(/\/contact/);
+      await expect(page).toHaveURL(/\/contact-us/);
     }
   });
 
@@ -178,14 +178,14 @@ test.describe('Footer Navigation', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Browser Navigation', () => {
   test('Back button works', async ({ page }) => {
-    await page.goto('/about');
+    await page.goto('/about-us');
     await page.goto('/services');
     await page.goBack();
-    await expect(page).toHaveURL(/\/about/);
+    await expect(page).toHaveURL(/\/about-us/);
   });
 
   test('Forward button works', async ({ page }) => {
-    await page.goto('/about');
+    await page.goto('/about-us');
     await page.goto('/services');
     await page.goBack();
     await page.goForward();
@@ -194,7 +194,7 @@ test.describe('Browser Navigation', () => {
 
   test('Browser back after link click', async ({ page }) => {
     await page.goto('/');
-    await page.locator('nav a[href="/about"]').first().click().catch(() => {});
+    await page.locator('nav a[href="/about-us"]').first().click().catch(() => {});
     await page.waitForTimeout(500);
     await page.goBack();
     await expect(page).toHaveURL(/\/$|\/home/);
@@ -202,13 +202,13 @@ test.describe('Browser Navigation', () => {
 
   test('History state maintained', async ({ page }) => {
     await page.goto('/');
-    await page.locator('nav a[href="/about"]').first().click().catch(() => {});
+    await page.locator('nav a[href="/about-us"]').first().click().catch(() => {});
     await page.waitForTimeout(500);
     await page.locator('nav a[href="/services"]').first().click().catch(() => {});
     await page.waitForTimeout(500);
     
     await page.goBack();
-    await expect(page).toHaveURL(/\/about/);
+    await expect(page).toHaveURL(/\/about-us/);
     
     await page.goBack();
     await expect(page).toHaveURL(/\/$|\/home/);
@@ -221,12 +221,12 @@ test.describe('Browser Navigation', () => {
 test.describe('Page Transition Animations', () => {
   test('Transition on navigation', async ({ page }) => {
     await page.goto('/');
-    await page.locator('nav a[href="/about"]').first().click().catch(() => {});
+    await page.locator('nav a[href="/about-us"]').first().click().catch(() => {});
     await page.waitForTimeout(500);
   });
 
   test('Content fade in', async ({ page }) => {
-    await page.goto('/about');
+    await page.goto('/about-us');
     await page.waitForTimeout(500);
     const main = page.locator('main');
     if (await main.isVisible()) {
@@ -237,7 +237,7 @@ test.describe('Page Transition Animations', () => {
   test('Scroll position reset on navigation', async ({ page }) => {
     await page.goto('/');
     await page.evaluate(() => window.scrollTo(0, 500));
-    await page.locator('nav a[href="/about"]').first().click().catch(() => {});
+    await page.locator('nav a[href="/about-us"]').first().click().catch(() => {});
     await page.waitForTimeout(500);
     
     const scrollY = await page.evaluate(() => window.scrollY);
@@ -397,7 +397,7 @@ test.describe('Anchor Links (Smooth Scroll)', () => {
 test.describe('URL Parameters', () => {
   test('Query parameters preserved on navigation', async ({ page }) => {
     await page.goto('/?utm_source=test');
-    await page.locator('nav a[href="/about"]').first().click().catch(() => {});
+    await page.locator('nav a[href="/about-us"]').first().click().catch(() => {});
     await page.waitForTimeout(500);
     // Query might be lost on navigation depending on implementation
   });
@@ -444,7 +444,7 @@ test.describe('SEO & Meta Links', () => {
   });
 
   test('Page title accurate', async ({ page }) => {
-    await page.goto('/about');
+    await page.goto('/about-us');
     const title = await page.title();
     expect(title).toMatch(/About|Crossangle/i);
   });
@@ -476,7 +476,7 @@ test.describe('Mobile Navigation', () => {
     if (await menuLink.isVisible()) {
       await menuLink.click();
       await page.waitForTimeout(500);
-      await expect(page).toHaveURL(/\/about/);
+      await expect(page).toHaveURL(/\/about-us/);
     }
   });
 
@@ -528,7 +528,7 @@ test.describe('Admin Routing', () => {
   });
 
   test('Admin settings page loads', async ({ page }) => {
-    await page.goto('/admin/settings');
+    await page.goto('/admin/system/settings');
     await page.waitForTimeout(2000);
   });
 
@@ -583,7 +583,7 @@ test.describe('Deep Linking', () => {
   });
 
   test('Direct link to project detail', async ({ page }) => {
-    await page.goto('/projects/modern-apartment').catch(() => {});
+    await page.goto('/portfolio/modern-apartment').catch(() => {});
     await page.waitForTimeout(1000);
   });
 

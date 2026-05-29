@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import {
   motion,
+  AnimatePresence,
   useMotionValueEvent,
   useScroll,
   useSpring,
@@ -14,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const steps = [
   {
-    id: "C",
+    id: "01",
     icon: Home,
     title: "Consult",
     subtitle: "Private Briefing",
@@ -26,7 +27,7 @@ const steps = [
     kicker: "Stage One",
   },
   {
-    id: "M",
+    id: "02",
     icon: Ruler,
     title: "Measure & Plan",
     subtitle: "Technical Mapping",
@@ -38,7 +39,7 @@ const steps = [
     kicker: "Stage Two",
   },
   {
-    id: "D",
+    id: "03",
     icon: Palette,
     title: "Design",
     subtitle: "Visual Direction",
@@ -50,7 +51,7 @@ const steps = [
     kicker: "Stage Three",
   },
   {
-    id: "E",
+    id: "04",
     icon: Hammer,
     title: "Execute",
     subtitle: "Craft & Install",
@@ -62,7 +63,7 @@ const steps = [
     kicker: "Stage Four",
   },
   {
-    id: "F",
+    id: "05",
     icon: Check,
     title: "Handover",
     subtitle: "Final Reveal",
@@ -77,12 +78,14 @@ const steps = [
 
 type ProcessStepConfig = (typeof steps)[number];
 
-const ProcessStepButton = ({
+/** Individual step node in the bottom timeline */
+const StepNode = ({
   step,
   index,
   totalSteps,
   isActive,
   scrollYProgress,
+  timelineProgress,
   onSelect,
 }: {
   step: ProcessStepConfig;
@@ -90,62 +93,66 @@ const ProcessStepButton = ({
   totalSteps: number;
   isActive: boolean;
   scrollYProgress: MotionValue<number>;
+  timelineProgress: MotionValue<number>;
   onSelect: (index: number) => void;
 }) => {
   const threshold = index / Math.max(1, totalSteps - 1);
-  const startFade = Math.max(0, threshold - 0.12);
-  const endFade = Math.min(1, threshold + 0.08);
+  const startFade = Math.max(0, threshold - 0.15);
+  const endFade = Math.min(1, threshold + 0.1);
 
-  const y = useTransform(scrollYProgress, [startFade, endFade], [22, 0]);
-  const opacity = useTransform(scrollYProgress, [startFade, endFade], [0.35, 1]);
+  // Fade in the whole step node as we scroll down
+  const opacity = useTransform(scrollYProgress, [startFade, endFade], [0.3, 1]);
+
+  // Color fill based on the animated line reaching this node
+  const nodeProgress = useTransform(
+    timelineProgress,
+    [Math.max(0, threshold - 0.05), threshold],
+    [0, 1]
+  );
+
+  const backgroundColor = useTransform(nodeProgress, [0, 1], ["#0a0a0a", "#e81b39"]);
+  const borderColor = useTransform(nodeProgress, [0, 1], ["rgba(255, 255, 255, 0.2)", "rgba(232, 27, 57, 1)"]);
+  const textColor = useTransform(nodeProgress, [0, 1], ["rgba(255, 255, 255, 0.4)", "rgba(255, 255, 255, 1)"]);
+  const iconColor = useTransform(nodeProgress, [0, 1], ["rgba(255, 255, 255, 0.3)", "rgba(232, 27, 57, 1)"]);
+  const titleColor = useTransform(nodeProgress, [0, 1], ["rgba(255, 255, 255, 0.45)", "rgba(255, 255, 255, 1)"]);
 
   return (
     <motion.button
       type="button"
       onClick={() => onSelect(index)}
-      className="relative flex min-w-0 flex-1 flex-col items-center text-center outline-none"
-      style={{ opacity, y }}
+      className="relative flex flex-1 flex-col items-center gap-0 outline-none focus-visible:ring-1 focus-visible:ring-site-crimson/60 rounded-sm"
+      style={{ opacity }}
       aria-current={isActive ? "step" : undefined}
       aria-label={`View ${step.title} stage`}
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2 }}
     >
-      <div
+      {/* Circle node — sits ON the timeline line */}
+      <motion.div
         className={cn(
-          "relative z-10 flex h-11 w-11 items-center justify-center rounded-full border text-base transition-all duration-500 md:h-14 md:w-14 md:text-lg",
-          isActive
-            ? "border-site-crimson bg-site-crimson text-white shadow-[0_0_28px_rgba(232,27,57,0.28)]"
-            : "border-white/18 bg-black text-white/45",
+          "relative z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 text-sm font-semibold md:h-14 md:w-14 md:text-base transition-shadow duration-500",
+          isActive ? "shadow-[0_0_30px_rgba(232,27,57,0.4)]" : "shadow-none"
         )}
+        style={{
+          backgroundColor,
+          borderColor,
+          color: textColor,
+        }}
       >
-        <span className="font-display font-semibold">{step.id}</span>
-      </div>
+        <span className="font-display">{step.id}</span>
+      </motion.div>
 
-      <div className="mt-7 flex items-center justify-center">
-        <step.icon
-          aria-hidden="true"
-          className={cn(
-            "h-4 w-4 transition-colors duration-400 md:h-5 md:w-5",
-            isActive ? "text-site-crimson" : "text-white/35",
-          )}
-        />
-      </div>
-
-      <div className="mt-3">
-        <h3
-          className={cn(
-            "font-sans text-lg font-semibold transition-colors duration-400 md:text-[1.05rem]",
-            isActive ? "text-white" : "text-white/42",
-          )}
+      {/* Icon + Title below the circle */}
+      <div className="mt-4 flex flex-col items-center gap-1.5">
+        <motion.div style={{ color: iconColor }}>
+          <step.icon aria-hidden="true" className="h-4 w-4" />
+        </motion.div>
+        <motion.h3
+          className="text-xs font-semibold uppercase tracking-[0.12em] md:text-sm"
+          style={{ color: titleColor }}
         >
           {step.title}
-        </h3>
-        <p
-          className={cn(
-            "mx-auto mt-2 max-w-[18ch] text-sm leading-relaxed transition-colors duration-400",
-            isActive ? "text-white/72" : "text-white/28",
-          )}
-        >
-          {step.description}
-        </p>
+        </motion.h3>
       </div>
     </motion.button>
   );
@@ -162,43 +169,33 @@ const Process = () => {
   });
 
   const timelineProgress = useSpring(scrollYProgress, {
-    stiffness: prefersReducedMotion ? 240 : 120,
-    damping: prefersReducedMotion ? 38 : 26,
-    mass: 0.35,
+    stiffness: prefersReducedMotion ? 300 : 140,
+    damping: prefersReducedMotion ? 40 : 28,
+    mass: 0.2,
   });
 
   const lineScaleX = useTransform(timelineProgress, [0, 1], [0, 1]);
-  const panelGlow = useTransform(
-    timelineProgress,
-    [0, 0.25, 0.5, 0.75, 1],
-    [
-      "0 0 0 rgba(232,27,57,0)",
-      "0 0 60px rgba(232,27,57,0.12)",
-      "0 0 80px rgba(255,255,255,0.08)",
-      "0 0 70px rgba(232,27,57,0.12)",
-      "0 0 45px rgba(232,27,57,0.10)",
-    ],
-  );
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const nextIndex = Math.min(steps.length - 1, Math.floor(latest * steps.length));
-    setActiveIndex((currentIndex) => (currentIndex === nextIndex ? currentIndex : nextIndex));
+    // Perfectly sync active index by rounding to nearest segment (halfway points trigger changes)
+    const next = Math.round(latest * (steps.length - 1));
+    setActiveIndex((cur) => (cur === next ? cur : next));
   });
 
-  const handleSelect = useCallback((index: number) => {
-    const node = containerRef.current;
-    if (!node) return;
-
-    const rect = node.getBoundingClientRect();
-    const scrollableDistance = rect.height - window.innerHeight;
-    const normalizedIndex = steps.length <= 1 ? 0 : index / (steps.length - 1);
-    const targetY = window.scrollY + rect.top + scrollableDistance * normalizedIndex;
-
-    window.scrollTo({
-      top: targetY,
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-    });
-  }, [prefersReducedMotion]);
+  const handleSelect = useCallback(
+    (index: number) => {
+      const node = containerRef.current;
+      if (!node) return;
+      const rect = node.getBoundingClientRect();
+      const scrollableDistance = rect.height - window.innerHeight;
+      const t = steps.length <= 1 ? 0 : index / (steps.length - 1);
+      window.scrollTo({
+        top: window.scrollY + rect.top + scrollableDistance * t,
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
+    },
+    [prefersReducedMotion]
+  );
 
   const activeStep = steps[activeIndex];
 
@@ -206,95 +203,192 @@ const Process = () => {
     <section
       ref={containerRef}
       id="process"
-      className="relative h-[320vh] bg-site-bg text-white"
+      className="relative h-[500vh] bg-site-bg text-white"
       aria-label="How we work process section"
     >
-      <div className="sticky top-0 flex min-h-screen w-full items-center overflow-hidden px-4 py-8 md:px-8 lg:px-12">
-        <div className="mx-auto flex h-full w-full max-w-[1600px] flex-col justify-between gap-10">
-          <div className="grid gap-8 pt-12 lg:grid-cols-[minmax(280px,0.95fr)_minmax(0,1.75fr)] lg:items-start lg:pt-16">
-            <div className="max-w-[360px] pt-8 md:pt-14 lg:pt-20">
-              <span className="font-mono text-[11px] uppercase tracking-[0.42em] text-white/68">
+      {/* ── Sticky viewport ── */}
+      <div className="sticky top-0 flex h-screen w-full flex-col overflow-hidden">
+        {/* ── Top content area ── */}
+        <div className="flex flex-1 flex-col overflow-hidden px-5 pt-20 md:px-10 lg:px-14">
+          <div className="mx-auto grid w-full max-w-[1480px] flex-1 grid-cols-1 gap-6 lg:grid-cols-[300px_1fr] lg:gap-10">
+
+            {/* LEFT — label + heading + body */}
+            <div className="flex flex-col justify-center lg:justify-start lg:pt-10">
+              <motion.span
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="font-mono text-[10px] font-medium uppercase tracking-[0.46em] text-site-crimson"
+              >
                 How We Work
-              </span>
-              <h2 className="mt-3 font-display text-[clamp(3rem,6vw,5.7rem)] font-semibold leading-[0.92] tracking-[-0.04em] text-white text-balance">
-                Our Process
-              </h2>
-              <p className="mt-5 max-w-[17ch] font-display text-[1.05rem] leading-[1.5] text-white/76 md:text-[1.2rem]">
+              </motion.span>
+              <motion.h2
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.08 }}
+                className="mt-3 font-display text-[clamp(2.8rem,5.5vw,5.2rem)] font-semibold leading-[0.9] tracking-[-0.04em] text-white"
+              >
+                Our<br />Process
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.16 }}
+                className="mt-5 max-w-[22ch] text-[0.95rem] leading-[1.65] text-white/60 md:text-[1.05rem]"
+              >
                 A connected five-stage journey designed to move from brief to final reveal with clarity.
-              </p>
+              </motion.p>
             </div>
 
-            <div className="relative">
-              <motion.div
-                style={{ boxShadow: panelGlow }}
-                className="relative min-h-[360px] overflow-hidden bg-transparent md:min-h-[430px] lg:min-h-[520px]"
-              >
-                {steps.map((step, index) => (
-                  <div
-                    key={step.id}
-                    className={cn(
-                      "absolute inset-0 transition-opacity duration-700",
-                      activeIndex === index ? "opacity-100" : "pointer-events-none opacity-0",
-                    )}
-                    {...(activeIndex !== index ? { "aria-hidden": true } : {})}
-                  >
-                    <Image
-                      src={step.image}
-                      alt={step.imageAlt}
-                      width={1600}
-                      height={1000}
-                      className="h-full w-full"
-                      imageClassName="h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,3,3,0.92)_0%,rgba(3,3,3,0.58)_40%,rgba(3,3,3,0.24)_100%)]" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(232,27,57,0.18),transparent_38%),linear-gradient(180deg,transparent_0%,rgba(3,3,3,0.72)_100%)]" />
-                  </div>
-                ))}
+            {/* RIGHT — image panel */}
+            <div className="relative min-h-[220px] overflow-hidden rounded-2xl md:min-h-[320px] lg:min-h-[0]">
+              {/* Background images with crossfade */}
+              {steps.map((step, i) => (
+                <motion.div
+                  key={step.id}
+                  className="absolute inset-0 origin-center"
+                  initial={false}
+                  animate={{ 
+                    opacity: activeIndex === i ? 1 : 0,
+                    scale: activeIndex === i ? 1 : 1.05,
+                  }}
+                  transition={{ 
+                    opacity: { duration: 0.75, ease: "easeInOut" },
+                    scale: { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
+                  }}
+                  aria-hidden={activeIndex !== i}
+                >
+                  <Image
+                    src={step.image}
+                    alt={step.imageAlt}
+                    width={1600}
+                    height={1000}
+                    className="h-full w-full"
+                    imageClassName="object-cover"
+                  />
+                  {/* Overlay gradients */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
+                  {/* Crimson accent glow */}
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_20%,rgba(232,27,57,0.15),transparent_55%)]" />
+                </motion.div>
+              ))}
 
-                <div className="relative z-10 flex h-full flex-col justify-end px-0 py-4 md:py-6 lg:py-8">
+              {/* Active step content */}
+              <div className="relative z-10 flex h-full flex-col justify-end p-6 md:p-8 lg:p-10">
+                <AnimatePresence mode="wait">
                   <motion.div
                     key={activeStep.id}
-                    initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                    className="max-w-[580px] pl-5 md:pl-9 lg:pl-12"
+                    initial={prefersReducedMotion ? false : "hidden"}
+                    animate="visible"
+                    exit="exit"
+                    variants={{
+                      hidden: { opacity: 0 },
+                      visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+                      exit: { opacity: 0, transition: { duration: 0.3 } },
+                    }}
+                    className="flex flex-col"
                   >
-                    <div className="text-[11px] uppercase tracking-[0.34em] text-white/62">
+                    {/* Kicker */}
+                    <motion.p 
+                      variants={{
+                        hidden: { opacity: 0, y: 15 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+                        exit: { opacity: 0, y: -10, transition: { duration: 0.4 } },
+                      }}
+                      className="mb-3 font-mono text-[10px] uppercase tracking-[0.38em] text-white/50"
+                    >
                       {activeStep.kicker}
-                    </div>
-                    <div className="mt-4 flex items-end gap-4 md:gap-5">
-                      <span className="font-display text-[clamp(2.6rem,5.2vw,5rem)] font-semibold leading-none tracking-[-0.05em] text-white">
+                    </motion.p>
+
+                    {/* Title + subtitle row */}
+                    <motion.div 
+                      variants={{
+                        hidden: { opacity: 0, y: 15 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+                        exit: { opacity: 0, y: -10, transition: { duration: 0.4 } },
+                      }}
+                      className="flex flex-wrap items-baseline gap-3"
+                    >
+                      <span className="font-display text-[clamp(2.2rem,4.5vw,4.2rem)] font-semibold leading-none tracking-[-0.04em] text-white">
                         {activeStep.title}
                       </span>
-                      <span className="pb-2 font-mono text-[11px] uppercase tracking-[0.28em] text-site-crimson/90">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-site-crimson/90">
                         {activeStep.subtitle}
                       </span>
-                    </div>
-                    <p className="mt-5 max-w-[46ch] text-base leading-[1.8] text-white/78 md:text-[1.03rem]">
+                    </motion.div>
+
+                    {/* Detail paragraph */}
+                    <motion.p 
+                      variants={{
+                        hidden: { opacity: 0, y: 15 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+                        exit: { opacity: 0, y: -10, transition: { duration: 0.4 } },
+                      }}
+                      className="mt-4 max-w-[50ch] text-white/70 leading-[1.7] md:text-[0.97rem]"
+                    >
                       {activeStep.detail}
-                    </p>
+                    </motion.p>
+
+                    {/* Highlighted description callout */}
+                    <motion.div
+                      variants={{
+                        hidden: { opacity: 0, x: -8 },
+                        visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+                        exit: { opacity: 0, x: -8, transition: { duration: 0.4 } },
+                      }}
+                      className="relative mt-5 flex items-start gap-3 rounded-r-xl bg-site-crimson/10 px-4 py-3 backdrop-blur-sm"
+                    >
+                      <motion.div
+                        variants={{
+                          hidden: { scaleY: 0 },
+                          visible: { scaleY: 1, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.2 } },
+                        }}
+                        className="absolute left-0 top-0 bottom-0 w-[3px] bg-site-crimson origin-top rounded-full"
+                      />
+                      <p className="text-sm font-medium leading-[1.7] text-white/90 md:text-[0.95rem]">
+                        {activeStep.description}
+                      </p>
+                    </motion.div>
                   </motion.div>
-                </div>
-              </motion.div>
+                </AnimatePresence>
+              </div>
             </div>
           </div>
+        </div>
 
-          <div className="relative px-5 pb-10 pt-14 md:px-8 lg:px-10">
-            <div className="pointer-events-none absolute left-[6%] right-[6%] top-[55px] hidden h-px bg-white/16 md:block" />
-            <motion.div
-              className="pointer-events-none absolute left-[6%] right-[6%] top-[55px] hidden h-px origin-left bg-site-crimson md:block"
-              style={{ scaleX: lineScaleX }}
-            />
+        {/* ── Bottom timeline strip ── */}
+        <div className="relative mx-auto w-full max-w-[1480px] px-5 pb-8 pt-6 md:px-10 lg:px-14">
+          {/* Track line — vertically centered with the circle centers */}
+          <div className="relative mb-6">
+            {/* Track container covering the distance between first and last node centers */}
+            <div className="absolute left-[10%] right-[10%] top-[24px] md:top-[28px] -translate-y-1/2">
+              {/* Ghost track */}
+              <div className="absolute left-0 right-0 h-[2px] rounded-full bg-white/10" />
+              {/* Animated fill line — precisely fills between nodes */}
+              <motion.div
+                className="absolute left-0 right-0 h-[2px] origin-left rounded-full bg-site-crimson"
+                style={{ scaleX: lineScaleX }}
+              />
+              {/* Glowing head dot tracking the progress */}
+              <motion.div
+                className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-site-crimson shadow-[0_0_12px_4px_rgba(196,18,48,0.7)]"
+                style={{
+                  left: useTransform(lineScaleX, [0, 1], ["0%", "100%"]),
+                }}
+              />
+            </div>
 
-            <div className="flex flex-col gap-10 md:flex-row md:justify-between md:gap-4">
-              {steps.map((step, index) => (
-                <ProcessStepButton
+            {/* Step nodes */}
+            <div className="relative z-10 flex items-start justify-between">
+              {steps.map((step, i) => (
+                <StepNode
                   key={step.id}
                   step={step}
-                  index={index}
+                  index={i}
                   totalSteps={steps.length}
-                  isActive={index === activeIndex}
+                  isActive={i === activeIndex}
                   scrollYProgress={scrollYProgress}
+                  timelineProgress={timelineProgress}
                   onSelect={handleSelect}
                 />
               ))}
@@ -302,23 +396,23 @@ const Process = () => {
           </div>
         </div>
       </div>
-      
-      {/* Schema.org FAQPage based on Process steps */}
+
+      {/* Schema.org structured data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            "mainEntity": steps.map(step => ({
+            mainEntity: steps.map((step) => ({
               "@type": "Question",
-              "name": `What is the ${step.title} stage of the process?`,
-              "acceptedAnswer": {
+              name: `What is the ${step.title} stage of the process?`,
+              acceptedAnswer: {
                 "@type": "Answer",
-                "text": `${step.description} ${step.detail}`
-              }
-            }))
-          })
+                text: `${step.description} ${step.detail}`,
+              },
+            })),
+          }).replace(/<\/script/gi, '<\\/script'),
         }}
       />
     </section>

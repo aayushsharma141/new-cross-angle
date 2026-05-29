@@ -44,34 +44,61 @@ const buildTransform = ({ width, height, quality = 80, blur, format = 'auto' }: 
 export const getOptimizedUrl = (url: string | undefined, options: OptimizationOptions = {}): string => {
   if (!url) return '';
 
-  const isRelative = url.startsWith('/') || url.startsWith('data:') || url.startsWith('blob:');
-  if (isRelative) return url;
+  // Pass-through: data URIs, blob URLs, and already optimized URLs with different patterns
+  const isDataOrBlob = url.startsWith('data:') || url.startsWith('blob:');
+  if (isDataOrBlob) return url;
 
   const isSupabase = url.includes(SUPABASE_URL);
   const isImageKit = url.includes('ik.imagekit.io');
+  // Local static assets under /images/
+  const isLocalImage = url.startsWith('/images/') || url.startsWith('/images');
 
-  if (!isSupabase && !isImageKit) return url;
+  // BYPASS ImageKit for local images in development mode or if explicitly disabled
+  const shouldBypass = isLocalImage && (import.meta.env.DEV || import.meta.env.VITE_BYPASS_IMAGEKIT === 'true');
+
+  if ((!isSupabase && !isImageKit && !isLocalImage) || shouldBypass) return url;
 
   const endpoint = IMAGEKIT_URL_ENDPOINT.replace(/\/+$/, '');
+  
+  // 1. Identify account ID and sub-path from the endpoint
+  const endpointMatch = endpoint.match(/^https?:\/\/ik\.imagekit\.io\/([^/]+)(.*)$/);
+  const accountId = endpointMatch ? endpointMatch[1] : '';
+  const endpointSubfolder = endpointMatch ? stripLeadingSlash(endpointMatch[2]) : '';
+
   let path = '';
 
   if (isSupabase) {
     const publicIdx = url.indexOf('/storage/v1/object/public/');
-    if (publicIdx === -1) return url;
+    if (publicIdx !== -1) {
+      path = stripLeadingSlash(url.slice(publicIdx + '/storage/v1/object/public/'.length));
+    } else {
+      return url;
+    }
+  } else if (isLocalImage) {
+    path = stripLeadingSlash(url);
+  } else if (isImageKit) {
+    const ikBasePattern = new RegExp(`^https?://ik\\.imagekit\\.io/${accountId}/`);
+    const withoutBase = url.replace(ikBasePattern, '');
+    // Strip existing transformations if any
+    path = withoutBase.replace(/^tr:[^/]+\//, '');
+  }
 
-    // We send the full path starting from the bucket name (e.g., "media/general/image.jpg")
-    // This perfectly matches a 'Web Folder' origin pointing to the Supabase 'public' directory.
-    path = stripLeadingSlash(url.slice(publicIdx + '/storage/v1/object/public/'.length));
-  } else {
-    const normalizedUrl = url.replace(/\/+$/, '');
-    const afterEndpoint = normalizedUrl.replace(endpoint, '');
-    path = stripLeadingSlash(afterEndpoint.replace(/^tr:[^/]+\//, ''));
+  // 2. DE-DUPLICATE: If the path already contains the endpoint's subfolder at the start, remove it.
+  // This handles cases where VITE_IMAGEKIT_URL_ENDPOINT=".../cross-angle" 
+  // and Supabase path is "cross-angle/image.jpg"
+  if (endpointSubfolder && path.startsWith(endpointSubfolder + '/')) {
+    path = stripLeadingSlash(path.slice(endpointSubfolder.length));
+  } else if (endpointSubfolder && path === endpointSubfolder) {
+    path = '';
   }
 
   if (!path) return url;
 
   const transformations = buildTransform(options);
-  return `${endpoint}/${transformations}/${path}`;
+  
+  // 3. CONSTRUCT: [endpoint] / [transformations] / [path]
+  // We use the cleaned endpoint and path to ensure no double slashes
+  return `${endpoint}/${transformations}/${path}`.replace(/([^:]\/)\/+/g, '$1');
 };
 
 /**

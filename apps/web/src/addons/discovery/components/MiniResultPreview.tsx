@@ -42,19 +42,16 @@ const MiniResultPreview = ({ archetype, scores, onComplete }: Props) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed inset-0 flex flex-col items-center justify-center p-6 z-10"
+            className="fixed inset-0 flex flex-col items-center justify-center p-6 z-10 bg-black/5 backdrop-blur-[2px]"
         >
-            <div className="max-w-md w-full bg-card/80 backdrop-blur-md rounded-2xl border border-border/40 p-8 shadow-2xl relative overflow-hidden">
-                {/* Background Glow */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-gold/10 blur-[80px] rounded-full pointer-events-none" />
-
-                <div className="text-center mb-8 relative">
-                    <p className="text-[10px] tracking-[4px] text-gold uppercase mb-3 font-semibold">Your Aesthetic DNA</p>
-                    <h2 className="font-serif-display text-4xl md:text-5xl mb-4 italic">{archetype.name}</h2>
+            <div className="max-w-[500px] w-full bg-white rounded-3xl border border-black/5 p-10 shadow-xl relative overflow-hidden">
+                <div className="text-center mb-10 relative">
+                    <p className="text-[10px] tracking-[0.2em] text-[#5a5a5a] uppercase mb-4 font-bold">Your Aesthetic DNA</p>
+                    <h2 className="text-4xl md:text-5xl mb-5 text-[#1a1a1a] font-serif leading-tight">{archetype.name}</h2>
 
                     <div className="flex flex-wrap justify-center gap-2 mt-4">
                         {archetype.traits.slice(0, 3).map((trait) => (
-                            <span key={trait} className="px-3 py-1 bg-foreground/5 border border-foreground/10 text-[10px] tracking-wider uppercase rounded-full text-muted-foreground">
+                            <span key={trait} className="px-3 py-1.5 bg-[#faf8f5] border border-[#e8e4dd] text-[10px] tracking-widest uppercase rounded-full text-[#1a1a1a] font-medium">
                                 {trait}
                             </span>
                         ))}
@@ -69,8 +66,7 @@ const MiniResultPreview = ({ archetype, scores, onComplete }: Props) => {
                                 key={idx}
                                 d={points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ") + " Z"}
                                 fill="none"
-                                stroke="currentColor"
-                                className="text-foreground/5"
+                                stroke="#e8e4dd"
                                 strokeWidth="1"
                             />
                         ))}
@@ -83,8 +79,7 @@ const MiniResultPreview = ({ archetype, scores, onComplete }: Props) => {
                                     key={i}
                                     x1={center} y1={center}
                                     x2={p.x} y2={p.y}
-                                    stroke="currentColor"
-                                    className="text-foreground/10"
+                                    stroke="#e8e4dd"
                                     strokeWidth="1"
                                 />
                             );
@@ -96,14 +91,14 @@ const MiniResultPreview = ({ archetype, scores, onComplete }: Props) => {
                             animate={{ pathLength: 1, opacity: 1 }}
                             transition={{ duration: 1.5, ease: "easeInOut" }}
                             d={pathData}
-                            fill="hsl(var(--gold) / 0.15)"
-                            stroke="hsl(var(--gold))"
-                            strokeWidth="2"
+                            fill="rgba(35, 53, 38, 0.08)"
+                            stroke="#233526"
+                            strokeWidth="1.5"
                         />
 
                         {/* Labels */}
                         {dimensions.map((d, i) => {
-                            const p = getPoint(i, 12, radius); // Move label slightly further out
+                            const p = getPoint(i, 12.5, radius); // Move label slightly further out
                             return (
                                 <text
                                     key={d.key}
@@ -111,7 +106,7 @@ const MiniResultPreview = ({ archetype, scores, onComplete }: Props) => {
                                     y={p.y}
                                     textAnchor="middle"
                                     alignmentBaseline="middle"
-                                    className="fill-muted-foreground font-mono text-[9px] uppercase tracking-tighter"
+                                    className="fill-[#8c8c8c] font-sans font-medium text-[9px] uppercase tracking-widest"
                                 >
                                     {d.label}
                                 </text>
@@ -120,10 +115,10 @@ const MiniResultPreview = ({ archetype, scores, onComplete }: Props) => {
                     </svg>
                 </div>
 
-                <div className="space-y-4">
+                <div className="pt-2">
                     <Button
                         onClick={onComplete}
-                        className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground tracking-widest font-semibold text-xs transition-all duration-300"
+                        className="w-full h-14 bg-[#233526] text-white rounded-xl text-sm font-medium hover:bg-[#1a281c] transition-all duration-300 shadow-md"
                     >
                         REVEAL YOUR FULL BLUEPRINT
                     </Button>

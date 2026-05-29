@@ -63,7 +63,7 @@ export function useDynamicCTA() {
       headlineHighlight: "Pinterest boards.",
       headlineFull: "Stop collecting Pinterest boards.",
       sub: "It's time to build it. Get a precise estimate and 3D preview.",
-      btn1: "Calculate Cost",
+      btn1: "Get Estimate",
       btn1Link: "/estimate",
       btn2: "Book Free Consultation",
       btn2Link: "/contact-us",

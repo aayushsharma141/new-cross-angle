@@ -80,6 +80,8 @@ function sourceLabel(source: string | null | undefined): string {
       return "Estimator";
     case "style_quiz":
       return "Style Quiz";
+    case "aesthetic_discovery_engine":
+      return "Aesthetic Discovery Engine";
     case "whatsapp":
       return "WhatsApp";
     case "instagram":
@@ -127,7 +129,7 @@ function sourceContext(lead: LeadRecord): string {
     return "We've received your estimator request and our team is reviewing the scope, budget, and execution preferences you shared.";
   }
 
-  if (lead.lead_source === "style_quiz") {
+  if (lead.lead_source === "style_quiz" || lead.lead_source === "aesthetic_discovery_engine") {
     return "Your Spatial Identity Blueprint has been saved, and our team is reviewing the design direction and priorities from your quiz.";
   }
 

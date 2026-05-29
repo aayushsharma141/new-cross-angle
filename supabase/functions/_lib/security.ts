@@ -99,15 +99,20 @@ function getTrustedOrigins(): string[] {
         .map((o: string) => o.trim())
         .filter(Boolean);
 
-    // Always allow localhost in development (detected by empty ALLOWED_ORIGINS or explicit flag).
-    const isDev = Deno.env.get("DENO_ENV") !== "production" && base.length === 0;
-    if (isDev) {
-        base.push(
-            "http://localhost:8080",
-            "http://localhost:3000",
-            "http://127.0.0.1:8080",
-        );
+    // Always allow localhost in development or for local testing against production.
+    const localOrigins = [
+        "http://localhost:8080",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:8080",
+        "http://127.0.0.1:5173",
+    ];
+    for (const origin of localOrigins) {
+        if (!base.includes(origin)) {
+            base.push(origin);
+        }
     }
+    
     return base;
 }
 
@@ -183,10 +188,57 @@ export function handlePreflight(
 
 // ─── Rate Limiting ───────────────────────────────────────────────────────────
 
-let _kv: Deno.Kv | null = null;
+interface SimpleKv {
+    get<T>(key: unknown[]): Promise<{ value: T | null }>;
+    set(key: unknown[], value: unknown, options?: { expireIn?: number }): Promise<{ ok: boolean }>;
+    delete(key: unknown[]): Promise<{ ok: boolean }>;
+}
 
-async function getKv(): Promise<Deno.Kv> {
-    if (!_kv) _kv = await Deno.openKv();
+class MemoryKv implements SimpleKv {
+    private store = new Map<string, { value: unknown; expireAt: number }>();
+
+    get<T>(key: unknown[]): Promise<{ value: T | null }> {
+        const keyStr = JSON.stringify(key);
+        const item = this.store.get(keyStr);
+        if (!item) return Promise.resolve({ value: null });
+        if (Date.now() >= item.expireAt) {
+            this.store.delete(keyStr);
+            return Promise.resolve({ value: null });
+        }
+        return Promise.resolve({ value: item.value as T });
+    }
+
+    set(key: unknown[], value: unknown, options?: { expireIn?: number }): Promise<{ ok: boolean }> {
+        const keyStr = JSON.stringify(key);
+        const expireIn = options?.expireIn ?? 3600000;
+        this.store.set(keyStr, { value, expireAt: Date.now() + expireIn });
+        return Promise.resolve({ ok: true });
+    }
+
+    delete(key: unknown[]): Promise<{ ok: boolean }> {
+        const keyStr = JSON.stringify(key);
+        this.store.delete(keyStr);
+        return Promise.resolve({ ok: true });
+    }
+}
+
+let _kv: SimpleKv | null = null;
+
+async function getKv(): Promise<SimpleKv> {
+    if (!_kv) {
+        const openKvFn = (Deno as unknown as { openKv?: unknown }).openKv;
+        if (typeof openKvFn === "function") {
+            try {
+                _kv = await (openKvFn as () => Promise<SimpleKv>)();
+            } catch (e) {
+                console.warn("Failed to open Deno.Kv, falling back to MemoryKv:", e);
+                _kv = new MemoryKv();
+            }
+        } else {
+            console.warn("Deno.openKv is not available, falling back to MemoryKv");
+            _kv = new MemoryKv();
+        }
+    }
     return _kv;
 }
 
@@ -219,7 +271,7 @@ export interface RateLimitResult {
  * Key is "bucket:identifier" where identifier is the client IP.
  */
 export async function checkRateLimit(
-    req: Request,
+    _req: Request,
     identifier: string,
     opts: RateLimitOptions = {},
 ): Promise<RateLimitResult> {

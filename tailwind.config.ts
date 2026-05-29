@@ -84,6 +84,41 @@ export default {
                     '900': '#7a0e09',
                     '950': '#0f0000',
                 },
+
+                /* ─── Admin panel tokens ──────────────────────────────────────────
+                 * Registered so classes like `bg-admin-card`, `text-admin-muted`,
+                 * `border-admin-border`, `hover:bg-admin-surface/30` compile.
+                 *
+                 * The `<alpha-value>` placeholder enables alpha modifiers
+                 * (e.g. `bg-admin-card/50`). CSS variables are defined in
+                 * `apps/web/src/styles/admin-theme.css` as space-separated HSL.
+                 *
+                 * Name aliases:
+                 *   admin-muted  → --admin-text-muted   (JSX convention)
+                 *   admin-subtle → --admin-text-subtle
+                 *   admin-gold   → --admin-primary      (primary IS the gold accent)
+                 *   admin-accent → --admin-primary
+                 *   admin-primary-foreground → black (text color on gold surfaces)
+                 * ─────────────────────────────────────────────────────────────── */
+                'admin-bg':             'hsl(var(--admin-bg) / <alpha-value>)',
+                'admin-surface':        'hsl(var(--admin-surface) / <alpha-value>)',
+                'admin-surface-hover':  'hsl(var(--admin-surface-hover) / <alpha-value>)',
+                'admin-card':           'hsl(var(--admin-card) / <alpha-value>)',
+                'admin-border':         'hsl(var(--admin-border) / <alpha-value>)',
+                'admin-border-subtle':  'hsl(var(--admin-border-subtle) / <alpha-value>)',
+                'admin-text':           'hsl(var(--admin-text) / <alpha-value>)',
+                'admin-foreground':     'hsl(var(--admin-text) / <alpha-value>)',
+                'admin-muted':          'hsl(var(--admin-text-muted) / <alpha-value>)',
+                'admin-subtle':         'hsl(var(--admin-text-subtle) / <alpha-value>)',
+                'admin-primary':        'hsl(var(--admin-primary) / <alpha-value>)',
+                'admin-primary-hover':  'hsl(var(--admin-primary-hover) / <alpha-value>)',
+                'admin-primary-foreground': 'hsl(0 0% 0% / <alpha-value>)',
+                'admin-success':        'hsl(var(--admin-success) / <alpha-value>)',
+                'admin-warning':        'hsl(var(--admin-warning) / <alpha-value>)',
+                'admin-danger':         'hsl(var(--admin-danger) / <alpha-value>)',
+                'admin-info':           'hsl(var(--admin-info) / <alpha-value>)',
+                'admin-gold':           'hsl(var(--admin-primary) / <alpha-value>)',
+                'admin-accent':         'hsl(var(--admin-primary) / <alpha-value>)',
             },
             borderRadius: {
                 lg: 'var(--radius)',
@@ -235,6 +270,14 @@ export default {
                     'Courier New',
                     'monospace'
                 ]
+            },
+            fontSize: {
+              'fluid-h1': ['clamp(2.5rem, 8vw, 7.6rem)', { lineHeight: '0.96', letterSpacing: '-0.05em' }],
+              'fluid-h2': ['clamp(2rem, 5vw, 4rem)', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+            },
+            spacing: {
+              'fluid-py': 'clamp(5rem, 12vh, 10rem)',
+              'fluid-pt': 'clamp(7rem, 15vh, 12rem)',
             }
         }
     },

@@ -13,6 +13,7 @@ import { Database, Loader2 } from "lucide-react";
 import { useHubStats, getModules, formatStorage } from "@/pages/admin/AdminHub";
 import { useSystem } from "@/context/SystemContext";
 import { useNavigate } from "react-router-dom";
+import { SkipNav } from "@/components/ui/enhanced/SkipNav";
 
 const AdminLayout = (): JSX.Element | null => {
     const { isAuthenticated, isLoading, role, logout } = useAdminAuth();
@@ -101,10 +102,11 @@ const AdminLayout = (): JSX.Element | null => {
         );
     }
 
-    const isHub = location.pathname === "/admin" || location.pathname === "/admin/";
+    const isFullWidth = location.pathname === "/admin" || location.pathname === "/admin/" || location.pathname.startsWith("/admin/crm");
 
     return (
         <div className="h-screen max-h-screen flex flex-col bg-admin-bg admin-theme overflow-hidden">
+            <SkipNav targetId="admin-main" />
             {/* Premium Top Navigation */}
             <TopBar />
 
@@ -127,9 +129,9 @@ const AdminLayout = (): JSX.Element | null => {
                 </div>
             )}
 
-            <main className="flex-1 flex flex-col overflow-hidden min-h-0 bg-[hsl(var(--admin-background))]">
+            <main id="admin-main" className="flex-1 flex flex-col overflow-hidden min-h-0 bg-[hsl(var(--admin-background))]">
                 <div className="flex-1 flex flex-col overflow-hidden min-h-0 animate-in fade-in zoom-in-95 duration-500">
-                    {isHub ? (
+                    {isFullWidth ? (
                         <AdminRouteErrorBoundary>
                             <Outlet />
                         </AdminRouteErrorBoundary>
@@ -143,34 +145,33 @@ const AdminLayout = (): JSX.Element | null => {
                 </div>
             </main>
 
-            {/* ── Footer Status Bar (Full Width, Fixed Bottom) ── */}
+            {/* ── Footer Status Bar ── */}
             <div className="flex-none w-full flex items-center justify-between gap-4 px-6 py-2.5 bg-admin-surface/90 backdrop-blur-md border-t border-admin-border/60 text-[11px] text-[hsl(var(--admin-muted))] shadow-[0_-4px_20px_rgba(0,0,0,0.2)] z-20">
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1.5 font-medium text-[hsl(var(--admin-text))]">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span>System Connected</span>
+                        <span>Connected</span>
                     </div>
-                    <span className="text-[hsl(var(--admin-border))] hidden sm:block">|</span>
-                    <span className="flex items-center gap-1.5 hidden sm:flex">
-                        <Database className="w-3 h-3 text-[hsl(var(--admin-primary))]" />
-                        {formatStorage(stats.storageUsedGB)} of {stats.storageTotalGB}GB used
-                    </span>
-                    <span className="text-[hsl(var(--admin-border))] hidden sm:block">|</span>
-                    <span className="hidden sm:block">{filteredModules.length} modules active</span>
+                    {/* Technical telemetry only for admins — trainees don't need it */}
+                    {(role === 'super_admin' || role === 'admin') && (
+                        <>
+                            <span className="text-[hsl(var(--admin-border))] hidden sm:block">|</span>
+                            <span className="flex items-center gap-1.5 hidden sm:flex">
+                                <Database className="w-3 h-3 text-[hsl(var(--admin-primary))]" />
+                                {formatStorage(stats.storageUsedGB)} of {stats.storageTotalGB}GB used
+                            </span>
+                            <span className="text-[hsl(var(--admin-border))] hidden sm:block">|</span>
+                            <span className="hidden sm:block">{filteredModules.length} sections active</span>
+                        </>
+                    )}
                 </div>
                 <div className="flex items-center gap-4 uppercase tracking-wider font-semibold">
-                    <span className="text-[hsl(var(--admin-text))]">CrossAngle OS</span>
-                    <span className="text-[hsl(var(--admin-border))]">●</span>
-                    <Link to="/admin/dashboard" className="hover:text-[hsl(var(--admin-primary))] transition-colors">
-                        Analytics
-                    </Link>
+                    <span className="text-[hsl(var(--admin-text))]">CrossAngle</span>
                     {can('settings', 'view') && (
                         <>
+                            <span className="text-[hsl(var(--admin-border))]">●</span>
                             <Link to="/admin/system/settings" className="hover:text-[hsl(var(--admin-primary))] transition-colors">
                                 Settings
-                            </Link>
-                            <Link to="/admin/system/audit" className="hover:text-[hsl(var(--admin-primary))] transition-colors">
-                                Audit Logs
                             </Link>
                         </>
                     )}

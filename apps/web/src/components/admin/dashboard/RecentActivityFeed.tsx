@@ -97,6 +97,59 @@ export function RecentActivityFeed({ dateRange }: { dateRange?: DateRange }) {
         return "bg-admin-surface text-admin-muted border-admin-border";
     };
 
+    const getStatusLabel = (status: string): string => {
+        const s = status.toLowerCase();
+        if (s === "success") return "Completed";
+        if (s === "error" || s === "failed") return "Failed";
+        if (s === "pending") return "Pending";
+        return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+    };
+
+    const getModuleLabel = (module: string): string => {
+        const map: Record<string, string> = {
+            lead_activities: "CRM",
+            leads: "CRM",
+            content_versions: "Content",
+            blog_posts: "Blog",
+            projects: "Portfolio",
+            media: "Media",
+            testimonials: "Reviews",
+            services: "Services",
+            system_logs: "System",
+            users: "Users",
+            auth: "Access",
+            settings: "Settings",
+        };
+        const key = module?.toLowerCase().replace(/\s+/g, "_");
+        return map[key] || module.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    };
+
+    const formatDetails = (details: Record<string, unknown>): string | null => {
+        if (!details || Object.keys(details).length === 0) return null;
+        const parts: string[] = [];
+        if (details.old_status && details.new_status) {
+            parts.push(`Status changed from "${details.old_status}" to "${details.new_status}"`);
+        } else if (details.status) {
+            parts.push(`Status: ${details.status}`);
+        }
+        if (details.name || details.title) {
+            parts.push(`Item: ${details.name || details.title}`);
+        }
+        if (details.count) {
+            parts.push(`${details.count} items affected`);
+        }
+        if (parts.length === 0) {
+            // Fallback: show key-value pairs in readable form (no raw JSON)
+            const readable = Object.entries(details)
+                .filter(([, v]) => v !== null && v !== undefined && typeof v !== "object")
+                .slice(0, 3)
+                .map(([k, v]) => `${k.replace(/_/g, " ")}: ${v}`)
+                .join(" · ");
+            return readable || null;
+        }
+        return parts.join(" · ");
+    };
+
     return (
         <ScrollArea className="h-[400px] pr-4">
             <div className="space-y-3">
@@ -110,26 +163,29 @@ export function RecentActivityFeed({ dateRange }: { dateRange?: DateRange }) {
                                 <span className="text-sm font-medium leading-none text-admin-foreground">
                                     {activity.action}
                                 </span>
-                                <span className="text-[10px] text-admin-muted tabular-nums">
+                                <span className="text-[11px] text-admin-muted tabular-nums">
                                     {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                                 </span>
                             </div>
 
                             <div className="text-xs text-admin-muted flex gap-2 items-center mt-1">
-                                <span className={`px-1.5 py-0.5 rounded text-[10px] border ${getBadges(activity.status)}`}>
-                                    {activity.status.toUpperCase()}
+                                <span className={`px-1.5 py-0.5 rounded text-[11px] border ${getBadges(activity.status)}`}>
+                                    {getStatusLabel(activity.status)}
                                 </span>
                                 <span>
-                                    • in <span className="text-admin-gold">{activity.module}</span>
+                                    • in <span className="text-admin-gold">{getModuleLabel(activity.module)}</span>
                                     {activity.profiles?.full_name && ` • by ${activity.profiles.full_name}`}
                                 </span>
                             </div>
 
-                            {activity.details && typeof activity.details === 'object' && Object.keys(activity.details).length > 0 && (
-                                <div className="mt-1.5 text-xs bg-admin-surface p-2 rounded border border-admin-border font-mono truncate max-w-[300px] text-admin-muted/80">
-                                    {JSON.stringify(activity.details).slice(0, 80)}
-                                </div>
-                            )}
+                            {activity.details && typeof activity.details === 'object' && Object.keys(activity.details).length > 0 && (() => {
+                                const summary = formatDetails(activity.details as Record<string, unknown>);
+                                return summary ? (
+                                    <p className="mt-1.5 text-xs text-admin-muted/80 truncate max-w-[350px]">
+                                        {summary}
+                                    </p>
+                                ) : null;
+                            })()}
                         </div>
                     </div>
                 ))}

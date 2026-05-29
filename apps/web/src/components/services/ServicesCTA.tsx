@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useAnalytics } from "@/analytics/AnalyticsProvider";
+import { track } from "@/analytics/track";
 
 const ServicesCTA = () => {
+  const analytics = useAnalytics();
   return (
     <section className="relative bg-[#050505] border-y border-white/[0.08] overflow-hidden" style={{ padding: "clamp(100px,15vw,200px) clamp(20px,5vw,80px)" }}>
       {/* Background Aesthetic: Crimson Nebula */}
@@ -45,7 +48,8 @@ const ServicesCTA = () => {
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
           <Link 
-            to="/contact-us" 
+            to="/contact-us"
+            onClick={() => track(analytics, "cta_clicked", { ctaId: "services_start_project", destination: "/contact-us" })}
             className="group relative inline-flex items-center justify-center h-[64px] px-12 bg-site-crimson text-white font-bold tracking-[0.2em] uppercase text-[11px] rounded-full transition-all duration-500 hover:shadow-[0_20px_40px_rgba(196,18,48,0.4)] overflow-hidden"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
@@ -54,7 +58,8 @@ const ServicesCTA = () => {
           </Link>
 
           <Link 
-            to="/estimate" 
+            to="/estimate"
+            onClick={() => track(analytics, "estimate_path_selected", { pathId: "services_cta_view_pricing" })}
             className="group inline-flex items-center justify-center h-[64px] px-12 border border-white/20 text-white font-bold tracking-[0.2em] uppercase text-[11px] rounded-full transition-all duration-500 hover:bg-white hover:text-black"
           >
             <span>View Pricing</span>

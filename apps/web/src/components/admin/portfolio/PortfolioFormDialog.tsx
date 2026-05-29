@@ -71,6 +71,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
+    const [mediaPickerTarget, setMediaPickerTarget] = useState<"cover" | "hero">("cover");
     const [categories, setCategories] = useState<Category[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
@@ -481,7 +482,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         <Button
                                             type="button"
                                             variant="outline"
-                                            onClick={() => setIsMediaPickerOpen(true)}
+                                            onClick={() => { setMediaPickerTarget("cover"); setIsMediaPickerOpen(true); }}
                                             title="Open Media Library"
                                         >
                                             <ImagePlus className="w-4 h-4" />
@@ -541,13 +542,10 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         <Button
                                             type="button"
                                             variant="outline"
-                                            onClick={() => {
-                                                // Temporarily override the callback for MediaPicker to target hero
-                                            }}
-                                            disabled // Hooking up media picker mapping is slightly complex without a specific target state, leaving disabled or implementing later.
-                                            title="Use direct upload or paste URL"
+                                            onClick={() => { setMediaPickerTarget("hero"); setIsMediaPickerOpen(true); }}
+                                            title="Open Media Library"
                                         >
-                                            <ImagePlus className="w-4 h-4 opacity-50" />
+                                            <ImagePlus className="w-4 h-4" />
                                         </Button>
                                     </div>
                                 </div>
@@ -588,7 +586,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
             <MediaPickerModal
                 open={isMediaPickerOpen}
                 onOpenChange={setIsMediaPickerOpen}
-                onSelect={(url) => setFormData({ ...formData, cover_image_url: url })}
+                onSelect={(url) => setFormData({ ...formData, [mediaPickerTarget === "hero" ? "hero_image_url" : "cover_image_url"]: url })}
             />
         </Dialog>
     );

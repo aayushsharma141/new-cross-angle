@@ -1,180 +1,202 @@
-import { motion } from "framer-motion";
-import { useState } from "react";
-import { lifestyleQuestions } from "@/constants/discovery";
-import { LIFESTYLE_WEIGHTS } from "../core/weights";
-import { AestheticScores } from "@/types/discovery";
-import { ArrowRight, Check } from "lucide-react";
-import { Image } from "@/components/ui/enhanced/image";
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Users, Dog, Home as HomeIcon, ChefHat, Timer, Wine, CalendarDays, CalendarHeart, CalendarClock } from 'lucide-react';
+import type { UserSignals } from '@/types/discovery';
 
 interface Props {
-  onComplete: (scores: Partial<AestheticScores>, labels?: string[]) => void;
+  onComplete: (data: Pick<UserSignals, 'familyStructure' | 'cookingRole' | 'hostingFrequency'>) => void;
 }
 
-const LifestyleReflection = ({ onComplete }: Props) => {
-  const [selections, setSelections] = useState<Record<number, number>>({});
+export default function LifestyleReflection({ onComplete }: Props) {
+  const [step, setStep] = useState<0 | 1 | 2>(0);
+  const [familyStructure, setFamilyStructure] = useState<UserSignals['familyStructure']>();
+  const [cookingRole, setCookingRole] = useState<UserSignals['cookingRole']>();
+  const [hostingFrequency, setHostingFrequency] = useState<UserSignals['hostingFrequency']>();
 
-  const handleSelect = (qIndex: number, optIndex: number) => {
-    setSelections((prev) => ({ ...prev, [qIndex]: optIndex }));
-  };
+  const familyTypes = [
+    { id: 'Nuclear', icon: Users, desc: 'Immediate family only' },
+    { id: 'Joint', icon: HomeIcon, desc: 'Multi-generational living' },
+    { id: 'Pets', icon: Dog, desc: 'Furry companions dictate the space' },
+    { id: 'Elderly', icon: Users, desc: 'Requires accessible, low-friction design' }
+  ] as const;
+
+  const cookingRoles = [
+    { id: 'Daily Ritual', icon: ChefHat, desc: 'Heavy cooking, multiple meals a day' },
+    { id: 'Quick Utility', icon: Timer, desc: 'Fast prep, minimal mess' },
+    { id: 'Hosting', icon: Wine, desc: 'Open kitchen, conversational cooking' }
+  ] as const;
+
+  const hostingFrequencies = [
+    { id: 'Weekly', icon: CalendarDays, desc: 'Constant flow of friends and family' },
+    { id: 'Monthly', icon: CalendarHeart, desc: 'Occasional dinners or get-togethers' },
+    { id: 'Rarely', icon: CalendarClock, desc: 'Home is a private sanctuary' }
+  ] as const;
 
   const handleNext = () => {
-    const finalScores: Partial<AestheticScores> = {};
-    const finalLabels: string[] = [];
-
-    Object.entries(selections).forEach(([qIndexStr, optIndex]) => {
-      const qIndex = parseInt(qIndexStr);
-      const opt = lifestyleQuestions[qIndex].options[optIndex];
-      finalLabels.push(opt.label);
-
-      const scores = LIFESTYLE_WEIGHTS[qIndex]?.[optIndex] || {};
-      for (const [k, v] of Object.entries(scores)) {
-        if (v !== undefined) {
-          const key = k as keyof AestheticScores;
-          finalScores[key] = (finalScores[key] || 0) + v;
-        }
-      }
-    });
-
-    onComplete(finalScores, finalLabels);
+    if (step === 2) {
+      onComplete({ familyStructure, cookingRole, hostingFrequency });
+    } else {
+      setStep(s => (s + 1) as 1 | 2);
+    }
   };
 
-  const allSelected = Object.keys(selections).length === lifestyleQuestions.length;
-
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="flex h-full w-full flex-col overflow-hidden"
-    >
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="shrink-0 pt-6 pb-3 px-8 xl:px-16 text-center"
-      >
-        <p className="text-[9px] xl:text-[10px] text-muted-foreground/60 uppercase tracking-[0.25em] font-mono mb-1">
-          Step 2 of 4
-        </p>
-        <h2 className="font-serif-display text-xl xl:text-2xl text-foreground mb-1">
-          Your Daily Habits
-        </h2>
-        <p className="text-[10px] xl:text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
-          Choose what feels closest to how you actually live. There are no wrong answers.
-        </p>
-
-        {/* Progress dots */}
-        <div className="flex items-center justify-center gap-2 mt-3">
-          {["🌅", "☀️", "🌆", "🌙"].map((emoji, i) => (
-            <div key={i} className={`flex items-center gap-2 ${i === 0 ? "opacity-100" : "opacity-30"}`}>
-              {i > 0 && <div className="w-5 h-px bg-border/40" />}
-              <span className="text-[11px]">{emoji}</span>
-            </div>
+    <div className="relative flex min-h-[85vh] w-full flex-col items-center justify-center px-4">
+      <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
+        
+        {/* Progress indicators at the top */}
+        <div className="mb-10 flex gap-2.5">
+          {[0, 1, 2].map((i) => (
+            <div 
+              key={i} 
+              className={`h-1 rounded-full transition-all duration-500 ${
+                step >= i ? 'w-8 bg-[#70593a]' : 'w-4 bg-[#e8e4dd]'
+              }`} 
+            />
           ))}
         </div>
-      </motion.div>
 
-      {/* Main grid — two questions side by side */}
-      <div className="flex-1 overflow-hidden px-6 xl:px-12 pb-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-10 h-full">
-          {lifestyleQuestions.map((q, qIndex) => {
-            const isAnswered = selections[qIndex] !== undefined;
-            return (
-              <motion.div
-                key={qIndex}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + qIndex * 0.1 }}
-                className="flex flex-col"
-              >
-                {/* Question label */}
-                <div className="mb-3 flex items-center gap-2">
-                  {isAnswered && (
-                    <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary shrink-0">
-                      <Check className="w-2.5 h-2.5 text-primary-foreground" strokeWidth={3} />
-                    </span>
-                  )}
-                  <h3 className="text-xs xl:text-sm font-medium text-foreground/90 leading-snug">
-                    {q.question}
-                  </h3>
-                </div>
+        <AnimatePresence mode="wait">
+          {/* STEP 0: Family Structure */}
+          {step === 0 && (
+            <motion.div
+              key="step-0"
+              initial={{ opacity: 0, x: 15 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -15 }}
+              className="w-full flex flex-col items-center text-center"
+            >
+              <h2 className="font-serif text-3xl md:text-4xl font-normal text-[#1a1a1a] mb-3 tracking-tight">
+                Who lives here?
+              </h2>
+              <p className="text-sm md:text-base text-[#5a5a5a] mb-10 leading-relaxed font-light">
+                This dictates material durability and safety requirements.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full max-w-2xl px-2">
+                {familyTypes.map((type) => {
+                  const Icon = type.icon;
+                  const isSelected = familyStructure === type.id;
+                  return (
+                    <button
+                      key={type.id}
+                      type="button"
+                      onClick={() => {
+                        setFamilyStructure(type.id);
+                        setTimeout(handleNext, 400);
+                      }}
+                      className={`
+                        flex flex-col items-center text-center gap-3.5 p-6 rounded-2xl border transition-all duration-300 w-full hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#80643e] focus-visible:outline-none
+                        ${isSelected 
+                          ? 'border-[#70593a] bg-[#70593a]/5 text-[#1a1a1a] shadow-[0_0_15px_rgba(112,89,58,0.08)]' 
+                          : 'border-[#e8e4dd] bg-white/70 text-[#2a2a2a] hover:bg-white hover:border-[#70593a]/30'
+                        }
+                      `}
+                    >
+                      <Icon className={`w-8 h-8 mb-1 transition-colors ${isSelected ? 'text-[#70593a]' : 'text-[#70593a]/65'}`} />
+                      <span className="font-serif text-lg font-medium text-[#1a1a1a]">{type.id}</span>
+                      <span className="text-xs text-[#5a5a5a] leading-relaxed font-light">{type.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
 
-                {/* 2×2 image options */}
-                <div className="grid grid-cols-2 gap-2.5 xl:gap-3 flex-1">
-                  {q.options.slice(0, 4).map((opt, optIndex) => {
-                    const isSelected = selections[qIndex] === optIndex;
-                    return (
-                      <button
-                        key={opt.label}
-                        onClick={() => handleSelect(qIndex, optIndex)}
-                        className="group relative flex flex-col text-left transition-all duration-200 focus:outline-none"
-                      >
-                        <div
-                          className={`relative w-full overflow-hidden rounded-sm transition-all duration-300 ${isSelected
-                            ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
-                            : "ring-1 ring-border/20 hover:ring-border/60"
-                            }`}
-                          style={{ aspectRatio: "4/3" }}
-                        >
-                          <Image
-                            src={opt.image}
-                            alt={opt.label}
-                            className="absolute inset-0 h-full w-full"
-                            imageClassName={`transition-all duration-500 ${isSelected ? "scale-105 brightness-95" : "group-hover:brightness-90"
-                              }`}
-                            width={640}
-                            height={480}
-                          />
-                          {/* Dark gradient overlay at bottom for text */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          {/* STEP 1: Cooking Role */}
+          {step === 1 && (
+            <motion.div
+              key="step-1"
+              initial={{ opacity: 0, x: 15 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -15 }}
+              className="w-full flex flex-col items-center text-center"
+            >
+              <h2 className="font-serif text-3xl md:text-4xl font-normal text-[#1a1a1a] mb-3 tracking-tight">
+                What is the role of the kitchen?
+              </h2>
+              <p className="text-sm md:text-base text-[#5a5a5a] mb-10 leading-relaxed font-light">
+                We use this to prevent layout conflicts (e.g. open kitchens with heavy cooking).
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full max-w-3xl px-2">
+                {cookingRoles.map((role) => {
+                  const Icon = role.icon;
+                  const isSelected = cookingRole === role.id;
+                  return (
+                    <button
+                      key={role.id}
+                      type="button"
+                      onClick={() => {
+                        setCookingRole(role.id);
+                        setTimeout(handleNext, 400);
+                      }}
+                      className={`
+                        flex flex-col items-center text-center gap-3.5 p-6 rounded-2xl border transition-all duration-300 w-full hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#80643e] focus-visible:outline-none
+                        ${isSelected 
+                          ? 'border-[#70593a] bg-[#70593a]/5 text-[#1a1a1a] shadow-[0_0_15px_rgba(112,89,58,0.08)]' 
+                          : 'border-[#e8e4dd] bg-white/70 text-[#2a2a2a] hover:bg-white hover:border-[#70593a]/30'
+                        }
+                      `}
+                    >
+                      <Icon className={`w-8 h-8 mb-1 transition-colors ${isSelected ? 'text-[#70593a]' : 'text-[#70593a]/65'}`} />
+                      <span className="font-serif text-lg font-medium text-[#1a1a1a]">{role.id}</span>
+                      <span className="text-xs text-[#5a5a5a] leading-relaxed font-light">{role.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
 
-                          {/* Selected checkmark */}
-                          {isSelected && (
-                            <div className="absolute top-2 right-2">
-                              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary shadow-md">
-                                <Check className="w-3 h-3 text-white" strokeWidth={3} />
-                              </span>
-                            </div>
-                          )}
+          {/* STEP 2: Hosting Frequency */}
+          {step === 2 && (
+            <motion.div
+              key="step-2"
+              initial={{ opacity: 0, x: 15 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -15 }}
+              className="w-full flex flex-col items-center text-center"
+            >
+              <h2 className="font-serif text-3xl md:text-4xl font-normal text-[#1a1a1a] mb-3 tracking-tight">
+                How often do you host?
+              </h2>
+              <p className="text-sm md:text-base text-[#5a5a5a] mb-10 leading-relaxed font-light max-w-lg">
+                Determines the balance between private sanctuaries and public gathering spaces.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full max-w-3xl px-2">
+                {hostingFrequencies.map((freq) => {
+                  const Icon = freq.icon;
+                  const isSelected = hostingFrequency === freq.id;
+                  return (
+                    <button
+                      key={freq.id}
+                      type="button"
+                      onClick={() => {
+                        setHostingFrequency(freq.id);
+                        setTimeout(() => onComplete({ familyStructure, cookingRole, hostingFrequency: freq.id }), 500);
+                      }}
+                      className={`
+                        flex flex-col items-center text-center gap-3.5 p-6 rounded-2xl border transition-all duration-300 w-full hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#80643e] focus-visible:outline-none
+                        ${isSelected 
+                          ? 'border-[#70593a] bg-[#70593a]/5 text-[#1a1a1a] shadow-[0_0_15px_rgba(112,89,58,0.08)]' 
+                          : 'border-[#e8e4dd] bg-white/70 text-[#2a2a2a] hover:bg-white hover:border-[#70593a]/30'
+                        }
+                      `}
+                    >
+                      <Icon className={`w-8 h-8 mb-1 transition-colors ${isSelected ? 'text-[#70593a]' : 'text-[#70593a]/65'}`} />
+                      <span className="font-serif text-lg font-medium text-[#1a1a1a]">{freq.id}</span>
+                      <span className="text-xs text-[#5a5a5a] leading-relaxed font-light">{freq.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-                          {/* Caption at bottom of image */}
-                          <div className="absolute bottom-0 left-0 right-0 p-2">
-                            <p className={`text-[9px] xl:text-[10px] leading-tight font-medium ${isSelected ? "text-white" : "text-white/80"
-                              }`}>
-                              {opt.description}
-                            </p>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
       </div>
-
-      {/* CTA button — fixed at bottom right */}
-      <motion.div
-        className="absolute bottom-0 right-0 left-0 flex justify-end items-center px-8 py-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-      >
-        <button
-          onClick={handleNext}
-          disabled={!allSelected}
-          className={`flex items-center gap-2 px-5 py-2 text-[10px] font-medium uppercase tracking-widest transition-all duration-300 ${allSelected
-            ? "bg-[#D32F2F] text-white hover:bg-[#B71C1C]"
-            : "bg-muted/40 text-muted-foreground/40 cursor-not-allowed"
-            }`}
-        >
-          Next <ArrowRight className="w-3 h-3" />
-        </button>
-      </motion.div>
-    </motion.div>
+    </div>
   );
-};
-
-export default LifestyleReflection;
+}

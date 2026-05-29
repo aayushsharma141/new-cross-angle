@@ -1568,6 +1568,8 @@ export type Database = {
           seo_description: string | null
           seo_title_template: string | null
           social_links: Json | null
+          posthog_api_key: string | null
+          posthog_host: string | null
           studio_name: string
           tagline: string | null
           updated_at: string | null
@@ -1598,6 +1600,8 @@ export type Database = {
           seo_description?: string | null
           seo_title_template?: string | null
           social_links?: Json | null
+          posthog_api_key?: string | null
+          posthog_host?: string | null
           studio_name?: string
           tagline?: string | null
           updated_at?: string | null
@@ -1628,6 +1632,8 @@ export type Database = {
           seo_description?: string | null
           seo_title_template?: string | null
           social_links?: Json | null
+          posthog_api_key?: string | null
+          posthog_host?: string | null
           studio_name?: string
           tagline?: string | null
           updated_at?: string | null

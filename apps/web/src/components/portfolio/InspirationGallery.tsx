@@ -1,68 +1,75 @@
 import { motion } from "framer-motion";
-import { useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+
+const IK = "https://ik.imagekit.io/wdrs8y61o/cross-angle/tr:q-85,f-auto,w-1200";
 
 const MOODS = [
   {
-    image: "/images/projects/discovery/visual-11.jpg",
+    image: `${IK}/images/projects/discovery/visual-11.jpg`,
     word: "Calm"
   },
   {
-    image: "/images/projects/discovery/lifestyle-2.jpg",
+    image: `${IK}/images/projects/discovery/lifestyle-2.jpg`,
     word: "Warmth"
   },
   {
-    image: "/images/projects/discovery/lifestyle-5.jpg",
+    image: `${IK}/images/projects/discovery/lifestyle-5.jpg`,
     word: "Silence"
   },
   {
-    image: "/images/projects/discovery/visual-2.jpg",
+    image: `${IK}/images/projects/discovery/visual-2.jpg`,
     word: "Luxury"
   }
 ];
 
 const InspirationGallery = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
 
-  const scroll = (dir: "left" | "right") => {
-    if (!containerRef.current) return;
-    const card = containerRef.current.querySelector(".mood-card") as HTMLElement;
-    const offset = card ? card.offsetWidth + 16 : window.innerWidth * 0.8;
-    containerRef.current.scrollBy({ left: dir === "right" ? offset : -offset, behavior: "smooth" });
-  };
+  useEffect(() => {
+    const updateConstraints = () => {
+      if (containerRef.current && scrollRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const scrollWidth = scrollRef.current.scrollWidth;
+        setDragConstraints({
+          right: 0,
+          left: Math.min(0, -(scrollWidth - containerWidth)),
+        });
+      }
+    };
+
+    updateConstraints();
+    setTimeout(updateConstraints, 300);
+    const imgs = scrollRef.current?.querySelectorAll("img");
+    imgs?.forEach((img) => img.addEventListener("load", updateConstraints));
+    window.addEventListener("resize", updateConstraints);
+    return () => {
+      imgs?.forEach((img) => img.removeEventListener("load", updateConstraints));
+      window.removeEventListener("resize", updateConstraints);
+    };
+  }, []);
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-hidden" ref={containerRef}>
       <div className="container mx-auto mb-16 px-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <span className="mb-4 block text-[10px] uppercase tracking-[0.4em] text-white/40">Inspiration Gallery</span>
+          <span className="mb-4 block text-[10px] uppercase tracking-[0.4em] text-white/60">Inspiration Gallery</span>
           <h2 className="text-3xl font-light tracking-tight text-white md:text-5xl italic">
             Feel The Mood
           </h2>
         </div>
-        {/* Arrow controls */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => scroll("left")}
-            aria-label="Previous"
-            className="w-11 h-11 rounded-full border border-white/15 flex items-center justify-center text-white/50 hover:border-[#c9a96e] hover:text-[#c9a96e] transition-all duration-300"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <button
-            onClick={() => scroll("right")}
-            aria-label="Next"
-            className="w-11 h-11 rounded-full border border-white/15 flex items-center justify-center text-white/50 hover:border-[#c9a96e] hover:text-[#c9a96e] transition-all duration-300"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
       </div>
 
-      <div 
-        ref={containerRef}
-        className="flex w-full gap-4 overflow-x-hidden px-4 pb-12 no-scrollbar"
-        style={{ scrollSnapType: "x mandatory" }}
+      <motion.div 
+        ref={scrollRef}
+        drag="x"
+        dragConstraints={dragConstraints}
+        dragElastic={0.2}
+        dragTransition={{ power: 0.2, timeConstant: 200 }}
+        dragMomentum={true}
+        style={{ touchAction: "pan-y" }}
+        className="flex gap-4 w-max px-4 pb-12 cursor-grab active:cursor-grabbing"
       >
         {MOODS.map((mood, index) => (
           <motion.div
@@ -71,14 +78,15 @@ const InspirationGallery = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 1, delay: index * 0.1 }}
-            className="mood-card group relative h-[60vh] min-w-[80vw] flex-shrink-0 cursor-pointer overflow-hidden md:min-w-[40vw]"
-            style={{ scrollSnapAlign: "center" }}
+            className="group relative h-[60vh] w-[80vw] flex-shrink-0 cursor-pointer overflow-hidden md:w-[40vw]"
           >
             {/* Background Image */}
             <motion.img 
               src={mood.image} 
               alt={mood.word}
-              className="h-full w-full object-cover transition-transform group-hover:scale-110"
+              draggable={false}
+              onDragStart={(e) => e.preventDefault()}
+              className="h-full w-full object-cover transition-transform group-hover:scale-110 pointer-events-none"
               style={{ transitionDuration: "3000ms" }}
             />
             
@@ -96,11 +104,11 @@ const InspirationGallery = () => {
             <div className="absolute inset-0 z-10 bg-[url(/noise.svg)] opacity-20 pointer-events-none mix-blend-overlay" />
           </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       <div className="container mx-auto mt-12 flex items-center justify-center gap-10 overflow-hidden px-6">
         <div className="h-[1px] flex-grow bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-        <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 italic">Not sure what you like? Start here.</p>
+        <p className="text-[10px] uppercase tracking-[0.2em] text-white/60 italic">Not sure what you like? Start here.</p>
         <div className="h-[1px] flex-grow bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       </div>
     </div>

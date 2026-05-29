@@ -2,25 +2,36 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { visualImages } from "@/constants/discovery";
 import { VISUAL_WEIGHTS } from "../core/weights";
-import { AestheticScores } from "@/types/discovery";
-import { track } from "../infrastructure/analytics/tracker";
+import { AestheticScores, UserSignals } from "@/types/discovery";
+import { useAnalytics } from "@/analytics/AnalyticsProvider";
+import { track } from "@/analytics/track";
 import { Image } from "@/components/ui/enhanced/image";
 
 interface Props {
   sessionId: string | null;
+  signals?: UserSignals;
   onComplete: (scores: Partial<AestheticScores>, selectedIds?: number[]) => void;
 }
 
-const VisualInstinct = ({ sessionId, onComplete }: Props) => {
+const INTENT_PROMPT: Record<string, string> = {
+  Peace: "Which environments make you feel truly calm and at ease?",
+  Warmth: "Which spaces feel inviting and full of human warmth?",
+  Organization: "Which spaces feel efficiently designed and mentally clear?",
+  Pride: "Which spaces feel aspirational and deeply impressive?",
+};
+
+const VisualInstinct = ({ sessionId, signals, onComplete }: Props) => {
+  const intentPrompt = signals?.intent ? (INTENT_PROMPT[signals.intent] || `Pick ${6} images that feel like "home" to you.`) : `Pick ${6} images that feel like "home" to you.`;
   const [selected, setSelected] = useState<number[]>([]);
   const [loaded, setLoaded] = useState<Set<number>>(new Set());
+  const analytics = useAnalytics();
   const MAX = 6;
 
   const toggle = (id: number) => {
     const isSelecting = !selected.includes(id);
     if (isSelecting && selected.length < MAX && sessionId) {
       const img = visualImages.find(i => i.id === id);
-      track("image_selected", {
+      track(analytics, "image_selected", {
         imageId: id,
         tags: img?.tags || {},
         sessionId
@@ -65,17 +76,17 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="font-serif-display text-4xl md:text-5xl text-white/90 mb-2"
+          className="-display text-4xl md:text-5xl text-[#1a1a1a] mb-2 font-normal"
         >
-          Visual Preferences
+          {signals?.intent ? `${signals.intent} Spaces` : "Visual Preferences"}
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-site-text-meta text-sm mb-5"
+          className="text-[#1a1a1a]/70 text-sm mb-5"
         >
-          Pick {MAX} images that feel like &#34;home&#34; to you.
+          {intentPrompt}
         </motion.p>
 
         {/* Progress counter */}
@@ -89,10 +100,10 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
             {Array.from({ length: MAX }).map((_, i) => (
               <motion.div
                 key={i}
-                className="w-2.5 h-2.5 rounded-full border border-white/20"
+                className="w-2.5 h-2.5 rounded-full border border-[#1a1a1a]/15 bg-white"
                 animate={{
-                  background: i < selected.length ? "var(--site-crimson)" : "transparent",
-                  borderColor: i < selected.length ? "var(--site-crimson)" : "rgba(255,255,255,0.15)",
+                  background: i < selected.length ? "#8b6f47" : "#ffffff",
+                  borderColor: i < selected.length ? "#8b6f47" : "rgba(26,26,26,0.15)",
                   scale: i < selected.length ? [1, 1.25, 1] : 1,
                 }}
                 transition={{ duration: 0.35 }}
@@ -105,7 +116,7 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
-              className="text-[9px] uppercase tracking-[0.2em] font-mono text-white/30"
+              className="text-[10px] uppercase tracking-[0.2em] font-mono text-[#8b6f47] font-semibold"
             >
               {remaining > 0 ? `${remaining} more to pick` : "All done!"}
             </motion.span>
@@ -114,7 +125,7 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
       </div>
 
       {/* Uniform 4-col grid — predictable, all images same aspect ratio */}
-      <div className="flex-1 overflow-y-auto px-6 pb-6 scrollbar-hide">
+      <div className="flex-1 overflow-y-auto px-6 pb-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {visualImages.map((img, idx) => {
             const isSelected = selected.includes(img.id);
@@ -123,6 +134,7 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
 
             return (
               <motion.button
+                type="button"
                 key={img.id}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -130,19 +142,21 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
                 whileHover={!isMaxed ? { scale: 1.02 } : {}}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => toggle(img.id)}
+                aria-pressed={isSelected ? "true" : "false"}
+                aria-label={`Image option ${idx + 1}`}
                 className={`
-                  relative w-full aspect-[4/3] overflow-hidden
-                  transition-all duration-500 focus:outline-none
+                  relative w-full aspect-[4/3] rounded-[6px] border overflow-hidden
+                  transition-all duration-500 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2
                   ${isSelected
-                    ? "ring-2 ring-site-crimson ring-offset-2 ring-offset-site-bg"
-                    : "ring-1 border-site-border hover:border-site-crimson/50"
+                    ? "border-[#8b6f47] shadow-[0_0_16px_rgba(139,111,71,0.25)] scale-[1.02]"
+                    : "border-[#1a1a1a]/15 hover:border-[#1a1a1a]/35"
                   }
-                  ${isMaxed ? "opacity-30 cursor-default" : "cursor-pointer"}
+                  ${isMaxed ? "opacity-70 cursor-default" : "cursor-pointer"}
                 `}
               >
                 {/* Skeleton loader */}
                 {!isLoaded && (
-                  <div className="absolute inset-0 bg-white/[0.04] animate-pulse" />
+                  <div className="absolute inset-0 bg-[#1a1a1a]/[0.04] animate-pulse" />
                 )}
 
                 <Image
@@ -152,10 +166,7 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
                   imageClassName={`
                     transition-all duration-700
                     ${isLoaded ? "opacity-100" : "opacity-0"}
-                    ${!isSelected && selected.length > 0 && !isMaxed
-                      ? "grayscale-[0.6] opacity-60"
-                      : "grayscale-0 opacity-100"
-                    }
+                    grayscale-0 opacity-100
                     ${isSelected ? "scale-[1.04]" : "scale-100"}
                   `}
                   width={480}
@@ -166,10 +177,10 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
 
                 {/* Subtle gold tint on selected */}
                 {isSelected && (
-                  <div className="absolute inset-0 bg-site-crimson/10 pointer-events-none" />
+                  <div className="absolute inset-0 bg-[#8b6f47]/10 pointer-events-none" />
                 )}
 
-                {/* Gold corner tick — replaces heavy red circle */}
+                {/* Gold corner tick */}
                 <AnimatePresence>
                   {isSelected && (
                     <motion.div
@@ -179,9 +190,9 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
                       transition={{ type: "spring", stiffness: 300 }}
                       className="absolute top-2 right-2 z-20"
                     >
-                      <div className="w-5 h-5 bg-site-crimson flex items-center justify-center shadow-lg">
+                      <div className="w-5 h-5 bg-[#8b6f47] rounded-full flex items-center justify-center shadow-[0_2px_6px_rgba(0,0,0,0.2)]">
                         <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                          <path d="M1 4L3.5 6.5L9 1" stroke="#0D0A08" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M1 4L3.5 6.5L9 1" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </div>
                     </motion.div>
@@ -194,15 +205,17 @@ const VisualInstinct = ({ sessionId, onComplete }: Props) => {
       </div>
 
       {/* Footer CTA */}
-      <div className="flex-none py-5 px-8 flex justify-center border-t border-site-border bg-site-bg/80 backdrop-blur-sm">
+      <div className="flex-none py-4 px-8 flex justify-center border-t border-[#e8e4dd] bg-[#ffffff]/85 backdrop-blur-md">
         <button
+          type="button"
           onClick={confirm}
           disabled={selected.length < MAX}
           className={`
-            px-12 py-4 text-xs font-medium tracking-[0.2em] uppercase transition-all duration-300
+            px-12 py-3 text-[11px] xl:text-[12px] font-semibold tracking-[0.2em] uppercase transition-all duration-300 rounded-[4px] shadow-sm
+            focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2
             ${selected.length === MAX
-              ? "bg-site-crimson text-site-bg hover:bg-site-crimson/90 cursor-pointer"
-              : "bg-site-bg-card text-site-text-meta cursor-not-allowed border border-site-border"
+              ? "bg-[#8b6f47] text-white hover:bg-[#8b6f47]/90 cursor-pointer"
+              : "bg-[#1a1a1a]/5 text-[#1a1a1a]/30 cursor-not-allowed"
             }
           `}
         >

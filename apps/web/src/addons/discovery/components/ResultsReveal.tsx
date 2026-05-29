@@ -986,6 +986,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
 
           <div className="flex flex-wrap gap-4 justify-center">
             <button
+              type="button"
               onClick={() => window.print()}
               className="flex items-center gap-3 px-8 py-3 border border-white/10 rounded-sm transition-all hover:bg-white/5 text-[10px] font-mono tracking-[0.2em] uppercase text-white/60 hover:text-white"
             >
@@ -994,6 +995,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
             </button>
 
             <button
+              type="button"
               onClick={handleDownloadShareCard}
               disabled={isGenerating}
               className="flex items-center gap-3 px-8 py-3 border border-amber-500/20 bg-amber-500/5 rounded-sm transition-all hover:bg-amber-500/10 text-[10px] font-mono tracking-[0.2em] uppercase text-amber-500"
@@ -1008,6 +1010,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
 
             {onRetake && (
               <button
+                type="button"
                 onClick={onRetake}
                 className="px-8 py-3 text-[10px] font-mono uppercase tracking-[0.2em] text-white/20 hover:text-white/60 transition-colors"
               >

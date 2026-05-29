@@ -1,5 +1,6 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import portfolioBedroom from "@/assets/portfolio-bedroom.jpg";
 import portfolioKitchen from "@/assets/portfolio-kitchen.jpg";
 import portfolioOffice from "@/assets/portfolio-office.jpg";
@@ -35,10 +36,35 @@ const moods = [
 ];
 
 export const TactileJourney = () => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
+
+  useEffect(() => {
+    const updateConstraints = () => {
+      if (containerRef.current && scrollRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const scrollWidth = scrollRef.current.scrollWidth;
+        setDragConstraints({
+          right: 0,
+          left: Math.min(0, -(scrollWidth - containerWidth)),
+        });
+      }
+    };
+
+    updateConstraints();
+    setTimeout(updateConstraints, 300);
+    const imgs = scrollRef.current?.querySelectorAll("img");
+    imgs?.forEach((img) => img.addEventListener("load", updateConstraints));
+    window.addEventListener("resize", updateConstraints);
+    return () => {
+      imgs?.forEach((img) => img.removeEventListener("load", updateConstraints));
+      window.removeEventListener("resize", updateConstraints);
+    };
+  }, []);
 
   return (
-    <section className="py-24 md:py-32 relative bg-[#050505] overflow-hidden">
+    <section className="py-24 md:py-32 relative bg-[#050505] overflow-hidden" ref={containerRef}>
       <div className="container mx-auto px-6 lg:px-12 mb-12 md:mb-20">
         <span className="home-kicker mb-6 block">
           <span>The Tactile Journey</span>
@@ -54,25 +80,31 @@ export const TactileJourney = () => {
       </div>
 
       {/* Horizontal Scroll Container */}
-      <div 
-        ref={scrollContainerRef}
-        className="flex w-full overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-12 px-6 lg:px-12 gap-6 md:gap-8"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      <motion.div 
+        ref={scrollRef}
+        drag="x"
+        dragConstraints={dragConstraints}
+        dragElastic={0.2}
+        dragTransition={{ power: 0.2, timeConstant: 200 }}
+        dragMomentum={true}
+        style={{ touchAction: "pan-y" }}
+        className="flex w-max pb-12 px-6 lg:px-12 gap-6 md:gap-8 cursor-grab active:cursor-grabbing"
       >
         {moods.map((mood, i) => (
           <div 
             key={mood.id}
-            className="snap-center shrink-0 w-[85vw] sm:w-[50vw] md:w-[40vw] lg:w-[30vw] max-w-[480px] group cursor-pointer"
+            className="shrink-0 w-[85vw] sm:w-[50vw] md:w-[40vw] lg:w-[30vw] max-w-[480px] group cursor-pointer"
           >
             <div className="relative aspect-[4/5] overflow-hidden bg-white/5">
               <Image
                 src={mood.image} 
                 alt={mood.title}
                 loading="lazy"
-                className="h-full w-full"
+                className="h-full w-full pointer-events-none"
                 imageClassName="transition-transform duration-1000 group-hover:scale-110 opacity-80 group-hover:opacity-100"
                 width={720}
                 height={900}
+                draggable={false}
               />
               
               {/* Cinematic Vignette */}
@@ -104,16 +136,7 @@ export const TactileJourney = () => {
             </div>
           </div>
         ))}
-        
-        {/* Spacer for last item scroll padding */}
-        <div className="shrink-0 w-6 lg:w-12" />
-      </div>
-
-      <style dangerouslySetInnerHTML={{__html: `
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-      `}} />
+      </motion.div>
     </section>
   );
 };

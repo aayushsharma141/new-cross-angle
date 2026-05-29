@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { icons } from '@/design-system/tokens/icons';
-import { Loader2, Plus, Pencil, Trash2, Image, GripVertical } from 'lucide-react';
+import { Loader2, Plus, Pencil, Trash2, Image as ImageIcon, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
 import { Input } from '@/components/ui/primitives/input';
 import { Textarea } from '@/components/ui/primitives/textarea';
@@ -11,7 +11,9 @@ import { Switch } from '@/components/ui/primitives/switch';
 import { Card, CardContent } from '@/components/ui/primitives/card';
 import { useToast } from '@/hooks/useToast';
 import { MediaPicker } from '@/components/admin/media/MediaPicker';
+import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
 import { getOptimizedUrl } from '@/lib/cdn';
+import { Image } from '@/components/ui/enhanced/image';
 import {
     Dialog,
     DialogContent,
@@ -55,6 +57,7 @@ type GalleryFormData = {
     location: string;
     year: string;
     description: string;
+    display_order: string;
 };
 
 type CategoryFormData = {
@@ -81,6 +84,7 @@ const AdminGallery = () => {
         location: '',
         year: new Date().getFullYear().toString(),
         description: '',
+        display_order: '0',
     });
 
     const [categoryFormData, setCategoryFormData] = useState<CategoryFormData>({
@@ -129,6 +133,7 @@ const AdminGallery = () => {
                 location: data.location || null,
                 year: parseInt(data.year) || null,
                 description: data.description || null,
+                display_order: parseInt(data.display_order) || 0,
             });
             if (error) throw error;
         },
@@ -152,6 +157,7 @@ const AdminGallery = () => {
                 location: data.location || null,
                 year: parseInt(data.year) || null,
                 description: data.description || null,
+                display_order: parseInt(data.display_order) || 0,
             }).eq('id', id);
             if (error) throw error;
         },
@@ -198,6 +204,26 @@ const AdminGallery = () => {
         },
     });
 
+    const updateCategoryMutation = useMutation({
+        mutationFn: async ({ id, data }: { id: string; data: CategoryFormData }) => {
+            const { error } = await supabase.from('gallery_categories').update({
+                name: data.name,
+                slug: data.slug,
+                display_order: parseInt(data.display_order) || 0,
+            }).eq('id', id);
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['gallery-categories'] });
+            queryClient.invalidateQueries({ queryKey: ['gallery-items'] });
+            toast({ title: "Category updated successfully" });
+            closeCategoryDialog();
+        },
+        onError: (error: Error) => {
+            toast({ title: "Error updating category", description: error.message, variant: "destructive" });
+        },
+    });
+
     const deleteCategoryMutation = useMutation({
         mutationFn: async (id: string) => {
             const { error } = await supabase.from('gallery_categories').delete().eq('id', id);
@@ -228,6 +254,7 @@ const AdminGallery = () => {
                 location: item.location || '',
                 year: item.year?.toString() || new Date().getFullYear().toString(),
                 description: item.description || '',
+                display_order: item.display_order?.toString() || '0',
             });
         } else {
             setEditingItem(null);
@@ -239,6 +266,7 @@ const AdminGallery = () => {
                 location: '',
                 year: new Date().getFullYear().toString(),
                 description: '',
+                display_order: '0',
             });
         }
         setIsItemDialogOpen(true);
@@ -285,8 +313,7 @@ const AdminGallery = () => {
     const handleCategorySubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (editingCategory) {
-            // Update not implemented for simplicity
-            toast({ title: "Update not implemented", variant: "destructive" });
+            updateCategoryMutation.mutate({ id: editingCategory.id, data: categoryFormData });
         } else {
             createCategoryMutation.mutate(categoryFormData);
         }
@@ -316,11 +343,7 @@ const AdminGallery = () => {
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 py-4 animate-in fade-in duration-700">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="space-y-1">
-                    <h1 className="text-4xl font-serif text-white tracking-tight">Gallery</h1>
-                    <p className="text-sm text-zinc-500 font-sans max-w-sm">Manage gallery categories and items.</p>
-                </div>
+            <ModuleActions>
                 <div className="flex gap-2">
                     <Button
                         variant={activeTab === 'items' ? 'default' : 'outline'}
@@ -336,7 +359,7 @@ const AdminGallery = () => {
                         Categories
                     </Button>
                 </div>
-            </div>
+            </ModuleActions>
 
             {activeTab === 'items' && (
                 <>
@@ -361,44 +384,58 @@ const AdminGallery = () => {
                                     Add Item
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-lg max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl border-zinc-800">
+                            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl border-zinc-800">
                                 <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
                                     <DialogTitle className="text-lg font-display">{editingItem ? 'Edit' : 'Add'} Gallery Item</DialogTitle>
                                 </DialogHeader>
                                 <form onSubmit={handleItemSubmit} className="flex flex-col flex-1 overflow-hidden">
                                     <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="title">Title</Label>
-                                            <Input
-                                                id="title"
-                                                value={itemFormData.title}
-                                                onChange={e => setItemFormData(p => ({ ...p, title: e.target.value }))}
-                                                required
-                                            />
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="title">Title</Label>
+                                                <Input
+                                                    id="title"
+                                                    value={itemFormData.title}
+                                                    onChange={e => setItemFormData(p => ({ ...p, title: e.target.value }))}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="subtitle">Subtitle</Label>
+                                                <Input
+                                                    id="subtitle"
+                                                    value={itemFormData.subtitle}
+                                                    onChange={e => setItemFormData(p => ({ ...p, subtitle: e.target.value }))}
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="subtitle">Subtitle</Label>
-                                            <Input
-                                                id="subtitle"
-                                                value={itemFormData.subtitle}
-                                                onChange={e => setItemFormData(p => ({ ...p, subtitle: e.target.value }))}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Category</Label>
-                                            <Select
-                                                value={itemFormData.category_id}
-                                                onValueChange={v => setItemFormData(p => ({ ...p, category_id: v }))}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select category" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {categories?.map(cat => (
-                                                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label>Category</Label>
+                                                <Select
+                                                    value={itemFormData.category_id}
+                                                    onValueChange={v => setItemFormData(p => ({ ...p, category_id: v }))}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select category" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {categories?.map(cat => (
+                                                            <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="item-order">Display Order</Label>
+                                                <Input
+                                                    id="item-order"
+                                                    type="number"
+                                                    value={itemFormData.display_order}
+                                                    onChange={e => setItemFormData(p => ({ ...p, display_order: e.target.value }))}
+                                                    placeholder="0"
+                                                />
+                                            </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
@@ -432,7 +469,13 @@ const AdminGallery = () => {
                                             <Label>Image</Label>
                                             {itemFormData.image_url ? (
                                                 <div className="relative">
-                                                    <img src={getOptimizedUrl(itemFormData.image_url, { width: 720, quality: 76 })} alt="" className="h-32 w-full object-cover rounded" />
+                                                    <Image
+                                                        src={itemFormData.image_url}
+                                                        alt=""
+                                                        width={720}
+                                                        quality={76}
+                                                        imageClassName="h-48 w-full object-cover rounded border border-zinc-800"
+                                                    />
                                                     <Button
                                                         type="button"
                                                         variant="destructive"
@@ -446,15 +489,15 @@ const AdminGallery = () => {
                                             ) : (
                                                 <MediaPicker
                                                     onSelect={url => setItemFormData(p => ({ ...p, image_url: url }))}
-                                                    trigger={<Button type="button" variant="outline">Select Image</Button>}
+                                                    trigger={<Button type="button" variant="outline" className="w-full h-24 border-dashed">Select Image from Media Library</Button>}
                                                 />
                                             )}
                                         </div>
                                     </div>
-                                    <div className="shrink-0 flex justify-end gap-2 px-6 py-4 border-t border-zinc-800">
+                                    <div className="shrink-0 flex justify-end gap-2 px-6 py-4 border-t border-zinc-800 bg-zinc-900/50">
                                         <Button type="button" variant="outline" onClick={closeItemDialog}>Cancel</Button>
                                         <Button type="submit" disabled={createItemMutation.isPending || updateItemMutation.isPending}>
-                                            {editingItem ? 'Update' : 'Create'}
+                                            {editingItem ? 'Update Item' : 'Create Item'}
                                         </Button>
                                     </div>
                                 </form>
@@ -465,34 +508,56 @@ const AdminGallery = () => {
                     {/* Items Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {items?.map(item => (
-                            <Card key={item.id} className="overflow-hidden bg-zinc-900/50 border-zinc-800">
-                                <div className="aspect-video relative">
-                                    <img src={getOptimizedUrl(item.image_url, { width: 720, quality: 76 })} alt={item.title} className="w-full h-full object-cover" />
-                                    <div className="absolute top-2 right-2 flex gap-1">
-                                        <Button variant="secondary" size="icon" className="h-8 w-8" onClick={() => openItemDialog(item)} aria-label="Edit item">
+                            <Card key={item.id} className="overflow-hidden bg-zinc-900/50 border-zinc-800 group transition-all duration-300 hover:border-zinc-700">
+                                <div className="aspect-video relative overflow-hidden">
+                                    <Image
+                                        src={item.image_url}
+                                        alt={item.title}
+                                        width={720}
+                                        quality={76}
+                                        imageClassName="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    
+                                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-[-10px] group-hover:translate-y-0">
+                                        <Button variant="secondary" size="icon" className="h-8 w-8 bg-zinc-900/80 backdrop-blur-sm border-none hover:bg-zinc-800" onClick={() => openItemDialog(item)} aria-label="Edit item">
                                             <Pencil className="h-4 w-4" />
                                         </Button>
-                                        <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => handleDeleteItem(item.id)} aria-label="Delete item">
+                                        <Button variant="destructive" size="icon" className="h-8 w-8 backdrop-blur-sm border-none" onClick={() => handleDeleteItem(item.id)} aria-label="Delete item">
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </div>
+                                    <div className="absolute top-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div className="bg-zinc-900/80 backdrop-blur-sm text-xs font-mono px-2 py-1 rounded text-zinc-400 border border-zinc-800/50 flex items-center gap-1">
+                                            <GripVertical className="h-3 w-3" />
+                                            {item.display_order}
+                                        </div>
+                                    </div>
                                 </div>
-                                <CardContent className="p-4">
-                                    <h3 className="font-medium text-white truncate">{item.title}</h3>
-                                    {item.category && (
-                                        <span className="text-xs text-zinc-500">{item.category.name}</span>
-                                    )}
-                                    {item.location && (
-                                        <p className="text-xs text-zinc-600 mt-1">{item.location}</p>
-                                    )}
+                                <CardContent className="p-4 relative">
+                                    <h3 className="font-medium text-white truncate text-base mb-1">{item.title}</h3>
+                                    <div className="flex items-center justify-between">
+                                        {item.category && (
+                                            <span className="text-xs font-medium text-zinc-400 bg-zinc-800/50 px-2 py-0.5 rounded-full">{item.category.name}</span>
+                                        )}
+                                        {item.location && (
+                                            <p className="text-xs text-zinc-500 flex items-center gap-1">{item.location}</p>
+                                        )}
+                                    </div>
                                 </CardContent>
                             </Card>
                         ))}
                     </div>
 
                     {items?.length === 0 && (
-                        <div className="text-center py-12 text-zinc-500">
-                            No items found. Add your first gallery item!
+                        <div className="text-center py-16 border border-dashed border-zinc-800 rounded-xl bg-zinc-900/20">
+                            <Image className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-white mb-1">No gallery items found</h3>
+                            <p className="text-sm text-zinc-500 mb-4 max-w-sm mx-auto">Get started by creating your first gallery item. You can upload images or select them from your media library.</p>
+                            <Button onClick={() => openItemDialog()}>
+                                <Plus className="h-4 w-4 mr-2" />
+                                Add Your First Item
+                            </Button>
                         </div>
                     )}
                 </>
@@ -548,8 +613,8 @@ const AdminGallery = () => {
                                     </div>
                                     <div className="shrink-0 flex justify-end gap-2 px-6 py-4 border-t border-zinc-800">
                                         <Button type="button" variant="outline" onClick={closeCategoryDialog}>Cancel</Button>
-                                        <Button type="submit" disabled={createCategoryMutation.isPending}>
-                                            {editingCategory ? 'Update' : 'Create'}
+                                        <Button type="submit" disabled={createCategoryMutation.isPending || updateCategoryMutation.isPending}>
+                                            {editingCategory ? 'Update Category' : 'Create Category'}
                                         </Button>
                                     </div>
                                 </form>
@@ -560,26 +625,38 @@ const AdminGallery = () => {
                     <div className="rounded-xl border border-zinc-800/50 bg-zinc-900/30 overflow-hidden">
                         <table className="w-full">
                             <thead className="bg-zinc-900/50">
-                                <tr className="text-zinc-500 text-xs uppercase">
-                                    <th className="px-4 py-3 text-left">Order</th>
-                                    <th className="px-4 py-3 text-left">Name</th>
-                                    <th className="px-4 py-3 text-left">Slug</th>
-                                    <th className="px-4 py-3 text-right">Actions</th>
+                                <tr className="text-zinc-500 text-xs uppercase tracking-wider">
+                                    <th className="px-6 py-4 text-left font-medium">Order</th>
+                                    <th className="px-6 py-4 text-left font-medium">Name</th>
+                                    <th className="px-6 py-4 text-left font-medium">Slug</th>
+                                    <th className="px-6 py-4 text-right font-medium">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="divide-y divide-zinc-800/50">
                                 {categories?.map(category => (
-                                    <tr key={category.id} className="border-t border-zinc-800">
-                                        <td className="px-4 py-3 text-zinc-400">{category.display_order}</td>
-                                        <td className="px-4 py-3 text-white font-medium">{category.name}</td>
-                                        <td className="px-4 py-3 text-zinc-500 font-mono text-sm">{category.slug}</td>
-                                        <td className="px-4 py-3 text-right">
-                                            <Button variant="ghost" size="icon" onClick={() => handleDeleteCategory(category.id)} aria-label="Delete category">
-                                                <Trash2 className="h-4 w-4 text-red-400" />
-                                            </Button>
+                                    <tr key={category.id} className="hover:bg-zinc-800/20 transition-colors group">
+                                        <td className="px-6 py-4 text-zinc-400 font-mono text-sm">{category.display_order}</td>
+                                        <td className="px-6 py-4 text-white font-medium">{category.name}</td>
+                                        <td className="px-6 py-4 text-zinc-500 font-mono text-sm">{category.slug}</td>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-zinc-800 text-zinc-400 hover:text-white" onClick={() => openCategoryDialog(category)} aria-label="Edit category">
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-500/10" onClick={() => handleDeleteCategory(category.id)} aria-label="Delete category">
+                                                    <Trash2 className="h-4 w-4 text-red-400" />
+                                                </Button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
+                                {categories?.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} className="px-6 py-8 text-center text-zinc-500">
+                                            No categories found. Create one to organize your gallery.
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -590,3 +667,4 @@ const AdminGallery = () => {
 };
 
 export default AdminGallery;
+

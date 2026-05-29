@@ -1,0 +1,491 @@
+import { useState, useEffect, useRef } from "react";
+import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, ArrowUp, ArrowDown, ImageIcon, Upload, X, Check } from "lucide-react";
+import { Button } from "@/components/ui/primitives/button";
+import { Image } from "@/components/ui/enhanced/image";
+import { Input } from "@/components/ui/primitives/input";
+import { Textarea } from "@/components/ui/primitives/textarea";
+import { Label } from "@/components/ui/primitives/label";
+import { Switch } from "@/components/ui/primitives/switch";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/primitives/dialog";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
+import { useToast } from "@/hooks/useToast";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/primitives/badge";
+import { Compare } from "@/components/ui/enhanced/compare";
+
+const BUCKET = "media";
+
+// ─── Media Picker Component ─────────────────────────────────────────────────
+function MediaPicker({ value, onChange, label }: { value: string; onChange: (url: string) => void; label: string }) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [mediaFiles, setMediaFiles] = useState<{ url: string; name: string }[]>([]);
+  const [loadingMedia, setLoadingMedia] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  const fetchMedia = async () => {
+    setLoadingMedia(true);
+    const { data } = await supabase.from("media").select("url, file_name").order("created_at", { ascending: false }).limit(50);
+    setMediaFiles((data || []).map((f: { url: string; file_name: string }) => ({ url: f.url, name: f.file_name })));
+    setLoadingMedia(false);
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("File too large. Max 5MB.");
+      toast({ title: "File too large", description: "Maximum 5MB allowed.", variant: "destructive" });
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+
+    setUploading(true);
+    setUploadError(null);
+
+    try {
+      // Ensure user is authenticated
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) {
+        throw new Error("Not authenticated. Please log in again.");
+      }
+
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const path = `transformations/${Date.now()}-${safeName}`;
+      
+      const { error: storageErr } = await supabase.storage
+        .from(BUCKET)
+        .upload(path, file, { 
+          upsert: true,
+          contentType: file.type,
+        });
+
+      if (storageErr) {
+        throw new Error(storageErr.message);
+      }
+
+      const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
+      const publicUrl = urlData.publicUrl;
+
+      // Save to media table (non-blocking - image is already uploaded)
+      await supabase.from("media").upsert({
+        url: publicUrl,
+        file_name: path,
+        file_type: file.type,
+        size_bytes: file.size,
+        alt: file.name,
+        title: file.name,
+        uploaded_by: userData.user.id,
+      }, { onConflict: "file_name" });
+
+      onChange(publicUrl);
+      toast({ title: "Uploaded!", description: file.name });
+      setPickerOpen(false);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Upload failed. Check your connection.";
+      setUploadError(msg);
+      toast({ title: "Upload failed", description: msg, variant: "destructive" });
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const openPicker = () => {
+    setPickerOpen(true);
+    fetchMedia();
+  };
+
+  return (
+    <div>
+      <Label className="text-xs">{label}</Label>
+      <div className="mt-1 flex gap-2">
+        <Input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Image URL..."
+          className="flex-1 text-xs"
+        />
+        <Button type="button" variant="outline" size="sm" onClick={openPicker}>
+          <ImageIcon className="w-3.5 h-3.5 mr-1" /> Pick
+        </Button>
+        <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
+          {uploading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Upload className="w-3.5 h-3.5 mr-1" />}
+          {uploading ? "Uploading..." : "Upload"}
+        </Button>
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} aria-label={`Upload ${label}`} title={`Upload ${label}`} />
+      </div>
+
+      {/* Upload status */}
+      {uploading && (
+        <div className="mt-2 flex items-center gap-2 text-xs text-blue-400">
+          <Loader2 className="w-3 h-3 animate-spin" />
+          <span>Uploading to storage & saving to database...</span>
+        </div>
+      )}
+      {uploadError && (
+        <p className="mt-1 text-xs text-destructive">{uploadError}</p>
+      )}
+
+      {/* Preview */}
+      {value && !uploading && (
+        <div className="mt-2 relative group">
+          <Image 
+            src={value} 
+            width={400} 
+            quality={72} 
+            alt={label} 
+            imageClassName="h-20 w-full object-cover rounded-lg border" 
+          />
+          <button aria-label="Remove image" onClick={() => onChange("")} className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <X className="w-3 h-3 text-white" />
+          </button>
+        </div>
+      )}
+
+      {/* Picker Dialog */}
+      <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
+        <DialogContent className="max-w-3xl max-h-[70vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Select {label}</DialogTitle>
+            <DialogDescription>Choose from your media library or upload a new image.</DialogDescription>
+          </DialogHeader>
+
+          <div className="flex gap-2 mb-4">
+            <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
+              {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
+              Upload New
+            </Button>
+          </div>
+
+          {loadingMedia ? (
+            <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin" /></div>
+          ) : (
+            <div className="grid grid-cols-4 md:grid-cols-5 gap-2">
+              {mediaFiles.filter(f => f.url && /\.(jpg|jpeg|png|webp|gif|avif)/i.test(f.url)).map((file) => (
+                <button
+                  key={file.url}
+                  aria-label={`Select ${file.name}`}
+                  onClick={() => { onChange(file.url); setPickerOpen(false); }}
+                  className={cn(
+                    "relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:border-primary",
+                    value === file.url ? "border-primary ring-2 ring-primary/30" : "border-transparent"
+                  )}
+                >
+                  <Image 
+                    src={file.url} 
+                    width={200} 
+                    quality={70} 
+                    alt={file.name} 
+                    imageClassName="w-full h-full object-cover" 
+                  />
+                  {value === file.url && (
+                    <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                      <Check className="w-5 h-5 text-primary" />
+                    </div>
+                  )}
+                </button>
+              ))}
+              {mediaFiles.filter(f => f.url && /\.(jpg|jpeg|png|webp|gif|avif)/i.test(f.url)).length === 0 && (
+                <p className="col-span-full text-center text-sm text-muted-foreground py-8">No images in media library yet.</p>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// ─── Main Component ─────────────────────────────────────────────────────────
+
+interface TransformationStory {
+  id: string;
+  title: string;
+  location: string;
+  before_media: string;
+  after_media: string;
+  challenge: string;
+  design_moves: string[];
+  products_used: { name: string; brand: string; spec: string }[];
+  outcome_metric: string;
+  testimonial_quote: string | null;
+  testimonial_client_name: string | null;
+  display_order: number;
+  active: boolean;
+}
+
+interface FormData {
+  title: string;
+  location: string;
+  before_media: string;
+  after_media: string;
+  challenge: string;
+  design_moves: string;
+  outcome_metric: string;
+  testimonial_quote: string;
+  testimonial_client_name: string;
+  active: boolean;
+}
+
+const defaultForm: FormData = {
+  title: "", location: "", before_media: "", after_media: "",
+  challenge: "", design_moves: "", outcome_metric: "",
+  testimonial_quote: "", testimonial_client_name: "", active: true,
+};
+
+export default function AdminTransformations() {
+  const [stories, setStories] = useState<TransformationStory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState<FormData>(defaultForm);
+  const { toast } = useToast();
+
+  const fetchStories = async () => {
+    setLoading(true);
+    const { data } = await supabase.from("transformation_stories").select("*").order("display_order", { ascending: true });
+    if (data) setStories(data as TransformationStory[]);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchStories(); }, []);
+
+  const openCreate = () => { setEditingId(null); setForm(defaultForm); setDialogOpen(true); };
+
+  const openEdit = (s: TransformationStory) => {
+    setEditingId(s.id);
+    setForm({
+      title: s.title, location: s.location,
+      before_media: s.before_media, after_media: s.after_media,
+      challenge: s.challenge, design_moves: s.design_moves.join("\n"),
+      outcome_metric: s.outcome_metric,
+      testimonial_quote: s.testimonial_quote || "",
+      testimonial_client_name: s.testimonial_client_name || "",
+      active: s.active,
+    });
+    setDialogOpen(true);
+  };
+
+  const handleSave = async () => {
+    if (!form.title.trim()) { toast({ title: "Title required", variant: "destructive" }); return; }
+    setSaving(true);
+    const payload = {
+      title: form.title.trim(), location: form.location.trim(),
+      before_media: form.before_media.trim(), after_media: form.after_media.trim(),
+      challenge: form.challenge.trim(),
+      design_moves: form.design_moves.split("\n").filter(Boolean),
+      outcome_metric: form.outcome_metric.trim(),
+      testimonial_quote: form.testimonial_quote.trim() || null,
+      testimonial_client_name: form.testimonial_client_name.trim() || null,
+      active: form.active,
+    };
+    let error;
+    if (editingId) {
+      ({ error } = await supabase.from("transformation_stories").update(payload).eq("id", editingId));
+    } else {
+      const maxOrder = stories.length > 0 ? Math.max(...stories.map(s => s.display_order)) + 1 : 0;
+      ({ error } = await supabase.from("transformation_stories").insert({ ...payload, display_order: maxOrder }));
+    }
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Saved!" }); setDialogOpen(false); fetchStories(); }
+    setSaving(false);
+  };
+
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`Delete "${title}"?`)) return;
+    await supabase.from("transformation_stories").delete().eq("id", id);
+    toast({ title: "Deleted" }); fetchStories();
+  };
+
+  const toggleActive = async (id: string, active: boolean) => {
+    await supabase.from("transformation_stories").update({ active: !active }).eq("id", id);
+    fetchStories();
+  };
+
+  const moveOrder = async (id: string, dir: "up" | "down") => {
+    const idx = stories.findIndex(s => s.id === id);
+    const swapIdx = dir === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= stories.length) return;
+    await Promise.all([
+      supabase.from("transformation_stories").update({ display_order: stories[swapIdx].display_order }).eq("id", stories[idx].id),
+      supabase.from("transformation_stories").update({ display_order: stories[idx].display_order }).eq("id", stories[swapIdx].id),
+    ]);
+    fetchStories();
+  };
+
+  return (
+    <div className="space-y-6">
+      <ModuleActions>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted-foreground">{stories.filter(s => s.active).length} active / {stories.length} total</span>
+          <Button onClick={openCreate} size="sm"><Plus className="w-4 h-4 mr-2" /> Add Transformation</Button>
+        </div>
+      </ModuleActions>
+
+      {loading ? (
+        <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
+      ) : stories.length === 0 ? (
+        <div className="text-center py-16 border border-dashed border-admin-border rounded-xl">
+          <ImageIcon className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
+          <p className="text-muted-foreground text-sm">No transformation stories yet.</p>
+          <Button onClick={openCreate} size="sm" className="mt-4"><Plus className="w-4 h-4 mr-2" /> Add First Story</Button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {stories.map((story, idx) => (
+            <div key={story.id} className={cn("grid grid-cols-[auto_1fr_auto] items-center gap-4 p-4 rounded-xl border", story.active ? "bg-admin-card border-admin-border" : "bg-admin-card/50 border-admin-border/50 opacity-60")}>
+              <div className="flex gap-1 shrink-0">
+                <div className="w-20 h-14 rounded-lg overflow-hidden bg-muted border border-admin-border">
+                  {story.before_media ? (
+                    <Image 
+                      src={story.before_media} 
+                      width={200} 
+                      quality={70} 
+                      alt="Before" 
+                      imageClassName="w-full h-full object-cover" 
+                    />
+                  ) : <div className="w-full h-full flex items-center justify-center text-[9px] text-muted-foreground">Before</div>}
+                </div>
+                <div className="w-20 h-14 rounded-lg overflow-hidden bg-muted border border-admin-border">
+                  {story.after_media ? (
+                    <Image 
+                      src={story.after_media} 
+                      width={200} 
+                      quality={70} 
+                      alt="After" 
+                      imageClassName="w-full h-full object-cover" 
+                    />
+                  ) : <div className="w-full h-full flex items-center justify-center text-[9px] text-muted-foreground">After</div>}
+                </div>
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="font-medium text-sm truncate">{story.title}</h4>
+                  {!story.before_media || !story.after_media ? <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/30">Needs Images</Badge> : <Badge variant="outline" className="text-[10px] text-emerald-500 border-emerald-500/30">Ready</Badge>}
+                </div>
+                <p className="text-xs text-muted-foreground truncate">{story.location} · {story.design_moves.length} design moves</p>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <Button variant="ghost" size="icon" aria-label="Move up" className="h-8 w-8" onClick={() => moveOrder(story.id, "up")} disabled={idx === 0}><ArrowUp className="w-3.5 h-3.5" /></Button>
+                <Button variant="ghost" size="icon" aria-label="Move down" className="h-8 w-8" onClick={() => moveOrder(story.id, "down")} disabled={idx === stories.length - 1}><ArrowDown className="w-3.5 h-3.5" /></Button>
+                <Button variant="ghost" size="icon" aria-label={story.active ? "Hide story" : "Show story"} className="h-8 w-8" onClick={() => toggleActive(story.id, story.active)}>{story.active ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}</Button>
+                <Button variant="ghost" size="icon" aria-label="Edit story" className="h-8 w-8" onClick={() => openEdit(story)}><Pencil className="w-3.5 h-3.5" /></Button>
+                <Button variant="ghost" size="icon" aria-label="Delete story" className="h-8 w-8" onClick={() => handleDelete(story.id, story.title)}><Trash2 className="w-3.5 h-3.5 text-destructive" /></Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ─── Create/Edit Dialog ─── */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Edit" : "New"} Transformation Story</DialogTitle>
+            <DialogDescription>Manage the Before & After showcase on the homepage.</DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-4">
+            {/* Left: Form Fields */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label className="text-xs">Title *</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Master Bedroom Makeover" /></div>
+                <div><Label className="text-xs">Location</Label><Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="JAMSHEDPUR" /></div>
+              </div>
+
+              <MediaPicker label="Before Image" value={form.before_media} onChange={(url) => setForm({ ...form, before_media: url })} />
+              <MediaPicker label="After Image" value={form.after_media} onChange={(url) => setForm({ ...form, after_media: url })} />
+
+              <div><Label className="text-xs">The Challenge</Label><Textarea value={form.challenge} onChange={(e) => setForm({ ...form, challenge: e.target.value })} rows={2} placeholder="What problem did the client face?" /></div>
+              <div>
+                <Label className="text-xs">Design Moves (one per line)</Label>
+                <Textarea value={form.design_moves} onChange={(e) => setForm({ ...form, design_moves: e.target.value })} rows={3} placeholder="Each design decision..." />
+              </div>
+              <div><Label className="text-xs">Outcome</Label><Input value={form.outcome_metric} onChange={(e) => setForm({ ...form, outcome_metric: e.target.value })} placeholder="Completed in 30 days..." /></div>
+
+              <div className="p-3 rounded-lg border border-dashed border-admin-border">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 block">Client Testimonial (optional)</span>
+                <Textarea value={form.testimonial_quote} onChange={(e) => setForm({ ...form, testimonial_quote: e.target.value })} rows={2} placeholder="Client quote..." className="mb-2" />
+                <Input value={form.testimonial_client_name} onChange={(e) => setForm({ ...form, testimonial_client_name: e.target.value })} placeholder="Client name" />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} />
+                <Label className="text-sm">Show on website</Label>
+              </div>
+            </div>
+
+            {/* Right: Live Preview */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Live Preview</span>
+              </div>
+
+              {/* Compare Slider Preview */}
+              <div className="aspect-[4/3] rounded-xl overflow-hidden border border-admin-border bg-black relative">
+                {form.before_media && form.after_media ? (
+                  <Compare
+                    firstImage={form.before_media}
+                    secondImage={form.after_media}
+                    firstImageClassName="object-cover"
+                    secondImageClassname="object-cover"
+                    className="w-full h-full"
+                    slideMode="drag"
+                    initialSliderPercentage={50}
+                    showHandlebar={true}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
+                    <div className="text-center">
+                      <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                      <p>Add both images to see the slider preview</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Before/After labels */}
+                {form.before_media && form.after_media && (
+                  <>
+                    <div className="absolute bottom-3 left-3 px-2 py-1 bg-black/70 rounded text-[9px] uppercase text-white/80 pointer-events-none">Before</div>
+                    <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/70 rounded text-[9px] uppercase text-amber-400 pointer-events-none">After</div>
+                  </>
+                )}
+              </div>
+
+              {/* Text Preview */}
+              <div className="p-4 rounded-xl border border-admin-border bg-black/50 text-white">
+                <h4 className="font-medium text-base mb-1">{form.title || "Project Title"}</h4>
+                <p className="text-white/40 text-xs mb-3">{form.location || "Location"}</p>
+                {form.challenge && <p className="text-white/60 text-xs italic mb-2">"{form.challenge.slice(0, 80)}..."</p>}
+                {form.testimonial_quote && (
+                  <div className="border-l-2 border-amber-500/40 pl-3 mt-3">
+                    <p className="text-white/70 text-xs italic">"{form.testimonial_quote.slice(0, 60)}..."</p>
+                    <span className="text-white/40 text-[10px]">— {form.testimonial_client_name || "Client"}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {editingId ? "Save Changes" : "Create Story"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

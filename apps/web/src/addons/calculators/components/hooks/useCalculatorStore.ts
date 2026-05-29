@@ -2,14 +2,24 @@
    Calculator Store — 7-step flow
    ═══════════════════════════════════════════════ */
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import type { CalculatorFormData, EstimateResult, LeadScore, PricingConfig } from "../data/types";
 import { calculateEstimate } from "../data/calculation-engine";
 import { DEFAULT_PRICING_CONFIG } from "../data/pricing-config";
+import { loadDiscoveryResult } from "@/addons/discovery/core/persistence";
+import { getEstimatorPreFill } from "../data/archetype-mapping";
+import { buildDiscoveryHandoff } from "../data/discovery-handoff";
+import { computeEstimate } from "../data/estimator-engine";
+import { runALCSPipeline } from "../data/engines";
+import type { OrchestratorOutput } from "../data/engines";
+import type { DiscoveryHandoff, EstimatorResponse } from "../data/discovery-handoff";
+import type { ExecutionBlueprint } from "../data/engines/types";
 import { supabase } from "@/lib/supabase";
+import type { AnalyticsClient } from "@/analytics/posthog-client";
+import { track } from "@/analytics/track";
 
 const TOTAL_STEPS = 8; // 0..6 = input steps, 7 = results
-const STORAGE_KEY = "interior-estimator-draft";
+const ESTIMATOR_DRAFT_KEY = "interior-estimator-draft";
 
 const INITIAL_FORM_DATA: CalculatorFormData = {
     // Step 1
@@ -68,30 +78,132 @@ const INITIAL_FORM_DATA: CalculatorFormData = {
     phone: "",
 };
 
-/** Load persisted draft from localStorage */
-function loadDraft(): CalculatorFormData {
+/** Snapshot of the values applied by a Discovery pre-fill — used for analytics outcome tracking. */
+interface DiscoveryPreFillSnapshot {
+    archetype: string;
+    service: string;
+    executionTier: string | null;
+    /** Form-field names of add-ons that were toggled on by the pre-fill */
+    addonFields: string[];
+    hasAiIdentity: boolean;
+}
+
+/** Load persisted draft from localStorage and optionally apply Discovery pre-fill */
+function loadDraft(): {
+    data: CalculatorFormData;
+    appliedDiscovery: boolean;
+    displayName: string;
+    rationale: string;
+    prefillSnapshot: DiscoveryPreFillSnapshot | null;
+    discoveryHandoff: DiscoveryHandoff | null;
+} {
+    let data = { ...INITIAL_FORM_DATA };
+    let appliedDiscovery = false;
+    let displayName = "";
+    let rationale = "";
+    let prefillSnapshot: DiscoveryPreFillSnapshot | null = null;
+    let discoveryHandoff: DiscoveryHandoff | null = null;
+
+    // 1. Restore any in-progress draft
     try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(ESTIMATOR_DRAFT_KEY);
         if (raw) {
             const parsed = JSON.parse(raw) as Partial<CalculatorFormData>;
-            return { ...INITIAL_FORM_DATA, ...parsed };
+            data = { ...data, ...parsed };
         }
-    } catch { /* ignore */ }
-    return { ...INITIAL_FORM_DATA };
+    } catch (e) {
+        console.warn("[Estimator] Could not load draft:", e);
+    }
+
+    // 2. Apply Discovery pre-fill ONLY when the user hasn't picked a service yet
+    //    (i.e. a fresh session, not an in-progress form)
+    if (data.selectedService === null) {
+        const discovery = loadDiscoveryResult();
+        if (discovery) {
+            const preFill = getEstimatorPreFill(discovery.archetype);
+            if (preFill.selectedService) {
+                data.selectedService = preFill.selectedService;
+                if (preFill.executionTier) data.executionTier = preFill.executionTier;
+                data = { ...data, ...preFill.addons };
+                appliedDiscovery = true;
+                displayName = discovery.aiIdentity?.identityName || discovery.displayName || discovery.archetype;
+                rationale = preFill.rationale;
+                // Snapshot the originally-applied values for outcome analytics at submission time
+                const addonFields = Object.entries(preFill.addons)
+                    .filter(([, v]) => v === true)
+                    .map(([k]) => k);
+                prefillSnapshot = {
+                    archetype: discovery.archetype,
+                    service: preFill.selectedService,
+                    executionTier: preFill.executionTier,
+                    addonFields,
+                    hasAiIdentity: !!discovery.aiIdentity?.identityName,
+                };
+                // Build ALCS DiscoveryHandoff from the saved session signals
+                if (discovery.signals) {
+                    try {
+                        discoveryHandoff = buildDiscoveryHandoff(
+                            discovery.signals,
+                            discovery.archetype,
+                            (discovery as { archetypeConfidence?: number }).archetypeConfidence ?? 0.8
+                        );
+                    } catch (e) {
+                        console.warn("[Estimator] Could not build discovery handoff:", e);
+                    }
+                }
+                // Persist the merged state so page refreshes don't re-apply
+                try {
+                    localStorage.setItem(ESTIMATOR_DRAFT_KEY, JSON.stringify(data));
+                } catch { /* quota / private mode */ }
+            }
+        }
+    }
+
+    return { data, appliedDiscovery, displayName, rationale, prefillSnapshot, discoveryHandoff };
 }
 
 /** Save current form to localStorage */
 function saveDraft(data: CalculatorFormData) {
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        localStorage.setItem(ESTIMATOR_DRAFT_KEY, JSON.stringify(data));
     } catch { /* ignore */ }
 }
 
-export function useCalculatorStore() {
-    const [formData, setFormData] = useState<CalculatorFormData>(loadDraft);
+export function useCalculatorStore(analytics?: AnalyticsClient) {
+    const draftResult = useMemo(() => loadDraft(), []);
+    const [formData, setFormData] = useState<CalculatorFormData>(draftResult.data);
+    const [discoveryApplied, setDiscoveryApplied] = useState(draftResult.appliedDiscovery);
+    const [discoveryName] = useState(draftResult.displayName);
+    const [discoveryRationale] = useState(draftResult.rationale);
     const [currentStep, setCurrentStep] = useState(0);
     const [showResults, setShowResults] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+
+    /** ALCS: Discovery handoff loaded at mount (from localStorage) */
+    const discoveryHandoff: DiscoveryHandoff | null = draftResult.discoveryHandoff;
+
+    /** Captured pre-fill snapshot — used to compute the outcome event at lead submission. */
+    const prefillSnapshotRef = useRef<DiscoveryPreFillSnapshot | null>(draftResult.prefillSnapshot);
+    /** Fired-once guard for discovery_prefill_applied. */
+    const prefillAppliedFiredRef = useRef(false);
+
+    /**
+     * Fire `discovery_prefill_applied` exactly once when a Discovery pre-fill was applied on this mount.
+     * Runs after mount so the analytics client (which is consent-gated) is fully initialised.
+     */
+    useEffect(() => {
+        if (prefillAppliedFiredRef.current) return;
+        const snap = prefillSnapshotRef.current;
+        if (!snap || !analytics) return;
+        prefillAppliedFiredRef.current = true;
+        track(analytics, "discovery_prefill_applied", {
+            archetype: snap.archetype,
+            service: snap.service,
+            executionTier: snap.executionTier,
+            addonsApplied: snap.addonFields,
+            hasAiIdentity: snap.hasAiIdentity,
+        });
+    }, [analytics]);
 
     // Dynamic config pulled from Admin DB
     const [pricingConfig, setPricingConfig] = useState<PricingConfig>(DEFAULT_PRICING_CONFIG);
@@ -99,7 +211,8 @@ export function useCalculatorStore() {
     useEffect(() => {
         const fetchConfig = async () => {
             try {
-                const { data } = await supabase
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { data } = await (supabase as any)
                     .from("estimate_rates")
                     .select("config")
                     .order("updated_at", { ascending: false })
@@ -141,17 +254,40 @@ export function useCalculatorStore() {
         return calculateEstimate(formData, pricingConfig);
     }, [formData, pricingConfig]);
 
+    /**
+     * ALCS Full Pipeline — runs all 10 engines when Discovery handoff exists.
+     * Produces:
+     * - executionBlueprint: the 9-section final result
+     * - alcsEstimatorResponse: legacy EstimatorResponse for backward-compat UI
+     * - engineResults: raw results from each engine for granular UI access
+     *
+     * Pure computation, safe in useMemo.
+     */
+    const alcsPipeline: OrchestratorOutput | null = useMemo(() => {
+        if (!discoveryHandoff) return null;
+        try {
+            return runALCSPipeline({ handoff: discoveryHandoff });
+        } catch (e) {
+            console.warn("[Estimator] ALCS pipeline error:", e);
+            return null;
+        }
+    }, [discoveryHandoff]);
+
+    const alcsEstimatorResponse: EstimatorResponse | null = alcsPipeline?.engines.costEngine ?? null;
+    const executionBlueprint: ExecutionBlueprint | null = alcsPipeline?.blueprint ?? null;
+
     /** Step navigation */
     const nextStep = useCallback(() => {
         setCurrentStep(prev => {
             if (prev >= TOTAL_STEPS - 2) {
-                // last input step → show results
                 setShowResults(true);
+                if (analytics) track(analytics, "estimate_path_selected", { pathId: "calculator_complete" });
                 return prev;
             }
+            if (analytics) track(analytics, "estimate_path_selected", { pathId: `calculator_step_${prev + 1}` });
             return prev + 1;
         });
-    }, []);
+    }, [analytics]);
 
     const prevStep = useCallback(() => {
         if (showResults) {
@@ -168,13 +304,26 @@ export function useCalculatorStore() {
         }
     }, []);
 
+    /** Dismiss the Discovery badge without resetting pre-filled values */
+    const dismissDiscovery = useCallback(() => {
+        const snap = prefillSnapshotRef.current;
+        if (snap && analytics) {
+            track(analytics, "discovery_prefill_dismissed", {
+                archetype: snap.archetype,
+                step: currentStep,
+            });
+        }
+        setDiscoveryApplied(false);
+    }, [analytics, currentStep]);
+
     /** Reset everything */
     const reset = useCallback(() => {
         const fresh = { ...INITIAL_FORM_DATA };
         setFormData(fresh);
         setCurrentStep(0);
         setShowResults(false);
-        localStorage.removeItem(STORAGE_KEY);
+        setDiscoveryApplied(false);
+        localStorage.removeItem(ESTIMATOR_DRAFT_KEY);
     }, []);
 
     /** can proceed? — per-step validation */
@@ -190,6 +339,22 @@ export function useCalculatorStore() {
             default: return false;
         }
     }, [currentStep, formData]);
+
+    /** Validation message explaining why Continue is disabled */
+    const validationMessage = useMemo(() => {
+        if (canProceed) return "";
+        switch (currentStep) {
+            case 0: return "Select a property type to continue";
+            case 1: return "Set your area (sq ft) to continue";
+            case 2: return "Select your city to continue";
+            case 3: return "Set your budget to continue";
+            case 4: return formData.selectedService === "C5" && !formData.executionTier
+                ? "Select an execution tier for Full Scope"
+                : "Select a service to continue";
+            case 6: return !formData.name ? "Enter your name" : "Enter your phone number";
+            default: return "";
+        }
+    }, [canProceed, currentStep, formData]);
 
     /** Score a lead */
     const scoreLead = useCallback((): LeadScore => {
@@ -258,13 +423,34 @@ export function useCalculatorStore() {
 
             // Note: the backend handles creating the lead and inserting it into estimate_leads.
             console.log("Lead securely captured via edge function:", data);
+
+            // Conversion analytics: did the Discovery pre-fill survive to lead submission?
+            const snap = prefillSnapshotRef.current;
+            if (snap && analytics) {
+                const finalService = formData.selectedService;
+                const finalTier = formData.executionTier;
+                const addonsKeptCount = snap.addonFields.filter(
+                    (field) => (formData as unknown as Record<string, unknown>)[field] === true
+                ).length;
+                track(analytics, "discovery_prefill_outcome", {
+                    archetype: snap.archetype,
+                    originalService: snap.service,
+                    finalService,
+                    originalTier: snap.executionTier,
+                    finalTier,
+                    serviceKept: finalService === snap.service,
+                    tierKept: finalTier === snap.executionTier,
+                    addonsKeptCount,
+                    addonsOriginalCount: snap.addonFields.length,
+                });
+            }
         } catch (err) {
             console.error("Failed to save lead securely:", err);
             // Non-blocking for user UX. 
         } finally {
             setIsSaving(false);
         }
-    }, [estimate, formData]);
+    }, [estimate, formData, analytics]);
 
     return {
         formData,
@@ -272,6 +458,7 @@ export function useCalculatorStore() {
         showResults,
         estimate,
         canProceed,
+        validationMessage,
         isSaving,
         totalSteps: TOTAL_STEPS - 1,
         updateField,
@@ -282,5 +469,14 @@ export function useCalculatorStore() {
         reset,
         saveLead,
         scoreLead,
+        discoveryApplied,
+        discoveryName,
+        discoveryRationale,
+        dismissDiscovery,
+        // ALCS Engine outputs
+        discoveryHandoff,
+        alcsEstimatorResponse,
+        executionBlueprint,
+        alcsPipeline,
     };
 }

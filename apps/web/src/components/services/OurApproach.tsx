@@ -47,7 +47,7 @@ const OurApproach = () => {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="text-[1.1rem] font-light text-white/40 leading-relaxed max-w-[48ch] mb-16"
+              className="text-[1.1rem] font-light text-white/60 leading-relaxed max-w-[48ch] mb-16"
             >
               End-to-end project handling from the first concept sketch to the final furniture arrangement. A single point of accountability for every decision, supplier, and deadline.
             </motion.p>
@@ -72,7 +72,7 @@ const OurApproach = () => {
                     <div className="font-bold text-[11px] tracking-[0.2em] uppercase mb-3 text-white">
                       {pillar.title}
                     </div>
-                    <p className="text-[0.95rem] text-white/40 leading-relaxed font-light group-hover:text-white/60 transition-colors">
+                    <p className="text-[0.95rem] text-white/60 leading-relaxed font-light group-hover:text-white/60 transition-colors">
                       {pillar.desc}
                     </p>
                   </div>
@@ -106,7 +106,7 @@ const OurApproach = () => {
                     className="group"
                   >
                     <div className="font-display italic font-light text-[clamp(2.5rem,5vw,5rem)] leading-none text-white mb-2 group-hover:text-site-crimson transition-colors duration-500">₹2–20Cr+</div>
-                    <div className="font-bold text-[10px] tracking-[0.2em] uppercase text-white/30">Project Value Threshold</div>
+                    <div className="font-bold text-[10px] tracking-[0.2em] uppercase text-white/60">Project Value Threshold</div>
                   </motion.div>
 
                   <motion.div 
@@ -116,7 +116,7 @@ const OurApproach = () => {
                     className="group"
                   >
                     <div className="font-display italic font-light text-[clamp(2.5rem,5vw,5rem)] leading-none text-white mb-2 group-hover:text-site-crimson transition-colors duration-500">95%</div>
-                    <div className="font-bold text-[10px] tracking-[0.2em] uppercase text-white/30">Execution Fidelity Rate</div>
+                    <div className="font-bold text-[10px] tracking-[0.2em] uppercase text-white/60">Execution Fidelity Rate</div>
                   </motion.div>
 
                   <motion.div 
@@ -126,7 +126,7 @@ const OurApproach = () => {
                     className="group"
                   >
                     <div className="font-display italic font-light text-[clamp(1.8rem,3vw,3rem)] leading-none text-white mb-2 group-hover:text-site-crimson transition-colors duration-500">On-Time Delivery</div>
-                    <div className="font-bold text-[10px] tracking-[0.2em] uppercase text-white/30">Contractually Guaranteed</div>
+                    <div className="font-bold text-[10px] tracking-[0.2em] uppercase text-white/60">Contractually Guaranteed</div>
                   </motion.div>
                 </div>
               </div>

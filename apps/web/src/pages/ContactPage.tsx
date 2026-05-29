@@ -8,8 +8,10 @@ import ContactHero from "@/components/contact/ContactHero";
 import CTAContact from "@/components/shared/CTAContact";
 import ContactFAQ from "@/components/contact/ContactFAQ";
 import SocialBar from "@/components/contact/SocialBar";
+import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
+import { SITE_CONSTANTS } from "@/lib/constants";
 
-// Lazy load the Mapbox component to save bundle size
+// Lazy load the map component to save bundle size
 const InteractiveMap = lazy(() => import("@/components/contact/InteractiveMap"));
 
 const ContactPage = () => {
@@ -26,7 +28,29 @@ const ContactPage = () => {
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/contact-us" />
       </Helmet>
+
+      <SchemaMarkup
+        type="BreadcrumbList"
+        data={{
+          items: [
+            { name: "Home", url: "/" },
+            { name: "Contact Us", url: "/contact-us" }
+          ]
+        }}
+      />
+
+      <SchemaMarkup
+        type="InteriorDesigner"
+        data={{
+          name: "Cross Angle Interior",
+          telephone: SITE_CONSTANTS.defaultPhone,
+          email: SITE_CONSTANTS.defaultEmail,
+          url: "https://crossangleinterior.com/contact-us"
+        }}
+      />
+
       <FixedSocialBar />
+
       <Navbar />
       <main className="home-shell min-h-screen relative overflow-hidden bg-[var(--site-bg)]">
         <div className="home-noise pointer-events-none absolute inset-0 z-0" />

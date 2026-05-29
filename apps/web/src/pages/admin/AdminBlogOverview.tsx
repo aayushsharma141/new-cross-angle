@@ -1,29 +1,23 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { motion } from "framer-motion";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import {
-    BarChart3,
     Eye,
     Clock,
     MousePointerClick,
-    Users,
-    TrendingUp,
     ArrowUpRight,
-    Search,
-    Filter,
-    ArrowLeft,
     Scroll,
-    Mail,
     Share2,
-    CalendarIcon,
     RefreshCw,
+    FileText,
     type LucideIcon,
 } from "lucide-react";
-import { format, subDays, startOfDay, endOfDay } from "date-fns";
+import { format, subDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/primitives/button";
 import { Skeleton } from "@/components/ui/primitives/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
+import { Card, CardContent } from "@/components/ui/primitives/card";
 import {
     BarChart,
     Bar,
@@ -34,21 +28,22 @@ import {
     AreaChart,
     Area,
     CartesianGrid,
-    Cell
+    Cell,
 } from "recharts";
-import { icons } from "@/design-system/tokens/icons";
+import { queryKeys } from "@/lib/queryKeys";
 
-/* ───────────────────────────────────────────────
-   Types
-   ─────────────────────────────────────────────── */
+/* ─── Types ─── */
 interface ArticleMetric {
     id: string;
     title: string;
+    slug: string;
+    status: string;
     views: number;
-    avg_read_time: number;
-    avg_scroll_depth: number;
-    newsletter_signups: number;
-    share_clicks: number;
+    scrollDepth: number;
+    readTime: number;
+    ctaClicks: number;
+    shares: number;
+    created_at: string;
 }
 
 interface DailyStat {
@@ -57,334 +52,304 @@ interface DailyStat {
     events: number;
 }
 
-interface BlogRow {
-    id: string;
-    title: string;
+interface BlogOverviewData {
+    articles: ArticleMetric[];
+    dailyStats: DailyStat[];
 }
 
-interface AnalyticsRow {
-    article_id: string;
-    total_views: number | null;
-    avg_read_time_seconds: number | null;
-    avg_scroll_depth: number | null;
-}
+/* ─── Fetch function ─── */
+async function fetchBlogOverview(): Promise<BlogOverviewData> {
+    const { data: blogs } = await supabase
+        .from("blog_posts")
+        .select("id, title, slug, status, created_at")
+        .order("created_at", { ascending: false });
 
-const STAT_COLOR_STYLES = {
-    blue: {
-        bar: "bg-blue-500/50 group-hover:bg-blue-500",
-        icon: "text-blue-500",
-    },
-    emerald: {
-        bar: "bg-emerald-500/50 group-hover:bg-emerald-500",
-        icon: "text-emerald-500",
-    },
-    amber: {
-        bar: "bg-amber-500/50 group-hover:bg-amber-500",
-        icon: "text-amber-500",
-    },
-    pink: {
-        bar: "bg-pink-500/50 group-hover:bg-pink-500",
-        icon: "text-pink-500",
-    },
-} as const;
+    const ninetyDaysAgo = subDays(new Date(), 90).toISOString();
+    const { data: events } = await (supabase as any)
+        .from("blog_user_events")
+        .select("article_id, event_type, metadata, created_at")
+        .gte("created_at", ninetyDaysAgo);
 
-type StatColor = keyof typeof STAT_COLOR_STYLES;
+    const allEvents = (events || []) as {
+        article_id: string | null;
+        event_type: string;
+        metadata: Record<string, unknown> | null;
+        created_at: string;
+    }[];
 
-/* ───────────────────────────────────────────────
-   Component
-   ─────────────────────────────────────────────── */
-export default function AdminBlogOverview() {
-    const [articleMetrics, setArticleMetrics] = useState<ArticleMetric[]>([]);
-    const [dailyStats, setDailyStats] = useState<DailyStat[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
-    const [topStats, setTopStats] = useState({
-        totalViews: 0,
-        avgReadTime: 0,
-        totalNewsletter: 0,
-        avgCompletion: 0
+    // Aggregate per article
+    const metricsMap: Record<string, { views: number; scrollDepth: number[]; readTime: number[]; ctaClicks: number; shares: number }> = {};
+
+    for (const ev of allEvents) {
+        const aid = ev.article_id || "__global__";
+        if (!metricsMap[aid]) metricsMap[aid] = { views: 0, scrollDepth: [], readTime: [], ctaClicks: 0, shares: 0 };
+        const m = metricsMap[aid];
+
+        switch (ev.event_type) {
+            case "article_view":
+            case "page_view":
+                m.views++;
+                break;
+            case "scroll_depth":
+                m.scrollDepth.push(Number((ev.metadata as any)?.depth) || 0);
+                break;
+            case "reading_time":
+                m.readTime.push(Number((ev.metadata as any)?.time_spent_seconds) || 0);
+                break;
+            case "cta_click":
+                m.ctaClicks++;
+                break;
+            case "share_click":
+                m.shares++;
+                break;
+        }
+    }
+
+    const articles: ArticleMetric[] = (blogs || []).map((blog) => {
+        const m = metricsMap[blog.id] || { views: 0, scrollDepth: [], readTime: [], ctaClicks: 0, shares: 0 };
+        return {
+            id: blog.id,
+            title: blog.title,
+            slug: blog.slug,
+            status: blog.status,
+            views: m.views,
+            scrollDepth: m.scrollDepth.length > 0 ? Math.round(m.scrollDepth.reduce((a, b) => a + b, 0) / m.scrollDepth.length) : 0,
+            readTime: m.readTime.length > 0 ? Math.round(m.readTime.reduce((a, b) => a + b, 0) / m.readTime.length) : 0,
+            ctaClicks: m.ctaClicks,
+            shares: m.shares,
+            created_at: blog.created_at || "",
+        };
     });
 
-    const loadData = useCallback(async () => {
-        setRefreshing(true);
-        try {
-            // 1. Fetch core blog data (only guaranteed columns)
-            const { data: blogs } = await supabase
-                .from('blog_posts')
-                .select('id, title');
-
-            // 1b. Fetch analytics (may not exist)
-            const analyticsMap: Record<string, { views: number; read_time: number; scroll_depth: number }> = {};
-            try {
-                const { data: ad } = await supabase
-                    .from('article_analytics')
-                    .select('article_id, total_views, avg_read_time_seconds, avg_scroll_depth');
-                if (ad) ad.forEach((row: AnalyticsRow) => {
-                    analyticsMap[row.article_id] = {
-                        views: row.total_views || 0,
-                        read_time: row.avg_read_time_seconds || 0,
-                        scroll_depth: row.avg_scroll_depth || 0,
-                    };
-                });
-            } catch { /* table may not exist */ }
-
-            // 2. Fetch Newsletter Count (may not exist)
-            let newsCount = 0;
-            try {
-                const { count } = await supabase
-                    .from('newsletter_subscribers')
-                    .select('*', { count: 'exact', head: true });
-                newsCount = count || 0;
-            } catch { /* table may not exist */ }
-
-            // 3. Fetch Recent Events for Daily Trends (may not exist)
-            let events: { created_at: string; event_type: string }[] = [];
-            try {
-                const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
-                const { data: eventData } = await supabase
-                    .from('blog_user_events')
-                    .select('created_at, event_type')
-                    .gte('created_at', thirtyDaysAgo);
-                events = (eventData as any[]) || [];
-            } catch { /* table may not exist */ }
-
-            if (blogs) {
-                const metrics: ArticleMetric[] = (blogs as BlogRow[]).map((article) => ({
-                    id: article.id,
-                    title: article.title,
-                    views: analyticsMap[article.id]?.views ?? 0,
-                    avg_read_time: analyticsMap[article.id]?.read_time ?? 0,
-                    avg_scroll_depth: analyticsMap[article.id]?.scroll_depth ?? 0,
-                    newsletter_signups: 0,
-                    share_clicks: 0
-                }));
-                setArticleMetrics(metrics.sort((a, b) => b.views - a.views));
-
-                const totalViews = metrics.reduce((sum, m) => sum + m.views, 0);
-                const avgRead = metrics.length ? metrics.reduce((sum, m) => sum + m.avg_read_time, 0) / metrics.length : 0;
-                const avgScroll = metrics.length ? metrics.reduce((sum, m) => sum + m.avg_scroll_depth, 0) / metrics.length : 0;
-
-                setTopStats({
-                    totalViews,
-                    avgReadTime: avgRead,
-                    totalNewsletter: newsCount,
-                    avgCompletion: avgScroll
-                });
-            }
-
-            if (events.length > 0) {
-                const dayMap: Record<string, DailyStat> = {};
-                events.forEach(e => {
-                    const d = format(new Date(e.created_at), 'MMM d');
-                    if (!dayMap[d]) dayMap[d] = { date: d, views: 0, events: 0 };
-                    if (e.event_type === 'page_view') dayMap[d].views++;
-                    dayMap[d].events++;
-                });
-                setDailyStats(Object.values(dayMap));
-            }
-
-        } catch (err) {
-            console.error("Failed to load blog analytics", err);
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
+    // Daily stats (last 30 days)
+    const thirtyDaysAgo = subDays(new Date(), 30);
+    const dayMap: Record<string, DailyStat> = {};
+    for (let i = 29; i >= 0; i--) {
+        const d = format(subDays(new Date(), i), "MMM d");
+        dayMap[d] = { date: d, views: 0, events: 0 };
+    }
+    for (const ev of allEvents) {
+        if (new Date(ev.created_at) < thirtyDaysAgo) continue;
+        const d = format(new Date(ev.created_at), "MMM d");
+        if (dayMap[d]) {
+            if (ev.event_type === "article_view" || ev.event_type === "page_view") dayMap[d].views++;
+            dayMap[d].events++;
         }
-    }, []);
+    }
 
-    useEffect(() => {
-        loadData();
-    }, [loadData]);
+    return {
+        articles: articles.sort((a, b) => b.views - a.views),
+        dailyStats: Object.values(dayMap),
+    };
+}
 
-    const StatCard = ({
-        icon: Icon,
-        label,
-        value,
-        sub,
-        color,
-    }: {
-        icon: LucideIcon;
-        label: string;
-        value: string;
-        sub?: string;
-        color: StatColor;
-    }) => (
-        <Card className="bg-zinc-900/40 border-zinc-800/50 backdrop-blur-md overflow-hidden relative group">
-            <div className={cn("absolute top-0 left-0 w-1 h-full transition-colors", STAT_COLOR_STYLES[color].bar)} />
-            <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{label}</p>
-                        <h3 className="text-2xl font-serif font-bold text-white tracking-tight">{value}</h3>
-                        {sub && <p className="text-[10px] text-zinc-600 font-medium">{sub}</p>}
-                    </div>
-                    <div className={cn("p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 shadow-inner", STAT_COLOR_STYLES[color].icon)}>
-                        <Icon size={18} strokeWidth={1.5} />
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-    );
+/* ─── Component ─── */
+export default function AdminBlogOverview() {
+    const queryClient = useQueryClient();
 
-    if (loading) {
+    const { data, isLoading, isRefetching } = useQuery({
+        queryKey: queryKeys.blog.overview,
+        queryFn: fetchBlogOverview,
+    });
+
+    const articles = data?.articles ?? [];
+    const dailyStats = data?.dailyStats ?? [];
+
+    const topStats = useMemo(() => {
+        const totalViews = articles.reduce((s, a) => s + a.views, 0);
+        const avgReadTime = articles.length > 0 ? articles.reduce((s, a) => s + a.readTime, 0) / articles.length : 0;
+        const avgScrollDepth = articles.length > 0 ? articles.reduce((s, a) => s + a.scrollDepth, 0) / articles.length : 0;
+        const totalCta = articles.reduce((s, a) => s + a.ctaClicks, 0);
+        const totalShares = articles.reduce((s, a) => s + a.shares, 0);
+        return { totalViews, avgReadTime, avgScrollDepth, totalCta, totalShares };
+    }, [articles]);
+
+    const COLORS = ["hsl(43,74%,49%)", "hsl(200,70%,50%)", "hsl(150,60%,45%)", "hsl(280,60%,55%)", "hsl(350,65%,50%)", "hsl(30,80%,55%)"];
+
+    if (isLoading) {
         return (
             <div className="space-y-8 animate-in fade-in duration-700">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div className="space-y-2">
-                        <Skeleton className="h-10 w-64 bg-zinc-800/50" />
-                        <Skeleton className="h-4 w-96 bg-zinc-800/30" />
-                    </div>
-                    <Skeleton className="h-9 w-40 bg-zinc-800/50" />
-                </div>
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[1, 2, 3, 4].map((i) => (
-                        <Card key={i} className="bg-zinc-900/40 border-zinc-800/50">
-                            <CardContent className="p-6 space-y-4">
-                                <div className="flex justify-between">
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-3 w-20 bg-zinc-800/30" />
-                                        <Skeleton className="h-8 w-24 bg-zinc-800/50" />
-                                    </div>
-                                    <Skeleton className="h-10 w-10 rounded-xl bg-zinc-800/50" />
-                                </div>
+                        <Card key={i} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">
+                            <CardContent className="p-6 space-y-3">
+                                <Skeleton className="h-3 w-20 bg-[hsl(var(--admin-border))]" />
+                                <Skeleton className="h-8 w-24 bg-[hsl(var(--admin-border))]" />
                             </CardContent>
                         </Card>
                     ))}
                 </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <Card className="lg:col-span-2 bg-zinc-900/30 border-zinc-800/50">
-                        <CardHeader>
-                            <Skeleton className="h-5 w-48 bg-zinc-800/50" />
-                        </CardHeader>
-                        <CardContent className="h-[300px]">
-                            <Skeleton className="w-full h-full bg-zinc-800/20" />
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-zinc-900/30 border-zinc-800/50">
-                        <CardHeader>
-                            <Skeleton className="h-5 w-48 bg-zinc-800/50" />
-                        </CardHeader>
-                        <CardContent className="p-4 space-y-4">
-                            {[1, 2, 3, 4, 5].map((i) => (
-                                <div key={i} className="flex gap-3">
-                                    <Skeleton className="h-4 w-4 bg-zinc-800/30" />
-                                    <div className="flex-1 space-y-2">
-                                        <Skeleton className="h-3 w-full bg-zinc-800/50" />
-                                        <Skeleton className="h-2 w-24 bg-zinc-800/30" />
-                                    </div>
-                                </div>
-                            ))}
-                        </CardContent>
-                    </Card>
-                </div>
+                <Skeleton className="h-[300px] w-full bg-[hsl(var(--admin-border))]/30 rounded-2xl" />
             </div>
         );
     }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="space-y-1">
-                    <h1 className="text-4xl font-serif text-white tracking-tight">Content Intelligence</h1>
-                    <p className="text-sm text-zinc-500 font-sans max-w-sm">
-                        Analyzing how your articles resonate with the audience.
-                    </p>
-                </div>
-                <Button variant="outline" size="sm" onClick={loadData} disabled={refreshing} className="gap-2 border-zinc-800 text-zinc-400">
-                    <RefreshCw className={cn("w-3.5 h-3.5", refreshing && "animate-spin")} />
-                    Refresh Intelligence
+            <ModuleActions>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => queryClient.invalidateQueries({ queryKey: queryKeys.blog.overview })}
+                    disabled={isRefetching}
+                    className="gap-2 border-[hsl(var(--admin-border))] text-[hsl(var(--admin-muted))]"
+                >
+                    <RefreshCw className={cn("w-3.5 h-3.5", isRefetching && "animate-spin")} />
+                    Refresh
                 </Button>
-            </div>
+            </ModuleActions>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                    icon={Eye}
-                    label="Lifetime Views"
-                    value={topStats.totalViews.toLocaleString()}
-                    sub="Across all published articles"
-                    color="blue"
-                />
-                <StatCard
-                    icon={Clock}
-                    label="Avg. Read Time"
-                    value={`${(topStats.avgReadTime / 60).toFixed(1)}m`}
-                    sub="Depth of engagement"
-                    color="emerald"
-                />
-                <StatCard
-                    icon={Scroll}
-                    label="Avg. Completion"
-                    value={`${topStats.avgCompletion.toFixed(0)}%`}
-                    sub="Scroll depth benchmark"
-                    color="amber"
-                />
-                <StatCard
-                    icon={Mail}
-                    label="List Growth"
-                    value={topStats.totalNewsletter.toLocaleString()}
-                    sub="Newsletter subscribers"
-                    color="pink"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <KpiCard icon={Eye} label="Total Views" value={topStats.totalViews.toLocaleString()} sub="Last 90 days" color="hsl(43,74%,49%)" />
+                <KpiCard icon={Clock} label="Avg Read Time" value={`${(topStats.avgReadTime / 60).toFixed(1)}m`} sub="Per article" color="hsl(150,60%,45%)" />
+                <KpiCard icon={Scroll} label="Avg Scroll Depth" value={`${topStats.avgScrollDepth}%`} sub="Content completion" color="hsl(200,70%,50%)" />
+                <KpiCard icon={MousePointerClick} label="CTA Clicks" value={topStats.totalCta.toLocaleString()} sub="Conversions" color="hsl(280,60%,55%)" />
+                <KpiCard icon={Share2} label="Shares" value={topStats.totalShares.toLocaleString()} sub="Social reach" color="hsl(350,65%,50%)" />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Traffic Chart */}
-                <Card className="lg:col-span-2 bg-zinc-900/30 border-zinc-800/50 backdrop-blur-md">
-                    <CardHeader>
-                        <CardTitle className="text-sm font-serif font-semibold text-zinc-200 flex items-center gap-2">
-                            <TrendingUp className="text-primary w-4 h-4" />
-                            Engagement Trends (Last 30 Days)
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="h-[300px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={dailyStats}>
-                                <defs>
-                                    <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#C6A15B" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#C6A15B" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
-                                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 10 }} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 10 }} />
-                                <Tooltip
-                                    contentStyle={{ background: "#111", border: "1px solid #222", borderRadius: "8px", fontSize: "12px", color: "#eee" }}
-                                />
-                                <Area type="monotone" dataKey="views" stroke="#C6A15B" fillOpacity={1} fill="url(#colorViews)" />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </CardContent>
-                </Card>
+            {/* Engagement Trend */}
+            <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6">
+                <h3 className="text-sm font-bold text-[hsl(var(--admin-text))] mb-1">Engagement Trend</h3>
+                <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-6">Daily views & events over the last 30 days</p>
+                <ResponsiveContainer width="100%" height={220}>
+                    <AreaChart data={dailyStats}>
+                        <defs>
+                            <linearGradient id="viewsGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="hsl(43,74%,49%)" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="hsl(43,74%,49%)" stopOpacity={0} />
+                            </linearGradient>
+                            <linearGradient id="eventsGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="hsl(200,70%,50%)" stopOpacity={0.2} />
+                                <stop offset="95%" stopColor="hsl(200,70%,50%)" stopOpacity={0} />
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--admin-border))" opacity={0.3} />
+                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--admin-text-muted))", fontSize: 10 }} interval={3} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--admin-text-muted))", fontSize: 10 }} allowDecimals={false} />
+                        <Tooltip contentStyle={{ background: "hsl(var(--admin-card))", border: "1px solid hsl(var(--admin-border))", borderRadius: 12, fontSize: 12 }} labelStyle={{ color: "hsl(var(--admin-text))" }} />
+                        <Area type="monotone" dataKey="views" name="Views" stroke="hsl(43,74%,49%)" strokeWidth={2} fill="url(#viewsGrad)" />
+                        <Area type="monotone" dataKey="events" name="All Events" stroke="hsl(200,70%,50%)" strokeWidth={1.5} fill="url(#eventsGrad)" />
+                    </AreaChart>
+                </ResponsiveContainer>
+            </div>
 
-                {/* Sidebar Top Lists */}
-                <Card className="bg-zinc-900/30 border-zinc-800/50 backdrop-blur-md">
-                    <CardHeader>
-                        <CardTitle className="text-sm font-serif font-semibold text-zinc-200 flex items-center gap-2">
-                            <MousePointerClick className="text-primary w-4 h-4" />
-                            Engagement Leaders
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                        <div className="divide-y divide-zinc-800/50">
-                            {articleMetrics.slice(0, 6).map((art, i) => (
-                                <div key={art.id} className="p-4 flex items-center gap-3 hover:bg-white/5 transition-colors group">
-                                    <span className="text-xs font-mono text-zinc-600">0{i + 1}</span>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-xs font-bold text-zinc-200 truncate group-hover:text-primary transition-colors">{art.title}</p>
-                                        <div className="flex items-center gap-3 mt-1 opacity-60">
-                                            <span className="text-[10px] flex items-center gap-1"><Eye size={10} /> {art.views}</span>
-                                            <span className="text-[10px] flex items-center gap-1"><Scroll size={10} /> {art.avg_scroll_depth}%</span>
+            {/* Article Performance Table */}
+            <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6">
+                <h3 className="text-sm font-bold text-[hsl(var(--admin-text))] mb-1">Article Performance</h3>
+                <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-5">All articles ranked by engagement</p>
+                {articles.length > 0 ? (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-[hsl(var(--admin-border))]/50">
+                                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] pb-3 pr-4">Article</th>
+                                    <th className="text-left text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] pb-3 pr-4">Status</th>
+                                    <th className="text-right text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] pb-3 pr-4">Views</th>
+                                    <th className="text-right text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] pb-3 pr-4">Read Time</th>
+                                    <th className="text-right text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] pb-3 pr-4">Scroll %</th>
+                                    <th className="text-right text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] pb-3">CTAs</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {articles.slice(0, 10).map((art) => (
+                                    <tr key={art.id} className="border-b border-[hsl(var(--admin-border))]/30 last:border-0 group">
+                                        <td className="py-3 pr-4">
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <FileText className="w-3.5 h-3.5 text-[hsl(var(--admin-primary))] shrink-0" />
+                                                <span className="text-[hsl(var(--admin-text))] truncate max-w-[220px] group-hover:text-[hsl(var(--admin-primary))] transition-colors">{art.title}</span>
+                                            </div>
+                                        </td>
+                                        <td className="py-3 pr-4">
+                                            <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md ${
+                                                art.status === "published" ? "bg-[hsl(var(--admin-success))]/10 text-[hsl(var(--admin-success))]" : "bg-[hsl(var(--admin-warning))]/10 text-[hsl(var(--admin-warning))]"
+                                            }`}>{art.status}</span>
+                                        </td>
+                                        <td className="py-3 pr-4 text-right font-bold text-[hsl(var(--admin-text))] tabular-nums">{art.views}</td>
+                                        <td className="py-3 pr-4 text-right text-[hsl(var(--admin-text-muted))] tabular-nums">{art.readTime > 0 ? `${(art.readTime / 60).toFixed(1)}m` : "—"}</td>
+                                        <td className="py-3 pr-4 text-right text-[hsl(var(--admin-text-muted))] tabular-nums">{art.scrollDepth > 0 ? `${art.scrollDepth}%` : "—"}</td>
+                                        <td className="py-3 text-right text-[hsl(var(--admin-text-muted))] tabular-nums">{art.ctaClicks || "—"}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="text-center py-12">
+                        <FileText className="w-10 h-10 text-[hsl(var(--admin-primary))]/20 mx-auto mb-3" />
+                        <p className="text-sm text-[hsl(var(--admin-text-muted))]">No blog articles yet. Publish your first article to see analytics.</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Top Performers Quick View */}
+            {articles.length > 0 && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Views Bar Chart */}
+                    <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6">
+                        <h3 className="text-sm font-bold text-[hsl(var(--admin-text))] mb-1">Top Articles by Views</h3>
+                        <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-4">Top 6 performing articles</p>
+                        <ResponsiveContainer width="100%" height={180}>
+                            <BarChart data={articles.slice(0, 6)} layout="vertical" barSize={14}>
+                                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--admin-text-muted))", fontSize: 10 }} />
+                                <YAxis type="category" dataKey="title" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--admin-text-muted))", fontSize: 10 }} width={120} tickFormatter={(v: string) => v.length > 18 ? v.slice(0, 18) + "…" : v} />
+                                <Tooltip contentStyle={{ background: "hsl(var(--admin-card))", border: "1px solid hsl(var(--admin-border))", borderRadius: 8, fontSize: 11 }} />
+                                <Bar dataKey="views" radius={[0, 4, 4, 0]}>
+                                    {articles.slice(0, 6).map((_, i) => (
+                                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                    {/* Engagement Leaders */}
+                    <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6">
+                        <h3 className="text-sm font-bold text-[hsl(var(--admin-text))] mb-1">Engagement Leaders</h3>
+                        <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-4">Highest scroll depth & read time</p>
+                        <div className="space-y-1">
+                            {articles
+                                .filter((a) => a.scrollDepth > 0)
+                                .sort((a, b) => b.scrollDepth - a.scrollDepth)
+                                .slice(0, 6)
+                                .map((art, i) => (
+                                    <div key={art.id} className="flex items-center gap-3 py-2 px-2 rounded-lg hover:bg-[hsl(var(--admin-primary))]/5 transition-colors group">
+                                        <span className="text-[10px] font-mono text-[hsl(var(--admin-text-muted))] w-4">{i + 1}</span>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-medium text-[hsl(var(--admin-text))] truncate group-hover:text-[hsl(var(--admin-primary))] transition-colors">{art.title}</p>
+                                            <div className="flex items-center gap-3 mt-0.5">
+                                                <span className="text-[10px] text-[hsl(var(--admin-text-muted))] flex items-center gap-1"><Scroll size={9} /> {art.scrollDepth}%</span>
+                                                <span className="text-[10px] text-[hsl(var(--admin-text-muted))] flex items-center gap-1"><Clock size={9} /> {(art.readTime / 60).toFixed(1)}m</span>
+                                            </div>
                                         </div>
+                                        <ArrowUpRight size={12} className="text-[hsl(var(--admin-text-muted))] group-hover:text-[hsl(var(--admin-primary))]" />
                                     </div>
-                                    <ArrowUpRight size={14} className="text-zinc-700 group-hover:text-primary" />
-                                </div>
-                            ))}
+                                ))}
+                            {articles.filter((a) => a.scrollDepth > 0).length === 0 && (
+                                <p className="text-xs text-[hsl(var(--admin-text-muted))] text-center py-6">No scroll data yet — readers need to engage with articles</p>
+                            )}
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* ─── KPI Card ─── */
+function KpiCard({ icon: Icon, label, value, sub, color }: { icon: LucideIcon; label: string; value: string; sub: string; color: string }) {
+    return (
+        <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-5 relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-1 h-full transition-all duration-300 opacity-50 group-hover:opacity-100" style={{ background: color }} />
+            <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-widest">{label}</p>
+                    <h3 className="text-xl font-bold text-[hsl(var(--admin-text))] tracking-tight">{value}</h3>
+                    <p className="text-[10px] text-[hsl(var(--admin-text-muted))]">{sub}</p>
+                </div>
+                <div className="p-2 rounded-xl bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))]" style={{ color }}>
+                    <Icon size={16} strokeWidth={1.5} />
+                </div>
             </div>
         </div>
     );

@@ -1,7 +1,57 @@
 // Deno.serve is the native Supabase Edge Function entrypoint - no std/http import needed
 
-// Initialize Deno KV store for rate limiting
-const kv = await Deno.openKv();
+interface SimpleKv {
+    get<T>(key: unknown[]): Promise<{ value: T | null }>;
+    set(key: unknown[], value: unknown, options?: { expireIn?: number }): Promise<{ ok: boolean }>;
+    delete(key: unknown[]): Promise<{ ok: boolean }>;
+}
+
+class MemoryKv implements SimpleKv {
+    private store = new Map<string, { value: unknown; expireAt: number }>();
+
+    get<T>(key: unknown[]): Promise<{ value: T | null }> {
+        const keyStr = JSON.stringify(key);
+        const item = this.store.get(keyStr);
+        if (!item) return Promise.resolve({ value: null });
+        if (Date.now() >= item.expireAt) {
+            this.store.delete(keyStr);
+            return Promise.resolve({ value: null });
+        }
+        return Promise.resolve({ value: item.value as T });
+    }
+
+    set(key: unknown[], value: unknown, options?: { expireIn?: number }): Promise<{ ok: boolean }> {
+        const keyStr = JSON.stringify(key);
+        const expireIn = options?.expireIn ?? 3600000;
+        this.store.set(keyStr, { value, expireAt: Date.now() + expireIn });
+        return Promise.resolve({ ok: true });
+    }
+
+    delete(key: unknown[]): Promise<{ ok: boolean }> {
+        const keyStr = JSON.stringify(key);
+        this.store.delete(keyStr);
+        return Promise.resolve({ ok: true });
+    }
+}
+
+let kv: SimpleKv | null = null;
+
+async function initKv(): Promise<void> {
+    if (!kv) {
+        const openKvFn = (Deno as unknown as { openKv?: unknown }).openKv;
+        if (typeof openKvFn === "function") {
+            try {
+                kv = await (openKvFn as () => Promise<SimpleKv>)();
+            } catch (e) {
+                console.warn("Failed to open Deno.Kv, falling back to MemoryKv:", e);
+                kv = new MemoryKv();
+            }
+        } else {
+            console.warn("Deno.openKv is not available, falling back to MemoryKv");
+            kv = new MemoryKv();
+        }
+    }
+}
 
 // Configuration
 const WINDOW_MS = 60_000; // 1 minute
@@ -12,13 +62,18 @@ const MAX_REQUESTS_PER_IP = 30;
  * Uses Deno KV to store hit counts rolling over WINDOW_MS.
  */
 async function isRateLimited(ip: string): Promise<boolean> {
+    await initKv();
+    const activeKv = kv;
+    if (!activeKv) {
+        throw new Error("KV failed to initialize");
+    }
     const now = Date.now();
     const key = ["rl", ip];
-    const entry = await kv.get<[number, number]>(key); // [lastTs, count]
+    const entry = (await activeKv.get(key)) as { value: [number, number] | null }; // [lastTs, count]
 
-    if (!entry.value) {
+    if (!entry || !entry.value) {
         // First request from this IP
-        await kv.set(key, [now, 1], { expireIn: WINDOW_MS });
+        await activeKv.set(key, [now, 1], { expireIn: WINDOW_MS });
         return false;
     }
 
@@ -26,7 +81,7 @@ async function isRateLimited(ip: string): Promise<boolean> {
 
     if (now - lastTs > WINDOW_MS) {
         // Window expired, reset counter
-        await kv.set(key, [now, 1], { expireIn: WINDOW_MS });
+        await activeKv.set(key, [now, 1], { expireIn: WINDOW_MS });
         return false;
     }
 
@@ -36,7 +91,7 @@ async function isRateLimited(ip: string): Promise<boolean> {
     }
 
     // Increment counter
-    await kv.set(key, [lastTs, count + 1], { expireIn: WINDOW_MS });
+    await activeKv.set(key, [lastTs, count + 1], { expireIn: WINDOW_MS });
     return false;
 }
 

@@ -1,34 +1,133 @@
 /* Results — Final Estimate Display */
 
+import { useEffect, useState } from "react";
 import type { CalculatorFormData, EstimateResult } from "../data/types";
 import { formatCurrency, formatRange } from "../data/format-utils";
-import { SERVICES, TIERS, THEME } from "../data/pricing-config";
+import { SERVICES as DEFAULT_SERVICES, TIERS as DEFAULT_TIERS, THEME } from "../data/pricing-config";
+import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Link } from "react-router-dom";
-import { Home, ExternalLink, Calendar, Check, AlertTriangle, PhoneCall } from "lucide-react";
-import { motion } from "framer-motion";
+import { Home, Calendar, Check, AlertTriangle, PhoneCall, Info, Compass } from "lucide-react";
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { ECOSYSTEM_COPY, ECOSYSTEM_ROUTES } from "@/addons/_shared/ecosystemCopy";
+import { EstimatorIntelligencePanel } from "../EstimatorIntelligencePanel";
+import type { EstimatorResponse } from "../data/discovery-handoff";
 
 interface Props {
     formData: CalculatorFormData;
     estimate: EstimateResult | null;
+    discoveryApplied?: boolean;
+    discoveryName?: string;
+    discoveryRationale?: string;
+    alcsEstimatorResponse?: EstimatorResponse | null;
     onReset: () => void;
     onBack: () => void;
 }
 
-export function StepResults({ formData, estimate, onReset, onBack }: Props) {
+// ─── Framer Motion Dynamic Count-Up Components ───
+
+function AnimatedNumber({ value }: { value: number }) {
+    const count = useMotionValue(0);
+    const rounded = useTransform(count, Math.round);
+    const [displayValue, setDisplayValue] = useState("0");
+
+    useEffect(() => {
+        const controls = animate(count, value, {
+            duration: 1.8,
+            ease: [0.22, 1, 0.36, 1],
+        });
+
+        const unsubscribe = rounded.on("change", (latest) => {
+            setDisplayValue(latest.toLocaleString("en-IN"));
+        });
+
+        return () => {
+            controls.stop();
+            unsubscribe();
+        };
+    }, [value, count, rounded]);
+
+    return <span>{displayValue}</span>;
+}
+
+function AnimatedPriceRange({ min, max }: { min: number; max: number }) {
+    return (
+        <span className="tabular-nums">
+            ₹<AnimatedNumber value={min} /> – ₹<AnimatedNumber value={max} />
+        </span>
+    );
+}
+
+// ─── Sparkle particles for price reveal ───
+
+function SparkleParticles() {
+    return (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+            {[...Array(6)].map((_, i) => (
+                <motion.div
+                    key={i}
+                    className="absolute w-1 h-1 rounded-full bg-[#8b6f47]"
+                    style={{
+                        left: `${20 + Math.random() * 60}%`,
+                        top: `${20 + Math.random() * 60}%`,
+                    }}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{
+                        opacity: [0, 1, 0],
+                        scale: [0, 1.5, 0],
+                        y: [0, -20 - Math.random() * 30],
+                    }}
+                    transition={{
+                        duration: 1.5,
+                        delay: 0.5 + i * 0.15,
+                        ease: "easeOut",
+                    }}
+                />
+            ))}
+        </div>
+    );
+}
+
+// ─── Item Explanations for Drawers ───
+
+function getItemExplanation(label: string, propertyType: string): string {
+    const pType = propertyType.replace("_", " ");
+    switch (label) {
+        case "Creative Fee":
+            return `Covers bespoke architectural space design, 2D general arrangement plans, high-fidelity 3D modeling, material palette curation, and concept visualization tailored for your ${pType}.`;
+        case "Statutory Tax (GST)":
+            return "Government-mandated 18% Goods and Services Tax (GST) calculated on design consultancy and stewardship service fees.";
+        case "On-site Stewardship":
+            return "Dedicated engineering project manager, on-site quality checklist audits, contractor coordination, daily progress reports, and architectural supervision to ensure zero execution lag.";
+        case "Artisanal Execution":
+            return "Museum-grade execution, master masonry, engineered false ceiling layouts, high-spec paint finishings, carpentry joinery, electrical systems, and architectural flooring layouts.";
+        case "Bespoke Commissions":
+            return "Premium bespoke add-ons selected, including Italian/German chef's kitchen cabinetry, couture wardrobe suites, advanced Crestron/KNX smart automation, and curated global light fixtures.";
+        default:
+            return "Premium design allocation ensuring strict adherence to the highest luxury finishing and aesthetic standards.";
+    }
+}
+
+export function StepResults({ formData, estimate, discoveryApplied = false, discoveryName = "", discoveryRationale = "", alcsEstimatorResponse = null, onReset, onBack }: Props) {
+    const { data: services = DEFAULT_SERVICES } = useFlowConfig<typeof DEFAULT_SERVICES>("services");
+    const { data: tiers = DEFAULT_TIERS } = useFlowConfig<typeof DEFAULT_TIERS>("city_tiers");
+    const [expandedItemIndex, setExpandedItemIndex] = useState<number | null>(null);
+    const [appliedSavings, setAppliedSavings] = useState<number>(0);
+
     if (!estimate) {
         return (
             <div className="flex flex-col items-center justify-center py-20 animate-in fade-in zoom-in duration-500">
-                <div className="w-20 h-20 rounded-full bg-zinc-900 flex items-center justify-center mb-6 border border-white/5">
-                    <AlertTriangle className="w-8 h-8 text-yellow-500" />
+                <div className="w-20 h-20 rounded-full bg-[#faf8f5] flex items-center justify-center mb-6 border border-[#e8e4dd] shadow-lg">
+                    <AlertTriangle className="w-8 h-8 text-[#8b6f47]" />
                 </div>
-                <h3 className="text-white text-xl font-serif font-bold mb-4">No Estimate Found</h3>
-                <p className="text-gray-500 text-center max-w-xs mb-8">
+                <h3 className="text-[#1a1a1a] text-xl font-bold mb-4">No Estimate Found</h3>
+                <p className="text-[#5a5a5a] text-center max-w-xs mb-8">
                     It looks like we're missing some details to calculate your investment range.
                 </p>
                 <button
+                    type="button"
                     onClick={onBack}
-                    className="px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest bg-white text-black hover:bg-zinc-200 transition-all active:scale-[0.98]"
+                    className="px-8 py-3 rounded-[8px] font-black text-xs uppercase tracking-widest bg-[#8b6f47] text-white hover:bg-[#705939] transition-all active:scale-[0.98] shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
                 >
                     ← Go Back
                 </button>
@@ -36,9 +135,13 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
         );
     }
 
-    const svc = SERVICES.find(s => s.id === formData.selectedService);
-    const tierInfo = TIERS[formData.cityTier];
+    const svc = services.find(s => s.id === formData.selectedService);
     const cityLabel = formData.city === 'Other' ? 'Other City' : formData.city;
+    const hasBlueprint = discoveryApplied && Boolean(discoveryName);
+    const blueprintName = discoveryName || "your Discovery Blueprint";
+    const blueprintSummary = hasBlueprint
+        ? discoveryRationale || `This result uses ${blueprintName} as the personality layer above the practical project scope.`
+        : ECOSYSTEM_COPY.estimatorWithoutBlueprint;
 
     const breakdownItems: { label: string; value: string; color?: string; icon?: React.ReactNode }[] = [];
 
@@ -46,7 +149,7 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
         breakdownItems.push({
             label: `Creative Fee`,
             value: formatRange(estimate.designCost.min, estimate.designCost.max),
-            icon: <Calendar className="w-4 h-4" />
+            icon: <Calendar className="w-4 h-4 text-[#8b6f47]" />
         });
     }
     if (estimate.gstOnDesign > 0) {
@@ -62,11 +165,11 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
         breakdownItems.push({
             label: `Artisanal Execution`,
             value: formatRange(estimate.executionCost.min, estimate.executionCost.max),
-            color: THEME.GOLD,
+            color: THEME.ACCENT,
         });
     }
     if (estimate.addonCost > 0) {
-        breakdownItems.push({ label: "Bespoke Commissions", value: formatCurrency(estimate.addonCost), color: THEME.GOLD });
+        breakdownItems.push({ label: "Bespoke Commissions", value: formatCurrency(estimate.addonCost), color: THEME.ACCENT });
     }
 
     const containerVariants = {
@@ -87,6 +190,9 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
         visible: { opacity: 1, x: 0 }
     };
 
+    const finalMin = Math.max(0, estimate.total.min - appliedSavings);
+    const finalMax = Math.max(0, estimate.total.max - appliedSavings);
+
     return (
         <motion.div
             variants={containerVariants}
@@ -94,102 +200,229 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
             animate="visible"
             className="space-y-8 pb-20"
         >
-            {/* Immersive Header Card */}
-            <div className="relative overflow-hidden rounded-none p-10 lg:p-14 border border-site-border bg-gradient-to-br from-site-bg-card to-transparent backdrop-blur-3xl shadow-2xl">
-                {/* Dynamic Aura */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-site-crimson/10 blur-[120px] rounded-full -mr-32 -mt-32 animate-pulse" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-site-crimson/5 blur-[100px] rounded-full -ml-20 -mb-20" />
+            {/* ═══ Immersive Header Card ═══ */}
+            <div className="relative overflow-hidden rounded-[8px] p-10 lg:p-14 border border-[#e8e4dd] bg-white/90 backdrop-blur-xl shadow-[0_8px_40px_rgba(139,111,71,0.08)]">
+                {/* Warm Aura Effects */}
+                <div className="absolute top-0 right-0 w-96 h-96 bg-[#8b6f47]/[0.06] blur-[120px] rounded-full -mr-32 -mt-32" aria-hidden="true" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#8b6f47]/[0.04] blur-[100px] rounded-full -ml-20 -mb-20" aria-hidden="true" />
+
+                <SparkleParticles />
 
                 <div className="relative z-10 flex flex-col items-center text-center">
                     <motion.span
                         variants={itemVariants}
-                        className="text-site-crimson font-mono text-[10px] uppercase tracking-[0.5em] mb-4 block"
+                        className="text-[#8b6f47] font-mono text-[10px] uppercase tracking-[0.5em] mb-4 block"
                     >
-                        Investment Outlook
+                        {hasBlueprint ? "Personalized Investment Outlook" : "Baseline Investment Outlook"}
                     </motion.span>
 
                     <motion.h2
                         variants={itemVariants}
-                        className="text-4xl md:text-6xl font-serif font-bold text-site-text-heading tracking-tighter mb-8"
+                        className="text-4xl md:text-6xl font-bold text-[#1a1a1a] tracking-tighter mb-3 font-serif"
                     >
-                        {formatRange(estimate.total.min, estimate.total.max)}
+                        <AnimatedPriceRange min={finalMin} max={finalMax} />
                     </motion.h2>
+                    <motion.p variants={itemVariants} className="text-sm md:text-base text-[#5a5a5a] max-w-xl leading-relaxed mb-6">
+                        {hasBlueprint
+                            ? `Estimated from your selected scope and calibrated with ${blueprintName}.`
+                            : "Estimated from your selected scope. Add a Discovery Blueprint first for a more personal report."}
+                    </motion.p>
+
+                    {/* Gold accent underline */}
+                    <motion.div
+                        className="h-0.5 bg-gradient-to-r from-transparent via-[#8b6f47] to-transparent mb-8"
+                        initial={{ width: 0 }}
+                        animate={{ width: 160 }}
+                        transition={{ duration: 1.2, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    />
 
                     <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-3">
                         <Badge label={formData.propertyType?.replace("_", " ") || ""} variant="glass" />
                         <Badge label={`${formData.area.toLocaleString()} sq ft`} variant="glass" />
                         {cityLabel && <Badge label={cityLabel} variant="gold" />}
                         {svc && <Badge label={svc.label} variant="primary" />}
+                        {hasBlueprint && <Badge label="Discovery Blueprint" variant="gold" />}
                     </motion.div>
                 </div>
             </div>
 
-            {/* Content Split */}
+            {/* ═══ Content Split ═══ */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Detailed Breakdown */}
+                {/* Left Column: Breakdown + Concordance (7 Cols) */}
                 <motion.div variants={itemVariants} className="lg:col-span-7 space-y-6">
-                    <div className="bg-site-bg-card border border-site-border rounded-none overflow-hidden backdrop-blur-xl transition-all hover:bg-site-bg-card-hover shadow-xl">
-                        <div className="px-8 py-6 border-b border-site-border flex items-center justify-between">
-                            <h3 className="text-site-text-heading font-serif text-lg font-bold uppercase tracking-widest">Execution Intelligence</h3>
-                            <div className="p-2 bg-site-bg/50 rounded-none border border-site-border">
-                                <ExternalLink className="w-4 h-4 text-site-text-meta" />
+                    <div className="bg-white border border-[#e8e4dd] rounded-[8px] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <div className="flex items-start gap-4">
+                            <div className="w-11 h-11 rounded-[6px] bg-[#8b6f47]/10 border border-[#8b6f47]/25 flex items-center justify-center shrink-0">
+                                <Compass className="w-5 h-5 text-[#8b6f47]" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-mono tracking-[0.25em] uppercase text-[#8b6f47] mb-2">
+                                    {hasBlueprint ? "Discovery Continuity" : "Personalization Gap"}
+                                </p>
+                                <h3 className="text-xl font-serif text-[#1a1a1a] mb-3">
+                                    {hasBlueprint ? `${blueprintName} carried into execution` : "This is a direct estimate"}
+                                </h3>
+                                <p className="text-sm text-[#5a5a5a] leading-relaxed">
+                                    {blueprintSummary}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Execution Intelligence */}
+                    <div className="bg-white border border-[#e8e4dd] rounded-[8px] overflow-hidden backdrop-blur-xl transition-all shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <div className="px-8 py-6 border-b border-[#e8e4dd] flex items-center justify-between">
+                            <h3 className="text-[#1a1a1a] text-base font-bold uppercase tracking-widest font-sans">Execution Intelligence</h3>
+                            <div className="p-2 bg-[#faf8f5] rounded-[4px] border border-[#e8e4dd] flex items-center gap-1.5 text-[9px] uppercase font-bold tracking-wider text-[#8b6f47]">
+                                <motion.span
+                                    animate={{ opacity: [1, 0.4, 1] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                >
+                                    Interactive
+                                </motion.span>
                             </div>
                         </div>
 
-                        <div className="p-2">
-                            {breakdownItems.map((item, i) => (
-                                <motion.div
-                                    key={i}
-                                    variants={itemVariants}
-                                    className="flex justify-between items-center px-6 py-4 rounded-none hover:bg-site-bg transition-colors group"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-none border border-site-border bg-site-bg flex items-center justify-center group-hover:bg-site-crimson/20 transition-colors">
-                                            {item.icon || <div className="w-1.5 h-1.5 rounded-full bg-site-text-meta group-hover:bg-site-crimson" />}
-                                        </div>
-                                        <span className="text-site-text-meta text-[11px] font-medium uppercase tracking-widest transition-colors group-hover:text-site-text">{item.label}</span>
+                        <div className="p-2 divide-y divide-[#e8e4dd]/60">
+                            {breakdownItems.map((item, i) => {
+                                const isExpanded = expandedItemIndex === i;
+                                return (
+                                    <div key={i} className="group transition-colors">
+                                        <motion.button
+                                            type="button"
+                                            onClick={() => setExpandedItemIndex(isExpanded ? null : i)}
+                                            variants={itemVariants}
+                                            className="w-full flex justify-between items-center px-6 py-5 text-left rounded-[4px] hover:bg-[#8b6f47]/[0.03] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-1"
+                                            title="Click to view details"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-[4px] border border-[#e8e4dd] bg-[#faf8f5] flex items-center justify-center group-hover:bg-[#8b6f47]/10 transition-colors">
+                                                    {item.icon || <div className="w-1.5 h-1.5 rounded-full bg-[#8b6f47]/50 group-hover:bg-[#8b6f47]" />}
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="text-[#5a5a5a] text-[11px] font-medium uppercase tracking-widest transition-colors group-hover:text-[#1a1a1a]">{item.label}</span>
+                                                    <Info className="w-3.5 h-3.5 text-[#5a5a5a]/40 group-hover:text-[#8b6f47] transition-colors" />
+                                                </div>
+                                            </div>
+                                            <span className={cn(
+                                                "text-sm font-bold tracking-tight",
+                                                item.color === THEME.ACCENT ? "text-[#8b6f47]" : "text-[#1a1a1a]"
+                                            )}>
+                                                {item.value}
+                                            </span>
+                                        </motion.button>
+                                        
+                                        <AnimatePresence>
+                                            {isExpanded && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: "auto", opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.25, ease: "easeInOut" }}
+                                                    className="overflow-hidden bg-[#faf8f5] border-l-2 border-[#8b6f47] ml-6"
+                                                >
+                                                    <div className="px-8 py-4 text-[11px] text-[#5a5a5a] leading-relaxed font-light italic">
+                                                        {getItemExplanation(item.label, formData.propertyType || "")}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
-                                    <span className={cn(
-                                        "text-sm font-bold tracking-tight",
-                                        item.color === THEME.GOLD ? "text-site-crimson" : "text-site-text-heading"
-                                    )}>
-                                        {item.value}
-                                    </span>
-                                </motion.div>
-                            ))}
+                                );
+                            })}
                         </div>
 
                         {/* Summary Footer */}
-                        <div className="p-8 bg-site-bg/40 border-t border-site-border flex justify-between items-center">
+                        <div className="p-8 bg-[#faf8f5]/60 border-t border-[#e8e4dd] flex justify-between items-center">
                             <div>
-                                <p className="text-[10px] text-site-text-meta uppercase tracking-widest font-black mb-1">Indicative Total</p>
-                                <p className="text-2xl font-serif font-bold text-site-text-heading">{formatRange(estimate.total.min, estimate.total.max)}</p>
+                                <p className="text-[10px] text-[#5a5a5a] uppercase tracking-widest font-black mb-1">Indicative Total</p>
+                                <p className="text-2xl font-bold text-[#8b6f47] font-serif">{formatRange(finalMin, finalMax)}</p>
                             </div>
                             <div className="text-right">
-                                <p className="text-[9px] text-site-text-meta italic leading-relaxed font-medium">Financial modeling includes<br />standard GST and contingency.</p>
+                                <p className="text-[9px] text-[#5a5a5a] italic leading-relaxed font-medium">Model includes scope,<br />standard GST and contingency.</p>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Blueprint Translation */}
+                    <div className="bg-white border border-[#e8e4dd] p-8 rounded-[8px] relative overflow-hidden group shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#8b6f47]/[0.04] blur-2xl pointer-events-none group-hover:bg-[#8b6f47]/[0.08] transition-colors" aria-hidden="true" />
+                        
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-[4px] bg-[#8b6f47]/10 border border-[#8b6f47]/25 flex items-center justify-center">
+                                <span className="text-[#8b6f47] text-lg">✦</span>
+                            </div>
+                            <h3 className="text-[#1a1a1a] text-base font-bold uppercase tracking-widest">Blueprint Translation</h3>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-center gap-6">
+                            {/* Radial gauge */}
+                            <div className="relative w-24 h-24 shrink-0 flex items-center justify-center">
+                                <svg className="w-full h-full transform -rotate-90">
+                                    <circle
+                                        cx="48"
+                                        cy="48"
+                                        r="40"
+                                        className="fill-none stroke-[#e8e4dd]"
+                                        strokeWidth="4"
+                                    />
+                                    <motion.circle
+                                        cx="48"
+                                        cy="48"
+                                        r="40"
+                                        className="fill-none stroke-[#8b6f47]"
+                                        strokeWidth="4"
+                                        strokeDasharray="251.2"
+                                        initial={{ strokeDashoffset: 251.2 }}
+                                        animate={{ strokeDashoffset: 251.2 - (251.2 * 0.85) }}
+                                        transition={{ duration: 2.0, ease: "easeOut", delay: 0.3 }}
+                                        style={{ filter: "drop-shadow(0 0 6px rgba(139,111,71,0.3))" }}
+                                    />
+                                </svg>
+                                <span className="absolute text-[#1a1a1a] font-serif text-lg font-bold">85%</span>
+                            </div>
+                            <div className="flex-1 space-y-1.5 text-center sm:text-left">
+                                <h4 className="text-xs font-black uppercase text-[#8b6f47] tracking-wider">
+                                    {hasBlueprint ? "Profile-to-scope fit" : "Baseline scope fit"}
+                                </h4>
+                                <p className="text-[#5a5a5a] text-[11px] leading-relaxed">
+                                    {hasBlueprint
+                                        ? `Your ${blueprintName} profile helps prioritize finish language, service depth, and bespoke inclusions before a designer reviews the final plan.`
+                                        : "This estimate is useful for scope planning. A Discovery Blueprint adds the emotional, material, and lifestyle layer needed for a more personalized report."}
+                                </p>
+							</div>
                         </div>
                     </div>
                 </motion.div>
 
-                {/* Scope & Support */}
+                {/* Right Column: ALCS Intelligence + Inclusions + Roadmap + CTAs (5 Cols) */}
                 <motion.div variants={itemVariants} className="lg:col-span-5 space-y-6">
+
+                    {/* ALCS Intelligence Panel — shown when Discovery handoff available */}
+                    {alcsEstimatorResponse && (
+                        <EstimatorIntelligencePanel
+                            response={alcsEstimatorResponse}
+                            onSelectOption={(opt) => {
+                                setAppliedSavings(prev => opt.isApplied ? prev + opt.savingsAmount : prev - opt.savingsAmount);
+                            }}
+                        />
+                    )}
                     {/* Deliverables Card */}
-                    <div className="bg-site-bg-card border border-site-border rounded-none p-8 shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-site-crimson/5 blur-2xl -mr-16 -mt-16 group-hover:bg-site-crimson/10 transition-colors" />
+                    <div className="bg-white border border-[#e8e4dd] rounded-[8px] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)] relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#8b6f47]/[0.04] blur-2xl -mr-16 -mt-16 group-hover:bg-[#8b6f47]/[0.08] transition-colors" aria-hidden="true" />
 
                         <div className="flex items-center gap-3 mb-8">
-                            <div className="w-10 h-10 rounded-none bg-site-crimson/20 border border-site-crimson/30 flex items-center justify-center">
-                                <Check className="w-5 h-5 text-site-crimson" />
+                            <div className="w-10 h-10 rounded-[4px] bg-[#8b6f47]/10 border border-[#8b6f47]/25 flex items-center justify-center">
+                                <Check className="w-5 h-5 text-[#8b6f47]" />
                             </div>
-                            <h3 className="text-site-text-heading font-serif text-lg font-bold uppercase tracking-widest">Inclusions</h3>
+                            <h3 className="text-[#1a1a1a] text-base font-bold uppercase tracking-widest font-sans">Scope Inclusions</h3>
                         </div>
 
                         <div className="space-y-4">
                             {svc?.includes.slice(0, 6).map((item, i) => (
                                 <div key={i} className="flex items-start gap-3 group/item">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-site-crimson/40 mt-1.5 group-hover/item:scale-150 transition-transform" />
-                                    <span className="text-site-text-muted text-[11px] leading-relaxed group-hover/item:text-site-text transition-colors">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#8b6f47]/40 mt-1.5 group-hover/item:scale-150 transition-transform" />
+                                    <span className="text-[#5a5a5a] text-[11px] leading-relaxed group-hover/item:text-[#1a1a1a] transition-colors">
                                         {item}
                                     </span>
                                 </div>
@@ -197,21 +430,79 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
                         </div>
                     </div>
 
+                    {/* Delivery Timeline Roadmap */}
+                    <div className="bg-white border border-[#e8e4dd] p-8 rounded-[8px] relative overflow-hidden group shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <h3 className="text-[#1a1a1a] text-base font-bold uppercase tracking-widest mb-8 flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-[4px] border border-[#e8e4dd] bg-[#faf8f5] flex items-center justify-center">
+                                <Calendar className="w-4 h-4 text-[#8b6f47]" />
+                            </div>
+                            Artisanal Roadmap
+                        </h3>
+                        
+                        <div className="relative border-l border-[#e8e4dd] ml-3 pl-8 space-y-8">
+                            {/* Phase 1 */}
+                            <div className="relative group/step">
+                                <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-[4px] bg-[#faf8f5] border border-[#8b6f47] flex items-center justify-center text-[10px] font-bold text-[#8b6f47] group-hover/step:bg-[#8b6f47] group-hover/step:text-white transition-all">
+                                    01
+                                </div>
+                                <h4 className="text-[11px] font-black uppercase text-[#1a1a1a] tracking-wider mb-1">Blueprint & Scope Calibration</h4>
+                                <span className="text-[9px] font-mono text-[#8b6f47]/80 block mb-1">Weeks 1 – 4</span>
+                                <p className="text-[#5a5a5a] text-[10px] leading-relaxed">
+                                    Aligning your project details with style intent, room priorities, and investment comfort.
+                                </p>
+                            </div>
+
+                            {/* Phase 2 */}
+                            <div className="relative group/step">
+                                <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-[4px] bg-[#faf8f5] border border-[#e8e4dd] flex items-center justify-center text-[10px] font-bold text-[#5a5a5a] group-hover/step:border-[#8b6f47] group-hover/step:text-[#8b6f47] transition-all">
+                                    02
+                                </div>
+                                <h4 className="text-[11px] font-black uppercase text-[#1a1a1a] tracking-wider mb-1">Design Detailing & Sourcing</h4>
+                                <span className="text-[9px] font-mono text-[#8b6f47]/80 block mb-1">Weeks 5 – 12</span>
+                                <p className="text-[#5a5a5a] text-[10px] leading-relaxed">
+                                    Translating the agreed direction into drawings, materials, vendor planning, and finish selections.
+                                </p>
+                            </div>
+
+                            {/* Phase 3 */}
+                            <div className="relative group/step">
+                                <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-[4px] bg-[#faf8f5] border border-[#e8e4dd] flex items-center justify-center text-[10px] font-bold text-[#5a5a5a] group-hover/step:border-[#8b6f47] group-hover/step:text-[#8b6f47] transition-all">
+                                    03
+                                </div>
+                                <h4 className="text-[11px] font-black uppercase text-[#1a1a1a] tracking-wider mb-1">Execution Stewardship & Handover</h4>
+                                <span className="text-[9px] font-mono text-[#8b6f47]/80 block mb-1">Weeks 13+</span>
+                                <p className="text-[#5a5a5a] text-[10px] leading-relaxed">
+                                    Coordinating site progress, quality checks, installation sequence, and final move-in readiness.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* CTA Navigation */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <button
+                            type="button"
                             onClick={onReset}
-                            className="p-6 rounded-none border border-site-border bg-site-bg-card hover:bg-site-bg-card-hover transition-all group flex flex-col items-center gap-3 shadow-xl"
+                            className="p-6 rounded-[8px] border border-[#e8e4dd] bg-white hover:bg-[#8b6f47]/[0.04] hover:border-[#8b6f47]/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
                         >
-                            <Home className="w-6 h-6 text-site-text-meta group-hover:text-site-crimson transition-all group-hover:rotate-12" />
-                            <span className="text-[10px] uppercase font-black tracking-widest text-site-text-meta transition-colors group-hover:text-site-crimson">Restart</span>
+                            <Home className="w-6 h-6 text-[#5a5a5a] group-hover:text-[#8b6f47] transition-all group-hover:rotate-12" />
+                            <span className="text-[10px] uppercase font-black tracking-widest text-[#5a5a5a] transition-colors group-hover:text-[#8b6f47]">Restart Estimate</span>
                         </button>
                         <Link
-                            to="/contact-us"
-                            className="p-6 rounded-none bg-site-crimson hover:bg-site-crimson/90 transition-all group flex flex-col items-center gap-3 shadow-xl shadow-site-crimson/10"
+                            to={ECOSYSTEM_ROUTES.discovery}
+                            className="p-6 rounded-[8px] border border-[#e8e4dd] bg-white hover:bg-[#8b6f47]/[0.04] hover:border-[#8b6f47]/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
                         >
-                            <PhoneCall className="w-6 h-6 text-site-bg group-hover:scale-110 transition-transform" />
-                            <span className="text-[10px] uppercase font-black tracking-widest text-site-bg">Consult</span>
+                            <Compass className="w-6 h-6 text-[#5a5a5a] group-hover:text-[#8b6f47] transition-colors" />
+                            <span className="text-[10px] uppercase font-black tracking-widest text-[#5a5a5a] transition-colors group-hover:text-[#8b6f47]">
+                                {hasBlueprint ? "Refine Blueprint" : "Create Blueprint"}
+                            </span>
+                        </Link>
+                        <Link
+                            to={ECOSYSTEM_ROUTES.contact}
+                            className="p-6 rounded-[8px] bg-[#8b6f47] hover:bg-[#705939] transition-all group flex flex-col items-center gap-3 shadow-[0_4px_16px_rgba(139,111,71,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                        >
+                            <PhoneCall className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] uppercase font-black tracking-widest text-white">Review With Designer</span>
                         </Link>
                     </div>
                 </motion.div>
@@ -222,14 +513,14 @@ export function StepResults({ formData, estimate, onReset, onBack }: Props) {
 
 function Badge({ label, variant = "glass" }: { label: string; variant?: "glass" | "primary" | "gold" }) {
     const variants = {
-        glass: "bg-site-bg-card/50 text-site-text-meta border-site-border font-medium",
-        primary: "bg-site-crimson/20 text-site-crimson border-site-crimson/30 font-bold",
-        gold: "bg-site-crimson/20 text-site-crimson border-site-crimson/30 font-bold",
+        glass: "bg-white/70 text-[#5a5a5a] border-[#e8e4dd] font-medium backdrop-blur-md",
+        primary: "bg-[#8b6f47]/15 text-[#8b6f47] border-[#8b6f47]/25 font-bold",
+        gold: "bg-[#8b6f47]/15 text-[#8b6f47] border-[#8b6f47]/25 font-bold",
     };
 
     return (
         <span className={cn(
-            "px-4 py-1.5 rounded-none text-[10px] font-black uppercase tracking-wider backdrop-blur-md border",
+            "px-4 py-1.5 rounded-[4px] text-[10px] font-black uppercase tracking-wider border",
             variants[variant]
         )}>
             {label}

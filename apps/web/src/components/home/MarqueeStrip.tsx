@@ -1,4 +1,4 @@
-import { ScrollVelocity } from "@/components/ReactBits";
+import { ScrollVelocity } from "@/components/ReactBits/index";
 
 export const MarqueeStrip = () => {
     const items = [

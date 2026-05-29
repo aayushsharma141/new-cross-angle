@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -43,6 +43,7 @@ interface DataTableProps<TData> {
   enableColumnFilters?: boolean;
   pageSizeOptions?: number[];
   className?: string;
+  initialSearch?: string;
 }
 
 export function DataTable<TData>({
@@ -60,13 +61,18 @@ export function DataTable<TData>({
   enableColumnFilters = true,
   pageSizeOptions = [10, 25, 50, 100],
   className,
+  initialSearch = '',
 }: DataTableProps<TData>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
-  const [globalFilter, setGlobalFilter] = React.useState('');
-  const [showFilters, setShowFilters] = React.useState(false);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const [globalFilter, setGlobalFilter] = useState(initialSearch);
+  const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    setGlobalFilter(initialSearch);
+  }, [initialSearch]);
 
   const table = useReactTable({
     data,
@@ -77,6 +83,12 @@ export function DataTable<TData>({
       columnVisibility,
       rowSelection,
       globalFilter,
+      ...(pagination && {
+        pagination: {
+          pageIndex: pagination.page - 1,
+          pageSize: pagination.pageSize,
+        },
+      }),
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
@@ -95,7 +107,7 @@ export function DataTable<TData>({
     pageCount: pagination?.totalPages ?? -1,
   });
 
-  const debouncedSearchRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const debouncedSearchRef = useRef<ReturnType<typeof setTimeout>>();
 
   const handleSearchChange = (value: string) => {
     if (debouncedSearchRef.current) {
@@ -288,8 +300,9 @@ export function DataTable<TData>({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
+              onClick={() => onPaginationChange?.(1, pagination.pageSize)}
+              disabled={pagination.page <= 1}
+              aria-label="First page"
             >
               <ChevronsLeft className="h-4 w-4" />
             </Button>
@@ -297,7 +310,8 @@ export function DataTable<TData>({
               variant="outline"
               size="sm"
               onClick={() => onPaginationChange?.(pagination.page - 1, pagination.pageSize)}
-              disabled={!table.getCanPreviousPage()}
+              disabled={pagination.page <= 1}
+              aria-label="Previous page"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -310,15 +324,17 @@ export function DataTable<TData>({
               variant="outline"
               size="sm"
               onClick={() => onPaginationChange?.(pagination.page + 1, pagination.pageSize)}
-              disabled={!table.getCanNextPage()}
+              disabled={pagination.page >= pagination.totalPages}
+              aria-label="Next page"
             >
               <ArrowRight className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
+              onClick={() => onPaginationChange?.(pagination.totalPages, pagination.pageSize)}
+              disabled={pagination.page >= pagination.totalPages}
+              aria-label="Last page"
             >
               <ChevronsRight className="h-4 w-4" />
             </Button>

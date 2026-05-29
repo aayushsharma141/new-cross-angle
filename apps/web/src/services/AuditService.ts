@@ -1,8 +1,40 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { AuditLogEntry, AuditLogFilter, AuditLogStats } from '@/types/audit';
+import type { AuditLogEntry, AuditLogFilter, AuditLogStats, AuditAction, AuditEntityType } from '@/types/audit';
 import type { PaginatedResponse } from '@/services/types';
 
 export class AuditService {
+  /**
+   * Write-side helper. Resolves the current auth user automatically so callers
+   * only need to supply what changed. Failures are logged to console but never
+   * thrown — an audit write must never interrupt the primary operation.
+   *
+   * @example
+   *   await auditService.writeAudit('CREATE', 'blog', newPost.id, { title: newPost.title });
+   */
+  async writeAudit(
+    action: AuditAction,
+    entityType: AuditEntityType,
+    entityId: string | null,
+    details?: Record<string, unknown>
+  ): Promise<void> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error } = await supabase.from('audit_logs').insert({
+        action,
+        entity_type: entityType,
+        entity_id: entityId,
+        user_id: user?.id ?? null,
+        details: details ?? null,
+        ip_address: 'client',
+      });
+      if (error) {
+        console.error('[AuditService] writeAudit failed:', error.message, { action, entityType, entityId });
+      }
+    } catch (err) {
+      console.error('[AuditService] writeAudit threw:', err);
+    }
+  }
+
   async getLogsPaginated(
     params: {
       page?: number;

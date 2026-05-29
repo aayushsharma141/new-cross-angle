@@ -150,31 +150,34 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
         className="flex flex-col h-full"
       >
         {/* Question label — 20–22px, no underline, top border separator */}
-        <h3 className="text-xl xl:text-2xl font-normal text-white/80 mb-5 pb-4 leading-snug max-w-sm no-underline border-t border-white/[0.08] pt-3">
+        <h3 className="text-xl xl:text-2xl font-medium text-[#1a1a1a] mb-4 pb-3 leading-snug no-underline border-t border-[#1a1a1a]/[0.08] pt-4 shrink-0 min-h-[56px] flex items-start tracking-tight">
           {t(q.key)}
         </h3>
 
         {/* Image grid — smart layout, fills column height */}
-        {imageOptions.length > 0 && (
-          <div className={`flex-1 min-h-0 grid gap-2 content-start ${imageOptions.length <= 3 ? "grid-cols-3" :
-            imageOptions.length === 4 ? "grid-cols-2" :
-              "grid-cols-3"
-            }`}>
-            {imageOptions.map((o) => (
-              <ImageOption
-                key={o.key}
-                label={o.label}
-                imageSrc={o.img!}
-                isActive={answers[q.key] === o.key}
-                onClick={() => selectAnswer(q.key, o.key)}
-              />
-            ))}
-          </div>
-        )}
+        {imageOptions.length > 0 && (() => {
+          const visibleImages = imageOptions.slice(0, 4);
+          return (
+            <div
+              className="grid gap-3 grid-cols-2 w-full"
+              style={{ gridTemplateRows: "repeat(2, 260px)" }}
+            >
+              {visibleImages.map((o) => (
+                <ImageOption
+                  key={o.key}
+                  label={o.label}
+                  imageSrc={o.img!}
+                  isActive={answers[q.key] === o.key}
+                  onClick={() => selectAnswer(q.key, o.key)}
+                />
+              ))}
+            </div>
+          );
+        })()}
 
         {/* Option rows — full-width, stacked, luxury list */}
         {chipOptions.length > 0 && (
-          <div className="flex-1 min-h-0 flex flex-col border-t border-white/[0.06]">
+          <div className="flex-1 min-h-0 flex flex-col border-t border-[#1a1a1a]/[0.06]">
             {chipOptions.map((o, i) => (
               <ChipOption
                 key={o.key}
@@ -207,6 +210,12 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
         style={{ background: sectionGradients[currentSection] }}
       />
 
+      {/* Cinematic faint noise texture to reduce digital flatness */}
+      <div 
+        className="fixed inset-0 z-0 pointer-events-none opacity-[0.03]"
+        style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")", backgroundRepeat: 'repeat' }}
+      />
+
       {/* Color wash transition overlay */}
       <AnimatePresence>
         {showWash && (
@@ -215,47 +224,42 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
             animate={{ opacity: 0.15 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 pointer-events-none bg-foreground"
+            className="fixed inset-0 z-40 pointer-events-none bg-[#1a1a1a]"
           />
         )}
       </AnimatePresence>
 
       {/* ── HEADER: bold section context ── */}
-      <div className="relative z-10 shrink-0 px-8 xl:px-12 pt-6 pb-5 border-b border-white/[0.06]">
-        <div className="flex items-start justify-between gap-8">
+      <div className="relative z-10 shrink-0 px-8 xl:px-12 pt-3 pb-3 border-b border-[#1a1a1a]/[0.06]">
+        <div className="flex items-center justify-between gap-8">
           {/* Left: eyebrow + large serif title + amber accent */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[13px] uppercase tracking-[0.3em] font-mono text-white/35">
-              Daily Habits
-              <span className="mx-2 text-white/15">·</span>
-              {String(currentSection + 1).padStart(2, "0")}/{totalSections}
-            </span>
-            <div className="flex items-center gap-3">
-              {/* Thin gold left accent — replaces icon */}
-              <div className="w-[3px] h-10 bg-site-crimson/60 rounded-full shrink-0" />
-              <h2 className="font-serif-display text-4xl xl:text-5xl font-normal text-site-text-heading leading-none">
+          <div className="flex items-center gap-3">
+            {/* Thin gold left accent */}
+            <div className="w-[3px] h-8 bg-[#8b6f47]/60 rounded-full shrink-0" />
+            <div className="flex flex-col gap-0">
+              <span className="text-[11px] uppercase tracking-[0.3em] font-mono text-[#1a1a1a]/70 font-semibold leading-none mb-0.5">
+                Daily Habits
+                <span className="mx-2 text-[#1a1a1a]/40">·</span>
+                {String(currentSection + 1).padStart(2, "0")}/{totalSections}
+              </span>
+              <h2 className="-display text-2xl xl:text-3xl font-medium text-[#1a1a1a] leading-none mt-1">
                 {sectionLabels[currentSection]}
               </h2>
             </div>
           </div>
 
-          {/* Right: step progress — bigger, labeled, amber fill */}
-          <div className="flex flex-col items-end gap-2 shrink-0 pt-1">
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalSections }).map((_, i) => (
-                <div
-                  key={i}
-                  style={{ width: i === currentSection ? 20 : 8 }}
-                  className={`h-[4px] rounded-full transition-all duration-400 ${i === currentSection
-                    ? "bg-site-crimson"
-                    : i < currentSection
-                      ? "bg-site-crimson/40"
-                      : "bg-site-border"
-                    }`}
-                />
-              ))}
+          {/* Right: step progress dots + label — vertically centered */}
+          <div className="flex flex-col items-end gap-1.5 shrink-0">
+            {/* Precision ceremonial progress track */}
+            <div className="w-[120px] h-[2px] bg-[#1a1a1a]/10 rounded-full overflow-hidden relative mt-1">
+              <motion.div
+                initial={false}
+                animate={{ width: `${((currentSection + 1) / totalSections) * 100}%` }}
+                transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute left-0 top-0 bottom-0 bg-[#8b6f47] rounded-full"
+              />
             </div>
-            <span className="text-[13px] font-mono text-white/35 tracking-widest">
+            <span className="text-[11px] font-mono text-[#1a1a1a]/70 font-semibold tracking-widest mt-0.5">
               Step {currentSection + 1} of {totalSections}
             </span>
           </div>
@@ -263,7 +267,7 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
       </div>
 
       {/* ── MAIN CONTENT: fills all remaining space ── */}
-      <div className="relative z-10 flex-1 overflow-hidden px-4 xl:px-8 pt-3 pb-12">
+      <div className="relative z-10 flex-1 overflow-hidden px-4 xl:px-8 pt-1.5 pb-[56px]">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSection}
@@ -281,7 +285,7 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
                 <div
                   key={q.key}
                   className={`flex flex-col h-full ${i === 0
-                    ? "pr-5 border-r border-white/[0.06]"
+                    ? "pr-5 border-r border-[#1a1a1a]/[0.06]"
                     : "pl-5"
                     }`}
                 >
@@ -295,28 +299,28 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
       </div>
 
       {/* ── FIXED CTA FOOTER ── */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between px-5 xl:px-8 py-2.5 border-t border-site-border bg-site-bg/70 backdrop-blur-sm">
-        {/* Zone 6: Skip text — 12px, readable, centered-ish, with icon */}
-        <p className="flex items-center gap-1.5 text-[12px] text-white/50">
-          <span className="inline-block rotate-90 opacity-60">↓</span>
+      <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between px-6 xl:px-10 py-3.5 border-t border-[#e8e4dd] bg-[#ffffff]/85 backdrop-blur-md">
+        {/* Zone 6: Skip text — 14px, premium, readable, centered-ish, with icon */}
+        <p className="flex items-center gap-2 text-[14px] text-[#1a1a1a]/80 font-medium">
+          <span className="inline-block rotate-90 text-[#8b6f47] font-bold">↓</span>
           {t("reflection_skip")}
         </p>
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           {currentSection > 0 && (
             <button
               onClick={goBack}
-              className="flex items-center gap-1 px-3 py-1.5 border border-border/30 text-foreground/60 text-[9px] xl:text-[10px] font-medium uppercase tracking-widest hover:bg-secondary/30 transition-colors"
+              className="flex items-center gap-1.5 px-5 py-2 border border-[#1a1a1a]/25 text-[#1a1a1a]/85 text-[11px] xl:text-[12px] font-semibold uppercase tracking-widest hover:bg-[#1a1a1a]/5 transition-all rounded-[4px] shadow-sm"
             >
-              <ArrowLeft size={10} />
+              <ArrowLeft size={12} />
               Back
             </button>
           )}
           <button
             onClick={goNext}
-            className="flex items-center gap-1.5 px-5 py-1.5 bg-site-crimson text-site-bg text-[9px] xl:text-[10px] font-medium uppercase tracking-widest hover:bg-site-crimson/90 transition-colors"
+            className="flex items-center gap-2 px-6 py-2 bg-[#8b6f47] text-[#ffffff] text-[11px] xl:text-[12px] font-semibold uppercase tracking-widest hover:bg-[#8b6f47]/90 transition-colors rounded-[4px] shadow-sm"
           >
             {isLastSection ? t("reflection_continue") : "Next"}
-            {!isLastSection && <ArrowRight size={10} />}
+            {!isLastSection && <ArrowRight size={12} />}
           </button>
         </div>
       </div>

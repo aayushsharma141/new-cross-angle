@@ -71,7 +71,7 @@ const HubFinalCTA = () => {
       {/* Decorative Elements */}
       <div className="absolute bottom-10 left-10 flex flex-col gap-4">
         <div className="h-20 w-[1px] bg-gradient-to-t from-site-gold via-white/10 to-transparent" />
-        <span className="text-[9px] uppercase tracking-[0.5em] text-white/30 [writing-mode:vertical-lr]">Cross Angle Design</span>
+        <span className="text-[9px] uppercase tracking-[0.5em] text-white/60 [writing-mode:vertical-lr]">Cross Angle Design</span>
       </div>
     </div>
   );

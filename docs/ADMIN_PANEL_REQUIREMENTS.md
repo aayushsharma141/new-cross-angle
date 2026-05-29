@@ -122,5 +122,5 @@ The PostgreSQL architecture relies heavily upon Row Level Security (RLS) policie
 
 - **`blogs`**: Simple Article Schema.
   - Fields: `id` (uuid), `title`, `slug`, `excerpt`, `content` (text/html), `image_url`, `read_time`, `status`, `created_at`/`published_at`.
-- **`profiles`**: Linked precisely via PostegreSQL database trigger to Supabase's secure, hidden `auth.users` ledger.
+- **`profiles`**: Linked precisely via PostgreSQL database trigger to Supabase's secure, hidden `auth.users` ledger.
   - Fields: `id` (uuid, references `auth.users`), `full_name`, `avatar_url`, `role` (text).

@@ -20,13 +20,13 @@ The current app is split between two PostHog bootstraps and several Supabase-bac
 
 ## Tasks (per docs/plans/2026-04-08-posthog-analytics-replan.md)
 
-- [ ] **Task 1: Add a minimal analytics test harness**
+- [x] **Task 1: Add a minimal analytics test harness**
   - Package.json script, vitest.config.ts, and initial client test.
-- [ ] **Task 2: Consolidate PostHog bootstrap into one consent-aware client**
+- [x] **Task 2: Consolidate PostHog bootstrap into one consent-aware client**
   - Update `main.tsx`, `App.tsx`, `PostHogProvider.tsx`, create `posthog-client.ts`.
-- [ ] **Task 3: Define a typed PostHog event contract**
+- [x] **Task 3: Define a typed PostHog event contract**
   - Define `AnalyticsEventMap` in `events.ts`.
-- [ ] **Task 4: Migrate the Discovery Engine from Supabase event tables to PostHog**
+- [x] **Task 4: Migrate the Discovery Engine from Supabase event tables to PostHog**
   - Update Tracker to push cleanly via PostHog instead of `addon_events`.
 - [ ] **Task 5: Instrument the rest of the public lead funnel**
   - Wire Contact, Price Estimator, CTA clicks into the new event map.

@@ -1,0 +1,28 @@
+[2026-05-24 06:01] SESSION START — Discovery UI Overhaul
+  Agent: Antigravity
+  Context folder created: context/discovery-ui-overhaul-2026-05-24/
+
+[2026-05-24 06:01] WAVE 1 — Core Layout — COMPLETE
+  T01 DONE: Removed old 72px DOT_NAV_STAGES sidebar from DiscoveryEngine.tsx
+  T02 DONE: Created DiscoveryProgressSidebar.tsx (260px luxury sidebar)
+    - Gold spine line, animated completion fill, pulsing active dot, ✓ check states
+    - Archetype preview panel with live mini score bars (unlocks at PatternPreview)
+    - Brand header + progress % + auto-save footer
+  T03 DONE: Wired sidebar into DiscoveryEngine.tsx
+    - archetype/scores passed after Stage.PatternPreview
+    Files: DiscoveryEngine.tsx, DiscoveryProgressSidebar.tsx (NEW)
+
+[2026-05-24 06:02] WAVE 2 — WelcomeScreen Polish — COMPLETE
+  T04 DONE: Archetype card polish in WelcomeScreen.tsx
+    - bg: #0a0907 (deep obsidian) instead of zinc-900
+    - border: white/[0.06] instead of zinc-800
+    - hover: gold left-border accent + radial gold glow
+    - tag text: site-gold/60 instead of site-crimson/80
+    - body text: white/35 instead of zinc-400
+    Files: WelcomeScreen.tsx
+
+[2026-05-24 06:02] WAVE 3 — QA Results
+  T07: TypeScript tsc --noEmit → CLEAN (0 errors)
+  T09: Design.lock integrity → CLEAN (all bg-white uses are fractional transparency, not solid white)
+  T08: Visual QA — PENDING (requires browser inspection)
+  T10: decisions.log — PENDING (update below)

@@ -1,0 +1,553 @@
+--- PAGE 1 ---
+ 
+ 
+ 
+ 
+ 
+COMPLETE SEO STRATEGY TEMPLATE 
+ 
+ 
+ 
+📌  HOW TO USE THIS TEMPLATE 
+This is a universal SEO strategy document built for any business or niche. 
+Every ✏ field is a placeholder — fill in your specific business details. 
+Sections cover: Technical SEO, E-E-A-T, Keyword Strategy, Content Plan, 
+AEO (Answer Engine Optimization), AI SEO, Link Building & Measurement. 
+Share with clients or use internally. Built to 2024–2025 Google Guidelines. 
+ 
+SECTION 1 — BUSINESS & WEBSITE OVERVIEW 
+COMPLETE ALL FIELDS BELOW — THESE INFORM EVERY STRATEGY DECISION 
+ 
+1.1  Business Profile 
+Business Name Click here to fill in ➜  
+Industry / Niche Click here to fill in ➜  
+Business Type e.g. E-commerce / Local / SaaS / B2B / B2C / Blog 
+Target Geography e.g. India, USA, Global, City-specific 
+Main Products / Services Click here to fill in ➜  
+Primary Revenue Model e.g. Product sales / Leads / Subscriptions / Ads 
+Website URL Click here to fill in ➜  
+Domain Age Click here to fill in ➜  
+CMS / Platform e.g. WordPress, Shopify, Wix, Custom 
+ 
+1.2  Business Goals (Next 12 Months) 
+List the top 3–5 SEO goals aligned with business outcomes: 
+• Goal 1: e.g. Increase organic traffic by X%  
+• Goal 2: e.g. Rank on Page 1 for X keywords  
+• Goal 3: e.g. Generate X leads/month from organic search  
+• Goal 4: e.g. Improve Core Web Vitals score  
+• Goal 5: e.g. Establish brand authority in [niche]  
+ 
+--- PAGE 2 ---
+ 
+ 
+1.3  Target Audience 
+Primary Audience Click here to fill in ➜  
+Age Range Click here to fill in ➜  
+Search Intent e.g. Informational / Commercial / Transactional / Navigational 
+Pain Points Click here to fill in ➜  
+Buyer Journey Stage e.g. Awareness / Consideration / Decision 
+Preferred Devices e.g. Mobile (70%) / Desktop (30%) 
+ 
+SECTION 2 — COMPETITIVE & MARKET ANALYSIS 
+UNDERSTAND THE SEO LANDSCAPE BEFORE BUILDING YOUR STRATEGY 
+ 
+2.1  Top Competitors 
+Competitor Domain / URL DA / DR Score Top Keywords Content Gaps 
+Competitor # e.g. competitor.com Fill in Fill in Fill in 
+Competitor # e.g. competitor.com Fill in Fill in Fill in 
+Competitor # e.g. competitor.com Fill in Fill in Fill in 
+Competitor # e.g. competitor.com Fill in Fill in Fill in 
+ 
+2.2  SWOT Analysis — SEO Perspective 
+📌  STRENGTHS 
+e.g. Established domain, quality content, niche 
+authority 
+ 
+✏ Add your strengths here 
+📌  WEAKNESSES 
+e.g. Thin content, slow site, low backlink profile 
+ 
+✏ Add your weaknesses here 
+📌  OPPORTUNITIES 
+e.g. Untapped keywords, competitor content gaps, 
+featured snippets 
+ 
+✏ Add your opportunities here 
+📌  THREATS 
+e.g. Algorithm updates, strong competitors, AI-
+generated content 
+ 
+✏ Add your threats here 
+  
+--- PAGE 3 ---
+ 
+ 
+SECTION 3 — E-E-A-T STRATEGY 
+📌 What is E-E-A-T? 
+E-E-A-T stands for Experience, Expertise, Authoritativeness & Trustworthiness. 
+Google's Quality Raters use these signals to evaluate page quality. 
+Strong E-E-A-T is essential for YMYL (Your Money or Your Life) topics and 
+for earning trust from both Google and your users. 
+ 
+3.1  Experience 
+DEMONSTRATE FIRST-HAND EXPERIENCE WITH YOUR TOPIC / PRODUCTS / INDUSTRY 
+ 
+Your Experience e.g. 10 years in [industry], certified [credential] 
+How You'll Show It e.g. Case studies, behind-the-scenes content, author bios 
+Content Formats e.g. Personal stories, original data, product testing reviews 
+✏ Add specific experience proof points for your niche: 
+ 
+3.2  Expertise 
+Author Credentials Click here to fill in ➜  
+Certifications / 
+Qualifications 
+Click here to fill in ➜  
+Author Bio Page URL Click here to fill in ➜  
+Guest Posts / Speaking Click here to fill in ➜  
+Publications / Media 
+Mentions 
+Click here to fill in ➜  
+ 
+☐ Create detailed, verified author bios for all content contributors 
+☐ Add schema markup: Person, Author, Organization 
+☐ Display credentials, certifications and awards prominently 
+☐ Link to LinkedIn, professional profiles and credentials 
+☐ Cite authoritative external sources in all content 
+☐ Use fact-checking and expert review for all YMYL content 
+ 
+3.3  Authoritativeness 
+Domain Authority Goal Target DA/DR: ___ (Current: ___) 
+Brand Mentions Target Unlinked + Linked mentions per month: ___ 
+Industry Associations Click here to fill in ➜  
+--- PAGE 4 ---
+ 
+ 
+Awards / Rankings Click here to fill in ➜  
+Wikipedia / Wikidata Does your brand have a Wikipedia entry? Yes / No 
+ 
+3.4  Trustworthiness 
+☐ Install and maintain a valid SSL certificate (HTTPS) 
+☐ Add a clear, accessible Privacy Policy and Terms of Service 
+☐ Display NAP (Name, Address, Phone) consistently across the web 
+☐ Add Trust Badges, Security Seals and verified reviews 
+☐ Create a comprehensive About Us / Company page with team profiles 
+☐ Provide transparent editorial guidelines and content update dates 
+☐ Respond to all Google Reviews and third-party reviews professionally 
+☐ Add a clear Contact page with multiple contact methods 
+☐ Remove or disavow toxic/spammy backlinks regularly 
+☐ Publish an 'Editorial Policy' or 'How We Research' page 
+ 
+SECTION 4 — KEYWORD RESEARCH & STRATEGY 
+ALIGN KEYWORDS WITH USER INTENT AND BUSINESS GOALS — NOT JUST VOLUME 
+ 
+4.1  Keyword Tiers 
+Tier Keyword Type Example Volume Priority 
+Tier 1 Pillar / Head Terms 
+(1-2 words) 
+[your main keyword] High 🔴 Foundation 
+Tier 2 Body / Category 
+Terms (2-3 words) 
+[your category 
+keyword] 
+Medium 🔴 Growth 
+Tier 3 Long-Tail / Niche 
+Terms (3-5 words) 
+[specific long-tail 
+KW] 
+Low-Med 🔴 Quick Wins 
+Tier 4 Question / 
+Conversational 
+Terms 
+How to / What is / 
+Best way to... 
+Varies 🔴 AEO / AI 
+ 
+4.2  Keyword Mapping Template 
+Map each target keyword to a specific page to avoid keyword cannibalization: 
+Target Page / URL Primary Keyword Secondary 
+Keywords 
+Search Intent Current Rank 
+/page-url Primary KW KW1, KW2 Informational Not tracked 
+/page-url Primary KW KW1, KW2 Informational Not tracked 
+/page-url Primary KW KW1, KW2 Informational Not tracked 
+--- PAGE 5 ---
+ 
+ 
+/page-url Primary KW KW1, KW2 Informational Not tracked 
+/page-url Primary KW KW1, KW2 Informational Not tracked 
+ 
+4.3  Tools Used for Keyword Research 
+☐ Google Search Console — Discover real search queries driving impressions 
+☐ Google Keyword Planner — Volume and competition data 
+☐ Ahrefs / Semrush / Moz — In-depth keyword analysis and competitor gap 
+☐ Google Autocomplete + 'People Also Ask' + 'Related Searches' 
+☐ Answer The Public / AlsoAsked — Question-based keyword discovery 
+☐ ChatGPT / Gemini — AI-driven keyword ideation and search intent analysis 
+ 
+SECTION 5 — TECHNICAL SEO AUDIT & CHECKLIST 
+TECHNICAL HEALTH IS THE FOUNDATION — FIX ISSUES BEFORE CREATING CONTENT 
+ 
+5.1  Core Web Vitals (CWV) — Google's Page Experience Signals 
+LCP (Loading) INP (Interactivity) CLS (Visual Stability) TTFB (Server) 
+Target: < 2.5s | 
+Current: ___s 
+Target: < 200ms | 
+Current: ___ms 
+Target: < 0.1 | Current: 
+___ 
+Target: < 800ms | 
+Current: ___ms 
+ 
+5.2  Crawlability & Indexation 
+☐ Verify robots.txt is correctly configured — not blocking important pages 
+☐ Submit XML sitemap to Google Search Console and Bing Webmaster Tools 
+☐ Check for and fix crawl errors in Google Search Console > Coverage report 
+☐ Resolve all 4xx (broken pages) and 5xx (server error) status codes 
+☐ Implement proper 301 redirects for all changed or deleted URLs 
+☐ Audit internal linking — ensure all important pages are reachable within 3 clicks 
+☐ Check canonical tags — prevent duplicate content issues 
+☐ Verify hreflang implementation for multilingual sites 
+☐ Ensure pagination is correctly handled (use rel=prev/next or canonical) 
+☐ Remove or noindex thin, duplicate, or low-value pages 
+ 
+5.3  On-Page Technical Elements 
+☐ Title Tags: 50–60 characters, primary keyword near the front 
+☐ Meta Descriptions: 120–158 characters, include CTA and keyword 
+--- PAGE 6 ---
+ 
+ 
+☐ H1 Tags: One per page, descriptive, keyword-optimized 
+☐ H2–H6 Tags: Logical heading hierarchy, use secondary keywords 
+☐ Image Alt Text: Descriptive and keyword-relevant for all images 
+☐ Image Compression: Use WebP format, compress all images below 100KB 
+☐ Schema Markup: Implement relevant structured data (see Section 7) 
+☐ URL Structure: Short, descriptive, hyphenated, keyword-rich URLs 
+☐ Mobile Responsiveness: 100% mobile-friendly (Google mobile-first indexing) 
+☐ HTTPS: Valid SSL certificate on all pages including subdomain 
+☐ Page Speed: Minify CSS, JS; enable browser caching; use a CDN 
+ 
+5.4  Site Architecture 
+Document your site structure and silo strategy below: 
+✏ Homepage → [Main Category] → [Sub-Category] → [Article/Product Page] 
+✏ Silo 1: [Topic Cluster Name] 
+✏ Silo 2: [Topic Cluster Name] 
+✏ Silo 3: [Topic Cluster Name] 
+ 
+SECTION 6 — CONTENT STRATEGY & PLANNING 
+📌 Google's Content Standard: Helpful, Reliable, People-First Content 
+Content must demonstrate real expertise, satisfy user intent completely, 
+and offer unique value unavailable elsewhere on the web. 
+Reference: Google's 'helpful content' system guidelines (2023–2024). 
+ 
+6.1  Content Types for Your Niche 
+☐ Pillar Pages — Comprehensive, authoritative guides on core topics (2,000+ words) 
+☐ Cluster Content — Supporting articles that link back to pillar pages 
+☐ How-To / Tutorial Content — Step-by-step guides matching instructional intent 
+☐ Product / Service Pages — Optimized transactional pages with schema 
+☐ Case Studies — Real examples that demonstrate Experience (the first 'E' in E-E-A-T) 
+☐ Comparison Pages — 'X vs Y', 'Best X for Y' — high commercial intent 
+☐ FAQ Pages / FAQ Schema — Targets featured snippets and PAA boxes 
+☐ Data-Driven Content / Original Research — Highly linkable and authoritative 
+☐ Video Content — Optimized for YouTube SEO + embedded on-site 
+☐ Glossary / Definition Pages — Targets informational and AI answer queries 
+ 
+--- PAGE 7 ---
+ 
+ 
+6.2  Content Calendar Template 
+Month Content Title / Topic Target Keyword Content Type Word Count Status 
+Month X Article / Page Title Target KW Blog / Pillar / FAQ 1,500+ Draft 
+Month X Article / Page Title Target KW Blog / Pillar / FAQ 1,500+ Draft 
+Month X Article / Page Title Target KW Blog / Pillar / FAQ 1,500+ Draft 
+Month X Article / Page Title Target KW Blog / Pillar / FAQ 1,500+ Draft 
+Month X Article / Page Title Target KW Blog / Pillar / FAQ 1,500+ Draft 
+Month X Article / Page Title Target KW Blog / Pillar / FAQ 1,500+ Draft 
+ 
+6.3  Content Quality Standards 
+☐ Every piece of content answers a specific, researched user intent 
+☐ Content is original — not spun, paraphrased from competitors, or AI-only generated 
+☐ All factual claims are cited with links to authoritative external sources 
+☐ Content is reviewed/approved by a subject matter expert before publishing 
+☐ Each article includes a clear author byline with credentials 
+☐ Content includes multimedia: images, charts, video, infographics as appropriate 
+☐ Publish date AND last-updated date visible on every article 
+☐ Content is regularly audited and refreshed (minimum every 12 months) 
+☐ Internal links added to relevant existing content on every new page 
+ 
+SECTION 7 — AEO: ANSWER ENGINE OPTIMIZATION 
+📌 What is AEO? 
+Answer Engine Optimization (AEO) is the practice of optimizing content to 
+appear in direct answer features: Featured Snippets, People Also Ask (PAA), 
+Google's AI Overviews (SGE), voice search results, and zero-click answers. 
+AEO is the bridge between traditional SEO and AI-powered search. 
+ 
+7.1  Featured Snippet Optimization 
+☐ Identify questions your target keywords trigger ('who', 'what', 'how', 'when', 'why') 
+☐ Structure answers in the first 40–60 words after the question heading 
+☐ Use definition boxes for 'What is...' queries (40–60 word clear definition) 
+☐ Use numbered lists for 'How to...' queries (steps format) 
+☐ Use bullet lists for 'Best ways to...' or comparison queries 
+☐ Use tables for comparison, pricing, or specification queries 
+☐ Place target question as an H2 or H3 heading exactly as users search it 
+--- PAGE 8 ---
+ 
+ 
+☐ Mark up FAQ content with FAQ Schema / Q&A Schema 
+ 
+7.2  People Also Ask (PAA) Strategy 
+Research and answer these PAA questions for your niche: 
+• PAA Question 1: ___________________________________  
+• PAA Question 2: ___________________________________  
+• PAA Question 3: ___________________________________  
+• PAA Question 4: ___________________________________  
+• PAA Question 5: ___________________________________  
+ 
+7.3  Google AI Overviews (SGE) Optimization 
+☐ Write content that directly and concisely answers the user's query 
+☐ Use clear, factual, well-cited statements — AI Overviews favor authoritative facts 
+☐ Structure content with headers that match natural language questions 
+☐ Include structured data / schema markup on all relevant pages 
+☐ Build E-E-A-T signals — AI Overviews prioritize trusted, expert sources 
+☐ Create comprehensive content covering the full topic depth (not just one angle) 
+☐ Ensure fast page load and mobile experience — crawlability matters 
+☐ Use entity optimization — align content with known entities in your niche 
+ 
+7.4  Voice Search & Conversational Query Optimization 
+☐ Target conversational, long-tail question queries (5–10+ words) 
+☐ Optimize for local voice queries: 'near me', 'open now', '[city] + [service]' 
+☐ Maintain an up-to-date Google Business Profile for local voice answers 
+☐ Create a dedicated FAQ page using natural spoken-language questions 
+☐ Aim for concise answers (under 30 words) for voice-ready snippets 
+ 
+SECTION 8 — STRUCTURED DATA & SCHEMA MARKUP 
+SCHEMA MARKUP HELPS GOOGLE UNDERSTAND YOUR CONTENT AND POWERS RICH RESULTS 
+ 
+8.1  Schema Types — Select All That Apply 
+✓ Schema Type When to Use 
+☐ Organization Every website — establishes brand entity 
+☐ WebSite Enables sitelinks search box in SERPs 
+☐ BreadcrumbList Improves SERP URL display and navigation 
+--- PAGE 9 ---
+ 
+ 
+☐ Article / BlogPosting All blog posts and news articles 
+☐ FAQPage Pages with Q&A format — triggers PAA features 
+☐ HowTo Step-by-step tutorial content 
+☐ Product E-commerce product pages 
+☐ Review / AggregateRating Pages with customer reviews or ratings 
+☐ LocalBusiness Local businesses with a physical location 
+☐ Person / Author Author biography pages 
+☐ VideoObject Pages with embedded videos 
+☐ Event Pages promoting upcoming events 
+☐ Recipe Recipe content (food/cooking niche) 
+☐ MedicalCondition / Drug Medical / health content (YMYL) 
+☐ Course Online course / educational content 
+ 
+8.2  Validation 
+☐ Test all schema with Google's Rich Results Test (search.google.com/test/rich-results) 
+☐ Validate JSON-LD in Schema Markup Validator (validator.schema.org) 
+☐ Check Search Console > Enhancements for schema errors and warnings 
+☐ Re-validate after every site update or CMS change 
+  
+--- PAGE 10 ---
+ 
+ 
+SECTION 9 — AI SEO STRATEGY 
+📌 AI SEO: Optimizing for the AI-Powered Search Era 
+AI SEO refers to strategies that help your content rank in, and be cited by, 
+AI-powered search engines and assistants (ChatGPT, Gemini, Perplexity, 
+Claude, Google AI Overviews, Microsoft Copilot, Apple Intelligence). 
+The goal: become a trusted, cited source inside AI-generated answers. 
+ 
+9.1  Entity SEO & Knowledge Graph Optimization 
+☐ Define your brand as an entity: consistent Name, Address, Phone (NAP) across all platforms 
+☐ Create / claim your Google Knowledge Panel 
+☐ Create a Wikipedia / Wikidata entry if brand meets notability guidelines 
+☐ Use Organization schema with sameAs properties linking to all social profiles 
+☐ Earn mentions on authoritative, well-indexed websites 
+☐ Build a consistent brand identity: logo, About Us, team pages, and mission statement 
+ 
+9.2  Optimizing for AI Citation & LLM Visibility 
+☐ Publish well-cited, factual, expert-authored content (LLMs cite authoritative sources) 
+☐ Create structured, clearly formatted content — AI models prefer scannable formats 
+☐ Use direct, factual language in introductions — avoid vague or hedging openers 
+☐ Create 'definition' content: 'What is [X]?' pages for your core industry terms 
+☐ Aim to be cited in industry directories, Wikipedia, and authoritative roundups 
+☐ Ensure your site is accessible with no crawl blocks that prevent AI bot access 
+☐ Build topical authority in a specific niche rather than covering too many topics 
+☐ Create data pages and original research — LLMs actively cite unique statistics 
+ 
+9.3  AI-Assisted Content Creation — Best Practices 
+☐ Use AI (ChatGPT, Gemini, Claude) for research, outlines and ideation — not final output 
+☐ Always add human expertise, original insight and first-hand experience to AI drafts 
+☐ Fact-check all AI-generated content against authoritative sources 
+☐ Ensure final content passes E-E-A-T standards — AI alone cannot provide true expertise 
+☐ Do not publish pure AI-generated content — Google targets 'AI-first' content specifically 
+☐ Use AI tools for: internal linking suggestions, meta tag optimization, content gap analysis 
+ 
+9.4  Future-Proofing for AI Search 
+Action items specific to your niche: 
+--- PAGE 11 ---
+ 
+ 
+• Identify which AI assistants your target audience uses most  
+• Create content to address queries likely asked in AI chat interfaces  
+• Build brand awareness so users specifically ask AI for 'your brand name'  
+• Monitor brand mentions inside AI tools using tools like Brandwatch or manual testing  
+ 
+SECTION 10 — LINK BUILDING STRATEGY 
+BUILD LINKS THAT TRANSFER REAL AUTHORITY — QUALITY ALWAYS BEATS QUANTITY 
+ 
+10.1  Link Building Metrics 
+Current Domain 
+Rating 
+Target Domain Rating Monthly Link Target Avg Referring 
+Domain DR 
+Current DR: ___ Target DR: ___ ___ quality links/month Target: DR 40+ 
+ 
+10.2  White-Hat Link Building Tactics 
+☐ Digital PR — Create newsworthy content, data studies, and press releases for media pickup 
+☐ Guest Posting — Write expert guest articles on relevant, high-DA industry publications 
+☐ HARO / Qwoted / Connectively — Respond to journalist queries as an expert source 
+☐ Linkable Asset Creation — Tools, calculators, original research, infographics, templates 
+☐ Broken Link Building — Find broken links on industry sites; offer your content as replacement 
+☐ Resource Page Link Building — Get listed on authoritative industry resource pages 
+☐ Podcast / Webinar Appearances — Earn backlinks from episode pages and show notes 
+☐ Skyscraper Technique — Improve upon popular competitor content and earn their backlinks 
+☐ Partnerships / Collaborations — Co-author content with complementary brands 
+☐ Unlinked Brand Mentions — Find brand mentions that don't link; request a link addition 
+ 
+10.3  Backlink Audit Checklist 
+☐ Conduct full backlink audit using Ahrefs, Semrush or Majestic 
+☐ Identify and flag toxic / spammy backlinks for disavowal 
+☐ Submit disavow file to Google Search Console if toxic links identified 
+☐ Monitor new backlinks monthly using Google Search Console or Ahrefs alerts 
+☐ Track lost backlinks and attempt reclamation for high-value losses 
+ 
+10.4  Internal Linking Strategy 
+☐ Create a topic cluster model: pillar page ↔ cluster articles interlinked 
+☐ Use keyword-rich, descriptive anchor text (avoid 'click here' or 'read more') 
+--- PAGE 12 ---
+ 
+ 
+☐ Ensure every new page receives at least 2–3 internal links from existing pages 
+☐ Audit internal links quarterly — fix broken internal links immediately 
+☐ Use breadcrumb navigation on all category and product pages 
+ 
+SECTION 11 — LOCAL SEO STRATEGY 
+Complete this section if your business serves a specific geographic area. Skip if global/online-only. 
+ 
+11.1  Google Business Profile Optimization 
+☐ Claim and fully verify your Google Business Profile (GBP) 
+☐ Select the most accurate primary and secondary business categories 
+☐ Add complete NAP: Name, Address, Phone (must match website exactly) 
+☐ Write a keyword-optimized business description (750 characters max) 
+☐ Upload high-quality photos: exterior, interior, team, products, services 
+☐ Add all business hours including special/holiday hours 
+☐ Enable Google Messaging and respond within 24 hours 
+☐ Post weekly Google Business updates (offers, events, news) 
+☐ Add all services and products with descriptions and pricing 
+☐ Actively collect and respond to all Google Reviews 
+ 
+11.2  Local Citation Building 
+Priority Citations Google, Apple Maps, Bing Places, Facebook, Yelp, TripAdvisor (niche-
+specific) 
+Industry Directories Fill in relevant niche directories for your business 
+Target Citation Count Goal: ___ citations in 90 days 
+NAP Consistency Check Tool: BrightLocal / Moz Local / Whitespark 
+ 
+11.3  Local Content Strategy 
+☐ Create location-specific landing pages for each service area or city 
+☐ Publish locally relevant blog content (community news, local events, area guides) 
+☐ Add LocalBusiness schema markup with geo-coordinates 
+☐ Build local backlinks from chambers of commerce, local news, and community sites 
+☐ Optimize for 'near me' and '[city] + [service]' keyword combinations 
+ 
+SECTION 12 — KPI TRACKING & REPORTING FRAMEWORK 
+--- PAGE 13 ---
+ 
+ 
+WHAT GETS MEASURED GETS IMPROVED — TRACK THE RIGHT METRICS FROM DAY ONE 
+ 
+12.1  Core SEO KPIs 
+KPI Metric Current Baseline 3-Month Target 12-Month Target 
+Organic Sessions / Month Fill in ➜ Fill in ➜ Fill in ➜ 
+Organic Clicks (GSC) Fill in ➜ Fill in ➜ Fill in ➜ 
+Average Position (GSC) Fill in ➜ Fill in ➜ Fill in ➜ 
+Indexed Pages Fill in ➜ Fill in ➜ Fill in ➜ 
+Domain Rating / Authority Fill in ➜ Fill in ➜ Fill in ➜ 
+Referring Domains Fill in ➜ Fill in ➜ Fill in ➜ 
+Organic Conversion Rate Fill in ➜ Fill in ➜ Fill in ➜ 
+Organic Revenue (if e-com) Fill in ➜ Fill in ➜ Fill in ➜ 
+Core Web Vitals — LCP Fill in ➜ Fill in ➜ < 2.5s 
+Featured Snippet Count Fill in ➜ Fill in ➜ Fill in ➜ 
+Local Pack Rankings Fill in ➜ Fill in ➜ Fill in ➜ 
+ 
+12.2  Reporting Tools Stack 
+☐ Google Search Console — Organic performance, indexing, Core Web Vitals 
+☐ Google Analytics 4 (GA4) — Traffic, conversions, user behavior 
+☐ Ahrefs / Semrush — Keyword rankings, backlinks, competitor tracking 
+☐ Google Looker Studio — Custom SEO dashboard for client/team reporting 
+☐ Screaming Frog / Sitebulb — Technical SEO crawls (monthly) 
+☐ BrightLocal / Whitespark — Local SEO tracking and citation management 
+ 
+12.3  Monthly Reporting Checklist 
+☐ Pull GSC data: clicks, impressions, CTR, and average position changes 
+☐ Compare organic traffic vs previous month and year-over-year in GA4 
+☐ Review keyword ranking movements for all tracked keywords 
+☐ Audit new and lost backlinks; flag any algorithm update impacts 
+☐ Check Core Web Vitals report in GSC for new issues 
+☐ Review content performance: top pages, bounce rate, time on page 
+☐ Track conversion goals: leads, sales, sign-ups from organic traffic 
+☐ Prepare monthly SEO report with wins, challenges, and next-month priorities 
+ 
+SECTION 13 — 90-DAY SEO ACTION PLAN 
+--- PAGE 14 ---
+ 
+ 
+PHASED EXECUTION: TECHNICAL FIRST, CONTENT SECOND, AUTHORITY THIRD 
+ 
+Phase 1: Days 1–30 — Foundation & Technical Fix 
+☐ Complete full technical SEO audit (Screaming Frog + GSC + GTmetrix) 
+☐ Fix all crawl errors, redirect chains, and 404 pages 
+☐ Optimize Core Web Vitals: LCP, INP, CLS 
+☐ Install and configure Google Analytics 4 + Google Tag Manager 
+☐ Set up Google Search Console and submit XML sitemap 
+☐ Conduct comprehensive keyword research and create keyword map 
+☐ Audit and optimize all existing page titles, meta descriptions, H1 tags 
+☐ Implement Organization + WebSite + BreadcrumbList schema 
+☐ Create / optimize Google Business Profile (local businesses) 
+☐ Set up rank tracking for all target keywords 
+ 
+Phase 2: Days 31–60 — Content Creation & E-E-A-T 
+☐ Create or update author bios with full E-E-A-T signals 
+☐ Publish first 2–4 pillar pages / cornerstone content pieces 
+☐ Begin content cluster production (3–5 supporting articles per pillar) 
+☐ Implement FAQ schema on all content pages 
+☐ Optimize top 10 existing pages: update content, add schema, improve CTA 
+☐ Launch content calendar for next 6 months 
+☐ Build or update About Us, Contact, Privacy Policy, and Trust pages 
+☐ Begin guest posting and digital PR outreach campaigns 
+ 
+Phase 3: Days 61–90 — Authority, AEO & AI SEO 
+☐ Submit to and build citations in top 20 industry directories 
+☐ Launch 2–3 linkable asset campaigns (tools, research, or infographics) 
+☐ Optimize content for Featured Snippets and People Also Ask 
+☐ Implement VideoObject schema if video content exists 
+☐ Build first 5–10 quality backlinks through outreach / HARO 
+☐ Audit internal linking structure across entire site 
+☐ Review and optimize for AI Overviews / SGE visibility 
+☐ Deliver first full monthly SEO performance report 
+☐ Review 90-day results against targets; adjust strategy for next quarter 
+ 
+--- PAGE 15 ---
+ 
+ 
+✅  STRATEGY COMPLETE — NEXT STEPS 
+1. Fill in all blank fields throughout this document 
+2. Share with your team or client for alignment 
+3. Begin Phase 1 execution immediately 
+4. Review and update this strategy quarterly 
+5. Questions? Connect with [Your Name / Agency] at [Contact Details] 
+ 
+ 

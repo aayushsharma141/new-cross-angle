@@ -27,9 +27,8 @@ test("contact_form_submitted payload is typed correctly", () => {
 
 test("cta_clicked payload is typed correctly", () => {
   expectTypeOf<AnalyticsEventMap["cta_clicked"]>().toEqualTypeOf<{
-    location: string;
-    label: string;
-    href?: string;
+    ctaId: string;
+    destination: string;
   }>();
 });
 

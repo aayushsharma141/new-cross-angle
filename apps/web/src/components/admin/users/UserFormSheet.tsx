@@ -13,6 +13,7 @@ import {
     ROLE_LABELS,
     normalizeRole,
 } from "@/lib/auth/rbac";
+import type { Database } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import {
@@ -42,6 +43,7 @@ const userFormSchema = z.object({
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
+type UserRole = Database["public"]["Enums"]["app_role"];
 
 export interface AdminUserRecord {
     id: string;
@@ -80,6 +82,14 @@ function getDefaultRole(actorRole: AppRole | null, user?: AdminUserRecord | null
     return allowedRoles[0] ?? "viewer";
 }
 
+function isNetworkFetchFailure(error: { message: string } | null): boolean {
+    const message = error?.message.toLowerCase() ?? "";
+    return message.includes("failed to fetch")
+        || message.includes("unable to fetch")
+        || message.includes("networkerror")
+        || message.includes("network request failed");
+}
+
 export function UserFormSheet({
     open,
     onOpenChange,
@@ -111,6 +121,42 @@ export function UserFormSheet({
             status: user?.status === "inactive" ? "inactive" : "active",
         });
     }, [actorRole, form, mode, open, user]);
+
+    const updateUserDirectly = async (values: UserFormValues) => {
+        if (!user) return;
+
+        const profilePatch: Database["public"]["Tables"]["profiles"]["Update"] = {
+            full_name: values.fullName.trim(),
+            updated_at: new Date().toISOString(),
+        };
+
+        if (!isSelf) {
+            profilePatch.role = values.role;
+            profilePatch.status = values.status;
+        }
+
+        const { error: profileError } = await supabase
+            .from("profiles")
+            .update(profilePatch)
+            .eq("id", user.id);
+
+        if (profileError) {
+            throw profileError;
+        }
+
+        if (!isSelf) {
+            const { error: roleError } = await supabase
+                .from("user_roles")
+                .upsert(
+                    { user_id: user.id, role: values.role as UserRole },
+                    { onConflict: "user_id" },
+                );
+
+            if (roleError) {
+                throw roleError;
+            }
+        }
+    };
 
     const onSubmit = async (values: UserFormValues) => {
         setIsSubmitting(true);
@@ -150,10 +196,14 @@ export function UserFormSheet({
                 const { data, error } = await invokeEdge("manage-user", body);
 
                 if (error) {
-                    throw new Error(error.message);
+                    if (!isNetworkFetchFailure(error)) {
+                        throw new Error(error.message);
+                    }
+
+                    await updateUserDirectly(values);
                 }
 
-                if (data?.error) {
+                if (!error && data?.error) {
                     throw new Error(String(data.error));
                 }
 

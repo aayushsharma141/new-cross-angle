@@ -21,11 +21,14 @@ import {
     DialogTrigger,
     DialogFooter,
 } from "@/components/ui/primitives/dialog";
+import { Image } from "@/components/ui/enhanced/image";
 import { Loader2, Plus, Edit2, Trash2, Shield } from "lucide-react";
 import { getOptimizedUrl } from "@/lib/cdn";
 import { useToast } from "@/hooks/useToast";
 import { Card } from "@/design-system/components/Card";
 import { icons } from "@/design-system/tokens/icons";
+import { auditService } from "@/services/AuditService";
+import { AdminPageHeader } from "@/components/admin/ui/AdminPageHeader";
 
 interface TeamMember {
     id: string;
@@ -71,13 +74,22 @@ export default function AdminTeamMembers() {
             const { data, error } = await supabase
                 .from("team_members")
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                .upsert(payload, { returning: "minimal" } as any);
+                .upsert(payload, { returning: "representation" } as any)
+                .select('id')
+                .single();
 
             if (error) throw error;
-            return data;
+            return data as { id: string };
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ["team_members"] });
+            const resultId = (data as { id?: string } | null)?.id ?? editingMember?.id ?? null;
+            void auditService.writeAudit(
+                editingMember ? 'UPDATE' : 'CREATE',
+                'team_member',
+                resultId,
+                { name: editingMember?.name }
+            );
             toast({ title: "Success", description: "Team member saved successfully." });
             setIsDialogOpen(false);
             setEditingMember(null);
@@ -92,8 +104,9 @@ export default function AdminTeamMembers() {
             const { error } = await supabase.from("team_members").delete().eq("id", id);
             if (error) throw error;
         },
-        onSuccess: () => {
+        onSuccess: (_data, id) => {
             queryClient.invalidateQueries({ queryKey: ["team_members"] });
+            void auditService.writeAudit('DELETE', 'team_member', id, {});
             toast({ title: "Deleted", description: "Team member removed." });
         },
         onError: (error: Error) => {
@@ -108,26 +121,27 @@ export default function AdminTeamMembers() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 py-4 animate-in fade-in duration-700">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="space-y-1">
-                    <h1 className="text-4xl font-serif text-white tracking-tight">Team Members</h1>
-                    <p className="text-sm text-zinc-500 font-sans max-w-sm">Manage your executive and creative team units.</p>
-                </div>
-
-                <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                    setIsDialogOpen(open);
-                    if (!open) setEditingMember(null);
-                }}>
-                    <DialogTrigger asChild>
-                        <Button variant="primary">
-                            <Plus className={icons.sm + " mr-2"} /> Add Member
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-md max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl border-zinc-800">
-                        <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
-                            <DialogTitle className="text-lg font-display">{editingMember ? "Edit" : "Add"} Team Member</DialogTitle>
-                        </DialogHeader>
-                        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) setEditingMember(null);
+            }}>
+                <AdminPageHeader
+                    title="Team Members"
+                    description="Manage your executive and creative team units."
+                    breadcrumbs={[]}
+                    actions={
+                        <DialogTrigger asChild>
+                            <Button variant="primary">
+                                <Plus className={icons.sm + " mr-2"} /> Add Member
+                            </Button>
+                        </DialogTrigger>
+                    }
+                />
+                <DialogContent className="max-w-md max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl border-zinc-800">
+                    <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
+                        <DialogTitle className="text-lg font-display">{editingMember ? "Edit" : "Add"} Team Member</DialogTitle>
+                    </DialogHeader>
+                        <form key={editingMember?.id ?? "new"} onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
                             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="tm-name" className="text-sm font-medium">Name</Label>
@@ -160,7 +174,6 @@ export default function AdminTeamMembers() {
                         </form>
                     </DialogContent>
                 </Dialog>
-            </div>
 
             <Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md overflow-hidden shadow-2xl">
                 <Table>
@@ -170,20 +183,19 @@ export default function AdminTeamMembers() {
                             <TableHead>Name</TableHead>
                             <TableHead>Designation</TableHead>
                             <TableHead>Display Order</TableHead>
-                            <TableHead>Status</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {isLoading ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center py-8">
+                                <TableCell colSpan={5} className="text-center py-8">
                                     <Loader2 className="w-6 h-6 animate-spin mx-auto place-self-center" />
                                 </TableCell>
                             </TableRow>
                         ) : members.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                                     No team members found.
                                 </TableCell>
                             </TableRow>
@@ -192,7 +204,7 @@ export default function AdminTeamMembers() {
                                 <TableRow key={member.id}>
                                     <TableCell>
                                         {member.image_url ? (
-                                            <img src={getOptimizedUrl(member.image_url, { width: 96, height: 96, quality: 76 })} alt={member.name} className="w-10 h-10 rounded-full object-cover" />
+                                            <Image src={member.image_url} alt={member.name} width={96} quality={76} imageClassName="w-10 h-10 rounded-full object-cover" />
                                         ) : (
                                             <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-xs">NA</div>
                                         )}
@@ -200,11 +212,6 @@ export default function AdminTeamMembers() {
                                     <TableCell className="font-medium">{member.name}</TableCell>
                                     <TableCell>{member.role}</TableCell>
                                     <TableCell>{member.display_order}</TableCell>
-                                    <TableCell>
-                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                                            Active
-                                        </div>
-                                    </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-2">
                                             <Button variant="ghost" size="icon" aria-label="Edit member" onClick={() => {

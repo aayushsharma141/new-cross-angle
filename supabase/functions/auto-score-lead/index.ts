@@ -22,7 +22,7 @@
  * Also logs a score_changed activity when score changes by ≥5 points.
  */
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { 
   structuredLog, 
   getRequestId, 
@@ -119,7 +119,7 @@ function calculateSourceScore(lead: Lead): number {
   if (src.includes("referral")) return 15;
   if (src.includes("organic") || src.includes("google") || src.includes("website") || src === "website_contact") return 12;
   if (src.includes("estimator")) return 12;
-  if (src.includes("style_quiz")) return 10;
+  if (src.includes("style_quiz") || src.includes("aesthetic_discovery_engine")) return 10;
   if (src.includes("social") || src.includes("instagram") || src.includes("facebook")) return 8;
   if (src.includes("paid") || src.includes("ad")) return 6;
   return 5;
@@ -158,18 +158,64 @@ function scoreLead(lead: Lead): ScoreResult {
 
 // ─── Deno Deploy KV (for idempotency) ─────────────────────────────────────────
 
-let _kv: Deno.Kv | null = null;
+interface SimpleKv {
+  get<T>(key: unknown[]): Promise<{ value: T | null }>;
+  set(key: unknown[], value: unknown, options?: { expireIn?: number }): Promise<{ ok: boolean }>;
+  delete(key: unknown[]): Promise<{ ok: boolean }>;
+}
 
-async function getKv(): Promise<Deno.Kv> {
-  if (!_kv) _kv = await Deno.openKv();
+class MemoryKv implements SimpleKv {
+  private store = new Map<string, { value: unknown; expireAt: number }>();
+
+  get<T>(key: unknown[]): Promise<{ value: T | null }> {
+    const keyStr = JSON.stringify(key);
+    const item = this.store.get(keyStr);
+    if (!item) return Promise.resolve({ value: null });
+    if (Date.now() >= item.expireAt) {
+      this.store.delete(keyStr);
+      return Promise.resolve({ value: null });
+    }
+    return Promise.resolve({ value: item.value as T });
+  }
+
+  set(key: unknown[], value: unknown, options?: { expireIn?: number }): Promise<{ ok: boolean }> {
+    const keyStr = JSON.stringify(key);
+    const expireIn = options?.expireIn ?? 3600000;
+    this.store.set(keyStr, { value, expireAt: Date.now() + expireIn });
+    return Promise.resolve({ ok: true });
+  }
+
+  delete(key: unknown[]): Promise<{ ok: boolean }> {
+    const keyStr = JSON.stringify(key);
+    this.store.delete(keyStr);
+    return Promise.resolve({ ok: true });
+  }
+}
+
+let _kv: SimpleKv | null = null;
+
+async function getKv(): Promise<SimpleKv> {
+  if (!_kv) {
+    const openKvFn = (Deno as unknown as { openKv?: unknown }).openKv;
+    if (typeof openKvFn === "function") {
+      try {
+        _kv = await (openKvFn as () => Promise<SimpleKv>)();
+      } catch (e) {
+        console.warn("Failed to open Deno.Kv, falling back to MemoryKv:", e);
+        _kv = new MemoryKv();
+      }
+    } else {
+      console.warn("Deno.openKv is not available, falling back to MemoryKv");
+      _kv = new MemoryKv();
+    }
+  }
   return _kv;
 }
 
 // ─── Log Score Activity ────────────────────────────────────────────────────────
 
-// deno-lint-ignore no-explicit-any
 async function logScoreActivity(
-  supabase: any,
+  supabase: SupabaseClient,
   leadId: string,
   oldScore: number | null,
   newScore: number,

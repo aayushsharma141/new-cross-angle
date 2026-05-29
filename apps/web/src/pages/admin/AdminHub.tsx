@@ -1,6 +1,8 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { usePermissions } from "@/hooks/usePermissions";
+import { useAdminDisplayName } from "@/hooks/useAdminDisplayName";
 import { useAdmin } from "@/context/AdminContext";
 import { useSystem } from "@/context/SystemContext";
 import { useState, useEffect, useCallback } from "react";
@@ -25,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/primitives/button";
-
+import { CountUp } from "@/components/ReactBits/index";
 const MotionLink = motion(Link);
 
 /* ───────────────────────────────────────────────
@@ -39,7 +41,7 @@ interface HubStats {
     pipelineValue: number;
 }
 
-function useHubStats() {
+export function useHubStats() {
     const [stats, setStats] = useState<HubStats>({
         actionsToday: 0,
         newLeads: 0,
@@ -56,11 +58,11 @@ function useHubStats() {
             todayStart.setHours(0, 0, 0, 0);
 
             const [
-                { count: activityCount },
-                { count: versionCount },
-                { count: newLeadCount },
-                { data: mediaData },
-                { data: estimateData },
+                { count: activityCount, error: e1 },
+                { count: versionCount, error: e2 },
+                { count: newLeadCount, error: e3 },
+                { data: mediaData, error: e4 },
+                { data: estimateData, error: e5 },
             ] = await Promise.all([
                 supabase
                     .from("lead_activities")
@@ -80,6 +82,10 @@ function useHubStats() {
                     .select("estimated_min, estimated_max")
                     .eq("lead_source", "estimator"),
             ]);
+
+            if (e1 || e2 || e3 || e4 || e5) {
+                console.error("Hub stats partial failure", { e1, e2, e3, e4, e5 });
+            }
 
             const totalBytes = (mediaData ?? []).reduce(
                 (sum: number, m: { size_bytes: number | null }) => sum + (m.size_bytes ?? 0),
@@ -120,7 +126,7 @@ function useHubStats() {
    Zone 2: Live stats (quickStats grid)
    Zone 3: Action (insight chip + CTA button)
    ─────────────────────────────────────────────── */
-interface ModuleTileProps {
+export interface ModuleTileProps {
     title: string;
     description: string;
     icon: LucideIcon;
@@ -148,97 +154,109 @@ const ModuleTile = ({
     quickStats,
 }: ModuleTileProps) => {
     const { setCurrentModule } = useAdmin();
+    const navigate = useNavigate();
 
     return (
         <MotionLink
             to={href}
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.04 * index, duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+            transition={{ delay: 0.05 * index, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
             onClick={() => setCurrentModule(title)}
             className={cn(
-                "group relative flex flex-col rounded-xl border",
+                "group relative flex flex-col rounded-2xl border h-full",
                 urgent
-                    ? "border-[hsl(var(--admin-wine))]/40 shadow-[0_0_20px_rgba(150,0,0,0.15)]"
+                    ? "border-[hsl(var(--admin-wine))]/40 shadow-[0_20px_40px_rgba(150,0,0,0.12)]"
                     : featured
-                    ? "border-[hsl(var(--admin-primary))]/40 shadow-[0_0_15px_rgba(212,175,55,0.05)]"
-                    : "border-[hsl(var(--admin-border))]",
-                "bg-[hsl(var(--admin-card))] backdrop-blur-md text-left shadow-lg",
-                "transition-all duration-300 ease-out cursor-pointer",
-                "hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(212,175,55,0.08)]",
-                !featured && !urgent && "hover:border-[hsl(var(--admin-primary))]/30",
-                "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[hsl(var(--admin-primary))]/50",
+                    ? "border-[hsl(var(--admin-primary))]/40 shadow-[0_20px_40px_rgba(212,175,55,0.08)]"
+                    : "border-[hsl(var(--admin-border))]/60 shadow-[0_10px_30px_rgba(0,0,0,0.05)]",
+                "bg-[hsl(var(--admin-card))] backdrop-blur-xl text-left",
+                "transition-all duration-500 ease-out cursor-pointer overflow-hidden",
+                "hover:-translate-y-1 hover:shadow-[0_30px_60px_rgba(212,175,55,0.12)]",
+                !featured && !urgent && "hover:border-[hsl(var(--admin-primary))]/40",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-primary))]/50",
             )}
         >
-            {/* Top edge glow */}
+            {/* Ambient Background Glow */}
             <div
                 className={cn(
-                    "absolute top-0 left-0 right-0 h-px transition-opacity duration-500",
-                    urgent
-                        ? "bg-gradient-to-r from-transparent via-[hsl(var(--admin-wine))]/50 to-transparent opacity-80"
-                        : "bg-gradient-to-r from-transparent via-[hsl(var(--admin-primary))]/20 to-transparent opacity-0 group-hover:opacity-100"
+                    "absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[80px] opacity-0 transition-opacity duration-700 group-hover:opacity-20",
+                    urgent ? "bg-[hsl(var(--admin-wine))]" : "bg-[hsl(var(--admin-primary))]"
                 )}
             />
 
-            {/* ── Zone 1: Integrated Header (Icon + Title + Badge) ── */}
-            <div className="flex items-center gap-3 p-4 pb-3">
+            {/* ── Zone 1: Header (Icon + Title + Badge) ── */}
+            <div className="flex items-center gap-3 p-6 pb-4">
                 <div
                     className={cn(
-                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border shadow-inner",
-                        "transition-all duration-300",
+                        "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all duration-500",
                         urgent
                             ? "bg-[hsl(var(--admin-wine))]/10 text-[hsl(var(--admin-wine))] border-[hsl(var(--admin-wine))]/20 group-hover:bg-[hsl(var(--admin-wine))]/20"
-                            : "bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-primary))]/80 group-hover:bg-[hsl(var(--admin-primary))]/10 group-hover:text-[hsl(var(--admin-primary))] group-hover:border-[hsl(var(--admin-primary))]/20"
+                            : "bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-primary))] group-hover:bg-[hsl(var(--admin-primary))]/10 group-hover:border-[hsl(var(--admin-primary))]/30 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)]"
                     )}
                 >
-                    <Icon className="w-3.5 h-3.5" strokeWidth={1.5} />
+                    <Icon className="w-5 h-5" strokeWidth={1.5} />
                 </div>
-                
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-[13px] font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight group-hover:text-[hsl(var(--admin-primary))] transition-colors duration-200 leading-tight truncate">
-                            {title}
-                        </h3>
-                        {badge && (
-                            <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full bg-[hsl(var(--admin-primary))]/10 text-[hsl(var(--admin-primary))] border border-[hsl(var(--admin-primary))]/20 uppercase tracking-widest shrink-0">
-                                {badge}
-                            </span>
-                        )}
-                        {urgent && (
-                            <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full bg-[hsl(var(--admin-wine))]/15 text-[hsl(var(--admin-wine))] border border-[hsl(var(--admin-wine))]/25 uppercase tracking-widest animate-pulse shrink-0">
-                                Urgent
-                            </span>
-                        )}
-                    </div>
+
+                <h3 className="flex-1 text-lg font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight group-hover:text-[hsl(var(--admin-primary))] transition-colors duration-300 leading-tight truncate">
+                    {title}
+                </h3>
+
+                <div className="flex items-center gap-2 shrink-0">
+                    {badge && (
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-[hsl(var(--admin-primary))]/10 text-[hsl(var(--admin-primary))] border border-[hsl(var(--admin-primary))]/20 uppercase tracking-wider">
+                            {badge}
+                        </span>
+                    )}
+                    {urgent && (
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-[hsl(var(--admin-wine))]/15 text-[hsl(var(--admin-wine))] border border-[hsl(var(--admin-wine))]/25 uppercase tracking-wider animate-pulse">
+                            Action Required
+                        </span>
+                    )}
                 </div>
             </div>
 
-            {/* ── Zone 2: Description + Live Stats ── */}
-            <div className="flex-1 px-4 pb-3 flex flex-col gap-2.5">
-                <p className="text-[10px] leading-snug text-[hsl(var(--admin-muted))] line-clamp-2 font-sans">
+            {/* ── Zone 2: Description + Stats ── */}
+            <div className="flex-1 px-6 pt-2 pb-4 flex flex-col gap-5">
+                <p className="text-sm leading-relaxed text-[hsl(var(--admin-muted))] font-sans opacity-80 group-hover:opacity-100 transition-opacity">
                     {description}
                 </p>
 
-                {/* Stat grid — always rendered, shows — when no data */}
-                <div className="grid grid-cols-2 gap-4 mt-auto">
+                {/* Refined Stat Grid */}
+                <div className="grid grid-cols-2 gap-6 mt-auto pt-2">
                     {(quickStats ?? [{ label: "Status", value: "Ready" }]).slice(0, 2).map((stat, i) => (
-                        <div key={i} className="flex flex-col">
+                        <div key={i} className="flex flex-col gap-0.5">
+                            {typeof stat.value === "number" ? (
+                                <CountUp
+                                    to={stat.value}
+                                    duration={1.2}
+                                    className={cn(
+                                        "text-xl font-bold tabular-nums tracking-tight transition-transform duration-300 group-hover:-translate-y-0.5",
+                                        urgent
+                                            ? "text-[hsl(var(--admin-wine))]"
+                                            : featured
+                                            ? "text-[hsl(var(--admin-primary))]"
+                                            : "text-[hsl(var(--admin-text))]"
+                                    )}
+                                />
+                            ) : (
+                                <span
+                                    className={cn(
+                                        "text-xl font-bold tabular-nums tracking-tight transition-transform duration-300 group-hover:-translate-y-0.5",
+                                        urgent
+                                            ? "text-[hsl(var(--admin-wine))]"
+                                            : featured
+                                            ? "text-[hsl(var(--admin-primary))]"
+                                            : "text-[hsl(var(--admin-text))]"
+                                    )}
+                                >
+                                    {stat.value}
+                                </span>
+                            )}
                             <span
                                 className={cn(
-                                    "text-[15px] font-semibold tabular-nums",
-                                    urgent
-                                        ? "text-[hsl(var(--admin-wine))]"
-                                        : featured
-                                        ? "text-[hsl(var(--admin-primary))]"
-                                        : "text-[hsl(var(--admin-text))]"
-                                )}
-                            >
-                                {stat.value}
-                            </span>
-                            <span
-                                className={cn(
-                                    "text-[9px] uppercase tracking-wider",
-                                    urgent ? "text-[hsl(var(--admin-wine))]/60" : "text-[hsl(var(--admin-muted))]"
+                                    "text-[11px] font-semibold uppercase tracking-[0.05em] text-[hsl(var(--admin-muted))] transition-colors duration-300 group-hover:text-[hsl(var(--admin-text))]/70",
+                                    urgent && "text-[hsl(var(--admin-wine))]/70"
                                 )}
                             >
                                 {stat.label}
@@ -248,12 +266,13 @@ const ModuleTile = ({
                 </div>
             </div>
 
-            {/* ── Zone 3: Insight chip + Action ── */}
-            <div className="px-4 pb-4 pt-3 border-t border-[hsl(var(--admin-border))]/60 flex flex-col gap-2">
+            {/* ── Zone 3: Insight & Action ── */}
+            <div className="px-6 pb-6 pt-5 bg-gradient-to-b from-transparent to-[hsl(var(--admin-surface))]/50 flex flex-col gap-4 relative before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-[hsl(var(--admin-border))]/50 before:to-transparent">
                 {insight && (
                     <div
                         className={cn(
-                            "w-full px-2 py-1 rounded-md text-[10px] font-medium flex items-center gap-1.5",
+                            "w-full px-3 py-1.5 rounded-lg text-[11px] font-medium flex items-center gap-2 transition-all duration-500 ease-out",
+                            "opacity-70 group-hover:opacity-100 group-hover:translate-x-1",
                             insight.type === "alert" &&
                                 "bg-[hsl(var(--admin-wine))]/10 text-[hsl(var(--admin-wine))] border border-[hsl(var(--admin-wine))]/20",
                             insight.type === "info" &&
@@ -262,40 +281,47 @@ const ModuleTile = ({
                                 "bg-[hsl(var(--admin-success))]/10 text-[hsl(var(--admin-success))] border border-[hsl(var(--admin-success))]/20"
                         )}
                     >
-                        {insight.type === "alert" && <Bell className="w-3 h-3 shrink-0" />}
-                        {insight.type === "info" && <Activity className="w-3 h-3 shrink-0" />}
-                        {insight.type === "success" && <Sparkles className="w-3 h-3 shrink-0" />}
-                        <span className="truncate">{insight.text}</span>
+                        <div className="p-1 rounded-full bg-white/5">
+                            {insight.type === "alert" && <Bell className="w-3 h-3" />}
+                            {insight.type === "info" && <Activity className="w-3 h-3" />}
+                            {insight.type === "success" && <Sparkles className="w-3 h-3" />}
+                        </div>
+                        <span className="truncate flex-1">{insight.text}</span>
                     </div>
                 )}
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                     {primaryAction ? (
                         <Button
-                            variant={urgent ? "default" : "outline"}
+                            variant="ghost"
                             size="sm"
                             className={cn(
-                                "h-7 text-[11px] px-3 font-medium transition-all",
+                                "h-8 text-xs px-0 hover:bg-transparent group/btn flex items-center gap-2 transition-all font-medium",
                                 urgent
-                                    ? "bg-[hsl(var(--admin-wine))] text-white hover:bg-[hsl(var(--admin-wine))]/90 border-transparent shadow-[0_2px_10px_rgba(150,0,0,0.2)]"
-                                    : "border-[hsl(var(--admin-primary))]/30 text-[hsl(var(--admin-primary))] bg-transparent hover:bg-[hsl(var(--admin-primary))]/10"
+                                    ? "text-[hsl(var(--admin-wine))] hover:text-[hsl(var(--admin-wine))]/80"
+                                    : "text-[hsl(var(--admin-primary))] hover:text-[hsl(var(--admin-primary))]/80"
                             )}
                             onClick={(e) => {
                                 e.preventDefault();
-                                window.location.href = primaryAction.href;
+                                e.stopPropagation();
+                                navigate(primaryAction.href);
                             }}
                         >
-                            {primaryAction.label}
+                            <span>{primaryAction.label}</span>
+                            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-1" />
                         </Button>
                     ) : (
-                        <span className="text-[10px] text-[hsl(var(--admin-muted))]">Open module</span>
+                        <span className="text-[11px] text-[hsl(var(--admin-muted))]">Explore Module</span>
                     )}
-                    <ArrowRight
-                        className={cn(
-                            "w-3.5 h-3.5 group-hover:translate-x-1 transition-all",
-                            urgent ? "text-[hsl(var(--admin-wine))]" : "text-[hsl(var(--admin-primary))]"
-                        )}
-                    />
+                    
+                    {!primaryAction && (
+                         <ArrowRight
+                         className={cn(
+                             "w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300",
+                             urgent ? "text-[hsl(var(--admin-wine))]" : "text-[hsl(var(--admin-primary))]"
+                         )}
+                     />
+                    )}
                 </div>
             </div>
         </MotionLink>
@@ -306,7 +332,7 @@ const ModuleTile = ({
    Module definitions — every tile now has
    quickStats + insight conforming to Zone 2/3
    ─────────────────────────────────────────────── */
-const getModules = (
+export const getModules = (
     stats: HubStats
 ): (Omit<ModuleTileProps, "index"> & { allowedRoles?: string[] })[] => [
     {
@@ -371,6 +397,7 @@ const getModules = (
         icon: BookOpen,
         href: "/admin/blog/overview",
         allowedRoles: ["super_admin", "admin"],
+        featured: true,
         quickStats: [
             { label: "Published", value: "Active" },
             { label: "Analytics", value: "↑ On" },
@@ -408,14 +435,14 @@ const getModules = (
         title: "User Access",
         description: "Manage admin users, roles, security credentials, and permissions.",
         icon: Shield,
-        href: "/admin/access",
+        href: "/admin/system/access",
         allowedRoles: ["super_admin", "admin"],
         quickStats: [
-            { label: "Auth", value: "JWT" },
-            { label: "MFA", value: "Active" },
+            { label: "Login Security", value: "Active" },
+            { label: "2-Step Verify", value: "On" },
         ],
         insight: { type: "success", text: "Access controls enforced" },
-        primaryAction: { label: "Manage Users", href: "/admin/access" },
+        primaryAction: { label: "Manage Users", href: "/admin/system/access" },
     },
     {
         title: "Settings",
@@ -423,6 +450,7 @@ const getModules = (
         icon: Settings,
         href: "/admin/system/settings",
         allowedRoles: ["super_admin"],
+        featured: true,
         quickStats: [
             { label: "Integrations", value: "Live" },
             { label: "Audit Trail", value: "On" },
@@ -445,7 +473,7 @@ interface KpiChipProps {
 
 const KpiChip = ({ icon: Icon, label, value, href, variant = "default" }: KpiChipProps) => {
     const iconClass = cn(
-        "flex items-center justify-center w-8 h-8 rounded-lg border transition-all duration-200",
+        "flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-300",
         variant === "warning" && "bg-amber-500/10 text-amber-400 border-amber-500/20",
         variant === "success" && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
         variant === "default" && "bg-[hsl(var(--admin-primary))]/10 text-[hsl(var(--admin-primary))] border-[hsl(var(--admin-primary))]/20",
@@ -454,15 +482,15 @@ const KpiChip = ({ icon: Icon, label, value, href, variant = "default" }: KpiChi
     return (
         <Link
             to={href}
-            className="group flex items-center gap-3 rounded-lg px-1 py-0.5 transition-all duration-150 hover:bg-[hsl(var(--admin-primary))]/5"
+            className="group flex items-center gap-3.5 rounded-xl px-2 py-1.5 transition-all duration-200 hover:bg-[hsl(var(--admin-primary))]/5"
             title={`Go to ${label}`}
         >
             <div className={iconClass}>
-                <Icon className="w-4 h-4" />
+                <Icon className="w-4.5 h-4.5" />
             </div>
-            <div>
-                <p className="text-[9px] text-[hsl(var(--admin-muted))] uppercase tracking-widest font-medium">{label}</p>
-                <p className="text-xs font-semibold text-[hsl(var(--admin-text))] group-hover:text-[hsl(var(--admin-primary))] transition-colors">
+            <div className="flex flex-col gap-0.5">
+                <p className="text-[11px] text-[hsl(var(--admin-text))] font-bold">{label}</p>
+                <p className="text-[13px] font-bold text-[hsl(var(--admin-text))] group-hover:text-[hsl(var(--admin-primary))] transition-colors leading-none">
                     {value}
                 </p>
             </div>
@@ -470,11 +498,19 @@ const KpiChip = ({ icon: Icon, label, value, href, variant = "default" }: KpiChi
     );
 };
 
+export const formatStorage = (usedGB: number): string => {
+    if (usedGB < 0.001) return "0 MB";
+    if (usedGB < 1) return `${(usedGB * 1024).toFixed(1)} MB`;
+    return `${usedGB.toFixed(1)} GB`;
+};
+
 /* ───────────────────────────────────────────────
    Admin Hub (The Launcher)
    ─────────────────────────────────────────────── */
 export default function AdminHub() {
-    const { user, role } = useAdminAuth();
+    const { role } = useAdminAuth();
+    const { can } = usePermissions();
+    const { displayName } = useAdminDisplayName();
     const { health, refreshHealth } = useSystem();
     const { stats, isRefreshing, refresh } = useHubStats();
     const { toast } = useToast();
@@ -492,18 +528,9 @@ export default function AdminHub() {
         }
     }, [location.state, toast]);
 
-    const displayName =
-        (user?.user_metadata?.full_name as string) || user?.email?.split("@")[0] || "Admin";
-
     const handleRefresh = () => {
         refreshHealth();
         void refresh();
-    };
-
-    const formatStorage = (usedGB: number): string => {
-        if (usedGB < 0.001) return "0 MB";
-        if (usedGB < 1) return `${(usedGB * 1024).toFixed(1)} MB`;
-        return `${usedGB.toFixed(1)} GB`;
     };
 
     const allModules = getModules(stats);
@@ -512,111 +539,86 @@ export default function AdminHub() {
     );
 
     return (
-        <div className="max-w-7xl mx-auto flex flex-col h-[calc(100vh-4rem)] py-2 px-1">
+        <div className="w-full h-full flex-1 flex flex-col overflow-y-auto bg-[hsl(var(--admin-background))]">
             {/* ── Top Intelligence Strip ── */}
             <motion.div
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3 mb-4"
+                className="flex-none w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 px-4 sm:px-6 md:px-8 pt-6 pb-4 border-b border-[hsl(var(--admin-border))]/30 bg-[hsl(var(--admin-background))] backdrop-blur-md sticky top-0 z-30"
             >
-                <div>
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className="h-px w-6 bg-[hsl(var(--admin-primary))]/50" />
-                        <span className="text-[9px] text-[hsl(var(--admin-primary))] uppercase tracking-[0.25em] font-medium">
-                            CrossAngle Admin
+                <div className="space-y-0.5">
+                    <div className="flex items-center gap-2.5">
+                        <div className="h-1 w-1 rounded-full bg-[hsl(var(--admin-primary))]" />
+                        <span className="text-[10px] text-[hsl(var(--admin-primary))] uppercase tracking-[0.25em] font-bold">
+                            Intelligence Command
                         </span>
                     </div>
-                    <h1 className="text-2xl sm:text-3xl font-serif text-[hsl(var(--admin-text))] tracking-tight leading-tight">
+                    <h1 className="text-2xl font-serif text-[hsl(var(--admin-text))] tracking-tight leading-tight">
                         Welcome,{" "}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-600 italic font-medium" style={{ color: '#F5C542' }}>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--admin-primary))] via-yellow-400 to-[hsl(var(--admin-primary))] italic font-medium">
                             {displayName}
                         </span>
                     </h1>
                 </div>
 
-                {/* KPI Action Strip — chips are now clickable Links */}
-                <div className="flex items-center gap-2 sm:gap-4 admin-glass px-4 py-2 rounded-xl shadow-xl shrink-0 border border-[hsl(var(--admin-border))]">
-                    {/* Attention → CRM leads */}
+                {/* KPI Action Strip */}
+                <div className="flex items-center gap-4 px-4 py-2 rounded-xl bg-[hsl(var(--admin-surface))]/40 border border-[hsl(var(--admin-border))]/40 backdrop-blur-md shadow-sm shrink-0">
                     <KpiChip
                         icon={Bell}
                         label="Attention"
                         href="/admin/crm/leads?filter=new"
-                        value={isRefreshing ? "…" : stats.newLeads > 0 ? `${stats.newLeads} Action${stats.newLeads > 1 ? "s" : ""}` : "All Clear"}
+                        value={isRefreshing ? "…" : stats.newLeads > 0 ? `${stats.newLeads} Priority` : "All Clear"}
                         variant={stats.newLeads > 0 ? "warning" : "muted"}
                     />
 
-                    <div className="h-8 w-px bg-[hsl(var(--admin-border))]" />
+                    <div className="h-6 w-px bg-[hsl(var(--admin-border))]/50" />
 
-                    {/* Pulse → daily activity dashboard */}
                     <KpiChip
                         icon={Activity}
                         label="Pulse"
                         href="/admin/dashboard"
-                        value={isRefreshing ? "…" : `${stats.actionsToday} Updates`}
+                        value={isRefreshing ? "…" : `${stats.actionsToday} Activity`}
                         variant="default"
                     />
 
-                    <div className="h-8 w-px bg-[hsl(var(--admin-border))] hidden lg:block" />
+                    {can('settings', 'view') && (
+                        <>
+                            <div className="h-6 w-px bg-[hsl(var(--admin-border))]/50 hidden sm:block" />
+                            <div className="hidden sm:block">
+                                <KpiChip
+                                    icon={Shield}
+                                    label="Security"
+                                    href="/admin/system/settings"
+                                    value={health.status === "healthy" ? "Optimal" : "Check"}
+                                    variant={health.status === "healthy" ? "success" : "warning"}
+                                />
+                            </div>
+                        </>
+                    )}
 
-                    {/* Status → system settings */}
-                    <KpiChip
-                        icon={Shield}
-                        label="Status"
-                        href="/admin/system/settings"
-                        value={health.status === "healthy" ? "Optimal" : "Degraded"}
-                        variant={health.status === "healthy" ? "success" : "warning"}
-                    />
-
-                    <div className="h-8 w-px bg-[hsl(var(--admin-border))]" />
+                    <div className="h-6 w-px bg-[hsl(var(--admin-border))]/50" />
 
                     <button
                         onClick={handleRefresh}
                         disabled={isRefreshing}
-                        aria-label="Refresh hub statistics"
-                        title="Refresh all stats"
-                        className="flex items-center justify-center h-8 w-8 rounded-md text-[hsl(var(--admin-muted))] hover:text-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))]/5 transition-all disabled:opacity-50"
+                        aria-label="Refresh dashboard metrics"
+                        className="flex items-center justify-center h-8 w-8 rounded-lg text-[hsl(var(--admin-muted))] hover:text-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))]/10 transition-all disabled:opacity-50 border border-transparent hover:border-[hsl(var(--admin-primary))]/20"
                     >
                         <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
                     </button>
                 </div>
             </motion.div>
 
-            {/* ── Module Grid — 4 columns, auto rows, fills remaining height ── */}
-            <div className="flex-1 min-h-0 overflow-y-auto sm:overflow-y-visible">
-                <div
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 h-full"
-                    style={{
-                        gridTemplateRows: `repeat(${Math.ceil(filteredModules.length / 4)}, 1fr)`,
-                    }}
-                >
+            {/* ── Main Module Grid ── */}
+            <div className="flex-1 w-full px-2 py-8 min-h-0">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-8">
                     {filteredModules.map((mod, i) => (
-                        <ModuleTile key={mod.title} {...mod} index={i} />
+                        <ModuleTile 
+                            key={mod.title} 
+                            {...mod} 
+                            index={i} 
+                        />
                     ))}
-                </div>
-            </div>
-
-            {/* ── Footer Utility Bar ── */}
-            <div className="flex items-center justify-between gap-4 mt-3 px-3 py-2 rounded-lg admin-glass opacity-70 hover:opacity-100 transition-opacity">
-                <div className="flex items-center gap-4 text-[10px] text-[hsl(var(--admin-muted))]">
-                    <span className="flex items-center gap-1.5">
-                        <Database className="w-3 h-3" />
-                        {formatStorage(stats.storageUsedGB)} of {stats.storageTotalGB}GB used
-                    </span>
-                    <span className="text-[hsl(var(--admin-border))] hidden sm:block">|</span>
-                    <span className="hidden sm:block">{filteredModules.length} modules active</span>
-                </div>
-                <div className="flex items-center gap-4 text-[9px] text-[hsl(var(--admin-muted))] uppercase tracking-widest font-medium">
-                    <span>CrossAngle v3.0</span>
-                    <span className="text-[hsl(var(--admin-border))]">●</span>
-                    <Link to="/admin/dashboard" className="hover:text-[hsl(var(--admin-primary))] transition-colors">
-                        Analytics
-                    </Link>
-                    <Link to="/admin/system/settings" className="hover:text-[hsl(var(--admin-primary))] transition-colors">
-                        Settings
-                    </Link>
-                    <Link to="/admin/system/audit" className="hover:text-[hsl(var(--admin-primary))] transition-colors">
-                        Audit Logs
-                    </Link>
                 </div>
             </div>
         </div>

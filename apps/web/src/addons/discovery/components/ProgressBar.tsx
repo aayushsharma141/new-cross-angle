@@ -9,14 +9,17 @@ interface ProgressBarProps {
 
 const STAGE_LABELS: Record<number, string> = {
   [Stage.Welcome]: "Introduction",
+  [Stage.PropertyReality]: "Reality",
   [Stage.Reflection]: "Essence",
   [Stage.Lifestyle]: "Rituals",
+  [Stage.RoomPriority]: "Space",
   [Stage.VisualInstinct]: "Instinct",
   [Stage.AdjectiveSelection]: "Language",
   [Stage.EmotionalMapping]: "Feeling",
   [Stage.MaterialResonance]: "Touch",
   [Stage.LightCalibration]: "Atmosphere",
   [Stage.PatternPreview]: "Synthesis",
+  [Stage.BudgetAlignment]: "Budget",
   [Stage.Analysis]: "Analysis",
   [Stage.Results]: "Identity",
 };
@@ -40,11 +43,11 @@ const ProgressBar = ({ currentStage, variant = "horizontal" }: ProgressBarProps)
                 {/* Dot Indicator */}
                 <div
                   className={`absolute -left-[21px] w-2.5 h-2.5 rounded-full border-2 transition-all duration-500 ${isActive ? "bg-primary border-primary scale-125 shadow-[0_0_10px_hsl(var(--primary)/0.5)]" :
-                    isCompleted ? "bg-primary/50 border-primary/50" : "bg-transparent border-muted-foreground/30"
+                    isCompleted ? "bg-primary/50 border-primary/50" : "bg-transparent border-[#5a5a5a]/30"
                     }`}
                 />
 
-                <span className={`text-xs font-medium tracking-widest uppercase transition-colors duration-300 ${isActive ? "text-primary" : isCompleted ? "text-muted-foreground" : "text-muted-foreground/30"
+                <span className={`text-xs font-medium tracking-widest uppercase transition-colors duration-300 ${isActive ? "text-primary" : isCompleted ? "text-[#5a5a5a]" : "text-[#5a5a5a]/30"
                   }`}>
                   {String(s).padStart(2, '0')}. {label}
                 </span>
@@ -57,7 +60,7 @@ const ProgressBar = ({ currentStage, variant = "horizontal" }: ProgressBarProps)
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-[2px] bg-foreground/5 backdrop-blur-sm">
+    <div className="fixed top-0 left-0 right-0 z-50 h-[2px] bg-[#1a1a1a]/5 backdrop-blur-sm">
       <motion.div
         className="h-full relative"
         style={{

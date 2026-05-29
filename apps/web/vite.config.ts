@@ -22,6 +22,34 @@ export default defineConfig(() => {
     server: {
       host: '::',
       port: 8080,
+      proxy: {
+        // Mirror the Vercel rewrite so PostHog works in local dev too.
+        // The error handler silences ENOTFOUND when us.i.posthog.com is
+        // blocked by your local DNS / VPN / firewall — analytics simply
+        // won't be captured locally, which is the expected behaviour.
+        '/ingest': {
+          target: 'https://us.i.posthog.com',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/ingest/, ''),
+          configure: (proxy) => {
+            proxy.on('error', (err) => {
+              if ((err as NodeJS.ErrnoException).code === 'ENOTFOUND') return;
+              console.error('[posthog proxy]', err.message);
+            });
+          },
+        },
+        // PostHog SDK also polls /s/ directly in some versions
+        '/s': {
+          target: 'https://us.i.posthog.com',
+          changeOrigin: true,
+          configure: (proxy) => {
+            proxy.on('error', (err) => {
+              if ((err as NodeJS.ErrnoException).code === 'ENOTFOUND') return;
+              console.error('[posthog proxy]', err.message);
+            });
+          },
+        },
+      },
     },
     envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
     plugins: [
@@ -57,6 +85,11 @@ export default defineConfig(() => {
         : []),
     ],
     resolve: {
+      // Dedupe ensures every package (including @tanstack/react-table) uses
+      // the exact same React instance. Without this, Vite may resolve React
+      // from a package's own node_modules, creating two React copies and
+      // breaking all hooks with "Cannot read properties of null (reading 'useState')".
+      dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
       alias: {
         '@': path.resolve(__dirname, './src'),
         '@repo/types': path.resolve(__dirname, '../../packages/types/src'),
@@ -92,8 +125,11 @@ export default defineConfig(() => {
               if (
                 id.includes('react-router') ||
                 id.includes('@tanstack/react-query') ||
+                id.includes('@tanstack/react-table') ||
                 id.includes('react-dom') ||
-                id.includes('/react/')
+                // Match the react package itself on both Unix and Windows paths.
+                // Use word-boundary style to avoid matching react-markdown, etc.
+                (id.includes('node_modules') && /[\\/]react[\\/]/.test(id))
               ) {
                 return 'react-vendor';
               }

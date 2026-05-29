@@ -56,7 +56,7 @@ const ServicesWhyUs = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-[1.15rem] text-white/40 font-light leading-relaxed max-w-[48ch] mb-12"
+            className="text-[1.15rem] text-white/60 font-light leading-relaxed max-w-[48ch] mb-12"
           >
             We don’t just design spaces; we architect outcomes. Every material is vetted for multi-generational durability, and every delivery is backed by contract.
           </motion.p>
@@ -78,7 +78,7 @@ const ServicesWhyUs = () => {
                   </div>
                   <div>
                     <h3 className="text-white font-bold text-[13px] tracking-wide uppercase mb-2 group-hover:text-site-crimson transition-colors">{point.title}</h3>
-                    <p className="text-white/40 text-[0.95rem] font-light leading-relaxed group-hover:text-white/60 transition-colors">{point.desc}</p>
+                    <p className="text-white/60 text-[0.95rem] font-light leading-relaxed group-hover:text-white/60 transition-colors">{point.desc}</p>
                   </div>
                 </motion.div>
               );
@@ -110,7 +110,7 @@ const ServicesWhyUs = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
             <div className="absolute bottom-10 left-10 right-10 p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl">
                <div className="font-display italic text-2xl text-white mb-2">Zero Ambiguity.</div>
-               <div className="text-[10px] uppercase tracking-widest text-white/40">Our commitment since day one.</div>
+               <div className="text-[10px] uppercase tracking-widest text-white/60">Our commitment since day one.</div>
             </div>
           </div>
 

@@ -27,7 +27,7 @@ import lifestyle7 from "@/assets/discovery/lifestyle-7.jpg";
 import lifestyle8 from "@/assets/discovery/lifestyle-8.jpg";
 import lifestyle9 from "@/assets/discovery/lifestyle-9.jpg";
 
-export const TOTAL_STAGES = 8;
+export const TOTAL_STAGES = 16;
 
 export const ADJECTIVE_OPTIONS = [
   "Calm", "Structured", "Bold", "Playful", "Elegant",

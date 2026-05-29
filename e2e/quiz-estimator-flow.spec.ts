@@ -7,12 +7,12 @@ test.describe.configure({ mode: 'serial' });
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Discovery Quiz Flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/discovery');
+    await page.goto('/aesthetic-discovery-engine');
     await page.waitForTimeout(2000);
   });
 
   test('Quiz page loads', async ({ page }) => {
-    await expect(page).toHaveURL(/\/discovery/);
+    await expect(page).toHaveURL(/\/aesthetic-discovery-engine/);
   });
 
   test('Welcome screen visible', async ({ page }) => {
@@ -47,7 +47,7 @@ test.describe('Discovery Quiz Flow', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Discovery Quiz Emotional Mapping', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/discovery');
+    await page.goto('/aesthetic-discovery-engine');
     await page.waitForTimeout(2000);
     
     // Start the quiz
@@ -102,7 +102,7 @@ test.describe('Discovery Quiz Emotional Mapping', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Discovery Quiz Visual Instinct', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/discovery');
+    await page.goto('/aesthetic-discovery-engine');
     await page.waitForTimeout(2000);
     
     // Navigate to visual instinct step (may need multiple clicks)
@@ -144,7 +144,7 @@ test.describe('Discovery Quiz Visual Instinct', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Discovery Quiz Light Calibration', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/discovery');
+    await page.goto('/aesthetic-discovery-engine');
     await page.waitForTimeout(2000);
     
     // Navigate to light calibration step
@@ -178,7 +178,7 @@ test.describe('Discovery Quiz Light Calibration', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Discovery Quiz Material Resonance', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/discovery');
+    await page.goto('/aesthetic-discovery-engine');
     await page.waitForTimeout(2000);
     
     // Navigate to material step
@@ -212,7 +212,7 @@ test.describe('Discovery Quiz Material Resonance', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Discovery Quiz Lead Gate', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/discovery');
+    await page.goto('/aesthetic-discovery-engine');
     await page.waitForTimeout(2000);
     
     // Navigate through quiz to lead gate
@@ -271,7 +271,7 @@ test.describe('Discovery Quiz Lead Gate', () => {
 test.describe('Discovery Quiz Results', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate directly to results page if available
-    await page.goto('/discovery/results');
+    await page.goto('/aesthetic-discovery-engine/results');
     await page.waitForTimeout(2000);
   });
 
@@ -306,12 +306,12 @@ test.describe('Discovery Quiz Results', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Price Estimator Path Selection', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/estimator');
+    await page.goto('/estimate');
     await page.waitForTimeout(2000);
   });
 
   test('Estimator page loads', async ({ page }) => {
-    await expect(page).toHaveURL(/\/estimator/);
+    await expect(page).toHaveURL(/\/estimate/);
   });
 
   test('Path selection cards visible', async ({ page }) => {
@@ -365,7 +365,7 @@ test.describe('Price Estimator Path Selection', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Price Estimator Property Type Step', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/estimator');
+    await page.goto('/estimate');
     await page.waitForTimeout(2000);
     
     // Select residential to enter wizard
@@ -413,7 +413,7 @@ test.describe('Price Estimator Property Type Step', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Price Estimator Location Step', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/estimator');
+    await page.goto('/estimate');
     await page.waitForTimeout(2000);
     
     // Enter wizard
@@ -457,7 +457,7 @@ test.describe('Price Estimator Location Step', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Price Estimator Budget Step', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/estimator');
+    await page.goto('/estimate');
     await page.waitForTimeout(2000);
     
     // Enter wizard
@@ -524,7 +524,7 @@ test.describe('Price Estimator Budget Step', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Price Estimator Services Step', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/estimator');
+    await page.goto('/estimate');
     await page.waitForTimeout(2000);
     
     // Enter wizard
@@ -589,7 +589,7 @@ test.describe('Price Estimator Services Step', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Price Estimator Addons Step', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/estimator');
+    await page.goto('/estimate');
     await page.waitForTimeout(2000);
     
     // Enter wizard
@@ -632,7 +632,7 @@ test.describe('Price Estimator Addons Step', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Price Estimator Results', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/estimator');
+    await page.goto('/estimate');
     await page.waitForTimeout(2000);
     
     // Enter wizard
@@ -691,7 +691,7 @@ test.describe('Price Estimator Results', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Estimator Wizard Navigation', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/estimator');
+    await page.goto('/estimate');
     await page.waitForTimeout(2000);
     
     // Enter wizard
@@ -737,7 +737,7 @@ test.describe('Estimator Wizard Navigation', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Estimator Form Validation', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/estimator');
+    await page.goto('/estimate');
     await page.waitForTimeout(2000);
     
     // Enter wizard

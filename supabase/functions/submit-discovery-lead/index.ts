@@ -19,6 +19,16 @@ const FN = "submit-discovery-lead";
 
 const RATE_OPTS = { bucket: "discovery-lead", max: 10, windowMs: 60_000 };
 
+// Generate a short random slug (8 chars, URL-safe)
+function generateSlug(): string {
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let slug = "";
+    const arr = new Uint8Array(8);
+    crypto.getRandomValues(arr);
+    for (const b of arr) slug += chars[b % chars.length];
+    return slug;
+}
+
 // Calculate lead score based on MVP MVP rules
 function calculateLeadScore(payload: Record<string, any>): number {
     let score = 0;
@@ -122,7 +132,7 @@ Deno.serve(async (req: Request) => {
                 email: email.trim().toLowerCase(),
                 phone: phone ? phone.trim() : null,
                 message: leadMessage,
-                lead_source: "style_quiz", // or could use "discovery_engine" as source discriminator 
+                lead_source: "aesthetic_discovery_engine", // standardizing under the new name
                 lead_type: normalizeDiscoveryLeadType(results?.project_type),
                 service: "design consultation",
                 budget: buildBudgetText(results),
@@ -152,6 +162,23 @@ Deno.serve(async (req: Request) => {
         }
 
         const leadId = leadData.id;
+
+        // 1b. Insert shareable quiz result with slug
+        const slug = generateSlug();
+        const { error: quizResultError } = await supabase
+            .from("quiz_results")
+            .insert({
+                slug,
+                archetype: results?.archetype || "Unknown",
+                scores: results?.scores || {},
+                signals: body.raw_data || null,
+                ai_result: null,
+                lead_id: leadId,
+            });
+
+        if (quizResultError) {
+            structuredLog("warn", FN, "quiz_results insert failed", { code: quizResultError.code }, requestId);
+        }
 
         // 2. Run raw_payload insert and Make.com webhook concurrently
         // Both are non-critical: master record is already created.
@@ -237,6 +264,7 @@ Deno.serve(async (req: Request) => {
         return okResponse(req, {
             success: true,
             id: leadId,
+            slug,
             score: leadScore,
             webhook_status: webhookStatus
         }, {}, rl, RATE_OPTS.max, requestId);

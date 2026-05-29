@@ -43,7 +43,7 @@ const TrustSection = () => {
               <p className="text-sm font-medium uppercase tracking-[0.2em] text-white">
                 {t.author}
               </p>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-white/60">
                 {t.role}
               </p>
             </div>

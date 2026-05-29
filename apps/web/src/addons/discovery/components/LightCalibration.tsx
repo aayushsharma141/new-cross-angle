@@ -1,144 +1,164 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { lightOptions } from "@/constants/discovery";
-import { LIGHT_WEIGHTS } from "../core/weights";
 import { AestheticScores } from "@/types/discovery";
-import { Moon, CloudSun, Sun, Zap } from "lucide-react";
-
-const icons = [Moon, CloudSun, Sun, Zap];
 
 interface Props {
   onComplete: (scores: Partial<AestheticScores>, lightName?: string) => void;
 }
 
-// Warm ambient glow colours per light level (dark-on-dark, no mint)
-const ambientGlows = [
-  "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(20,12,4,0.98) 0%, #0D0A08 80%)", // low light – deep amber ember
-  "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(28,18,8,0.97) 0%, #0D0A08 80%)", // soft light
-  "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(24,20,14,0.97) 0%, #0D0A08 80%)", // bright natural
-  "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(12,14,20,0.97) 0%, #0D0A08 80%)", // crisp cool
-];
-
-// Warm tint on card per level (subtle, never mint)
-const cardTints = [
-  "rgba(255, 160, 60, 0.06)",   // ember
-  "rgba(255, 200, 120, 0.04)",  // warm soft
-  "rgba(255, 255, 240, 0.03)",  // clean daylight
-  "rgba(160, 200, 255, 0.04)",  // cool clear
+const LIGHTING_OPTIONS = [
+  { name: "Warm Ambient", description: "Golden, inviting", color: "#dca750", scores: { warmth: 3, novelty: 0 } },
+  { name: "Cool Daylight", description: "Bright & energetic", color: "#95c2df", scores: { minimalism: 2, structure: 1 } },
+  { name: "Candlelight", description: "Intimate & cozy", color: "#d58e48", scores: { warmth: 3, social: -1 } },
+  { name: "Dramatic", description: "Bold & luxurious", color: "#363148", scores: { structure: 2, novelty: 3 } },
+  { name: "Cove / Hidden", description: "Soft indirect glow", color: "#dec29a", scores: { minimalism: 3, warmth: 1 } },
+  { name: "Layered", description: "Multiple moods", color: "#b68a5c", scores: { social: 2, structure: 2 } },
 ];
 
 const LightCalibration = ({ onComplete }: Props) => {
-  const [selected, setSelected] = useState(50);
-  const activeIndex = Math.min(Math.floor(selected / 25), 3);
-  const opt = lightOptions[activeIndex];
+  const [selected, setSelected] = useState<string | null>(null);
 
   const confirm = () => {
-    onComplete(LIGHT_WEIGHTS[opt.name] || {}, opt.name);
+    if (!selected) return;
+    const opt = LIGHTING_OPTIONS.find(o => o.name === selected);
+    onComplete(opt?.scores || {}, selected);
   };
+
+  const selectedOpt = LIGHTING_OPTIONS.find(o => o.name === selected);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="relative flex h-full w-full flex-col items-center justify-center px-6 overflow-hidden"
-      style={{ background: ambientGlows[activeIndex], transition: "background 0.8s ease" }}
+      className="relative flex flex-col w-full h-full min-h-screen overflow-hidden bg-black"
     >
-      {/* Subtle animated ambient orb — matches the light temperature */}
-      <motion.div
-        key={activeIndex}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: activeIndex < 2
-            ? "radial-gradient(ellipse 45% 35% at 50% 55%, rgba(255,165,60,0.08) 0%, transparent 70%)"
-            : activeIndex === 2
-              ? "radial-gradient(ellipse 45% 35% at 50% 55%, rgba(255,240,200,0.07) 0%, transparent 70%)"
-              : "radial-gradient(ellipse 45% 35% at 50% 55%, rgba(160,200,255,0.07) 0%, transparent 70%)",
-        }}
-      />
-
-      {/* Card */}
-      <div
-        className="relative z-10 w-full max-w-md p-10 md:p-14 text-center border border-white/[0.07] backdrop-blur-md shadow-2xl"
-        style={{
-          background: `rgba(16,12,10,0.88)`,
-          boxShadow: `0 0 80px ${cardTints[activeIndex]}, inset 0 1px 0 rgba(255,255,255,0.05)`,
-        }}
-      >
-        {/* Animated icon */}
-        <div className="relative h-12 w-full mb-4 flex justify-center items-center">
-          {icons.map((Icon, i) => (
-            <motion.div
-              key={i}
-              className="absolute"
-              initial={false}
-              animate={{ opacity: i === activeIndex ? 1 : 0, scale: i === activeIndex ? 1 : 0.5 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Icon size={26} className={i === activeIndex ? "text-white/70" : "text-white/20"} />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Light name */}
-        <motion.h2
-          key={opt.name}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="font-serif-display text-2xl md:text-3xl text-white/90 mb-2"
-        >
-          {opt.name}
-        </motion.h2>
-
-        {/* Description */}
-        <motion.p
-          key={opt.description}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="text-white/40 text-sm mb-10 italic"
-        >
-          {opt.description}
-        </motion.p>
-
-        {/* Slider */}
-        <input
-          type="range"
-          min={0}
-          max={100}
-          title="Light preference slider"
-          aria-label="Light preference slider"
-          value={selected}
-          onChange={(e) => setSelected(Number(e.target.value))}
-          className="w-full h-[1px] bg-white/10 appearance-none cursor-pointer mb-6
-            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
-            [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white
-            [&::-webkit-slider-thumb]:shadow-[0_0_14px_rgba(255,255,255,0.3)]"
+      {/* ── FULL SCREEN VISUALIZER ─────────────────────────── */}
+      <div className="absolute inset-0 w-full h-full pointer-events-none">
+        {/* Base Image */}
+        <img 
+          src="/common_bedroom_base.png" 
+          alt="Bedroom Canvas" 
+          className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
+        />
+        
+        {/* Multi-layer Light Tint Mixing */}
+        <div 
+          className="absolute inset-0 transition-all duration-1000 ease-in-out opacity-80 mix-blend-multiply pointer-events-none"
+          style={{ 
+            backgroundColor: selectedOpt ? selectedOpt.color : "transparent"
+          }}
+        />
+        <div 
+          className="absolute inset-0 transition-all duration-1000 ease-in-out opacity-50 mix-blend-color pointer-events-none"
+          style={{ 
+            backgroundColor: selectedOpt ? selectedOpt.color : "transparent"
+          }}
         />
 
-        {/* Icon strip */}
-        <div className="flex justify-between px-1 mb-10">
-          {icons.map((Icon, i) => (
-            <motion.div
-              key={i}
-              animate={{ scale: i === activeIndex ? 1.25 : 1, opacity: i === activeIndex ? 0.9 : 0.2 }}
-              transition={{ type: "spring", stiffness: 200 }}
-            >
-              <Icon size={16} className="text-white" />
-            </motion.div>
-          ))}
-        </div>
+        {/* Ambient Gradients for Text Legibility only at the very top and very bottom */}
+        <div className="absolute top-0 inset-x-0 bg-gradient-to-b from-black/80 via-black/30 to-transparent pointer-events-none h-48" />
+        <div className="absolute bottom-0 inset-x-0 h-64 bg-gradient-to-t from-black/95 via-black/60 to-transparent pointer-events-none" />
+      </div>
 
-        {/* CTA — warm cream, not red */}
-        <button
-          onClick={confirm}
-          className="w-full py-4 bg-white/90 text-[#0D0A08] text-xs font-medium tracking-[0.2em] uppercase hover:bg-white transition-colors"
-        >
-          This is my choice
-        </button>
+      {/* ── TOP HEADER (TITLE & PROGRESS) ──────────────────── */}
+      <div className="relative z-50 w-full px-6 py-8 md:px-10 md:py-12 pointer-events-none">
+        <div className="max-w-7xl mx-auto w-full">
+          {/* Top Progress Line */}
+          <div className="w-full h-[3px] bg-white/20 rounded-full mb-6 overflow-hidden max-w-sm pointer-events-auto">
+            <div className="h-full bg-white w-[70%]" />
+          </div>
+
+          <p className="text-[10px] md:text-[11px] font-bold tracking-[0.2em] text-white/90 uppercase mb-2 drop-shadow-md font-sans">
+            ATMOSPHERE CALIBRATION
+          </p>
+          <h2 className="text-[28px] md:text-4xl font-serif text-white font-semibold leading-tight drop-shadow-lg max-w-2xl">
+            How should your home feel in the evening?
+          </h2>
+        </div>
+      </div>
+
+      {/* ── BOTTOM SELECTION PANEL (SINGLE ROW) ────── */}
+      <div className="relative z-50 mt-auto w-full px-4 pb-6 pt-12 md:px-10 md:pb-8">
+        <div className="max-w-7xl mx-auto flex flex-col w-full">
+          
+          <div className="flex items-center justify-between mb-4 px-2">
+             <p className="text-white/80 text-xs md:text-sm font-light drop-shadow">
+               Select a mood to visualize its effect on the space
+             </p>
+             {selectedOpt && (
+                <div className="hidden sm:flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 text-white shadow-lg">
+                  <div className="w-2 h-2 rounded-full shadow-sm animate-pulse" style={{ backgroundColor: selectedOpt.color }} />
+                  <span className="text-[10px] tracking-widest uppercase font-mono">{selectedOpt.name}</span>
+                </div>
+             )}
+          </div>
+
+          {/* Swatches Container - Single Row Scrollable */}
+          <div className="flex flex-row overflow-x-auto w-full gap-3 pb-4 scrollbar-hide snap-x items-center" role="radiogroup" aria-label="Lighting mood selection">
+            {LIGHTING_OPTIONS.map((opt) => {
+              const isCurrent = selected === opt.name;
+              return (
+                <button
+                  type="button"
+                  key={opt.name}
+                  onClick={() => setSelected(opt.name)}
+                  className={`snap-center shrink-0 group flex items-center gap-3 px-4 py-3 rounded-[16px] transition-all duration-300 border focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2 focus-visible:outline-none backdrop-blur-md ${
+                    isCurrent
+                      ? "border-white/50 bg-white/20 text-white shadow-xl scale-[1.02]"
+                      : "border-white/10 bg-black/20 text-white/90 hover:bg-black/40 hover:border-white/30"
+                  }`}
+                  {...(isCurrent ? { "aria-pressed": "true" } : { "aria-pressed": "false" })}
+                >
+                  <div
+                    className={`w-8 h-8 rounded-full shadow-inner border border-white/20 transition-transform duration-300 relative shrink-0 ${
+                      isCurrent ? "scale-110 shadow-lg ring-2 ring-white/50" : "group-hover:scale-110"
+                    }`}
+                    style={{ backgroundColor: opt.color }}
+                  >
+                    {isCurrent && (
+                      <div className="absolute inset-0 rounded-full border border-white opacity-60 animate-ping" />
+                    )}
+                  </div>
+                  <div className="flex flex-col items-start justify-center text-left pr-2">
+                    <span className={`text-[13px] md:text-[14px] font-semibold tracking-wide transition-colors ${
+                      isCurrent ? "text-white drop-shadow-md" : "text-white/90"
+                    }`}>
+                      {opt.name}
+                    </span>
+                    <span className={`text-[10px] md:text-[11px] font-light transition-colors ${
+                      isCurrent ? "text-white/80" : "text-white/60"
+                    }`}>
+                      {opt.description}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-between pt-4 mt-2 border-t border-white/20">
+            <button 
+              className="px-6 py-3 rounded-xl border border-white/30 bg-black/20 backdrop-blur-md text-white text-xs font-semibold hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none transition-colors"
+              type="button"
+            >
+              &larr; Back
+            </button>
+            <button
+              onClick={confirm}
+              disabled={!selected}
+              className={`px-10 py-3 rounded-xl text-xs font-semibold tracking-widest uppercase focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none transition-all duration-300 text-center backdrop-blur-md ${
+                selected
+                  ? "bg-white text-black hover:bg-gray-100 shadow-[0_0_20px_rgba(255,255,255,0.3)] cursor-pointer"
+                  : "bg-white/10 text-white/40 border border-white/10 cursor-not-allowed"
+              }`}
+              type="button"
+            >
+              Continue &rarr;
+            </button>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
