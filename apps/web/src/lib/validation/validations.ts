@@ -218,7 +218,7 @@ export type SiteContentFormData = z.infer<typeof siteContentSchema>;
 export const siteSettingsSchema = z.object({
     site_name: z.string().min(1, "Site name is required"),
     site_description: z.string().optional(),
-    contact_email: z.string().email("Invalid email").optional(),
+    contact_email: z.string().email("Invalid email").optional().or(z.literal("")),
     contact_phone: z.string().optional(),
     contact_whatsapp: z.string().optional(),
     about_video_url: z.string().url("Invalid URL").optional().or(z.literal("")),
@@ -230,6 +230,11 @@ export const siteSettingsSchema = z.object({
     social_youtube: z.string().url().optional().or(z.literal("")),
     social_pinterest: z.string().url().optional().or(z.literal("")),
     telegram_chat_ids: z.array(z.string().min(1, "Chat ID cannot be empty")).default([]),
+    office_hours: z.array(z.object({
+        id: z.string(),
+        days: z.string().min(1, "Days are required"),
+        hours: z.string().min(1, "Hours are required")
+    })).default([]),
 });
 
 export type SiteSettingsFormData = z.infer<typeof siteSettingsSchema>;

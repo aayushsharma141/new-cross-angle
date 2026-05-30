@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { MessageSquare, Palette, Sun, Users } from "lucide-react";
+import { AdminPageHeader } from "@/components/admin/shared";
 import { AdjectivesEditor } from "@/components/admin/discovery-flow/AdjectivesEditor";
 import { MaterialsEditor } from "@/components/admin/discovery-flow/MaterialsEditor";
 import { LightingEditor } from "@/components/admin/discovery-flow/LightingEditor";
@@ -41,9 +42,21 @@ export default function AdminDiscoveryConfig() {
   const activeTab = TABS.find((t) => t.id === tab)!;
 
   return (
-    <div className="space-y-5 py-4 animate-in fade-in duration-300">
-      {/* Sub-nav */}
-      <div className="flex gap-0.5 border-b border-[hsl(var(--admin-border))]/50 overflow-x-auto pb-px">
+    <div className="flex flex-col space-y-6">
+      <style>{`
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+        .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+      `}</style>
+      
+      <AdminPageHeader moduleName="Discovery" tabName="Config Builder" />
+
+      <div className="fade-up-1">
+        {/* Sub-nav */}
+        <div className="flex gap-0.5 border-b border-[hsl(var(--admin-border))]/50 overflow-x-auto pb-px">
         {TABS.map((t) => {
           const Icon = t.icon;
           const isActive = tab === t.id;
@@ -66,17 +79,20 @@ export default function AdminDiscoveryConfig() {
       </div>
 
       {/* Active tab hint */}
-      <p className="text-[10px] text-[hsl(var(--admin-text-muted))] -mt-2">
+      <p className="text-[10px] text-[hsl(var(--admin-text-muted))] -mt-2 mb-2">
         <span className="text-[hsl(var(--admin-text))] font-medium">{activeTab.label}</span>
         {" — "}
         {activeTab.description}
       </p>
+      </div>
 
       {/* Editor panels */}
-      {tab === "adjectives" && <AdjectivesEditor />}
-      {tab === "materials" && <MaterialsEditor />}
-      {tab === "lights" && <LightingEditor />}
-      {tab === "archetypes" && <ArchetypesEditor />}
+      <div className="fade-up-2">
+        {tab === "adjectives" && <AdjectivesEditor />}
+        {tab === "materials" && <MaterialsEditor />}
+        {tab === "lights" && <LightingEditor />}
+        {tab === "archetypes" && <ArchetypesEditor />}
+      </div>
     </div>
   );
 }

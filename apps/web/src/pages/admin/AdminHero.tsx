@@ -307,7 +307,7 @@ const AdminHero = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-6 h-6 animate-spin text-site-crimson" />
+                <Loader2 className="w-6 h-6 animate-spin text-[hsl(var(--admin-primary))]" />
             </div>
         );
     }
@@ -325,8 +325,8 @@ const AdminHero = () => {
                             setUrlError("");
                         }}
                         className={showAddForm
-                            ? "bg-zinc-700 hover:bg-zinc-600"
-                            : "bg-site-crimson hover:bg-[#A30E28]"
+                            ? "bg-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-surface-hover))] text-[hsl(var(--admin-text))] border border-[hsl(var(--admin-border))]"
+                            : "bg-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary-hover))] text-black font-semibold shadow-lg"
                         }
                     >
                         {showAddForm ? (
@@ -346,9 +346,9 @@ const AdminHero = () => {
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.2 }}
                     >
-                        <div className="bg-zinc-900/80 border border-zinc-700/50 rounded-xl p-6 space-y-5">
-                            <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                                <Plus className="w-4 h-4 text-site-crimson" />
+                        <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-xl p-6 space-y-5">
+                            <h2 className="text-base font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">
+                                <Plus className="w-4 h-4 text-[hsl(var(--admin-primary))]" />
                                 Add New Hero Media
                             </h2>
 
@@ -382,8 +382,8 @@ const AdminHero = () => {
 
                             {/* URL Preview */}
                             {newUrl && isValidUrl(newUrl) && (
-                                <div className="bg-zinc-800/50 rounded-lg p-3 flex items-center gap-4">
-                                    <div className="w-32 h-20 rounded-lg overflow-hidden bg-zinc-700 flex-shrink-0">
+                                <div className="bg-[hsl(var(--admin-surface))] rounded-lg p-3 flex items-center gap-4 border border-[hsl(var(--admin-border))]">
+                                    <div className="w-32 h-20 rounded-lg overflow-hidden bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex-shrink-0">
                                         {newType === "video" ? (
                                             <video src={newUrl} muted className="w-full h-full object-cover" preload="metadata" />
                                         ) : (
@@ -396,19 +396,19 @@ const AdminHero = () => {
                                             />
                                         )}
                                     </div>
-                                    <div className="text-xs text-zinc-400">
-                                        <p className="font-medium text-zinc-300 mb-1">Preview</p>
+                                    <div className="text-xs text-[hsl(var(--admin-text-muted))]">
+                                        <p className="font-medium text-[hsl(var(--admin-text))] mb-1">Preview</p>
                                         <p className="truncate max-w-sm">{newUrl}</p>
                                     </div>
                                 </div>
                             )}
 
                             <div className="flex gap-3 pt-1">
-                                <Button onClick={handleAdd} disabled={isSaving} className="bg-site-crimson hover:bg-[#A30E28]">
+                                <Button onClick={handleAdd} disabled={isSaving} className="bg-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary-hover))] text-black">
                                     {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                                     Add to Hero
                                 </Button>
-                                <Button variant="ghost" onClick={() => setShowAddForm(false)}>
+                                <Button variant="ghost" className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] hover:bg-[hsl(var(--admin-surface-hover))]" onClick={() => setShowAddForm(false)}>
                                     Cancel
                                 </Button>
                             </div>
@@ -419,17 +419,17 @@ const AdminHero = () => {
 
             {/* ─── Status Bar ─── */}
             <div className="flex items-center gap-6 text-xs font-mono uppercase tracking-widest">
-                <span className="text-zinc-400">{items.length} total</span>
-                <span className="text-emerald-500">{activeCount} active</span>
-                {hiddenCount > 0 && <span className="text-zinc-600">{hiddenCount} hidden</span>}
+                <span className="text-[hsl(var(--admin-text-muted))]">{items.length} total</span>
+                <span className="text-[hsl(var(--admin-success))]">{activeCount} active</span>
+                {hiddenCount > 0 && <span className="text-[hsl(var(--admin-warning))]">{hiddenCount} hidden</span>}
             </div>
 
             {/* ─── Items List ─── */}
             {items.length === 0 ? (
-                <div className="border border-dashed border-zinc-800 rounded-xl p-16 text-center">
-                    <Video className="w-12 h-12 mx-auto text-zinc-700 mb-4" />
-                    <p className="text-zinc-400 text-lg font-medium">No hero media yet</p>
-                    <p className="text-zinc-600 text-sm mt-2">Click "Add Media" to create your first hero slide.</p>
+                <div className="border border-dashed border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] rounded-xl p-16 text-center">
+                    <Video className="w-12 h-12 mx-auto text-[hsl(var(--admin-text-muted))] mb-4" />
+                    <p className="text-[hsl(var(--admin-text-muted))] text-lg font-medium">No hero media yet</p>
+                    <p className="text-[hsl(var(--admin-text-muted))]/70 text-sm mt-2">Click "Add Media" to create your first hero slide.</p>
                 </div>
             ) : (
                 <Reorder.Group
@@ -448,10 +448,10 @@ const AdminHero = () => {
                                 className={`
                                     rounded-xl border transition-all duration-200
                                     ${isEditing
-                                        ? "bg-zinc-800/80 border-site-crimson/50 ring-1 ring-site-crimson/20"
+                                        ? "bg-[hsl(var(--admin-surface))]/80 border-[hsl(var(--admin-primary))]/50 ring-1 ring-[hsl(var(--admin-primary))]/20"
                                         : item.is_active
-                                            ? "bg-zinc-900/60 border-zinc-800 hover:border-zinc-700"
-                                            : "bg-zinc-950/40 border-zinc-900 opacity-50"
+                                            ? "bg-[hsl(var(--admin-card))]/60 border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-border-subtle))]"
+                                            : "bg-[hsl(var(--admin-surface))]/40 border-[hsl(var(--admin-border))] opacity-50"
                                     }
                                 `}
                             >
@@ -523,11 +523,11 @@ const AdminHero = () => {
                             {/* Title */}
                             <div className="text-center mb-4">
                                 <p className="text-white font-medium">{previewItem.title || "Untitled"}</p>
-                                <p className="text-zinc-500 text-xs mt-1">{previewItem.media_type} · {formatDuration(previewItem.duration_ms)}</p>
+                                <p className="text-white/60 text-xs mt-1">{previewItem.media_type} · {formatDuration(previewItem.duration_ms)}</p>
                             </div>
 
                             {/* Media */}
-                            <div className="rounded-xl overflow-hidden bg-zinc-900 aspect-video">
+                            <div className="rounded-xl overflow-hidden bg-black aspect-video">
                                 {previewItem.media_type === "video" ? (
                                     <video
                                         src={getOptimizedUrl(previewItem.media_url, { width: 1400, quality: 84 })}

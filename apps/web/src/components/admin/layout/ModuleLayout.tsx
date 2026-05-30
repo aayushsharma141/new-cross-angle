@@ -44,13 +44,14 @@ export const ModuleLayout = ({ title, description, tabs, children }: ModuleLayou
                 {tabs && tabs.length > 0 && (
                     <aside className="w-[220px] shrink-0 border-r border-[hsl(var(--admin-border))]/50 py-3 px-2 hidden lg:flex flex-col gap-1 overflow-y-auto custom-scrollbar">
                         <div className="px-3 pb-2 text-[10px] uppercase tracking-[0.16em] text-admin-text-subtle font-semibold mt-2">
-                            Navigation
+                            Sections
                         </div>
                         <nav className="flex flex-col gap-1" aria-label="Module section navigation">
                             {tabs.map((tab) => {
-                                const isActive =
-                                    location.pathname === tab.path ||
-                                    location.pathname.startsWith(`${tab.path}/`);
+                                const currentFullPath = location.pathname + location.search;
+                                const isActive = tab.path.includes('?')
+                                    ? currentFullPath === tab.path
+                                    : (location.pathname === tab.path || location.pathname.startsWith(`${tab.path}/`));
 
                                 return (
                                     <Link

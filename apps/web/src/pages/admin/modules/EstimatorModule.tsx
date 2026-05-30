@@ -4,16 +4,16 @@ import { ModuleLayout } from "@/components/admin/layout/ModuleLayout";
 export const EstimatorModule = () => {
     const location = useLocation();
     if (location.pathname === "/admin/estimator" || location.pathname === "/admin/estimator/") {
-        return <Navigate to="/admin/estimator/leads" replace />;
+        return <Navigate to="/admin/estimator/estimate-leads" replace />;
     }
 
     return (
         <ModuleLayout
             title="Estimator Engine"
-            description="Manage pricing configurations and incoming project estimates."
+            description="Manage pricing logic, room rates, and review project estimate submissions from clients."
             tabs={[
-                { label: "Lead Management", path: "/admin/estimator/leads" },
-                { label: "Configuration", path: "/admin/estimator/config" },
+                { label: "Estimate Leads", path: "/admin/estimator/estimate-leads" },
+                { label: "Pricing Configuration", path: "/admin/estimator/pricing-configuration" },
             ]}
         >
             <Outlet />

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { cn } from "@/lib/utils";
+import { AdminPageHeader } from "@/components/admin/shared/AdminPageHeader";
 import { Button } from "@/components/ui/primitives/button";
 import { Skeleton } from "@/components/ui/primitives/skeleton";
 import { Card, CardContent } from "@/components/ui/primitives/card";
@@ -185,7 +186,20 @@ export default function AdminBlogOverview() {
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700">
+        <div className="w-full font-mono">
+            <style>{`
+                @keyframes fadeUp {
+                    from { opacity: 0; transform: translateY(12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+                .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+                .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+                .fade-up-4 { animation: fadeUp var(--anim-duration) var(--anim-stagger-4) var(--anim-ease) both; }
+            `}</style>
+            
+            <AdminPageHeader moduleName="Blog" tabName="Overview" />
+            
             <ModuleActions>
                 <Button
                     variant="outline"

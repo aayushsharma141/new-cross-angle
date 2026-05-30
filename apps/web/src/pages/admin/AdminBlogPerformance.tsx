@@ -12,8 +12,11 @@ import {
     RefreshCw,
     FileText,
     Search,
+    Search,
     TrendingUp,
 } from "lucide-react";
+import { AdminPageHeader, AdminMetricsPanel } from "@/components/admin/shared";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
@@ -94,11 +97,11 @@ export default function AdminBlogPerformance() {
     };
 
     const SortIcon = ({ col }: { col: SortKey }) => {
-        if (sortKey !== col) return <ArrowUpDown className="w-3 h-3 text-zinc-600" />;
+        if (sortKey !== col) return <ArrowUpDown className="w-3 h-3 text-[hsl(var(--admin-text-muted))]" />;
         return sortDir === "asc" ? (
-            <ArrowUp className="w-3 h-3 text-primary" />
+            <ArrowUp className="w-3 h-3 text-[hsl(var(--admin-primary))]" />
         ) : (
-            <ArrowDown className="w-3 h-3 text-primary" />
+            <ArrowDown className="w-3 h-3 text-[hsl(var(--admin-primary))]" />
         );
     };
 
@@ -124,85 +127,76 @@ export default function AdminBlogPerformance() {
         ? Math.round(articles.reduce((s, a) => s + (a.scroll_depth || 0), 0) / articles.length)
         : 0;
 
+    const avgReadTime = articles.length
+        ? Math.round(articles.reduce((s, a) => s + (a.read_time || 0), 0) / articles.length)
+        : 0;
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <RefreshCw className="w-6 h-6 animate-spin text-primary" />
+                <RefreshCw className="w-6 h-6 animate-spin text-[hsl(var(--admin-primary))]" />
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-700">
-            {/* Quick KPI Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="bg-zinc-900/40 border-zinc-800/50 backdrop-blur-md">
-                    <CardContent className="p-5 flex items-center gap-4">
-                        <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                            <Eye size={18} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Total Views</p>
-                            <p className="text-xl font-serif font-bold text-white">{totalViews.toLocaleString()}</p>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-zinc-900/40 border-zinc-800/50 backdrop-blur-md">
-                    <CardContent className="p-5 flex items-center gap-4">
-                        <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
-                            <TrendingUp size={18} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Top Article</p>
-                            <p className="text-sm font-bold text-white truncate max-w-[200px]">
-                                {topArticle?.title ?? "—"}
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-zinc-900/40 border-zinc-800/50 backdrop-blur-md">
-                    <CardContent className="p-5 flex items-center gap-4">
-                        <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                            <Scroll size={18} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Avg. Scroll</p>
-                            <p className="text-xl font-serif font-bold text-white">{avgScroll}%</p>
-                        </div>
-                    </CardContent>
-                </Card>
+        <div className="w-full font-mono">
+            <style>{`
+                @keyframes fadeUp {
+                    from { opacity: 0; transform: translateY(12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+                .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+                .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+            `}</style>
+            
+            <AdminPageHeader moduleName="Blog" tabName="Performance" />
+            
+            <ModuleActions>
+                <Button variant="outline" size="sm" onClick={loadData} className="gap-2 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))]">
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    Refresh
+                </Button>
+            </ModuleActions>
+
+            <div className="fade-up-1">
+                <AdminMetricsPanel 
+                    metrics={[
+                        { label: "Total Views", value: totalViews.toLocaleString(), icon: Eye },
+                        { label: "Top Article", value: topArticle?.title?.substring(0, 20) || "—", icon: TrendingUp },
+                        { label: "Avg. Scroll", value: `${avgScroll}%`, icon: Scroll },
+                        { label: "Avg. Read Time", value: avgReadTime ? `${(avgReadTime / 60).toFixed(1)}m` : "—", icon: Clock }
+                    ]} 
+                />
             </div>
 
             {/* Toolbar */}
-            <div className="flex items-center gap-4 bg-zinc-900/40 backdrop-blur-md p-4 rounded-2xl border border-zinc-800/50">
+            <div className="flex items-center gap-4 mt-8 bg-[hsl(var(--admin-surface))] p-4 rounded-xl border border-[hsl(var(--admin-border))] fade-up-2">
                 <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
                     <Input
                         placeholder="Search articles..."
-                        className="pl-10 bg-black/40 border-zinc-700/50 focus:border-primary/50 rounded-xl"
+                        className="pl-10 bg-[hsl(var(--admin-background))] border-[hsl(var(--admin-border))] focus:border-[hsl(var(--admin-primary))]/50 rounded-xl text-[hsl(var(--admin-text))]"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-                <Button variant="outline" size="sm" onClick={loadData} className="gap-2 border-zinc-800 text-zinc-400 ml-auto">
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    Refresh
-                </Button>
             </div>
 
             {/* Performance table */}
-            <div className="rounded-xl border border-zinc-800/50 bg-zinc-900/30 backdrop-blur-md overflow-hidden shadow-2xl">
+            <div className="rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] overflow-hidden shadow-2xl mt-6 fade-up-3">
                 <Table>
-                    <TableHeader className="bg-zinc-900/50">
-                        <TableRow className="border-zinc-800 hover:bg-transparent">
-                            <TableHead className="text-zinc-500 uppercase text-[10px] font-bold tracking-widest">
+                    <TableHeader className="bg-[hsl(var(--admin-surface))]">
+                        <TableRow className="border-[hsl(var(--admin-border-subtle))] hover:bg-transparent">
+                            <TableHead className="text-[hsl(var(--admin-text-muted))] uppercase text-[10px] font-bold tracking-widest">
                                 Article
                             </TableHead>
-                            <TableHead className="text-zinc-500 uppercase text-[10px] font-bold tracking-widest">
+                            <TableHead className="text-[hsl(var(--admin-text-muted))] uppercase text-[10px] font-bold tracking-widest">
                                 Status
                             </TableHead>
                             <TableHead
-                                className="text-zinc-500 uppercase text-[10px] font-bold tracking-widest cursor-pointer select-none"
+                                className="text-[hsl(var(--admin-text-muted))] uppercase text-[10px] font-bold tracking-widest cursor-pointer select-none"
                                 onClick={() => handleSort("views")}
                             >
                                 <span className="inline-flex items-center gap-1">
@@ -210,7 +204,7 @@ export default function AdminBlogPerformance() {
                                 </span>
                             </TableHead>
                             <TableHead
-                                className="text-zinc-500 uppercase text-[10px] font-bold tracking-widest cursor-pointer select-none"
+                                className="text-[hsl(var(--admin-text-muted))] uppercase text-[10px] font-bold tracking-widest cursor-pointer select-none"
                                 onClick={() => handleSort("read_time")}
                             >
                                 <span className="inline-flex items-center gap-1">
@@ -218,14 +212,14 @@ export default function AdminBlogPerformance() {
                                 </span>
                             </TableHead>
                             <TableHead
-                                className="text-zinc-500 uppercase text-[10px] font-bold tracking-widest cursor-pointer select-none"
+                                className="text-[hsl(var(--admin-text-muted))] uppercase text-[10px] font-bold tracking-widest cursor-pointer select-none"
                                 onClick={() => handleSort("scroll_depth")}
                             >
                                 <span className="inline-flex items-center gap-1">
                                     Scroll Depth <SortIcon col="scroll_depth" />
                                 </span>
                             </TableHead>
-                            <TableHead className="text-zinc-500 uppercase text-[10px] font-bold tracking-widest">
+                            <TableHead className="text-[hsl(var(--admin-text-muted))] uppercase text-[10px] font-bold tracking-widest">
                                 Published
                             </TableHead>
                         </TableRow>
@@ -233,9 +227,9 @@ export default function AdminBlogPerformance() {
                     <TableBody>
                         {sorted.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="h-32 text-center text-zinc-500">
+                                <TableCell colSpan={6} className="h-32 text-center text-[hsl(var(--admin-text-muted))]">
                                     <div className="flex flex-col items-center gap-2">
-                                        <FileText className="w-8 h-8 text-zinc-700" />
+                                        <FileText className="w-8 h-8 text-[hsl(var(--admin-text-muted))]/60" />
                                         <p className="font-medium">No articles found</p>
                                     </div>
                                 </TableCell>
@@ -244,14 +238,14 @@ export default function AdminBlogPerformance() {
                             sorted.map((art) => (
                                 <TableRow
                                     key={art.id}
-                                    className="border-zinc-800/50 hover:bg-zinc-800/30 transition-colors"
+                                    className="border-[hsl(var(--admin-border-subtle))] hover:bg-[hsl(var(--admin-surface-hover))] transition-colors"
                                 >
                                     <TableCell>
                                         <div className="flex flex-col gap-0.5 max-w-[280px]">
-                                            <span className="font-bold text-zinc-200 text-sm truncate">
+                                            <span className="font-bold text-[hsl(var(--admin-text))] text-sm truncate">
                                                 {art.title}
                                             </span>
-                                            <span className="text-[10px] text-zinc-600 font-mono truncate">
+                                            <span className="text-[10px] text-[hsl(var(--admin-text-muted))] font-mono truncate">
                                                 /blog/{art.slug}
                                             </span>
                                         </div>
@@ -262,39 +256,39 @@ export default function AdminBlogPerformance() {
                                             className={cn(
                                                 "text-[10px] uppercase font-bold tracking-widest",
                                                 art.is_published
-                                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                                    : "bg-zinc-800/50 text-zinc-500 border-zinc-700"
+                                                    ? "bg-[hsl(var(--admin-success))]/10 text-[hsl(var(--admin-success))] border-[hsl(var(--admin-success))]/20"
+                                                    : "bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-muted))] border-[hsl(var(--admin-border-subtle))]"
                                             )}
                                         >
                                             {art.is_published ? "Live" : "Draft"}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>
-                                        <div className="flex items-center gap-1.5 text-zinc-300 font-semibold">
+                                        <div className="flex items-center gap-1.5 text-[hsl(var(--admin-text))] font-semibold">
                                             <Eye className="w-3.5 h-3.5 text-blue-400" />
                                             {(art.views || 0).toLocaleString()}
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <div className="flex items-center gap-1.5 text-zinc-300 font-semibold">
-                                            <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                                        <div className="flex items-center gap-1.5 text-[hsl(var(--admin-text))] font-semibold">
+                                            <Clock className="w-3.5 h-3.5 text-[hsl(var(--admin-success))]" />
                                             {art.read_time ? `${(art.read_time / 60).toFixed(1)}m` : "—"}
                                         </div>
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-2">
-                                            <div className="flex-1 max-w-[80px] h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+                                            <div className="flex-1 max-w-[80px] h-1.5 rounded-full bg-[hsl(var(--admin-surface-hover))] overflow-hidden">
                                                 <div
-                                                    className="h-full rounded-full bg-gradient-to-r from-amber-500 to-primary"
+                                                    className="h-full rounded-full bg-gradient-to-r from-[hsl(var(--admin-warning))] to-[hsl(var(--admin-primary))]"
                                                     style={{ width: `${art.scroll_depth || 0}%` }}
                                                 />
                                             </div>
-                                            <span className="text-xs font-semibold text-zinc-400">
+                                            <span className="text-xs font-semibold text-[hsl(var(--admin-text-muted))]">
                                                 {art.scroll_depth || 0}%
                                             </span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-zinc-500 text-xs font-medium">
+                                    <TableCell className="text-[hsl(var(--admin-text-muted))] text-xs font-medium">
                                         {format(new Date(art.created_at), "MMM d, yyyy")}
                                     </TableCell>
                                 </TableRow>

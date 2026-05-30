@@ -14,6 +14,7 @@ import { ACTION_COLORS, ENTITY_LABELS } from '@/types/audit';
 import { useToast } from '@/hooks/useToast';
 import { format } from 'date-fns';
 import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
+import { AdminPageHeader, AdminMetricsPanel } from '@/components/admin/shared';
 
 export default function AdminAuditLogs() {
   const { toast } = useToast();
@@ -135,128 +136,128 @@ export default function AdminAuditLogs() {
   };
 
   return (
-    <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
-      <ModuleActions>
-        <Button variant="outline" size="sm" onClick={() => handleExport('csv')}>
-          <Download className="h-4 w-4 mr-2" />
-          Export CSV
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => handleExport('json')}>
-          <Download className="h-4 w-4 mr-2" />
-          Export JSON
-        </Button>
-      </ModuleActions>
+    <div className="flex flex-col space-y-6">
+      <style>{`
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+        .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+        .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+      `}</style>
 
-      <KPIGrid columns={4}>
-        <MetricCard
-          title="Total Activities (7d)"
-          value={statsData?.totalLogs || 0}
-          icon={<Activity className="h-4 w-4" />}
-          color="primary"
-        />
-        <MetricCard
-          title="Top Action"
-          value={getTopKey(statsData?.byAction) || 'N/A'}
-          subtitle={`${(statsData?.byAction && getTopKey(statsData.byAction) ? statsData.byAction[getTopKey(statsData.byAction) as AuditAction] : 0)} occurrences`}
-          icon={<TrendingUp className="h-4 w-4" />}
-          color="success"
-        />
-        <MetricCard
-          title="Most Active Entity"
-          value={ENTITY_LABELS[getTopKey(statsData?.byEntity) as AuditEntityType] || 'N/A'}
-          subtitle={`${(statsData?.byEntity && getTopKey(statsData.byEntity) ? statsData.byEntity[getTopKey(statsData.byEntity) as AuditEntityType] : 0)} entries`}
-          icon={<BarChart3 className="h-4 w-4" />}
-          color="warning"
-        />
-        <MetricCard
-          title="Unique Users"
-          value={users.length}
-          icon={<Activity className="h-4 w-4" />}
-          color="primary"
-        />
-      </KPIGrid>
+      <AdminPageHeader moduleName="System" tabName="Audit Logs" />
+
+      <div className="fade-up-1">
+        <AdminMetricsPanel metrics={[
+          { label: "Total Activities (7d)", value: statsData?.totalLogs || 0, icon: Activity },
+          { label: "Top Action", value: getTopKey(statsData?.byAction) || 'N/A', icon: TrendingUp },
+          { label: "Most Active Entity", value: ENTITY_LABELS[getTopKey(statsData?.byEntity) as AuditEntityType] || 'N/A', icon: BarChart3 },
+          { label: "Unique Users", value: users.length, icon: Activity }
+        ]} />
+      </div>
+
+      <div className="fade-up-2">
+        <ModuleActions>
+          <Button variant="outline" size="sm" onClick={() => handleExport('csv')} className="bg-[hsl(var(--admin-surface))] hover:text-black hover:bg-[hsl(var(--admin-primary))] h-9">
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => handleExport('json')} className="bg-[hsl(var(--admin-surface))] hover:text-black hover:bg-[hsl(var(--admin-primary))] h-9">
+            <Download className="h-4 w-4 mr-2" />
+            Export JSON
+          </Button>
+        </ModuleActions>
+      </div>
+
+      <div className="fade-up-3">
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="all">All Activity</TabsTrigger>
-          <TabsTrigger value="actions">By Action</TabsTrigger>
-          <TabsTrigger value="entities">By Entity</TabsTrigger>
+        <TabsList className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-lg">
+          <TabsTrigger value="all" className="data-[state=active]:bg-[hsl(var(--admin-primary))] data-[state=active]:text-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-muted))]">All Activity</TabsTrigger>
+          <TabsTrigger value="actions" className="data-[state=active]:bg-[hsl(var(--admin-primary))] data-[state=active]:text-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-muted))]">By Action</TabsTrigger>
+          <TabsTrigger value="entities" className="data-[state=active]:bg-[hsl(var(--admin-primary))] data-[state=active]:text-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-muted))]">By Entity</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="space-y-4">
-          <Card>
-            <CardHeader className="pb-3">
+        <TabsContent value="all" className="space-y-4 mt-4">
+          <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
+            <CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Audit Log</CardTitle>
-                <AuditLogFilters
+                <CardTitle className="text-sm font-bold text-[hsl(var(--admin-text))]">Audit Log</CardTitle>
+                <div className="flex gap-2">
+                  <AuditLogFilters
+                    users={users}
+                    selectedAction={selectedAction}
+                    selectedEntity={selectedEntity}
+                    selectedUser={selectedUser}
+                    onActionChange={(action) => updateParams({ action })}
+                    onEntityChange={(entity) => updateParams({ entity })}
+                    onUserChange={(user) => updateParams({ user })}
+                  />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 sm:p-0">
+              <div className="px-5 py-4 border-b border-[hsl(var(--admin-border-subtle))]">
+                <AuditLogTable
+                  logs={logsData?.data || []}
+                  search={search}
+                  pagination={
+                    logsData
+                      ? {
+                          page,
+                          pageSize,
+                          total: logsData.total,
+                          totalPages: logsData.totalPages,
+                        }
+                      : undefined
+                  }
+                  loading={isLoading}
                   users={users}
+                  onPaginationChange={handlePaginationChange}
+                  onSearchChange={(q) => updateParams({ q })}
+                  onActionFilterChange={(action) => updateParams({ action })}
+                  onEntityFilterChange={(entity) => updateParams({ entity })}
+                  onUserFilterChange={(user) => updateParams({ user })}
+                  onRefresh={() => refetch()}
                   selectedAction={selectedAction}
                   selectedEntity={selectedEntity}
                   selectedUser={selectedUser}
-                  onActionChange={(action) => updateParams({ action })}
-                  onEntityChange={(entity) => updateParams({ entity })}
-                  onUserChange={(user) => updateParams({ user })}
                 />
               </div>
-            </CardHeader>
-            <CardContent>
-              <AuditLogTable
-                logs={logsData?.data || []}
-                search={search}
-                pagination={
-                  logsData
-                    ? {
-                        page,
-                        pageSize,
-                        total: logsData.total,
-                        totalPages: logsData.totalPages,
-                      }
-                    : undefined
-                }
-                loading={isLoading}
-                users={users}
-                onPaginationChange={handlePaginationChange}
-                onSearchChange={(q) => updateParams({ q })}
-                onActionFilterChange={(action) => updateParams({ action })}
-                onEntityFilterChange={(entity) => updateParams({ entity })}
-                onUserFilterChange={(user) => updateParams({ user })}
-                onRefresh={() => refetch()}
-                selectedAction={selectedAction}
-                selectedEntity={selectedEntity}
-                selectedUser={selectedUser}
-              />
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="actions" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Activity by Action Type</CardTitle>
+        <TabsContent value="actions" className="space-y-4 mt-4">
+          <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
+            <CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
+              <CardTitle className="text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Action Type</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-5">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {Object.entries(statsData?.byAction || {}).map(([action, count]) => {
                   const colors = ACTION_COLORS[action as AuditAction];
                   return (
                     <div
                       key={action}
-                      className="rounded-lg border p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                      className="rounded-xl border border-[hsl(var(--admin-border))] p-4 cursor-pointer hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200"
                       onClick={() => updateParams({ action: selectedAction === action ? null : action, tab: 'all' })}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <Badge
                           variant="outline"
-                          className={cn('capitalize', colors?.bg, colors?.text, colors?.border)}
+                          className={cn('capitalize text-[10px]', colors?.bg, colors?.text, colors?.border)}
                         >
                           {action.replace(/_/g, ' ')}
                         </Badge>
                         {selectedAction === action && (
-                          <Badge variant="default">Filtered</Badge>
+                          <Badge variant="default" className="text-[10px] bg-[hsl(var(--admin-primary))] text-[hsl(var(--admin-surface))]">Filtered</Badge>
                         )}
                       </div>
-                      <p className="text-2xl font-bold">{count}</p>
-                      <p className="text-xs text-muted-foreground">occurrences</p>
+                      <p className="text-2xl font-bold text-[hsl(var(--admin-text))]">{count}</p>
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))]">occurrences</p>
                     </div>
                   );
                 })}
@@ -265,24 +266,24 @@ export default function AdminAuditLogs() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="entities" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Activity by Entity Type</CardTitle>
+        <TabsContent value="entities" className="space-y-4 mt-4">
+          <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
+            <CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
+              <CardTitle className="text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Entity Type</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-5">
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {Object.entries(statsData?.byEntity || {}).map(([entity, count]) => (
                   <div
                     key={entity}
-                    className="rounded-lg border p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                    className="rounded-xl border border-[hsl(var(--admin-border))] p-4 cursor-pointer hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200"
                     onClick={() => updateParams({ entity: selectedEntity === entity ? null : entity, tab: 'all' })}
                   >
-                    <p className="font-medium mb-1">{ENTITY_LABELS[entity as AuditEntityType] || entity}</p>
-                    <p className="text-2xl font-bold">{count}</p>
-                    <p className="text-xs text-muted-foreground">entries</p>
+                    <p className="font-bold text-sm text-[hsl(var(--admin-text))] mb-1">{ENTITY_LABELS[entity as AuditEntityType] || entity}</p>
+                    <p className="text-2xl font-bold text-[hsl(var(--admin-text))]">{count}</p>
+                    <p className="text-xs text-[hsl(var(--admin-text-muted))]">entries</p>
                     {selectedEntity === entity && (
-                      <Badge variant="default" className="mt-2">Filtered</Badge>
+                      <Badge variant="default" className="mt-2 text-[10px] bg-[hsl(var(--admin-primary))] text-[hsl(var(--admin-surface))]">Filtered</Badge>
                     )}
                   </div>
                 ))}
@@ -291,6 +292,7 @@ export default function AdminAuditLogs() {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

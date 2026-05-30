@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/useToast";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 export default function AdminStats() {
-    const { settings, isLoading } = useSiteSettings();
+    const { settings, loading: isLoading } = useSiteSettings();
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
@@ -67,13 +67,6 @@ export default function AdminStats() {
     return (
         <div className="max-w-2xl space-y-6">
             <div className="bg-card rounded-xl border border-border p-6">
-                <div className="mb-6">
-                    <h3 className="text-lg font-medium text-card-foreground">Studio Statistics</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        These numbers are displayed in the About section of the website.
-                    </p>
-                </div>
-
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="space-y-3">

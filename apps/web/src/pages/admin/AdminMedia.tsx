@@ -11,6 +11,10 @@ import {
     CheckSquare,
     Square,
     CloudDownload,
+    HardDrive,
+    FileImage,
+    FileVideo,
+    Files
 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
@@ -30,6 +34,7 @@ import { MediaDetailsSheet } from "@/components/admin/media/MediaDetailsSheet";
 import { icons } from "@/design-system/tokens/icons";
 import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
+import { AdminPageHeader, AdminMetricsPanel, AdminSkeletonCard } from "@/components/admin/shared";
 import { queryKeys } from "@/lib/queryKeys";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -419,17 +424,48 @@ const AdminMedia = () => {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <Loader2 className={`${icons.xl} animate-spin text-primary`} />
+            <div className="w-full font-mono">
+                <AdminPageHeader moduleName="CMS" tabName="Media Library" />
+                <div className="space-y-4 mt-6">
+                    <AdminSkeletonCard size="lg" />
+                    <AdminSkeletonCard size="lg" />
+                    <AdminSkeletonCard size="lg" />
+                    <AdminSkeletonCard size="lg" />
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
-            {/* Action buttons */}
-            {!isReadOnly && (
-                <ModuleActions>
+        <div className="w-full font-mono">
+            <style>{`
+                @keyframes fadeUp {
+                    from { opacity: 0; transform: translateY(12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+                .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+                .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+                .fade-up-4 { animation: fadeUp var(--anim-duration) var(--anim-stagger-4) var(--anim-ease) both; }
+            `}</style>
+            
+            <AdminPageHeader moduleName="CMS" tabName="Media Library" />
+
+            <div className="fade-up-1">
+                <AdminMetricsPanel 
+                    metrics={[
+                        { label: "Total Files", value: String(files.length), icon: Files },
+                        { label: "Storage Used", value: (files.reduce((a, f) => a + f.size, 0) / (1024 * 1024)).toFixed(1) + " MB", icon: HardDrive },
+                        { label: "Images", value: String(files.filter(f => /\.(jpg|jpeg|png|gif|webp|svg|avif)$/i.test(f.name)).length), icon: FileImage },
+                        { label: "Videos", value: String(files.filter(f => /\.(mp4|webm|ogg)$/i.test(f.name)).length), icon: FileVideo }
+                    ]} 
+                />
+            </div>
+
+            <div className="mt-8 mb-6 fade-up-2">
+                {/* Action buttons */}
+                {!isReadOnly && (
+                    <ModuleActions>
                     <Button
                         variant="outline"
                         onClick={() => syncStorageMutation.mutate()}
@@ -458,9 +494,11 @@ const AdminMedia = () => {
                     </Button>
                 </ModuleActions>
             )}
+            </div>
 
-            {/* Bulk selection toolbar */}
-            <BulkActionsToolbar
+            <div className="fade-up-3 space-y-6">
+                {/* Bulk selection toolbar */}
+                <BulkActionsToolbar
                 selectedCount={selectedFiles.size}
                 onClear={() => setSelectedFiles(new Set())}
                 onDelete={() => setBulkDeleteDialogOpen(true)}
@@ -589,6 +627,7 @@ const AdminMedia = () => {
                 variant="destructive"
                 onConfirm={() => bulkDeleteMutation.mutate(selectedFiles)}
             />
+            </div>
         </div>
     );
 };

@@ -20,6 +20,8 @@ Select a component segment below to view its full visual history, design variati
   Tracks global elements (logo dimensions, Navbar inline wordmark configurations, Footer quick link updates, and translation language switches).
 * 🎯 **[CRM & Admin Panel](file:///c:/Users/aayus/Desktop/main/design-history/crm_admin.md)**
   Tracks Lead Pipeline, LeadCard, KPI row, Admin Layout chrome, TopBar, and footer iterations. Includes the full blueprint redesign rollout plan (v1 → v2-action-first → v3-blueprint).
+* 📬 **[Contact Page](file:///c:/Users/aayus/Desktop/main/design-history/contact_page.md)**
+  Tracks Contact page iterations. v1 = 5-section cluttered layout. v2 = Full redesign: merged hero+form, compact map card, slim FAQ, social pill strip.
 
 ---
 

@@ -5,6 +5,7 @@ import { PropertyTypesEditor } from "@/components/admin/estimator-flow/PropertyT
 import { DetailsEditor } from "@/components/admin/estimator-flow/DetailsEditor";
 import { ServicesEditor } from "@/components/admin/estimator-flow/ServicesEditor";
 import { AddonsEditor } from "@/components/admin/estimator-flow/AddonsEditor";
+import { AdminPageHeader } from "@/components/admin/shared";
 
 const AdminEstimateRates = lazy(() => import("./AdminEstimateRates"));
 
@@ -22,9 +23,21 @@ export default function AdminEstimateFlow() {
   const [tab, setTab] = useState<TabId>("pricing");
 
   return (
-    <div className="space-y-4 py-4 animate-in fade-in duration-500">
-      {/* Sub-tabs */}
-      <div className="flex gap-1 border-b border-[hsl(var(--admin-border))]/50 overflow-x-auto">
+    <div className="flex flex-col space-y-6">
+      <style>{`
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+        .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+      `}</style>
+      
+      <AdminPageHeader moduleName="Estimator" tabName="Rates & Logic" />
+
+      <div className="fade-up-1">
+        {/* Sub-tabs */}
+        <div className="flex gap-1 border-b border-[hsl(var(--admin-border))]/50 overflow-x-auto">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -40,18 +53,21 @@ export default function AdminEstimateFlow() {
             {t.label}
           </button>
         ))}
+        </div>
       </div>
 
       {/* Content */}
-      {tab === "pricing" && (
-        <Suspense fallback={<div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-[hsl(var(--admin-primary))]" /></div>}>
-          <AdminEstimateRates />
-        </Suspense>
-      )}
-      {tab === "property" && <PropertyTypesEditor />}
-      {tab === "details" && <DetailsEditor />}
-      {tab === "services" && <ServicesEditor />}
-      {tab === "addons" && <AddonsEditor />}
+      <div className="fade-up-2">
+        {tab === "pricing" && (
+          <Suspense fallback={<div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-[hsl(var(--admin-primary))]" /></div>}>
+            <AdminEstimateRates />
+          </Suspense>
+        )}
+        {tab === "property" && <PropertyTypesEditor />}
+        {tab === "details" && <DetailsEditor />}
+        {tab === "services" && <ServicesEditor />}
+        {tab === "addons" && <AddonsEditor />}
+      </div>
     </div>
   );
 }

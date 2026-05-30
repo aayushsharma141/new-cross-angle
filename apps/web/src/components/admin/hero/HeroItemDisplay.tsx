@@ -97,14 +97,14 @@ export function HeroItemDisplay({
         return (
             <div className="p-5 space-y-4">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                        <PencilIcon className="w-3.5 h-3.5 text-site-crimson" />
+                    <h3 className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">
+                        <PencilIcon className="w-3.5 h-3.5 text-[hsl(var(--admin-primary))]" />
                         Editing: {item.title || "Untitled"}
                     </h3>
                     <div className="flex gap-2">
                         <Button
                             size="sm"
-                            className="bg-site-crimson hover:bg-[#A30E28] h-8 text-xs"
+                            className="bg-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary-hover))] text-black h-8 text-xs font-semibold"
                             onClick={() => onSaveEdit(item)}
                             disabled={isSaving}
                         >
@@ -113,7 +113,7 @@ export function HeroItemDisplay({
                         <Button 
                             size="sm" 
                             variant="ghost" 
-                            className="h-8 text-xs" 
+                            className="h-8 text-xs text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))]" 
                             onClick={onCancelEdit}
                             disabled={isSaving}
                         >
@@ -148,18 +148,18 @@ export function HeroItemDisplay({
     return (
         <div className="flex items-center gap-4 p-4">
             {/* Drag Handle */}
-            <div className="cursor-grab active:cursor-grabbing text-zinc-600 hover:text-zinc-400 transition-colors flex-shrink-0">
+            <div className="cursor-grab active:cursor-grabbing text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] transition-colors flex-shrink-0">
                 <GripVertical className="w-5 h-5" />
             </div>
 
             {/* Order Badge */}
-            <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400 flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[hsl(var(--admin-surface))] flex items-center justify-center text-xs font-bold text-[hsl(var(--admin-text-muted))] flex-shrink-0">
                 {index + 1}
             </div>
 
             {/* Thumbnail */}
             <div
-                className="w-28 h-18 rounded-lg overflow-hidden bg-zinc-800 flex-shrink-0 relative group cursor-pointer"
+                className="w-28 h-18 rounded-lg overflow-hidden bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex-shrink-0 relative group cursor-pointer"
                 onClick={() => onPreviewClick(item)}
             >
                 {item.media_type === "video" ? (
@@ -193,32 +193,32 @@ export function HeroItemDisplay({
                     ) : (
                         <ImageIcon className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                     )}
-                    <p className="text-sm font-medium text-zinc-200 truncate">
+                    <p className="text-sm font-medium text-[hsl(var(--admin-text))] truncate">
                         {item.title || "Untitled"}
                     </p>
                 </div>
-                <p className="text-xs text-zinc-600 truncate max-w-md">{item.media_url}</p>
+                <p className="text-xs text-[hsl(var(--admin-text-muted))] truncate max-w-md">{item.media_url}</p>
                 {/* Headline & CTA preview */}
                 {item.headline && (
-                    <p className="text-[11px] text-zinc-400 mt-1 truncate max-w-md italic">
+                    <p className="text-[11px] text-[hsl(var(--admin-text-muted))] mt-1 truncate max-w-md italic">
                         "{item.headline.replace(/\n/g, ' ')}"
                     </p>
                 )}
                 <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                    <span className="flex items-center gap-1 text-[10px] text-zinc-500">
+                    <span className="flex items-center gap-1 text-[10px] text-[hsl(var(--admin-text-muted))]">
                         <Clock className="w-3 h-3" /> {formatDuration(item.duration_ms)}
                     </span>
                     {item.animation_effect && item.animation_effect !== "none" && (
-                        <span className="flex items-center gap-1 text-[10px] text-amber-400/70 bg-amber-400/5 px-1.5 py-0.5 rounded-full">
+                        <span className="flex items-center gap-1 text-[10px] text-amber-400/70 bg-amber-400/5 px-1.5 py-0.5 rounded-full border border-amber-400/10">
                             <Sparkles className="w-2.5 h-2.5" /> {getEffectLabel(item.animation_effect)}
                         </span>
                     )}
                     {item.cta_text && (
-                        <span className="flex items-center gap-1 text-[10px] text-blue-400/70 bg-blue-400/5 px-1.5 py-0.5 rounded-full">
+                        <span className="flex items-center gap-1 text-[10px] text-blue-400/70 bg-blue-400/5 px-1.5 py-0.5 rounded-full border border-blue-400/10">
                             <MousePointerClick className="w-2.5 h-2.5" /> {item.cta_text}
                         </span>
                     )}
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${item.is_active ? "bg-emerald-500/10 text-emerald-400" : "bg-zinc-800 text-zinc-600"}`}>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${item.is_active ? "bg-[hsl(var(--admin-success))]/10 text-[hsl(var(--admin-success))] border-[hsl(var(--admin-success))]/20" : "bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-muted))] border-[hsl(var(--admin-border))]"}`}>
                         {item.is_active ? "Active" : "Hidden"}
                     </span>
                 </div>
@@ -239,7 +239,7 @@ export function HeroItemDisplay({
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-zinc-500 hover:text-zinc-300"
+                        className="h-8 w-8 text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] hover:bg-[hsl(var(--admin-surface-hover))]"
                         onClick={() => onMoveItem(index, "up")}
                         disabled={index === 0}
                         title="Move up"
@@ -249,7 +249,7 @@ export function HeroItemDisplay({
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-zinc-500 hover:text-zinc-300"
+                        className="h-8 w-8 text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] hover:bg-[hsl(var(--admin-surface-hover))]"
                         onClick={() => onMoveItem(index, "down")}
                         disabled={index === itemsLength - 1}
                         title="Move down"
@@ -259,7 +259,7 @@ export function HeroItemDisplay({
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-zinc-500 hover:text-blue-400"
+                        className="h-8 w-8 text-[hsl(var(--admin-text-muted))] hover:text-blue-400 hover:bg-blue-400/10"
                         onClick={() => onStartEdit(item)}
                         title="Edit"
                     >
@@ -268,7 +268,7 @@ export function HeroItemDisplay({
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-zinc-500 hover:text-red-400"
+                        className="h-8 w-8 text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-danger))] hover:bg-[hsl(var(--admin-danger))]/10"
                         onClick={() => onDeleteClick(item)}
                         title="Delete"
                     >

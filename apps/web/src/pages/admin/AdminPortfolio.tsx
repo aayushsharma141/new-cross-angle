@@ -3,62 +3,33 @@ import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { projectRepo } from "@/repositories";
 import { PortfolioFormDialog } from "@/components/admin/portfolio/PortfolioFormDialog";
-import { Button } from "@/design-system/components/Button";
-import { Input } from "@/design-system/components/Input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/primitives/tabs";
-import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
-import { EmptyState, LoadingState } from "@/design-system/components/states";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/primitives/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/design-system/components/Table";
-import { Badge } from "@/components/ui/primitives/badge";
-import { icons } from "@/design-system/tokens/icons";
-import { Loader2, Plus, Search, Pencil, Trash2, Image as ImageIcon, Star } from "lucide-react";
+import { 
+  AdminPageHeader,
+  AdminMetricsPanel,
+  AdminFilterBar,
+  AdminSafeAction,
+  AdminEmptyState,
+  AdminSkeletonCard
+} from "@/components/admin/shared";
+import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
+import { Pencil, Trash2, Image as ImageIcon, Star, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
-import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { StatusBadge } from "@/components/admin/StatusBadge";
-import { Checkbox } from "@/components/ui/primitives/checkbox";
-import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 import type { ProjectWithCategory } from "@/repositories";
-import { getOptimizedUrl } from "@/lib/cdn";
 import { Image } from "@/components/ui/enhanced/image";
+
+type ProjectFilter = "All" | "Published" | "Drafts" | "Featured";
 
 export default function AdminPortfolio(): JSX.Element {
   const [searchParams] = useSearchParams();
   const editSlug = searchParams.get("edit");
   const deepLinkHandled = useRef(false);
 
-  const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<ProjectFilter>("All");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ProjectWithCategory | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
-  const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Fetch Categories for Filter
-  const { data: categories = [] } = useQuery({
-    queryKey: ["project_categories"],
-    queryFn: () => projectRepo.getCategories(),
-  });
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ["projects"],
@@ -76,77 +47,31 @@ export default function AdminPortfolio(): JSX.Element {
     }
   }, [editSlug, projects]);
 
-  const toggleSelectAll = () => {
-    if (selectedIds.size === filteredProjects.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filteredProjects.map(p => p.id)));
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    const next = new Set(selectedIds);
-    if (next.has(id)) {
-      next.delete(id);
-    } else {
-      next.add(id);
-    }
-    setSelectedIds(next);
-  };
-
-  const handleBulkDelete = async () => {
-    setIsBulkUpdating(true);
-    try {
-      await Promise.all(Array.from(selectedIds).map((id) => projectRepo.deleteProject(id)));
-      toast({ title: "Projects deleted", description: `Successfully deleted ${selectedIds.size} projects.` });
-      setSelectedIds(new Set());
-      void queryClient.invalidateQueries({ queryKey: ["projects"] });
-    } catch (err) {
-      toast({ title: "Error deleting projects", description: (err as Error).message, variant: "destructive" });
-    } finally {
-      setIsBulkUpdating(false);
-      setBulkDeleteConfirmOpen(false);
-    }
-  };
-
-  const handleBulkStatusUpdate = async (status: 'live' | 'draft') => {
-    setIsBulkUpdating(true);
-    try {
-      await projectRepo.bulkUpdateStatus(Array.from(selectedIds), status);
-      toast({ title: "Projects updated", description: `Successfully marked ${selectedIds.size} projects as ${status === 'live' ? 'published' : 'draft'}.` });
-      setSelectedIds(new Set());
-      void queryClient.invalidateQueries({ queryKey: ["projects"] });
-    } catch (err) {
-      toast({ title: "Error updating projects", description: (err as Error).message, variant: "destructive" });
-    } finally {
-      setIsBulkUpdating(false);
-    }
-  };
-
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
-      const searchTerm = search.toLowerCase();
-      const matchesSearch =
-        project.title.toLowerCase().includes(searchTerm) ||
-        (project.client_name?.toLowerCase().includes(searchTerm) ?? false);
-
-      const matchesCategory =
-        categoryFilter === "All" || project.category_id === categoryFilter;
-
-      const statusToCheck = statusFilter === "published" ? "live" : statusFilter;
-      const matchesStatus =
-        statusFilter === "all" || (project.status || "draft") === statusToCheck;
-
-      return matchesSearch && matchesCategory && matchesStatus;
+      if (statusFilter === "Published") return project.status === "live";
+      if (statusFilter === "Drafts") return project.status !== "live";
+      if (statusFilter === "Featured") return project.featured;
+      return true; // "All"
     });
-  }, [projects, search, categoryFilter, statusFilter]);
+  }, [projects, statusFilter]);
+
+  const activeCount = projects.filter(p => p.status === 'live').length;
+  const draftCount = projects.length - activeCount;
+  const featuredCount = projects.filter(p => p.featured).length;
+
+  const metrics = [
+    { label: "Total Projects", value: String(projects.length), dotColor: "info" as const },
+    { label: "Published", value: String(activeCount), dotColor: "success" as const },
+    { label: "Drafts", value: String(draftCount), dotColor: draftCount > 0 ? "warning" as const : "success" as const },
+    { label: "Featured", value: String(featuredCount), dotColor: "accent" as const },
+  ];
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => projectRepo.deleteProject(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["projects"] });
       toast({ title: "Project Deleted", description: "Project has been removed." });
-      setDeleteId(null);
     },
     onError: (err: Error) => {
       toast({ variant: "destructive", title: "Error", description: err.message });
@@ -164,177 +89,150 @@ export default function AdminPortfolio(): JSX.Element {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 py-4 animate-in fade-in duration-700">
-      <ModuleActions>
-        <Button onClick={handleCreate} variant="primary" className="rounded-xl shadow-lg shadow-primary/20">
-          <Plus className={`${icons.sm} mr-2`} /> Add Project
-        </Button>
-      </ModuleActions>
+    <div className="w-full font-mono">
+      <style>{`
+          @keyframes fadeUp {
+              from { opacity: 0; transform: translateY(12px); }
+              to { opacity: 1; transform: translateY(0); }
+          }
+          .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+          .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+          .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+          .fade-up-4 { animation: fadeUp var(--anim-duration) var(--anim-stagger-4) var(--anim-ease) both; }
+      `}</style>
+      
+      <AdminPageHeader moduleName="CMS" tabName="Portfolio" />
 
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-zinc-900/40 border border-zinc-800/50 backdrop-blur-md p-4 rounded-2xl">
-        <div className="flex flex-1 w-full gap-4 items-center flex-wrap">
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-            <Input
-              placeholder="Search projects..."
-              className="pl-10 bg-black/40 border-zinc-700/50 focus:border-primary/50 transition-all rounded-xl"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-[180px] bg-black/40 border-zinc-700/50 rounded-xl h-10 text-zinc-300">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent className="bg-zinc-900 border-zinc-800">
-              <SelectItem value="All">All Categories</SelectItem>
-              {categories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Tabs
-            value={statusFilter}
-            onValueChange={setStatusFilter}
-            className="w-[300px]"
-          >
-            <TabsList className="grid w-full grid-cols-3 bg-black/40 border border-zinc-700/50 rounded-xl p-1">
-              <TabsTrigger value="all" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-lg transition-all">All</TabsTrigger>
-              <TabsTrigger value="published" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-lg transition-all">Published</TabsTrigger>
-              <TabsTrigger value="draft" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary rounded-lg transition-all">Drafts</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
+      <div className="fade-up-1">
+          <AdminMetricsPanel metrics={metrics} />
       </div>
 
-      {isLoading ? (
-        <LoadingState text="Loading projects…" />
-      ) : (
-        <div className="rounded-xl border border-zinc-800/50 bg-zinc-900/30 backdrop-blur-md overflow-hidden shadow-2xl">
-          <Table>
-            <TableHeader className="bg-zinc-900/50 border-b border-zinc-800">
-              <TableRow className="border-zinc-800 hover:bg-transparent text-zinc-500">
-                <TableHead className="w-[40px]">
-                  <Checkbox
-                    checked={selectedIds.size === filteredProjects.length && filteredProjects.length > 0}
-                    onCheckedChange={toggleSelectAll}
-                  />
-                </TableHead>
-                <TableHead className="w-[80px]">Image</TableHead>
-                <TableHead>Project Title</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Year</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Featured</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredProjects.length === 0 ? (
-                <TableRow className="border-white/10 hover:bg-white/5">
-                  <TableCell colSpan={8} className="p-0">
-                    <EmptyState
-                      icon={ImageIcon}
-                      title="No projects found"
-                      description="You haven't added any projects yet, or none match your search."
-                      action={
-                        <Button onClick={handleCreate} variant="outline">
-                          <Plus className={`${icons.sm} mr-2`} />
-                          Add Project
-                        </Button>
-                      }
-                      className="border-0 rounded-none bg-transparent"
-                    />
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredProjects.map((item) => (
-                  <TableRow key={item.id} className="border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedIds.has(item.id)}
-                        onCheckedChange={() => toggleSelect(item.id)}
-                        className="border-zinc-700 data-[state=checked]:bg-primary data-[state=checked]:text-white rounded-md transition-all"
+      <div className="fade-up-2">
+          <AdminFilterBar 
+              title="Portfolio Projects"
+              icon={Briefcase}
+              badgeCount={activeCount > 0 ? `${activeCount} published` : undefined}
+              filters={["All", "Published", "Drafts", "Featured"]}
+              activeFilter={statusFilter}
+              onFilterChange={(f) => setStatusFilter(f as ProjectFilter)}
+          />
+      </div>
+
+      <div className="flex flex-col gap-[10px]">
+        {isLoading ? (
+          <>
+            <AdminSkeletonCard size="lg" />
+            <AdminSkeletonCard size="lg" />
+            <AdminSkeletonCard size="lg" />
+          </>
+        ) : filteredProjects.length === 0 ? (
+          <div className="fade-up-3 mt-4">
+              <AdminEmptyState 
+                  icon={ImageIcon}
+                  title="No projects found"
+                  description="You don't have any portfolio projects matching this filter yet."
+              />
+          </div>
+        ) : (
+          filteredProjects.map((item, i) => {
+            const delayClass = `fade-up-${Math.min((i % 4) + 1, 4)}`;
+
+            return (
+              <div key={item.id} className={`${delayClass} group`}>
+                <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-xl p-5 hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200 grid grid-cols-[80px_1fr_auto] gap-5 items-center">
+                  
+                  {/* Image */}
+                  <div className="w-[80px] h-[60px] rounded-lg bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex items-center justify-center shrink-0 overflow-hidden relative">
+                    {item.cover_image_url ? (
+                      <Image
+                        src={item.cover_image_url}
+                        alt={item.title}
+                        width={160}
+                        quality={72}
+                        imageClassName="w-full h-full object-cover"
                       />
-                    </TableCell>
-                    <TableCell>
-                      <div className="w-12 h-12 rounded overflow-hidden relative border border-zinc-800 bg-black/40">
-                        {item.cover_image_url ? (
-                          <Image
-                            src={item.cover_image_url}
-                            alt={item.title}
-                            width={160}
-                            quality={72}
-                            imageClassName="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <ImageIcon className={`${icons.sm} text-zinc-700`} />
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className="font-bold text-zinc-200 tracking-tight">{item.title}</span>
-                        {item.client_name && (
-                          <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-medium">
-                            {item.client_name}
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="capitalize bg-zinc-800/50 border-zinc-700 text-zinc-400 font-bold text-[10px]">
-                        {item.project_categories?.name || "Uncategorized"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-zinc-300 font-medium">
-                      {item.year_completed || "N/A"}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={item.status === 'live' ? 'published' : 'draft'} />
-                    </TableCell>
-                    <TableCell>
-                      {item.featured ? (
-                        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-bold text-[10px] uppercase tracking-widest">
-                          <Star className={`${icons.xs} mr-1.5 fill-primary`} /> Featured
-                        </Badge>
-                      ) : (
-                        <span className="text-zinc-700 text-xs">-</span>
+                    ) : (
+                      <ImageIcon className="w-6 h-6 text-[hsl(var(--admin-text-muted))]" />
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2.5 mb-1 flex-wrap">
+                      <span className="text-[16px] font-bold text-[hsl(var(--admin-text))]">
+                        {item.title}
+                      </span>
+                      
+                      {item.featured && (
+                        <span className="bg-[hsl(var(--admin-accent)/0.1)] border border-[hsl(var(--admin-accent)/0.2)] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-accent))] tracking-wide uppercase flex items-center gap-1">
+                          <Star className="w-3 h-3 fill-current" />
+                          Featured
+                        </span>
                       )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`Edit ${item.title}`}
-                          onClick={() => handleEdit(item)}
-                          className="hover:bg-primary/10 text-zinc-400 hover:text-primary transition-colors"
-                        >
-                          <Pencil className={icons.sm} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label={`Delete ${item.title}`}
-                          onClick={() => setDeleteId(item.id)}
-                          className="hover:bg-red-500/10 text-zinc-600 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 className={icons.sm} />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+
+                      {item.status === 'live' ? (
+                        <span className="bg-[hsl(var(--admin-success)/0.12)] border border-[hsl(var(--admin-success)/0.25)] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-success))] tracking-wide uppercase flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--admin-success))] shadow-[0_0_4px_hsl(var(--admin-success))]" />
+                          Published
+                        </span>
+                      ) : (
+                        <span className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] tracking-wide uppercase">
+                          Draft
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="text-[13px] text-[hsl(var(--admin-text-muted))] flex gap-3 items-center mt-2">
+                      {item.client_name && (
+                        <span className="flex items-center">
+                          Client: <strong className="ml-1 text-[hsl(var(--admin-text))]">{item.client_name}</strong>
+                        </span>
+                      )}
+                      
+                      <span className="bg-[hsl(var(--admin-surface))] px-2 py-0.5 rounded text-[11px] font-medium text-[hsl(var(--admin-text))] capitalize border border-[hsl(var(--admin-border))]">
+                        {item.project_categories?.name || "Uncategorized"}
+                      </span>
+                      
+                      {item.year_completed && (
+                        <span>Year: <strong className="text-[hsl(var(--admin-text))]">{item.year_completed}</strong></span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => handleEdit(item)}
+                      className="px-2.5 py-2 rounded-[7px] text-[12px] font-normal bg-transparent border border-transparent text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-150 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Pencil className="w-[13px] h-[13px]" />
+                      Edit
+                    </button>
+                    
+                    <AdminSafeAction
+                      icon={Trash2}
+                      label="Delete"
+                      confirmLabel="Delete project?"
+                      onConfirm={async () => {
+                        await deleteMutation.mutateAsync(item.id);
+                      }}
+                      danger
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {!isLoading && (
+          <div className="fade-up-4 mt-[10px]">
+              <AdminAddCard 
+                  label="Add a new project"
+                  onClick={handleCreate}
+              />
+          </div>
       )}
 
       <PortfolioFormDialog
@@ -342,40 +240,9 @@ export default function AdminPortfolio(): JSX.Element {
         onOpenChange={setIsFormOpen}
         initialData={editingItem}
         onSuccess={() => {
-          queryClient.invalidateQueries({ queryKey: ["projects"] });
+          void queryClient.invalidateQueries({ queryKey: ["projects"] });
           setIsFormOpen(false);
         }}
-      />
-
-      <ConfirmDialog
-        open={!!deleteId}
-        onOpenChange={(open) => !open && setDeleteId(null)}
-        title="Delete Project?"
-        description="This action cannot be undone. The project will be permanently removed from the showcase."
-        onConfirm={() => deleteId && deleteMutation.mutate(deleteId)}
-        variant="destructive"
-        confirmText="Delete"
-      />
-
-      <BulkActionsToolbar
-        selectedCount={selectedIds.size}
-        label="projects"
-        onClear={() => setSelectedIds(new Set())}
-        onDelete={() => setBulkDeleteConfirmOpen(true)}
-        onPublish={() => handleBulkStatusUpdate('live')}
-        onArchive={() => handleBulkStatusUpdate('draft')}
-        isUpdating={isBulkUpdating}
-        isDeleting={isBulkUpdating}
-      />
-
-      <ConfirmDialog
-        open={bulkDeleteConfirmOpen}
-        onOpenChange={setBulkDeleteConfirmOpen}
-        title={`Delete ${selectedIds.size} Projects?`}
-        description="This action cannot be undone. All selected projects will be permanently removed from the portfolio."
-        onConfirm={() => void handleBulkDelete()}
-        variant="destructive"
-        confirmText="Delete All"
       />
     </div>
   );

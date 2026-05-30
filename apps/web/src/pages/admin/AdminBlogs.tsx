@@ -74,7 +74,7 @@ const AdminBlogs = () => {
       </ModuleActions>
 
       {activeTab === "all" ? (
-        <BlogList refreshTrigger={refreshTrigger} onEdit={handleEdit} />
+        <BlogList refreshTrigger={refreshTrigger} onEdit={handleEdit} onNew={handleNew} />
       ) : (
         <BlogEditorForm
           post={editingPost}

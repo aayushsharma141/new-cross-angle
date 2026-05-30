@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import { Save, Plus, Trash2, Pencil, X, Check, GripVertical, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AdminFormCard } from "@/components/admin/shared";
 import {
   DndContext,
   closestCenter,
@@ -228,36 +229,35 @@ export function MaterialsEditor() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="text-sm font-bold text-[hsl(var(--admin-text))]">
+      <AdminFormCard
+        title={
+          <>
             Material Options
             <span className="ml-2 text-[10px] font-normal text-[hsl(var(--admin-text-muted))] bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-full px-2 py-0.5">
               {items.length}
             </span>
-          </h3>
-          <p className="text-[10px] text-[hsl(var(--admin-text-muted))] mt-0.5">
-            Tactile texture choices in Step 5 — drag to reorder
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={addItem} className="h-7 text-xs gap-1">
-            <Plus className="w-3.5 h-3.5" />
-            Add
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleSave}
-            disabled={!dirty || isSaving}
-            className="h-7 text-xs gap-1.5 bg-[hsl(var(--admin-primary))] text-black hover:bg-[hsl(var(--admin-primary))]/90"
-          >
-            {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
-            Save
-          </Button>
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] overflow-hidden">
+          </>
+        }
+        description="Tactile texture choices in Step 5 — drag to reorder"
+        contentClassName="p-0"
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={addItem} className="h-7 text-xs gap-1 border-[hsl(var(--admin-border))] bg-transparent hover:bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text))]">
+              <Plus className="w-3.5 h-3.5" />
+              Add
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSave}
+              disabled={!dirty || isSaving}
+              className="h-7 text-xs gap-1.5 bg-[hsl(var(--admin-primary))] text-black hover:bg-[hsl(var(--admin-primary))]/90"
+            >
+              {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+              Save
+            </Button>
+          </div>
+        }
+      >
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={items.map((i) => i._id)} strategy={verticalListSortingStrategy}>
             {items.map((item) => (
@@ -280,7 +280,7 @@ export function MaterialsEditor() {
             No materials configured — click Add to create one
           </p>
         )}
-      </div>
+      </AdminFormCard>
     </div>
   );
 }

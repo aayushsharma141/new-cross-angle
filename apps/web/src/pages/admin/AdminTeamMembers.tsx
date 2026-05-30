@@ -12,16 +12,15 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-    DialogFooter,
 } from "@/components/ui/primitives/dialog";
 import { Image } from "@/components/ui/enhanced/image";
-import { Loader2, Plus, Edit2, Trash2, Shield } from "lucide-react";
-import { getOptimizedUrl } from "@/lib/cdn";
+import { Loader2, Plus, Edit2, Trash2, Users, Image as ImageIcon, FileText, Star } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { Card } from "@/design-system/components/Card";
 import { icons } from "@/design-system/tokens/icons";
 import { auditService } from "@/services/AuditService";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
+import { AdminPageHeader, AdminMetricsPanel, AdminSkeletonCard } from "@/components/admin/shared";
 
 interface TeamMember {
     id: string;
@@ -112,8 +111,27 @@ export default function AdminTeamMembers() {
         upsertMutation.mutate(new FormData(e.currentTarget));
     };
 
+    const topRole = members.length ? (
+        Object.entries(members.reduce((acc, m) => {
+            acc[m.role] = (acc[m.role] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>)).sort((a,b) => b[1] - a[1])[0][0]
+    ) : "—";
+
     return (
-        <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
+        <div className="w-full font-mono fade-up-1">
+            <style>{`
+                @keyframes fadeUp {
+                    from { opacity: 0; transform: translateY(12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+                .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+                .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+            `}</style>
+            
+            <AdminPageHeader moduleName="System" tabName="Team Members" />
+
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
                 setIsDialogOpen(open);
                 if (!open) setEditingMember(null);
@@ -125,9 +143,9 @@ export default function AdminTeamMembers() {
                         </Button>
                     </DialogTrigger>
                 </ModuleActions>
-                <DialogContent className="max-w-md max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl border-zinc-800">
-                    <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
-                        <DialogTitle className="text-lg font-display">{editingMember ? "Edit" : "Add"} Team Member</DialogTitle>
+                <DialogContent className="max-w-md max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl bg-[hsl(var(--admin-background))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]">
+                    <DialogHeader className="px-6 pt-6 pb-4 border-b border-[hsl(var(--admin-border-subtle))] shrink-0">
+                        <DialogTitle className="text-lg font-bold">{editingMember ? "Edit" : "Add"} Team Member</DialogTitle>
                     </DialogHeader>
                         <form key={editingMember?.id ?? "new"} onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
                             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
@@ -153,8 +171,8 @@ export default function AdminTeamMembers() {
                                 </div>
 
                             </div>
-                            <div className="shrink-0 px-6 py-4 border-t border-zinc-800">
-                                <Button type="submit" variant="primary" disabled={upsertMutation.isPending} className="w-full">
+                            <div className="shrink-0 px-6 py-4 border-t border-[hsl(var(--admin-border-subtle))]">
+                                <Button type="submit" variant="primary" disabled={upsertMutation.isPending} className="w-full bg-[hsl(var(--admin-primary))] text-black hover:bg-[hsl(var(--admin-primary))]/90 font-bold border-none">
                                     {upsertMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                     Save Changes
                                 </Button>
@@ -163,7 +181,25 @@ export default function AdminTeamMembers() {
                     </DialogContent>
                 </Dialog>
 
-            <Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md overflow-hidden shadow-2xl">
+            <div className="fade-up-2">
+                <AdminMetricsPanel 
+                    metrics={[
+                        { label: "Total Members", value: members.length.toString(), icon: Users },
+                        { label: "With Photos", value: members.filter(m => m.image_url).length.toString(), icon: ImageIcon },
+                        { label: "Missing Bio", value: members.filter(m => !m.bio).length.toString(), icon: FileText },
+                        { label: "Top Role", value: topRole, icon: Star }
+                    ]} 
+                />
+            </div>
+
+            <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] overflow-hidden shadow-2xl mt-6 fade-up-3">
+                {isLoading ? (
+                    <div className="grid gap-4 p-6">
+                        <AdminSkeletonCard size="sm" />
+                        <AdminSkeletonCard size="sm" />
+                        <AdminSkeletonCard size="sm" />
+                    </div>
+                ) : (
                 <DataTable
                     data={members}
                     isLoading={isLoading}
@@ -221,6 +257,7 @@ export default function AdminTeamMembers() {
                         }
                     ]}
                 />
+                )}
             </Card>
         </div>
     );

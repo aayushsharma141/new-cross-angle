@@ -1,43 +1,36 @@
 import { useState, useEffect, useMemo } from "react";
-import { Loader2, Pencil, Trash2, Star, Search, Image as ImageIcon } from "lucide-react";
-import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
-import { Checkbox } from "@/components/ui/primitives/checkbox";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/design-system/components/Table";
-import { StatusBadge } from "@/components/admin/StatusBadge";
-import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
-import { Image } from "@/components/ui/enhanced/image";
+import { Pencil, Trash2, Star, Image as ImageIcon, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { auditService } from "@/services/AuditService";
 import { useToast } from "@/hooks/useToast";
-import { icons } from "@/design-system/tokens/icons";
 import { BlogPost, BlogStatus } from "@/types/blog";
+import { Image } from "@/components/ui/enhanced/image";
+import { 
+  AdminFilterBar,
+  AdminSafeAction,
+  AdminEmptyState,
+  AdminSkeletonCard,
+  AdminMetricsPanel
+} from "@/components/admin/shared";
+import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 
 interface BlogListProps {
   refreshTrigger: number;
   onEdit: (post: BlogPost) => void;
+  onNew: () => void;
 }
 
-export function BlogList({ refreshTrigger, onEdit }: BlogListProps) {
+export function BlogList({ refreshTrigger, onEdit, onNew }: BlogListProps) {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<BlogStatus | "all">("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
-  const itemsPerPage = 10;
+  const [statusFilter, setStatusFilter] = useState<BlogStatus | "All">("All");
   const { toast } = useToast();
 
   useEffect(() => {
     fetchPosts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshTrigger]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [posts, searchQuery, statusFilter]);
 
   const fetchPosts = async () => {
     setIsLoading(true);
@@ -49,83 +42,20 @@ export function BlogList({ refreshTrigger, onEdit }: BlogListProps) {
     if (error) {
       toast({ title: "Error fetching posts", description: error.message, variant: "destructive" });
     } else if (data) {
-      setPosts(data);
+      setPosts(data as BlogPost[]);
     }
     setIsLoading(false);
   };
 
   const filteredPosts = useMemo(() => {
     let filtered = [...posts];
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(post => 
-        post.title.toLowerCase().includes(query) ||
-        post.excerpt?.toLowerCase().includes(query)
-      );
-    }
-    if (statusFilter !== "all") {
-      filtered = filtered.filter(post => post.status === statusFilter);
+    if (statusFilter !== "All") {
+      filtered = filtered.filter(post => post.status.toLowerCase() === statusFilter.toLowerCase());
     }
     return filtered;
-  }, [posts, searchQuery, statusFilter]);
-
-  const toggleSelectAll = () => {
-    if (selectedIds.size === filteredPosts.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filteredPosts.map(p => p.id)));
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    const next = new Set(selectedIds);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    setSelectedIds(next);
-  };
-
-  const handleBulkDelete = async () => {
-    if (!confirm(`Are you sure you want to delete ${selectedIds.size} posts?`)) return;
-    setIsBulkUpdating(true);
-    const { error } = await supabase.from('blog_posts').delete().in('id', Array.from(selectedIds));
-
-    if (error) {
-      toast({ title: "Error deleting posts", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Posts deleted", description: `Successfully deleted ${selectedIds.size} posts.` });
-      setSelectedIds(new Set());
-      fetchPosts();
-    }
-    setIsBulkUpdating(false);
-  };
-
-  const handleBulkStatusUpdate = async (status: BlogStatus) => {
-    setIsBulkUpdating(true);
-    const ids = Array.from(selectedIds);
-    const updatePayload = {
-      status,
-      published_at: status === 'published' ? new Date().toISOString() : null
-    };
-
-    const { error } = await supabase.from('blog_posts').update(updatePayload).in('id', ids);
-
-    if (error) {
-      toast({ title: "Error updating status", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Status updated", description: `Successfully updated ${selectedIds.size} posts to ${status}.` });
-      void Promise.all(
-        Array.from(selectedIds).map(id =>
-          auditService.writeAudit('STATUS_CHANGE', 'blog', id, { new_status: status, bulk: true })
-        )
-      );
-      setSelectedIds(new Set());
-      fetchPosts();
-    }
-    setIsBulkUpdating(false);
-  };
+  }, [posts, statusFilter]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
     const { error } = await supabase.from('blog_posts').delete().eq('id', id);
 
     if (error) {
@@ -137,171 +67,159 @@ export function BlogList({ refreshTrigger, onEdit }: BlogListProps) {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className={`${icons.xl} animate-spin text-[hsl(var(--admin-primary))]`} />
-      </div>
-    );
-  }
+  const activeCount = posts.filter(p => p.status === 'published').length;
+  const draftCount = posts.filter(p => p.status === 'draft').length;
+  const reviewCount = posts.filter(p => p.status === 'review').length;
+
+  const metrics = [
+    { label: "Total Posts", value: String(posts.length), dotColor: "info" as const },
+    { label: "Published", value: String(activeCount), dotColor: "success" as const },
+    { label: "Drafts", value: String(draftCount), dotColor: draftCount > 0 ? "warning" as const : "success" as const },
+    { label: "In Review", value: String(reviewCount), dotColor: reviewCount > 0 ? "accent" as const : "success" as const },
+  ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search posts..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))]"
-          />
-        </div>
-        <select
-          aria-label="Filter by status"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as BlogStatus | "all")}
-          className="h-10 rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] px-3 py-2 text-sm text-[hsl(var(--admin-text))]"
-        >
-          <option value="all">All Status</option>
-          <option value="draft">Draft</option>
-          <option value="review">In Review</option>
-          <option value="published">Published</option>
-        </select>
+    <div className="w-full font-mono">
+      <style>{`
+          @keyframes fadeUp {
+              from { opacity: 0; transform: translateY(12px); }
+              to { opacity: 1; transform: translateY(0); }
+          }
+          .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+          .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+          .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+          .fade-up-4 { animation: fadeUp var(--anim-duration) var(--anim-stagger-4) var(--anim-ease) both; }
+      `}</style>
+
+      <div className="fade-up-1">
+          <AdminMetricsPanel metrics={metrics} />
       </div>
 
-      {selectedIds.size > 0 && (
-        <BulkActionsToolbar
-          selectedCount={selectedIds.size}
-          onClear={() => setSelectedIds(new Set())}
-          onDelete={handleBulkDelete}
-          onPublish={() => handleBulkStatusUpdate('published')}
-          isDeleting={isBulkUpdating}
-        />
-      )}
+      <div className="fade-up-2">
+          <AdminFilterBar 
+              title="Blog Posts"
+              icon={FileText}
+              badgeCount={activeCount > 0 ? `${activeCount} published` : undefined}
+              filters={["All", "Published", "Draft", "Review"]}
+              activeFilter={statusFilter}
+              onFilterChange={(f) => setStatusFilter(f as BlogStatus | "All")}
+          />
+      </div>
 
-      <div className="rounded-xl border border-[hsl(var(--admin-border))]/50 bg-[hsl(var(--admin-surface))]/30 backdrop-blur-md overflow-hidden shadow-xl">
-        <Table>
-          <TableHeader className="bg-[hsl(var(--admin-surface))]/50 border-b border-[hsl(var(--admin-border))]">
-            <TableRow className="border-none hover:bg-transparent text-[hsl(var(--admin-muted))] uppercase text-[10px] font-bold tracking-widest">
-              <TableHead className="w-[40px]">
-                <Checkbox
-                  checked={selectedIds.size === filteredPosts.length && filteredPosts.length > 0}
-                  onCheckedChange={toggleSelectAll}
-                  className="border-[hsl(var(--admin-border))]"
-                />
-              </TableHead>
-              <TableHead className="w-[80px]">Cover</TableHead>
-              <TableHead>Post Title</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Featured</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredPosts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((post) => (
-              <TableRow key={post.id} className="border-b border-[hsl(var(--admin-border))]/30 hover:bg-[hsl(var(--admin-surface))]/40">
-                <TableCell>
-                  <Checkbox
-                    checked={selectedIds.has(post.id)}
-                    onCheckedChange={() => toggleSelect(post.id)}
-                    className="border-[hsl(var(--admin-border))]"
-                  />
-                </TableCell>
-                <TableCell>
-                  {post.cover_image_url ? (
-                    <Image 
-                      src={post.cover_image_url} 
-                      alt={post.title} 
-                      className="h-12 w-16 rounded border border-[hsl(var(--admin-border))]/50" 
-                      imageClassName="object-cover"
-                      width={160}
-                      quality={70}
-                    />
-                  ) : (
-                    <div className="h-12 w-16 bg-[hsl(var(--admin-surface))] rounded flex items-center justify-center border border-[hsl(var(--admin-border))]/50">
-                      <ImageIcon className="w-4 h-4 text-[hsl(var(--admin-muted))]" />
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <div className="font-medium text-[hsl(var(--admin-text))]">{post.title}</div>
-                  <div className="text-xs text-[hsl(var(--admin-muted))] font-mono">/{post.slug}</div>
-                </TableCell>
-                <TableCell>
-                  <StatusBadge status={post.status as "draft" | "published" | "archived"} />
-                </TableCell>
-                <TableCell>
-                  {post.featured ? (
-                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                  ) : (
-                    <span className="text-[hsl(var(--admin-muted))]">-</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-[hsl(var(--admin-muted))] text-sm">
-                  {post.published_at 
-                    ? format(new Date(post.published_at), 'MMM d, yyyy')
-                    : format(new Date(post.created_at ?? new Date()), 'MMM d, yyyy')
-                  }
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onEdit(post)}
-                      className="hover:bg-[hsl(var(--admin-primary))]/10 hover:text-[hsl(var(--admin-primary))]"
-                    >
-                      <Pencil className={`${icons.sm}`} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(post.id)}
-                      className="hover:bg-[hsl(var(--admin-danger))]/10 hover:text-[hsl(var(--admin-danger))]"
-                    >
-                      <Trash2 className={`${icons.sm} text-[hsl(var(--admin-danger))]`} />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        
-        {filteredPosts.length === 0 ? (
-          <div className="text-center py-12 text-[hsl(var(--admin-muted))]">
-            No posts found. {searchQuery || statusFilter !== "all" ? "Try adjusting your filters." : "Create your first post!"}
+      <div className="flex flex-col gap-[10px] mt-[10px]">
+        {isLoading ? (
+          <>
+            <AdminSkeletonCard size="md" />
+            <AdminSkeletonCard size="md" />
+            <AdminSkeletonCard size="md" />
+          </>
+        ) : filteredPosts.length === 0 ? (
+          <div className="fade-up-3 mt-4">
+              <AdminEmptyState 
+                  icon={FileText}
+                  title="No posts found"
+                  description="You don't have any blog posts matching this filter yet."
+              />
           </div>
         ) : (
-          <div className="flex items-center justify-between px-4 py-4 border-t border-[hsl(var(--admin-border))]/50 bg-[hsl(var(--admin-surface))]/20">
-            <div className="text-sm text-[hsl(var(--admin-muted))]">
-              Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredPosts.length)} to {Math.min(currentPage * itemsPerPage, filteredPosts.length)} of {filteredPosts.length} entries
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="border-[hsl(var(--admin-border))] bg-transparent"
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredPosts.length / itemsPerPage), p + 1))}
-                disabled={currentPage >= Math.ceil(filteredPosts.length / itemsPerPage)}
-                className="border-[hsl(var(--admin-border))] bg-transparent"
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+          filteredPosts.map((post, i) => {
+            const delayClass = `fade-up-${Math.min((i % 4) + 1, 4)}`;
+
+            return (
+              <div key={post.id} className={`${delayClass} group`}>
+                <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-xl p-5 hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200 grid grid-cols-[80px_1fr_auto] gap-5 items-center">
+                  
+                  {/* Image */}
+                  <div className="w-[80px] h-[60px] rounded-lg bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex items-center justify-center shrink-0 overflow-hidden relative">
+                    {post.cover_image_url ? (
+                      <Image
+                        src={post.cover_image_url}
+                        alt={post.title}
+                        width={160}
+                        quality={72}
+                        imageClassName="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <ImageIcon className="w-6 h-6 text-[hsl(var(--admin-text-muted))]" />
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2.5 mb-1 flex-wrap">
+                      <span className="text-[15px] font-bold text-[hsl(var(--admin-text))]">
+                        {post.title}
+                      </span>
+                      
+                      {post.featured && (
+                        <span className="bg-[hsl(var(--admin-accent)/0.1)] border border-[hsl(var(--admin-accent)/0.2)] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-accent))] tracking-wide uppercase flex items-center gap-1">
+                          <Star className="w-3 h-3 fill-current" />
+                          Featured
+                        </span>
+                      )}
+
+                      {post.status === 'published' ? (
+                        <span className="bg-[hsl(var(--admin-success)/0.12)] border border-[hsl(var(--admin-success)/0.25)] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-success))] tracking-wide uppercase flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--admin-success))] shadow-[0_0_4px_hsl(var(--admin-success))]" />
+                          Published
+                        </span>
+                      ) : post.status === 'review' ? (
+                        <span className="bg-[hsl(var(--admin-warning)/0.12)] border border-[hsl(var(--admin-warning)/0.25)] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-warning))] tracking-wide uppercase flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--admin-warning))] shadow-[0_0_4px_hsl(var(--admin-warning))]" />
+                          In Review
+                        </span>
+                      ) : (
+                        <span className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] tracking-wide uppercase">
+                          Draft
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="text-[13px] text-[hsl(var(--admin-text-muted))] truncate max-w-2xl mt-1.5">
+                      /{post.slug}
+                    </div>
+
+                    <div className="text-[12px] text-[hsl(var(--admin-text-muted))] mt-1.5">
+                      {post.published_at 
+                        ? `Published: ${format(new Date(post.published_at), 'MMM d, yyyy')}`
+                        : `Created: ${format(new Date(post.created_at ?? new Date()), 'MMM d, yyyy')} `
+                      }
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => onEdit(post)}
+                      className="px-2.5 py-2 rounded-[7px] text-[12px] font-normal bg-transparent border border-transparent text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-150 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Pencil className="w-[13px] h-[13px]" />
+                      Edit
+                    </button>
+                    
+                    <AdminSafeAction
+                      icon={Trash2}
+                      label="Delete"
+                      confirmLabel="Delete post?"
+                      onConfirm={() => handleDelete(post.id)}
+                      danger
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
+
+      {!isLoading && (
+          <div className="fade-up-4 mt-[10px]">
+              <AdminAddCard 
+                  label="Add a new post"
+                  onClick={onNew}
+              />
+          </div>
+      )}
     </div>
   );
 }

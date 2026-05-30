@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
+import { AdminPageHeader, AdminMetricsPanel } from "@/components/admin/shared";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import {
     BarChart,
     Bar,
@@ -115,57 +117,55 @@ export default function AdminBlogEngagement() {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <RefreshCw className="w-6 h-6 animate-spin text-primary" />
+                <RefreshCw className="w-6 h-6 animate-spin text-[hsl(var(--admin-primary))]" />
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-700">
-            {/* KPI Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {[
-                    { icon: BarChart3, label: "Total Events", value: totalEvents.toLocaleString(), color: "blue" },
-                    { icon: MousePointerClick, label: "CTA Clicks", value: ctaClicks.toLocaleString(), color: "emerald" },
-                    { icon: Share2, label: "Share Clicks", value: shareClicks.toLocaleString(), color: "amber" },
-                    { icon: Mail, label: "Newsletter Sign-ups", value: newsletterSignups.toLocaleString(), color: "pink" },
-                ].map((kpi) => (
-                    <Card key={kpi.label} className="bg-zinc-900/40 border-zinc-800/50 backdrop-blur-md overflow-hidden relative group">
-                        <div className={`absolute top-0 left-0 w-1 h-full bg-${kpi.color}-500/50 group-hover:bg-${kpi.color}-500 transition-colors`} />
-                        <CardContent className="p-5">
-                            <div className="flex justify-between items-start">
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{kpi.label}</p>
-                                    <h3 className="text-xl font-serif font-bold text-white">{kpi.value}</h3>
-                                </div>
-                                <div className={cn("p-2 rounded-xl bg-zinc-900 border border-zinc-800", `text-${kpi.color}-500`)}>
-                                    <kpi.icon size={16} strokeWidth={1.5} />
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-
-            <div className="flex justify-end">
-                <Button variant="outline" size="sm" onClick={loadData} disabled={refreshing} className="gap-2 border-zinc-800 text-zinc-400">
+        <div className="w-full font-mono">
+            <style>{`
+                @keyframes fadeUp {
+                    from { opacity: 0; transform: translateY(12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+                .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+                .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+            `}</style>
+            
+            <AdminPageHeader moduleName="Blog" tabName="Engagement" />
+            
+            <ModuleActions>
+                <Button variant="outline" size="sm" onClick={loadData} disabled={refreshing} className="gap-2 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))]">
                     <RefreshCw className={cn("w-3.5 h-3.5", refreshing && "animate-spin")} />
                     Refresh
                 </Button>
+            </ModuleActions>
+
+            <div className="fade-up-1">
+                <AdminMetricsPanel 
+                    metrics={[
+                        { label: "Total Events", value: totalEvents.toLocaleString(), icon: BarChart3 },
+                        { label: "CTA Clicks", value: ctaClicks.toLocaleString(), icon: MousePointerClick },
+                        { label: "Share Clicks", value: shareClicks.toLocaleString(), icon: Share2 },
+                        { label: "Newsletter Sign-ups", value: newsletterSignups.toLocaleString(), icon: Mail }
+                    ]} 
+                />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-8 fade-up-2">
                 {/* Daily Events Bar Chart */}
-                <Card className="lg:col-span-3 bg-zinc-900/30 border-zinc-800/50 backdrop-blur-md">
+                <Card className="lg:col-span-3 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">
                     <CardHeader>
-                        <CardTitle className="text-sm font-serif font-semibold text-zinc-200 flex items-center gap-2">
-                            <BarChart3 className="text-primary w-4 h-4" />
+                        <CardTitle className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">
+                            <BarChart3 className="text-[hsl(var(--admin-primary))] w-4 h-4" />
                             Daily Engagement (Last 30 Days)
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="h-[300px]">
                         {dailyEvents.length === 0 ? (
-                            <div className="flex items-center justify-center h-full text-zinc-600 text-sm">
+                            <div className="flex items-center justify-center h-full text-[hsl(var(--admin-text-muted))] text-sm">
                                 No engagement data captured yet.
                             </div>
                         ) : (
@@ -176,11 +176,11 @@ export default function AdminBlogEngagement() {
                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 10 }} />
                                     <Tooltip
                                         contentStyle={{
-                                            background: "#111",
-                                            border: "1px solid #222",
+                                            background: "hsl(var(--admin-card))",
+                                            border: "1px solid hsl(var(--admin-border))",
                                             borderRadius: "8px",
                                             fontSize: "12px",
-                                            color: "#eee",
+                                            color: "hsl(var(--admin-text))",
                                         }}
                                     />
                                     <Bar dataKey="count" fill="#C6A15B" radius={[4, 4, 0, 0]} />
@@ -191,16 +191,16 @@ export default function AdminBlogEngagement() {
                 </Card>
 
                 {/* Event Type Breakdown Pie */}
-                <Card className="lg:col-span-2 bg-zinc-900/30 border-zinc-800/50 backdrop-blur-md">
+                <Card className="lg:col-span-2 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">
                     <CardHeader>
-                        <CardTitle className="text-sm font-serif font-semibold text-zinc-200 flex items-center gap-2">
-                            <Tag className="text-primary w-4 h-4" />
+                        <CardTitle className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">
+                            <Tag className="text-[hsl(var(--admin-primary))] w-4 h-4" />
                             Event Breakdown
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         {eventBreakdown.length === 0 ? (
-                            <div className="flex items-center justify-center h-[260px] text-zinc-600 text-sm">
+                            <div className="flex items-center justify-center h-[260px] text-[hsl(var(--admin-text-muted))] text-sm">
                                 No events recorded yet.
                             </div>
                         ) : (
@@ -224,11 +224,11 @@ export default function AdminBlogEngagement() {
                                             </Pie>
                                             <Tooltip
                                                 contentStyle={{
-                                                    background: "#111",
-                                                    border: "1px solid #222",
+                                                    background: "hsl(var(--admin-card))",
+                                                    border: "1px solid hsl(var(--admin-border))",
                                                     borderRadius: "8px",
                                                     fontSize: "12px",
-                                                    color: "#eee",
+                                                    color: "hsl(var(--admin-text))",
                                                 }}
                                             />
                                         </PieChart>
@@ -242,9 +242,9 @@ export default function AdminBlogEngagement() {
                                                     className="w-2.5 h-2.5 rounded-full"
                                                     style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
                                                 />
-                                                <span className="text-zinc-400 font-medium">{e.name}</span>
+                                                <span className="text-[hsl(var(--admin-text-muted))] font-medium">{e.name}</span>
                                             </div>
-                                            <span className="text-zinc-200 font-bold">{e.count}</span>
+                                            <span className="text-[hsl(var(--admin-text))] font-bold">{e.count}</span>
                                         </div>
                                     ))}
                                 </div>

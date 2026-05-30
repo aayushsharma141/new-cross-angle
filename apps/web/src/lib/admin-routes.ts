@@ -44,12 +44,15 @@ export const ADMIN_ROUTES = {
     cmsPortfolio: { path: "/admin/cms/portfolio", label: "Portfolio", parent: "cms" },
     cmsServices: { path: "/admin/cms/services", label: "Services", parent: "cms" },
     cmsTestimonials: { path: "/admin/cms/testimonials", label: "Testimonials", parent: "cms" },
-    cmsTeam: { path: "/admin/cms/team", label: "Team", parent: "cms" },
-    cmsBlogs: { path: "/admin/cms/blogs", label: "Articles", parent: "cms" },
-    cmsMedia: { path: "/admin/cms/media", label: "Media Library", parent: "cms" },
-    cmsHero: { path: "/admin/cms/hero", label: "Hero", parent: "cms" },
+    cmsTeam: { path: "/admin/cms/team-members", label: "Team Members", parent: "cms" },
+    cmsBlogs: { path: "/admin/cms/blog-posts", label: "Blog Posts", parent: "cms" },
+    cmsMedia: { path: "/admin/cms/media-library", label: "Media Library", parent: "cms" },
+    cmsHero: { path: "/admin/cms/hero-carousel", label: "Hero Carousel", parent: "cms" },
     cmsGallery: { path: "/admin/cms/gallery", label: "Gallery", parent: "cms" },
-    cmsTransformations: { path: "/admin/cms/transformations", label: "Transformations", parent: "cms" },
+    cmsTransformations: { path: "/admin/cms/before-and-after", label: "Before & After", parent: "cms" },
+    cmsStats: { path: "/admin/cms/studio-statistics", label: "Studio Statistics", parent: "cms" },
+    cmsMilestones: { path: "/admin/cms/milestones", label: "Milestones", parent: "cms" },
+    cmsProcessSteps: { path: "/admin/cms/process-steps", label: "Process Steps", parent: "cms" },
 
     /* ─── CRM module ──────────────────────────────────────────────────── */
     crm: { path: "/admin/crm", label: "Client CRM", parent: "hub" },
@@ -57,28 +60,26 @@ export const ADMIN_ROUTES = {
 
     /* ─── Discovery engine ────────────────────────────────────────────── */
     discovery: { path: "/admin/discovery", label: "Discovery Engine", parent: "hub" },
-    discoveryAnalytics: {
-        path: "/admin/discovery/analytics",
-        label: "Analytics & Insights",
-        parent: "discovery",
-    },
+    discoveryAnalytics: { path: "/admin/discovery/quiz-analytics", label: "Quiz Analytics", parent: "discovery" },
+    discoveryConfig: { path: "/admin/discovery/quiz-configuration", label: "Quiz Configuration", parent: "discovery" },
 
     /* ─── Cost estimator ──────────────────────────────────────────────── */
     estimator: { path: "/admin/estimator", label: "Estimator", parent: "hub" },
-    estimatorLeads: { path: "/admin/estimator/leads", label: "Estimate Leads", parent: "estimator" },
-    estimatorRates: { path: "/admin/estimator/rates", label: "Estimate Rates", parent: "estimator" },
+    estimatorLeads: { path: "/admin/estimator/estimate-leads", label: "Estimate Leads", parent: "estimator" },
+    estimatorRates: { path: "/admin/estimator/pricing-configuration", label: "Pricing Configuration", parent: "estimator" },
 
     /* ─── Blog analytics ──────────────────────────────────────────────── */
     blog: { path: "/admin/blog", label: "Blog Engine", parent: "hub" },
     blogOverview: { path: "/admin/blog/overview", label: "Overview", parent: "blog" },
-    blogPerformance: { path: "/admin/blog/performance", label: "Performance", parent: "blog" },
-    blogEngagement: { path: "/admin/blog/engagement", label: "Engagement", parent: "blog" },
+    blogPerformance: { path: "/admin/blog/article-performance", label: "Article Performance", parent: "blog" },
+    blogEngagement: { path: "/admin/blog/reader-engagement", label: "Reader Engagement", parent: "blog" },
 
     /* ─── System settings ─────────────────────────────────────────────── */
     system: { path: "/admin/system", label: "System Settings", parent: "hub" },
-    systemSettings: { path: "/admin/system/settings", label: "General", parent: "system" },
+    systemSettings: { path: "/admin/system/settings", label: "General Settings", parent: "system" },
     systemTeamMembers: { path: "/admin/system/team-members", label: "Team Members", parent: "system" },
-    systemAudit: { path: "/admin/system/audit", label: "Logs & Audit", parent: "system" },
+    systemAudit: { path: "/admin/system/audit-logs", label: "Audit Logs", parent: "system" },
+    systemAccess: { path: "/admin/system/access-control", label: "Access Control", parent: "system" },
 } satisfies Record<string, { path: string; label: string; parent?: string }>;
 
 export type AdminRouteKey = keyof typeof ADMIN_ROUTES;

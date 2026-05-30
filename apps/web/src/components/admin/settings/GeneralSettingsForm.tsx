@@ -14,11 +14,12 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/primitives/form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/primitives/card";
+import { Card, CardContent } from "@/components/ui/primitives/card";
+import { AdminFormCard } from "@/components/admin/shared";
 import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { siteSettingsSchema, SiteSettingsFormData } from "@/lib/validation/validations";
-import { Loader2, Save, Globe, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageCircle, Plus, Trash2, Send } from "lucide-react";
+import { Loader2, Save, Globe, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageCircle, Plus, Trash2, Send, Clock } from "lucide-react";
 
 const PinterestIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -36,7 +37,8 @@ import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
  * Previously it was called inside a FormField render callback (invalid hook
  * usage). This dedicated component fixes that violation.
  * ────────────────────────────────────────────────────────────────────────── */
-import type { ControllerRenderProps } from "react-hook-form";
+import type { ControllerRenderProps, Control } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 
 function TelegramChatIdsField({ field }: { field: ControllerRenderProps<SiteSettingsFormData, "telegram_chat_ids"> }) {
     const ids: string[] = field.value ?? [];
@@ -129,6 +131,84 @@ function TelegramChatIdsField({ field }: { field: ControllerRenderProps<SiteSett
     );
 }
 
+function OfficeHoursField({ control }: { control: Control<SiteSettingsFormData> }) {
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "office_hours",
+    });
+
+    return (
+        <FormItem>
+            <FormLabel className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-amber-500" />
+                Office / Studio Hours
+            </FormLabel>
+            <FormDescription className="text-xs">
+                Manage your visible office timings. These will be shown on the contact page.
+            </FormDescription>
+
+            <div className="space-y-3">
+                {fields.length === 0 && (
+                    <p className="text-xs text-muted-foreground italic py-2">
+                        No office hours configured — add one below.
+                    </p>
+                )}
+                {fields.map((field, index) => (
+                    <div key={field.id} className="flex items-start gap-2">
+                        <FormField
+                            control={control}
+                            name={`office_hours.${index}.days`}
+                            render={({ field }) => (
+                                <FormItem className="flex-1">
+                                    <FormControl>
+                                        <Input placeholder="e.g. Mon - Sat" {...field} className="h-9" />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={control}
+                            name={`office_hours.${index}.hours`}
+                            render={({ field }) => (
+                                <FormItem className="flex-1">
+                                    <FormControl>
+                                        <Input placeholder="e.g. 9 AM - 7 PM" {...field} className="h-9" />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="shrink-0 h-9 w-9 text-destructive hover:text-destructive/80"
+                            onClick={() => remove(index)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </div>
+                ))}
+            </div>
+
+            <div className="pt-2">
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => append({ id: crypto.randomUUID(), days: "", hours: "" })}
+                    className="gap-1"
+                >
+                    <Plus className="h-4 w-4" />
+                    Add Hours
+                </Button>
+            </div>
+            <FormMessage />
+        </FormItem>
+    );
+}
+
 export function GeneralSettingsForm() {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
@@ -151,6 +231,7 @@ export function GeneralSettingsForm() {
             social_youtube: "",
             social_pinterest: "",
             telegram_chat_ids: [],
+            office_hours: [],
         },
     });
 
@@ -189,6 +270,7 @@ export function GeneralSettingsForm() {
                     social_youtube: socialLinks.youtube || "",
                     social_pinterest: socialLinks.pinterest || "",
                     telegram_chat_ids: (data as { telegram_chat_ids?: string[] }).telegram_chat_ids || [],
+                    office_hours: Array.isArray(data.business_hours) ? data.business_hours as { id: string; days: string; hours: string; }[] : [],
                 });
             }
         } catch (error) {
@@ -240,6 +322,7 @@ export function GeneralSettingsForm() {
                         address: values.address,
                         social_links: socialLinks,
                         telegram_chat_ids: values.telegram_chat_ids,
+                        business_hours: values.office_hours as unknown as Record<string, unknown>,
                         updated_at: new Date().toISOString(),
                     })
                     .eq("id", existingData.id);
@@ -257,6 +340,7 @@ export function GeneralSettingsForm() {
                         address: values.address,
                         social_links: socialLinks,
                         telegram_chat_ids: values.telegram_chat_ids,
+                        business_hours: values.office_hours as unknown as Record<string, unknown>,
                     });
                 error = insertError;
             }
@@ -298,14 +382,7 @@ export function GeneralSettingsForm() {
         <Form {...form}>
             <form id="general-settings-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid lg:grid-cols-2 gap-4">
-                <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm">
-                    <CardHeader className="bg-muted/30 border-b py-3 px-5">
-                        <div className="flex items-center gap-2">
-                            <Globe className="text-blue-500 h-4 w-4" />
-                            <CardTitle className="text-sm">General Information</CardTitle>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-5 grid gap-3">
+                <AdminFormCard title="General Information" icon={Globe} iconClassName="text-blue-500" contentClassName="grid gap-3">
                         <FormField
                             control={form.control}
                             name="site_name"
@@ -337,16 +414,9 @@ export function GeneralSettingsForm() {
                             )}
                         />
                     </CardContent>
-                </Card>
+                </AdminFormCard>
 
-                <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm">
-                    <CardHeader className="bg-muted/30 border-b py-3 px-5">
-                        <div className="flex items-center gap-2">
-                            <Phone className="text-green-500 h-4 w-4" />
-                            <CardTitle className="text-sm">Contact Information</CardTitle>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-5 grid gap-3 grid-cols-2">
+                <AdminFormCard title="Contact Information" icon={Phone} iconClassName="text-green-500" contentClassName="grid gap-3 grid-cols-2">
                         <FormField
                             control={form.control}
                             name="contact_email"
@@ -430,19 +500,17 @@ export function GeneralSettingsForm() {
                                 )}
                             />
                         </div>
+
+                        {/* Office Hours */}
+                        <div className="col-span-2 pt-2">
+                            <OfficeHoursField control={form.control} />
+                        </div>
                     </CardContent>
-                </Card>
+                </AdminFormCard>
                 </div>
 
                 <div className="grid lg:grid-cols-2 gap-4">
-                <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm">
-                    <CardHeader className="bg-muted/30 border-b py-3 px-5">
-                        <div className="flex items-center gap-2">
-                            <Globe className="text-indigo-500 h-4 w-4" />
-                            <CardTitle className="text-sm">Social Media</CardTitle>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-5 grid gap-3 grid-cols-2">
+                <AdminFormCard title="Social Media" icon={Globe} iconClassName="text-indigo-500" contentClassName="grid gap-3 grid-cols-2">
                         <FormField
                             control={form.control}
                             name="social_facebook"
@@ -534,17 +602,10 @@ export function GeneralSettingsForm() {
                             )}
                         />
                     </CardContent>
-                </Card>
+                </AdminFormCard>
 
                 {/* ─── Telegram Notifications ─────────────────────────────── */}
-                <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm">
-                    <CardHeader className="bg-muted/30 border-b py-3 px-5">
-                        <div className="flex items-center gap-2">
-                            <Send className="h-4 w-4 text-[#229ED9]" />
-                            <CardTitle className="text-sm">Telegram Notifications</CardTitle>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-5 space-y-3">
+                <AdminFormCard title="Telegram Notifications" icon={Send} iconClassName="text-[#229ED9]" contentClassName="space-y-3">
                         <FormField
                             control={form.control}
                             name="telegram_chat_ids"
@@ -553,24 +614,9 @@ export function GeneralSettingsForm() {
                             )}
                         />
                     </CardContent>
-                </Card>
+                </AdminFormCard>
                 </div>
 
-                <div className="flex justify-end">
-                    <Button type="submit" size="lg" disabled={isLoading} className="bg-[hsl(var(--brand-primary))]">
-                        {isLoading ? (
-                            <>
-                                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                saving...
-                            </>
-                        ) : (
-                            <>
-                                <Save className="w-4 h-4 mr-2" />
-                                Save Settings
-                            </>
-                        )}
-                    </Button>
-                </div>
             </form>
         </Form>
     );

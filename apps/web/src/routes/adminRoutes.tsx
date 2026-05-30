@@ -52,15 +52,15 @@ export const adminRoutes = (
           <Route path="portfolio" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminPortfolio /></RoleGuard>} />
           <Route path="services" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminServices /></RoleGuard>} />
           <Route path="testimonials" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTestimonials /></RoleGuard>} />
-          <Route path="team" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTeam /></RoleGuard>} />
-          <Route path="blogs" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminBlogs /></RoleGuard>} />
-          <Route path="media" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminMedia /></RoleGuard>} />
-          <Route path="hero" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminHero /></RoleGuard>} />
+          <Route path="team-members" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTeam /></RoleGuard>} />
+          <Route path="blog-posts" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminBlogs /></RoleGuard>} />
+          <Route path="media-library" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminMedia /></RoleGuard>} />
+          <Route path="hero-carousel" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminHero /></RoleGuard>} />
           <Route path="gallery" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminGallery /></RoleGuard>} />
-          <Route path="transformations" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTransformations /></RoleGuard>} />
-          <Route path="stats" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminStats /></RoleGuard>} />
+          <Route path="before-and-after" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTransformations /></RoleGuard>} />
+          <Route path="studio-statistics" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminStats /></RoleGuard>} />
           <Route path="milestones" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminMilestones /></RoleGuard>} />
-          <Route path="process" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminProcessSteps /></RoleGuard>} />
+          <Route path="process-steps" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminProcessSteps /></RoleGuard>} />
         </Route>
 
         <Route path="crm" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><CrmModule /></RoleGuard>}>
@@ -71,26 +71,26 @@ export const adminRoutes = (
         </Route>
 
         <Route path="discovery" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><DiscoveryModule /></RoleGuard>}>
-          <Route path="analytics" element={<AdminAnalytics />} />
-          <Route path="config" element={<RoleGuard allowedRoles={["super_admin"]}><AdminDiscoveryConfig /></RoleGuard>} />
+          <Route path="quiz-analytics" element={<AdminAnalytics />} />
+          <Route path="quiz-configuration" element={<RoleGuard allowedRoles={["super_admin"]}><AdminDiscoveryConfig /></RoleGuard>} />
         </Route>
 
         <Route path="estimator" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><EstimatorModule /></RoleGuard>}>
-          <Route path="leads" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminEstimateLeads /></RoleGuard>} />
-          <Route path="config" element={<RoleGuard allowedRoles={["super_admin"]}><AdminEstimateFlow /></RoleGuard>} />
+          <Route path="estimate-leads" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminEstimateLeads /></RoleGuard>} />
+          <Route path="pricing-configuration" element={<RoleGuard allowedRoles={["super_admin"]}><AdminEstimateFlow /></RoleGuard>} />
         </Route>
 
         <Route path="blog" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><BlogModule /></RoleGuard>}>
           <Route path="overview" element={<AdminBlogOverview />} />
-          <Route path="performance" element={<AdminBlogPerformance />} />
-          <Route path="engagement" element={<AdminBlogEngagement />} />
+          <Route path="article-performance" element={<AdminBlogPerformance />} />
+          <Route path="reader-engagement" element={<AdminBlogEngagement />} />
         </Route>
 
         <Route path="system" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><SystemModule /></RoleGuard>}>
-          <Route path="access" element={<AdminUsers />} />
+          <Route path="access-control" element={<AdminUsers />} />
           <Route path="settings" element={<RoleGuard allowedRoles={["super_admin"]}><AdminSettings /></RoleGuard>} />
           <Route path="team-members" element={<RoleGuard allowedRoles={["super_admin"]}><AdminTeamMembers /></RoleGuard>} />
-          <Route path="audit" element={<RoleGuard allowedRoles={["super_admin"]}><AdminAuditLogs /></RoleGuard>} />
+          <Route path="audit-logs" element={<RoleGuard allowedRoles={["super_admin"]}><AdminAuditLogs /></RoleGuard>} />
         </Route>
       </Route>
     </Route>

@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { DataTable } from "@/components/admin/ui/DataTable";
+import { 
+  AdminPageHeader,
+  AdminSafeAction,
+  AdminEmptyState,
+  AdminSkeletonCard
+} from "@/components/admin/shared";
+import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import { Textarea } from "@/components/ui/primitives/textarea";
@@ -12,13 +18,12 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/primitives/dialog";
-import { Plus, Loader2, ListOrdered, Image as ImageIcon, Pencil, Trash2 } from "lucide-react";
+import { ListOrdered, Image as ImageIcon, Pencil, Trash2, Edit2 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
-import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
 import { Image } from "@/components/ui/enhanced/image";
+import * as LucideIcons from "lucide-react";
 
 interface ProcessStep {
     id: string;
@@ -179,56 +184,19 @@ export default function AdminProcessSteps() {
         setIsDialogOpen(true);
     };
 
-    const handleDelete = (step: ProcessStep) => {
-        if (window.confirm("Are you sure you want to delete this process step?")) {
-            deleteMutation.mutate(step.id);
-        }
+    const handleDelete = async (id: string): Promise<void> => {
+        await deleteMutation.mutateAsync(id);
     };
-
-    const columns = [
-        {
-            key: "step_number",
-            header: "No.",
-            cell: (item: ProcessStep) => <span className="font-bold">{item.step_number}</span>
-        },
-        { key: "title", header: "Title", cell: (item: ProcessStep) => item.title },
-        { key: "subtitle", header: "Subtitle", cell: (item: ProcessStep) => item.subtitle },
-        { 
-            key: "image_url", 
-            header: "Image",
-            cell: (item: ProcessStep) => item.image_url ? (
-                <div className="w-10 h-10 rounded overflow-hidden bg-muted">
-                    <Image src={item.image_url} alt="Preview" className="w-full h-full object-cover" />
-                </div>
-            ) : <span className="text-muted-foreground text-xs">No image</span>
-        },
-        { key: "display_order", header: "Order", cell: (item: ProcessStep) => item.display_order },
-        {
-            key: "actions",
-            header: "Actions",
-            className: "text-right",
-            cell: (item: ProcessStep) => (
-                <div className="flex justify-end gap-2">
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleEdit(item)}>
-                        <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(item)}>
-                        <Trash2 className="w-4 h-4" />
-                    </Button>
-                </div>
-            )
-        }
-    ];
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center p-12 text-center bg-card rounded-lg border border-border">
-                <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
-                    <ListOrdered className="w-6 h-6 text-destructive" />
+            <div className="flex flex-col items-center justify-center p-12 text-center bg-[hsl(var(--admin-card))] rounded-xl border border-[hsl(var(--admin-border))]">
+                <div className="w-12 h-12 bg-[hsl(var(--admin-danger)/0.1)] rounded-full flex items-center justify-center mb-4">
+                    <ListOrdered className="w-6 h-6 text-[hsl(var(--admin-danger))]" />
                 </div>
-                <h3 className="text-lg font-medium">Failed to load process steps</h3>
-                <p className="text-muted-foreground mt-2">{error.message}</p>
-                <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["design-process-steps"] })} className="mt-4">
+                <h3 className="text-[15px] font-semibold text-[hsl(var(--admin-text))]">Failed to load process steps</h3>
+                <p className="text-[13px] text-[hsl(var(--admin-text-muted))] mt-2">{error.message}</p>
+                <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["design-process-steps"] })} className="mt-4" variant="outline">
                     Try Again
                 </Button>
             </div>
@@ -236,198 +204,306 @@ export default function AdminProcessSteps() {
     }
 
     return (
-        <div className="space-y-6">
-            <ModuleActions>
-                <Dialog 
-                    open={isDialogOpen} 
-                    onOpenChange={(open) => {
-                        setIsDialogOpen(open);
-                        if (!open) {
+        <div className="w-full font-mono">
+            <style>{`
+                @keyframes fadeUp {
+                    from { opacity: 0; transform: translateY(12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+                .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+                .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+            `}</style>
+            
+            <AdminPageHeader moduleName="CMS" tabName="Process Steps" />
+
+            <div className="flex flex-col gap-[10px] mt-6">
+                {isLoading ? (
+                    <>
+                        <AdminSkeletonCard size="lg" />
+                        <AdminSkeletonCard size="lg" />
+                        <AdminSkeletonCard size="lg" />
+                    </>
+                ) : steps.length === 0 ? (
+                    <div className="fade-up-1">
+                        <AdminEmptyState 
+                            icon={ListOrdered}
+                            title="No process steps found"
+                            description="You haven't defined any steps for your design process."
+                        />
+                    </div>
+                ) : (
+                    steps.map((step, i) => {
+                        const delayClass = `fade-up-${Math.min((i % 4) + 1, 4)}`;
+                        
+                        // Dynamically render the icon if available
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        const StepIcon = (LucideIcons as any)[step.icon_name] || LucideIcons.CheckCircle;
+                        
+                        return (
+                            <div key={step.id} className={`${delayClass} group`}>
+                                <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-xl p-5 hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200 grid grid-cols-[44px_1fr_auto] gap-4 items-center">
+                                    
+                                    {/* Icon / Image */}
+                                    <div className="w-[44px] h-[44px] rounded-[10px] bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex items-center justify-center shrink-0 overflow-hidden relative">
+                                        {step.image_url ? (
+                                            <>
+                                                <Image src={step.image_url} alt={step.title} className="w-full h-full object-cover opacity-60" />
+                                                <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                                    <StepIcon className="w-5 h-5 text-white" />
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <StepIcon className="w-5 h-5 text-[hsl(var(--admin-accent))]" />
+                                        )}
+                                    </div>
+
+                                    {/* Info */}
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-2.5 mb-1 flex-wrap">
+                                            <span className="text-[15px] font-bold text-[hsl(var(--admin-text))]">
+                                                {step.step_number}. {step.title}
+                                            </span>
+                                            <span className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] tracking-wide uppercase">
+                                                Order: {step.display_order}
+                                            </span>
+                                        </div>
+                                        
+                                        <div className="text-[13px] text-[hsl(var(--admin-text))] font-medium mb-1">
+                                            {step.subtitle}
+                                        </div>
+                                        
+                                        <div className="text-[13px] text-[hsl(var(--admin-text-muted))] truncate max-w-2xl">
+                                            {step.description}
+                                        </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={() => handleEdit(step)}
+                                            className="px-2.5 py-2 rounded-[7px] text-[12px] font-normal bg-transparent border border-transparent text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-150 flex items-center gap-1 cursor-pointer"
+                                        >
+                                            <Edit2 className="w-[13px] h-[13px]" />
+                                            Edit
+                                        </button>
+                                        
+                                        <AdminSafeAction
+                                            icon={Trash2}
+                                            label="Delete"
+                                            confirmLabel="Delete step?"
+                                            onConfirm={() => handleDelete(step.id)}
+                                            danger
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })
+                )}
+            </div>
+
+            {!isLoading && (
+                <div className="fade-up-3 mt-[10px]">
+                    <AdminAddCard 
+                        label="Add a new process step"
+                        onClick={() => {
                             setEditingStep(null);
                             setSelectedImage(null);
-                        }
-                    }}
-                >
-                    <DialogTrigger asChild>
-                        <Button className="gap-2">
-                            <Plus className="w-4 h-4" />
-                            Add Process Step
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                            <DialogTitle>{editingStep ? "Edit Process Step" : "Add Process Step"}</DialogTitle>
-                            <DialogDescription>
-                                {editingStep ? "Update the details of this design process step." : "Add a new step to your design process."}
-                            </DialogDescription>
-                        </DialogHeader>
-                        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="step_number">Step Number</Label>
-                                            <Input
-                                                id="step_number"
-                                                name="step_number"
-                                                placeholder="e.g. 01"
-                                                defaultValue={editingStep?.step_number || ""}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="display_order">Display Order</Label>
-                                            <Input
-                                                id="display_order"
-                                                name="display_order"
-                                                type="number"
-                                                defaultValue={editingStep?.display_order || 0}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
+                            setIsDialogOpen(true);
+                        }}
+                    />
+                </div>
+            )}
 
+            <Dialog 
+                open={isDialogOpen} 
+                onOpenChange={(open) => {
+                    setIsDialogOpen(open);
+                    if (!open) {
+                        setEditingStep(null);
+                        setSelectedImage(null);
+                    }
+                }}
+            >
+                <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]">
+                    <DialogHeader>
+                        <DialogTitle className="text-[hsl(var(--admin-text))]">{editingStep ? "Edit Process Step" : "Add Process Step"}</DialogTitle>
+                        <DialogDescription className="text-[hsl(var(--admin-text-muted))]">
+                            {editingStep ? "Update the details of this design process step." : "Add a new step to your design process."}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleSubmit} className="space-y-6 pt-4 font-sans">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="title">Title</Label>
+                                        <Label htmlFor="step_number" className="text-[hsl(var(--admin-text))]">Step Number</Label>
                                         <Input
-                                            id="title"
-                                            name="title"
-                                            placeholder="e.g. Consult"
-                                            defaultValue={editingStep?.title || ""}
+                                            id="step_number"
+                                            name="step_number"
+                                            placeholder="e.g. 01"
+                                            defaultValue={editingStep?.step_number || ""}
                                             required
+                                            className="admin-input"
                                         />
                                     </div>
-
                                     <div className="space-y-2">
-                                        <Label htmlFor="subtitle">Subtitle</Label>
+                                        <Label htmlFor="display_order" className="text-[hsl(var(--admin-text))]">Display Order</Label>
                                         <Input
-                                            id="subtitle"
-                                            name="subtitle"
-                                            placeholder="e.g. Private Briefing"
-                                            defaultValue={editingStep?.subtitle || ""}
+                                            id="display_order"
+                                            name="display_order"
+                                            type="number"
+                                            defaultValue={editingStep?.display_order || 0}
                                             required
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="kicker">Kicker (Optional)</Label>
-                                        <Input
-                                            id="kicker"
-                                            name="kicker"
-                                            placeholder="e.g. Stage One"
-                                            defaultValue={editingStep?.kicker || ""}
-                                        />
-                                    </div>
-                                    
-                                    <div className="space-y-2">
-                                        <Label htmlFor="icon_name">Icon Name (Lucide)</Label>
-                                        <Input
-                                            id="icon_name"
-                                            name="icon_name"
-                                            placeholder="e.g. Home, Ruler, Palette"
-                                            defaultValue={editingStep?.icon_name || "Check"}
-                                            required
+                                            className="admin-input"
                                         />
                                     </div>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label>Step Image</Label>
-                                        <div className="border-2 border-dashed border-border rounded-lg p-4 flex flex-col items-center justify-center gap-3">
-                                            {selectedImage ? (
-                                                <div className="relative w-full aspect-video rounded overflow-hidden">
-                                                    <Image src={selectedImage} alt="Selected" className="w-full h-full object-cover" />
-                                                    <Button 
-                                                        type="button" 
-                                                        variant="destructive" 
-                                                        size="sm" 
-                                                        className="absolute top-2 right-2"
-                                                        onClick={() => setSelectedImage(null)}
-                                                    >
-                                                        Remove
-                                                    </Button>
-                                                </div>
-                                            ) : (
-                                                <div className="py-8 text-center flex flex-col items-center text-muted-foreground">
-                                                    <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
-                                                    <p className="text-sm">No image selected</p>
-                                                </div>
-                                            )}
-                                            <Button 
-                                                type="button" 
-                                                variant="outline" 
-                                                onClick={() => setIsMediaPickerOpen(true)}
-                                                className="w-full"
-                                            >
-                                                {selectedImage ? "Change Image" : "Select Image"}
-                                            </Button>
-                                        </div>
-                                    </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="title" className="text-[hsl(var(--admin-text))]">Title</Label>
+                                    <Input
+                                        id="title"
+                                        name="title"
+                                        placeholder="e.g. Consult"
+                                        defaultValue={editingStep?.title || ""}
+                                        required
+                                        className="admin-input"
+                                    />
+                                </div>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="image_alt">Image Alt Text (Optional)</Label>
-                                        <Input
-                                            id="image_alt"
-                                            name="image_alt"
-                                            placeholder="Describe the image..."
-                                            defaultValue={editingStep?.image_alt || ""}
-                                        />
-                                    </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="subtitle" className="text-[hsl(var(--admin-text))]">Subtitle</Label>
+                                    <Input
+                                        id="subtitle"
+                                        name="subtitle"
+                                        placeholder="e.g. Private Briefing"
+                                        defaultValue={editingStep?.subtitle || ""}
+                                        required
+                                        className="admin-input"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="kicker" className="text-[hsl(var(--admin-text))]">Kicker (Optional)</Label>
+                                    <Input
+                                        id="kicker"
+                                        name="kicker"
+                                        placeholder="e.g. Stage One"
+                                        defaultValue={editingStep?.kicker || ""}
+                                        className="admin-input"
+                                    />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <Label htmlFor="icon_name" className="text-[hsl(var(--admin-text))]">Icon Name (Lucide)</Label>
+                                    <Input
+                                        id="icon_name"
+                                        name="icon_name"
+                                        placeholder="e.g. Home, Ruler, Palette"
+                                        defaultValue={editingStep?.icon_name || "Check"}
+                                        required
+                                        className="admin-input"
+                                    />
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="description">Short Description</Label>
-                                <Input
-                                    id="description"
-                                    name="description"
-                                    placeholder="Brief summary of the step..."
-                                    defaultValue={editingStep?.description || ""}
-                                    required
-                                />
-                            </div>
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label className="text-[hsl(var(--admin-text))]">Step Image</Label>
+                                    <div className="border-2 border-dashed border-[hsl(var(--admin-border))] rounded-lg p-4 flex flex-col items-center justify-center gap-3 bg-[hsl(var(--admin-surface))]">
+                                        {selectedImage ? (
+                                            <div className="relative w-full aspect-video rounded overflow-hidden">
+                                                <Image src={selectedImage} alt="Selected" className="w-full h-full object-cover" />
+                                                <Button 
+                                                    type="button" 
+                                                    variant="destructive" 
+                                                    size="sm" 
+                                                    className="absolute top-2 right-2 admin-btn-danger border-none h-8"
+                                                    onClick={() => setSelectedImage(null)}
+                                                >
+                                                    Remove
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <div className="py-8 text-center flex flex-col items-center text-[hsl(var(--admin-text-muted))]">
+                                                <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
+                                                <p className="text-sm">No image selected</p>
+                                            </div>
+                                        )}
+                                        <Button 
+                                            type="button" 
+                                            variant="outline" 
+                                            onClick={() => setIsMediaPickerOpen(true)}
+                                            className="w-full admin-btn-secondary"
+                                        >
+                                            {selectedImage ? "Change Image" : "Select Image"}
+                                        </Button>
+                                    </div>
+                                </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="detail">Detailed Description</Label>
-                                <Textarea
-                                    id="detail"
-                                    name="detail"
-                                    placeholder="Full details about this process step..."
-                                    defaultValue={editingStep?.detail || ""}
-                                    required
-                                    className="min-h-[100px]"
-                                />
+                                <div className="space-y-2">
+                                    <Label htmlFor="image_alt" className="text-[hsl(var(--admin-text))]">Image Alt Text (Optional)</Label>
+                                    <Input
+                                        id="image_alt"
+                                        name="image_alt"
+                                        placeholder="Describe the image..."
+                                        defaultValue={editingStep?.image_alt || ""}
+                                        className="admin-input"
+                                    />
+                                </div>
                             </div>
+                        </div>
 
-                            <div className="flex justify-end gap-3 pt-4 border-t border-border mt-6">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => setIsDialogOpen(false)}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    disabled={createMutation.isPending || updateMutation.isPending}
-                                >
-                                    {(createMutation.isPending || updateMutation.isPending) && (
-                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    )}
-                                    {editingStep ? "Update Step" : "Create Step"}
-                                </Button>
-                            </div>
-                        </form>
-                    </DialogContent>
-                </Dialog>
-            </ModuleActions>
+                        <div className="space-y-2">
+                            <Label htmlFor="description" className="text-[hsl(var(--admin-text))]">Short Description</Label>
+                            <Input
+                                id="description"
+                                name="description"
+                                placeholder="Brief summary of the step..."
+                                defaultValue={editingStep?.description || ""}
+                                required
+                                className="admin-input"
+                            />
+                        </div>
 
-            <DataTable
-                data={steps}
-                columns={columns}
-                isLoading={isLoading}
-            />
+                        <div className="space-y-2">
+                            <Label htmlFor="detail" className="text-[hsl(var(--admin-text))]">Detailed Description</Label>
+                            <Textarea
+                                id="detail"
+                                name="detail"
+                                placeholder="Full details about this process step..."
+                                defaultValue={editingStep?.detail || ""}
+                                required
+                                className="admin-input min-h-[100px]"
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-4 border-t border-[hsl(var(--admin-border))] mt-6">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIsDialogOpen(false)}
+                                className="admin-btn-secondary"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={createMutation.isPending || updateMutation.isPending}
+                                className="admin-btn-primary"
+                            >
+                                {(createMutation.isPending || updateMutation.isPending) ? (
+                                    "Saving..."
+                                ) : (
+                                    editingStep ? "Update Step" : "Create Step"
+                                )}
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
 
             <MediaPickerModal
                 open={isMediaPickerOpen}

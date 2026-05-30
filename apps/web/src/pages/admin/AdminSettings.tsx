@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { GeneralSettingsForm } from "@/components/admin/settings/GeneralSettingsForm";
 import { ReportRecipientsManager } from "@/components/admin/settings/ReportRecipientsManager";
 import { Button } from "@/components/ui/primitives/button";
+import { AdminPageHeader } from "@/components/admin/shared";
 import { 
   Save, 
   Shield, 
@@ -17,7 +19,6 @@ import {
   Server
 } from "lucide-react";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
-import { AdminTabSlider } from "@/components/admin/ui/AdminTabSlider";
 import { useToast } from "@/hooks/useToast";
 import { useSystem } from "@/context/SystemContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -63,7 +64,8 @@ interface Integration {
 }
 
 const AdminSettings = () => {
-  const [activeTab, setActiveTab] = useState("general");
+  const [searchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "general";
   const { toast } = useToast();
   const { maintenanceMode, setMaintenanceMode } = useSystem();
   const { settings, refetch: refetchSettings } = useSiteSettings();
@@ -400,58 +402,50 @@ const AdminSettings = () => {
     }, 1500);
   };
 
-  return (
-    <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
-      <ModuleActions>
-        <Button
-          type="button"
-          size="lg"
-          variant="primary"
-          onClick={() => {
-            const form = document.querySelector<HTMLFormElement>("#general-settings-form");
-            if (form) form.requestSubmit();
-          }}
-        >
-          <Save className="w-4 h-4 mr-2" />
-          Save Settings
-        </Button>
-      </ModuleActions>
+  const tabNameMap: Record<string, string> = {
+    general: "General Settings",
+    reports: "Email Recipients",
+    access: "Access & Security",
+    credentials: "API & Integrations",
+    updates: "Updates & Maintenance"
+  };
 
-      <AdminTabSlider
-        activeTab={activeTab}
-        onTabChange={(id) => setActiveTab(id)}
-        tabs={[
-          {
-            id: "general",
-            label: "General",
-            icon: Settings,
-            content: (
-              <div className="w-full">
-                <GeneralSettingsForm />
-              </div>
-            ),
-          },
-          {
-            id: "reports",
-            label: "Reports",
-            icon: Mail,
-            content: (
-              <div className="w-full">
-                <ReportRecipientsManager />
-              </div>
-            ),
-          },
-          {
-            id: "access",
-            label: "Access & Security",
-            icon: Shield,
-            content: (
+  return (
+    <div className="flex flex-col space-y-6">
+      <style>{`
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+        .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+        .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+      `}</style>
+
+      <AdminPageHeader moduleName="System" tabName={tabNameMap[activeTab] || "Settings"} />
+
+      <div className="fade-up-1">
+      {activeTab === "general" && (
+        <ModuleActions>
+          <Button
+            type="button"
+            size="lg"
+            className="bg-primary text-primary-foreground hover:opacity-90 active:scale-[0.98] transition-all duration-300 rounded-xl shadow-lg shadow-primary/20"
+            onClick={() => {
+              const form = document.querySelector<HTMLFormElement>("#general-settings-form");
+              if (form) form.requestSubmit();
+            }}
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Save Settings
+          </Button>
+        </ModuleActions>
+      )}
+
+      {activeTab === "general" && <GeneralSettingsForm />}
+      {activeTab === "reports" && <ReportRecipientsManager />}
+      {activeTab === "access" &&
               <div className="w-full space-y-6">
-                <div className="mb-6">
-                  <h2 className="text-xl font-serif text-[hsl(var(--admin-text))]">Access & Security</h2>
-                  <p className="text-[hsl(var(--admin-muted))] text-sm mt-1">Configure system-wide security policies and access controls.</p>
-                </div>
-                
                 <div className="grid gap-4">
                   <div className="p-5 rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] flex items-center justify-between">
                     <div>
@@ -530,19 +524,9 @@ const AdminSettings = () => {
                   </div>
                 </div>
               </div>
-            ),
-          },
-          {
-            id: "credentials",
-            label: "Integrations & API",
-            icon: Key,
-            content: (
-              <div className="w-full space-y-6">
-                <div className="mb-6">
-                  <h2 className="text-xl font-serif text-[hsl(var(--admin-text))]">Integrations & Credentials</h2>
-                  <p className="text-[hsl(var(--admin-muted))] text-sm mt-1">Manage API keys and connections to third-party services.</p>
-                </div>
-                
+      }
+      {activeTab === "credentials" &&
+        <div className="w-full space-y-6">
                 <div className="grid gap-4">
                   {integrations.map((service) => (
                     <div key={service.name} className="p-5 rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] flex items-center justify-between">
@@ -589,19 +573,9 @@ const AdminSettings = () => {
                   ))}
                 </div>
               </div>
-            ),
-          },
-          {
-            id: "updates",
-            label: "System Updates",
-            icon: RefreshCw,
-            content: (
-              <div className="w-full space-y-6">
-                <div className="mb-6">
-                  <h2 className="text-xl font-serif text-[hsl(var(--admin-text))]">System Updates & Maintenance</h2>
-                  <p className="text-[hsl(var(--admin-muted))] text-sm mt-1">Manage the CrossAngle OS core version and maintenance modes.</p>
-                </div>
-                
+      }
+      {activeTab === "updates" &&
+        <div className="w-full space-y-6">
                 <div className="p-6 rounded-xl border border-[hsl(var(--admin-primary))]/30 bg-[hsl(var(--admin-primary))]/5 flex flex-col items-center justify-center text-center gap-4 py-12">
                   <div className="w-16 h-16 rounded-full bg-[hsl(var(--admin-primary))]/10 flex items-center justify-center text-[hsl(var(--admin-primary))]">
                     {isCheckingUpdates ? (
@@ -681,10 +655,7 @@ const AdminSettings = () => {
                   </Button>
                 </div>
               </div>
-            ),
-          },
-        ]}
-      />
+      }
 
       <AlertDialog open={show2FADialog} onOpenChange={setShow2FADialog}>
         <AlertDialogContent className="bg-zinc-900 border border-zinc-800 text-white max-w-md">
@@ -1067,6 +1038,7 @@ const AdminSettings = () => {
         </AlertDialogContent>
       </AlertDialog>
 
+      </div>
     </div>
   );
 };

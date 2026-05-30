@@ -10,6 +10,7 @@ import {
   CheckCircle,
   XCircle,
   ChevronDown,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { useToast } from "@/hooks/useToast";
@@ -74,12 +75,12 @@ const AnimatedField = ({
   return (
     <div className="group relative mb-5">
       <div className="mb-1.5 flex items-center justify-between">
-        <label htmlFor={id} className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 transition-colors group-focus-within:text-[#d1af6e]">
+        <label htmlFor={id} className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/70 transition-colors group-focus-within:text-[#d1af6e]">
           {label}
         </label>
-        {hint && !isInvalid && <span className="text-[10px] text-white/30 italic">{hint}</span>}
+        {hint && !isInvalid && <span className="text-[11px] text-white/40 italic">{hint}</span>}
         {isInvalid && (
-          <span className="text-[10px] font-medium text-red-400 flex items-center gap-1">
+          <span className="text-[11px] font-medium text-red-400 flex items-center gap-1">
             <span className="inline-block w-1 h-1 rounded-full bg-red-400" />{error}
           </span>
         )}
@@ -239,7 +240,7 @@ const CTAContact = () => {
     <section
       id="contact-form-section"
       ref={containerRef}
-      className="relative overflow-hidden px-4 py-28 md:py-36"
+      className="relative overflow-hidden px-4 pt-40 pb-20 md:pt-52 md:pb-32"
     >
       {/* ── Background ── */}
       <div className="absolute inset-0 z-0 bg-[#050505]">
@@ -267,10 +268,10 @@ const CTAContact = () => {
       <div className="container relative z-10 mx-auto max-w-7xl">
 
         {/* ── Premium page header ── */}
-        <div className="reveal-elem mb-20 flex flex-col items-center text-center">
+        <div className="reveal-elem mb-16 flex flex-col items-start text-left max-w-4xl">
           <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[#d1af6e]/20 bg-[#d1af6e]/5 px-4 py-1.5 backdrop-blur-md">
             <span className="h-1.5 w-1.5 rounded-full bg-[#d1af6e] animate-pulse" aria-hidden="true" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#d1af6e]/80">Start Here</span>
+            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#d1af6e]">Start Here</span>
           </div>
 
           <h1 className="font-serif text-[clamp(2.8rem,6vw,5.5rem)] font-medium leading-[1.05] tracking-tight text-white max-w-4xl">
@@ -285,7 +286,7 @@ const CTAContact = () => {
           </p>
 
           {/* Trust pills */}
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-7 flex flex-wrap items-center justify-start gap-3">
             {["Free first consultation", "Clear budget direction", "Jamshedpur site coordination"].map((pt) => (
               <span key={pt} className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-1.5 text-[11px] font-medium text-white/55 backdrop-blur-sm">
                 <span className="h-1 w-1 rounded-full bg-[#d1af6e]/60" aria-hidden="true" />
@@ -381,7 +382,7 @@ const CTAContact = () => {
                       </AnimatedField>
 
                       <div className="pt-5 space-y-3 border-t border-white/[0.05] mt-3">
-                        <p className="text-center text-[10px] text-white/30 tracking-wide">🔒 Your data stays private. No calls without your permission.</p>
+                        <p className="text-center text-[11px] text-white/50 tracking-wide">🔒 Your data stays private. No calls without your permission.</p>
                         <motion.button type="button" onClick={() => setStep(2)}
                           whileHover={{ scale: 1.015, boxShadow: "0 8px 32px rgba(182,24,38,0.22)" }}
                           whileTap={{ scale: 0.98 }}
@@ -445,8 +446,8 @@ const CTAContact = () => {
                       {/* Budget */}
                       <div>
                         <div className="mb-3 flex items-center justify-between">
-                          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">Project Budget</span>
-                          <span className="text-[9px] uppercase tracking-[0.15em] text-white/30">Early direction only</span>
+                          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/70">Project Budget</span>
+                          <span className="text-[10px] uppercase tracking-[0.15em] text-white/50">Early direction only</span>
                         </div>
                         <fieldset aria-labelledby="projectBudget-label"
                           aria-describedby={getFieldErrorId("projectBudget")}
@@ -543,56 +544,48 @@ const CTAContact = () => {
           </div>
 
           {/* RIGHT — Accelerated routes + contact info */}
-          <div className="reveal-elem space-y-5">
+          <div className="reveal-elem flex flex-col gap-4">
 
-            {/* Bypass card */}
-            <div className="rounded-[24px] border border-white/[0.07] bg-[#0A0A0A]/60 p-6 backdrop-blur-xl md:p-8">
-              <div className="mb-5">
-                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1">
-                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40">Accelerated Route</span>
+            {/* WhatsApp Connect */}
+            <a href={`https://wa.me/${settings?.whatsapp || "917909041132"}?text=Hi!%20I'm%20interested%20in%20your%20interior%20design%20services.`}
+              onClick={() => track(analytics, "cta_clicked", { ctaId: "accelerated_whatsapp", destination: "whatsapp" })}
+              className="group flex flex-col justify-between rounded-[24px] border border-[#25D366]/20 bg-gradient-to-br from-[#25D366]/[0.06] to-transparent p-6 backdrop-blur-xl transition-all duration-300 hover:border-[#25D366]/40 hover:from-[#25D366]/[0.12] md:flex-row md:items-center md:p-7">
+              <div className="mb-4 md:mb-0">
+                <div className="mb-1.5 flex items-center gap-2.5">
+                  <h4 className="font-serif text-sm font-semibold text-white transition-colors group-hover:text-[#25D366]">WhatsApp Connect</h4>
+                  <span className="flex items-center gap-1.5 rounded-full bg-[#25D366]/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.2em] text-[#25D366]">
+                    <span className="h-1 w-1 animate-pulse rounded-full bg-[#25D366]" /> Live
+                  </span>
                 </div>
-                <h3 className="font-serif text-xl font-semibold text-white">Bypass the form.</h3>
-                <p className="mt-2 text-sm leading-6 text-white/50">
-                  If you already know what you need, call or WhatsApp directly for an immediate dialogue.
-                </p>
+                <p className="text-xs text-white/50 transition-colors group-hover:text-white/70">Available for immediate dialogue and chat.</p>
               </div>
-
-              <div className="flex flex-col gap-2.5">
-                <a href={`tel:${settings?.phone || "+917909041132"}`}
-                  onClick={() => track(analytics, "cta_clicked", { ctaId: "accelerated_call", destination: "tel" })}
-                  className="group flex h-12 w-full items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.04] px-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/75 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.08] hover:text-white">
-                  <Phone className="h-4 w-4 shrink-0 text-white/40 group-hover:text-white transition-colors" />
-                  Call Studio
-                </a>
-                <a href={`https://wa.me/${settings?.whatsapp || "917909041132"}?text=Hi!%20I'm%20interested%20in%20your%20interior%20design%20services.`}
-                  onClick={() => track(analytics, "cta_clicked", { ctaId: "accelerated_whatsapp", destination: "whatsapp" })}
-                  className="group flex h-12 w-full items-center gap-3 rounded-2xl border border-[#25D366]/20 bg-[#25D366]/[0.06] px-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#25D366]/75 transition-all duration-300 hover:border-[#25D366]/40 hover:bg-[#25D366]/[0.12] hover:text-[#25D366]">
-                  <MessageCircle className="h-4 w-4 shrink-0 text-[#25D366]/50 group-hover:text-[#25D366] transition-colors" />
-                  WhatsApp Connect
-                </a>
-                <div className="mt-1 flex items-center justify-center gap-2 text-[9px] uppercase tracking-[0.18em] text-white/30">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-500/70 animate-pulse" aria-hidden="true" />
-                  Available for immediate chat
-                </div>
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/8 bg-white/[0.04] transition-all group-hover:border-[#25D366]/30 group-hover:bg-[#25D366]/10">
+                <MessageCircle className="h-5 w-5 text-white/40 transition-colors group-hover:text-[#25D366]" />
               </div>
-            </div>
+            </a>
 
             {/* Contact info — single elegant card */}
-            <div className="rounded-[24px] border border-white/[0.07] bg-[#0A0A0A]/60 p-6 backdrop-blur-xl md:p-8">
-              <div className="space-y-5">
+            <div className="rounded-[24px] border border-[#d1af6e]/10 bg-gradient-to-br from-[#d1af6e]/[0.03] to-[#0A0A0A]/60 p-6 backdrop-blur-xl md:p-7">
+              <div className="flex flex-col gap-5">
                 {[
                   { icon: MapPin, label: "Visit Us", value: settings?.address || "2nd Floor, Aditya Signature Building, Mango, Jamshedpur" },
                   { icon: Phone, label: "Call Us", value: settings?.phone || "+91 79090 41132" },
                   { icon: Mail, label: "Email Us", value: settings?.email || "info@crossangleinterior.com" },
-                  { icon: Clock, label: "Studio Hours", value: "Mon – Sat, 9 AM – 7 PM" },
+                  { 
+                    icon: Clock, 
+                    label: "Studio Hours", 
+                    value: (Array.isArray(settings?.business_hours) && settings.business_hours.length > 0)
+                      ? (settings.business_hours as {days: string, hours: string}[]).map(h => `${h.days}: ${h.hours}`).join("\n")
+                      : "Mon – Sat: 9 AM – 7 PM" 
+                  },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className="flex items-start gap-4">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#d1af6e]/15 bg-[#d1af6e]/[0.06]">
-                      <Icon className="h-3.5 w-3.5 text-[#d1af6e]/60" strokeWidth={1.5} />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#d1af6e]/15 bg-[#d1af6e]/[0.06]">
+                      <Icon className="h-4 w-4 text-[#d1af6e]/60" strokeWidth={1.5} />
                     </div>
                     <div>
-                      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">{label}</p>
-                      <p className="mt-0.5 text-sm font-medium text-white/75 leading-relaxed">{value}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">{label}</p>
+                      <p className="mt-1 text-sm font-medium leading-snug text-white/90 whitespace-pre-line">{value}</p>
                     </div>
                   </div>
                 ))}
@@ -602,13 +595,26 @@ const CTAContact = () => {
             {/* Estimate nudge */}
             <Link to="/estimate"
               onClick={() => track(analytics, "estimate_path_selected", { pathId: "contact_page_cta" })}
-              className="group flex items-center justify-between rounded-[24px] border border-[#d1af6e]/10 bg-gradient-to-br from-[#d1af6e]/[0.05] to-transparent p-5 backdrop-blur-md transition-all duration-300 hover:border-[#d1af6e]/25 hover:from-[#d1af6e]/[0.09]">
+              className="group flex items-center justify-between rounded-[24px] border border-[#d1af6e]/15 bg-gradient-to-br from-[#d1af6e]/[0.06] to-transparent p-6 backdrop-blur-md transition-all duration-300 hover:border-[#d1af6e]/30 hover:from-[#d1af6e]/[0.12] md:p-7">
               <div>
-                <h4 className="text-sm font-serif font-semibold text-white group-hover:text-[#d1af6e] transition-colors">Looking for numbers?</h4>
-                <p className="mt-0.5 text-xs text-white/40 group-hover:text-white/60 transition-colors">Access our interactive cost estimator.</p>
+                <h4 className="font-serif text-sm font-semibold text-white transition-colors group-hover:text-[#d1af6e]">Looking for numbers?</h4>
+                <p className="mt-1 text-xs text-white/50 transition-colors group-hover:text-white/70">Access our interactive cost estimator.</p>
               </div>
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/8 bg-white/[0.04] group-hover:border-[#d1af6e]/30 group-hover:bg-[#d1af6e]/8 transition-all">
-                <Calculator className="h-4 w-4 text-white/40 group-hover:text-[#d1af6e] transition-colors" />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/8 bg-white/[0.04] transition-all group-hover:border-[#d1af6e]/30 group-hover:bg-[#d1af6e]/10">
+                <Calculator className="h-5 w-5 text-white/40 transition-colors group-hover:text-[#d1af6e]" />
+              </div>
+            </Link>
+
+            {/* Discovery nudge */}
+            <Link to="/aesthetic-discovery-engine"
+              onClick={() => track(analytics, "discovery_path_selected", { pathId: "contact_page_cta" })}
+              className="group flex items-center justify-between rounded-[24px] border border-[#8B5CF6]/20 bg-gradient-to-br from-[#8B5CF6]/[0.06] to-transparent p-6 backdrop-blur-md transition-all duration-300 hover:border-[#8B5CF6]/40 hover:from-[#8B5CF6]/[0.12] md:p-7">
+              <div>
+                <h4 className="font-serif text-sm font-semibold text-white transition-colors group-hover:text-[#8B5CF6]">Not sure about your style?</h4>
+                <p className="mt-1 text-xs text-white/50 transition-colors group-hover:text-white/70">Try our Aesthetic Discovery Engine.</p>
+              </div>
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/8 bg-white/[0.04] transition-all group-hover:border-[#8B5CF6]/30 group-hover:bg-[#8B5CF6]/10">
+                <Sparkles className="h-5 w-5 text-white/40 transition-colors group-hover:text-[#8B5CF6]" />
               </div>
             </Link>
           </div>

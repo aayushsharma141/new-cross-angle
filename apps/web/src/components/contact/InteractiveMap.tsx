@@ -72,7 +72,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = () => {
                     <div className="absolute inset-0 rounded-full border border-[#d1af6e]/25" style={{ animation: "mapPing 1.8s ease-out infinite" }} />
                     <MapPin className="h-4 w-4 text-[#d1af6e]/60" />
                   </div>
-                  {shouldLoad && <p className="text-[10px] uppercase tracking-[0.2em] text-white/25">Loading map…</p>}
+                  {shouldLoad && <p className="text-[11px] uppercase tracking-[0.2em] text-white/50">Loading map…</p>}
                 </div>
               </div>
             </div>
@@ -114,29 +114,29 @@ const InteractiveMap: React.FC<InteractiveMapProps> = () => {
                   <MapPin className="h-3 w-3 text-[#d1af6e]" />
                 </div>
                 <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#d1af6e]/70">Studio</p>
-                  <p className="text-xs font-semibold text-white leading-tight">Cross Angle Interior</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d1af6e]">Studio</p>
+                  <p className="text-sm font-semibold text-white leading-tight">Cross Angle Interior</p>
                 </div>
               </div>
               <div className="space-y-1.5 pl-9">
                 <div className="flex items-start gap-2">
-                  <MapPin className="mt-0.5 h-3 w-3 shrink-0 text-white/30" />
-                  <p className="text-[11px] leading-relaxed text-white/55">{address}</p>
+                  <MapPin className="mt-0.5 h-3 w-3 shrink-0 text-white/40" />
+                  <p className="text-[12px] leading-relaxed text-white/70">{address}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-3 w-3 shrink-0 text-white/30" />
-                  <p className="text-[11px] text-white/55">Mon – Sat, 9 AM – 7 PM</p>
+                  <Clock className="h-3 w-3 shrink-0 text-white/40" />
+                  <p className="text-[12px] text-white/70">Mon – Sat, 9 AM – 7 PM</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="h-3 w-3 shrink-0 text-white/30" />
-                  <a href={`tel:${phone.replace(/\s/g, "")}`} className="text-[11px] text-white/55 hover:text-[#d1af6e] transition-colors">{phone}</a>
+                  <Phone className="h-3 w-3 shrink-0 text-white/40" />
+                  <a href={`tel:${phone.replace(/\s/g, "")}`} className="text-[12px] text-white/70 hover:text-[#d1af6e] transition-colors">{phone}</a>
                 </div>
               </div>
               <a
                 href="https://www.google.com/maps/place/Cross+Angle+Interior/@22.8027,86.2047,15z?cid=13776842535355950153"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-[10px] border border-white/8 bg-white/5 py-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/60 transition-all hover:bg-[#d1af6e]/10 hover:border-[#d1af6e]/25 hover:text-[#d1af6e]"
+                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-[10px] border border-white/8 bg-white/5 py-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-white/80 transition-all hover:bg-[#d1af6e]/10 hover:border-[#d1af6e]/25 hover:text-[#d1af6e]"
               >
                 Open in Maps <ExternalLink className="h-2.5 w-2.5" />
               </a>

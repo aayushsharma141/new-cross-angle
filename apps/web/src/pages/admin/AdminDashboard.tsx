@@ -238,12 +238,12 @@ const AdminDashboard = (): JSX.Element => {
               {can('content', 'edit') && (
                 <QuickActionButton icon={Package} label="CMS Build" href="/admin/cms/portfolio" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
               )}
-              <QuickActionButton icon={Send} label="Outreach" href="/admin/discovery/analytics" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
-              <QuickActionButton icon={Layers} label="Resources" href="/admin/cms/media" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
+              <QuickActionButton icon={Send} label="Outreach" href="/admin/discovery/quiz-analytics" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
+              <QuickActionButton icon={Layers} label="Resources" href="/admin/cms/media-library" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
             </div>
           </div>
 
-          <Link to="/admin/discovery/analytics" className="block bg-[hsl(var(--admin-primary))]/5 border border-[hsl(var(--admin-primary))]/20 rounded-2xl p-5 group hover:bg-[hsl(var(--admin-primary))]/10 transition-all">
+          <Link to="/admin/discovery/quiz-analytics" className="block bg-[hsl(var(--admin-primary))]/5 border border-[hsl(var(--admin-primary))]/20 rounded-2xl p-5 group hover:bg-[hsl(var(--admin-primary))]/10 transition-all">
             <h3 className="text-sm font-bold text-[hsl(var(--admin-primary))] flex items-center justify-between mb-2">
               Growth Insights
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

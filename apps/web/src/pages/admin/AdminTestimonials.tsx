@@ -1,25 +1,22 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { AdminTabSlider } from "@/components/admin/ui/AdminTabSlider";
-import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
-import { AnalyticsKpiRow } from "@/components/admin/analytics/AnalyticsKpiRow";
-import { Plus, Loader2, Grid, List as ListIcon, Eye, EyeOff, MessageSquare, StarHalf, ShieldCheck, EyeOff as EyeOffIcon } from "lucide-react";
-import { Button } from "@/components/ui/primitives/button";
-import { useToast } from "@/hooks/useToast";
+import { MessageSquare, ShieldCheck, EyeOff, StarHalf, Edit2, Trash2, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { icons } from "@/design-system/tokens/icons";
-import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/useToast";
 import { usePermissions } from "@/hooks/usePermissions";
-import type { LucideIcon } from "lucide-react";
-
-import { TestimonialsToolbar } from "@/components/admin/testimonials/TestimonialsToolbar";
-import { TestimonialsTable, type Testimonial } from "@/components/admin/testimonials/TestimonialsTable";
-import { TestimonialsGrid } from "@/components/admin/testimonials/TestimonialsGrid";
+import { 
+  AdminPageHeader, 
+  AdminMetricsPanel, 
+  AdminFilterBar, 
+  AdminEmptyState, 
+  AdminSafeAction, 
+  AdminSkeletonCard 
+} from "@/components/admin/shared";
+import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { TestimonialFormDialog, type TestimonialFormData } from "@/components/admin/testimonials/TestimonialFormDialog";
-import { TestimonialDeleteDialog } from "@/components/admin/testimonials/TestimonialDeleteDialog";
-import { BulkActionsBar } from "@/components/admin/testimonials/BulkActionsBar";
+import type { Testimonial } from "@/components/admin/testimonials/TestimonialsTable";
 
-type TestimonialStatus = "active" | "inactive";
+type TestimonialStatus = "All" | "Active" | "Hidden";
 
 const defaultFormData: TestimonialFormData = {
   author_name: "", author_role: "", content: "", rating: 5, avatar_url: "", active: true, city: "",
@@ -28,207 +25,265 @@ const defaultFormData: TestimonialFormData = {
 const AdminTestimonials = () => {
   const [searchParams] = useSearchParams();
   const editId = searchParams.get("edit");
-  const deepLinkHandled = useRef(false);
+  const { toast } = useToast();
+  const { can } = usePermissions();
+  const canWrite = can("content", "edit");
 
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<TestimonialStatus>("All");
+  
+  // Dialog state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<TestimonialFormData>(defaultFormData);
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<TestimonialStatus | "all">("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
 
-  const { toast } = useToast();
-  const { can } = usePermissions();
-  const isReadOnly = !can("content", "edit");
-  const canWrite = can("content", "edit");
-
-  const fetchTestimonials = useCallback(async (): Promise<void> => {
+  const fetchTestimonials = useCallback(async () => {
     setIsLoading(true);
-    const { data, error } = await supabase.from('testimonials').select('*').is('project_id', null).order('display_order', { ascending: true });
-    if (error) { toast({ title: "Error fetching testimonials", description: error.message, variant: "destructive" }); }
-    else if (data) { setTestimonials(data); }
+    const { data, error } = await supabase
+      .from('testimonials')
+      .select('*')
+      .is('project_id', null)
+      .order('display_order', { ascending: true });
+      
+    if (error) {
+      toast({ title: "Error fetching testimonials", description: error.message, variant: "destructive" });
+    } else if (data) {
+      setTestimonials(data);
+    }
     setIsLoading(false);
   }, [toast]);
 
+  useEffect(() => { void fetchTestimonials(); }, [fetchTestimonials]);
+
   const handleEdit = useCallback((t: Testimonial) => {
     setEditingTestimonial(t);
-    setFormData({ author_name: t.author_name, author_role: t.author_role || "", content: t.content, rating: t.rating || 5, avatar_url: t.avatar_url || "", active: t.active ?? true, city: t.city || "" });
+    setFormData({ 
+      author_name: t.author_name, 
+      author_role: t.author_role || "", 
+      content: t.content, 
+      rating: t.rating || 5, 
+      avatar_url: t.avatar_url || "", 
+      active: t.active ?? true, 
+      city: t.city || "" 
+    });
     setIsDialogOpen(true);
   }, []);
 
-  useEffect(() => { void fetchTestimonials(); }, [fetchTestimonials]);
-  useEffect(() => { setCurrentPage(1); }, [testimonials, searchQuery, statusFilter]);
-  useEffect(() => {
-    if (editId && !deepLinkHandled.current && testimonials.length > 0) {
-      deepLinkHandled.current = true;
-      const target = testimonials.find(t => t.id === editId);
-      if (target) handleEdit(target);
-    }
-  }, [editId, handleEdit, testimonials]);
-
-  const filteredTestimonials = useMemo(() => {
-    let filtered = [...testimonials];
-    if (searchQuery) { const q = searchQuery.toLowerCase(); filtered = filtered.filter(t => t.author_name.toLowerCase().includes(q) || (t.author_role && t.author_role.toLowerCase().includes(q)) || t.content.toLowerCase().includes(q)); }
-    if (statusFilter !== "all") { filtered = filtered.filter(t => statusFilter === "active" ? t.active : !t.active); }
-    return filtered;
-  }, [testimonials, searchQuery, statusFilter]);
-
-  const paginatedTestimonials = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return filteredTestimonials.slice(start, start + itemsPerPage);
-  }, [filteredTestimonials, currentPage]);
-
-  const totalPages = Math.ceil(filteredTestimonials.length / itemsPerPage);
-
-  const closeDialog = () => { setIsDialogOpen(false); setEditingTestimonial(null); setFormData(defaultFormData); };
-
-  const toggleSelectAll = () => {
-    if (selectedIds.size === paginatedTestimonials.length) setSelectedIds(new Set());
-    else setSelectedIds(new Set(paginatedTestimonials.map(t => t.id)));
-  };
-
-  const toggleSelect = (id: string) => {
-    const next = new Set(selectedIds);
-    if (next.has(id)) next.delete(id); else next.add(id);
-    setSelectedIds(next);
+  const closeDialog = () => { 
+    setIsDialogOpen(false); 
+    setEditingTestimonial(null); 
+    setFormData(defaultFormData); 
   };
 
   const handleSave = async (): Promise<void> => {
     if (!formData.author_name.trim()) { toast({ title: "Validation Error", description: "Author name is required.", variant: "destructive" }); return; }
     if (!formData.content.trim()) { toast({ title: "Validation Error", description: "Content is required.", variant: "destructive" }); return; }
     setIsSaving(true);
-    const payload = { author_name: formData.author_name.trim(), author_role: formData.author_role.trim() || null, content: formData.content.trim(), rating: formData.rating, avatar_url: formData.avatar_url.trim() || null, active: formData.active, city: formData.city.trim() || null };
+    
+    const payload = { 
+      author_name: formData.author_name.trim(), 
+      author_role: formData.author_role.trim() || null, 
+      content: formData.content.trim(), 
+      rating: formData.rating, 
+      avatar_url: formData.avatar_url.trim() || null, 
+      active: formData.active, 
+      city: formData.city.trim() || null 
+    };
+    
     let error;
-    if (editingTestimonial) { const { error: e } = await supabase.from('testimonials').update(payload).eq('id', editingTestimonial.id); error = e; }
-    else { const { error: e } = await supabase.from('testimonials').insert({ ...payload, display_order: testimonials.length }); error = e; }
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else { toast({ title: editingTestimonial ? "Testimonial updated" : "Testimonial created", description: `Successfully ${editingTestimonial ? 'updated' : 'created'} testimonial.` }); await fetchTestimonials(); closeDialog(); }
+    if (editingTestimonial) { 
+      const { error: e } = await supabase.from('testimonials').update(payload).eq('id', editingTestimonial.id); 
+      error = e; 
+    } else { 
+      const { error: e } = await supabase.from('testimonials').insert({ ...payload, display_order: testimonials.length }); 
+      error = e; 
+    }
+    
+    if (error) { 
+      toast({ title: "Error", description: error.message, variant: "destructive" }); 
+    } else { 
+      toast({ title: editingTestimonial ? "Testimonial updated" : "Testimonial created", description: `Successfully ${editingTestimonial ? 'updated' : 'created'} testimonial.` }); 
+      await fetchTestimonials(); 
+      closeDialog(); 
+    }
     setIsSaving(false);
   };
 
-  const handleDelete = async (): Promise<void> => {
-    if (!deletingId) return;
-    const { error } = await supabase.from('testimonials').delete().eq('id', deletingId);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else { toast({ title: "Deleted", description: "Testimonial deleted successfully." }); await fetchTestimonials(); setIsDeleteDialogOpen(false); setDeletingId(null); }
-  };
-
-  const handleBulkDelete = async () => {
-    try {
-      await Promise.all(Array.from(selectedIds).map(id => supabase.from('testimonials').delete().eq('id', id)));
-      toast({ title: "Deleted", description: `${selectedIds.size} testimonials deleted.` });
-      setSelectedIds(new Set());
-      await fetchTestimonials();
-    } catch (err) {
-      toast({ title: "Error", description: (err as Error).message, variant: "destructive" });
+  const handleDelete = async (id: string): Promise<void> => {
+    const { error } = await supabase.from('testimonials').delete().eq('id', id);
+    if (error) { 
+      throw error; 
+    } else { 
+      toast({ title: "Deleted", description: "Testimonial deleted successfully." }); 
+      await fetchTestimonials(); 
     }
   };
 
-  const handleBulkToggleActive = async (active: boolean) => {
-    try {
-      await Promise.all(Array.from(selectedIds).map(id => supabase.from('testimonials').update({ active }).eq('id', id)));
-      toast({ title: "Updated", description: `${selectedIds.size} testimonials ${active ? 'activated' : 'deactivated'}.` });
-      setSelectedIds(new Set());
-      await fetchTestimonials();
-    } catch (err) {
-      toast({ title: "Error", description: (err as Error).message, variant: "destructive" });
-    }
-  };
-
+  // Derived state
   const activeCount = testimonials.filter(t => t.active).length;
-  const inactiveCount = testimonials.length - activeCount;
-  const avgRating = testimonials.length > 0 ? (testimonials.reduce((sum, t) => sum + (t.rating || 0), 0) / (testimonials.filter(t => t.rating).length || 1)).toFixed(1) : "—";
+  const hiddenCount = testimonials.length - activeCount;
+  const avgRating = testimonials.length > 0 
+    ? (testimonials.reduce((sum, t) => sum + (t.rating || 0), 0) / testimonials.length).toFixed(1) 
+    : "—";
 
-  const kpiMetrics: Parameters<typeof AnalyticsKpiRow>[0]["metrics"] = [
-    { title: "Total Testimonials", value: String(testimonials.length), numericValue: testimonials.length, icon: MessageSquare as LucideIcon, variant: "secondary" },
-    { title: "Active", value: String(activeCount), numericValue: activeCount, icon: ShieldCheck as LucideIcon, variant: "accent", change: `${testimonials.length > 0 ? Math.round((activeCount / testimonials.length) * 100) : 0}% of total`, trend: "up" },
-    { title: "Hidden", value: String(inactiveCount), numericValue: inactiveCount, icon: EyeOff as LucideIcon, variant: "accent", change: inactiveCount > 0 ? "Needs review" : "All active", trend: inactiveCount > 0 ? "down" : "neutral" },
-    { title: "Avg Rating", value: String(avgRating), icon: StarHalf as LucideIcon, variant: "gold" },
+  const metrics = [
+    { label: "Total Reviews", value: String(testimonials.length), dotColor: "info" as const },
+    { label: "Published", value: String(activeCount), dotColor: "success" as const },
+    { label: "Hidden", value: String(hiddenCount), dotColor: hiddenCount > 0 ? "warning" as const : "success" as const },
+    { label: "Avg Rating", value: `${avgRating} / 5.0`, dotColor: "accent" as const },
   ];
 
-  if (isLoading) {
-    return (<div className="flex items-center justify-center min-h-[400px]"><div className="text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-[hsl(var(--admin-primary))] mb-4" /><p className="text-[hsl(var(--admin-muted))]">Loading testimonials...</p></div></div>);
-  }
-
-  const Pagination = () => totalPages > 1 ? (
-    <div className="flex items-center justify-between pt-4 mt-auto">
-      <p className="text-sm text-[hsl(var(--admin-muted))]">Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredTestimonials.length)} of {filteredTestimonials.length} entries</p>
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))]">Previous</Button>
-        <div className="flex items-center gap-1">
-          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-            let pageNum = i + 1;
-            if (totalPages > 5 && currentPage > 3) {
-              pageNum = currentPage - 2 + i;
-              if (pageNum > totalPages) pageNum = totalPages - (4 - i);
-            }
-            return (
-              <Button
-                key={pageNum}
-                variant="ghost"
-                size="sm"
-                onClick={() => setCurrentPage(pageNum)}
-                className={cn(
-                  "w-8 h-8 p-0 rounded-md",
-                  currentPage === pageNum ? "bg-[hsl(var(--admin-primary))]/20 text-[hsl(var(--admin-primary))] font-medium" : "text-[hsl(var(--admin-text-muted))]"
-                )}
-              >
-                {pageNum}
-              </Button>
-            );
-          })}
-        </div>
-        <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))]">Next</Button>
-      </div>
-    </div>
-  ) : null;
+  const filteredTestimonials = useMemo(() => {
+    if (statusFilter === "Active") return testimonials.filter(t => t.active);
+    if (statusFilter === "Hidden") return testimonials.filter(t => !t.active);
+    return testimonials;
+  }, [testimonials, statusFilter]);
 
   return (
-    <div className="flex flex-col animate-in fade-in duration-700">
-      <ModuleActions>
-        {canWrite && (
-          <Button variant="primary" onClick={() => setIsDialogOpen(true)}>
-            <Plus className={`${icons.sm} mr-2`} /> Add Testimonial
-          </Button>
-        )}
-      </ModuleActions>
-
-      <AdminTabSlider
-        header={
-          <div className="mb-6 space-y-4 shrink-0">
-            <AnalyticsKpiRow metrics={kpiMetrics} isLoading={isLoading} />
-          </div>
+    <div className="w-full font-mono">
+      <style>{`
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        tabs={[
-          { id: "table", label: "List View", icon: ListIcon, content: (
-            <div className="flex flex-col space-y-4 h-full relative">
-              {selectedIds.size > 0 && <BulkActionsBar count={selectedIds.size} canWrite={canWrite} onClear={() => setSelectedIds(new Set())} onActivate={() => handleBulkToggleActive(true)} onDeactivate={() => handleBulkToggleActive(false)} onDelete={handleBulkDelete} />}
-              <div className="shrink-0 mb-2"><h2 className="text-xl admin-title">List View</h2><p className="admin-subtitle text-sm mt-1">Detailed table for quick scanning and management.</p></div>
-              <TestimonialsToolbar searchQuery={searchQuery} onSearchChange={setSearchQuery} statusFilter={statusFilter} onStatusFilterChange={setStatusFilter} resultCount={filteredTestimonials.length} />
-              <TestimonialsTable testimonials={paginatedTestimonials} selectedIds={selectedIds} onToggleSelect={toggleSelect} onToggleSelectAll={toggleSelectAll} onEdit={handleEdit} onDelete={(id) => { setDeletingId(id); setIsDeleteDialogOpen(true); }} isReadOnly={isReadOnly} canWrite={canWrite} />
-              <Pagination />
-            </div>
-          )},
-          { id: "grid", label: "Card Grid", icon: Grid, content: (
-            <div className="flex flex-col space-y-4 h-full relative">
-              {selectedIds.size > 0 && <BulkActionsBar count={selectedIds.size} canWrite={canWrite} onClear={() => setSelectedIds(new Set())} onActivate={() => handleBulkToggleActive(true)} onDeactivate={() => handleBulkToggleActive(false)} onDelete={handleBulkDelete} />}
-              <div className="shrink-0 mb-2"><h2 className="text-xl admin-title">Card Grid</h2><p className="admin-subtitle text-sm mt-1">Visual layout representing how testimonials look.</p></div>
-              <TestimonialsToolbar searchQuery={searchQuery} onSearchChange={setSearchQuery} statusFilter={statusFilter} onStatusFilterChange={setStatusFilter} resultCount={filteredTestimonials.length} />
-              <TestimonialsGrid testimonials={paginatedTestimonials} selectedIds={selectedIds} onToggleSelect={toggleSelect} onEdit={handleEdit} onDelete={(id) => { setDeletingId(id); setIsDeleteDialogOpen(true); }} canWrite={canWrite} />
-              <Pagination />
-            </div>
-          )},
-        ]}
+        .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+        .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+        .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+        .fade-up-4 { animation: fadeUp var(--anim-duration) var(--anim-stagger-4) var(--anim-ease) both; }
+      `}</style>
+      
+      <AdminPageHeader moduleName="CMS" tabName="Testimonials" />
+
+      <div className="fade-up-1">
+        <AdminMetricsPanel metrics={metrics} />
+      </div>
+
+      <div className="fade-up-2">
+        <AdminFilterBar 
+          title="Client Testimonials"
+          icon={MessageSquare}
+          badgeCount={activeCount > 0 ? `${activeCount} active` : undefined}
+          filters={["All", "Active", "Hidden"]}
+          activeFilter={statusFilter}
+          onFilterChange={(f) => setStatusFilter(f as TestimonialStatus)}
+        />
+      </div>
+
+      <div className="flex flex-col gap-[10px]">
+        {isLoading ? (
+          <>
+            <AdminSkeletonCard size="md" />
+            <AdminSkeletonCard size="md" />
+            <AdminSkeletonCard size="md" />
+          </>
+        ) : filteredTestimonials.length === 0 ? (
+          <div className="fade-up-3 mt-4">
+            <AdminEmptyState 
+              icon={MessageSquare}
+              title="No testimonials found"
+              description="You don't have any testimonials matching this filter yet."
+            />
+          </div>
+        ) : (
+          filteredTestimonials.map((testimonial, i) => {
+            const delayClass = `fade-up-${Math.min((i % 4) + 1, 4)}`;
+            
+            return (
+              <div key={testimonial.id} className={`${delayClass} group`}>
+                <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-xl p-5 hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200 grid grid-cols-[44px_1fr_auto] gap-4 items-center">
+                  
+                  {/* Avatar */}
+                  <div className="w-[44px] h-[44px] rounded-[10px] bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex flex-col items-center justify-center shrink-0 overflow-hidden">
+                    {testimonial.avatar_url ? (
+                      <img src={testimonial.avatar_url} alt={testimonial.author_name} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-5 h-5 text-[hsl(var(--admin-text-muted))]" />
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2.5 mb-1 flex-wrap">
+                      <span className="text-[15px] font-bold text-[hsl(var(--admin-text))]">
+                        {testimonial.author_name}
+                      </span>
+                      
+                      {testimonial.active ? (
+                        <span className="bg-[hsl(var(--admin-success)/0.12)] border border-[hsl(var(--admin-success)/0.25)] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-success))] tracking-wide uppercase flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--admin-success))] shadow-[0_0_4px_hsl(var(--admin-success))]" />
+                          Active
+                        </span>
+                      ) : (
+                        <span className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] tracking-wide uppercase">
+                          Hidden
+                        </span>
+                      )}
+                      
+                      <div className="flex text-[hsl(var(--admin-accent))] items-center ml-2">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <StarHalf key={i} className={`w-3.5 h-3.5 ${i < (testimonial.rating || 5) ? 'fill-current' : 'opacity-30'}`} />
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="text-[13px] text-[hsl(var(--admin-text-muted))] truncate max-w-2xl mb-2">
+                      "{testimonial.content}"
+                    </div>
+                    
+                    <div className="text-[12px] text-[hsl(var(--admin-text-muted))]">
+                      {testimonial.author_role} {testimonial.city && `· ${testimonial.city}`}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {canWrite && (
+                      <>
+                        <button
+                          onClick={() => handleEdit(testimonial)}
+                          className="px-2.5 py-2 rounded-[7px] text-[12px] font-normal bg-transparent border border-transparent text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-150 flex items-center gap-1 cursor-pointer"
+                        >
+                          <Edit2 className="w-[13px] h-[13px]" />
+                          Edit
+                        </button>
+                        
+                        <AdminSafeAction
+                          icon={Trash2}
+                          label="Delete"
+                          confirmLabel="Delete review?"
+                          onConfirm={() => handleDelete(testimonial.id)}
+                          danger
+                        />
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {canWrite && !isLoading && (
+        <div className="fade-up-4 mt-[10px]">
+          <AdminAddCard 
+            label="Add a new testimonial"
+            onClick={() => setIsDialogOpen(true)}
+          />
+        </div>
+      )}
+
+      <TestimonialFormDialog 
+        open={isDialogOpen} 
+        onClose={closeDialog} 
+        formData={formData} 
+        onChange={setFormData} 
+        onSave={handleSave} 
+        isSaving={isSaving} 
+        isEditing={!!editingTestimonial} 
       />
-      <TestimonialFormDialog open={isDialogOpen} onClose={closeDialog} formData={formData} onChange={setFormData} onSave={handleSave} isSaving={isSaving} isEditing={!!editingTestimonial} />
-      <TestimonialDeleteDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen} onConfirm={handleDelete} />
     </div>
   );
 };

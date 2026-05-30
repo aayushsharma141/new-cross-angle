@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import { useToast } from "@/hooks/useToast";
 import { Mail, Plus, Trash2, Send } from "lucide-react";
+import { AdminFormCard } from "@/components/admin/shared";
 
 export function ReportRecipientsManager() {
   const { toast } = useToast();
@@ -91,14 +92,7 @@ export function ReportRecipientsManager() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-base font-semibold text-[hsl(var(--admin-text))]">Weekly Report Recipients</h3>
-        <p className="text-sm text-[hsl(var(--admin-text-muted))] mt-1">
-          These email addresses receive the automated Friday executive summary with lead metrics and pipeline updates.
-        </p>
-      </div>
-
+    <AdminFormCard title="Report Recipients" description="Manage email addresses that receive weekly automated reports" icon={Mail} contentClassName="space-y-6">
       <div className="flex gap-2">
         <Input
           type="email"
@@ -136,11 +130,11 @@ export function ReportRecipientsManager() {
         </ul>
       )}
 
-      <div className="pt-4 border-t border-[hsl(var(--admin-border))]">
-        <Button variant="outline" size="sm" onClick={sendTestReport}>
+      <div className="pt-4 border-t border-[hsl(var(--admin-border))] flex justify-end">
+        <Button variant="outline" size="sm" onClick={sendTestReport} className="bg-[hsl(var(--admin-surface))] hover:text-black hover:bg-[hsl(var(--admin-primary))] h-9">
           <Send className="w-4 h-4 mr-2" /> Send Test Report Now
         </Button>
       </div>
-    </div>
+    </AdminFormCard>
   );
 }

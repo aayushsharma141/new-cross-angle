@@ -63,7 +63,7 @@ export default function AdminTeam() {
         mutationFn: async (member: Partial<TeamMember>) => {
             const { data, error } = await supabase
                 .from("team_members")
-                .upsert(member)
+                .upsert(member as Omit<TeamMember, "created_at"> & { id?: string })
                 .select()
                 .single();
 

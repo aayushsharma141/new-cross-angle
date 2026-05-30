@@ -16,6 +16,7 @@ import {
 import { useToast } from '@/hooks/useToast';
 import { BulkActionsToolbar } from '@/components/admin/BulkActionsToolbar';
 import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
+import { AdminPageHeader, AdminMetricsPanel, type AdminMetric } from '@/components/admin/shared';
 import { auditService } from '@/services/AuditService';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -147,22 +148,37 @@ export default function AdminEstimateLeads() {
 
 
   return (
-    <div className="space-y-6 py-4 animate-in fade-in duration-500">
-      <ModuleActions>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={exportCSV} className="gap-2 border-[hsl(var(--admin-border))] text-[hsl(var(--admin-muted))]">
-            <Download className="w-3.5 h-3.5" /> Export CSV
-          </Button>
-        </div>
-      </ModuleActions>
+    <div className="flex flex-col space-y-6">
+      <style>{`
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+        .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+        .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+        .fade-up-4 { animation: fadeUp var(--anim-duration) var(--anim-stagger-4) var(--anim-ease) both; }
+      `}</style>
 
-      {/* Analytics KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard label="Total Leads" value={analytics.total.toString()} icon={Users} color="hsl(43,74%,49%)" />
-        <KpiCard label="Pipeline Value" value={`₹${(analytics.totalPipeline / 100000).toFixed(1)}L`} icon={TrendingUp} color="hsl(200,70%,50%)" />
-        <KpiCard label="Avg Estimate" value={formatINR(analytics.avgEstimate)} icon={Calculator} color="hsl(150,60%,45%)" />
-        <KpiCard label="Conversion" value={`${analytics.convRate}%`} icon={Target} color="hsl(280,60%,55%)" sub={`${analytics.wonCount} won`} />
+      <AdminPageHeader moduleName="Estimator" tabName="Leads" />
+
+      <div className="fade-up-1">
+        <AdminMetricsPanel metrics={[
+          { label: "Total Leads", value: analytics.total.toString(), dotColor: "accent" },
+          { label: "Pipeline Value", value: `₹${(analytics.totalPipeline / 100000).toFixed(1)}L`, dotColor: "info" },
+          { label: "Avg Estimate", value: formatINR(analytics.avgEstimate), dotColor: "success" },
+          { label: "Conversion", value: `${analytics.convRate}% (${analytics.wonCount} won)`, dotColor: "warning" },
+        ]} />
       </div>
+
+      <div className="fade-up-2 flex flex-col gap-6">
+        <ModuleActions>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={exportCSV} className="gap-2 bg-[hsl(var(--admin-surface))] hover:text-black hover:bg-[hsl(var(--admin-primary))] border-[hsl(var(--admin-border))] h-9">
+              <Download className="w-3.5 h-3.5" /> Export CSV
+            </Button>
+          </div>
+        </ModuleActions>
 
       {/* Status Distribution Mini Chart */}
       {statusChartData.length > 0 && (
@@ -210,10 +226,13 @@ export default function AdminEstimateLeads() {
         <span className="text-xs text-[hsl(var(--admin-text-muted))]">{filteredData.length} results</span>
       </div>
 
-      {/* Bulk Actions */}
-      {selectedIds.size > 0 && (
-        <BulkActionsToolbar selectedCount={selectedIds.size} onClear={() => setSelectedIds(new Set())} onDelete={handleBulkDelete} />
-      )}
+        {/* Bulk Actions */}
+        {selectedIds.size > 0 && (
+          <BulkActionsToolbar selectedCount={selectedIds.size} onClear={() => setSelectedIds(new Set())} onDelete={handleBulkDelete} />
+        )}
+      </div>
+
+      <div className="fade-up-3">
 
       {/* Table */}
       <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] overflow-hidden">
@@ -357,18 +376,8 @@ export default function AdminEstimateLeads() {
   );
 }
 
-function KpiCard({ label, value, icon: Icon, color, sub }: { label: string; value: string; icon: React.ElementType; color: string; sub?: string }) {
-  return (
-    <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-4 relative overflow-hidden group">
-      <div className="absolute top-0 left-0 w-1 h-full opacity-50 group-hover:opacity-100 transition-opacity" style={{ background: color }} />
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="text-[10px] font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-widest">{label}</p>
-          <h3 className="text-lg font-bold text-[hsl(var(--admin-text))] mt-1">{value}</h3>
-          {sub && <p className="text-[10px] text-[hsl(var(--admin-text-muted))] mt-0.5">{sub}</p>}
         </div>
-        <div className="p-2 rounded-xl bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))]" style={{ color }}><Icon size={16} /></div>
-      </div>
+      )}
     </div>
   );
 }

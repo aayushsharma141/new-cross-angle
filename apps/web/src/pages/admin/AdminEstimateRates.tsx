@@ -13,6 +13,7 @@ import type { PricingConfig } from "@/addons/calculators/components/data/types";
 import { DEFAULT_PRICING_CONFIG } from "@/addons/calculators/components/data/pricing-config";
 import { calculateEstimate } from "@/addons/calculators/components/data/calculation-engine";
 import type { CalculatorFormData } from "@/addons/calculators/components/data/types";
+import { AdminPageHeader, AdminFormCard, AdminSafeAction } from "@/components/admin/shared";
 
 const formatLabel = (key: string) =>
     key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -103,7 +104,7 @@ export default function AdminEstimateRates() {
         setHasChanges(true);
     };
 
-    const handleReset = (): void => {
+    const handleReset = async (): Promise<void> => {
         if (rateData?.config) {
             const loadedConfig = rateData.config;
             setConfig({ ...DEFAULT_PRICING_CONFIG, ...loadedConfig });
@@ -163,43 +164,59 @@ export default function AdminEstimateRates() {
     }
 
     return (
-        <div className="flex flex-col space-y-6 animate-in fade-in duration-500 pb-20">
-            <ModuleActions>
-                <div className="flex items-center gap-2">
-                    {rateData?.updated_at && (
-                        <span className="text-xs text-admin-muted flex items-center gap-1 bg-admin-card px-2 py-1 rounded-md border border-admin-border">
-                            <Clock className={icons.xs} />
-                            Updated {new Date(rateData.updated_at).toLocaleDateString("en-IN")}
-                        </span>
-                    )}
-                    <Button variant="outline" onClick={handleReset} disabled={!hasChanges} className="border-admin-border bg-admin-card text-admin-text hover:bg-admin-surface hover:border-admin-border">
-                        <RotateCcw className="mr-2 h-4 w-4" /> Reset
-                    </Button>
-                    <Button
-                        onClick={() => saveMutation.mutate()}
-                        disabled={!hasChanges || saveMutation.isPending}
-                        className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/20 border-0"
-                    >
-                        {saveMutation.isPending ? (
-                            <Loader2 className={`${icons.sm} mr-2 animate-spin`} />
-                        ) : (
-                            <Save className={`${icons.sm} mr-2`} />
-                        )}
-                        Save Changes
-                    </Button>
-                </div>
-            </ModuleActions>
+        <div className="flex flex-col space-y-6 pb-20">
+            <style>{`
+                @keyframes fadeUp {
+                    from { opacity: 0; transform: translateY(12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .fade-up-1 { animation: fadeUp var(--anim-duration) var(--anim-stagger-1) var(--anim-ease) both; }
+                .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
+                .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
+            `}</style>
 
-            <div className="grid lg:grid-cols-[1fr_300px] gap-5">
+            <AdminPageHeader moduleName="Estimator" tabName="Rates & Logic" />
+
+            <div className="fade-up-1">
+                <ModuleActions>
+                    <div className="flex items-center gap-2">
+                        {rateData?.updated_at && (
+                            <span className="text-xs text-[hsl(var(--admin-text-muted))] flex items-center gap-1 bg-[hsl(var(--admin-card))] px-2 py-1 rounded-md border border-[hsl(var(--admin-border))]">
+                                <Clock className={icons.xs} />
+                                Updated {new Date(rateData.updated_at).toLocaleDateString("en-IN")}
+                            </span>
+                        )}
+                        {hasChanges && (
+                            <AdminSafeAction
+                                icon={RotateCcw}
+                                label="Reset"
+                                confirmLabel="Discard unsaved?"
+                                onConfirm={handleReset}
+                                danger={true}
+                            />
+                        )}
+                        <Button
+                            onClick={() => saveMutation.mutate()}
+                            disabled={!hasChanges || saveMutation.isPending}
+                            className="bg-[hsl(var(--admin-primary))] text-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-primary))]/90 h-9"
+                        >
+                            {saveMutation.isPending ? (
+                                <Loader2 className={`${icons.sm} mr-2 animate-spin`} />
+                            ) : (
+                                <Save className={`${icons.sm} mr-2`} />
+                            )}
+                            Save Changes
+                        </Button>
+                    </div>
+                </ModuleActions>
+            </div>
+
+            <div className="grid lg:grid-cols-[1fr_300px] gap-5 fade-up-2">
                 {/* Config Forms */}
                 <div className="space-y-4">
 
                     {/* Design Rates */}
-                    <section className="rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-4 space-y-2">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Paintbrush className="w-3.5 h-3.5 text-purple-400" />
-                            <h3 className="text-xs font-bold text-[hsl(var(--admin-text))]">Design Rates</h3>
-                        </div>
+                    <AdminFormCard title="Design Rates" icon={Paintbrush} iconClassName="text-purple-400">
                         <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-2">
                             {Object.entries(config.design).map(([key, val]) => (
                                 <div key={key} className="flex items-center justify-between gap-2">
@@ -208,14 +225,10 @@ export default function AdminEstimateRates() {
                                 </div>
                             ))}
                         </div>
-                    </section>
+                    </AdminFormCard>
 
                     {/* Execution Rates */}
-                    <section className="rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-4 space-y-2">
-                        <div className="flex items-center gap-2 mb-2">
-                            <HardHat className="w-3.5 h-3.5 text-amber-400" />
-                            <h3 className="text-xs font-bold text-[hsl(var(--admin-text))]">Execution Tiers (₹/sqft)</h3>
-                        </div>
+                    <AdminFormCard title="Execution Tiers (₹/sqft)" icon={HardHat} iconClassName="text-amber-400">
                         {(Object.keys(config.execution) as Array<keyof typeof config.execution>).map((tierKey) => {
                             const tier = config.execution[tierKey];
                             return (
@@ -230,14 +243,10 @@ export default function AdminEstimateRates() {
                                 </div>
                             );
                         })}
-                    </section>
+                    </AdminFormCard>
 
                     {/* Add-ons */}
-                    <section className="rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-4 space-y-2">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Plug className="w-3.5 h-3.5 text-pink-400" />
-                            <h3 className="text-xs font-bold text-[hsl(var(--admin-text))]">Add-on Costs (₹)</h3>
-                        </div>
+                    <AdminFormCard title="Add-on Costs (₹)" icon={Plug} iconClassName="text-pink-400">
                         <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-2">
                             {config.addons && Object.entries(config.addons).map(([key, val]) => (
                                 <div key={key} className="flex items-center justify-between gap-2">
@@ -246,48 +255,42 @@ export default function AdminEstimateRates() {
                                 </div>
                             ))}
                         </div>
-                    </section>
+                    </AdminFormCard>
 
                     {/* City Multipliers, Logic, Scoring */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <section className="rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-4 space-y-2">
-                            <div className="flex items-center gap-2 mb-2">
-                                <MapPin className="w-3.5 h-3.5 text-blue-400" />
-                                <h3 className="text-xs font-bold text-[hsl(var(--admin-text))]">City Multipliers</h3>
-                            </div>
+                        <AdminFormCard title="City Multipliers" icon={MapPin} iconClassName="text-blue-400">
+                            <div className="space-y-2">
                             {Object.entries(config.city_multipliers).map(([city, multiplier]) => (
                                 <div key={city} className="flex items-center justify-between gap-2">
                                     <span className="text-[11px] text-[hsl(var(--admin-text-muted))] capitalize">{city}</span>
                                     <Input type="number" step="0.01" value={multiplier} onChange={(e) => updateConfig(["city_multipliers", city], parseFloat(e.target.value) || 0)} className="h-7 w-20 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
                                 </div>
                             ))}
-                        </section>
-
-                        <section className="rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-4 space-y-2">
-                            <div className="flex items-center gap-2 mb-2">
-                                <BrainCircuit className="w-3.5 h-3.5 text-green-400" />
-                                <h3 className="text-xs font-bold text-[hsl(var(--admin-text))]">Logic Factors</h3>
                             </div>
+                        </AdminFormCard>
+
+                        <AdminFormCard title="Logic Factors" icon={BrainCircuit} iconClassName="text-green-400">
+                            <div className="space-y-2">
                             {Object.entries(config.logic).map(([key, val]) => (
                                 <div key={key} className="flex items-center justify-between gap-2">
                                     <span className="text-[11px] text-[hsl(var(--admin-text-muted))]">{formatLabel(key)}</span>
                                     <Input type="number" step="0.01" value={val} onChange={(e) => updateConfig(["logic", key], parseFloat(e.target.value) || 0)} className="h-7 w-20 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
                                 </div>
                             ))}
-                        </section>
-
-                        <section className="rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-4 space-y-2">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Target className="w-3.5 h-3.5 text-indigo-400" />
-                                <h3 className="text-xs font-bold text-[hsl(var(--admin-text))]">Scoring Weights</h3>
                             </div>
+                        </AdminFormCard>
+
+                        <AdminFormCard title="Scoring Weights" icon={Target} iconClassName="text-indigo-400">
+                            <div className="space-y-2">
                             {Object.entries(config.scoring_weights).map(([key, val]) => (
                                 <div key={key} className="flex items-center justify-between gap-2">
                                     <span className="text-[11px] text-[hsl(var(--admin-text-muted))]">{formatLabel(key)}</span>
                                     <Input type="number" value={val} onChange={(e) => updateConfig(["scoring_weights", key], parseInt(e.target.value) || 0)} className="h-7 w-16 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
                                 </div>
                             ))}
-                        </section>
+                            </div>
+                        </AdminFormCard>
                     </div>
 
                 </div>
