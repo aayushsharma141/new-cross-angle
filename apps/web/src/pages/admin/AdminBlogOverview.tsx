@@ -65,7 +65,7 @@ async function fetchBlogOverview(): Promise<BlogOverviewData> {
         .order("created_at", { ascending: false });
 
     const ninetyDaysAgo = subDays(new Date(), 90).toISOString();
-    const { data: events } = await (supabase as any)
+    const { data: events } = await (supabase as unknown as { from: (table: string) => unknown })
         .from("blog_user_events")
         .select("article_id, event_type, metadata, created_at")
         .gte("created_at", ninetyDaysAgo);
@@ -91,10 +91,10 @@ async function fetchBlogOverview(): Promise<BlogOverviewData> {
                 m.views++;
                 break;
             case "scroll_depth":
-                m.scrollDepth.push(Number((ev.metadata as any)?.depth) || 0);
+                m.scrollDepth.push(Number((ev.metadata as Record<string, unknown>)?.depth) || 0);
                 break;
             case "reading_time":
-                m.readTime.push(Number((ev.metadata as any)?.time_spent_seconds) || 0);
+                m.readTime.push(Number((ev.metadata as Record<string, unknown>)?.time_spent_seconds) || 0);
                 break;
             case "cta_click":
                 m.ctaClicks++;
@@ -152,17 +152,17 @@ export default function AdminBlogOverview() {
         queryFn: fetchBlogOverview,
     });
 
-    const articles = data?.articles ?? [];
     const dailyStats = data?.dailyStats ?? [];
 
     const topStats = useMemo(() => {
-        const totalViews = articles.reduce((s, a) => s + a.views, 0);
-        const avgReadTime = articles.length > 0 ? articles.reduce((s, a) => s + a.readTime, 0) / articles.length : 0;
-        const avgScrollDepth = articles.length > 0 ? articles.reduce((s, a) => s + a.scrollDepth, 0) / articles.length : 0;
-        const totalCta = articles.reduce((s, a) => s + a.ctaClicks, 0);
-        const totalShares = articles.reduce((s, a) => s + a.shares, 0);
+        const articlesList = data?.articles ?? [];
+        const totalViews = articlesList.reduce((s, a) => s + a.views, 0);
+        const avgReadTime = articlesList.length > 0 ? articlesList.reduce((s, a) => s + a.readTime, 0) / articlesList.length : 0;
+        const avgScrollDepth = articlesList.length > 0 ? articlesList.reduce((s, a) => s + a.scrollDepth, 0) / articlesList.length : 0;
+        const totalCta = articlesList.reduce((s, a) => s + a.ctaClicks, 0);
+        const totalShares = articlesList.reduce((s, a) => s + a.shares, 0);
         return { totalViews, avgReadTime, avgScrollDepth, totalCta, totalShares };
-    }, [articles]);
+    }, [data?.articles]);
 
     const COLORS = ["hsl(43,74%,49%)", "hsl(200,70%,50%)", "hsl(150,60%,45%)", "hsl(280,60%,55%)", "hsl(350,65%,50%)", "hsl(30,80%,55%)"];
 

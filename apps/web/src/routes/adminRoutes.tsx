@@ -22,6 +22,9 @@ const AdminTeamMembers = lazy(() => import("@/pages/admin/AdminTeamMembers"));
 const AdminHero = lazy(() => import("@/pages/admin/AdminHero"));
 const AdminGallery = lazy(() => import("@/pages/admin/AdminGallery"));
 const AdminTransformations = lazy(() => import("@/pages/admin/AdminTransformations"));
+const AdminStats = lazy(() => import("@/pages/admin/AdminStats"));
+const AdminMilestones = lazy(() => import("@/pages/admin/AdminMilestones"));
+const AdminProcessSteps = lazy(() => import("@/pages/admin/AdminProcessSteps"));
 const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
 const AdminDiscoveryConfig = lazy(() => import("@/pages/admin/AdminDiscoveryConfig"));
 const AdminAuditLogs = lazy(() => import("@/pages/admin/AdminAuditLogs"));
@@ -55,6 +58,9 @@ export const adminRoutes = (
           <Route path="hero" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminHero /></RoleGuard>} />
           <Route path="gallery" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminGallery /></RoleGuard>} />
           <Route path="transformations" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTransformations /></RoleGuard>} />
+          <Route path="stats" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminStats /></RoleGuard>} />
+          <Route path="milestones" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminMilestones /></RoleGuard>} />
+          <Route path="process" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminProcessSteps /></RoleGuard>} />
         </Route>
 
         <Route path="crm" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><CrmModule /></RoleGuard>}>

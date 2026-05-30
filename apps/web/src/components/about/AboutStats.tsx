@@ -2,19 +2,14 @@ import { motion } from "framer-motion";
 import { Award, Users, Clock, Sparkles, LucideIcon } from "lucide-react";
 import useCountUp from "@/hooks/useCountUp";
 
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+
 interface Stat {
   icon: LucideIcon;
   value: number;
   suffix: string;
   label: string;
 }
-
-const stats: Stat[] = [
-  { icon: Award, value: 15, suffix: "+", label: "Years Experience" },
-  { icon: Users, value: 500, suffix: "+", label: "Happy Clients" },
-  { icon: Clock, value: 750, suffix: "+", label: "Projects Completed" },
-  { icon: Sparkles, value: 25, suffix: "+", label: "Design Awards" },
-];
 
 const StatCard = ({ stat, index }: { stat: Stat; index: number }) => {
   const { count, ref } = useCountUp(stat.value, { duration: 2000, delay: index * 200 });
@@ -58,6 +53,15 @@ const StatCard = ({ stat, index }: { stat: Stat; index: number }) => {
 };
 
 const AboutStats = () => {
+  const { settings } = useSiteSettings();
+  
+  const stats: Stat[] = [
+    { icon: Award, value: settings?.studio_stats?.yearsExperience || 15, suffix: "+", label: "Years Experience" },
+    { icon: Users, value: settings?.studio_stats?.happyClients || 500, suffix: "+", label: "Happy Clients" },
+    { icon: Clock, value: settings?.studio_stats?.projectsCompleted || 750, suffix: "+", label: "Projects Completed" },
+    { icon: Sparkles, value: settings?.studio_stats?.awardsWon || 25, suffix: "+", label: "Design Awards" },
+  ];
+
   return (
     <section className="relative py-24 md:py-32 bg-background overflow-hidden">
       {/* Background accents */}

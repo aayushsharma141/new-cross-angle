@@ -4,7 +4,6 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FixedSocialBar from "@/components/layout/FixedSocialBar";
 import ScrollToTop from "@/components/layout/ScrollToTop";
-import ContactHero from "@/components/contact/ContactHero";
 import CTAContact from "@/components/shared/CTAContact";
 import ContactFAQ from "@/components/contact/ContactFAQ";
 import SocialBar from "@/components/contact/SocialBar";
@@ -50,20 +49,21 @@ const ContactPage = () => {
       />
 
       <FixedSocialBar />
-
       <Navbar />
+
       <main className="home-shell min-h-screen relative overflow-hidden bg-[var(--site-bg)]">
         <div className="home-noise pointer-events-none absolute inset-0 z-0" />
         <div className="home-content relative z-10">
-          <ContactHero />
 
+          {/* Primary contact section — form + bypass + contact info */}
           <CTAContact />
 
+          {/* Compact map strip */}
           <Suspense
             fallback={
-              <div className="px-4 pb-20 md:pb-28">
+              <div className="px-4 pb-16 md:pb-20">
                 <div className="container mx-auto max-w-7xl">
-                  <div className="home-panel h-[400px] md:h-[500px] animate-pulse rounded-[30px]" />
+                  <div className="home-panel rounded-[24px] animate-pulse" style={{ height: "clamp(280px, 38vw, 440px)" }} />
                 </div>
               </div>
             }
@@ -71,11 +71,15 @@ const ContactPage = () => {
             <InteractiveMap latitude={22.8027} longitude={86.2047} zoom={13} />
           </Suspense>
 
+          {/* FAQ */}
           <ContactFAQ />
 
+          {/* Social pill strip */}
           <SocialBar />
+
         </div>
       </main>
+
       <Footer />
       <ScrollToTop />
     </>

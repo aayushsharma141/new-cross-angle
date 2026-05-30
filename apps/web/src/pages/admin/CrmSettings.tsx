@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AdminPageHeader } from "@/components/admin/ui/AdminPageHeader";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminTabSlider } from "@/components/admin/ui/AdminTabSlider";
 import { Layers, Database, Save, Loader2, GripVertical, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
@@ -27,34 +27,27 @@ export default function CrmSettings() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[hsl(var(--admin-background))]">
-      <div className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8 animate-in fade-in duration-700 relative h-full flex flex-col">
-        <AdminTabSlider
+    <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
+      <ModuleActions>
+        <Button
+          type="button"
+          size="lg"
+          variant="primary"
+          onClick={handleSave}
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <Save className="w-4 h-4 mr-2" />
+          )}
+          Save Settings
+        </Button>
+      </ModuleActions>
+
+      <AdminTabSlider
         activeTab={activeTab}
         onTabChange={(id) => setActiveTab(id)}
-        header={
-          <AdminPageHeader
-            title="CRM Settings"
-            description="Manage your pipeline stages, lead sources, scoring rules, and data imports."
-            breadcrumbs={[]}
-            actions={
-              <Button
-                type="button"
-                size="lg"
-                className="bg-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))/90] text-black font-semibold shadow-lg"
-                onClick={handleSave}
-                disabled={isSaving}
-              >
-                {isSaving ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4 mr-2" />
-                )}
-                Save Settings
-              </Button>
-            }
-          />
-        }
         tabs={[
           {
             id: "pipeline",
@@ -145,7 +138,6 @@ export default function CrmSettings() {
           },
         ]}
       />
-      </div>
     </div>
   );
 }

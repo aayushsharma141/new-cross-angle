@@ -132,13 +132,13 @@ export type LossReason = typeof lossReasonOptions[number];
 export const leadSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
     email: z.string().email("Invalid email address"),
-    phone: z.string().optional(),
-    message: z.string().optional(),
-    service: z.string().optional(),
+    phone: z.string().optional().nullable(),
+    message: z.string().optional().nullable(),
+    service: z.string().optional().nullable(),
     status: z.enum(leadStatusOptions).default("new"),
     loss_reason: z.enum(lossReasonOptions).optional().nullable(),
     source: z.string().nullish().transform(v => v ?? "contact_form"),
-    notes: z.string().optional(),
+    notes: z.string().optional().nullable(),
     // Qualification parameters
     city: z.string().optional().nullable(),
     budget: z.string().optional().nullable(),

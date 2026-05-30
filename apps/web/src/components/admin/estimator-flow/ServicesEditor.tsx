@@ -52,7 +52,7 @@ function SortableServiceItem({
   svc: ServiceItem;
   expandedSvc: string | null;
   setExpandedSvc: (id: string | null) => void;
-  updateSvc: (id: string, field: keyof ServiceItem, value: any) => void;
+  updateSvc: (id: string, field: keyof ServiceItem, value: ServiceItem[keyof ServiceItem]) => void;
   addInclude: (id: string) => void;
   updateInclude: (id: string, idx: number, val: string) => void;
   removeInclude: (id: string, idx: number) => void;
@@ -189,6 +189,8 @@ function SortableServiceItem({
                   <button
                     onClick={() => removeInclude(svc.id, i)}
                     className="text-red-400 hover:text-red-300"
+                    aria-label="Remove item"
+                    title="Remove item"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -235,7 +237,7 @@ export function ServicesEditor() {
     }
   }, [execData, execDirty]);
 
-  const updateSvc = (id: string, field: keyof ServiceItem, value: any) => {
+  const updateSvc = (id: string, field: keyof ServiceItem, value: ServiceItem[keyof ServiceItem]) => {
     setServices(services.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
     setSvcDirty(true);
   };

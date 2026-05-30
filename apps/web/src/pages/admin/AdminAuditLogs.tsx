@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Activity, BarChart3, Download, Filter, TrendingUp } from 'lucide-react';
+import { Download, Filter, TrendingUp, Activity, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/primitives/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/primitives/tabs';
@@ -13,7 +13,7 @@ import type { AuditAction, AuditEntityType, AuditLogStats } from '@/types/audit'
 import { ACTION_COLORS, ENTITY_LABELS } from '@/types/audit';
 import { useToast } from '@/hooks/useToast';
 import { format } from 'date-fns';
-import { AdminPageHeader } from '@/components/admin/ui/AdminPageHeader';
+import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
 
 export default function AdminAuditLogs() {
   const { toast } = useToast();
@@ -135,24 +135,17 @@ export default function AdminAuditLogs() {
   };
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        title="Logs & Audit"
-        description="Track all system activities, admin actions, and security events"
-        breadcrumbs={[]}
-        actions={
-          <>
-            <Button variant="outline" size="sm" onClick={() => handleExport('csv')}>
-              <Download className="h-4 w-4 mr-2" />
-              Export CSV
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => handleExport('json')}>
-              <Download className="h-4 w-4 mr-2" />
-              Export JSON
-            </Button>
-          </>
-        }
-      />
+    <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
+      <ModuleActions>
+        <Button variant="outline" size="sm" onClick={() => handleExport('csv')}>
+          <Download className="h-4 w-4 mr-2" />
+          Export CSV
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => handleExport('json')}>
+          <Download className="h-4 w-4 mr-2" />
+          Export JSON
+        </Button>
+      </ModuleActions>
 
       <KPIGrid columns={4}>
         <MetricCard

@@ -26,6 +26,7 @@ export interface SiteSettings {
   nav_links: Record<string, unknown>[] | null;
   footer_columns: Record<string, unknown>[] | null;
   social_links: Record<string, string> | null;
+  studio_stats: Record<string, number> | null;
   updated_at: string | null;
 }
 
@@ -67,6 +68,12 @@ const defaultSettings: SiteSettings = {
     linkedin: "https://www.linkedin.com/company/cross-angle-interior/",
     pinterest: "https://in.pinterest.com/crossangleinterior/",
     youtube: "https://www.youtube.com/",
+  },
+  studio_stats: {
+    yearsExperience: 15,
+    happyClients: 500,
+    projectsCompleted: 750,
+    awardsWon: 25,
   },
   updated_at: null,
 };

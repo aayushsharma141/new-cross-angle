@@ -48,6 +48,10 @@ export class LeadService {
     return data;
   }
 
+  async submitLead(payload: LeadPayload): Promise<void> {
+    await this.repo.submitLead(payload);
+  }
+
   async updateLead(id: string, updates: Partial<Lead>): Promise<Lead> {
     return this.repo.updateLeadAndReturn(id, updates);
   }

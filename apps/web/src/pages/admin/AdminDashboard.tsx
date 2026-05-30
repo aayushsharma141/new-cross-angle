@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/useToast";
 import { DateRange } from "react-day-picker";
 import { subDays, endOfDay } from "date-fns";
 import { useSystem } from "@/context/SystemContext";
-import { AdminPageHeader } from "@/components/admin/ui/AdminPageHeader";
+import { ModuleLayout, ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminTabSlider } from "@/components/admin/ui/AdminTabSlider";
 import { useAdminDisplayName } from "@/hooks/useAdminDisplayName";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -155,12 +155,11 @@ const AdminDashboard = (): JSX.Element => {
   );
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in duration-700">
-      {/* Shared header */}
-      <AdminPageHeader
-        title={`${getGreeting()}, ${displayName || "Executive"}`}
-        description="Here's your high-level business overview for this period."
-        actions={
+    <ModuleLayout
+      title={`${getGreeting()}, ${displayName || "Executive"}`}
+      description="Here's your high-level business overview for this period."
+    >
+      <ModuleActions>
           <div className="flex items-center gap-3">
             <CalendarDateRangePicker date={date} setDate={setDate} />
             {can('dashboard', 'automate') && (
@@ -173,7 +172,6 @@ const AdminDashboard = (): JSX.Element => {
                 <Send className="w-4 h-4 mr-2" /> Automate Report
               </Button>
             )}
-            {/* Export is available to all roles including viewer (safe read op) */}
             {can('dashboard', 'export') && (
               <Button
                 variant="outline"
@@ -187,8 +185,7 @@ const AdminDashboard = (): JSX.Element => {
               </Button>
             )}
           </div>
-        }
-      />
+      </ModuleActions>
 
       {/* Body: tab slider + right sidebar */}
       <div className="flex flex-1 min-h-0 mt-6 gap-6 overflow-hidden">
@@ -257,7 +254,7 @@ const AdminDashboard = (): JSX.Element => {
           </Link>
         </div>
       </div>
-    </div>
+    </ModuleLayout>
   );
 };
 

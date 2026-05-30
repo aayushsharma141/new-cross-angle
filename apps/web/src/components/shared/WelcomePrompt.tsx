@@ -97,7 +97,7 @@ const WelcomePrompt = () => {
     setIsSubmitting(true);
 
     try {
-      await leadService.createLead({
+      await leadService.submitLead({
         name: "Welcome Popup Lead",
         email,
         phone,
@@ -114,10 +114,11 @@ const WelcomePrompt = () => {
 
       handleClose();
     } catch (error) {
-      console.error('Error submitting form:', error);
+      const err = error as { message?: string };
+      console.error('Error submitting form:', error, JSON.stringify(error));
       toast({
         title: "Something went wrong",
-        description: "Please try again later.",
+        description: err?.message || "Please try again later.",
         variant: "destructive"
       });
     } finally {

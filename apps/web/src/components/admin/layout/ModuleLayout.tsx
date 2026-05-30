@@ -12,7 +12,7 @@ interface ModuleTab {
 
 interface ModuleLayoutProps {
     title: string;
-    description: string;
+    description?: string;
     tabs?: ModuleTab[];
     children: React.ReactNode;
 }
@@ -39,23 +39,14 @@ export const ModuleLayout = ({ title, description, tabs, children }: ModuleLayou
 
     return (
         <ModuleActionsSlotContext.Provider value={slotEl}>
-            <div className="flex flex-col h-full space-y-8">
-                {/* Module title + description + right-aligned actions slot */}
-                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between pb-6 border-b border-[hsl(var(--admin-border))]/50">
-                    <div className="min-w-0">
-                        <h1 className="admin-title text-2xl">{title}</h1>
-                        <p className="admin-subtitle mt-2 text-sm">{description}</p>
-                    </div>
-                    <div
-                        ref={setSlotEl}
-                        className="flex items-center gap-2 shrink-0 empty:hidden"
-                    />
-                </div>
-
-                {/* Tabs */}
+            <div className="flex-1 flex h-full min-h-0 bg-[hsl(var(--admin-background))] text-[hsl(var(--admin-text))]">
+                {/* Desktop Sidebar */}
                 {tabs && tabs.length > 0 && (
-                    <div className="border-b border-admin-border">
-                        <nav className="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
+                    <aside className="w-[220px] shrink-0 border-r border-[hsl(var(--admin-border))]/50 py-3 px-2 hidden lg:flex flex-col gap-1 overflow-y-auto custom-scrollbar">
+                        <div className="px-3 pb-2 text-[10px] uppercase tracking-[0.16em] text-admin-text-subtle font-semibold mt-2">
+                            Navigation
+                        </div>
+                        <nav className="flex flex-col gap-1" aria-label="Module section navigation">
                             {tabs.map((tab) => {
                                 const isActive =
                                     location.pathname === tab.path ||
@@ -66,10 +57,10 @@ export const ModuleLayout = ({ title, description, tabs, children }: ModuleLayou
                                         key={tab.path}
                                         to={tab.path}
                                         className={cn(
-                                            "whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-all",
+                                            "flex items-center justify-between px-3 h-9 rounded-md text-[13px] transition-all duration-200 border relative overflow-hidden",
                                             isActive
-                                                ? "border-admin-primary text-admin-primary"
-                                                : "border-transparent text-admin-muted hover:text-admin-text hover:border-admin-border",
+                                                ? "bg-[hsl(var(--admin-primary)/0.1)] border-[hsl(var(--admin-primary)/0.25)] text-admin-primary font-bold shadow-[0_0_12px_hsl(var(--admin-primary)/0.05)] before:absolute before:left-0 before:top-[15%] before:bottom-[15%] before:w-[3px] before:rounded-r-md before:bg-admin-primary"
+                                                : "border-transparent text-admin-text-muted hover:bg-[hsl(var(--admin-surface))] hover:text-admin-text"
                                         )}
                                         aria-current={isActive ? "page" : undefined}
                                     >
@@ -78,11 +69,29 @@ export const ModuleLayout = ({ title, description, tabs, children }: ModuleLayou
                                 );
                             })}
                         </nav>
-                    </div>
+                    </aside>
                 )}
 
                 {/* Main Content Area */}
-                <div className="flex-1">{children}</div>
+                <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                    {/* Header with Title and Description */}
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between px-6 py-5 border-b border-[hsl(var(--admin-border))]/50 bg-[hsl(var(--admin-background))]/50 shrink-0">
+                        <div className="min-w-0">
+                            <h1 className="admin-title text-2xl">{title}</h1>
+                            {description && <p className="admin-subtitle mt-2 text-sm">{description}</p>}
+                        </div>
+                        <div
+                            ref={setSlotEl}
+                            className="flex items-center gap-2 shrink-0 empty:hidden mt-4 md:mt-0"
+                        />
+                    </div>
+                    {/* Content Area */}
+                    <div className="flex-1 overflow-auto">
+                        <div className="px-4 sm:px-6 md:px-8 py-6">
+                            {children}
+                        </div>
+                    </div>
+                </main>
             </div>
         </ModuleActionsSlotContext.Provider>
     );

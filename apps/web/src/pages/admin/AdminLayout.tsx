@@ -102,7 +102,7 @@ const AdminLayout = (): JSX.Element | null => {
         );
     }
 
-    const isFullWidth = location.pathname === "/admin" || location.pathname === "/admin/" || location.pathname.startsWith("/admin/crm");
+    const isFullWidth = location.pathname === "/admin" || location.pathname === "/admin/" || location.pathname.startsWith("/admin/crm") || location.pathname.startsWith("/admin/cms") || location.pathname.startsWith("/admin/blog") || location.pathname.startsWith("/admin/estimate") || location.pathname.startsWith("/admin/discovery");
 
     return (
         <div className="h-screen max-h-screen flex flex-col bg-admin-bg admin-theme overflow-hidden">

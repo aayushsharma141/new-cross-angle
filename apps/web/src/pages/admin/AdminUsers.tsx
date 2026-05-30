@@ -9,7 +9,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { useAdminDisplayName } from "@/hooks/useAdminDisplayName";
 import { normalizeRole } from "@/lib/auth/rbac";
 import { UserFormSheet, type AdminUserRecord } from "@/components/admin/users/UserFormSheet";
-import { AdminPageHeader } from "@/components/admin/ui/AdminPageHeader";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { Button } from "@/components/ui/primitives/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/primitives/tabs";
 import {
@@ -113,8 +113,12 @@ export default function AdminUsers(): JSX.Element {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 py-4 animate-in fade-in duration-700">
-      <AdminPageHeader title="User Access" description="Manage team accounts, security credentials, and control who can access the admin workspace." actions={<Button onClick={openAddUser} className="rounded-xl shadow-lg shadow-primary/20"><UserPlus className={`${icons.sm} mr-2`} />Add User</Button>} />
+    <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
+      <ModuleActions>
+        <Button onClick={openAddUser} variant="primary" className="rounded-xl shadow-lg shadow-primary/20">
+          <UserPlus className={`${icons.sm} mr-2`} />Add User
+        </Button>
+      </ModuleActions>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="w-fit gap-1 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-1">
@@ -127,7 +131,7 @@ export default function AdminUsers(): JSX.Element {
           <UsersTable
             users={filteredUsers} isLoading={isLoading} search={search} onSearchChange={setSearch}
             roleFilter={roleFilter} onRoleFilterChange={setRoleFilter} statusFilter={statusFilter} onStatusFilterChange={setStatusFilter}
-            currentUserId={currentUser?.id} actorRole={actorRole} onAddUser={openAddUser} onEditUser={openEditUser} onEditSelf={handleEditSelf}
+            currentUserId={currentUser?.id} actorRole={actorRole ?? ""} onAddUser={openAddUser} onEditUser={openEditUser} onEditSelf={handleEditSelf}
             onAction={(id, name, action) => setActionUser({ id, name, action })}
             onCopyEmail={(email) => navigator.clipboard.writeText(email)}
           />
@@ -136,7 +140,7 @@ export default function AdminUsers(): JSX.Element {
         <TabsContent value="security"><SecurityTab /></TabsContent>
       </Tabs>
 
-      <UserFormSheet open={sheetOpen} onOpenChange={setSheetOpen} onSuccess={() => void refetch()} mode={sheetMode} actorRole={normalizeRole(actorRole)} user={selectedUser} isSelf={currentUser?.id === selectedUser?.id} />
+      <UserFormSheet open={sheetOpen} onOpenChange={setSheetOpen} onSuccess={() => void refetch()} mode={sheetMode} actorRole={normalizeRole(actorRole ?? "")} user={selectedUser} isSelf={currentUser?.id === selectedUser?.id} />
 
       <AlertDialog open={!!actionUser} onOpenChange={(open) => !open && setActionUser(null)}>
         <AlertDialogContent>

@@ -184,7 +184,7 @@ const AdminMedia = () => {
             setUploadError(null);
             void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
         },
-        onError: (err: any) => {
+        onError: (err: { errors?: string[]; successCount?: number; total?: number } | Error) => {
             if (err.errors) {
                 const msg = err.errors.join("; ");
                 setUploadError(msg);

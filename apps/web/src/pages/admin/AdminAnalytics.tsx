@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/primitives/button";
 import { Calendar } from "@/components/ui/primitives/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/primitives/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/primitives/dialog";
-import { AdminPageHeader } from "@/components/admin/ui/AdminPageHeader";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { ScrollArea } from "@/components/ui/primitives/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/design-system/components/Table";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
@@ -143,8 +143,7 @@ export default function AdminAnalytics() {
 
 
   return (
-    <div className="w-full flex flex-col gap-6">
-      <AdminPageHeader title="Discovery Analytics" description="Understand how visitors engage with the Aesthetic Discovery Engine funnel, which leads convert, and where sessions drop off." breadcrumbs={[]} />
+    <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
 
       {/* Quick Stats + Date Filters */}
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mt-2 mb-4">

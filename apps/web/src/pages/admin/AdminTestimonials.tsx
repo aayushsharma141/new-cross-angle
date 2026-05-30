@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { AdminTabSlider } from "@/components/admin/ui/AdminTabSlider";
-import { AdminPageHeader } from "@/components/admin/ui/AdminPageHeader";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AnalyticsKpiRow } from "@/components/admin/analytics/AnalyticsKpiRow";
 import { Plus, Loader2, Grid, List as ListIcon, Eye, EyeOff, MessageSquare, StarHalf, ShieldCheck, EyeOff as EyeOffIcon } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
@@ -120,8 +120,27 @@ const AdminTestimonials = () => {
     else { toast({ title: "Deleted", description: "Testimonial deleted successfully." }); await fetchTestimonials(); setIsDeleteDialogOpen(false); setDeletingId(null); }
   };
 
-  const handleBulkDelete = async () => { for (const id of selectedIds) { await supabase.from('testimonials').delete().eq('id', id); } toast({ title: "Deleted", description: `${selectedIds.size} testimonials deleted.` }); setSelectedIds(new Set()); await fetchTestimonials(); };
-  const handleBulkToggleActive = async (active: boolean) => { for (const id of selectedIds) { await supabase.from('testimonials').update({ active }).eq('id', id); } toast({ title: "Updated", description: `${selectedIds.size} testimonials ${active ? 'activated' : 'deactivated'}.` }); setSelectedIds(new Set()); await fetchTestimonials(); };
+  const handleBulkDelete = async () => {
+    try {
+      await Promise.all(Array.from(selectedIds).map(id => supabase.from('testimonials').delete().eq('id', id)));
+      toast({ title: "Deleted", description: `${selectedIds.size} testimonials deleted.` });
+      setSelectedIds(new Set());
+      await fetchTestimonials();
+    } catch (err) {
+      toast({ title: "Error", description: (err as Error).message, variant: "destructive" });
+    }
+  };
+
+  const handleBulkToggleActive = async (active: boolean) => {
+    try {
+      await Promise.all(Array.from(selectedIds).map(id => supabase.from('testimonials').update({ active }).eq('id', id)));
+      toast({ title: "Updated", description: `${selectedIds.size} testimonials ${active ? 'activated' : 'deactivated'}.` });
+      setSelectedIds(new Set());
+      await fetchTestimonials();
+    } catch (err) {
+      toast({ title: "Error", description: (err as Error).message, variant: "destructive" });
+    }
+  };
 
   const activeCount = testimonials.filter(t => t.active).length;
   const inactiveCount = testimonials.length - activeCount;
@@ -144,7 +163,27 @@ const AdminTestimonials = () => {
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))]">Previous</Button>
         <div className="flex items-center gap-1">
-          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => { let pageNum = i + 1; if (totalPages > 5 && currentPage > 3) { pageNum = currentPage - 2 + i; if (pageNum > totalPages) pageNum = totalPages - (4 - i); } return (<Button key={pageNum} variant="ghost" size="sm" onClick={() => setCurrentPage(pageNum)} className={cn("w-8 h-8 p-0 rounded-md", currentPage === pageNum ? "bg-[hsl(var(--admin-primary))]/20 text-[hsl(var(--admin-primary))] font-medium" : "text-[hsl(var(--admin-text-muted))]")}>{pageNum}</Button>); })}
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            let pageNum = i + 1;
+            if (totalPages > 5 && currentPage > 3) {
+              pageNum = currentPage - 2 + i;
+              if (pageNum > totalPages) pageNum = totalPages - (4 - i);
+            }
+            return (
+              <Button
+                key={pageNum}
+                variant="ghost"
+                size="sm"
+                onClick={() => setCurrentPage(pageNum)}
+                className={cn(
+                  "w-8 h-8 p-0 rounded-md",
+                  currentPage === pageNum ? "bg-[hsl(var(--admin-primary))]/20 text-[hsl(var(--admin-primary))] font-medium" : "text-[hsl(var(--admin-text-muted))]"
+                )}
+              >
+                {pageNum}
+              </Button>
+            );
+          })}
         </div>
         <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))]">Next</Button>
       </div>
@@ -152,17 +191,26 @@ const AdminTestimonials = () => {
   ) : null;
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in duration-700">
+    <div className="flex flex-col animate-in fade-in duration-700">
+      <ModuleActions>
+        {canWrite && (
+          <Button variant="primary" onClick={() => setIsDialogOpen(true)}>
+            <Plus className={`${icons.sm} mr-2`} /> Add Testimonial
+          </Button>
+        )}
+      </ModuleActions>
+
       <AdminTabSlider
-        header={<>
-          <AdminPageHeader title="Testimonials" description="Manage client testimonials and reviews to build trust." breadcrumbs={[]} actions={canWrite ? (<Button variant="default" onClick={() => setIsDialogOpen(true)} className="bg-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))/90] text-black font-semibold shadow-lg"><Plus className={`${icons.sm} mr-2`} /> Add Testimonial</Button>) : undefined} />
-          <div className="mt-6 space-y-4 shrink-0"><AnalyticsKpiRow metrics={kpiMetrics} isLoading={isLoading} /></div>
-        </>}
+        header={
+          <div className="mb-6 space-y-4 shrink-0">
+            <AnalyticsKpiRow metrics={kpiMetrics} isLoading={isLoading} />
+          </div>
+        }
         tabs={[
           { id: "table", label: "List View", icon: ListIcon, content: (
             <div className="flex flex-col space-y-4 h-full relative">
               {selectedIds.size > 0 && <BulkActionsBar count={selectedIds.size} canWrite={canWrite} onClear={() => setSelectedIds(new Set())} onActivate={() => handleBulkToggleActive(true)} onDeactivate={() => handleBulkToggleActive(false)} onDelete={handleBulkDelete} />}
-              <div className="shrink-0 mb-2"><h2 className="text-xl font-serif text-[hsl(var(--admin-text))]">List View</h2><p className="text-[hsl(var(--admin-muted))] text-sm mt-1">Detailed table for quick scanning and management.</p></div>
+              <div className="shrink-0 mb-2"><h2 className="text-xl admin-title">List View</h2><p className="admin-subtitle text-sm mt-1">Detailed table for quick scanning and management.</p></div>
               <TestimonialsToolbar searchQuery={searchQuery} onSearchChange={setSearchQuery} statusFilter={statusFilter} onStatusFilterChange={setStatusFilter} resultCount={filteredTestimonials.length} />
               <TestimonialsTable testimonials={paginatedTestimonials} selectedIds={selectedIds} onToggleSelect={toggleSelect} onToggleSelectAll={toggleSelectAll} onEdit={handleEdit} onDelete={(id) => { setDeletingId(id); setIsDeleteDialogOpen(true); }} isReadOnly={isReadOnly} canWrite={canWrite} />
               <Pagination />
@@ -171,7 +219,7 @@ const AdminTestimonials = () => {
           { id: "grid", label: "Card Grid", icon: Grid, content: (
             <div className="flex flex-col space-y-4 h-full relative">
               {selectedIds.size > 0 && <BulkActionsBar count={selectedIds.size} canWrite={canWrite} onClear={() => setSelectedIds(new Set())} onActivate={() => handleBulkToggleActive(true)} onDeactivate={() => handleBulkToggleActive(false)} onDelete={handleBulkDelete} />}
-              <div className="shrink-0 mb-2"><h2 className="text-xl font-serif text-[hsl(var(--admin-text))]">Card Grid</h2><p className="text-[hsl(var(--admin-muted))] text-sm mt-1">Visual layout representing how testimonials look.</p></div>
+              <div className="shrink-0 mb-2"><h2 className="text-xl admin-title">Card Grid</h2><p className="admin-subtitle text-sm mt-1">Visual layout representing how testimonials look.</p></div>
               <TestimonialsToolbar searchQuery={searchQuery} onSearchChange={setSearchQuery} statusFilter={statusFilter} onStatusFilterChange={setStatusFilter} resultCount={filteredTestimonials.length} />
               <TestimonialsGrid testimonials={paginatedTestimonials} selectedIds={selectedIds} onToggleSelect={toggleSelect} onEdit={handleEdit} onDelete={(id) => { setDeletingId(id); setIsDeleteDialogOpen(true); }} canWrite={canWrite} />
               <Pagination />

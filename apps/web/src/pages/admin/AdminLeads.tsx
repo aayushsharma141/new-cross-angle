@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { leadRepo } from "@/repositories";
 import { supabase } from "@/integrations/supabase/client";
@@ -444,8 +444,28 @@ export default function AdminLeads() {
             <PageSkeleton variant="admin-content" />
           </div>
         ) : filteredLeads.length === 0 ? (
-          <div className="p-6 h-full flex flex-col justify-center">
-            <EmptyState icon={Users} title="No leads found" description="Adjust your filters or start capturing leads." className="bg-admin-card border-admin-border" />
+          <div className="p-6 h-full flex flex-col items-center justify-center text-center">
+            <div className="w-16 h-16 rounded-full bg-admin-surface border border-admin-border-subtle flex items-center justify-center mb-4">
+              <Filter className="w-8 h-8 text-admin-text-subtle" />
+            </div>
+            <h3 className="text-lg font-bold text-admin-text mb-2">No leads found in this view</h3>
+            <p className="text-admin-text-muted text-[13px] max-w-sm mb-6">
+              {(activeFilterCount > 0 || debouncedSearch) 
+                ? "Your current filter combination didn't return any results. This can happen if you are in a specific stage with no active leads." 
+                : "You don't have any leads yet. Once you capture leads, they will appear here."}
+            </p>
+            {(activeFilterCount > 0 || debouncedSearch) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setSearchParams(new URLSearchParams());
+                }}
+                className="h-9 px-5 rounded-md bg-admin-primary hover:bg-[hsl(var(--admin-primary)/0.9)] text-black text-[13px] font-bold shadow-md transition-colors"
+              >
+                Clear all filters
+              </button>
+            )}
           </div>
         ) : activeView === "card" ? (
           <div className="flex-1 overflow-y-auto custom-scrollbar px-6 lg:px-8 pb-4">

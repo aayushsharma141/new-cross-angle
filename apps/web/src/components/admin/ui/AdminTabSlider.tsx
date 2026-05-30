@@ -33,7 +33,7 @@ export function AdminTabSlider({ header, tabs, activeTab: controlledTab, default
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       {header && <div className="shrink-0">{header}</div>}
 
       {/* Tab bar */}
@@ -60,7 +60,7 @@ export function AdminTabSlider({ header, tabs, activeTab: controlledTab, default
       </div>
 
       {/* Active tab content */}
-      <div className={cn("flex-1 overflow-y-auto min-h-0 pt-6", contentClassName)}>
+      <div className={cn("pt-6", contentClassName)}>
         {tabs.find((t) => t.id === activeId)?.content}
       </div>
     </div>

@@ -20,18 +20,10 @@ import { ServiceDetail } from "@repo/types";
 import { serviceSchema, formatZodErrors } from "@/lib/validation/validations";
 import { FeaturesEditor, ProcessEditor, FAQEditor } from "@/components/admin/ServiceFormFields";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/design-system/components/Table";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
-import { EmptyState, LoadingState } from "@/design-system/components/states";
 
+import { DataTable, Column } from "@/components/admin/ui/DataTable";
 const ICONS = ["Home", "Building2", "Palette", "Lightbulb", "Sofa", "PenTool", "Lamp", "UtensilsCrossed", "Bed"];
 const CATEGORIES = [
     { id: "residential", label: "Residential" },
@@ -271,18 +263,63 @@ const AdminServices = () => {
         setIsDialogOpen(true);
     };
 
-    if (isLoading) {
-        return (
-            <LoadingState
-                text="Loading services..."
-                className="min-h-[320px]"
-            />
-        );
-    }
+    const columns: Column<ServiceDetail>[] = [
+        {
+            key: "name_desc",
+            header: "Name & Desc",
+            cell: (service) => (
+                <div className="font-medium text-slate-200">
+                    <div className="flex items-center gap-2">
+                        <span>{service.title}</span>
+                        {service.tag && (
+                            <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary">
+                                {service.tag}
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-xs text-slate-400 font-normal line-clamp-1 mt-1">
+                        {service.description as string}
+                    </p>
+                </div>
+            )
+        },
+        {
+            key: "category",
+            header: "Category",
+            cell: (service) => (
+                <span className="capitalize">{service.category_id || "residential"}</span>
+            )
+        },
+        {
+            key: "status",
+            header: "Status",
+            cell: (service) => (
+                <StatusBadge status={service.active !== false ? "published" : "draft"} />
+            )
+        },
+        {
+            key: "actions",
+            header: "Actions",
+            className: "text-right",
+            cell: (service) => (
+                <div className="flex justify-end gap-2">
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-white" onClick={() => handleEdit(service)} aria-label="Edit service">
+                        <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-red-400" onClick={() => handleDelete(service.id)} aria-label="Delete service">
+                        <Trash2 className="w-4 h-4" />
+                    </Button>
+                </div>
+            )
+        }
+    ];
 
     return (
-        <div className="space-y-8">
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) setEditingService(null);
+            }}>
                 <ModuleActions>
                     <DialogTrigger asChild>
                         <Button variant="primary" onClick={handleNewService}>
@@ -447,75 +484,20 @@ const AdminServices = () => {
                 </DialogContent>
             </Dialog>
 
-            <Card className="bg-white/5 border-white/10 backdrop-blur-sm mt-8">
-                <Table>
-                    <TableHeader>
-                        <TableRow className="border-white/10 hover:bg-white/5">
-                            <TableHead className="text-slate-300">Name & Desc</TableHead>
-                            <TableHead className="text-slate-300">Category</TableHead>
-                            <TableHead className="text-slate-300">Status</TableHead>
-                            <TableHead className="text-right text-slate-300">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {services.map((service, index) => (
-                            <TableRow
-                                key={service.id}
-                                className="border-white/10 hover:bg-white/5 transition-colors"
-                            >
-                                <TableCell className="font-medium text-slate-200">
-                                    <div className="flex items-center gap-2">
-                                        <span>{service.title}</span>
-                                        {service.tag && (
-                                            <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary">
-                                                {service.tag}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="text-xs text-slate-400 font-normal line-clamp-1 mt-1">
-                                        {service.description as string}
-                                    </p>
-                                </TableCell>
-                                <TableCell className="text-slate-300 capitalize">
-                                    {service.category_id || "residential"}
-                                </TableCell>
-                                <TableCell>
-                                    <StatusBadge status={service.active !== false ? "published" : "draft"} />
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <div className="flex justify-end gap-2">
-                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-white" onClick={() => handleEdit(service)} aria-label="Edit service">
-                                            <Pencil className="w-4 h-4" />
-                                        </Button>
-                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-red-400" onClick={() => handleDelete(service.id)} aria-label="Delete service">
-                                            <Trash2 className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-
-                        {services.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={4} className="p-0">
-                                    <EmptyState
-                                        icon={Briefcase}
-                                        title="No services found"
-                                        description="You haven't added any services yet. Create one to get started."
-                                        action={
-                                            <Button onClick={() => setIsDialogOpen(true)} variant="primary">
-                                                <Plus className="w-4 h-4 mr-2" />
-                                                Add Service
-                                            </Button>
-                                        }
-                                        className="border-0 rounded-none bg-transparent"
-                                    />
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </Card>
+            <DataTable 
+                data={services} 
+                columns={columns} 
+                isLoading={isLoading} 
+                emptyIcon={Briefcase}
+                emptyTitle="No services found"
+                emptyDescription="You haven't added any services yet. Create one to get started."
+                emptyAction={
+                    <Button onClick={() => setIsDialogOpen(true)} variant="primary">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Service
+                    </Button>
+                }
+            />
         </div>
     );
 };

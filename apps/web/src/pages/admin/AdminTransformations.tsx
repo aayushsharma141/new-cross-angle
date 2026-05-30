@@ -15,94 +15,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/primitives/badge";
 import { Compare } from "@/components/ui/enhanced/compare";
+import { MediaPicker as CanonicalMediaPicker } from "@/components/admin/media/MediaPicker";
 
 const BUCKET = "media";
 
-// ─── Media Picker Component ─────────────────────────────────────────────────
-function MediaPicker({ value, onChange, label }: { value: string; onChange: (url: string) => void; label: string }) {
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const [mediaFiles, setMediaFiles] = useState<{ url: string; name: string }[]>([]);
-  const [loadingMedia, setLoadingMedia] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-
-  const fetchMedia = async () => {
-    setLoadingMedia(true);
-    const { data } = await supabase.from("media").select("url, file_name").order("created_at", { ascending: false }).limit(50);
-    setMediaFiles((data || []).map((f: { url: string; file_name: string }) => ({ url: f.url, name: f.file_name })));
-    setLoadingMedia(false);
-  };
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError("File too large. Max 5MB.");
-      toast({ title: "File too large", description: "Maximum 5MB allowed.", variant: "destructive" });
-      if (fileRef.current) fileRef.current.value = "";
-      return;
-    }
-
-    setUploading(true);
-    setUploadError(null);
-
-    try {
-      // Ensure user is authenticated
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData?.user) {
-        throw new Error("Not authenticated. Please log in again.");
-      }
-
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const path = `transformations/${Date.now()}-${safeName}`;
-      
-      const { error: storageErr } = await supabase.storage
-        .from(BUCKET)
-        .upload(path, file, { 
-          upsert: true,
-          contentType: file.type,
-        });
-
-      if (storageErr) {
-        throw new Error(storageErr.message);
-      }
-
-      const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
-      const publicUrl = urlData.publicUrl;
-
-      // Save to media table (non-blocking - image is already uploaded)
-      await supabase.from("media").upsert({
-        url: publicUrl,
-        file_name: path,
-        file_type: file.type,
-        size_bytes: file.size,
-        alt: file.name,
-        title: file.name,
-        uploaded_by: userData.user.id,
-      }, { onConflict: "file_name" });
-
-      onChange(publicUrl);
-      toast({ title: "Uploaded!", description: file.name });
-      setPickerOpen(false);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Upload failed. Check your connection.";
-      setUploadError(msg);
-      toast({ title: "Upload failed", description: msg, variant: "destructive" });
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
-    }
-  };
-
-  const openPicker = () => {
-    setPickerOpen(true);
-    fetchMedia();
-  };
-
+// ─── Media Input Wrapper ──────────────────────────────────────────────────
+function MediaInput({ value, onChange, label }: { value: string; onChange: (url: string) => void; label: string }) {
   return (
     <div>
       <Label className="text-xs">{label}</Label>
@@ -113,29 +31,17 @@ function MediaPicker({ value, onChange, label }: { value: string; onChange: (url
           placeholder="Image URL..."
           className="flex-1 text-xs"
         />
-        <Button type="button" variant="outline" size="sm" onClick={openPicker}>
-          <ImageIcon className="w-3.5 h-3.5 mr-1" /> Pick
-        </Button>
-        <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
-          {uploading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Upload className="w-3.5 h-3.5 mr-1" />}
-          {uploading ? "Uploading..." : "Upload"}
-        </Button>
-        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} aria-label={`Upload ${label}`} title={`Upload ${label}`} />
+        <CanonicalMediaPicker
+          onSelect={onChange}
+          trigger={
+            <Button type="button" variant="outline" size="sm">
+              <ImageIcon className="w-3.5 h-3.5 mr-1" /> Pick
+            </Button>
+          }
+        />
       </div>
 
-      {/* Upload status */}
-      {uploading && (
-        <div className="mt-2 flex items-center gap-2 text-xs text-blue-400">
-          <Loader2 className="w-3 h-3 animate-spin" />
-          <span>Uploading to storage & saving to database...</span>
-        </div>
-      )}
-      {uploadError && (
-        <p className="mt-1 text-xs text-destructive">{uploadError}</p>
-      )}
-
-      {/* Preview */}
-      {value && !uploading && (
+      {value && (
         <div className="mt-2 relative group">
           <Image 
             src={value} 
@@ -149,60 +55,10 @@ function MediaPicker({ value, onChange, label }: { value: string; onChange: (url
           </button>
         </div>
       )}
-
-      {/* Picker Dialog */}
-      <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
-        <DialogContent className="max-w-3xl max-h-[70vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Select {label}</DialogTitle>
-            <DialogDescription>Choose from your media library or upload a new image.</DialogDescription>
-          </DialogHeader>
-
-          <div className="flex gap-2 mb-4">
-            <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
-              {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
-              Upload New
-            </Button>
-          </div>
-
-          {loadingMedia ? (
-            <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin" /></div>
-          ) : (
-            <div className="grid grid-cols-4 md:grid-cols-5 gap-2">
-              {mediaFiles.filter(f => f.url && /\.(jpg|jpeg|png|webp|gif|avif)/i.test(f.url)).map((file) => (
-                <button
-                  key={file.url}
-                  aria-label={`Select ${file.name}`}
-                  onClick={() => { onChange(file.url); setPickerOpen(false); }}
-                  className={cn(
-                    "relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:border-primary",
-                    value === file.url ? "border-primary ring-2 ring-primary/30" : "border-transparent"
-                  )}
-                >
-                  <Image 
-                    src={file.url} 
-                    width={200} 
-                    quality={70} 
-                    alt={file.name} 
-                    imageClassName="w-full h-full object-cover" 
-                  />
-                  {value === file.url && (
-                    <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                      <Check className="w-5 h-5 text-primary" />
-                    </div>
-                  )}
-                </button>
-              ))}
-              {mediaFiles.filter(f => f.url && /\.(jpg|jpeg|png|webp|gif|avif)/i.test(f.url)).length === 0 && (
-                <p className="col-span-full text-center text-sm text-muted-foreground py-8">No images in media library yet.</p>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
+
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
@@ -402,8 +258,8 @@ export default function AdminTransformations() {
                 <div><Label className="text-xs">Location</Label><Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="JAMSHEDPUR" /></div>
               </div>
 
-              <MediaPicker label="Before Image" value={form.before_media} onChange={(url) => setForm({ ...form, before_media: url })} />
-              <MediaPicker label="After Image" value={form.after_media} onChange={(url) => setForm({ ...form, after_media: url })} />
+              <MediaInput label="Before Image" value={form.before_media} onChange={(url) => setForm({ ...form, before_media: url })} />
+              <MediaInput label="After Image" value={form.after_media} onChange={(url) => setForm({ ...form, after_media: url })} />
 
               <div><Label className="text-xs">The Challenge</Label><Textarea value={form.challenge} onChange={(e) => setForm({ ...form, challenge: e.target.value })} rows={2} placeholder="What problem did the client face?" /></div>
               <div>

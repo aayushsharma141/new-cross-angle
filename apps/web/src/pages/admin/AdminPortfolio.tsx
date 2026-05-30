@@ -49,6 +49,7 @@ export default function AdminPortfolio(): JSX.Element {
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -94,8 +95,6 @@ export default function AdminPortfolio(): JSX.Element {
   };
 
   const handleBulkDelete = async () => {
-    if (!confirm(`Are you sure you want to delete ${selectedIds.size} projects?`)) return;
-
     setIsBulkUpdating(true);
     try {
       await Promise.all(Array.from(selectedIds).map((id) => projectRepo.deleteProject(id)));
@@ -106,6 +105,7 @@ export default function AdminPortfolio(): JSX.Element {
       toast({ title: "Error deleting projects", description: (err as Error).message, variant: "destructive" });
     } finally {
       setIsBulkUpdating(false);
+      setBulkDeleteConfirmOpen(false);
     }
   };
 
@@ -312,6 +312,7 @@ export default function AdminPortfolio(): JSX.Element {
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label={`Edit ${item.title}`}
                           onClick={() => handleEdit(item)}
                           className="hover:bg-primary/10 text-zinc-400 hover:text-primary transition-colors"
                         >
@@ -320,6 +321,7 @@ export default function AdminPortfolio(): JSX.Element {
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label={`Delete ${item.title}`}
                           onClick={() => setDeleteId(item.id)}
                           className="hover:bg-red-500/10 text-zinc-600 hover:text-red-500 transition-colors"
                         >
@@ -359,11 +361,21 @@ export default function AdminPortfolio(): JSX.Element {
         selectedCount={selectedIds.size}
         label="projects"
         onClear={() => setSelectedIds(new Set())}
-        onDelete={handleBulkDelete}
+        onDelete={() => setBulkDeleteConfirmOpen(true)}
         onPublish={() => handleBulkStatusUpdate('live')}
         onArchive={() => handleBulkStatusUpdate('draft')}
         isUpdating={isBulkUpdating}
         isDeleting={isBulkUpdating}
+      />
+
+      <ConfirmDialog
+        open={bulkDeleteConfirmOpen}
+        onOpenChange={setBulkDeleteConfirmOpen}
+        title={`Delete ${selectedIds.size} Projects?`}
+        description="This action cannot be undone. All selected projects will be permanently removed from the portfolio."
+        onConfirm={() => void handleBulkDelete()}
+        variant="destructive"
+        confirmText="Delete All"
       />
     </div>
   );

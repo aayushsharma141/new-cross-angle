@@ -2,6 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useEffect, useState } from "react";
 import { AppRole } from "@/lib/auth/rbac";
+import { Loader2 } from "lucide-react";
 
 interface RoleGuardProps {
     children: React.ReactNode;
@@ -29,12 +30,26 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
 
     // Still loading auth state
     if (loading) {
-        return null;
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-black">
+                <div className="flex flex-col items-center gap-4 text-zinc-400">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="text-sm">Authenticating session...</p>
+                </div>
+            </div>
+        );
     }
 
     // User exists but role hasn't resolved yet — wait (race condition window)
     if (user && role === null && !roleTimeout) {
-        return null;
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-black">
+                <div className="flex flex-col items-center gap-4 text-zinc-400">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="text-sm">Verifying permissions...</p>
+                </div>
+            </div>
+        );
     }
 
     if (!role || !allowedRoles.includes(role)) {

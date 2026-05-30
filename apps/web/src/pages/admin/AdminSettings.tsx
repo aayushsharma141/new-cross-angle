@@ -16,7 +16,7 @@ import {
   AlertTriangle,
   Server
 } from "lucide-react";
-import { AdminPageHeader } from "@/components/admin/ui/AdminPageHeader";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminTabSlider } from "@/components/admin/ui/AdminTabSlider";
 import { useToast } from "@/hooks/useToast";
 import { useSystem } from "@/context/SystemContext";
@@ -401,31 +401,25 @@ const AdminSettings = () => {
   };
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in duration-700 relative">
+    <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
+      <ModuleActions>
+        <Button
+          type="button"
+          size="lg"
+          variant="primary"
+          onClick={() => {
+            const form = document.querySelector<HTMLFormElement>("#general-settings-form");
+            if (form) form.requestSubmit();
+          }}
+        >
+          <Save className="w-4 h-4 mr-2" />
+          Save Settings
+        </Button>
+      </ModuleActions>
+
       <AdminTabSlider
         activeTab={activeTab}
         onTabChange={(id) => setActiveTab(id)}
-        header={
-          <AdminPageHeader
-            title="Settings & Configuration"
-            description="Manage global site configuration, access policies, integrations, and system preferences."
-            breadcrumbs={[]}
-            actions={
-              <Button
-                type="button"
-                size="lg"
-                className="bg-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))/90] text-black font-semibold shadow-lg"
-                onClick={() => {
-                  const form = document.querySelector<HTMLFormElement>("#general-settings-form");
-                  if (form) form.requestSubmit();
-                }}
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Save Settings
-              </Button>
-            }
-          />
-        }
         tabs={[
           {
             id: "general",
@@ -797,7 +791,7 @@ const AdminSettings = () => {
       </Dialog>
 
       <Dialog open={showRbacDialog} onOpenChange={setShowRbacDialog}>
-        <DialogContent className="bg-zinc-900 border border-zinc-800 text-white max-w-2xl p-6 flexCol">
+        <DialogContent className="bg-zinc-900 border border-zinc-800 text-white max-w-2xl p-6 flex-col">
           <DialogHeader>
             <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-site-gold mb-2 border border-white/10">
               <Shield className="w-6 h-6 text-[hsl(var(--admin-primary))]" />

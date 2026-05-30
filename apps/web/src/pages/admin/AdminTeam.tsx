@@ -1,59 +1,24 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { supabase } from "@/integrations/supabase/client";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/primitives/table";
-import { Avatar, AvatarFallback } from "@/components/ui/primitives/avatar";
+import { DataTable } from "@/components/admin/ui/DataTable";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import { Textarea } from "@/components/ui/primitives/textarea";
-import {
-    Plus,
-    Search,
-    MoreHorizontal,
-    Trash2,
-    Edit2,
-    ExternalLink,
-    Instagram,
-    Linkedin,
-    Mail,
-    Loader2,
-    Users
-} from "lucide-react";
-import { useToast } from "@/hooks/useToast";
-import { getOptimizedUrl } from "@/lib/cdn";
-import { Image } from "@/components/ui/enhanced/image";
+import { Label } from "@/components/ui/primitives/label";
 import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/primitives/dialog";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/primitives/dropdown-menu";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle
-} from "@/components/ui/primitives/card";
+import { Plus, Loader2, Pencil, Trash2, Instagram, Linkedin, Mail, Users } from "lucide-react";
+import { useToast } from "@/hooks/useToast";
+import { Image } from "@/components/ui/enhanced/image";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
+import MediaPickerModal from "@/components/admin/MediaPickerModal";
 
 interface TeamMember {
     id: string;
@@ -68,10 +33,7 @@ interface TeamMember {
     created_at: string;
 }
 
-import MediaPickerModal from "@/components/admin/MediaPickerModal";
-
 export default function AdminTeam() {
-    const [search, setSearch] = useState("");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -89,7 +51,6 @@ export default function AdminTeam() {
 
             if (error) {
                 if (error.code === "PGRST116" || error.message.includes("does not exist")) {
-                    // Table doesn't exist yet
                     return [];
                 }
                 throw error;
@@ -152,11 +113,6 @@ export default function AdminTeam() {
         }
     });
 
-    const filteredMembers = members.filter(m =>
-        m.name.toLowerCase().includes(search.toLowerCase()) ||
-        m.role.toLowerCase().includes(search.toLowerCase())
-    );
-
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -183,43 +139,79 @@ export default function AdminTeam() {
             <div className="p-8 text-center">
                 <h2 className="text-xl font-bold text-destructive mb-2">Database Error</h2>
                 <p className="text-muted-foreground mb-4">The `team_members` table might be missing. Please run the SQL migration.</p>
-                <pre className="bg-muted p-4 rounded text-left text-xs overflow-auto max-w-2xl mx-auto">
-                    {`CREATE TABLE team_members (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
-  role TEXT NOT NULL,
-  bio TEXT,
-  image_url TEXT,
-  instagram_url TEXT,
-  linkedin_url TEXT,
-  email TEXT,
-  display_order INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Enable RLS
-ALTER TABLE team_members ENABLE ROW LEVEL SECURITY;
-
--- Allow public read access
-CREATE POLICY "Allow public read access" ON team_members
-  FOR SELECT USING (true);
-
--- Allow admin write access (update with your auth logic)
-CREATE POLICY "Allow admin full access" ON team_members
-  FOR ALL TO authenticated USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE id = auth.uid() AND role = 'admin'
-    )
-  );`}
-                </pre>
             </div>
         );
     }
 
+    const columns = [
+        {
+            key: "image_url",
+            header: "Member",
+            cell: (member: TeamMember) => (
+                <div className="h-10 w-10 rounded-full overflow-hidden border bg-muted flex items-center justify-center flex-shrink-0">
+                    {member.image_url ? (
+                        <Image
+                            src={member.image_url}
+                            alt={member.name}
+                            width={40}
+                            height={40}
+                            imageClassName="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <span className="text-sm font-medium">{member.name[0]}</span>
+                    )}
+                </div>
+            )
+        },
+        {
+            key: "name",
+            header: "Name",
+            cell: (member: TeamMember) => <span className="font-medium">{member.name}</span>
+        },
+        {
+            key: "role",
+            header: "Role",
+            cell: (member: TeamMember) => (
+                <span className="text-muted-foreground">{member.role}</span>
+            )
+        },
+        {
+            key: "socials",
+            header: "Socials",
+            cell: (member: TeamMember) => (
+                <div className="flex gap-2 text-muted-foreground">
+                    {member.instagram_url && <Instagram className="w-4 h-4 opacity-50 hover:opacity-100 transition-opacity cursor-pointer" />}
+                    {member.linkedin_url && <Linkedin className="w-4 h-4 opacity-50 hover:opacity-100 transition-opacity cursor-pointer" />}
+                    {member.email && <Mail className="w-4 h-4 opacity-50 hover:opacity-100 transition-opacity cursor-pointer" />}
+                </div>
+            )
+        },
+        {
+            key: "actions",
+            header: "Actions",
+            className: "text-right",
+            cell: (member: TeamMember) => (
+                <div className="flex justify-end gap-2">
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => {
+                        setEditingMember(member);
+                        setIsDialogOpen(true);
+                    }}>
+                        <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => {
+                        if (confirm("Are you sure you want to remove this member?")) {
+                            deleteMutation.mutate(member.id);
+                        }
+                    }}>
+                        <Trash2 className="w-4 h-4" />
+                    </Button>
+                </div>
+            )
+        }
+    ];
+
     return (
-        <div className="container mx-auto py-8 px-4 max-w-7xl">
+        <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
                 setIsDialogOpen(open);
                 if (!open) {
@@ -238,112 +230,112 @@ CREATE POLICY "Allow admin full access" ON team_members
                     <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
                         <DialogTitle>{editingMember ? "Edit Team Member" : "Add Team Member"}</DialogTitle>
                         <DialogDescription>
-                                Fill in the details to curate your team profile.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
-                            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label htmlFor="name" className="text-sm font-medium">Name</label>
-                                        <Input id="name" name="name" defaultValue={editingMember?.name} required placeholder="Full Name" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label htmlFor="role" className="text-sm font-medium">Role</label>
-                                        <Input id="role" name="role" defaultValue={editingMember?.role} required placeholder="Visionary Designation" />
-                                    </div>
+                            Fill in the details to curate your team profile.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="name">Name</Label>
+                                    <Input id="name" name="name" defaultValue={editingMember?.name} required placeholder="Full Name" />
                                 </div>
                                 <div className="space-y-2">
-                                    <label htmlFor="bio" className="text-sm font-medium">Bio</label>
-                                    <Textarea id="bio" name="bio" defaultValue={editingMember?.bio || ""} placeholder="A short, visionary biography..." rows={3} />
+                                    <Label htmlFor="role">Role</Label>
+                                    <Input id="role" name="role" defaultValue={editingMember?.role} required placeholder="Visionary Designation" />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Profile Image</label>
-                                    <div className="flex items-center gap-4">
-                                        <div className="relative w-20 h-20 rounded-full overflow-hidden border bg-muted flex-shrink-0">
-                                            {(editingMember?.image_url || selectedImage) ? (
-                                                <Image
-                                                    src={selectedImage || editingMember?.image_url || ""}
-                                                    alt="Profile"
-                                                    width={160}
-                                                    quality={78}
-                                                    imageClassName="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                                                    <Users className="w-8 h-8 opacity-20" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="flex-1 space-y-2">
-                                            <div className="flex gap-2">
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="bio">Bio</Label>
+                                <Textarea id="bio" name="bio" defaultValue={editingMember?.bio || ""} placeholder="A short, visionary biography..." rows={3} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Profile Image</Label>
+                                <div className="flex items-center gap-4">
+                                    <div className="relative w-20 h-20 rounded-full overflow-hidden border bg-muted flex-shrink-0">
+                                        {(editingMember?.image_url || selectedImage) ? (
+                                            <Image
+                                                src={selectedImage || editingMember?.image_url || ""}
+                                                alt="Profile"
+                                                width={160}
+                                                quality={78}
+                                                imageClassName="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                                <Users className="w-8 h-8 opacity-20" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                        <div className="flex gap-2">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setIsMediaPickerOpen(true)}
+                                            >
+                                                Select from Library
+                                            </Button>
+                                            {(selectedImage || editingMember?.image_url) && (
                                                 <Button
                                                     type="button"
-                                                    variant="outline"
+                                                    variant="ghost"
                                                     size="sm"
-                                                    onClick={() => setIsMediaPickerOpen(true)}
+                                                    className="text-destructive hover:text-destructive"
+                                                    onClick={() => {
+                                                        setSelectedImage("");
+                                                        if (editingMember) setEditingMember({ ...editingMember, image_url: null });
+                                                    }}
                                                 >
-                                                    Select from Library
+                                                    Remove
                                                 </Button>
-                                                {(selectedImage || editingMember?.image_url) && (
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="text-destructive hover:text-destructive"
-                                                        onClick={() => {
-                                                            setSelectedImage("");
-                                                            if (editingMember) setEditingMember({ ...editingMember, image_url: null });
-                                                        }}
-                                                    >
-                                                        Remove
-                                                    </Button>
-                                                )}
-                                            </div>
-                                            <Input
-                                                id="image_url"
-                                                name="image_url"
-                                                value={selectedImage || editingMember?.image_url || ""}
-                                                onChange={(e) => {
-                                                    setSelectedImage(e.target.value);
-                                                    if (editingMember) setEditingMember({ ...editingMember, image_url: e.target.value });
-                                                }}
-                                                placeholder="https://..."
-                                                className="text-xs font-mono"
-                                            />
+                                            )}
                                         </div>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label htmlFor="instagram_url" className="text-sm font-medium">Instagram</label>
-                                        <Input id="instagram_url" name="instagram_url" defaultValue={editingMember?.instagram_url || ""} placeholder="#" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label htmlFor="linkedin_url" className="text-sm font-medium">LinkedIn</label>
-                                        <Input id="linkedin_url" name="linkedin_url" defaultValue={editingMember?.linkedin_url || ""} placeholder="#" />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label htmlFor="email" className="text-sm font-medium">Email</label>
-                                        <Input id="email" name="email" type="email" defaultValue={editingMember?.email || ""} placeholder="name@crossangle.in" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label htmlFor="display_order" className="text-sm font-medium">Display Order</label>
-                                        <Input id="display_order" name="display_order" type="number" defaultValue={editingMember?.display_order || 0} />
+                                        <Input
+                                            id="image_url"
+                                            name="image_url"
+                                            value={selectedImage || editingMember?.image_url || ""}
+                                            onChange={(e) => {
+                                                setSelectedImage(e.target.value);
+                                                if (editingMember) setEditingMember({ ...editingMember, image_url: e.target.value });
+                                            }}
+                                            placeholder="https://..."
+                                            className="text-xs font-mono"
+                                        />
                                     </div>
                                 </div>
                             </div>
-                            <div className="shrink-0 px-6 py-4 border-t border-zinc-800">
-                                <Button type="submit" disabled={upsertMutation.isPending} className="w-full">
-                                    {upsertMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    {editingMember ? "Save Changes" : "Add Visionary"}
-                                </Button>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="instagram_url">Instagram</Label>
+                                    <Input id="instagram_url" name="instagram_url" defaultValue={editingMember?.instagram_url || ""} placeholder="#" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="linkedin_url">LinkedIn</Label>
+                                    <Input id="linkedin_url" name="linkedin_url" defaultValue={editingMember?.linkedin_url || ""} placeholder="#" />
+                                </div>
                             </div>
-                        </form>
-                    </DialogContent>
-                </Dialog>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="email">Email</Label>
+                                    <Input id="email" name="email" type="email" defaultValue={editingMember?.email || ""} placeholder="name@crossangle.in" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="display_order">Display Order</Label>
+                                    <Input id="display_order" name="display_order" type="number" defaultValue={editingMember?.display_order || 0} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="shrink-0 px-6 py-4 border-t border-zinc-800">
+                            <Button type="submit" disabled={upsertMutation.isPending} className="w-full">
+                                {upsertMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {editingMember ? "Save Changes" : "Add Visionary"}
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
 
             <MediaPickerModal
                 open={isMediaPickerOpen}
@@ -356,102 +348,11 @@ CREATE POLICY "Allow admin full access" ON team_members
                 }}
             />
 
-            <div className="bg-card rounded-xl border shadow-sm">
-                <div className="p-4 border-b flex items-center gap-4">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search by name or role..."
-                            className="pl-9"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                </div>
-
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[80px]">Member</TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Role</TableHead>
-                            <TableHead className="hidden md:table-cell">Socials</TableHead>
-                            <TableHead className="w-[100px] text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {isLoading ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="h-32 text-center">
-                                    <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
-                                </TableCell>
-                            </TableRow>
-                        ) : filteredMembers.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                                    No team members found.
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            filteredMembers.map((member) => (
-                                <TableRow key={member.id}>
-                                    <TableCell>
-                                        <Avatar className="h-10 w-10 border">
-                                            <Image
-                                                src={member.image_url || ""}
-                                                alt={member.name}
-                                                width={96}
-                                                height={96}
-                                                quality={76}
-                                                imageClassName="w-full h-full object-cover"
-                                            />
-                                            <AvatarFallback>{member.name[0]}</AvatarFallback>
-                                        </Avatar>
-                                    </TableCell>
-                                    <TableCell className="font-medium">{member.name}</TableCell>
-                                    <TableCell className="text-muted-foreground">{member.role}</TableCell>
-                                    <TableCell className="hidden md:table-cell">
-                                        <div className="flex gap-2">
-                                            {member.instagram_url && <Instagram className="w-4 h-4 opacity-50" />}
-                                            {member.linkedin_url && <Linkedin className="w-4 h-4 opacity-50" />}
-                                            {member.email && <Mail className="w-4 h-4 opacity-50" />}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" aria-label="Team options">
-                                                    <MoreHorizontal className="w-4 h-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-40">
-                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => {
-                                                    setEditingMember(member);
-                                                    setIsDialogOpen(true);
-                                                }}>
-                                                    <Edit2 className="mr-2 w-4 h-4" /> Edit
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem
-                                                    className="text-destructive"
-                                                    onClick={() => {
-                                                        if (confirm("Are you sure you want to remove this visionary?")) {
-                                                            deleteMutation.mutate(member.id);
-                                                        }
-                                                    }}
-                                                >
-                                                    <Trash2 className="mr-2 w-4 h-4" /> Delete
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+            <DataTable
+                data={members}
+                columns={columns}
+                isLoading={isLoading}
+            />
         </div>
     );
 }

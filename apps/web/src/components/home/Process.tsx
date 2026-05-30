@@ -12,8 +12,18 @@ import { Check, Hammer, Home, Palette, Ruler } from "lucide-react";
 import { Image } from "@/components/ui/enhanced/image";
 import useReducedMotion from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-const steps = [
+const iconMap: Record<string, React.ElementType> = {
+  Home,
+  Ruler,
+  Palette,
+  Hammer,
+  Check,
+};
+
+const fallbackSteps = [
   {
     id: "01",
     icon: Home,
@@ -74,9 +84,19 @@ const steps = [
     imageAlt: "Completed premium interior ready for handover",
     kicker: "Stage Five",
   },
-] as const;
+];
 
-type ProcessStepConfig = (typeof steps)[number];
+export type ProcessStepConfig = {
+  id: string;
+  icon: React.ElementType;
+  title: string;
+  subtitle: string;
+  description: string;
+  detail: string;
+  image: string;
+  imageAlt: string;
+  kicker: string;
+};
 
 /** Individual step node in the bottom timeline */
 const StepNode = ({
@@ -163,6 +183,33 @@ const Process = () => {
   const prefersReducedMotion = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const { data: steps = fallbackSteps } = useQuery({
+    queryKey: ['designProcessSteps'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('design_process_steps')
+        .select('*')
+        .order('display_order', { ascending: true });
+        
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        return data.map(step => ({
+          id: step.step_number,
+          icon: iconMap[step.icon_name] || Check,
+          title: step.title,
+          subtitle: step.subtitle,
+          description: step.description,
+          detail: step.detail,
+          image: step.image_url || "/reality_render.jpg",
+          imageAlt: step.image_alt || step.title,
+          kicker: step.kicker || "",
+        }));
+      }
+      return fallbackSteps;
+    }
+  });
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
@@ -194,7 +241,7 @@ const Process = () => {
         behavior: prefersReducedMotion ? "auto" : "smooth",
       });
     },
-    [prefersReducedMotion]
+    [prefersReducedMotion, steps.length]
   );
 
   const activeStep = steps[activeIndex];

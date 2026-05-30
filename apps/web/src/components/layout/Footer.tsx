@@ -295,7 +295,7 @@ export default function Footer() {
       </div>
 
       {/* --- GRID --- */}
-      <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 relative z-20 border-t border-white/5">
+      <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 relative z-20 border-t border-white/5">
         {/* Col 1 */}
         <motion.div
           className={colStyle}
@@ -334,7 +334,7 @@ export default function Footer() {
           <LiveClock />
         </motion.div>
 
-        {/* Col 3: Quick Links */}
+        {/* Col 3: Quick Links — Core Navigation */}
         <motion.div
           className={colStyle}
           initial={{ opacity: 0, y: 80 }}
@@ -342,31 +342,59 @@ export default function Footer() {
           viewport={{ once: true }}
           transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
         >
-          <div className={labelStyle}>// QUICK LINKS</div>
+          <div className={labelStyle}>// NAVIGATE</div>
           {[
-            { key: 'gallery', name: 'Gallery', path: '/gallery' },
-            { key: 'estimate', name: 'Cost Estimator', path: '/estimate' },
-            { key: 'aesthetic-discovery-engine', name: 'Aesthetic Discovery Engine', path: '/aesthetic-discovery-engine' },
+            { key: 'home', name: 'Home', path: '/' },
+            { key: 'services', name: 'Services', path: '/services' },
+            { key: 'portfolio', name: 'Portfolio', path: '/portfolio' },
+            { key: 'about', name: 'About Us', path: '/about-us' },
+            { key: 'blog', name: 'Blog', path: '/blog' },
             { key: 'contact', name: 'Contact Us', path: '/contact-us' },
           ].map(({ key, name, path }) => (
             <Link
               key={key}
               to={path}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="block mb-3 text-[20px] transition-transform duration-300 hover:translate-x-[10px] hover:text-[#C41230] cursor-pointer text-white no-underline"
+              className="block mb-3 text-[18px] transition-transform duration-300 hover:translate-x-[10px] hover:text-[#C41230] cursor-pointer text-white no-underline"
             >
               {name}
             </Link>
           ))}
         </motion.div>
 
-        {/* Col 4: Socials */}
+        {/* Col 4: Quick Links — Tools & Resources */}
         <motion.div
           className={colStyle}
           initial={{ opacity: 0, y: 80 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+        >
+          <div className={labelStyle}>// TOOLS</div>
+          {[
+            { key: 'gallery', name: 'Gallery', path: '/gallery' },
+            { key: 'estimate', name: 'Cost Estimator', path: '/estimate' },
+            { key: 'discovery', name: 'Style Discovery', path: '/aesthetic-discovery-engine' },
+            { key: 'blueprint', name: 'Design Blueprint', path: '/blueprint' },
+          ].map(({ key, name, path }) => (
+            <Link
+              key={key}
+              to={path}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="block mb-3 text-[18px] transition-transform duration-300 hover:translate-x-[10px] hover:text-[#C41230] cursor-pointer text-white no-underline"
+            >
+              {name}
+            </Link>
+          ))}
+        </motion.div>
+
+        {/* Col 5: Socials */}
+        <motion.div
+          className={colStyle}
+          initial={{ opacity: 0, y: 80 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
         >
           <div className={labelStyle}>// SOCIALS</div>
           {[

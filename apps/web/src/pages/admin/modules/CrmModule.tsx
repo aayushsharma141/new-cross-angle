@@ -65,6 +65,8 @@ export const CrmModule = () => {
   // ── Navigation handlers ──────────────────────────────────────────────────
   const handleStageClick = (stageId: string) => {
     const newParams = new URLSearchParams(isLeadsPage ? searchParams : undefined);
+    newParams.delete("view"); // clear view filter when switching stages
+    
     if (!isLeadsPage) {
       newParams.set("stage", stageId);
       navigate(`/admin/crm/leads?${newParams.toString()}`);
@@ -125,7 +127,7 @@ export const CrmModule = () => {
     }
 
     if (isCrmNavView(item)) {
-      const isActive = isLeadsPage && viewParam === item.view;
+      const isActive = isLeadsPage && viewParam === item.view && (!statusFilter || statusFilter === "all");
       const count = getViewCount(item.view, leads, now);
       const badgeColor =
         item.badgeTone === "danger"
@@ -151,14 +153,16 @@ export const CrmModule = () => {
 
   const sidebarContent = (
     <>
-      <div className="px-3 pb-2 text-[10px] uppercase tracking-[0.16em] text-admin-text-subtle">Workspace</div>
+      <div className="px-3 pb-2 text-[10px] uppercase tracking-[0.16em] text-admin-text-subtle font-semibold">Workspace Views</div>
 
       {CRM_WORKSPACE_NAV.map(renderNavItem)}
 
-      <div className="mt-5 px-3 pb-2 text-[10px] uppercase tracking-[0.16em] text-admin-text-subtle">Stages</div>
+      <div className="mt-6 pt-5 border-t border-admin-border/50 px-3 pb-2 flex items-center justify-between">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-admin-text-subtle">Pipeline Stages</span>
+      </div>
 
       {CRM_STAGES.map((stage) => {
-        const isActive = isLeadsPage && statusFilter === stage.id;
+        const isActive = isLeadsPage && statusFilter === stage.id && (!viewParam || viewParam === "all");
         return (
           <button
             key={stage.id}

@@ -1,7 +1,9 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-const milestones = [
+const fallbackMilestones = [
   { 
     year: "2010", 
     title: "The Beginning",
@@ -31,6 +33,20 @@ const milestones = [
 
 const AboutTimeline = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { data: milestones = fallbackMilestones } = useQuery({
+    queryKey: ['studioMilestones'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('studio_milestones')
+        .select('*')
+        .order('display_order', { ascending: true });
+        
+      if (error) throw error;
+      return data && data.length > 0 ? data : fallbackMilestones;
+    }
+  });
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],

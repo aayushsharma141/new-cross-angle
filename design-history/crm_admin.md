@@ -4,7 +4,19 @@ Tracks all visual iterations, layout decisions, and UI/UX changes for the Admin 
 
 ---
 
-## Active Iteration: **v2.1-standardized-crm-manifest**
+## Active Iteration: **v2.2-crm-theme-standardization**
+
+**Date:** 2026-05-29
+
+### What changed
+
+- **Transparency Fixes:** Systematically converted arbitrary `hsl(var(--admin-...))` background and text inline classes into standardized tailwind semantic tokens (e.g., `bg-admin-bg`, `bg-admin-surface`) across `AdminLeads.tsx`, `LeadGridView.tsx`, and `LeadDetailSheet.tsx` to fix rendering bugs inside portal overlays like dropdowns and sheets.
+- **Filter Cleanup:** Removed the duplicate 'Stage' filters from the master dropdown inside `AdminLeads.tsx`, consolidating view controls to rely solely on the Left Sidebar Tabs for stage filtering.
+- **Views & UI consistency:** Finalized the implementation of a functional Card/Grid view (`LeadGridView.tsx`) to complement the standard List view.
+
+---
+
+## Previous Iteration: **v2.1-standardized-crm-manifest**
 
 **Date:** 2026-05-29
 

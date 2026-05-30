@@ -5,96 +5,91 @@ import faqData from "@/data/contactFAQ.json";
 
 const ContactFAQ = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-  const prioritizedFaqs = faqData;
 
   const toggleFAQ = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <section className="home-section-frame relative z-10 px-4 py-20 md:py-28">
-      <div className="container mx-auto max-w-5xl">
-        <div className="mx-auto mb-14 max-w-3xl text-center">
+    <section className="relative z-10 px-4 py-16 md:py-20">
+      <div className="container mx-auto max-w-3xl">
+
+        {/* Section header — compact and centred */}
+        <div className="mb-12 text-center">
           <div className="home-kicker mx-auto mb-4 justify-center">Clarity First</div>
-          <h2 className="home-title text-center text-[clamp(2.2rem,4.5vw,4.4rem)]">
-            Questions that usually come
-            <span className="home-title-accent"> before the first call.</span>
+          <h2 className="font-serif text-[clamp(1.9rem,3.8vw,3.2rem)] font-medium leading-[1.12] text-white">
+            Questions that usually come{" "}
+            <span className="text-[#d1af6e]">before the first call.</span>
           </h2>
-          <p className="home-body mx-auto mt-5 text-base">
-            These answers are here to reduce friction before you reach out, not to
-            overwhelm you with policy language.
+          <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-white/40">
+            These answers are here to reduce friction before you reach out, not to overwhelm you.
           </p>
         </div>
 
-        <div className="home-panel-muted overflow-hidden rounded-[30px] p-3 md:p-4">
-          {prioritizedFaqs.map((faq, index) => {
+        {/* Accordion */}
+        <div className="rounded-[24px] border border-white/[0.06] bg-[#0A0A0A]/60 overflow-hidden backdrop-blur-xl divide-y divide-white/[0.05]">
+          {faqData.map((faq, index) => {
             const isOpen = openIndex === index;
-            // determine if another item is open so we can dim this one if it's inactive
-            const isDimmed = openIndex !== null && !isOpen;
-            
+
             return (
               <div
                 key={index}
-                className="overflow-hidden border-b last:border-b-0 transition-all duration-500"
-                style={{
-                  borderColor: isOpen ? "rgba(209, 175, 110, 0.2)" : "var(--home-border-soft)",
-                  opacity: isDimmed ? 0.65 : 1,
-                  transform: isDimmed ? "scale(0.99)" : "scale(1)",
-                }}
+                className="transition-all duration-400"
+                style={{ opacity: openIndex !== null && !isOpen ? 0.7 : 1 }}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
-                  className="group flex w-full items-center justify-between gap-6 px-4 md:px-6 py-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d1af6e]/50 relative"
-                  aria-expanded={isOpen ? true : false}
+                  className="group flex w-full items-center justify-between gap-5 px-6 py-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d1af6e]/40 relative"
+                  aria-expanded={isOpen}
                   aria-controls={`contact-faq-panel-${index}`}
                   id={`contact-faq-trigger-${index}`}
                 >
-                  {/* Left glowing line indicator */}
-                  <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 rounded-r-md bg-[#d1af6e] transition-all duration-500 ${isOpen ? 'h-[60%] shadow-[0_0_15px_rgba(209,175,110,0.8)]' : 'h-0'}`} />
-                   
-                  <span className="flex flex-1 flex-col gap-2 pl-2">
+                  {/* Active left accent bar */}
+                  <div
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 rounded-r-full bg-[#d1af6e] transition-all duration-400"
+                    style={{ height: isOpen ? "55%" : "0%", boxShadow: isOpen ? "0 0 12px rgba(209,175,110,0.6)" : "none" }}
+                  />
+
+                  <div className="flex flex-col gap-1.5 pl-3 flex-1">
                     {index === 0 && (
-                      <span className="inline-flex w-fit rounded-full border border-[#d1af6e]/30 bg-[#d1af6e]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#d1af6e]">
+                      <span className="inline-flex w-fit rounded-full border border-[#d1af6e]/25 bg-[#d1af6e]/8 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] text-[#d1af6e]">
                         Most asked
                       </span>
                     )}
-                    <span
-                      className={`text-base leading-7 transition-colors duration-300 md:text-lg ${
-                        isOpen
-                          ? "font-medium text-[#d1af6e]"
-                          : "text-[var(--site-text)] group-hover:text-white"
-                      }`}
-                    >
+                    <span className={`text-sm leading-6 transition-colors duration-300 md:text-[0.95rem] ${
+                      isOpen ? "font-medium text-[#d1af6e]" : "text-white/75 group-hover:text-white"
+                    }`}>
                       {faq.question}
                     </span>
-                  </span>
-                  <div
-                    className={`relative flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-500 ${
-                      isOpen
-                        ? "border-[#d1af6e]/40 bg-[#d1af6e]/10 shadow-[0_0_15px_rgba(209,175,110,0.15)]"
-                        : "border-[var(--home-border-soft)] bg-white/[0.02] group-hover:border-white/40"
-                    }`}
-                  >
-                    {isOpen ? (
-                      <Minus size={16} className="text-[#d1af6e] transition-transform duration-500 rotate-180" />
-                    ) : (
-                      <Plus size={16} className="text-[var(--site-text-muted)] group-hover:text-white transition-transform duration-500" />
-                    )}
+                  </div>
+
+                  <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-400 ${
+                    isOpen
+                      ? "border-[#d1af6e]/35 bg-[#d1af6e]/8"
+                      : "border-white/[0.08] bg-white/[0.02] group-hover:border-white/20"
+                  }`}>
+                    {isOpen
+                      ? <Minus size={13} className="text-[#d1af6e]" />
+                      : <Plus size={13} className="text-white/40 group-hover:text-white/70 transition-colors" />
+                    }
                   </div>
                 </button>
+
                 <AnimatePresence initial={false}>
                   {isOpen && (
                     <motion.div
                       key="content"
                       id={`contact-faq-panel-${index}`}
                       aria-labelledby={`contact-faq-trigger-${index}`}
-                      initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                      animate={{ height: "auto", opacity: 1, marginTop: 10 }}
-                      exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                      transition={{ type: "spring", stiffness: 120, damping: 20, mass: 1 }}
-                      className="px-4 text-[var(--site-text-muted)] leading-7 md:px-8 pb-6 pl-6 text-sm md:text-base border-l border-[#d1af6e]/10 ml-4 max-w-[90%]"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 130, damping: 22, mass: 0.9 }}
+                      className="overflow-hidden"
                     >
-                      {faq.answer}
+                      <p className="px-6 pb-6 pt-1 pl-10 text-sm leading-7 text-white/45 border-l-2 border-[#d1af6e]/10 ml-6 mr-6 mb-2">
+                        {faq.answer}
+                      </p>
                     </motion.div>
                   )}
                 </AnimatePresence>

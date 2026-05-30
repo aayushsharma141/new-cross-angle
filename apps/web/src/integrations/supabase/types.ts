@@ -354,6 +354,36 @@ export type Database = {
         }
         Relationships: []
       }
+      footer_links: {
+        Row: {
+          id: string
+          section: string
+          label: string
+          path: string
+          display_order: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          section: string
+          label: string
+          path: string
+          display_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          section?: string
+          label?: string
+          path?: string
+          display_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gallery_items: {
         Row: {
           category_id: string | null
@@ -1542,6 +1572,84 @@ export type Database = {
         }
         Relationships: []
       }
+      design_process_steps: {
+        Row: {
+          created_at: string
+          description: string
+          detail: string
+          display_order: number
+          icon_name: string
+          id: string
+          image_alt: string | null
+          image_url: string | null
+          kicker: string | null
+          step_number: string
+          subtitle: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          detail: string
+          display_order?: number
+          icon_name: string
+          id?: string
+          image_alt?: string | null
+          image_url?: string | null
+          kicker?: string | null
+          step_number: string
+          subtitle: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          detail?: string
+          display_order?: number
+          icon_name?: string
+          id?: string
+          image_alt?: string | null
+          image_url?: string | null
+          kicker?: string | null
+          step_number?: string
+          subtitle?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      studio_milestones: {
+        Row: {
+          created_at: string
+          display_order: number
+          event: string
+          id: string
+          title: string
+          updated_at: string
+          year: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          event: string
+          id?: string
+          title: string
+          updated_at?: string
+          year: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          event?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          year?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           about_text: string | null
@@ -1571,6 +1679,7 @@ export type Database = {
           posthog_api_key: string | null
           posthog_host: string | null
           studio_name: string
+          studio_stats: Json | null
           tagline: string | null
           updated_at: string | null
           whatsapp: string | null
@@ -1603,6 +1712,7 @@ export type Database = {
           posthog_api_key?: string | null
           posthog_host?: string | null
           studio_name?: string
+          studio_stats?: Json | null
           tagline?: string | null
           updated_at?: string | null
           whatsapp?: string | null
@@ -1635,6 +1745,7 @@ export type Database = {
           posthog_api_key?: string | null
           posthog_host?: string | null
           studio_name?: string
+          studio_stats?: Json | null
           tagline?: string | null
           updated_at?: string | null
           whatsapp?: string | null

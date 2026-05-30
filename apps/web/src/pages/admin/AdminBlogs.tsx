@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { FileText, Plus, Pencil, LayoutGrid } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/ui/AdminPageHeader";
 import { AdminTabSlider } from "@/components/admin/ui/AdminTabSlider";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { Button } from "@/components/ui/primitives/button";
 import { BlogList } from "@/components/admin/blogs/BlogList";
 import { BlogEditorForm } from "@/components/admin/blogs/BlogEditorForm";
@@ -24,7 +25,7 @@ const AdminBlogs = () => {
         deepLinkHandled.current = true;
         const { data } = await supabase.from('blog_posts').select('*').eq('slug', editSlug).single();
         if (data) {
-          setEditingPost(data);
+          setEditingPost(data as unknown as BlogPost);
           setActiveTab("editor");
         }
       }
@@ -54,51 +55,33 @@ const AdminBlogs = () => {
   };
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in duration-700">
-      <AdminTabSlider
-        activeTab={activeTab}
-        onTabChange={(id) => setActiveTab(id)}
-        header={
-          <AdminPageHeader
-            title="Blog Posts"
-            description="Create, edit, and publish engaging content for the CrossAngle Interiors blog."
-            breadcrumbs={[]}
-            actions={
-              <Button
-                type="button"
-                size="lg"
-                className="bg-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))/90] text-black font-semibold shadow-lg"
-                onClick={handleNew}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                New Post
-              </Button>
-            }
-          />
-        }
-        tabs={[
-          {
-            id: "all",
-            label: "All Posts",
-            icon: LayoutGrid,
-            content: (
-              <BlogList refreshTrigger={refreshTrigger} onEdit={handleEdit} />
-            ),
-          },
-          {
-            id: "editor",
-            label: editingPost ? "Edit Post" : "New Post",
-            icon: editingPost ? Pencil : Plus,
-            content: (
-              <BlogEditorForm
-                post={editingPost}
-                onSaved={handleSaved}
-                onCancel={handleCancel}
-              />
-            ),
-          },
-        ]}
-      />
+    <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
+      <ModuleActions>
+        {activeTab === "all" ? (
+          <Button
+            type="button"
+            className="bg-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))/90] text-black font-semibold shadow-lg"
+            onClick={handleNew}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Post
+          </Button>
+        ) : (
+          <Button type="button" variant="outline" onClick={handleCancel} className="bg-transparent border-[hsl(var(--admin-border))]">
+            Cancel
+          </Button>
+        )}
+      </ModuleActions>
+
+      {activeTab === "all" ? (
+        <BlogList refreshTrigger={refreshTrigger} onEdit={handleEdit} />
+      ) : (
+        <BlogEditorForm
+          post={editingPost}
+          onSaved={handleSaved}
+          onCancel={handleCancel}
+        />
+      )}
     </div>
   );
 };
