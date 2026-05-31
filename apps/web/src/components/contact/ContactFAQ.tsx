@@ -40,9 +40,9 @@ const ContactFAQ = () => {
                 <button
                   onClick={() => toggleFAQ(index)}
                   className="group flex w-full items-center justify-between gap-5 px-6 py-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d1af6e]/40 relative"
-                  aria-expanded={isOpen}
                   aria-controls={`contact-faq-panel-${index}`}
                   id={`contact-faq-trigger-${index}`}
+                  {...{ "aria-expanded": isOpen }}
                 >
                   {/* Active left accent bar */}
                   <div

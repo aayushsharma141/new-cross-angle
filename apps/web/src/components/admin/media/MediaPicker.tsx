@@ -91,7 +91,7 @@ export function MediaPicker({ onSelect, trigger }: MediaPickerProps) {
             <DialogTrigger asChild>
                 {trigger || <Button variant="outline">Select Image</Button>}
             </DialogTrigger>
-            <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
+            <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 bg-admin-card border-admin-border text-admin-text">
                 <DialogHeader className="px-6 py-4 border-b">
                     <DialogTitle>Select Media</DialogTitle>
                 </DialogHeader>
@@ -107,6 +107,8 @@ export function MediaPicker({ onSelect, trigger }: MediaPickerProps) {
                         />
                     </div>
                     <select
+                        aria-label="Filter by folder"
+                        title="Filter by folder"
                         className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         value={selectedFolder}
                         onChange={(e) => setSelectedFolder(e.target.value)}

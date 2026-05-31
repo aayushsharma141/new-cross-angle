@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/primitives/dialog";
 import { Plus, Loader2, Pencil, Trash2, Instagram, Linkedin, Mail, Users } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
+import { auditService } from "@/services/AuditService";
 import { Image } from "@/components/ui/enhanced/image";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
@@ -70,8 +71,15 @@ export default function AdminTeam() {
             if (error) throw error;
             return data;
         },
-        onSuccess: () => {
+        onSuccess: (data: TeamMember) => {
             queryClient.invalidateQueries({ queryKey: ["team-members"] });
+            const resultId = data?.id || editingMember?.id || null;
+            void auditService.writeAudit(
+                editingMember ? 'UPDATE' : 'CREATE',
+                'team_member',
+                resultId,
+                { name: editingMember?.name || data?.name }
+            );
             toast({
                 title: "Success",
                 description: editingMember ? "Team member updated" : "Team member added",
@@ -97,8 +105,9 @@ export default function AdminTeam() {
 
             if (error) throw error;
         },
-        onSuccess: () => {
+        onSuccess: (_data, id) => {
             queryClient.invalidateQueries({ queryKey: ["team-members"] });
+            void auditService.writeAudit('DELETE', 'team_member', id, {});
             toast({
                 title: "Deleted",
                 description: "Team member removed successfully",
@@ -226,7 +235,7 @@ export default function AdminTeam() {
                         </Button>
                     </DialogTrigger>
                 </ModuleActions>
-                <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl border-zinc-800">
+                <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl bg-admin-card border-admin-border text-admin-text">
                     <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
                         <DialogTitle>{editingMember ? "Edit Team Member" : "Add Team Member"}</DialogTitle>
                         <DialogDescription>

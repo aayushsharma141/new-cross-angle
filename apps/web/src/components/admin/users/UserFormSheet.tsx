@@ -237,7 +237,7 @@ export function UserFormSheet({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-xl max-h-[90vh] flex flex-col overflow-hidden border-zinc-800 bg-zinc-950 text-zinc-100 sm:rounded-xl">
+            <DialogContent className="max-w-xl max-h-[90vh] flex flex-col overflow-hidden bg-admin-card border-admin-border text-admin-text sm:rounded-xl">
                 <DialogHeader className="shrink-0 pb-4 border-b border-zinc-800">
                     <DialogTitle className="font-serif text-2xl text-white">{title}</DialogTitle>
                     <DialogDescription className="text-zinc-400">

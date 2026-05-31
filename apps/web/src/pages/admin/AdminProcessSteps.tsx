@@ -326,7 +326,7 @@ export default function AdminProcessSteps() {
                     }
                 }}
             >
-                <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]">
+                <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto bg-admin-card border-admin-border text-admin-text">
                     <DialogHeader>
                         <DialogTitle className="text-[hsl(var(--admin-text))]">{editingStep ? "Edit Process Step" : "Add Process Step"}</DialogTitle>
                         <DialogDescription className="text-[hsl(var(--admin-text-muted))]">

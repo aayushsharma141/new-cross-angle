@@ -17,6 +17,7 @@ import {
 import { Card, CardContent } from "@/components/ui/primitives/card";
 import { AdminFormCard } from "@/components/admin/shared";
 import { useToast } from "@/hooks/useToast";
+import { auditService } from "@/services/AuditService";
 import { supabase } from "@/integrations/supabase/client";
 import { siteSettingsSchema, SiteSettingsFormData } from "@/lib/validation/validations";
 import { Loader2, Save, Globe, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageCircle, Plus, Trash2, Send, Clock } from "lucide-react";
@@ -347,6 +348,13 @@ export function GeneralSettingsForm() {
 
             if (error) throw error;
 
+            void auditService.writeAudit(
+                'UPDATE',
+                'settings',
+                existingData?.id || null,
+                { action: 'update_general_settings' }
+            );
+
             toast({
                 title: "Settings saved",
                 description: "Your site settings have been updated successfully.",
@@ -413,7 +421,6 @@ export function GeneralSettingsForm() {
                                 </FormItem>
                             )}
                         />
-                    </CardContent>
                 </AdminFormCard>
 
                 <AdminFormCard title="Contact Information" icon={Phone} iconClassName="text-green-500" contentClassName="grid gap-3 grid-cols-2">
@@ -505,7 +512,6 @@ export function GeneralSettingsForm() {
                         <div className="col-span-2 pt-2">
                             <OfficeHoursField control={form.control} />
                         </div>
-                    </CardContent>
                 </AdminFormCard>
                 </div>
 
@@ -601,7 +607,6 @@ export function GeneralSettingsForm() {
                                 </FormItem>
                             )}
                         />
-                    </CardContent>
                 </AdminFormCard>
 
                 {/* ─── Telegram Notifications ─────────────────────────────── */}
@@ -613,7 +618,6 @@ export function GeneralSettingsForm() {
                                 <TelegramChatIdsField field={field} />
                             )}
                         />
-                    </CardContent>
                 </AdminFormCard>
                 </div>
 

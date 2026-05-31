@@ -384,7 +384,7 @@ const AdminGallery = () => {
                                     Add Item
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl border-zinc-800">
+                            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl bg-admin-card border-admin-border text-admin-text">
                                 <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
                                     <DialogTitle className="text-lg font-display">{editingItem ? 'Edit' : 'Add'} Gallery Item</DialogTitle>
                                 </DialogHeader>
@@ -573,7 +573,7 @@ const AdminGallery = () => {
                                     Add Category
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-md max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl border-zinc-800">
+                            <DialogContent className="max-w-md max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl bg-admin-card border-admin-border text-admin-text">
                                 <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
                                     <DialogTitle className="text-lg font-display">{editingCategory ? 'Edit' : 'Add'} Category</DialogTitle>
                                 </DialogHeader>

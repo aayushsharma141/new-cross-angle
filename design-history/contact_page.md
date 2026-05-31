@@ -31,12 +31,14 @@
 3. **InteractiveMap** — reduced from 65vh to `clamp(280px, 38vw, 440px)` compact rounded card with slim "Find Us" header
 4. **ContactFAQ** — tightened to max-w-3xl, unified rounded card container with `divide-y`, softer opacities
 5. **SocialBar** — from 6 large cards to a minimal pill-strip row at page bottom
+6. **Form Card Bottom-Height Symmetry** — added `lg:h-full`, `lg:flex lg:flex-col`, and `lg:flex-1` classes so the left-column form matches the right-column stacked height perfectly on desktop, with footer buttons pinned dynamically using `lg:mt-auto` across all 3 steps.
 
 ### Visual Properties (Active)
 - H1: serif, `clamp(2.8rem,6vw,5.5rem)`, "Project" in outlined stroke treatment
-- Form card: `rounded-[28px]`, `bg-[#0A0A0A]/70`, `backdrop-blur-2xl`
+- Form card: `rounded-[28px]`, `bg-[#0A0A0A]/70`, `backdrop-blur-2xl`, equalized height to right section on `lg:` viewport
 - Bypass + info cards: `rounded-[24px]`, `bg-[#0A0A0A]/60`
 - Map: `rounded-[24px]`, `clamp(280px, 38vw, 440px)` height
 - FAQ: `max-w-3xl`, `rounded-[24px]`, unified divide-y container
 - Social: flat pill strip, `rounded-full`, no card backgrounds
 - Page sections: 4 total (Form → Map → FAQ → Socials)
+

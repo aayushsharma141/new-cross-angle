@@ -143,7 +143,7 @@ export default function AdminTeamMembers() {
                         </Button>
                     </DialogTrigger>
                 </ModuleActions>
-                <DialogContent className="max-w-md max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl bg-[hsl(var(--admin-background))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]">
+                <DialogContent className="max-w-md max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl bg-admin-card border-admin-border text-admin-text">
                     <DialogHeader className="px-6 pt-6 pb-4 border-b border-[hsl(var(--admin-border-subtle))] shrink-0">
                         <DialogTitle className="text-lg font-bold">{editingMember ? "Edit" : "Add"} Team Member</DialogTitle>
                     </DialogHeader>

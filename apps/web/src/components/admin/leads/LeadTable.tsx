@@ -205,7 +205,7 @@ export function LeadTable({
                   View
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md">
+              <DialogContent className="max-w-md bg-admin-card border-admin-border text-admin-text">
                 <DialogHeader>
                   <DialogTitle>Form Submission Data</DialogTitle>
                 </DialogHeader>

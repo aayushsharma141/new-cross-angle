@@ -31,7 +31,7 @@ interface TestimonialFormDialogProps {
 
 export const TestimonialFormDialog = ({ open, onClose, formData, onChange, onSave, isSaving, isEditing }: TestimonialFormDialogProps) => (
   <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-    <DialogContent className="bg-[hsl(var(--admin-background))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))] max-w-lg max-h-[90vh] flex flex-col overflow-hidden sm:rounded-2xl shadow-2xl">
+    <DialogContent className="bg-admin-card border-admin-border text-admin-text max-w-lg max-h-[90vh] flex flex-col overflow-hidden sm:rounded-2xl shadow-2xl">
       <DialogHeader className="px-6 pt-6 pb-4 border-b border-[hsl(var(--admin-border))]">
         <DialogTitle className="text-xl font-serif">{isEditing ? "Edit Testimonial" : "Add Testimonial"}</DialogTitle>
         <DialogDescription className="text-[hsl(var(--admin-text-muted))]">

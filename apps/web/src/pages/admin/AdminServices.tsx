@@ -14,16 +14,17 @@ import {
 } from "@/components/ui/primitives/dialog";
 import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
+import { auditService } from "@/services/AuditService";
 import { ServiceDetail } from "@repo/types";
 import { serviceSchema, formatZodErrors } from "@/lib/validation/validations";
 import { FeaturesEditor, ProcessEditor, FAQEditor } from "@/components/admin/ServiceFormFields";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
-import { 
-  AdminPageHeader,
-  AdminFilterBar,
-  AdminSafeAction,
-  AdminEmptyState,
-  AdminSkeletonCard
+import {
+    AdminPageHeader,
+    AdminFilterBar,
+    AdminSafeAction,
+    AdminEmptyState,
+    AdminSkeletonCard
 } from "@/components/admin/shared";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import * as LucideIcons from "lucide-react";
@@ -165,6 +166,7 @@ const AdminServices = () => {
             throw error;
         } else {
             toast({ title: "Service deleted successfully" });
+            void auditService.writeAudit('DELETE', 'service', id, {});
             void fetchServices();
         }
     };
@@ -210,7 +212,8 @@ const AdminServices = () => {
                 answer: f.answer
             })) || [];
 
-            const { error: rpcError } = await supabase.rpc('upsert_service', {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { error: rpcError } = await (supabase.rpc as any)('upsert_service', {
                 p_service_id: editingService?.id || null,
                 p_name: formData.title,
                 p_slug: formData.slug || generateSlug(formData.title || ""),
@@ -226,6 +229,13 @@ const AdminServices = () => {
             });
 
             if (rpcError) throw rpcError;
+
+            void auditService.writeAudit(
+                editingService ? 'UPDATE' : 'CREATE',
+                'service',
+                editingService?.id || null,
+                { title: formData.title }
+            );
 
             toast({
                 title: editingService ? "Service updated!" : "Service created!",
@@ -286,7 +296,7 @@ const AdminServices = () => {
             <AdminPageHeader moduleName="CMS" tabName="Services" />
 
             <div className="fade-up-1 mt-6">
-                <AdminFilterBar 
+                <AdminFilterBar
                     title="Service Categories"
                     icon={Briefcase}
                     badgeCount={activeCount > 0 ? `${activeCount} published` : undefined}
@@ -305,7 +315,7 @@ const AdminServices = () => {
                     </>
                 ) : filteredServices.length === 0 ? (
                     <div className="fade-up-2 mt-4">
-                        <AdminEmptyState 
+                        <AdminEmptyState
                             icon={Briefcase}
                             title="No services found"
                             description="You haven't defined any services matching this filter."
@@ -314,14 +324,14 @@ const AdminServices = () => {
                 ) : (
                     filteredServices.map((service, i) => {
                         const delayClass = `fade-up-${Math.min((i % 4) + 1, 4)}`;
-                        
+
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const ServiceIcon = (LucideIcons as any)[service.icon || "Briefcase"] || LucideIcons.Briefcase;
 
                         return (
                             <div key={service.id} className={`${delayClass} group`}>
                                 <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-xl p-5 hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200 grid grid-cols-[44px_1fr_auto] gap-4 items-center">
-                                    
+
                                     {/* Icon */}
                                     <div className="w-[44px] h-[44px] rounded-[10px] bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex flex-col items-center justify-center shrink-0">
                                         <ServiceIcon className="w-5 h-5 text-[hsl(var(--admin-accent))]" />
@@ -333,17 +343,17 @@ const AdminServices = () => {
                                             <span className="text-[15px] font-bold text-[hsl(var(--admin-text))]">
                                                 {service.title}
                                             </span>
-                                            
+
                                             {service.tag && (
                                                 <span className="bg-[hsl(var(--admin-accent)/0.1)] border border-[hsl(var(--admin-accent)/0.2)] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-accent))] tracking-wide uppercase">
                                                     {service.tag}
                                                 </span>
                                             )}
-                                            
+
                                             <span className="bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-text-muted))] tracking-wide uppercase">
                                                 {service.category_id || "residential"}
                                             </span>
-                                            
+
                                             {service.active !== false ? (
                                                 <span className="bg-[hsl(var(--admin-success)/0.12)] border border-[hsl(var(--admin-success)/0.25)] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-success))] tracking-wide uppercase flex items-center gap-1.5">
                                                     <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--admin-success))] shadow-[0_0_4px_hsl(var(--admin-success))]" />
@@ -355,11 +365,11 @@ const AdminServices = () => {
                                                 </span>
                                             )}
                                         </div>
-                                        
+
                                         <div className="text-[13px] text-[hsl(var(--admin-text-muted))] truncate max-w-2xl mb-1.5">
                                             {typeof service.description === 'string' ? service.description : 'Service description...'}
                                         </div>
-                                        
+
                                         <div className="flex gap-4 text-[12px] text-[hsl(var(--admin-text-muted))]">
                                             <div className="flex items-center gap-1.5">
                                                 <FileText className="w-3.5 h-3.5" />
@@ -385,7 +395,7 @@ const AdminServices = () => {
                                             <Pencil className="w-[13px] h-[13px]" />
                                             Edit
                                         </button>
-                                        
+
                                         <AdminSafeAction
                                             icon={Trash2}
                                             label="Delete"
@@ -403,7 +413,7 @@ const AdminServices = () => {
 
             {!isLoading && (
                 <div className="fade-up-3 mt-[10px]">
-                    <AdminAddCard 
+                    <AdminAddCard
                         label="Add a new service"
                         onClick={handleNewService}
                     />
@@ -415,163 +425,163 @@ const AdminServices = () => {
                 if (!open) setEditingService(null);
             }}>
                 <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl bg-admin-card border-admin-border text-admin-text">
-                        <DialogHeader className="px-6 pt-6 pb-4 border-b border-admin-border shrink-0">
-                            <DialogTitle className="text-xl font-display text-admin-text">
-                                {editingService ? "Edit Service" : "New Service"}
-                            </DialogTitle>
-                        </DialogHeader>
-                        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden font-sans">
-                            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-                                <Tabs defaultValue="basic">
-                                    <TabsList className="grid w-full grid-cols-4 bg-admin-surface p-1">
-                                        <TabsTrigger value="basic" className="data-[state=active]:bg-admin-card data-[state=active]:text-admin-text">Basic Info</TabsTrigger>
-                                        <TabsTrigger value="features" className="data-[state=active]:bg-admin-card data-[state=active]:text-admin-text">Features</TabsTrigger>
-                                        <TabsTrigger value="process" className="data-[state=active]:bg-admin-card data-[state=active]:text-admin-text">Process</TabsTrigger>
-                                        <TabsTrigger value="faq" className="data-[state=active]:bg-admin-card data-[state=active]:text-admin-text">FAQ</TabsTrigger>
-                                    </TabsList>
+                    <DialogHeader className="px-6 pt-6 pb-4 border-b border-admin-border shrink-0">
+                        <DialogTitle className="text-xl font-display text-admin-text">
+                            {editingService ? "Edit Service" : "New Service"}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden font-sans">
+                        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+                            <Tabs defaultValue="basic">
+                                <TabsList className="grid w-full grid-cols-4 bg-admin-surface p-1">
+                                    <TabsTrigger value="basic" className="data-[state=active]:bg-admin-card data-[state=active]:text-admin-text">Basic Info</TabsTrigger>
+                                    <TabsTrigger value="features" className="data-[state=active]:bg-admin-card data-[state=active]:text-admin-text">Features</TabsTrigger>
+                                    <TabsTrigger value="process" className="data-[state=active]:bg-admin-card data-[state=active]:text-admin-text">Process</TabsTrigger>
+                                    <TabsTrigger value="faq" className="data-[state=active]:bg-admin-card data-[state=active]:text-admin-text">FAQ</TabsTrigger>
+                                </TabsList>
 
-                                    <TabsContent value="basic" className="space-y-4 mt-4">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="svc-title" className="text-[hsl(var(--admin-text))]">Title</Label>
-                                                <Input
-                                                    id="svc-title"
-                                                    value={formData.title}
-                                                    onChange={(e) => {
-                                                        const title = e.target.value;
-                                                        // Only auto-generate slug if generic or empty
-                                                        const slug = !editingService ? generateSlug(title) : formData.slug;
-                                                        setFormData({ ...formData, title, slug });
-                                                    }}
-                                                    required
-                                                    className="admin-input"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="svc-slug" className="text-[hsl(var(--admin-text))]">Slug</Label>
-                                                <Input
-                                                    id="svc-slug"
-                                                    value={formData.slug}
-                                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                                    required
-                                                    className="admin-input"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="svc-category" className="text-[hsl(var(--admin-text))]">Category</Label>
-                                                <Select
-                                                    value={formData.category_id}
-                                                    onValueChange={(value) => setFormData({ ...formData, category_id: value })}
-                                                >
-                                                    <SelectTrigger id="svc-category" className="admin-input">
-                                                        <SelectValue placeholder="Select Category" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]">
-                                                        {CATEGORIES.map((cat) => (
-                                                            <SelectItem key={cat.id} value={cat.id}>{cat.label}</SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="svc-icon" className="text-[hsl(var(--admin-text))]">Icon</Label>
-                                                <Select
-                                                    value={formData.icon}
-                                                    onValueChange={(value) => setFormData({ ...formData, icon: value })}
-                                                >
-                                                    <SelectTrigger id="svc-icon" className="admin-input">
-                                                        <SelectValue placeholder="Select Icon" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]">
-                                                        {ICONS.map((icon) => (
-                                                            <SelectItem key={icon} value={icon}>{icon}</SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                        </div>
-
+                                <TabsContent value="basic" className="space-y-4 mt-4">
+                                    <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="svc-hero" className="text-[hsl(var(--admin-text))]">Hero Image URL</Label>
-                                            <div className="flex gap-2">
-                                                <Input
-                                                    id="svc-hero"
-                                                    value={formData.hero_image}
-                                                    onChange={(e) => setFormData({ ...formData, hero_image: e.target.value })}
-                                                    placeholder="https://..."
-                                                    className="flex-1 admin-input"
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    onClick={() => setIsMediaPickerOpen(true)}
-                                                    className="admin-btn-secondary px-3"
-                                                >
-                                                    <ImagePlus className="w-4 h-4" />
-                                                </Button>
-                                            </div>
-                                            <MediaPickerModal
-                                                open={isMediaPickerOpen}
-                                                onOpenChange={setIsMediaPickerOpen}
-                                                onSelect={(url) => setFormData({ ...formData, hero_image: url })}
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="service-description" className="text-[hsl(var(--admin-text))]">Description</Label>
-                                            <Textarea
-                                                id="service-description"
-                                                value={formData.description}
-                                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                                rows={3}
-                                                className="admin-input"
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="service-tag" className="text-[hsl(var(--admin-text))]">Tag (Optional)</Label>
+                                            <Label htmlFor="svc-title" className="text-[hsl(var(--admin-text))]">Title</Label>
                                             <Input
-                                                id="service-tag"
-                                                value={formData.tag}
-                                                onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                                                placeholder="e.g. Popular"
+                                                id="svc-title"
+                                                value={formData.title}
+                                                onChange={(e) => {
+                                                    const title = e.target.value;
+                                                    // Only auto-generate slug if generic or empty
+                                                    const slug = !editingService ? generateSlug(title) : formData.slug;
+                                                    setFormData({ ...formData, title, slug });
+                                                }}
+                                                required
                                                 className="admin-input"
                                             />
                                         </div>
-                                    </TabsContent>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="svc-slug" className="text-[hsl(var(--admin-text))]">Slug</Label>
+                                            <Input
+                                                id="svc-slug"
+                                                value={formData.slug}
+                                                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                                required
+                                                className="admin-input"
+                                            />
+                                        </div>
+                                    </div>
 
-                                    <TabsContent value="features" className="mt-4 text-[hsl(var(--admin-text))]">
-                                        <FeaturesEditor
-                                            features={formData.features || []}
-                                            onChange={(f) => setFormData({ ...formData, features: f })}
-                                        />
-                                    </TabsContent>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="svc-category" className="text-[hsl(var(--admin-text))]">Category</Label>
+                                            <Select
+                                                value={formData.category_id}
+                                                onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+                                            >
+                                                <SelectTrigger id="svc-category" className="admin-input">
+                                                    <SelectValue placeholder="Select Category" />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]">
+                                                    {CATEGORIES.map((cat) => (
+                                                        <SelectItem key={cat.id} value={cat.id}>{cat.label}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="svc-icon" className="text-[hsl(var(--admin-text))]">Icon</Label>
+                                            <Select
+                                                value={formData.icon}
+                                                onValueChange={(value) => setFormData({ ...formData, icon: value })}
+                                            >
+                                                <SelectTrigger id="svc-icon" className="admin-input">
+                                                    <SelectValue placeholder="Select Icon" />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]">
+                                                    {ICONS.map((icon) => (
+                                                        <SelectItem key={icon} value={icon}>{icon}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
 
-                                    <TabsContent value="process" className="mt-4 text-[hsl(var(--admin-text))]">
-                                        <ProcessEditor
-                                            steps={formData.process_steps || []}
-                                            onChange={(s) => setFormData({ ...formData, process_steps: s })}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="svc-hero" className="text-[hsl(var(--admin-text))]">Hero Image URL</Label>
+                                        <div className="flex gap-2">
+                                            <Input
+                                                id="svc-hero"
+                                                value={formData.hero_image}
+                                                onChange={(e) => setFormData({ ...formData, hero_image: e.target.value })}
+                                                placeholder="https://..."
+                                                className="flex-1 admin-input"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => setIsMediaPickerOpen(true)}
+                                                className="admin-btn-secondary px-3"
+                                            >
+                                                <ImagePlus className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                        <MediaPickerModal
+                                            open={isMediaPickerOpen}
+                                            onOpenChange={setIsMediaPickerOpen}
+                                            onSelect={(url) => setFormData({ ...formData, hero_image: url })}
                                         />
-                                    </TabsContent>
+                                    </div>
 
-                                    <TabsContent value="faq" className="mt-4 text-[hsl(var(--admin-text))]">
-                                        <FAQEditor
-                                            faq={formData.faq || []}
-                                            onChange={(f) => setFormData({ ...formData, faq: f })}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="service-description" className="text-[hsl(var(--admin-text))]">Description</Label>
+                                        <Textarea
+                                            id="service-description"
+                                            value={formData.description}
+                                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                            rows={3}
+                                            className="admin-input"
                                         />
-                                    </TabsContent>
-                                </Tabs>
-                            </div>
-                            <div className="shrink-0 px-6 py-4 border-t border-[hsl(var(--admin-border))] flex justify-end gap-2 bg-[hsl(var(--admin-surface))] rounded-b-xl">
-                                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="admin-btn-secondary">Cancel</Button>
-                                <Button type="submit" disabled={isSaving} className="admin-btn-primary">
-                                    {isSaving ? "Saving..." : editingService ? "Update" : "Create"}
-                                </Button>
-                            </div>
-                        </form>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="service-tag" className="text-[hsl(var(--admin-text))]">Tag (Optional)</Label>
+                                        <Input
+                                            id="service-tag"
+                                            value={formData.tag}
+                                            onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+                                            placeholder="e.g. Popular"
+                                            className="admin-input"
+                                        />
+                                    </div>
+                                </TabsContent>
+
+                                <TabsContent value="features" className="mt-4 text-[hsl(var(--admin-text))]">
+                                    <FeaturesEditor
+                                        features={formData.features || []}
+                                        onChange={(f) => setFormData({ ...formData, features: f })}
+                                    />
+                                </TabsContent>
+
+                                <TabsContent value="process" className="mt-4 text-[hsl(var(--admin-text))]">
+                                    <ProcessEditor
+                                        steps={formData.process_steps || []}
+                                        onChange={(s) => setFormData({ ...formData, process_steps: s })}
+                                    />
+                                </TabsContent>
+
+                                <TabsContent value="faq" className="mt-4 text-[hsl(var(--admin-text))]">
+                                    <FAQEditor
+                                        faq={formData.faq || []}
+                                        onChange={(f) => setFormData({ ...formData, faq: f })}
+                                    />
+                                </TabsContent>
+                            </Tabs>
+                        </div>
+                        <div className="shrink-0 px-6 py-4 border-t border-[hsl(var(--admin-border))] flex justify-end gap-2 bg-[hsl(var(--admin-surface))] rounded-b-xl">
+                            <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="admin-btn-secondary">Cancel</Button>
+                            <Button type="submit" disabled={isSaving} className="admin-btn-primary">
+                                {isSaving ? "Saving..." : editingService ? "Update" : "Create"}
+                            </Button>
+                        </div>
+                    </form>
                 </DialogContent>
             </Dialog>
         </div>

@@ -658,7 +658,7 @@ const AdminSettings = () => {
       }
 
       <AlertDialog open={show2FADialog} onOpenChange={setShow2FADialog}>
-        <AlertDialogContent className="bg-zinc-900 border border-zinc-800 text-white max-w-md">
+        <AlertDialogContent className="bg-admin-card border-admin-border text-admin-text max-w-md">
           <AlertDialogHeader>
             <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-site-gold mb-2 border border-white/10">
               <Shield className="w-6 h-6 text-[hsl(var(--admin-primary))]" />
@@ -704,7 +704,7 @@ const AdminSettings = () => {
       </AlertDialog>
 
       <Dialog open={showTimeoutDialog} onOpenChange={setShowTimeoutDialog}>
-        <DialogContent className="bg-zinc-900 border border-zinc-800 text-white max-w-sm p-6">
+        <DialogContent className="bg-admin-card border-admin-border text-admin-text max-w-sm p-6">
           <DialogHeader>
             <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-site-gold mb-2 border border-white/10">
               <Lock className="w-6 h-6 text-[hsl(var(--admin-primary))]" />
@@ -762,7 +762,7 @@ const AdminSettings = () => {
       </Dialog>
 
       <Dialog open={showRbacDialog} onOpenChange={setShowRbacDialog}>
-        <DialogContent className="bg-zinc-900 border border-zinc-800 text-white max-w-2xl p-6 flex-col">
+        <DialogContent className="bg-admin-card border-admin-border text-admin-text max-w-2xl p-6 flex-col">
           <DialogHeader>
             <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-site-gold mb-2 border border-white/10">
               <Shield className="w-6 h-6 text-[hsl(var(--admin-primary))]" />
@@ -824,7 +824,7 @@ const AdminSettings = () => {
       </Dialog>
 
       <Dialog open={showCredentialsDialog} onOpenChange={setShowCredentialsDialog}>
-        <DialogContent className="bg-zinc-900 border border-zinc-800 text-white max-w-md p-6">
+        <DialogContent className="bg-admin-card border-admin-border text-admin-text max-w-md p-6">
           <form onSubmit={handleUpdateCredentials}>
             <DialogHeader>
               <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-site-gold mb-2 border border-white/10">
@@ -876,7 +876,7 @@ const AdminSettings = () => {
       </Dialog>
 
       <Dialog open={showIntegrationDialog} onOpenChange={setShowIntegrationDialog}>
-        <DialogContent className="bg-zinc-900 border border-zinc-800 text-white max-w-md p-6">
+        <DialogContent className="bg-admin-card border-admin-border text-admin-text max-w-md p-6">
           <DialogHeader>
             <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-site-gold mb-2 border border-white/10">
               <Server className="w-6 h-6 text-[hsl(var(--admin-primary))]" />
@@ -974,7 +974,7 @@ const AdminSettings = () => {
       {/* REVOKE INTEGRATION ALERT DIALOG */}
       {/* ======================================================== */}
       <AlertDialog open={showRevokeDialog} onOpenChange={setShowRevokeDialog}>
-        <AlertDialogContent className="bg-zinc-900 border border-zinc-800 text-white max-w-md">
+        <AlertDialogContent className="bg-admin-card border-admin-border text-admin-text max-w-md">
           <AlertDialogHeader>
             <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-red-500 mb-2 border border-white/10">
               <AlertTriangle className="w-6 h-6" />
@@ -1004,7 +1004,7 @@ const AdminSettings = () => {
       {/* MAINTENANCE MODE ALERT DIALOG */}
       {/* ======================================================== */}
       <AlertDialog open={showMaintenanceDialog} onOpenChange={setShowMaintenanceDialog}>
-        <AlertDialogContent className="bg-zinc-900 border border-zinc-800 text-white max-w-md">
+        <AlertDialogContent className="bg-admin-card border-admin-border text-admin-text max-w-md">
           <AlertDialogHeader>
             <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-red-500 mb-2 border border-white/10">
               <AlertTriangle className="w-6 h-6 text-red-400" />

@@ -12,7 +12,7 @@ interface TestimonialDeleteDialogProps {
 
 export const TestimonialDeleteDialog = ({ open, onOpenChange, onConfirm }: TestimonialDeleteDialogProps) => (
   <Dialog open={open} onOpenChange={onOpenChange}>
-    <DialogContent className="bg-[hsl(var(--admin-background))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))] sm:rounded-2xl shadow-2xl">
+    <DialogContent className="bg-admin-card border-admin-border text-admin-text sm:rounded-2xl shadow-2xl">
       <DialogHeader>
         <DialogTitle className="text-xl font-serif text-red-400 flex items-center gap-2">
           <AlertTriangle className="w-5 h-5" /> Delete Testimonial

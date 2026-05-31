@@ -46,7 +46,7 @@ export const ConfirmDialog = ({
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent>
+            <AlertDialogContent className="bg-admin-card border-admin-border text-admin-text">
                 <AlertDialogHeader>
                     <AlertDialogTitle>{title}</AlertDialogTitle>
                     <AlertDialogDescription>{description}</AlertDialogDescription>

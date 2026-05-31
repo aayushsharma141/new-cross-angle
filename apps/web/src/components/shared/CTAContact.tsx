@@ -268,7 +268,7 @@ const CTAContact = () => {
       <div className="container relative z-10 mx-auto max-w-7xl">
 
         {/* ── Premium page header ── */}
-        <div className="reveal-elem mb-16 flex flex-col items-start text-left max-w-4xl">
+        <div className="reveal-elem mb-16 flex flex-col items-center text-center mx-auto max-w-4xl">
           <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[#d1af6e]/20 bg-[#d1af6e]/5 px-4 py-1.5 backdrop-blur-md">
             <span className="h-1.5 w-1.5 rounded-full bg-[#d1af6e] animate-pulse" aria-hidden="true" />
             <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#d1af6e]">Start Here</span>
@@ -286,7 +286,7 @@ const CTAContact = () => {
           </p>
 
           {/* Trust pills */}
-          <div className="mt-7 flex flex-wrap items-center justify-start gap-3">
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             {["Free first consultation", "Clear budget direction", "Jamshedpur site coordination"].map((pt) => (
               <span key={pt} className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-1.5 text-[11px] font-medium text-white/55 backdrop-blur-sm">
                 <span className="h-1 w-1 rounded-full bg-[#d1af6e]/60" aria-hidden="true" />
@@ -297,11 +297,11 @@ const CTAContact = () => {
         </div>
 
         {/* ── Two-column layout ── */}
-        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:gap-8 xl:gap-10">
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch lg:gap-8 xl:gap-10">
 
           {/* LEFT — Multi-step form */}
-          <div className="reveal-elem">
-            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.07] bg-[#0A0A0A]/70 p-7 shadow-[0_32px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl md:p-10">
+          <div className="reveal-elem lg:h-full">
+            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.07] bg-[#0A0A0A]/70 p-7 shadow-[0_32px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl md:p-10 flex flex-col min-h-[600px] lg:min-h-0 lg:h-full">
               {/* Warm glow top-right */}
               <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-[#d1af6e]/8 blur-[80px]" aria-hidden="true" />
 
@@ -318,12 +318,12 @@ const CTAContact = () => {
                 </div>
               </div>
 
-              <form ref={formRef} onSubmit={handleSubmit} noValidate className="relative z-10 w-full overflow-hidden">
+              <form ref={formRef} onSubmit={handleSubmit} noValidate className="relative z-10 w-full overflow-hidden flex-1 flex flex-col">
                 <AnimatePresence mode="wait">
 
                   {/* ── Step 1: Contact info ── */}
                   {step === 1 && (
-                    <motion.div key="step1" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="space-y-1">
+                    <motion.div key="step1" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="space-y-1 flex-1 flex flex-col">
                       <div className="mb-7">
                         <h2 className="text-xl font-semibold text-white">Who are we speaking with?</h2>
                         <p className="mt-1 text-xs text-white/35">Takes less than 60 seconds · No spam, ever.</p>
@@ -381,7 +381,7 @@ const CTAContact = () => {
                         </div>
                       </AnimatedField>
 
-                      <div className="pt-5 space-y-3 border-t border-white/[0.05] mt-3">
+                      <div className="pt-5 space-y-3 border-t border-white/[0.05] mt-auto">
                         <p className="text-center text-[11px] text-white/50 tracking-wide">🔒 Your data stays private. No calls without your permission.</p>
                         <motion.button type="button" onClick={() => setStep(2)}
                           whileHover={{ scale: 1.015, boxShadow: "0 8px 32px rgba(182,24,38,0.22)" }}
@@ -397,7 +397,7 @@ const CTAContact = () => {
 
                   {/* ── Step 2: Project type ── */}
                   {step === 2 && (
-                    <motion.div key="step2" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="space-y-5">
+                    <motion.div key="step2" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="space-y-5 flex-1 flex flex-col">
                       <div className="mb-6">
                         <h2 className="text-xl font-semibold text-white">What type of project?</h2>
                         <p className="mt-1 text-xs text-white/35">Select the one that best describes your space.</p>
@@ -424,7 +424,7 @@ const CTAContact = () => {
                       {isFieldInvalid("projectType") && (
                         <p id="projectType-error" className="text-[10px] font-medium uppercase tracking-wide text-red-400" aria-live="polite">{errors.projectType}</p>
                       )}
-                      <div className="flex justify-between items-center border-t border-white/[0.05] pt-5 mt-2">
+                      <div className="flex justify-between items-center border-t border-white/[0.05] pt-5 mt-auto">
                         <button type="button" onClick={() => setStep(1)} className="text-[10px] font-bold uppercase tracking-widest text-white/35 hover:text-white transition-colors">← Back</button>
                         <motion.button type="button" onClick={() => setStep(3)}
                           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
@@ -437,7 +437,7 @@ const CTAContact = () => {
 
                   {/* ── Step 3: Project details + message ── */}
                   {step === 3 && (
-                    <motion.div key="step3" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="space-y-6">
+                    <motion.div key="step3" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="space-y-6 flex-1 flex flex-col">
                       <div className="mb-6">
                         <h2 className="text-xl font-semibold text-white">Final project details</h2>
                         <p className="mt-1 text-xs text-white/35">A quick brief helps us respond with sharper direction.</p>
@@ -508,7 +508,7 @@ const CTAContact = () => {
                       </AnimatedField>
 
                       {/* Submit area */}
-                      <div ref={statusRef} aria-live="polite" className="pt-4 border-t border-white/[0.05]">
+                      <div ref={statusRef} aria-live="polite" className="pt-4 border-t border-white/[0.05] mt-auto">
                         {submitStatus === "success" && (
                           <div className="mb-5 flex items-center gap-3 rounded-2xl border border-green-500/20 bg-green-500/8 px-4 py-3.5">
                             <CheckCircle className="h-4 w-4 shrink-0 text-green-500" />

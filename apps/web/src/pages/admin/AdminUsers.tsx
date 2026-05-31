@@ -143,7 +143,7 @@ export default function AdminUsers(): JSX.Element {
       <UserFormSheet open={sheetOpen} onOpenChange={setSheetOpen} onSuccess={() => void refetch()} mode={sheetMode} actorRole={normalizeRole(actorRole ?? "")} user={selectedUser} isSelf={currentUser?.id === selectedUser?.id} />
 
       <AlertDialog open={!!actionUser} onOpenChange={(open) => !open && setActionUser(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-admin-card border-admin-border text-admin-text">
           <AlertDialogHeader>
             <AlertDialogTitle>
               {actionUser?.action === "activate" && "Activate user"}

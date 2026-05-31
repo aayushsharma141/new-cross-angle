@@ -108,7 +108,7 @@ export function MediaDetailsSheet({ file, open, onClose, onDelete, onCopyUrl, is
 
     return (
         <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-            <DialogContent className="max-w-lg max-h-[90vh] flex flex-col overflow-hidden border-zinc-800 bg-zinc-950 text-zinc-100 sm:rounded-xl p-0 gap-0">
+            <DialogContent className="max-w-lg max-h-[90vh] flex flex-col overflow-hidden border-admin-border bg-admin-card text-admin-text sm:rounded-xl p-0 gap-0">
                 <DialogHeader className="px-6 py-4 border-b border-zinc-800 shrink-0">
                     <DialogTitle className="text-lg font-display text-white">File Details</DialogTitle>
                     <DialogDescription className="sr-only">View file details and actions</DialogDescription>

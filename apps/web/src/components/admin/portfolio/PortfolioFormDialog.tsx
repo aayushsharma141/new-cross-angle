@@ -298,7 +298,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-admin-card border-admin-border text-admin-text">
                 <DialogHeader>
                     <DialogTitle>
                         {initialData ? "Edit Project" : "New Project"}

@@ -228,7 +228,7 @@ export default function AdminMilestones() {
                             Add Milestone
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[500px]">
+                    <DialogContent className="sm:max-w-[500px] bg-admin-card border-admin-border text-admin-text">
                         <DialogHeader>
                             <DialogTitle>{editingMilestone ? "Edit Milestone" : "Add Milestone"}</DialogTitle>
                             <DialogDescription>

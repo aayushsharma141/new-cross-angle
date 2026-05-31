@@ -244,7 +244,7 @@ export default function AdminTransformations() {
 
       {/* ─── Create/Edit Dialog ─── */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-admin-card border-admin-border text-admin-text">
           <DialogHeader>
             <DialogTitle>{editingId ? "Edit" : "New"} Transformation Story</DialogTitle>
             <DialogDescription>Manage the Before & After showcase on the homepage.</DialogDescription>

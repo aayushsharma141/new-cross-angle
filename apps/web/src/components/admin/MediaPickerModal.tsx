@@ -157,7 +157,7 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
+            <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col bg-admin-card border-admin-border text-admin-text">
                 <DialogHeader>
                     <DialogTitle>Select Image</DialogTitle>
                 </DialogHeader>

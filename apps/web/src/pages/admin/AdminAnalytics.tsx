@@ -261,7 +261,7 @@ export default function AdminAnalytics() {
 
       {/* Lead Detail Dialog */}
       <Dialog open={!!selectedLead} onOpenChange={(open) => !open && setSelectedLead(null)}>
-        <DialogContent className="max-w-lg p-0 gap-0">
+        <DialogContent className="max-w-lg p-0 gap-0 bg-admin-card border-admin-border text-admin-text">
           {selectedLead && (() => {
             const intent = scoreLeadIntent(selectedLead);
             return (<>
@@ -284,7 +284,7 @@ export default function AdminAnalytics() {
 
       {/* Session Detail Dialog */}
       <Dialog open={!!selectedSession} onOpenChange={(open) => !open && setSelectedSession(null)}>
-        <DialogContent className="max-w-2xl max-h-[85vh] p-0 gap-0">
+        <DialogContent className="max-w-2xl max-h-[85vh] p-0 gap-0 bg-admin-card border-admin-border text-admin-text">
           {selectedSession && (() => {
             const sessionEvents = events.filter((e) => e.analytics_session_id === selectedSession.id).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
             const parsed = selectedSession.user_agent ? parseUA(selectedSession.user_agent) : null;

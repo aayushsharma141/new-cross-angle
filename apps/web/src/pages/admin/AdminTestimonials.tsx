@@ -4,6 +4,7 @@ import { MessageSquare, ShieldCheck, EyeOff, StarHalf, Edit2, Trash2, User } fro
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/useToast";
 import { usePermissions } from "@/hooks/usePermissions";
+import { auditService } from "@/services/AuditService";
 import { 
   AdminPageHeader, 
   AdminMetricsPanel, 
@@ -104,6 +105,12 @@ const AdminTestimonials = () => {
     if (error) { 
       toast({ title: "Error", description: error.message, variant: "destructive" }); 
     } else { 
+      void auditService.writeAudit(
+        editingTestimonial ? 'UPDATE' : 'CREATE',
+        'testimonial',
+        editingTestimonial?.id || null,
+        { author_name: formData.author_name }
+      );
       toast({ title: editingTestimonial ? "Testimonial updated" : "Testimonial created", description: `Successfully ${editingTestimonial ? 'updated' : 'created'} testimonial.` }); 
       await fetchTestimonials(); 
       closeDialog(); 
@@ -117,6 +124,7 @@ const AdminTestimonials = () => {
       throw error; 
     } else { 
       toast({ title: "Deleted", description: "Testimonial deleted successfully." }); 
+      void auditService.writeAudit('DELETE', 'testimonial', id, {});
       await fetchTestimonials(); 
     }
   };

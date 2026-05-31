@@ -53,7 +53,7 @@ interface KeyboardShortcutsOverlayProps {
 export function KeyboardShortcutsOverlay({ open, onOpenChange }: KeyboardShortcutsOverlayProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-lg bg-admin-card border-admin-border">
+            <DialogContent className="max-w-lg bg-admin-card border-admin-border text-admin-text">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-admin-text">
                         <Keyboard className="h-5 w-5 text-admin-primary" />
