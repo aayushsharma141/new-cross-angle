@@ -1,4 +1,4 @@
-import { ArrowRight, Sparkles, MapPin } from "lucide-react";
+import { ArrowRight, Sparkles, MapPin, Star } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
@@ -354,6 +354,15 @@ const Hero = () => {
               <motion.span variants={popIn} className="hero-trust-chip home-chip bg-black/40 backdrop-blur-md border-white/10">
                 <Sparkles className="h-3.5 w-3.5 text-[#D1AF6E]" />
                 <span>Jamshedpur &amp; Kolkata</span>
+              </motion.span>
+              {/* Google Rating chip */}
+              <motion.span
+                variants={popIn}
+                className="hero-trust-chip home-chip bg-black/40 backdrop-blur-md border-white/10 flex items-center gap-1.5"
+              >
+                <Star className="h-3.5 w-3.5 fill-[#D1AF6E] text-[#D1AF6E]" />
+                <span className="text-[#D1AF6E] font-bold">4.9</span>
+                <span className="text-white/70">· 200+ Google Reviews</span>
               </motion.span>
             </motion.div>
           </motion.div>

@@ -23,6 +23,7 @@ const BeforeAfterShowcase = lazy(() => import("@/components/home/BeforeAfterShow
 const TrustSection     = lazy(() => import("@/components/home/TrustSection"));
 const Testimonials     = lazy(() => import("@/components/home/Testimonials"));
 const MarqueeStrip     = lazy(() => import("@/components/home/MarqueeStrip").then(m => ({ default: m.MarqueeStrip })));
+const HomeBlog         = lazy(() => import("@/components/home/HomeBlog"));
 
 const Index = () => {
   return (
@@ -141,6 +142,15 @@ const Index = () => {
             rootMargin="300px 0px"
           >
             <Testimonials />
+          </LazySection>
+
+          <LazySection
+            id="blog"
+            className="bg-[#090807] border-t border-site-border"
+            minHeight={600}
+            rootMargin="300px 0px"
+          >
+            <HomeBlog />
           </LazySection>
 
         </div>

@@ -41,10 +41,16 @@ const Services = () => {
           <span className="reveal-elem text-site-crimson font-mono text-sm tracking-[0.3em] uppercase block mb-4">
             Services
           </span>
-          <h2 className="reveal-elem font-display text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-12 leading-tight">
+          <h2 className="reveal-elem font-display text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
             Design Is Emotional. <br />
             <em className="text-white/50 not-italic">Investment Is Strategic.</em>
           </h2>
+
+          {/* Neighborhood / area served callout */}
+          <p className="reveal-elem text-white/35 text-xs tracking-[0.2em] uppercase font-medium mb-12 flex items-center gap-2">
+            <span className="inline-block w-4 h-px bg-site-crimson/60 flex-shrink-0" />
+            Serving Jamshedpur · Kolkata · Mango · Bistupur · Sakchi · Adityapur
+          </p>
 
           <div className="flex flex-col mb-10 w-full relative">
             {categoriesWithMedia.map((category, index) => {
