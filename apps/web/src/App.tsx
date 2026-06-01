@@ -77,6 +77,8 @@ const AnimatedRoutes = () => {
           </SmoothScroll>
         </Suspense>
       )}
+      {/* Cookie consent only shown on public pages — admin has no router context need */}
+      {!isAdmin && <CookieConsentBanner />}
     </>
   );
 };
@@ -85,7 +87,6 @@ const App = () => (
   <CoreProviders>
     <DeferredExperienceEnhancements />
     <Toaster />
-    <CookieConsentBanner />
     <ErrorBoundary>
       <BrowserRouter
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}

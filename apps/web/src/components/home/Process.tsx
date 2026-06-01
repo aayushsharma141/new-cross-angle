@@ -14,6 +14,7 @@ import useReducedMotion from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { FlowingCADLines } from "@/components/shared/FlowingCADLines";
 
 const iconMap: Record<string, React.ElementType> = {
   Home,
@@ -253,7 +254,8 @@ const Process = () => {
       className="relative h-[500vh] bg-site-bg text-white"
       aria-label="How we work process section"
     >
-      {/* ── Sticky viewport ── */}
+      {/* ✦ CAD Blueprint flowing lines backdrop */}
+      <FlowingCADLines />
       <div className="sticky top-0 flex h-screen w-full flex-col overflow-hidden">
         {/* ── Top content area ── */}
         <div className="flex flex-1 flex-col overflow-hidden px-5 pt-20 md:px-10 lg:px-14">

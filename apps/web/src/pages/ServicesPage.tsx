@@ -108,7 +108,7 @@ const ServicesPage = () => {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  <Link to={`/services/${service.category_id}/${service.slug}`} className="group block relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#0a0a0a] border border-white/[0.08] transition-all duration-500 hover:border-site-crimson/50 hover:shadow-2xl hover:shadow-site-crimson/10 overflow-hidden">
+                  <Link to={`/services/${service.category_id}/${service.slug}`} className="group block relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#0a0a0a] border border-white/[0.08] transition-all duration-500 hover:border-[#D1AF6E]/50 hover:shadow-2xl hover:shadow-[rgba(209,175,110,0.08)]">
                     <Image
                       src={service.hero_image}
                       alt={service.title}
@@ -125,9 +125,9 @@ const ServicesPage = () => {
                       <p className="text-[0.9rem] text-white/50 leading-relaxed font-light mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 line-clamp-2">
                         {service.description}
                       </p>
-                      <div className="flex items-center gap-3 text-site-crimson font-bold text-[9px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all group-hover:translate-y-0 translate-y-2">
+                      <div className="flex items-center gap-3 text-[#D1AF6E] font-bold text-[9px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all group-hover:translate-y-0 translate-y-2">
                         Detailed Briefing
-                        <div className="w-8 h-px bg-site-crimson" />
+                        <div className="w-8 h-px bg-[#D1AF6E]" />
                       </div>
                     </div>
                   </Link>
@@ -180,9 +180,9 @@ const ServicesPage = () => {
                 const Icon = (service.icon ? IconMap[service.icon as keyof typeof IconMap] : undefined) || Building2;
                 return (
                   <Link to={`/services/${service.category_id}/${service.slug}`} key={service.id} className="group relative bg-black p-10 lg:p-16 overflow-hidden transition-all duration-500 hover:bg-[#080808]">
-                    <div className="absolute inset-0 bg-gradient-to-br from-site-crimson/[0.02] to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#D1AF6E]/[0.03] to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div className="relative z-10">
-                      <div className="mb-10 text-white/20 group-hover:text-site-crimson transition-colors duration-500">
+                      <div className="mb-10 text-white/20 group-hover:text-[#D1AF6E] transition-colors duration-500">
                         <Icon className="w-12 h-12 stroke-[1px]" />
                       </div>
                       <div className="font-display italic text-[2.25rem] text-white mb-6 group-hover:translate-x-2 transition-transform duration-500">
@@ -191,9 +191,9 @@ const ServicesPage = () => {
                       <p className="text-[1rem] text-white/60 leading-relaxed font-light mb-10 group-hover:text-white/50 transition-colors line-clamp-3">
                         {service.description}
                       </p>
-                      <div className="flex items-center gap-3 text-site-crimson font-bold text-[9px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
+                      <div className="flex items-center gap-3 text-[#D1AF6E] font-bold text-[9px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
                         Capability Profile
-                        <div className="w-10 h-px bg-site-crimson" />
+                        <div className="w-10 h-px bg-[#D1AF6E]" />
                       </div>
                     </div>
                   </Link>
@@ -242,10 +242,10 @@ const ServicesPage = () => {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1 }}
                   >
-                    <Link to={`/services/${service.category_id}/${service.slug}`} className="group block relative bg-[#050505] border border-white/[0.05] p-10 lg:p-14 rounded-2xl overflow-hidden transition-all duration-500 hover:border-site-crimson/30 hover:shadow-2xl hover:shadow-site-crimson/5">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-site-crimson/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Link to={`/services/${service.category_id}/${service.slug}`} className="group block relative bg-[#050505] border border-white/[0.05] p-10 lg:p-14 rounded-2xl overflow-hidden transition-all duration-500 hover:border-[#D1AF6E]/40 hover:shadow-2xl hover:shadow-[rgba(209,175,110,0.06)]">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#D1AF6E]/4 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="relative z-10">
-                        <div className="mb-8 p-3 w-fit rounded-xl bg-white/[0.02] border border-white/[0.05] text-white/20 group-hover:text-site-crimson group-hover:border-site-crimson/20 transition-all">
+                        <div className="mb-8 p-3 w-fit rounded-xl bg-white/[0.02] border border-white/[0.05] text-white/20 group-hover:text-[#D1AF6E] group-hover:border-[#D1AF6E]/30 transition-all">
                           <Icon className="w-10 h-10 stroke-[1.2px]" />
                         </div>
                         <div className="font-display italic text-[1.85rem] text-white mb-4">

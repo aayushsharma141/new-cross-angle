@@ -41,6 +41,13 @@ const Index = () => {
         <meta property="og:description" content="Transform your vision into exquisite living spaces. Award-winning interior design in Jamshedpur and nearby neighborhoods." />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/" />
+        {/* ✦ LCP Preload: fetch above-fold hero image with highest browser priority */}
+        <link
+          rel="preload"
+          href="/hero_reality_render_1775299733746.png"
+          as="image"
+          fetchPriority="high"
+        />
       </Helmet>
 
       <ScrollProgress />

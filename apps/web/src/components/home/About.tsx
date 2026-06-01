@@ -35,24 +35,24 @@ const StatCard = ({
   return (
     <div
       ref={ref}
-      className="relative group py-6 md:py-8"
+      className="relative group p-8 rounded-2xl bg-[#0a0a0a]/80 border border-white/5 backdrop-blur-md overflow-hidden transition-all duration-500 hover:border-site-crimson/30 hover:bg-[#111] hover:-translate-y-2 hover:shadow-[0_8px_32px_rgba(227,24,55,0.12)] flex flex-col items-center text-center w-full"
     >
-      <div className="flex flex-col items-center text-center">
-        <div className="mb-4 relative">
-          <div className="absolute inset-0 bg-site-crimson/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
-          <stat.icon className="w-6 h-6 text-site-crimson/50 group-hover:text-site-crimson transition-colors duration-300 relative z-10" />
-        </div>
+      {/* Background radial glow on hover */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-site-crimson/20 rounded-full blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      
+      {/* Icon Box */}
+      <div className="mb-6 relative z-10 w-14 h-14 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 group-hover:border-site-crimson/40 group-hover:bg-site-crimson/10 transition-colors duration-500 shadow-inner">
+         <stat.icon className="w-6 h-6 text-white/60 group-hover:text-site-crimson transition-all duration-500 group-hover:scale-110 drop-shadow-md" />
+      </div>
         
-        <div className="relative">
-          <div className="font-serif text-4xl md:text-5xl lg:text-6xl font-black text-site-text-heading group-hover:text-site-crimson transition-colors duration-500 tracking-tighter">
-            {count}{stat.suffix}
-          </div>
-          <div className="absolute -bottom-2 left-0 w-0 h-px bg-site-crimson group-hover:w-full transition-all duration-700" />
-        </div>
+      {/* Value */}
+      <div className="relative z-10 font-serif text-4xl md:text-5xl font-bold text-white tracking-tight mb-3 group-hover:text-[#F9F6F0] transition-colors duration-500">
+        {count}{stat.suffix}
+      </div>
 
-        <div className="text-site-text-muted text-[10px] md:text-xs font-bold uppercase tracking-[0.25em] mt-6 opacity-60 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-          {stat.label}
-        </div>
+      {/* Label */}
+      <div className="relative z-10 text-white/50 text-[10px] md:text-xs font-semibold uppercase tracking-[0.2em] group-hover:text-site-crimson transition-colors duration-300">
+        {stat.label}
       </div>
     </div>
   );

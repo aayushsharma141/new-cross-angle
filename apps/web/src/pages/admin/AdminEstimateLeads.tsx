@@ -232,8 +232,6 @@ export default function AdminEstimateLeads() {
         )}
       </div>
 
-      <div className="fade-up-3">
-
       {/* Table */}
       <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] overflow-hidden">
         <div className="overflow-x-auto">
@@ -313,7 +311,6 @@ export default function AdminEstimateLeads() {
         </div>
       </div>
 
-
       {/* Detail Panel */}
       {detailLead && (
         <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setDetailLead(null)}>
@@ -370,12 +367,6 @@ export default function AdminEstimateLeads() {
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
         </div>
       )}
     </div>

@@ -260,8 +260,14 @@ const CTAContact = () => {
 
       {/* ── Ambient glow ── */}
       <div
-        className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-[500px] w-[900px] opacity-30 blur-[140px]"
-        style={{ background: "radial-gradient(ellipse at top, rgba(209,175,110,0.15) 0%, transparent 70%)" }}
+        className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-[600px] w-[1100px] opacity-60 blur-[120px]"
+        style={{ background: "radial-gradient(ellipse at top, rgba(209,175,110,0.22) 0%, rgba(182,24,38,0.08) 45%, transparent 70%)" }}
+        aria-hidden="true"
+      />
+      {/* Secondary warm pulse glow */}
+      <div
+        className="pointer-events-none absolute left-1/2 top-[80px] -translate-x-1/2 h-[300px] w-[600px] opacity-40 blur-[90px] animate-pulse"
+        style={{ background: "radial-gradient(ellipse at center, rgba(209,175,110,0.18) 0%, transparent 65%)", animationDuration: "4s" }}
         aria-hidden="true"
       />
 
@@ -269,28 +275,47 @@ const CTAContact = () => {
 
         {/* ── Premium page header ── */}
         <div className="reveal-elem mb-16 flex flex-col items-center text-center mx-auto max-w-4xl">
-          <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[#d1af6e]/20 bg-[#d1af6e]/5 px-4 py-1.5 backdrop-blur-md">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#d1af6e] animate-pulse" aria-hidden="true" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#d1af6e]">Start Here</span>
+
+          {/* START HERE badge — with shimmer sweep */}
+          <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[#d1af6e]/40 bg-gradient-to-r from-[#d1af6e]/10 via-[#d1af6e]/5 to-[#d1af6e]/10 px-5 py-2 backdrop-blur-md shadow-[0_0_24px_rgba(209,175,110,0.15)] relative overflow-hidden group cursor-default">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d1af6e]/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" aria-hidden="true" />
+            <span className="relative h-2 w-2 rounded-full bg-[#d1af6e] shadow-[0_0_8px_rgba(209,175,110,0.8)] animate-pulse" aria-hidden="true" />
+            <span className="relative text-[11px] font-bold uppercase tracking-[0.28em] text-[#d1af6e]">Start Here</span>
           </div>
 
+          {/* Heading */}
           <h1 className="font-serif text-[clamp(2.8rem,6vw,5.5rem)] font-medium leading-[1.05] tracking-tight text-white max-w-4xl">
             Plan Your Interior
-            <span className="block" style={{ WebkitTextStroke: "1px rgba(209,175,110,0.4)", color: "transparent" }}>
+            <span
+              className="block relative"
+              style={{
+                WebkitTextStroke: "1.5px rgba(209,175,110,0.75)",
+                color: "transparent",
+                filter: "drop-shadow(0 0 28px rgba(209,175,110,0.25))",
+              }}
+            >
               Project
             </span>
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/50">
+
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/65">
             One conversation. A clearer next step. Use the brief for a tailored response,
             or reach us directly via call or WhatsApp.
           </p>
 
-          {/* Trust pills */}
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            {["Free first consultation", "Clear budget direction", "Jamshedpur site coordination"].map((pt) => (
-              <span key={pt} className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-1.5 text-[11px] font-medium text-white/55 backdrop-blur-sm">
-                <span className="h-1 w-1 rounded-full bg-[#d1af6e]/60" aria-hidden="true" />
-                {pt}
+          {/* Trust pills — gold-tinted with distinct accents */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            {[
+              { text: "Free first consultation",      dot: "bg-[#d1af6e]",    glow: "shadow-[0_0_10px_rgba(209,175,110,0.2)]" },
+              { text: "Clear budget direction",       dot: "bg-emerald-400",  glow: "shadow-[0_0_10px_rgba(52,211,153,0.15)]" },
+              { text: "Jamshedpur site coordination", dot: "bg-sky-400",      glow: "shadow-[0_0_10px_rgba(56,189,248,0.15)]" },
+            ].map(({ text, dot, glow }) => (
+              <span
+                key={text}
+                className={`flex items-center gap-2 rounded-full border border-[#d1af6e]/20 bg-[#d1af6e]/[0.06] px-4 py-1.5 text-[11px] font-medium text-white/70 backdrop-blur-sm transition-all duration-300 hover:border-[#d1af6e]/40 hover:bg-[#d1af6e]/[0.12] hover:text-white/90 ${glow}`}
+              >
+                <span className={`h-1.5 w-1.5 rounded-full ${dot} shrink-0`} aria-hidden="true" />
+                {text}
               </span>
             ))}
           </div>
@@ -301,7 +326,7 @@ const CTAContact = () => {
 
           {/* LEFT — Multi-step form */}
           <div className="reveal-elem lg:h-full">
-            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.07] bg-[#0A0A0A]/70 p-7 shadow-[0_32px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl md:p-10 flex flex-col min-h-[600px] lg:min-h-0 lg:h-full">
+            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.07] bg-[#0A0A0A]/70 p-7 shadow-[0_32px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl md:p-10 flex flex-col min-h-[630px] lg:h-full">
               {/* Warm glow top-right */}
               <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-[#d1af6e]/8 blur-[80px]" aria-hidden="true" />
 
@@ -323,65 +348,68 @@ const CTAContact = () => {
 
                   {/* ── Step 1: Contact info ── */}
                   {step === 1 && (
-                    <motion.div key="step1" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="space-y-1 flex-1 flex flex-col">
-                      <div className="mb-7">
+                    <motion.div key="step1" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="flex-1 flex flex-col">
+                      <div className="mb-5">
                         <h2 className="text-xl font-semibold text-white">Who are we speaking with?</h2>
                         <p className="mt-1 text-xs text-white/35">Takes less than 60 seconds · No spam, ever.</p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3">
-                        <AnimatedField id="firstName" label="First Name" hint="e.g. Aayush" error={errors.firstName} touched={touched.firstName}>
-                          <input ref={firstNameRef} id="firstName" name="firstName" autoComplete="given-name" placeholder="Aayush" required
-                            value={formData.firstName}
-                            onBlur={(e) => handleBlur("firstName", e.target.value)}
-                            onChange={(e) => { setFormData(p => ({ ...p, firstName: e.target.value })); handleChange("firstName", e.target.value); }}
-                            {...(isFieldInvalid("firstName") ? { "aria-invalid": "true" as const } : {})}
-                            aria-describedby={getFieldErrorId("firstName")}
-                            className={inputClasses} />
-                        </AnimatedField>
-                        <AnimatedField id="lastName" label="Last Name" error={errors.lastName} touched={touched.lastName}>
-                          <input id="lastName" name="lastName" autoComplete="family-name" placeholder="Sharma" required
-                            value={formData.lastName}
-                            onBlur={(e) => handleBlur("lastName", e.target.value)}
-                            onChange={(e) => { setFormData(p => ({ ...p, lastName: e.target.value })); handleChange("lastName", e.target.value); }}
-                            {...(isFieldInvalid("lastName") ? { "aria-invalid": "true" as const } : {})}
-                            aria-describedby={getFieldErrorId("lastName")}
-                            className={inputClasses} />
-                        </AnimatedField>
-                      </div>
-
-                      <div className="flex items-center gap-3 py-2">
-                        <div className="h-px flex-1 bg-white/[0.05]" />
-                        <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#d1af6e]/50">How to reach you</span>
-                        <div className="h-px flex-1 bg-white/[0.05]" />
-                      </div>
-
-                      <AnimatedField id="email" label="Email Address" hint="For project updates" error={errors.email} touched={touched.email}>
-                        <input id="email" name="email" type="email" inputMode="email" autoComplete="email" placeholder="you@example.com" required
-                          value={formData.email}
-                          onBlur={(e) => handleBlur("email", e.target.value)}
-                          onChange={(e) => { setFormData(p => ({ ...p, email: e.target.value })); handleChange("email", e.target.value); }}
-                          {...(isFieldInvalid("email") ? { "aria-invalid": "true" as const } : {})}
-                          aria-describedby={getFieldErrorId("email")}
-                          className={inputClasses} />
-                      </AnimatedField>
-
-                      <AnimatedField id="phone" label="Mobile Number" hint="10-digit Indian number" error={errors.phone} touched={touched.phone}>
-                        <div className="flex items-center">
-                          <span className="flex items-center gap-1.5 pl-4 pr-3 py-3.5 border-r border-white/[0.1] text-xs font-bold text-[#d1af6e] select-none shrink-0">
-                            🇮🇳 +91
-                          </span>
-                          <input id="phone" name="phone" type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="98765 43210" maxLength={11} required
-                            value={formData.phone}
-                            onBlur={(e) => handleBlur("phone", e.target.value)}
-                            onChange={(e) => { setFormData(p => ({ ...p, phone: e.target.value })); handleChange("phone", e.target.value); }}
-                            {...(isFieldInvalid("phone") ? { "aria-invalid": "true" as const } : {})}
-                            aria-describedby={getFieldErrorId("phone")}
-                            className={inputClasses} />
+                      {/* Fields flex-grow to distribute across available space */}
+                      <div className="flex-1 flex flex-col justify-evenly">
+                        <div className="grid grid-cols-2 gap-3">
+                          <AnimatedField id="firstName" label="First Name" hint="e.g. Aayush" error={errors.firstName} touched={touched.firstName}>
+                            <input ref={firstNameRef} id="firstName" name="firstName" autoComplete="given-name" placeholder="Aayush" required
+                              value={formData.firstName}
+                              onBlur={(e) => handleBlur("firstName", e.target.value)}
+                              onChange={(e) => { setFormData(p => ({ ...p, firstName: e.target.value })); handleChange("firstName", e.target.value); }}
+                              {...(isFieldInvalid("firstName") ? { "aria-invalid": "true" as const } : {})}
+                              aria-describedby={getFieldErrorId("firstName")}
+                              className={inputClasses} />
+                          </AnimatedField>
+                          <AnimatedField id="lastName" label="Last Name" error={errors.lastName} touched={touched.lastName}>
+                            <input id="lastName" name="lastName" autoComplete="family-name" placeholder="Sharma" required
+                              value={formData.lastName}
+                              onBlur={(e) => handleBlur("lastName", e.target.value)}
+                              onChange={(e) => { setFormData(p => ({ ...p, lastName: e.target.value })); handleChange("lastName", e.target.value); }}
+                              {...(isFieldInvalid("lastName") ? { "aria-invalid": "true" as const } : {})}
+                              aria-describedby={getFieldErrorId("lastName")}
+                              className={inputClasses} />
+                          </AnimatedField>
                         </div>
-                      </AnimatedField>
 
-                      <div className="pt-5 space-y-3 border-t border-white/[0.05] mt-auto">
+                        <div className="flex items-center gap-3">
+                          <div className="h-px flex-1 bg-white/[0.05]" />
+                          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#d1af6e]/50">How to reach you</span>
+                          <div className="h-px flex-1 bg-white/[0.05]" />
+                        </div>
+
+                        <AnimatedField id="email" label="Email Address" hint="For project updates" error={errors.email} touched={touched.email}>
+                          <input id="email" name="email" type="email" inputMode="email" autoComplete="email" placeholder="you@example.com" required
+                            value={formData.email}
+                            onBlur={(e) => handleBlur("email", e.target.value)}
+                            onChange={(e) => { setFormData(p => ({ ...p, email: e.target.value })); handleChange("email", e.target.value); }}
+                            {...(isFieldInvalid("email") ? { "aria-invalid": "true" as const } : {})}
+                            aria-describedby={getFieldErrorId("email")}
+                            className={inputClasses} />
+                        </AnimatedField>
+
+                        <AnimatedField id="phone" label="Mobile Number" hint="10-digit Indian number" error={errors.phone} touched={touched.phone}>
+                          <div className="flex items-center">
+                            <span className="flex items-center gap-1.5 pl-4 pr-3 py-3.5 border-r border-white/[0.1] text-xs font-bold text-[#d1af6e] select-none shrink-0">
+                              🇮🇳 +91
+                            </span>
+                            <input id="phone" name="phone" type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="98765 43210" maxLength={11} required
+                              value={formData.phone}
+                              onBlur={(e) => handleBlur("phone", e.target.value)}
+                              onChange={(e) => { setFormData(p => ({ ...p, phone: e.target.value })); handleChange("phone", e.target.value); }}
+                              {...(isFieldInvalid("phone") ? { "aria-invalid": "true" as const } : {})}
+                              aria-describedby={getFieldErrorId("phone")}
+                              className={inputClasses} />
+                          </div>
+                        </AnimatedField>
+                      </div>
+
+                      <div className="pt-5 space-y-3 border-t border-white/[0.05]">
                         <p className="text-center text-[11px] text-white/50 tracking-wide">🔒 Your data stays private. No calls without your permission.</p>
                         <motion.button type="button" onClick={() => setStep(2)}
                           whileHover={{ scale: 1.015, boxShadow: "0 8px 32px rgba(182,24,38,0.22)" }}
@@ -397,15 +425,16 @@ const CTAContact = () => {
 
                   {/* ── Step 2: Project type ── */}
                   {step === 2 && (
-                    <motion.div key="step2" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="space-y-5 flex-1 flex flex-col">
-                      <div className="mb-6">
+                    <motion.div key="step2" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="flex-1 flex flex-col">
+                      <div className="mb-5">
                         <h2 className="text-xl font-semibold text-white">What type of project?</h2>
                         <p className="mt-1 text-xs text-white/35">Select the one that best describes your space.</p>
                       </div>
+                      {/* Fieldset grows to fill available vertical space */}
                       <fieldset aria-labelledby="projectType-label"
                         aria-describedby={getFieldErrorId("projectType")}
                         {...(isFieldInvalid("projectType") ? { "aria-invalid": "true" as const } : {})}
-                        className="grid gap-3 sm:grid-cols-2">
+                        className="flex-1 grid gap-3 sm:grid-cols-2 content-start">
                         {projectTypeOptions.map((option) => (
                           <label key={option.id} className="group block cursor-pointer">
                             <input type="radio" name="projectType" value={option.label}
@@ -422,9 +451,9 @@ const CTAContact = () => {
                         ))}
                       </fieldset>
                       {isFieldInvalid("projectType") && (
-                        <p id="projectType-error" className="text-[10px] font-medium uppercase tracking-wide text-red-400" aria-live="polite">{errors.projectType}</p>
+                        <p id="projectType-error" className="mt-2 text-[10px] font-medium uppercase tracking-wide text-red-400" aria-live="polite">{errors.projectType}</p>
                       )}
-                      <div className="flex justify-between items-center border-t border-white/[0.05] pt-5 mt-auto">
+                      <div className="flex justify-between items-center border-t border-white/[0.05] pt-5 mt-4">
                         <button type="button" onClick={() => setStep(1)} className="text-[10px] font-bold uppercase tracking-widest text-white/35 hover:text-white transition-colors">← Back</button>
                         <motion.button type="button" onClick={() => setStep(3)}
                           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
@@ -437,22 +466,22 @@ const CTAContact = () => {
 
                   {/* ── Step 3: Project details + message ── */}
                   {step === 3 && (
-                    <motion.div key="step3" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="space-y-6 flex-1 flex flex-col">
-                      <div className="mb-6">
+                    <motion.div key="step3" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="flex-1 flex flex-col justify-between">
+                      <div>
                         <h2 className="text-xl font-semibold text-white">Final project details</h2>
                         <p className="mt-1 text-xs text-white/35">A quick brief helps us respond with sharper direction.</p>
                       </div>
 
                       {/* Budget */}
                       <div>
-                        <div className="mb-3 flex items-center justify-between">
+                        <div className="mb-2.5 flex items-center justify-between">
                           <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/70">Project Budget</span>
                           <span className="text-[10px] uppercase tracking-[0.15em] text-white/50">Early direction only</span>
                         </div>
                         <fieldset aria-labelledby="projectBudget-label"
                           aria-describedby={getFieldErrorId("projectBudget")}
                           {...(isFieldInvalid("projectBudget") ? { "aria-invalid": "true" as const } : {})}
-                          className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+                          className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
                           {projectBudgetOptions.map((option) => (
                             <label key={option.id} className="block cursor-pointer">
                               <input type="radio" name="projectBudget" value={option.value}
@@ -461,15 +490,15 @@ const CTAContact = () => {
                                 {...(isFieldInvalid("projectBudget") ? { "aria-invalid": "true" as const } : {})}
                                 aria-describedby={getFieldErrorId("projectBudget")}
                                 className="peer sr-only" />
-                              <span className="flex h-full min-h-[80px] flex-col rounded-[16px] border border-white/8 bg-white/[0.02] px-3.5 py-3.5 text-left transition-all duration-300 hover:border-white/20 peer-checked:border-[#d1af6e]/50 peer-checked:bg-[#d1af6e]/[0.08]">
-                                <span className="text-xs font-semibold text-white">{option.label}</span>
-                                <span className="mt-1.5 text-[10px] uppercase tracking-[0.15em] text-white/40">{option.range}</span>
+                              <span className="flex h-full min-h-[64px] flex-col justify-center rounded-[16px] border border-white/8 bg-white/[0.02] px-3 py-2 text-left transition-all duration-300 hover:border-white/20 peer-checked:border-[#d1af6e]/50 peer-checked:bg-[#d1af6e]/[0.08]">
+                                <span className="text-xs font-semibold text-white leading-tight">{option.label}</span>
+                                <span className="mt-1 text-[9px] uppercase tracking-[0.15em] text-white/40">{option.range}</span>
                               </span>
                             </label>
                           ))}
                         </fieldset>
                         {isFieldInvalid("projectBudget") && (
-                          <p id="projectBudget-error" className="mt-2 text-[10px] font-medium uppercase tracking-wide text-red-400" aria-live="polite">{errors.projectBudget}</p>
+                          <p id="projectBudget-error" className="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-red-400" aria-live="polite">{errors.projectBudget}</p>
                         )}
                       </div>
 
@@ -482,7 +511,7 @@ const CTAContact = () => {
                             onChange={(e) => { setFormData(p => ({ ...p, location: e.target.value })); handleChange("location", e.target.value); }}
                             {...(isFieldInvalid("location") ? { "aria-invalid": "true" as const } : {})}
                             aria-describedby={getFieldErrorId("location")}
-                            className="h-12 w-full appearance-none rounded-[14px] border border-white/10 bg-white/[0.03] px-4 pr-10 text-sm font-medium text-white outline-none transition-all focus:border-[#d1af6e]/50 focus:ring-2 focus:ring-[#d1af6e]/20">
+                            className="h-11 w-full appearance-none rounded-[14px] border border-white/10 bg-white/[0.03] px-4 pr-10 text-sm font-medium text-white outline-none transition-all focus:border-[#d1af6e]/50 focus:ring-2 focus:ring-[#d1af6e]/20">
                             <option value="" className="bg-[#0A0A0A] text-white/40">Select your area</option>
                             {jamshedpurServiceAreas.map((area) => (
                               <option key={area} value={area} className="bg-[#0A0A0A] text-white">{area}</option>
@@ -491,24 +520,24 @@ const CTAContact = () => {
                           <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#d1af6e]/60" aria-hidden="true" />
                         </div>
                         {isFieldInvalid("location") && (
-                          <p id="location-error" className="mt-2 text-[10px] font-medium uppercase tracking-wide text-red-400" aria-live="polite">{errors.location}</p>
+                          <p id="location-error" className="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-red-400" aria-live="polite">{errors.location}</p>
                         )}
                       </div>
 
-                      {/* Message */}
+                      {/* Message — flex-1 so the textarea field grows to fill space between location and footer */}
                       <AnimatedField id="message" label="Tell Us About Your Project" error={errors.message} touched={touched.message}>
                         <textarea id="message" name="message" value={formData.message}
                           placeholder="E.g., I'm looking to renovate a 3BHK apartment in Kadma…"
-                          rows={4} required
+                          rows={3} required
                           onBlur={(e) => handleBlur("message", e.target.value)}
                           onChange={(e) => { setFormData(p => ({ ...p, message: e.target.value })); handleChange("message", e.target.value); }}
                           {...(isFieldInvalid("message") ? { "aria-invalid": "true" as const } : {})}
                           aria-describedby={getFieldErrorId("message")}
-                          className={`${inputClasses} resize-none min-h-[120px] leading-relaxed placeholder:text-white/20`} />
+                          className={`${inputClasses} resize-none w-full h-full min-h-[110px] py-2.5 leading-relaxed placeholder:text-white/20`} />
                       </AnimatedField>
 
                       {/* Submit area */}
-                      <div ref={statusRef} aria-live="polite" className="pt-4 border-t border-white/[0.05] mt-auto">
+                      <div ref={statusRef} aria-live="polite" className="pt-4 border-t border-white/[0.05]">
                         {submitStatus === "success" && (
                           <div className="mb-5 flex items-center gap-3 rounded-2xl border border-green-500/20 bg-green-500/8 px-4 py-3.5">
                             <CheckCircle className="h-4 w-4 shrink-0 text-green-500" />

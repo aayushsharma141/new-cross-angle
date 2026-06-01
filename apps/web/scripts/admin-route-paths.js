@@ -33,12 +33,15 @@ export const ADMIN_STATIC_PATHS = [
   '/admin/cms/portfolio',
   '/admin/cms/services',
   '/admin/cms/testimonials',
-  '/admin/cms/team',
-  '/admin/cms/blogs',
-  '/admin/cms/media',
-  '/admin/cms/hero',
+  '/admin/cms/team-members',
+  '/admin/cms/blog-posts',
+  '/admin/cms/media-library',
+  '/admin/cms/hero-carousel',
   '/admin/cms/gallery',
-  '/admin/cms/transformations',
+  '/admin/cms/before-and-after',
+  '/admin/cms/studio-statistics',
+  '/admin/cms/milestones',
+  '/admin/cms/process-steps',
 
   // CRM module
   '/admin/crm',
@@ -46,22 +49,24 @@ export const ADMIN_STATIC_PATHS = [
 
   // Discovery module
   '/admin/discovery',
-  '/admin/discovery/analytics',
+  '/admin/discovery/quiz-analytics',
+  '/admin/discovery/quiz-configuration',
 
   // Cost estimator module
   '/admin/estimator',
-  '/admin/estimator/leads',
-  '/admin/estimator/rates',
+  '/admin/estimator/estimate-leads',
+  '/admin/estimator/pricing-configuration',
 
   // Blog analytics module
   '/admin/blog',
   '/admin/blog/overview',
-  '/admin/blog/performance',
-  '/admin/blog/engagement',
+  '/admin/blog/article-performance',
+  '/admin/blog/reader-engagement',
 
   // System module
   '/admin/system',
   '/admin/system/settings',
   '/admin/system/team-members',
-  '/admin/system/audit',
+  '/admin/system/audit-logs',
+  '/admin/system/access-control',
 ];

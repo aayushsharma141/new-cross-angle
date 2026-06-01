@@ -18,6 +18,7 @@ const DiscoveryPage = lazy(() => import("@/addons/discovery/pages/DiscoveryPage"
 const BlueprintPage = lazy(() => import("@/addons/discovery/pages/BlueprintPage"));
 const SharedResultPage = lazy(() => import("@/addons/discovery/pages/SharedResultPage"));
 const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
+const TermsPage = lazy(() => import("@/pages/TermsPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 export const publicRoutes = (
@@ -39,6 +40,8 @@ export const publicRoutes = (
     <Route path="/portfolio/:slug" element={<PageTransition><ProjectPage /></PageTransition>} />
     <Route path="/privacy" element={<PageTransition><PrivacyPage /></PageTransition>} />
     <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
+    <Route path="/terms" element={<PageTransition><TermsPage /></PageTransition>} />
+    <Route path="/terms-and-conditions" element={<Navigate to="/terms" replace />} />
     <Route path="/about" element={<Navigate to="/about-us" replace />} />
     <Route path="/contact" element={<Navigate to="/contact-us" replace />} />
     <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />

@@ -60,7 +60,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
 
   return (
     <div
-      className={cn("flex flex-row items-center font-serif font-bold cursor-pointer group shrink-0", className)}
+      className={cn("flex flex-row items-center font-serif font-black antialiased subpixel-antialiased cursor-pointer group shrink-0", className)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => {
@@ -73,7 +73,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         variants={word1Variants}
         initial="hidden"
         animate="visible"
-        className={cn("flex mr-1.5 sm:mr-2 text-[#D1AF6E] tracking-tighter sm:tracking-tight text-[clamp(0.9rem,3vw,1.4rem)]", isHovered && "is-hovered")}
+        className={cn("flex mr-1.5 sm:mr-2 text-transparent bg-clip-text bg-gradient-to-r from-[#C39E5C] via-[#FFF3C4] to-[#C39E5C] drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] tracking-tighter sm:tracking-tight text-[clamp(1.2rem,4vw,1.8rem)]", isHovered && "is-hovered")}
       >
         {word1.split("").map((letter, i) => (
           <motion.span
@@ -96,7 +96,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         variants={word2Variants}
         initial="hidden"
         animate="visible"
-        className="flex text-[#D1AF6E] tracking-tighter sm:tracking-tight text-[clamp(0.9rem,3vw,1.4rem)]"
+        className="flex text-transparent bg-clip-text bg-gradient-to-r from-[#C39E5C] via-[#FFF3C4] to-[#C39E5C] drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] tracking-tighter sm:tracking-tight text-[clamp(1.2rem,4vw,1.8rem)]"
       >
         {word2.split("").map((letter, i) => (
           <motion.span

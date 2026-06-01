@@ -3,7 +3,7 @@ import { motion, useSpring, useMotionValue } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useDynamicCTA } from "@/hooks/useDynamicCTA";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { MapPin, Mail, Phone } from "lucide-react";
+import { MapPin, Mail, Phone, ArrowRight } from "lucide-react";
 
 
 
@@ -20,12 +20,12 @@ const Particles = () => {
   const [particles, setParticles] = useState<Particle[]>([]);
   useEffect(() => {
     const arr = [];
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 8; i++) {
       arr.push({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
-        duration: 5 + Math.random() * 5,
+        duration: 10 + Math.random() * 10,
         delay: Math.random() * -5,
       });
     }
@@ -37,7 +37,7 @@ const Particles = () => {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute w-[3px] h-[3px] bg-[#C41230] rounded-full opacity-35"
+          className="absolute w-[1.5px] h-[1.5px] bg-[#C41230] rounded-full opacity-10"
           style={{ left: `${p.x}vw`, bottom: `${p.y}vh` }}
           animate={{ y: [0, -1000] }}
           transition={{
@@ -199,14 +199,14 @@ export default function Footer() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const colStyle = "p-[clamp(30px,5vw,60px)] md:border-r border-white/5 border-b md:border-b-0 last:border-b-0";
+  const colStyle = "p-[clamp(16px,2vw,32px)] md:border-r border-white/5 border-b md:border-b-0 last:border-b-0";
   const labelStyle = "font-sans text-[10px] tracking-[0.3em] text-white/50 mb-5";
 
   return (
     <footer
-      className="relative min-h-[100vh] overflow-hidden text-white font-['Space_Mono'] block"
+      className="relative overflow-hidden text-white font-['Space_Mono'] block"
       style={{
-        background: "radial-gradient(circle at 72% 28%, rgba(196,18,48,0.20), transparent 58%), radial-gradient(circle at 18% 82%, rgba(128,0,18,0.18), transparent 48%), #000"
+        background: "radial-gradient(circle at 72% 28%, rgba(196,18,48,0.06), transparent 40%), radial-gradient(circle at 18% 82%, rgba(128,0,18,0.04), transparent 35%), #000"
       }}
     >
       {/* CSS for CTA Sweep */}
@@ -245,57 +245,60 @@ export default function Footer() {
       <div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-[#020202] via-[#020202]/70 to-transparent z-10 pointer-events-none" />
 
       {/* --- HERO --- */}
-      <div ref={heroRef} className="py-[150px] px-[6vw] relative z-20">
-        <motion.h2
-          className="font-serif leading-[1.05] text-[clamp(3.5rem,10vw,8.5rem)] max-w-[90vw] md:max-w-7xl tracking-tighter"
-          initial={{ y: 100, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
-        >
-          {footerCopy.headlineStart}<br className="hidden sm:block" />
-          <span className="text-[#C41230] italic">{footerCopy.headlineHighlight}</span>
-        </motion.h2>
-
-        <motion.p
-          className="mt-6 text-white/70 text-lg max-w-2xl font-light leading-relaxed"
-          initial={{ y: 20, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.2, delay: 0.1, ease: [0.25, 1, 0.5, 1] }}
-        >
-          {footerCopy.sub}
-        </motion.p>
+      <div ref={heroRef} className="pt-[80px] pb-[48px] px-[6vw] relative z-20 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-12">
+        <div className="max-w-[90vw] lg:max-w-[55%]">
+          <motion.h2
+            className="font-serif leading-[1.05] text-[clamp(2.8rem,6.5vw,5.8rem)] tracking-tighter animate-in fade-in slide-in-from-bottom duration-1000"
+            initial={{ y: 100, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
+          >
+            {footerCopy.headlineStart}<br className="hidden sm:block" />
+            <span className="text-[#C41230] italic">{footerCopy.headlineHighlight}</span>
+          </motion.h2>
+        </div>
 
         <motion.div
-          className="mt-12 flex flex-col sm:flex-row items-center gap-6"
+          className="flex flex-col gap-6 lg:max-w-[38%] xl:max-w-[35%]"
           initial={{ y: 50, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1.2, delay: 0.2, ease: [0.25, 1, 0.5, 1] }}
         >
-          <Magnetic>
-            <Link
-              to={footerCopy.btn1Link}
-              className="inline-flex items-center justify-center px-8 py-4 bg-[#C41230] text-white rounded-full font-sans text-sm tracking-[0.15em] uppercase hover:bg-white hover:text-black transition-colors duration-300 w-full sm:w-auto text-center"
-            >
-              {footerCopy.btn1}
-            </Link>
-          </Magnetic>
-          
-          <Magnetic>
-            <Link
-              to={footerCopy.btn2Link}
-              className="inline-flex items-center justify-center px-8 py-4 backdrop-blur-xl bg-white/35 border border-white/60 text-white rounded-full font-sans text-sm tracking-[0.15em] uppercase hover:bg-white hover:text-black transition-all duration-300 w-full sm:w-auto text-center font-bold"
-            >
-              {footerCopy.btn2}
-            </Link>
-          </Magnetic>
+          {footerCopy.sub && (
+            <p className="text-white/60 text-[clamp(0.9rem,1vw,1.15rem)] font-sans leading-relaxed tracking-wide max-w-[420px] m-0">
+              {footerCopy.sub}
+            </p>
+          )}
+
+          <div className="flex flex-wrap gap-4 w-full">
+            <Magnetic>
+              <Link
+                to={footerCopy.btn1Link}
+                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#C41230] text-white rounded-full font-sans text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-colors duration-300 w-full sm:w-auto text-center"
+              >
+                <span>{footerCopy.btn1}</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Magnetic>
+
+            {footerCopy.btn2 && (
+              <Magnetic>
+                <Link
+                  to={footerCopy.btn2Link}
+                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-transparent border border-white/20 text-white rounded-full font-sans text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-colors duration-300 w-full sm:w-auto text-center"
+                >
+                  <span>{footerCopy.btn2}</span>
+                </Link>
+              </Magnetic>
+            )}
+          </div>
         </motion.div>
       </div>
 
       {/* --- GRID --- */}
-      <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 relative z-20 border-t border-white/5">
+      <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 relative z-20 border-t border-white/5 px-[6vw] md:pl-[12vw] md:pr-[6vw]">
         {/* Col 1 */}
         <motion.div
           className={colStyle}
@@ -423,7 +426,7 @@ export default function Footer() {
       </div>
 
       {/* --- BOTTOM --- */}
-      <div className="flex flex-col md:flex-row items-center justify-between pt-[20px] pb-[80px] md:pb-[20px] px-[6vw] text-[11px] opacity-50 relative z-10 w-full mt-10 md:mt-20">
+      <div className="flex flex-col md:flex-row items-center justify-between pt-[16px] pb-[20px] px-[6vw] text-[11px] opacity-50 relative z-10 w-full mt-4 md:mt-6 border-t border-white/5 md:border-t-0">
         <div className="mb-4 md:mb-0 flex flex-wrap gap-4 items-center justify-center">
           <span>(c) 2026 CrossAngle Interior</span>
           <span className="hidden md:inline">|</span>
@@ -434,7 +437,7 @@ export default function Footer() {
       </div>
 
       {/* --- BG TEXT --- */}
-      <div className="absolute bottom-[-50px] left-[50%] -translate-x-1/2 text-[clamp(100px,20vw,300px)] opacity-[0.03] font-serif pointer-events-none whitespace-nowrap z-0">
+      <div className="absolute bottom-[-50px] left-[50%] -translate-x-1/2 text-[clamp(100px,20vw,300px)] opacity-[0.03] font-serif pointer-events-none whitespace-nowrap z-0 select-none">
         CROSSANGLE
       </div>
 

@@ -9,8 +9,8 @@ import { navLinks } from "@/config/navigation";
 import { SpotlightNavContainer } from "@/components/ui/enhanced/spotlight-navbar";
 import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
 
-const GOLD = "text-[#FFD700]";
-const GOLD_BG = "bg-[#FFD700]/10";
+const GOLD = "text-[#D1AF6E]";
+const GOLD_BG = "bg-[#D1AF6E]/10";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -82,8 +82,9 @@ const Navbar = () => {
               <img
                 src={logoIcon}
                 alt="Cross Angle Interior"
+                style={{ imageRendering: "auto" }}
                 className={cn(
-                  "w-auto transition-all duration-500 shrink-0",
+                  "w-auto transition-all duration-500 shrink-0 drop-shadow-[0_0_1px_rgba(255,255,255,0.1)]",
                   isScrolled ? "h-9 md:h-12" : "h-11 md:h-16"
                 )}
               />
@@ -106,7 +107,7 @@ const Navbar = () => {
                     <Link
                       to={link.href}
                       className={cn(
-                        "relative font-medium transition-all duration-300 hover:text-[#FFD700] group flex items-center gap-1.5 whitespace-nowrap",
+                        "relative font-medium transition-all duration-300 hover:text-[#D1AF6E] group flex items-center gap-1.5 whitespace-nowrap",
                         navLinkClass,
                         location.pathname === link.href && GOLD,
                         link.name === "Get Estimate" && "font-bold"
@@ -195,7 +196,7 @@ const Navbar = () => {
                           "transition-colors duration-200 font-medium text-base py-2.5 px-4 rounded-xl block",
                           location.pathname === link.href
                             ? `${GOLD} ${GOLD_BG}`
-                            : "text-foreground hover:text-[#FFD700] hover:bg-accent/50",
+                            : "text-foreground hover:text-[#D1AF6E] hover:bg-accent/50",
                           link.name === "Get Estimate" && "font-bold"
                         )}
                         onClick={() => setIsOpen(false)}
