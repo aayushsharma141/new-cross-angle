@@ -70,8 +70,9 @@ export const TactileJourney = () => {
           <span>The Tactile Journey</span>
         </span>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <h2 className="font-display text-[clamp(2.5rem,4vw,4.5rem)] leading-[1] tracking-[-0.02em] text-white max-w-2xl">
-            Spaces designed around <span className="text-site-gold italic">feeling</span>, not just function.
+          <h2 className="font-display text-[clamp(2.5rem,4vw,4.5rem)] leading-[1.05] tracking-[-0.02em] max-w-2xl">
+            <span className="text-site-gold block mb-2">Spaces Designed Around</span>
+            <span className="text-white italic">Feeling, not just function.</span>
           </h2>
           <p className="text-white/50 text-sm md:text-base max-w-sm leading-relaxed mb-2">
             Swipe through our curated moods. Hover to reveal the textures and lighting that define each atmosphere.

@@ -102,9 +102,9 @@ const About = () => {
                 <span className="text-site-crimson font-bold uppercase tracking-[0.3em] text-[10px]">The Studio</span>
               </div>
               
-              <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-site-text-heading mb-10 leading-[1.1] tracking-tight">
-                Private Interiors, <br />
-                <span className="text-site-crimson italic font-light serif">Crafted With Precision</span>
+              <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold mb-10 leading-[1.1] tracking-tight">
+                <span className="text-site-gold block mb-2">Private Interiors,</span>
+                <span className="text-white/90 italic font-light serif">Crafted With Precision</span>
               </h2>
 
               <div className="space-y-6 text-site-text-muted text-base md:text-lg leading-relaxed font-light">

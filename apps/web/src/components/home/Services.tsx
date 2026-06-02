@@ -41,8 +41,8 @@ const Services = () => {
           <span className="reveal-elem text-site-crimson font-mono text-sm tracking-[0.3em] uppercase block mb-4">
             Services
           </span>
-          <h2 className="reveal-elem font-display text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-            Design Is Emotional. <br />
+          <h2 className="reveal-elem font-display text-4xl md:text-5xl lg:text-7xl font-bold mb-6 leading-tight">
+            <span className="text-site-gold block mb-2">Design Is Emotional.</span>
             <em className="text-white/50 not-italic">Investment Is Strategic.</em>
           </h2>
 

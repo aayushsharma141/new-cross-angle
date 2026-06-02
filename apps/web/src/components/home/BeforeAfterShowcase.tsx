@@ -78,8 +78,9 @@ export const BeforeAfterShowcase = () => {
               Real Transformations
             </span>
           </div>
-          <h2 className="font-display text-[clamp(2.2rem,4.5vw,4rem)] leading-[1] tracking-[-0.02em] text-white mb-4">
-            See the Difference We Make
+          <h2 className="font-display text-[clamp(2.2rem,4.5vw,4rem)] leading-[1] tracking-[-0.02em] mb-4">
+            <span className="text-site-gold block mb-2">See the Difference</span>
+            <span className="text-white">We Make</span>
           </h2>
           <p className="text-white/45 text-base leading-relaxed max-w-xl">
             Every project starts with a vision and ends with a space that transforms how you live. 

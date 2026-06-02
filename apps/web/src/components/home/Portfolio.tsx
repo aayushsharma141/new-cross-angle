@@ -125,9 +125,9 @@ const Portfolio = () => {
             Selected Works
           </span>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 md:gap-12">
-            <h2 className="text-[clamp(2.25rem,8vw,4.5rem)] font-display font-medium text-site-text-heading leading-[1.15] md:leading-[1.1] tracking-tight">
-              Curated <br className="hidden md:block" />
-              <em className="text-site-text-muted not-italic"> Excellence.</em>
+            <h2 className="text-[clamp(2.25rem,8vw,4.5rem)] font-display font-medium leading-[1.15] md:leading-[1.1] tracking-tight">
+              <span className="text-site-gold block mb-2">Curated</span>
+              <em className="text-white not-italic"> Excellence.</em>
             </h2>
             <div className="flex flex-wrap gap-3 md:max-w-md relative z-10">
               {categories.map((category) => (

@@ -275,9 +275,10 @@ const Process = () => {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.08 }}
-                className="mt-3 font-display text-[clamp(2.8rem,5.5vw,5.2rem)] font-semibold leading-[0.9] tracking-[-0.04em] text-white"
+                className="mt-3 font-display text-[clamp(2.8rem,5.5vw,5.2rem)] font-semibold leading-[0.95] tracking-[-0.04em]"
               >
-                Our<br />Process
+                <span className="text-site-gold block mb-1">Our</span>
+                <span className="text-white">Process</span>
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 12 }}
