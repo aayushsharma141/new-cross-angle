@@ -286,9 +286,12 @@ const Hero = () => {
             animate="show"
             className="max-w-[46rem] self-center"
           >
-            <motion.span variants={itemUp} className="home-kicker mb-6 inline-block">
-              <span className="hero-kicker-text drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Premier Interior Design Studio</span>
-            </motion.span>
+            <motion.div variants={itemUp} className="flex items-center gap-4 mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              <div className="w-12 h-px bg-site-crimson" />
+              <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+                Premier Interior Design Studio
+              </span>
+            </motion.div>
 
             <div className="mb-6">
               <motion.h1
