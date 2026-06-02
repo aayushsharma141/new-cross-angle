@@ -103,12 +103,21 @@ const TrustSection = () => {
       <div className="container mx-auto px-4 relative z-10">
 
         {/* Section Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-foreground mt-4">
-            Trust & <em>Credibility</em>
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-3 mb-5">
+            <div className="h-px w-8 bg-site-gold/40" />
+            <span className="text-[10px] uppercase tracking-[0.35em] text-site-gold font-bold">
+              Why Choose Us
+            </span>
+            <div className="h-px w-8 bg-site-gold/40" />
+          </div>
+
+          <h2 className="font-display text-[clamp(2.4rem,6vw,4.5rem)] leading-[0.95] tracking-[-0.02em] text-white mb-6">
+            Trust & <em className="not-italic text-site-gold">Credibility</em>
           </h2>
-          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-sm md:text-base">
-            We're committed to delivering excellence in every project
+
+          <p className="text-white/40 text-sm leading-relaxed mt-4 max-w-xl mx-auto">
+            We are committed to delivering exceptional precision, transparent operations, and timeless material quality in every space we touch.
           </p>
         </div>
 
