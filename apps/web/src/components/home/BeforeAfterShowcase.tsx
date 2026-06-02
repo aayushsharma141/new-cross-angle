@@ -72,9 +72,9 @@ export const BeforeAfterShowcase = () => {
       <div className="container mx-auto px-6 lg:px-12 relative z-10">
         {/* Section Header */}
         <div className="max-w-3xl mb-14">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="h-px w-10 bg-site-gold" />
-            <span className="text-[11px] uppercase tracking-[0.3em] text-site-gold font-semibold">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-px bg-site-crimson" />
+            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
               Real Transformations
             </span>
           </div>

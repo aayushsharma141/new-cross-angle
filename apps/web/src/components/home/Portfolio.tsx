@@ -121,9 +121,10 @@ const Portfolio = () => {
         
         {/* Header Setup */}
         <div className="flex flex-col mb-16 md:mb-32">
-          <span className="text-site-crimson font-mono text-sm tracking-[0.3em] uppercase block mb-6">
-            Selected Works
-          </span>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-px bg-site-crimson" />
+            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Selected Works</span>
+          </div>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 md:gap-12">
             <h2 className="text-[clamp(2.25rem,8vw,4.5rem)] font-display font-medium leading-[1.15] md:leading-[1.1] tracking-tight">
               <span className="text-site-gold block mb-2">Curated</span>

@@ -263,14 +263,17 @@ const Process = () => {
 
             {/* LEFT — label + heading + body */}
             <div className="flex flex-col justify-center lg:justify-start lg:pt-10">
-              <motion.span
+              <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="font-mono text-[10px] font-medium uppercase tracking-[0.46em] text-site-crimson"
+                className="flex items-center gap-4 mb-4"
               >
-                How We Work
-              </motion.span>
+                <div className="w-12 h-px bg-site-crimson" />
+                <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+                  How We Work
+                </span>
+              </motion.div>
               <motion.h2
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}

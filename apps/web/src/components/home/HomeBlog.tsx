@@ -25,7 +25,7 @@ const containerVar = {
 };
 const cardVar = {
   hidden: { opacity: 0, y: 28 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] as const } },
 };
 
 /* ─── single card ─── */
@@ -162,9 +162,9 @@ const HomeBlog = () => {
         {/* ── Header ── */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-px w-8 bg-site-gold/50" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.35em] text-site-gold">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-px bg-site-crimson" />
+              <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
                 Design Intelligence
               </span>
             </div>

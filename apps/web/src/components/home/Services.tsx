@@ -38,9 +38,10 @@ const Services = () => {
         
         {/* Left Column: Interactive List */}
         <div className="w-full md:w-1/2 flex flex-col justify-center">
-          <span className="reveal-elem text-site-crimson font-mono text-sm tracking-[0.3em] uppercase block mb-4">
-            Services
-          </span>
+          <div className="reveal-elem flex items-center gap-4 mb-6">
+            <div className="w-12 h-px bg-site-crimson" />
+            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Services</span>
+          </div>
           <h2 className="reveal-elem font-display text-4xl md:text-5xl lg:text-7xl font-bold mb-6 leading-tight">
             <span className="text-site-gold block mb-2">Design Is Emotional.</span>
             <em className="text-white/50 not-italic">Investment Is Strategic.</em>

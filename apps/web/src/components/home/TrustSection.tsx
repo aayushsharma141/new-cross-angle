@@ -104,12 +104,9 @@ const TrustSection = () => {
 
         {/* Section Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-3 mb-5">
-            <div className="h-px w-8 bg-site-gold/40" />
-            <span className="text-[10px] uppercase tracking-[0.35em] text-site-gold font-bold">
-              Why Choose Us
-            </span>
-            <div className="h-px w-8 bg-site-gold/40" />
+          <div className="flex justify-center items-center gap-4 mb-6">
+            <div className="w-12 h-px bg-site-crimson" />
+            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Why Choose Us</span>
           </div>
 
           <h2 className="font-display text-[clamp(2.4rem,6vw,4.5rem)] leading-[0.95] tracking-[-0.02em] text-white mb-6">

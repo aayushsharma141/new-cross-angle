@@ -99,7 +99,7 @@ const About = () => {
             <ScrollReveal animation="slide-in-left">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-12 h-px bg-site-crimson" />
-                <span className="text-site-crimson font-bold uppercase tracking-[0.3em] text-[10px]">The Studio</span>
+                <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">The Studio</span>
               </div>
               
               <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold mb-10 leading-[1.1] tracking-tight">

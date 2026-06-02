@@ -66,9 +66,10 @@ export const TactileJourney = () => {
   return (
     <section className="py-24 md:py-32 relative bg-[#050505] overflow-hidden" ref={containerRef}>
       <div className="container mx-auto px-6 lg:px-12 mb-12 md:mb-20">
-        <span className="home-kicker mb-6 block">
-          <span>The Tactile Journey</span>
-        </span>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-px bg-site-crimson" />
+          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">The Tactile Journey</span>
+        </div>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
           <h2 className="font-display text-[clamp(2.5rem,4vw,4.5rem)] leading-[1.05] tracking-[-0.02em] max-w-2xl">
             <span className="text-site-gold block mb-2">Spaces Designed Around</span>
