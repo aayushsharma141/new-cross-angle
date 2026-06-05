@@ -1,5 +1,0 @@
-[2026-05-16 14:15] Completed: Gallery fix (category filter) + ServiceDetailPage lint fix + gallery verification
-[2026-05-16 13:00] Completed: PostHog Tasks 6+7 — mounted PageTracker, migrated AdminAnalytics to analytics_reporting_daily
-[2026-05-15 18:00] Completed: Discovery/Estimator naming standardization — 20+ renames, cross-tool integration flow
-[2026-05-24 00:30] STARTING: Discovery UI Overhaul — 3-Panel luxury sidebar + stage workflow visual + kiro-p1 aesthetic adoption
-  Files to modify: DiscoveryEngine.tsx, DiscoveryProgressSidebar.tsx (new), WelcomeScreen.tsx

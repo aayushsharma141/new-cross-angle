@@ -29,10 +29,10 @@ const fallbackSteps = [
     id: "01",
     icon: Home,
     title: "Consult",
-    subtitle: "Private Briefing",
-    description: "Share your vision, priorities, and timeline with our design team.",
+    subtitle: "First Meeting",
+    description: "Share your ideas, budget, and timeline with our design team.",
     detail:
-      "We begin with a precise understanding of lifestyle, site realities, and investment intent so the project starts with clarity.",
+      "We start by understanding your daily routine, budget, and project goals to ensure we align with your needs from day one.",
     image: "/reality_render.jpg",
     imageAlt: "Luxury living room consultation setting",
     kicker: "Stage One",
@@ -41,10 +41,10 @@ const fallbackSteps = [
     id: "02",
     icon: Ruler,
     title: "Measure & Plan",
-    subtitle: "Technical Mapping",
-    description: "Laser-precise measurement, circulation logic, and planning discipline.",
+    subtitle: "Technical Layout",
+    description: "Laser-precise measurements and floor plan planning for optimal layout.",
     detail:
-      "Spatial planning, dimensions, and constraints are translated into an execution-ready foundation before any major design decision.",
+      "We measure your space carefully to design floor plans that optimize movement and make the best use of every room.",
     image: "/blueprint_shell.jpg",
     imageAlt: "Architectural blueprint and measured planning sheet",
     kicker: "Stage Two",
@@ -53,10 +53,10 @@ const fallbackSteps = [
     id: "03",
     icon: Palette,
     title: "Design",
-    subtitle: "Visual Direction",
-    description: "See palettes, finishes, and realistic views before execution begins.",
+    subtitle: "3D Visuals",
+    description: "Review colors, furniture, and realistic 3D views before we begin.",
     detail:
-      "Materials, lighting mood, and 3D visuals align taste with feasibility, allowing decisions to feel confident instead of speculative.",
+      "We choose materials, lighting, and colors, then show you realistic 3D drawings so you can decide with confidence.",
     image: "/hero_reality_render_1775299733746.png",
     imageAlt: "Photorealistic interior design preview",
     kicker: "Stage Three",
@@ -65,10 +65,10 @@ const fallbackSteps = [
     id: "04",
     icon: Hammer,
     title: "Execute",
-    subtitle: "Craft & Install",
-    description: "Specialist teams bring the approved design into built form.",
+    subtitle: "Build & Install",
+    description: "Our skilled installation team brings the designs to life.",
     detail:
-      "Fabrication, site coordination, and finishing are managed as one controlled delivery stream to reduce friction and protect quality.",
+      "We manufacture the modular cabinets and coordinate all on-site work to ensure high-quality execution without delays.",
     image: "/reality_render.jpg",
     imageAlt: "Finished interior under installation and styling",
     kicker: "Stage Four",
@@ -77,10 +77,10 @@ const fallbackSteps = [
     id: "05",
     icon: Check,
     title: "Handover",
-    subtitle: "Final Reveal",
-    description: "Walk through a polished, ready-to-live space with full confidence.",
+    subtitle: "Moving In",
+    description: "Walk through your completed, clean, and ready-to-use home.",
     detail:
-      "The closing stage focuses on finishing, quality checks, and a composed reveal that feels complete rather than merely delivered.",
+      "We perform a final quality check, clean the entire space, and hand over your keys for a stress-free move-in.",
     image: "/hero_reality_render_1775299733746.png",
     imageAlt: "Completed premium interior ready for handover",
     kicker: "Stage Five",
@@ -267,29 +267,27 @@ const Process = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="flex items-center gap-4 mb-4"
+                className="flex items-center gap-4 mb-6"
               >
                 <div className="w-12 h-px bg-site-crimson" />
-                <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
-                  How We Work
-                </span>
+                <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">How We Work</span>
               </motion.div>
               <motion.h2
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.08 }}
-                className="mt-3 font-display text-[clamp(2.8rem,5.5vw,5.2rem)] font-semibold leading-[0.95] tracking-[-0.04em]"
+                className="mt-3 font-serif text-[clamp(2.8rem,5.5vw,5.2rem)] font-bold leading-[1.1] tracking-tight text-white"
               >
-                <span className="text-site-gold block mb-1">Our</span>
-                <span className="text-white">Process</span>
+                The <br />
+                <em className="text-site-crimson italic font-light serif">Methodology.</em>
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.16 }}
-                className="mt-5 max-w-[22ch] text-[0.95rem] leading-[1.65] text-white/60 md:text-[1.05rem]"
+                className="mt-5 max-w-[28ch] text-[0.95rem] leading-[1.65] text-white/70 font-light md:text-[1.05rem]"
               >
-                A connected five-stage journey designed to move from brief to final reveal with clarity.
+                A seamless five-stage journey guiding you from initial vision to a flawless final reveal.
               </motion.p>
             </div>
 
@@ -362,7 +360,7 @@ const Process = () => {
                       }}
                       className="flex flex-wrap items-baseline gap-3"
                     >
-                      <span className="font-display text-[clamp(2.2rem,4.5vw,4.2rem)] font-semibold leading-none tracking-[-0.04em] text-white">
+                      <span className="font-serif text-[clamp(2.2rem,4.5vw,4.2rem)] font-bold leading-none tracking-tight text-white">
                         {activeStep.title}
                       </span>
                       <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-site-crimson/90">

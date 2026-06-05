@@ -3,38 +3,45 @@ import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-const fallbackMilestones = [
+interface Milestone {
+  year: string;
+  title: string;
+  event: string;
+  image?: string;
+  id?: string;
+}
+
+const fallbackMilestones: Milestone[] = [
   { 
-    year: "2010", 
-    title: "The Beginning",
-    event: "Founded Cross Angle Interior in Jamshedpur with a vision to transform spaces." 
+    year: "2012", 
+    title: "The Foundation",
+    event: "Aayush Sharma established Cross Angle with a vision to bring architectural rigor to interior styling in Jamshedpur.",
+    image: "/blueprint_shell.jpg"
   },
   { 
-    year: "2015", 
-    title: "Expansion",
-    event: "Expanded into commercial interior design, partnering with leading businesses." 
-  },
-  { 
-    year: "2018", 
-    title: "Milestone",
-    event: "Celebrated completion of 100+ residential projects across Jharkhand." 
+    year: "2016", 
+    title: "Scaling the Vision",
+    event: "Expanded the studio's capacity to handle end-to-end commercial projects, introducing turnkey delivery to ensure uncompromised quality.",
+    image: "/reality_render.jpg"
   },
   { 
     year: "2020", 
-    title: "Innovation",
-    event: "Launched comprehensive turnkey project solutions for seamless delivery." 
+    title: "A New Standard",
+    event: "Redefined luxury living in Jharkhand through a series of landmark residential projects that emphasized tactile materials and spatial clarity.",
+    image: "/hero_reality_render_1775299733746.png"
   },
   { 
     year: "2024", 
-    title: "Recognition",
-    event: "Recognized as the leading interior design studio in Jharkhand." 
+    title: "Present Day",
+    event: "Today, the studio stands as a premier design house, leading a team of specialists to craft environments that age beautifully.",
+    image: "/reality_render.jpg"
   },
 ];
 
 const AboutTimeline = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const { data: milestones = fallbackMilestones } = useQuery({
+  const { data: milestones = fallbackMilestones } = useQuery<Milestone[]>({
     queryKey: ['studioMilestones'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -43,7 +50,16 @@ const AboutTimeline = () => {
         .order('display_order', { ascending: true });
         
       if (error) throw error;
-      return data && data.length > 0 ? data : fallbackMilestones;
+      if (data && data.length > 0) {
+        return data.map((m) => {
+          const milestoneRow = m as Record<string, unknown>;
+          return {
+            ...m,
+            image: (milestoneRow.image_url as string) || "/reality_render.jpg"
+          };
+        });
+      }
+      return fallbackMilestones;
     }
   });
 
@@ -70,16 +86,17 @@ const AboutTimeline = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto text-center mb-16 md:mb-20"
+          className="max-w-3xl mx-auto text-center mb-16 md:mb-24"
         >
-          <span className="text-[#d1af6e] font-medium tracking-widest uppercase text-sm mb-4 block">
-            Our Journey
-          </span>
-          <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Key <span className="text-[#d1af6e]">Milestones</span>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="w-12 h-px bg-site-crimson" />
+            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">The Legacy</span>
+          </div>
+          <h2 className="font-serif text-[clamp(2.5rem,5vw,4.5rem)] font-bold text-foreground mb-6 leading-tight tracking-tight">
+            Founder's <span className="text-site-gold italic font-light">Journey</span>
           </h2>
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            A decade of dedication, innovation, and excellence in interior design.
+          <p className="text-muted-foreground text-[clamp(1rem,2vw,1.1rem)] font-light leading-relaxed max-w-2xl mx-auto">
+            A decade of dedication, precision, and a relentless pursuit of architectural elegance led by Aayush Sharma.
           </p>
         </motion.div>
 
@@ -88,7 +105,7 @@ const AboutTimeline = () => {
           {/* Animated vertical line - centered on desktop */}
           <div className="absolute left-8 md:left-1/2 md:-translate-x-px top-0 bottom-0 w-px bg-white/5">
             <motion.div
-              className="w-full bg-gradient-to-b from-[#d1af6e] via-[#d1af6e] to-transparent shadow-[0_0_15px_rgba(209,175,110,0.8)]"
+              className="w-full bg-gradient-to-b from-site-gold via-site-gold to-transparent shadow-[0_0_15px_rgba(209,175,110,0.8)]"
               style={{ height: lineHeight }}
             />
           </div>
@@ -111,35 +128,49 @@ const AboutTimeline = () => {
                 }`}
               >
                 {/* Content */}
-                <div className={`flex-1 md:w-1/2 ${index % 2 === 0 ? "md:pr-16 md:text-right" : "md:pl-16"}`}>
+                <div className={`flex-1 md:w-1/2 ${index % 2 === 0 ? "md:pr-20 md:text-right" : "md:pl-20"}`}>
                   <motion.div
-                    className="group bg-white/[0.03] backdrop-blur-xl border border-white/10 hover:border-[#d1af6e]/40 rounded-3xl p-6 md:p-8 transition-all duration-700 hover:shadow-[0_12px_40px_rgba(209,175,110,0.12)] hover:bg-white/[0.05]"
-                    whileHover={{ y: -5 }}
+                    className="group relative overflow-hidden bg-white/[0.02] backdrop-blur-xl border border-white/5 hover:border-site-gold/30 rounded-3xl transition-all duration-700 hover:shadow-[0_20px_50px_rgba(209,175,110,0.1)] hover:bg-white/[0.04]"
+                    whileHover={{ y: -8 }}
                   >
-                    <span className="inline-block text-[#d1af6e] font-serif text-3xl font-bold mb-2">
-                      {milestone.year}
-                    </span>
-                    <h3 className="font-serif text-xl font-semibold text-foreground mb-2 group-hover:text-[#d1af6e] transition-colors">
-                      {milestone.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {milestone.event}
-                    </p>
+                    {/* Image Header */}
+                    <div className="relative h-48 w-full overflow-hidden border-b border-white/5">
+                      <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors duration-500" />
+                      <img 
+                        src={milestone.image} 
+                        alt={milestone.title}
+                        className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                      />
+                      <div className="absolute top-4 left-6 z-20">
+                        <span className="inline-block text-site-gold font-serif text-[clamp(2rem,3vw,3rem)] font-bold leading-none drop-shadow-lg">
+                          {milestone.year}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-6 md:p-8 relative">
+                      <h3 className="font-serif text-[clamp(1.2rem,2vw,1.5rem)] font-semibold text-foreground mb-3 group-hover:text-site-gold transition-colors duration-300">
+                        {milestone.title}
+                      </h3>
+                      <p className="text-muted-foreground text-sm font-light leading-relaxed group-hover:text-white/90 transition-colors duration-300">
+                        {milestone.event}
+                      </p>
+                    </div>
                   </motion.div>
                 </div>
 
                 {/* Center dot */}
                 <div className="absolute left-8 md:left-1/2 -translate-x-1/2 flex items-center justify-center">
                   <motion.div
-                    className="relative w-4 h-4 rounded-full bg-black border-[3px] border-[#d1af6e] z-10"
+                    className="relative w-4 h-4 rounded-full bg-black border-[3px] border-site-gold z-10"
                     whileInView={{ scale: [0, 1.2, 1] }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.15 }}
                   >
-                    <div className="absolute inset-0 rounded-full bg-[#d1af6e]/40 animate-pulse" />
+                    <div className="absolute inset-0 rounded-full bg-site-gold/40 animate-pulse" />
                   </motion.div>
                   {/* Glow effect */}
-                  <div className="absolute w-10 h-10 rounded-full bg-[#d1af6e]/30 blur-xl -z-10" />
+                  <div className="absolute w-10 h-10 rounded-full bg-site-gold/20 blur-xl -z-10" />
                 </div>
 
                 {/* Spacer for alternating layout */}

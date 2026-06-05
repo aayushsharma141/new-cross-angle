@@ -24,8 +24,8 @@ const OurApproach = () => {
             viewport={{ once: true }}
             className="flex items-center gap-4 mb-6"
           >
-            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-crimson">The Philosophy</span>
-            <div className="flex-1 h-[1px] bg-white/10" />
+            <div className="w-12 h-px bg-site-crimson" />
+            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">The Philosophy</span>
           </motion.div>
 
           <motion.h2

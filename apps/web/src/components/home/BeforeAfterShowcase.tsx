@@ -78,9 +78,8 @@ export const BeforeAfterShowcase = () => {
               Real Transformations
             </span>
           </div>
-          <h2 className="font-display text-[clamp(2.2rem,4.5vw,4rem)] leading-[1] tracking-[-0.02em] mb-4">
-            <span className="text-site-gold block mb-2">See the Difference</span>
-            <span className="text-white">We Make</span>
+          <h2 className="font-display text-[clamp(2.2rem,4.5vw,4rem)] leading-[1] tracking-[-0.02em] text-white mb-4">
+            See the Difference We Make
           </h2>
           <p className="text-white/45 text-base leading-relaxed max-w-xl">
             Every project starts with a vision and ends with a space that transforms how you live. 
@@ -205,13 +204,19 @@ export const BeforeAfterShowcase = () => {
 
                 {/* Challenge */}
                 <div className="mb-6 pb-6 border-b border-white/5">
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-site-crimson font-semibold mb-2 block">The Challenge</span>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-px bg-site-crimson" />
+                    <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">The Challenge</span>
+                  </div>
                   <p className="text-white/60 text-sm leading-relaxed">{current.challenge}</p>
                 </div>
 
                 {/* Design Moves */}
                 <div className="mb-6 pb-6 border-b border-white/5">
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-site-gold font-semibold mb-3 block">Our Design Moves</span>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-px bg-site-crimson" />
+                    <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Our Design Moves</span>
+                  </div>
                   <ul className="space-y-2">
                     {current.designMoves.slice(0, 3).map((move, i) => (
                       <li key={i} className="flex gap-3 text-sm text-white/55 leading-relaxed">

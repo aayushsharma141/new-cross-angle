@@ -19,7 +19,7 @@ interface TeamMemberData {
 const TeamMember = ({ member, index }: { member: TeamMemberData, index: number }) => {
     return (
         <ScrollReveal animation="fade-up" delay={index * 0.1}>
-            <div className="group relative w-full h-[450px] md:h-[500px] overflow-hidden rounded-[2rem] bg-[#111] border border-white/5 shadow-[0_4px_24px_rgba(0,0,0,0.4)] transition-all duration-700 hover:border-[#d1af6e]/40 hover:shadow-[0_20px_40px_rgba(209,175,110,0.15)] flex flex-col">
+            <div className="group relative w-full h-[450px] md:h-[500px] overflow-hidden rounded-[2rem] bg-card border border-white/5 shadow-[0_4px_24px_rgba(0,0,0,0.4)] transition-all duration-700 hover:border-site-gold/45 hover:shadow-[0_20px_50px_rgba(209,175,110,0.15)] flex flex-col">
                 
                 {/* Image Container */}
                 <div className="absolute inset-0 grayscale sepia-[.2] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-700 z-0">
@@ -32,7 +32,7 @@ const TeamMember = ({ member, index }: { member: TeamMemberData, index: number }
                         height={1000}
                     />
                     {/* Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500 z-10" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500 z-10" />
                 </div>
 
                 {/* Internal reflection */}
@@ -44,7 +44,7 @@ const TeamMember = ({ member, index }: { member: TeamMemberData, index: number }
                         <h3 className="font-serif text-2xl font-bold text-white mb-1 drop-shadow-md">
                             {member.name}
                         </h3>
-                        <p className="text-xs uppercase tracking-[0.2em] text-[#d1af6e] font-semibold drop-shadow-sm mb-4">
+                        <p className="text-xs uppercase tracking-[0.2em] text-site-gold font-semibold drop-shadow-sm mb-4">
                             {member.role}
                         </p>
                     </div>
@@ -64,7 +64,7 @@ const TeamMember = ({ member, index }: { member: TeamMemberData, index: number }
                                     {member.instagram_url && (
                                         <a
                                             href={member.instagram_url}
-                                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:text-black hover:bg-[#d1af6e] hover:border-[#d1af6e] transition-all duration-300"
+                                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:text-black hover:bg-site-gold hover:border-site-gold transition-all duration-300"
                                             aria-label={`${member.name}'s Instagram`}
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -75,7 +75,7 @@ const TeamMember = ({ member, index }: { member: TeamMemberData, index: number }
                                     {member.linkedin_url && (
                                         <a
                                             href={member.linkedin_url}
-                                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:text-black hover:bg-[#d1af6e] hover:border-[#d1af6e] transition-all duration-300"
+                                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:text-black hover:bg-site-gold hover:border-site-gold transition-all duration-300"
                                             aria-label={`${member.name}'s LinkedIn`}
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -86,7 +86,7 @@ const TeamMember = ({ member, index }: { member: TeamMemberData, index: number }
                                     {member.email && (
                                         <a
                                             href={`mailto:${member.email}`}
-                                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:text-black hover:bg-[#d1af6e] hover:border-[#d1af6e] transition-all duration-300"
+                                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:text-black hover:bg-site-gold hover:border-site-gold transition-all duration-300"
                                             aria-label={`Email ${member.name}`}
                                         >
                                             <Mail className="w-4 h-4" />
@@ -132,18 +132,18 @@ const AboutTeam = () => {
     return (
         <section className="py-24 md:py-32 relative overflow-hidden bg-background">
             {/* Background elements */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-[#d1af6e]/5 rounded-full blur-[120px] -mr-48 -mt-48 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-site-gold/5 rounded-full blur-[120px] -mr-48 -mt-48 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/5 rounded-full blur-[100px] -ml-40 -mb-40 pointer-events-none" />
 
             <div className="container mx-auto px-4 relative z-10">
                 <div className="max-w-2xl mb-16 md:mb-24">
                     <ScrollReveal animation="slide-in-left">
-                        <span className="inline-block text-[#d1af6e] font-medium tracking-[0.3em] uppercase text-xs mb-4">
+                        <span className="inline-block text-site-gold font-medium tracking-[0.3em] uppercase text-xs mb-4">
                             The Visionaries
                         </span>
                         <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1]">
                             Architecture of <br />
-                            <span className="text-[#d1af6e] italic">Anticipation</span>
+                            <span className="text-site-gold italic">Anticipation</span>
                         </h2>
                     </ScrollReveal>
 
@@ -157,7 +157,7 @@ const AboutTeam = () => {
 
                 {loading ? (
                     <div className="flex justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d1af6e]"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-site-gold"></div>
                     </div>
                 ) : team.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

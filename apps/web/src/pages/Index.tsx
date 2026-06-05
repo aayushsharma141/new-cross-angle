@@ -24,6 +24,7 @@ const TrustSection     = lazy(() => import("@/components/home/TrustSection"));
 const Testimonials     = lazy(() => import("@/components/home/Testimonials"));
 const MarqueeStrip     = lazy(() => import("@/components/home/MarqueeStrip").then(m => ({ default: m.MarqueeStrip })));
 const HomeBlog         = lazy(() => import("@/components/home/HomeBlog"));
+const AboutTimeline    = lazy(() => import("@/components/about/AboutTimeline"));
 
 const Index = () => {
   return (
@@ -117,6 +118,14 @@ const Index = () => {
             rootMargin="300px 0px"
           >
             <TactileJourney />
+          </LazySection>
+
+          <LazySection
+            className="bg-background border-t border-site-border"
+            minHeight={800}
+            rootMargin="300px 0px"
+          >
+            <AboutTimeline />
           </LazySection>
 
           <LazySection

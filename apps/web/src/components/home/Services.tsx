@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/primitives/button";
 import { Image } from "@/components/ui/enhanced/image";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 const Services = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number>(0);
@@ -42,9 +43,9 @@ const Services = () => {
             <div className="w-12 h-px bg-site-crimson" />
             <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Services</span>
           </div>
-          <h2 className="reveal-elem font-display text-4xl md:text-5xl lg:text-7xl font-bold mb-6 leading-tight">
-            <span className="text-site-gold block mb-2">Design Is Emotional.</span>
-            <em className="text-white/50 not-italic">Investment Is Strategic.</em>
+          <h2 className="reveal-elem font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-bold text-white mb-6 leading-[1.1] tracking-tight">
+            Design Is Emotional. <br />
+            <em className="text-white/50 not-italic font-light">Investment Is Strategic.</em>
           </h2>
 
           {/* Neighborhood / area served callout */}
@@ -65,30 +66,31 @@ const Services = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-6">
-                      <span className="text-xs font-mono text-white/60 tracking-widest uppercase">
+                      <span className={cn("text-xs font-mono tracking-widest uppercase transition-colors duration-500", isHovered ? "text-site-crimson" : "text-white/40")}>
                         0{index + 1}
                       </span>
-                      <h3 className={`font-display text-2xl md:text-3xl lg:text-4xl transition-colors duration-500 ${isHovered ? "text-white" : "text-white/50"}`}>
+                      <h3 className={cn("font-display text-[clamp(1.5rem,3vw,2.5rem)] transition-all duration-500 transform", isHovered ? "text-white translate-x-4" : "text-white/40")}>
                         {category.title}
                       </h3>
                     </div>
-                    <ArrowRight className={`w-6 h-6 transition-all duration-500 ${isHovered ? "text-site-crimson translate-x-2" : "text-white/20"}`} />
+                    <ArrowRight className={cn("w-6 h-6 transition-all duration-500 transform", isHovered ? "text-site-crimson -translate-x-2 opacity-100" : "text-white/20 -translate-x-8 opacity-0")} />
                   </div>
                   
                   {/* Subtle active underline indicator */}
-                  <div className={`absolute bottom-0 left-0 h-[1px] bg-site-crimson transition-all duration-500 ${isHovered ? "w-full" : "w-0"}`} />
+                  <div className={cn("absolute bottom-0 left-0 h-[1px] bg-gradient-to-r from-site-crimson to-transparent transition-all duration-700 ease-out", isHovered ? "w-full opacity-100" : "w-0 opacity-0")} />
                 </Link>
               );
             })}
           </div>
 
-          <div className="reveal-elem">
-            <Link to="/services">
-              <Button asChild className="group bg-transparent border border-white/20 rounded-none px-8 py-6 h-auto text-xs uppercase tracking-widest font-bold hover:bg-white hover:text-black transition-all duration-500">
-                <span>
-                  Explore All Services
-                  <ArrowRight className="ml-3 w-4 h-4 group-hover:translate-x-2 transition-transform" />
-                </span>
+          <div className="reveal-elem mt-4">
+            <Link to="/services" className="inline-block group">
+              <Button className="pl-0 pr-8 !h-auto py-4 bg-transparent hover:bg-transparent text-white border-none shadow-none group relative overflow-hidden transition-all duration-500">
+                <span className="relative z-10 font-bold uppercase tracking-[0.2em] text-xs">Explore All Services</span>
+                <div className="ml-4 w-10 h-10 border border-site-crimson/30 rounded-none flex items-center justify-center group-hover:bg-site-crimson group-hover:border-site-crimson transition-all duration-500 inline-flex group-hover:translate-x-2">
+                  <ArrowRight className="w-4 h-4 text-site-crimson group-hover:text-white transition-colors" />
+                </div>
+                <div className="absolute bottom-4 left-0 w-0 h-px bg-site-crimson group-hover:w-[calc(100%-48px)] transition-all duration-700 delay-100" />
               </Button>
             </Link>
           </div>
@@ -104,6 +106,7 @@ const Services = () => {
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="absolute inset-0 w-full h-full rounded-2xl overflow-hidden shadow-2xl shadow-black/50"
+              style={{ willChange: "transform, opacity" }}
             >
               <Image
                 src={activeCategory?.heroImage}

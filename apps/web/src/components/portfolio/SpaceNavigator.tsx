@@ -74,7 +74,10 @@ const SpaceNavigator = () => {
   return (
     <div className="w-full overflow-hidden" ref={containerRef}>
       <div className="container mx-auto px-6 mb-16 text-center">
-        <span className="mb-4 block text-[10px] uppercase tracking-[0.4em] text-site-gold">Choose Your World</span>
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="w-12 h-px bg-site-crimson" />
+          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Choose Your World</span>
+        </div>
         <h2 className="text-3xl font-light tracking-tight text-white md:text-5xl mb-6">Space-Based Exploration</h2>
         <p className="mx-auto max-w-md text-sm font-light leading-relaxed text-white/50 mb-0">
           Navigate through our portfolio by the spaces that matter to you.

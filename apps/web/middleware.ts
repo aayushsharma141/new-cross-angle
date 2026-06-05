@@ -76,6 +76,108 @@ function isSocialCrawler(ua: string): boolean {
   return BOT_PATTERNS.some((bot) => lower.includes(bot));
 }
 
+// ─── Admin mobile restriction ─────────────────────────────────────────────────
+
+const ADMIN_MOBILE_PATTERNS = [
+  "android",
+  "blackberry",
+  "iemobile",
+  "ipad",
+  "iphone",
+  "ipod",
+  "mobile",
+  "opera mini",
+  "tablet",
+  "webos",
+];
+
+function isAdminPath(pathname: string): boolean {
+  return pathname === "/admin" || pathname.startsWith("/admin/");
+}
+
+function isMobileAdminClient(ua: string): boolean {
+  const lower = ua.toLowerCase();
+  return ADMIN_MOBILE_PATTERNS.some((pattern) => lower.includes(pattern));
+}
+
+function buildAdminDesktopRequiredHtml(): string {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Desktop Required | CrossAngle Admin</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #070a10;
+      color: #f7f3ea;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: #070a10;
+    }
+    main {
+      width: min(100%, 560px);
+      border: 1px solid rgba(218, 180, 91, 0.24);
+      border-radius: 8px;
+      background: #0d111a;
+      padding: 28px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    }
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #dab45b;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 8vw, 38px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    p {
+      margin: 16px 0 0;
+      color: #b7becc;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      margin-top: 24px;
+      border: 1px solid rgba(218, 180, 91, 0.4);
+      border-radius: 6px;
+      padding: 0 16px;
+      color: #f7f3ea;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Admin access restricted</p>
+    <h1>Desktop browser required</h1>
+    <p>Open the admin panel in Chrome desktop or another desktop browser. Mobile and tablet sessions are blocked for this workspace.</p>
+    <a href="/">Back to site</a>
+  </main>
+</body>
+</html>`;
+}
+
 // ─── Supabase REST fetch helpers (zero SDK overhead) ───────────────────────────
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -215,6 +317,19 @@ function buildMetaTags(og: OgData): string {
 
 export default async function middleware(req: Request) {
   const ua = req.headers.get("user-agent") ?? "";
+  const urlObj = new URL(req.url);
+  const pathname = urlObj.pathname;
+
+  if (isAdminPath(pathname) && isMobileAdminClient(ua)) {
+    return new Response(buildAdminDesktopRequiredHtml(), {
+      status: 403,
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "no-store",
+        "X-Admin-Mobile-Blocked": "1",
+      },
+    });
+  }
 
   // Pass real users through immediately — zero overhead
   if (!isSocialCrawler(ua)) {
@@ -225,8 +340,6 @@ export default async function middleware(req: Request) {
     return new Response(null, { headers: { "x-middleware-next": "1" } });
   }
 
-  const urlObj = new URL(req.url);
-  const pathname = urlObj.pathname;
   const og = await resolveOg(pathname);
   const metaTags = buildMetaTags(og);
 

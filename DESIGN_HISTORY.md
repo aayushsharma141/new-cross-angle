@@ -18,10 +18,10 @@ Select a component segment below to view its full visual history, design variati
   Tracks home sections (Minimal curating Hero, process timelines, BeforeAfter showcase splitter, and Tactile carousel).
 * 🌐 **[Global brand & Layouts](file:///c:/Users/aayus/Desktop/main/design-history/global_layout.md)**
   Tracks global elements (logo dimensions, Navbar inline wordmark configurations, Footer quick link updates, and translation language switches).
-* 🎯 **[CRM & Admin Panel](file:///c:/Users/aayus/Desktop/main/design-history/crm_admin.md)**
-  Tracks Lead Pipeline, LeadCard, KPI row, Admin Layout chrome, TopBar, and footer iterations. Includes the full blueprint redesign rollout plan (v1 → v2-action-first → v3-blueprint).
 * 📬 **[Contact Page](file:///c:/Users/aayus/Desktop/main/design-history/contact_page.md)**
   Tracks Contact page iterations. v1 = 5-section cluttered layout. v2 = Full redesign: merged hero+form, compact map card, slim FAQ, social pill strip.
+* 📖 **[About Page Layouts](file:///c:/Users/aayus/Desktop/main/design-history/about_page.md)**
+  Tracks About page components (Luxury Cursor Hero, dynamic glass panels, cascades, custom gradients, floating ambient glowing orbs, and timeline adjustments).
 
 ---
 

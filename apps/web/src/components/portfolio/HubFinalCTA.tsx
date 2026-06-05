@@ -33,7 +33,10 @@ const HubFinalCTA = () => {
           className="max-w-3xl space-y-12"
         >
           <div className="space-y-6">
-            <span className="text-[11px] uppercase tracking-[0.5em] text-site-gold">Your Turn</span>
+            <div className="flex items-center justify-center gap-4">
+              <div className="w-12 h-px bg-site-crimson" />
+              <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Your Turn</span>
+            </div>
             <h2 className="text-4xl font-extralight tracking-tight text-white md:text-7xl">
               Your space is ready for its<br />
               <span className="italic">next chapter.</span>

@@ -8,11 +8,12 @@ import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 import { PageSkeleton } from "./components/ui/enhanced/PageSkeleton";
 import { CoreProviders } from "./providers/CoreProviders";
 import { PageTracker } from "./analytics/page-tracking";
-import MobileStickyCTA from "./components/layout/MobileStickyCTA";
+import WhatsAppButton from "./components/layout/WhatsAppButton";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
 import { adminRoutes } from "./routes/adminRoutes";
 import { publicRoutes } from "./routes/publicRoutes";
+import { AdminDeviceGate } from "./components/admin/AdminDeviceGate";
 
 const SmoothScroll = lazy(() => import("./components/layout/SmoothScroll").then(m => ({ default: m.SmoothScroll })));
 const DeferredScrollManager = lazy(() =>
@@ -57,9 +58,11 @@ const AnimatedRoutes = () => {
       )}
       {isAdmin ? (
         <ErrorBoundary>
-          <Suspense fallback={<AdminPageLoader />}>
-            <Routes>{adminRoutes}</Routes>
-          </Suspense>
+          <AdminDeviceGate>
+            <Suspense fallback={<AdminPageLoader />}>
+              <Routes>{adminRoutes}</Routes>
+            </Suspense>
+          </AdminDeviceGate>
         </ErrorBoundary>
       ) : (
         <Suspense fallback={null}>
@@ -71,7 +74,7 @@ const AnimatedRoutes = () => {
                     {publicRoutes}
                   </Routes>
                 </AnimatePresence>
-                <MobileStickyCTA />
+                <WhatsAppButton />
               </Suspense>
             </ErrorBoundary>
           </SmoothScroll>

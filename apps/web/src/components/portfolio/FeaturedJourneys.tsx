@@ -25,7 +25,10 @@ const FeaturedJourneys = () => {
   return (
     <div className="container mx-auto py-32 px-6">
       <div className="mb-24 text-center">
-        <span className="mb-6 block text-[11px] uppercase tracking-[0.5em] text-white/60">Featured Journeys</span>
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <div className="w-12 h-px bg-site-crimson" />
+          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Featured Journeys</span>
+        </div>
         <h2 className="text-4xl font-extralight tracking-tight text-white md:text-6xl italic">
           Hero-Level Chronicles
         </h2>

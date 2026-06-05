@@ -23,9 +23,9 @@ const containerVar = {
   hidden: {},
   show: { transition: { staggerChildren: 0.12 } },
 };
-const cardVar = {
+const cardVar: import("framer-motion").Variants = {
   hidden: { opacity: 0, y: 28 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] as const } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } },
 };
 
 /* ─── single card ─── */

@@ -112,75 +112,75 @@ const getFooterCopy = (pathname: string, cta: ReturnType<typeof useDynamicCTA>["
   if (pathname.startsWith("/services/")) {
     return {
       ...cta,
-      headlineStart: "Ready to shape this",
-      headlineHighlight: "service into a real plan?",
-      sub: "Tell us what you need, and we will translate the service scope into a clear design and execution direction.",
+      headlineStart: "Ready to",
+      headlineHighlight: "start planning?",
+      sub: "Tell us what you need, and we'll translate it into a clear design and execution plan.",
     };
   }
 
   if (pathname.startsWith("/portfolio/")) {
     return {
       ...cta,
-      headlineStart: "Want a project with this",
-      headlineHighlight: "level of detail?",
-      sub: "Share your space, timeline, and ambitions. We will help you define the next practical move.",
+      headlineStart: "Want a space",
+      headlineHighlight: "like this?",
+      sub: "Share your space and timeline. We'll help you figure out the next practical move.",
     };
   }
 
   const pageCopy: Record<string, Partial<typeof cta>> = {
     "/about-us": {
-      headlineStart: "Meet the studio, then",
-      headlineHighlight: "start your brief.",
-      sub: "If our approach feels aligned, let us turn the conversation into a precise project direction.",
+      headlineStart: "Like what you see?",
+      headlineHighlight: "Let's talk.",
+      sub: "If you like our approach, let's turn the conversation into a precise project plan.",
     },
     "/services": {
-      headlineStart: "Choose your service, then",
-      headlineHighlight: "build the roadmap.",
-      sub: "From residential interiors to commercial execution, we help you understand the scope before you commit.",
+      headlineStart: "Choose your service,",
+      headlineHighlight: "then build the plan.",
+      sub: "From home interiors to office designs, we help you understand everything before you commit.",
     },
     "/portfolio": {
       headlineStart: "Seen the work?",
       headlineHighlight: "Now shape yours.",
-      sub: "Use the portfolio as a starting point. We will help adapt the finish language to your own space.",
+      sub: "Use our past work as a starting point. We'll help bring that same luxury to your own space.",
     },
     "/gallery": {
       headlineStart: "Save the inspiration.",
       headlineHighlight: "Start the plan.",
-      sub: "Send us the rooms and moods that stood out, and we will translate them into a practical interior brief.",
+      sub: "Send us the rooms and moods you love, and we'll turn them into a practical plan for your home.",
     },
     "/blog": {
       headlineStart: "Ideas are useful.",
       headlineHighlight: "Execution makes them real.",
-      sub: "If an article sparked a direction, our team can help convert that thinking into a project plan.",
+      sub: "If an article sparked an idea, our team can help turn that thought into a real project.",
     },
     "/contact-us": {
       headlineStart: "You are already here.",
-      headlineHighlight: "Let us respond clearly.",
-      sub: "Share your brief once, and we will come back with fit, next steps, and the clearest consultation path.",
+      headlineHighlight: "Let's connect.",
+      sub: "Share your needs once, and we'll come back with clear next steps and a consultation path.",
     },
     "/estimate": {
       headlineStart: "Have an estimate?",
-      headlineHighlight: "Now validate the scope.",
-      sub: "Use your estimator result as the first draft. We will help refine it into a realistic execution direction.",
+      headlineHighlight: "Let's make it real.",
+      sub: "Use your estimate as the first draft. We'll help refine it into a realistic plan of action.",
     },
     "/aesthetic-discovery-engine": {
       headlineStart: "Found your style?",
-      headlineHighlight: "Turn it into a room.",
-      sub: "Your design signals are the beginning. We can translate them into material, lighting, and layout decisions.",
+      headlineHighlight: "Let's build it.",
+      sub: "Your design choices are the beginning. We can translate them into materials, lighting, and layout.",
     },
     "/blueprint": {
       headlineStart: "From blueprint to",
       headlineHighlight: "built experience.",
-      sub: "Use the strategy as a starting point, then let us shape the physical execution with clarity.",
+      sub: "Use our strategy as a starting point, then let us handle the hard work of building it.",
     },
   };
 
   return {
     ...cta,
     ...(pageCopy[pathname] || {
-      headlineStart: "Ready to begin",
-      headlineHighlight: "with clarity?",
-      sub: "Share your requirements and we will guide the next step with a practical, premium design process.",
+      headlineStart: "Ready to",
+      headlineHighlight: "get started?",
+      sub: "Tell us what you need, and we'll help you take the next step.",
     }),
   };
 };

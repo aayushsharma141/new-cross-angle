@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useInView, animate } from "framer-motion";
 
 interface UseCountUpOptions {
   duration?: number;
@@ -11,47 +12,30 @@ const useCountUp = (
 ) => {
   const { duration = 2000, delay = 0 } = options;
   const [count, setCount] = useState(0);
-  const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  
+  // Robust intersection observer using framer-motion
+  const isInView = useInView(ref, { 
+    once: true, 
+    margin: "0px 0px -50px 0px", 
+    amount: 0.3 
+  });
 
   useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated) {
-          setHasAnimated(true);
-          
-          // Delay start if specified
-          setTimeout(() => {
-            let startTime: number | null = null;
-
-            const animate = (timestamp: number) => {
-              if (!startTime) startTime = timestamp;
-              const progress = Math.min((timestamp - startTime) / duration, 1);
-              
-              // Ease-out cubic for smooth deceleration
-              const eased = 1 - Math.pow(1 - progress, 3);
-              setCount(Math.floor(eased * target));
-
-              if (progress < 1) {
-                requestAnimationFrame(animate);
-              } else {
-                setCount(target);
-              }
-            };
-
-            requestAnimationFrame(animate);
-          }, delay);
+    if (isInView) {
+      // Use framer-motion's highly optimized animation loop
+      const controls = animate(0, target, {
+        duration: duration / 1000, // convert ms to seconds
+        delay: delay / 1000,
+        ease: "easeOut",
+        onUpdate: (value) => {
+          setCount(Math.floor(value));
         }
-      },
-      { threshold: 0.3, rootMargin: "0px 0px -50px 0px" }
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [target, duration, delay, hasAnimated]);
+      });
+      
+      return () => controls.stop();
+    }
+  }, [isInView, target, duration, delay]);
 
   return { count, ref };
 };

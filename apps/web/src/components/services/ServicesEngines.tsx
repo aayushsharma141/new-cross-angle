@@ -170,13 +170,16 @@ function EngineBlock({ engine }: { engine: Engine }) {
               <span className="text-site-crimson">{engine.icon}</span>
             </div>
             <div className="flex flex-col">
-              <span
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-                className="text-[9px] font-bold tracking-[0.3em] uppercase text-site-crimson"
-              >
-                [ {engine.system} ]
-              </span>
-              <span className="text-[8px] text-white/60 uppercase tracking-[0.2em] font-medium">Precision Instrument</span>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-px bg-site-crimson" />
+                <span
+                  style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  className="text-[9px] font-bold tracking-[0.3em] uppercase text-site-gold"
+                >
+                  [ {engine.system} ]
+                </span>
+              </div>
+              <span className="text-[8px] text-white/60 uppercase tracking-[0.2em] font-medium mt-1">Precision Instrument</span>
             </div>
           </motion.div>
 

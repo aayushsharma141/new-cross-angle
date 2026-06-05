@@ -105,44 +105,50 @@ const FixedSocialBar: React.FC = () => {
         }}
       >
         <ul className="flex flex-col space-y-2 px-1">
-          {links.map((link, idx) => (
-            <li key={idx}>
-              <a
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={link.label}
-                onMouseEnter={() => setHoveredIndex(idx)}
-                onMouseLeave={() => setHoveredIndex(null)}
-                className="group relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-primary/50"
-                style={{
-                  background: hoveredIndex === idx ? link.hoverBg : 'transparent',
-                  color: hoveredIndex === idx ? link.hoverColor : 'rgba(255,255,255,0.55)',
-                  transform: hoveredIndex === idx ? 'scale(1.12)' : 'scale(1)',
-                  boxShadow: hoveredIndex === idx
-                    ? '0 6px 20px -4px hsl(var(--primary) / 0.35)'
-                    : 'none',
-                }}
-              >
-                <span className="sr-only">{link.label}</span>
-                {link.icon}
+          {links.map((link, idx) => {
+            const isWhatsApp = link.label === "WhatsApp";
+            const isHovered = hoveredIndex === idx;
+            const isActive = isHovered || isWhatsApp;
 
-                {/* Tooltip label – appears to the right */}
-                <span
-                  className="absolute left-full ml-2 px-2.5 py-1 text-xs font-medium rounded-md whitespace-nowrap pointer-events-none transition-all duration-200"
+            return (
+              <li key={idx}>
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={link.label}
+                  onMouseEnter={() => setHoveredIndex(idx)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                  className="group relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-primary/50"
                   style={{
-                    opacity: hoveredIndex === idx ? 1 : 0,
-                    transform: hoveredIndex === idx ? 'translateX(0)' : 'translateX(-6px)',
-                    background: 'hsl(var(--card))',
-                    color: 'hsl(var(--foreground))',
-                    boxShadow: '0 4px 12px -2px rgba(0,0,0,0.3)',
+                    background: isActive ? link.hoverBg : 'transparent',
+                    color: isActive ? link.hoverColor : 'rgba(255,255,255,0.55)',
+                    transform: isActive ? 'scale(1.12)' : 'scale(1)',
+                    boxShadow: isActive
+                      ? isWhatsApp ? '0 6px 20px -4px rgba(37,211,102,0.35)' : '0 6px 20px -4px hsl(var(--primary) / 0.35)'
+                      : 'none',
                   }}
                 >
-                  {link.label}
-                </span>
-              </a>
-            </li>
-          ))}
+                  <span className="sr-only">{link.label}</span>
+                  {link.icon}
+
+                  {/* Tooltip label – appears to the right */}
+                  <span
+                    className="absolute left-full ml-2 px-2.5 py-1 text-xs font-medium rounded-md whitespace-nowrap pointer-events-none transition-all duration-200"
+                    style={{
+                      opacity: isHovered ? 1 : 0,
+                      transform: isHovered ? 'translateX(0)' : 'translateX(-6px)',
+                      background: 'hsl(var(--card))',
+                      color: 'hsl(var(--foreground))',
+                      boxShadow: '0 4px 12px -2px rgba(0,0,0,0.3)',
+                    }}
+                  >
+                    {link.label}
+                  </span>
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </aside>
 

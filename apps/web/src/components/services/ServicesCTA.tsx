@@ -29,14 +29,15 @@ const ServicesCTA = () => {
         transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-10 max-w-[900px] mx-auto text-center"
       >
-        <motion.span 
+        <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-site-crimson font-bold tracking-[0.4em] uppercase text-[10px] mb-8 block"
+          className="flex items-center justify-center gap-4 mb-8"
         >
-          Final Consultation
-        </motion.span>
+          <div className="w-12 h-px bg-site-crimson" />
+          <span className="text-site-gold font-bold tracking-[0.4em] uppercase text-[10px]">Final Consultation</span>
+        </motion.div>
         
         <h2 className="font-display font-normal text-[clamp(2.8rem,7vw,5.5rem)] text-white mb-8 leading-[1.1] tracking-tight">
           Ready to build your <span className="italic font-medium text-site-crimson underline decoration-site-crimson/30 decoration-[6px] underline-offset-8">legacy?</span>

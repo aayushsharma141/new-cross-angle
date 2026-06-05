@@ -35,14 +35,14 @@ const StatCard = ({
   return (
     <div
       ref={ref}
-      className="relative group p-8 rounded-2xl bg-[#0a0a0a]/80 border border-white/5 backdrop-blur-md overflow-hidden transition-all duration-500 hover:border-site-crimson/30 hover:bg-[#111] hover:-translate-y-2 hover:shadow-[0_8px_32px_rgba(227,24,55,0.12)] flex flex-col items-center text-center w-full"
+      className="relative group p-8 rounded-2xl bg-[#0a0a0a]/80 border border-site-crimson/30 backdrop-blur-md overflow-hidden transition-all duration-500 shadow-[0_8px_32px_rgba(227,24,55,0.08)] hover:-translate-y-2 hover:border-site-crimson/50 hover:shadow-[0_12px_40px_rgba(227,24,55,0.18)] flex flex-col items-center text-center w-full"
     >
-      {/* Background radial glow on hover */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-site-crimson/20 rounded-full blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      {/* Background radial glow (Permanent) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-site-crimson/20 rounded-full blur-[40px] opacity-100 pointer-events-none" />
       
-      {/* Icon Box */}
-      <div className="mb-6 relative z-10 w-14 h-14 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 group-hover:border-site-crimson/40 group-hover:bg-site-crimson/10 transition-colors duration-500 shadow-inner">
-         <stat.icon className="w-6 h-6 text-white/60 group-hover:text-site-crimson transition-all duration-500 group-hover:scale-110 drop-shadow-md" />
+      {/* Icon Box (Permanent Crimson Glow) */}
+      <div className="mb-6 relative z-10 w-14 h-14 flex items-center justify-center rounded-2xl bg-site-crimson/10 border border-site-crimson/40 shadow-inner">
+         <stat.icon className="w-6 h-6 text-site-crimson transition-all duration-500 group-hover:scale-110 drop-shadow-[0_0_8px_rgba(232,27,57,0.3)]" />
       </div>
         
       {/* Value */}
@@ -50,8 +50,8 @@ const StatCard = ({
         {count}{stat.suffix}
       </div>
 
-      {/* Label */}
-      <div className="relative z-10 text-white/50 text-[10px] md:text-xs font-semibold uppercase tracking-[0.2em] group-hover:text-site-crimson transition-colors duration-300">
+      {/* Label (Permanent Crimson Accent) */}
+      <div className="relative z-10 text-site-crimson text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] transition-colors duration-300">
         {stat.label}
       </div>
     </div>
@@ -97,24 +97,27 @@ const About = () => {
           {/* Content Column */}
           <div className="lg:col-span-5 pt-8">
             <ScrollReveal animation="slide-in-left">
-              <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-px bg-site-crimson" />
-                <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">The Studio</span>
+                <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">The Philosophy</span>
               </div>
               
-              <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold mb-10 leading-[1.1] tracking-tight">
-                <span className="text-site-gold block mb-2">Private Interiors,</span>
-                <span className="text-white/90 italic font-light serif">Crafted With Precision</span>
+              <h2 className="font-serif text-[clamp(2.5rem,5vw,4.5rem)] font-bold text-site-text-heading mb-10 leading-[1.1] tracking-tight">
+                Your Home. <br />
+                <span className="text-site-crimson italic font-light serif">Exactly as You Imagined.</span>
               </h2>
 
               <div className="space-y-6 text-site-text-muted text-base md:text-lg leading-relaxed font-light">
                 <p>
-                  We create bespoke homes shaped by architectural clarity, material depth, and a deeply personal understanding of how you want to live.
+                  Your home should reflect the life you’ve built. We work closely with you to design beautiful, functional spaces customized to your daily habits.
+                </p>
+                <p>
+                  From selecting high-grade marble to coordinating on-site handovers, we manage every single detail so you don't have to.
                 </p>
                 <div className="pt-4 flex items-center gap-4">
                   <div className="w-8 h-[1px] bg-white/20" />
                   <p className="text-xs uppercase tracking-widest text-site-text-heading/60 font-semibold">
-                    Curating legacies in premium residences since 2009.
+                    Guiding premium transformations since 2009.
                   </p>
                 </div>
               </div>
@@ -122,7 +125,12 @@ const About = () => {
 
             {/* Premium Feature Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12 my-12 py-10 border-y border-white/5">
-              {features.map((feature, index) => (
+              {[
+                "Custom Home Designs",
+                "Premium Selected Materials",
+                "On-Time Handover",
+                "Dedicated Lifetime Support"
+              ].map((feature, index) => (
                 <ScrollReveal key={index} delay={index * 0.1} animation="fade-up">
                   <div className="flex items-center gap-4 group cursor-default">
                     <div className="relative">
@@ -137,9 +145,9 @@ const About = () => {
 
             {/* Action with floating effect */}
             <ScrollReveal animation="fade-up" delay={0.4}>
-              <Link to="/about-us" className="inline-block group">
+              <Link to="/contact-us" className="inline-block group">
                 <Button className="pl-0 pr-8 !h-auto py-4 bg-transparent hover:bg-transparent text-site-text-heading border-none shadow-none group relative overflow-hidden transition-all duration-500">
-                  <span className="relative z-10 font-bold uppercase tracking-[0.2em] text-xs">Request Private Consultation</span>
+                  <span className="relative z-10 font-bold uppercase tracking-[0.2em] text-xs">Begin Your Journey</span>
                   <div className="ml-4 w-10 h-10 border border-site-crimson/30 rounded-none flex items-center justify-center group-hover:bg-site-crimson group-hover:border-site-crimson transition-all duration-500 inline-flex group-hover:translate-x-2">
                     <ArrowRight className="w-4 h-4 text-site-crimson group-hover:text-white transition-colors" />
                   </div>

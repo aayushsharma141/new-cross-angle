@@ -79,41 +79,56 @@ const ValueCard = ({ icon: Icon, title, description, index }: ValueCardProps) =>
         rotateX: isHovered ? rotateX : 0,
         rotateY: isHovered ? rotateY : 0,
         transformStyle: "preserve-3d",
+        willChange: "transform",
       }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
       className="relative group cursor-pointer perspective-1000"
     >
-      <div className="relative h-full p-8 rounded-[2rem] bg-white/[0.02] backdrop-blur-3xl border border-white/5 shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_20px_40px_rgba(209,175,110,0.12)] hover:border-primary/30 transition-all duration-700 overflow-hidden group-hover:bg-white/[0.04]">
+      <div className="relative h-full p-8 md:p-10 rounded-[2.5rem] bg-gradient-to-br from-white/[0.03] to-white/[0.01] backdrop-blur-3xl border border-white/5 shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_20px_50px_rgba(209,175,110,0.12)] hover:border-site-gold/30 transition-all duration-700 overflow-hidden group-hover:bg-gradient-to-br group-hover:from-white/[0.06] group-hover:to-white/[0.02]">
         {/* Internal reflection */}
-        <div className="absolute inset-0 rounded-[2rem] ring-1 ring-inset ring-white/5 pointer-events-none" />
+        <div className="absolute inset-0 rounded-[2.5rem] ring-1 ring-inset ring-white/5 pointer-events-none" />
         
+        {/* Architectural corner accents */}
+        <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-site-crimson/0 group-hover:border-site-crimson/40 rounded-tr-[2.5rem] transition-all duration-700 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-site-gold/0 group-hover:border-site-gold/40 rounded-bl-[2.5rem] transition-all duration-700 pointer-events-none" />
+
+        {/* Huge Number */}
+        <div className="absolute -bottom-6 -right-2 text-[140px] leading-none font-serif font-bold text-white/[0.02] pointer-events-none select-none group-hover:text-site-gold/[0.04] transition-colors duration-700 z-0">
+          0{index + 1}
+        </div>
+
         {/* Spotlight gradient */}
         <motion.div
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
           style={{
             background: isHovered
-              ? `radial-gradient(400px circle at ${(mouseX.get() + 0.5) * 100}% ${(mouseY.get() + 0.5) * 100}%, rgba(209, 175, 110, 0.1), transparent 40%)`
+              ? `radial-gradient(500px circle at ${(mouseX.get() + 0.5) * 100}% ${(mouseY.get() + 0.5) * 100}%, rgba(209, 175, 110, 0.08), transparent 40%)`
               : "none",
           }}
         />
 
         {/* Icon */}
         <motion.div
-          className="w-14 h-14 rounded-2xl bg-black/40 border border-white/10 group-hover:border-[#FF2A2A]/30 group-hover:bg-[#FF2A2A]/10 flex items-center justify-center mb-6 transition-all duration-700 shadow-inner group-hover:shadow-[0_0_15px_rgba(255,42,42,0.15)]"
+          className="relative z-10 w-14 h-14 rounded-2xl bg-black/50 border border-white/10 group-hover:border-site-crimson/40 group-hover:bg-site-crimson/10 flex items-center justify-center mb-8 transition-all duration-700 shadow-inner group-hover:shadow-[0_0_20px_rgba(217,43,43,0.2)]"
           whileHover={{ scale: 1.1, rotate: 5 }}
         >
-          <Icon className="w-7 h-7 text-muted-foreground group-hover:text-[#FF2A2A] transition-colors duration-500" />
+          <Icon className="w-7 h-7 text-muted-foreground group-hover:text-site-crimson transition-colors duration-500" />
         </motion.div>
 
         {/* Content */}
-        <h3 className="font-sans text-base font-semibold text-white mb-3 group-hover:text-[#FF2A2A] transition-colors duration-300">
-          {title}
-        </h3>
-        <p className="text-muted-foreground text-sm leading-relaxed">
-          {description}
-        </p>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-4 h-[1px] bg-site-gold/40 group-hover:w-8 group-hover:bg-site-gold transition-all duration-500" />
+            <h3 className="font-serif text-lg font-semibold text-white group-hover:text-site-gold transition-colors duration-300">
+              {title}
+            </h3>
+          </div>
+          <p className="text-muted-foreground text-sm leading-relaxed group-hover:text-white/90 transition-colors duration-300">
+            {description}
+          </p>
+        </div>
       </div>
     </motion.div>
   );
@@ -124,7 +139,7 @@ const AboutValues = () => {
     <section className="relative py-24 md:py-32 bg-background overflow-hidden">
       {/* Background elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 -right-1/4 w-1/2 h-1/2 bg-[#d1af6e]/5 rounded-full blur-[120px]" />
+        <div className="absolute top-1/4 -right-1/4 w-1/2 h-1/2 bg-site-gold/5 rounded-full blur-[120px]" />
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
       </div>
@@ -138,14 +153,14 @@ const AboutValues = () => {
           transition={{ duration: 0.6 }}
           className="max-w-3xl mx-auto text-center mb-12 md:mb-20 px-4"
         >
-          <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#FF2A2A] mb-4 flex items-center justify-center gap-2">
-            <span className="inline-block w-5 h-[2px] bg-[#FF2A2A]" /> Our Principles
+          <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-site-crimson mb-4 flex items-center justify-center gap-2">
+            <span className="inline-block w-5 h-[2px] bg-site-crimson" /> Our Principles
           </span>
-          <h2 className="font-sans text-[clamp(2rem,3.5vw,3.6rem)] font-normal text-white leading-[1.1] tracking-tight mb-5">
+          <h2 className="font-serif font-bold text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-tight text-white mb-5">
             Designed for aesthetics.<br />
-            <span className="text-[#FF2A2A] font-semibold">Built for everyday use.</span>
+            <span className="text-site-crimson font-medium">Built for everyday use.</span>
           </h2>
-          <p className="text-[clamp(0.85rem,0.95vw,0.95rem)] text-[#5E5E5E] leading-[1.8] max-w-[44ch] mx-auto">
+          <p className="text-[clamp(0.85rem,0.95vw,0.95rem)] text-muted-foreground leading-[1.8] max-w-[44ch] mx-auto">
             Every project is delivered fully executed — not just designed.
             Our principles drive every decision from brief to final handover.
           </p>

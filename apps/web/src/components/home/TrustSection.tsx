@@ -104,9 +104,11 @@ const TrustSection = () => {
 
         {/* Section Header */}
         <div className="text-center mb-16">
-          <div className="flex justify-center items-center gap-4 mb-6">
+          <div className="flex items-center justify-center gap-4 mb-6">
             <div className="w-12 h-px bg-site-crimson" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Why Choose Us</span>
+            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+              Why Choose Us
+            </span>
           </div>
 
           <h2 className="font-display text-[clamp(2.4rem,6vw,4.5rem)] leading-[0.95] tracking-[-0.02em] text-white mb-6">
@@ -151,12 +153,9 @@ const TrustSection = () => {
           )}
           style={{ transitionDelay: "500ms" }}
         >
-          <div className="flex items-center justify-center gap-6 mb-12">
-            <div className="h-[1px] w-8 md:w-16 bg-gradient-to-r from-transparent to-site-crimson/60" />
-            <p className="text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase text-site-crimson">
-              Trusted Brand Partners
-            </p>
-            <div className="h-[1px] w-8 md:w-16 bg-gradient-to-l from-transparent to-site-crimson/60" />
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="w-12 h-px bg-site-crimson" />
+            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Trusted Brand Partners</span>
           </div>
 
           {/* Marquee Container */}

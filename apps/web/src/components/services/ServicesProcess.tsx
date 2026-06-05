@@ -56,8 +56,8 @@ const ServicesProcess = () => {
               viewport={{ once: true }}
               className="flex items-center gap-4 mb-6"
             >
-              <div className="w-12 h-[1px] bg-site-crimson" />
-              <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-crimson">The Methodology</span>
+              <div className="w-12 h-px bg-site-crimson" />
+              <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">The Methodology</span>
             </motion.div>
             <motion.h2
               initial={{ opacity: 0, y: 30 }}

@@ -277,7 +277,7 @@ const Hero = () => {
 
       {/* ═══ Content: split-grid layout ═══ */}
       <div className="container-wide mx-auto h-full px-4 sm:px-6 lg:px-10 relative z-20">
-        <div className="grid h-full items-end lg:grid-cols-[minmax(0,1fr)_320px] gap-8 pb-[clamp(7rem,18vh,12rem)] md:pb-[clamp(5rem,12vh,10rem)] pt-[clamp(7rem,15vh,12rem)]">
+        <div className="grid h-full items-end lg:grid-cols-[minmax(0,1fr)_320px] gap-8 pb-fluid-py pt-fluid-pt">
 
           {/* ── Left column ── */}
           <motion.div
@@ -286,17 +286,14 @@ const Hero = () => {
             animate="show"
             className="max-w-[46rem] self-center"
           >
-            <motion.div variants={itemUp} className="flex items-center gap-4 mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-              <div className="w-12 h-px bg-site-crimson" />
-              <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
-                Premier Interior Design Studio
-              </span>
-            </motion.div>
+            <motion.span variants={itemUp} className="home-kicker mb-6 inline-block">
+              <span className="hero-kicker-text drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Luxury Residential & Commercial Interior Designers</span>
+            </motion.span>
 
             <div className="mb-6">
               <motion.h1
                 variants={itemUp}
-                className="hero-title font-display text-[clamp(2.5rem,8vw,7.6rem)] font-semibold text-white leading-[0.96] tracking-[-0.05em] max-w-full sm:max-w-[12ch]"
+                className="hero-title font-display text-fluid-h1 font-semibold text-white max-w-full sm:max-w-[12ch]"
                 style={{ textShadow: "0 10px 38px rgba(0,0,0,0.42), 0 2px 10px rgba(0,0,0,0.24)" }}
               >
                 <span className="text-[#F9F6F0]">Design Your</span>
@@ -319,16 +316,16 @@ const Hero = () => {
               className="hero-body-text home-body text-base md:text-lg lg:text-xl mb-10 max-w-[35rem]"
               style={{ textShadow: "0 1px 10px rgba(0,0,0,0.45)" }}
             >
-              Award-winning interior design for homes and commercial spaces,
-              shaped with editorial restraint, practical clarity, and execution
-              you can trust from concept to handover.
+              We design and build premium, move-in-ready spaces. Enjoy a
+              seamless journey from initial sketch to final hand-over, backed
+              by our 45-day completion guarantee.
             </motion.p>
 
             <motion.div variants={itemUp} className="flex flex-col sm:flex-row gap-4 mb-8">
               <div className="hero-cta-btn">
                 <Link
                   to="/gallery"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap home-button-sweep group rounded-none h-14 px-8 md:px-10 uppercase tracking-[0.2em] text-[11px] font-bold transition-all duration-300 bg-[#E31837] text-white hover:bg-[#b5132b]"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap home-button-sweep group rounded-none h-14 px-8 md:px-10 uppercase tracking-[0.2em] text-[11px] font-bold transition-all duration-300 bg-site-crimson text-white hover:bg-site-crimson/90 hover:scale-[1.02] shadow-[0_4px_14px_rgba(196,18,48,0.3)] hover:shadow-[0_6px_20px_rgba(196,18,48,0.4)]"
                 >
                   <span>See Our Works</span>
                   <ArrowRight className="ml-3 h-4 w-4 transition-transform group-hover:translate-x-1.5" />
@@ -337,7 +334,7 @@ const Hero = () => {
               <div className="hero-cta-btn">
                 <Link
                   to="/about-us"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap home-button-sweep group rounded-none h-14 px-8 md:px-10 uppercase tracking-[0.2em] text-[11px] font-medium transition-all duration-300 bg-black text-white border border-white/20 hover:bg-black/80"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap home-button-sweep group rounded-none h-14 px-8 md:px-10 uppercase tracking-[0.2em] text-[11px] font-medium transition-all duration-300 bg-black/40 backdrop-blur-md text-white border border-white/20 hover:bg-white/10 hover:border-white/30 hover:scale-[1.02]"
                 >
                   <span>More About Us</span>
                   <ArrowRight className="ml-3 h-4 w-4 opacity-60" />
@@ -348,15 +345,7 @@ const Hero = () => {
             <motion.div variants={itemUp} className="flex flex-wrap gap-3">
               <motion.span variants={popIn} className="hero-trust-chip home-chip bg-black/40 backdrop-blur-md border-white/10">
                 <Sparkles className="h-3.5 w-3.5 text-[#D1AF6E]" />
-                <span>500+ Projects Delivered</span>
-              </motion.span>
-              <motion.span variants={popIn} className="hero-trust-chip home-chip bg-black/40 backdrop-blur-md border-white/10">
-                <Sparkles className="h-3.5 w-3.5 text-[#D1AF6E]" />
                 <span>15+ Years of Design Experience</span>
-              </motion.span>
-              <motion.span variants={popIn} className="hero-trust-chip home-chip bg-black/40 backdrop-blur-md border-white/10">
-                <Sparkles className="h-3.5 w-3.5 text-[#D1AF6E]" />
-                <span>Jamshedpur &amp; Kolkata</span>
               </motion.span>
               {/* Google Rating chip */}
               <motion.span
@@ -401,8 +390,8 @@ const Hero = () => {
                   </div>
                 </div>
                 <p className="text-sm text-white/62 leading-relaxed">
-                  Clear planning, transparent execution, and a premium design
-                  language carried from the first meeting through final reveal.
+                  Complete design management, transparent pricing, and master-level
+                  execution from day one.
                 </p>
               </div>
             </div>

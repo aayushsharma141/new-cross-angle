@@ -29,7 +29,10 @@ const StyleSelector = () => {
   return (
     <div className="container mx-auto px-6 flex flex-col items-center">
       <div className="mb-20 text-center w-full max-w-2xl">
-        <span className="mb-4 block text-[10px] uppercase tracking-[0.4em] text-site-gold">Style Selector</span>
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="w-12 h-px bg-site-crimson" />
+          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Style Selector</span>
+        </div>
         <h2 className="mb-6 text-3xl font-light tracking-tight text-white md:text-5xl">Find Your Taste</h2>
         <p className="mx-auto max-w-xl text-sm font-light text-white/50">
           Not sure what you like? Choose a style and see how it feels in a real-world space.

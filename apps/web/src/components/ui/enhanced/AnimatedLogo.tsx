@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -6,8 +6,6 @@ interface AnimatedLogoProps {
   className?: string;
   isScrolled?: boolean;
 }
-
-const TILT_ANGLES = [2, -1, 3, -2, 1.5, -2.5, 2, -1, 3, -2];
 
 const word1Variants = {
   hidden: { opacity: 1 },
@@ -55,37 +53,74 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
   isScrolled,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const logoRef = useRef<HTMLDivElement>(null);
+  const [hoverX, setHoverX] = useState<number | null>(null);
+  const [hoverY, setHoverY] = useState<number | null>(null);
+
   const word1 = "CROSSANGLE";
   const word2 = "INTERIOR";
 
+  useEffect(() => {
+    if (!logoRef.current) return;
+    const logo = logoRef.current;
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = logo.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setHoverX(x);
+      setHoverY(y);
+      logo.style.setProperty("--logo-spotlight-x", `${x}px`);
+      logo.style.setProperty("--logo-spotlight-y", `${y}px`);
+    };
+    const handleMouseLeave = () => {
+      setHoverX(null);
+      setHoverY(null);
+    };
+
+    logo.addEventListener("mousemove", handleMouseMove);
+    logo.addEventListener("mouseleave", handleMouseLeave);
+    return () => {
+      logo.removeEventListener("mousemove", handleMouseMove);
+      logo.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, []);
+
   return (
     <div
-      className={cn("flex flex-row items-center font-serif font-black antialiased subpixel-antialiased cursor-pointer group shrink-0", className)}
+      ref={logoRef}
+      className={cn(
+        "relative flex flex-row items-center font-serif font-bold cursor-pointer group shrink-0 logo-hover-container",
+        className
+      )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => {
-        // Trigger hover animation on click for mobile users
         setIsHovered(true);
-        setTimeout(() => setIsHovered(false), 400); // 400ms duration of the jitter animation
+        setTimeout(() => setIsHovered(false), 800);
       }}
     >
+      {/* Cursor-Reactive Illumination Highlight */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+        style={{
+          opacity: hoverX !== null ? 1 : 0,
+          background: `radial-gradient(100px circle at var(--logo-spotlight-x, 50%) var(--logo-spotlight-y, 50%), rgba(201, 168, 118, 0.15) 0%, transparent 60%)`,
+          mixBlendMode: "screen",
+          zIndex: 1,
+        }}
+      />
+
       <motion.div
         variants={word1Variants}
         initial="hidden"
         animate="visible"
-        className={cn("flex mr-1.5 sm:mr-2 text-transparent bg-clip-text bg-gradient-to-r from-[#C39E5C] via-[#FFF3C4] to-[#C39E5C] drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] tracking-tighter sm:tracking-tight text-[clamp(1.2rem,4vw,1.8rem)]", isHovered && "is-hovered")}
+        className="flex mr-1.5 sm:mr-2 text-[clamp(0.9rem,3vw,1.4rem)] logo-metallic-text relative z-10"
       >
         {word1.split("").map((letter, i) => (
           <motion.span
             key={`w1-${i}`}
             variants={crossangleLetterVariants}
-            className="inline-block shimmer-letter jitter-letter origin-bottom"
-            style={
-              {
-                animationDelay: `${i * 0.1}s`,
-                "--tilt": `${TILT_ANGLES[i % TILT_ANGLES.length]}deg`,
-              } as React.CSSProperties
-            }
+            className="inline-block origin-bottom"
           >
             {letter}
           </motion.span>
@@ -96,20 +131,13 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         variants={word2Variants}
         initial="hidden"
         animate="visible"
-        className="flex text-transparent bg-clip-text bg-gradient-to-r from-[#C39E5C] via-[#FFF3C4] to-[#C39E5C] drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] tracking-tighter sm:tracking-tight text-[clamp(1.2rem,4vw,1.8rem)]"
+        className="flex text-[clamp(0.9rem,3vw,1.4rem)] logo-metallic-text relative z-10"
       >
         {word2.split("").map((letter, i) => (
           <motion.span
             key={`w2-${i}`}
             variants={interiorLetterVariants}
-            // Add a base delay to the shimmer offset for the second word
-            // word1 has 10 letters, so we start this at an offset
-            className="inline-block shimmer-letter"
-            style={
-              {
-                animationDelay: `${(word1.length + i) * 0.1}s`,
-              } as React.CSSProperties
-            }
+            className="inline-block"
           >
             {letter}
           </motion.span>

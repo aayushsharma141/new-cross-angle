@@ -29,7 +29,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "residential",
         title: "Residential Design",
         slug: "residential",
-        description: "Crafting personalized homes that reflect your lifestyle and personality.",
+        description: "Creating custom homes that match your lifestyle.",
         heroImage: "/reality_render.jpg",
         icon: Home,
     },
@@ -37,7 +37,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "commercial",
         title: "Commercial Design",
         slug: "commercial",
-        description: "Strategic design solutions that enhance productivity and brand value.",
+        description: "Smart designs that improve work and build your brand.",
         heroImage: "/images/projects/discovery/visual-16.jpg",
         icon: Building2,
     },
@@ -45,7 +45,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "specialized",
         title: "Specialized Executions",
         slug: "specialized",
-        description: "Expert solutions for niche requirements like modular systems and lighting.",
+        description: "Special focus on custom lighting and modular setups.",
         heroImage: "/images/projects/discovery/visual-12.jpg",
         icon: Lamp,
     },
@@ -58,19 +58,19 @@ export const services: ServiceDetail[] = [
         categoryId: "residential",
         title: "Living Room Design",
         slug: "living-room",
-        description: "Complete makeovers for your main gathering space. TV units, seating layouts, and ambient lighting to create the perfect atmosphere.",
+        description: "Complete updates for your main living space. We design TV areas, seating, and lighting for the perfect mood.",
         longDescription: `
 ### The Heart of Your Home
-Your living room is where life happens. It's where you entertain guests, unwind after a long day, and make memories with family. At Cross Angle Interior, we believe your living room should be a perfect reflection of your personality while delivering exceptional comfort.
+Your living room is where life happens. It's where you host guests, relax, and enjoy family time. We make sure it feels like you and is completely comfortable.
 
 ### Tailored to Your Lifestyle
-Whether you prefer a **Minimalist Zen** aesthetic with clean lines and neutral tones, or a **Maximalist Bohemian** vibe with rich textures and colors, our design team works with you to bring your vision to life. We consider every aspect:
-*   **Flow & Layout:** ensuring easy movement and conversation circles.
-*   **Storage Solutions:** custom TV units and hidden storage to keep clutter at bay.
-*   **Lighting Design:** layered lighting from statement chandeliers to cozy floor lamps.
+Whether you prefer a **Clean & Calm** look or a **Rich & Bold** style, our team makes it happen. We focus on:
+*   **Space & Flow:** Easy movement and great conversation spots.
+*   **Smart Storage:** Custom TV units and hidden storage to keep things tidy.
+*   **Great Lighting:** A mix of bright and cozy lights for any time of day.
 
 ### Premium Materials
-We use only high-grade materials for our joinery and soft furnishings, ensuring your living room not only looks stunning on day one but stands the test of time.
+We use only high-quality materials for your cabinets and fabrics, ensuring your room looks great and lasts long.
         `,
         heroImage: "/reality_render.jpg",
         galleryImages: [
@@ -79,20 +79,20 @@ We use only high-grade materials for our joinery and soft furnishings, ensuring 
             "/images/projects/portfolio-kitchen.jpg"
         ],
         features: [
-            "Custom TV Units & Entertainment centers",
-            "Strategic Seating Arrangements",
-            "Ambient & Accent Lighting",
-            "Wall Treatments & Textures"
+            "Custom TV & Media Units",
+            "Smart Seating Layouts",
+            "Layered Lighting",
+            "Premium Wall Finishes"
         ],
         processSteps: [
-            { title: "Consultation", description: "Understanding your lifestyle and entertainment needs." },
-            { title: "Layout Planning", description: "Optimizing flow and seating capacity." },
-            { title: "3D Visualization", description: "See your new living room before we build." },
-            { title: "Execution", description: "Seamless installation of joinery and decor." }
+            { title: "Consultation", description: "Understanding your lifestyle and needs." },
+            { title: "Layout Planning", description: "Planning the best use of space." },
+            { title: "3D Visuals", description: "See your new living room before we build." },
+            { title: "Execution", description: "Seamless setup of cabinets and decor." }
         ],
         faq: [
-            { question: "How long does a living room makeover take?", answer: "Typically 3-4 weeks depending on the complexity of custom furniture." },
-            { question: "Do you provide loose furniture?", answer: "Yes, we can source and customize sofas, coffee tables, and accent chairs." }
+            { question: "How long does a living room makeover take?", answer: "Typically 3-4 weeks depending on the custom furniture." },
+            { question: "Do you provide loose furniture?", answer: "Yes, we can source and customize sofas, tables, and chairs." }
         ],
         relatedServices: ["ceilings", "modular-kitchens"]
     },
@@ -101,16 +101,16 @@ We use only high-grade materials for our joinery and soft furnishings, ensuring 
         categoryId: "residential",
         title: "Bedroom Sanctuaries",
         slug: "bedroom",
-        description: "Peaceful retreats with custom wardrobes, false ceilings, and cozy aesthetics designed for relaxation.",
+        description: "Quiet spaces designed for rest, featuring custom wardrobes and warm lighting.",
         longDescription: `
 ### Your Private Retreat
-A bedroom should be more than just a place to sleep; it should be a sanctuary where you can recharge. We design bedrooms that balance serenity with functionality.
+A bedroom is your personal sanctuary. We design rooms that offer true rest and comfort. 
 
 ### Custom Wardrobes
-Our speciality lies in creating specialized storage solutions. From **Walk-in Closets** with island counters to space-saving **Sliding Wardrobes** with loft storage, we maximize every inch of vertical space.
+Our speciality lies in creating great storage. From **Walk-in Closets** to space-saving **Sliding Wardrobes**, we make use of every inch of space.
 
 ### Mood Lighting
-Lighting plays a crucial role in setting the mood. We integrate warm cove lighting in false ceilings, reading lights in headboards, and automated dimmer systems to help you transition from day to night effortlessly.
+Lighting plays a big role in setting the mood. We include warm ceiling lights, reading lamps, and easy dimmers to help you relax effortlessly.
         `,
         heroImage: "/images/projects/discovery/lifestyle-7.jpg",
         galleryImages: [
@@ -119,19 +119,19 @@ Lighting plays a crucial role in setting the mood. We integrate warm cove lighti
             "/images/projects/discovery/visual-10.jpg"
         ],
         features: [
-            "Floor-to-Ceiling Wardrobes",
-            "Cozy Lighting Schemes",
-            "Acoustic Treatments",
-            "Ergonomic Bed Layouts"
+            "Full-Height Wardrobes",
+            "Warm Lighting Setup",
+            "Sound-Damping Materials",
+            "Comfortable Bed Designs"
         ],
         processSteps: [
-            { title: "Needs Analysis", description: "Storage requirements and sleep habits." },
-            { title: "Space Planning", description: "Maximizing wardrobes without cramping." },
-            { title: "Material Selection", description: "Soft, calming textures and finishes." },
-            { title: "Installation", description: "Precision fitting of wardrobes and beds." }
+            { title: "Understanding Needs", description: "Checking your storage needs and habits." },
+            { title: "Smart Layouts", description: "Maximizing wardrobes without crowding." },
+            { title: "Choosing Materials", description: "Soft, calming textures and colors." },
+            { title: "Fitting & Assembly", description: "Precision setup of wardrobes and beds." }
         ],
         faq: [
-            { question: "Can you maximize storage in small bedrooms?", answer: "Absolutely. We specialize in hydraulic beds and loft wardrobes to use vertical space." }
+            { question: "Can you maximize storage in small bedrooms?", answer: "Absolutely. We specialize in beds with storage and tall wardrobes to use all the space." }
         ],
         relatedServices: ["ceilings", "living-room"]
     },
@@ -140,19 +140,19 @@ Lighting plays a crucial role in setting the mood. We integrate warm cove lighti
         categoryId: "residential",
         title: "Kitchen & Dining",
         slug: "kitchen",
-        description: "Functional and stylish kitchens that become the heart of your home.",
+        description: "Beautiful, easy-to-use kitchens made for your home.",
         longDescription: `
 ### The Culinary Hub
-In modern Indian homes, the kitchen is often an extension of the living space. We design kitchens that are not only high-performance workspaces but also beautiful enough to show off.
+In modern homes, the kitchen is where everyone gathers. We build kitchens that look amazing and make cooking easy.
 
-### Ergonomics First
-We follow the 'Golden Triangle' rule of kitchen design to ensure your stove, sink, and refrigerator are positioned for maximum efficiency. No more walking unnecessary miles while cooking!
+### Easy Layouts
+We follow smart layout rules so your stove, sink, and fridge are exactly where you need them. No more walking extra steps while cooking!
 
-### Material Excellence
-Kitchens face heat, moisture, and heavy use. That's why we use:
-*   **BWR/BWP Grade Plywood:** Boiling water resistant core.
-*   **Quartz Countertops:** Stain and scratch resistant.
-*   **Soft-Close Hettich/Hafele Hardware:** For smooth, silent operation.
+### Built to Last
+Kitchens face heat, water, and heavy use. That's why we use:
+*   **Water-Proof Premium Wood:** For a strong core.
+*   **Strong Countertops:** Stain and scratch resistant.
+*   **Smooth Hardware:** For easy, silent drawers.
         `,
         heroImage: "/images/projects/discovery/visual-12.jpg",
         galleryImages: [
@@ -161,19 +161,19 @@ Kitchens face heat, moisture, and heavy use. That's why we use:
             "/images/projects/discovery/visual-15.jpg"
         ],
         features: [
-            "Modular Cabinetry",
-            "Efficient Work Triangles",
-            "Durable Countertops",
-            "Smart Storage Accessories"
+            "Custom Cabinets",
+            "Smart Cooking Layout",
+            "Strong Countertops",
+            "Clever Storage"
         ],
         processSteps: [
-            { title: "Utility Check", description: "Plumbing, gas, and electrical assessment." },
-            { title: "Design", description: "3D modelling of cabinets and appliances." },
-            { title: "Fabrication", description: "Factory-finish manufacturing." },
-            { title: "Install", description: "On-site assembly and appliance fitting." }
+            { title: "Checking Plumbing & Power", description: "Making sure water and electrics are ready." },
+            { title: "3D Planning", description: "Seeing the cabinets and appliances together." },
+            { title: "Building the Cabinets", description: "Factory-finish manufacturing." },
+            { title: "Final Setup", description: "On-site assembly and appliance fitting." }
         ],
         faq: [
-            { question: "What materials do you use for kitchens?", answer: "We use BWR/BWP grade plywood with laminates, acrylic, or PU finishes for durability." }
+            { question: "What materials do you use for kitchens?", answer: "We use premium water-proof wood with strong finishes for durability." }
         ],
         relatedServices: ["modular-kitchens", "living-room"]
     },
@@ -184,22 +184,22 @@ Kitchens face heat, moisture, and heavy use. That's why we use:
         categoryId: "commercial",
         title: "Office Interiors",
         slug: "office",
-        description: "Productive workspaces with ergonomic planning, conference rooms, and reception areas.",
+        description: "Workspaces built for comfort and focus, including meeting and reception areas.",
         heroImage: "/images/projects/discovery/visual-16.jpg",
         features: [
-            "Ergonomic Workstations",
-            "Acoustic Meeting Pods",
-            "Brand-aligned Reception Areas",
-            "Efficient HVAC Integration"
+            "Comfortable Desks",
+            "Quiet Meeting Rooms",
+            "Branded Reception Areas",
+            "Good Air & Cooling Setup"
         ],
         processSteps: [
-            { title: "Workflow Analysis", description: "Mapping how your team works." },
-            { title: "Space Optimization", description: "Maximizing desk count vs. breakout areas." },
-            { title: "Branding", description: "Integrating corporate identity into the built environment." },
-            { title: "Fit-out", description: "Rapid execution to minimize downtime." }
+            { title: "Understanding Your Work", description: "Seeing how your team works." },
+            { title: "Best Use of Space", description: "Balancing desks and break areas." },
+            { title: "Adding Your Brand Look", description: "Making the office reflect your company." },
+            { title: "Quick Setup", description: "Fast execution to save time." }
         ],
         faq: [
-            { question: "Do you handle IT and electrical networking?", answer: "Yes, we provide end-to-end turnkey solutions including networking and electricals." }
+            { question: "Do you handle IT and networking?", answer: "Yes, we handle everything from start to finish, including networking." }
         ],
         relatedServices: ["retail", "ceilings"]
     },
@@ -208,22 +208,22 @@ Kitchens face heat, moisture, and heavy use. That's why we use:
         categoryId: "commercial",
         title: "Retail & Showroom",
         slug: "retail",
-        description: "Engaging retail environments designed to maximize customer flow and product display.",
+        description: "Store designs that look great and guide customers easily.",
         heroImage: "/hero_reality_render_1775299733746.png",
         features: [
-            "Strategic Product Displays",
-            "Customer Flow Optimization",
+            "Smart Product Displays",
+            "Easy Customer Walkways",
             "Focus Lighting",
             "Checkout Counters"
         ],
         processSteps: [
-            { title: "Concept", description: " aligning design with merchandise strategy." },
-            { title: "Layout", description: "Preventing bottlenecks and ensuring visibility." },
-            { title: "Lighting", description: "Specialized lighting to make products pop." },
-            { title: "Launch", description: "Ready for your grand opening." }
+            { title: "Design Idea", description: "Matching design with your products." },
+            { title: "Store Layout", description: "Making sure the store is easy to walk through." },
+            { title: "Product Lighting", description: "Special lighting to make products stand out." },
+            { title: "Ready to Open", description: "Getting it all done for your opening day." }
         ],
         faq: [
-            { question: "Can you work within mall guidelines?", answer: "Yes, we are experienced in adhering to strict mall fit-out guidelines." }
+            { question: "Can you work within mall guidelines?", answer: "Yes, we know how to follow strict mall rules." }
         ]
     },
 
@@ -233,31 +233,31 @@ Kitchens face heat, moisture, and heavy use. That's why we use:
         categoryId: "specialized",
         title: "Modular Kitchen Systems",
         slug: "modular-kitchens",
-        description: "State-of-the-art modular kitchen systems with premium hardware and finishes.",
+        description: "Modern kitchen setups made with the best materials.",
         longDescription: `
 ### Precision Engineering
-Our modular kitchens are not just carpentry; they are engineered systems. Manufactured in state-of-the-art factories, every cabinet is machine-pressed and edge-banded for a finish that hand-carpentry simply cannot match.
+Our kitchens are built in top-tier factories for a perfect finish. Every cabinet is made by machine, giving a result that standard carpentry can't match.
 
-### Hardware Partners
-We partner with world leaders like **Hettich**, **Hafele**, and **Blum** to bring you the best in kitchen hardware.
-*   **Soft-Close Drawers:** Rated for 50,000+ cycles.
-*   **Tall Units:** For pantry storage that slides out effortlessly.
-*   **Corner Solutions:** Magic corners and carousels to utilize blind corners.
+### Top Hardware Brands
+We use the best brands to bring you smooth and easy-to-use kitchens.
+*   **Soft-Close Drawers:** Quiet and smooth every time.
+*   **Tall Units:** For pantry storage that slides out easily.
+*   **Corner Solutions:** Smart racks to use every inch of space.
         `,
         heroImage: "/images/projects/discovery/visual-12.jpg",
         features: [
-            "Hettich/Hafele Hardware",
-            "Soft-close Mechanisms",
-            "Corner Solutions (Magic Corners)",
-            "Under-sink Organizers"
+            "Premium Hardware",
+            "Soft-Close Drawers",
+            "Smart Corner Storage",
+            "Under-Sink Organizers"
         ],
         processSteps: [
-            { title: "Measurement", description: "Laser-precise site measurement." },
-            { title: "Factory Production", description: "Machine-pressed finishes for longevity." },
-            { title: "Assembly", description: "Quick, mess-free installation." }
+            { title: "Taking Measurements", description: "Exact measurements at your home." },
+            { title: "Factory Building", description: "Machine-made for a perfect finish." },
+            { title: "Quick Assembly", description: "Fast and clean setup." }
         ],
         faq: [
-            { question: "What is the warranty on modular kitchens?", answer: "We offer up to 10 years warranty on select hardware and finishes." }
+            { question: "What is the warranty on modular kitchens?", answer: "We offer up to 10 years of warranty on select hardware." }
         ],
         relatedServices: ["kitchen", "ceilings"]
     },
@@ -266,22 +266,22 @@ We partner with world leaders like **Hettich**, **Hafele**, and **Blum** to brin
         categoryId: "specialized",
         title: "False Ceiling & Lighting",
         slug: "ceilings",
-        description: "Transformative ceiling designs that define spaces and house advanced lighting systems.",
+        description: "Beautiful ceiling designs that include modern lighting.",
         heroImage: "/images/projects/discovery/visual-3.jpg",
         features: [
-            "Gypsum & POP Designs",
-            "Cove & Profile Lighting",
-            "Wooden Rafter Ceilings",
-            "Acoustic Ceiling Panels"
+            "Clean Modern Designs",
+            "Hidden & Border Lighting",
+            "Wooden Touches",
+            "Sound-Reducing Panels"
         ],
         processSteps: [
-            { title: "Design", description: "Reflected Ceiling Plans (RCP)." },
-            { title: "Framing", description: "Sturdy GI framing." },
-            { title: "Boarding", description: "Seamless gypsum board installation." },
-            { title: "Finishing", description: "Painting and light fixture installation." }
+            { title: "Ceiling Design", description: "Detailed ceiling plans." },
+            { title: "Metal Framing", description: "Strong framing support." },
+            { title: "Boarding", description: "Smooth ceiling boards." },
+            { title: "Finishing Touches", description: "Painting and adding the lights." }
         ],
         faq: [
-            { question: "Does false ceiling reduce room height?", answer: "It typically takes 4-6 inches, which is negligible for the aesthetic return." }
+            { question: "Does a false ceiling reduce room height?", answer: "It only takes a few inches, which is barely noticeable." }
         ]
     },
 
@@ -290,13 +290,13 @@ We partner with world leaders like **Hettich**, **Hafele**, and **Blum** to brin
         categoryId: "commercial",
         title: "Restaurant & Cafe",
         slug: "restaurant",
-        description: "Memorable dining atmospheres with hospitality-grade detailing.",
+        description: "Great dining spaces built to handle busy crowds.",
         longDescription: `
 ### Crafting Dining Experiences
-A successful restaurant or cafe is about more than just food; it's about the entire sensory experience. We specialize in designing hospitality spaces that captivate guests and streamline operations.
+A great restaurant design makes the food taste better. We create spaces that guests love and that make it easy for your staff to work.
 
 ### Durable & Beautiful
-Hospitality environments face immense wear and tear. We carefully select materials that offer both aesthetic appeal and commercial-grade durability, ensuring your space looks pristine even after years of high-volume service.
+Restaurants face a lot of daily wear. We choose materials that look great and are tough enough to last for years, even on your busiest days.
         `,
         heroImage: "/images/projects/discovery/visual-10.jpg", 
         galleryImages: [
@@ -305,19 +305,19 @@ Hospitality environments face immense wear and tear. We carefully select materia
             "/images/projects/discovery/visual-9.jpg"
         ],
         features: [
-            "Optimized Seating Layouts",
-            "Acoustic Management",
-            "Atmospheric Lighting",
-            "Durable Finishes"
+            "Smart Seating Layouts",
+            "Sound Control",
+            "Mood Lighting",
+            "Tough & Lasting Finishes"
         ],
         processSteps: [
-            { title: "Concept Design", description: "Establishing the vibe and visual identity." },
-            { title: "Spatial Planning", description: "Balancing table count with guest comfort and staff flow." },
-            { title: "Material Detailing", description: "Specifying finishes that withstand heavy commercial use." },
-            { title: "Execution", description: "Coordinated build-out to meet your opening timeline." }
+            { title: "Concept Design", description: "Setting the vibe and look." },
+            { title: "Space Planning", description: "Balancing tables with guest comfort." },
+            { title: "Choosing Materials", description: "Picking tough, beautiful finishes." },
+            { title: "Build & Setup", description: "Getting it built on time." }
         ],
         faq: [
-            { question: "Do you design commercial kitchens too?", answer: "While we primarily focus on front-of-house design, we collaborate closely with commercial kitchen consultants for a seamless integration." }
+            { question: "Do you design commercial kitchens too?", answer: "We focus on the dining area but work closely with kitchen experts for a smooth process." }
         ],
         relatedServices: ["retail", "lighting"]
     },
@@ -326,13 +326,13 @@ Hospitality environments face immense wear and tear. We carefully select materia
         categoryId: "specialized",
         title: "Lighting Design",
         slug: "lighting",
-        description: "Architectural lighting that transforms ambience and elevates experience.",
+        description: "Custom lighting that changes the mood of any room.",
         longDescription: `
 ### The Power of Light
-Lighting is the most transformative element of interior design. It has the power to dictate mood, highlight architectural features, and enhance functionality. Our specialized lighting design goes beyond basic illumination to create layered, dynamic environments.
+Lighting is the most powerful tool in design. It sets the mood and makes everything look better. We plan our lighting carefully to make sure every space is lit perfectly.
 
-### Technical Precision
-We utilize advanced lighting plans that merge aesthetic goals with technical requirements. We consider color temperature (Kelvin), color rendering index (CRI), and beam angles to ensure perfect illumination for every unique space.
+### The Right Setup
+We mix different types of lights to get the right feel. Whether you want a bright workspace or a cozy bedroom, we pick the right colors and brightness for you.
         `,
         heroImage: "/images/projects/discovery/visual-9.jpg",
         galleryImages: [
@@ -341,18 +341,18 @@ We utilize advanced lighting plans that merge aesthetic goals with technical req
             "/images/projects/discovery/visual-12.jpg"
         ],
         features: [
-            "Custom Lighting Layouts",
-            "Smart Home Integration",
-            "Ambient, Task & Accent Layers",
-            "Energy Efficient Solutions"
+            "Custom Lighting Plans",
+            "Smart Home Setup",
+            "Mix of Bright & Cozy Lights",
+            "Energy Saving Options"
         ],
         processSteps: [
-            { title: "Analysis", description: "Evaluating natural light and spatial function." },
-            { title: "Design", description: "Developing a comprehensive lighting plan and fixture schedule." },
-            { title: "Implementation", description: "Precise electrical wiring and fixture installation." }
+            { title: "Checking the Room", description: "Seeing how much natural light there is." },
+            { title: "Lighting Plan", description: "Choosing where each light goes." },
+            { title: "Installation", description: "Safe wiring and setup." }
         ],
         faq: [
-            { question: "Can you integrate with smart home systems?", answer: "Yes, our lighting designs are fully compatible with modern smart home automation systems for complete control." }
+            { question: "Can you connect the lights to my phone?", answer: "Yes, our lighting works perfectly with modern smart home systems." }
         ],
         relatedServices: ["ceilings", "living-room"]
     },
@@ -361,13 +361,13 @@ We utilize advanced lighting plans that merge aesthetic goals with technical req
         categoryId: "specialized",
         title: "Custom Furniture",
         slug: "custom-furniture",
-        description: "Bespoke furniture crafted to your exact specifications.",
+        description: "Custom-made furniture built exactly how you want it.",
         longDescription: `
-### Unique Pieces for Unique Spaces
-Standard furniture often falls short when you require specific dimensions, precise color matching, or uncompromising quality. Our custom furniture service bridges this gap by creating pieces that perfectly integrate into your space.
+### Made Just For You
+When standard sizes don't fit, we build exactly what you need. Every piece is made to match your style perfectly and fit right into your room.
 
-### Superior Craftsmanship
-Every piece of custom furniture is handcrafted by skilled artisans. We use premium materials, from solid hardwoods to high-grade upholstery fabrics, ensuring longevity and exceptional comfort.
+### High Quality
+Every piece of custom furniture is made by skilled craftsmen. We use top-quality wood and fabrics so your furniture is comfortable and lasts a long time.
         `,
         heroImage: "/images/projects/discovery/visual-2.jpg",
         galleryImages: [
@@ -376,19 +376,19 @@ Every piece of custom furniture is handcrafted by skilled artisans. We use premi
             "/images/projects/discovery/visual-6.jpg"
         ],
         features: [
-            "Made-to-Measure Dimensions",
-            "Extensive Fabric & Finish Options",
-            "Ergonomic Considerations",
-            "Solid Wood Construction"
+            "Perfect Sizing",
+            "Many Fabric Choices",
+            "Comfortable Designs",
+            "Solid Wood Builds"
         ],
         processSteps: [
-            { title: "Conceptualization", description: "Sketching and selecting materials based on your requirements." },
-            { title: "Prototyping", description: "Reviewing shop drawings and fabric swatches." },
-            { title: "Fabrication", description: "Handcrafting in our dedicated workshop." },
-            { title: "Delivery", description: "Careful transportation and placement in your home." }
+            { title: "Ideas & Planning", description: "Sketching what you need." },
+            { title: "Checking Details", description: "Looking at fabric and wood samples." },
+            { title: "Building", description: "Handcrafting in our workshop." },
+            { title: "Delivery", description: "Safe delivery and setup in your home." }
         ],
         faq: [
-            { question: "How long does custom furniture take to build?", answer: "Depending on the complexity, it usually takes 4-8 weeks from final approval." }
+            { question: "How long does custom furniture take to build?", answer: "It usually takes 4-8 weeks once we agree on the design." }
         ],
         relatedServices: ["living-room", "bedroom"]
     }

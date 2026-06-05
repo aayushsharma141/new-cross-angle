@@ -38,7 +38,7 @@ const ServicesWhyUs = () => {
             className="flex items-center gap-4 mb-8"
           >
             <div className="w-12 h-px bg-site-crimson" />
-            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-crimson">The Distinction</span>
+            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">The Distinction</span>
           </motion.div>
 
           <motion.h2

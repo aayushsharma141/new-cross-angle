@@ -105,7 +105,7 @@ export function SpotlightNavContainer({
                 ref={navRef}
                 className={cn(
                     "spotlight-nav navbar-pill",
-                    "relative h-[46px] rounded-full transition-all duration-500 overflow-visible"
+                    "relative h-[50px] rounded-full transition-all duration-500 overflow-visible"
                 )}
                 style={{
                     ...((isDark

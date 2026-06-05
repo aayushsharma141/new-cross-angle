@@ -1,14 +1,15 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { ArrowUpRight, X } from "lucide-react";
+import { useState, useCallback, useRef } from "react";
+import { ArrowUpRight, X, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/primitives/dialog";
 import { cn } from "@/lib/utils";
 import { categories, type Project } from "@/data/projects";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Image as BaseImage } from "@/components/ui/enhanced/image";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useGSAP, gsap } from "@/hooks/useGsap";
 
 const ProjectCard = ({
   project,
@@ -19,21 +20,9 @@ const ProjectCard = ({
   index: number;
   openLightbox: (index: number) => void
 }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  
-  // Tie image parallax directly to the scroll position of this matching card
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    offset: ["start end", "end start"]
-  });
-
-  // The image moves from -15% to 15% vertically within its container as user scrolls
-  const y = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
-
   return (
-    <div className="group flex flex-col mb-16 md:mb-32">
+    <div className="group flex flex-col w-[320px] md:w-[480px] shrink-0">
       <div 
-        ref={cardRef}
         role="button"
         tabIndex={0}
         aria-label={`View ${project.title} project`}
@@ -41,29 +30,26 @@ const ProjectCard = ({
         onClick={() => openLightbox(index)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(index); } }}
       >
-        <motion.div 
-          className="absolute inset-[-20%] w-[140%] h-[140%]"
-          style={{ y }}
-        >
+        <div className="absolute inset-[0] w-[100%] h-[100%] project-img-container">
           <BaseImage
             src={project.heroImage}
             alt={project.title}
             className="h-full w-full"
-            imageClassName="transition-transform duration-700 group-hover:scale-105"
+            imageClassName="transition-transform duration-1000 group-hover:scale-110 object-cover will-change-transform"
             width={720}
             height={960}
           />
-        </motion.div>
+        </div>
 
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500 flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+          <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-white/20">
             <span className="text-white text-xs font-mono uppercase tracking-widest">View</span>
           </div>
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col space-y-2">
+      <div className="mt-6 flex flex-col space-y-2 px-2">
         <div className="flex justify-between items-start">
           <h3 className="text-2xl font-display font-medium text-site-text-heading group-hover:text-site-crimson transition-colors">
             {project.title}
@@ -90,6 +76,7 @@ const Portfolio = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   const filteredProjects = projects.filter(
     (project) => activeFilter === "All" || project.category === activeFilter
@@ -111,26 +98,53 @@ const Portfolio = () => {
     [filteredProjects.length]
   );
 
-  // Split projects into 2 columns for masonry effect
-  const leftColumn = filteredProjects.filter((_, i) => i % 2 === 0);
-  const rightColumn = filteredProjects.filter((_, i) => i % 2 !== 0);
+  const { scope } = useGSAP(() => {
+    const track = trackRef.current;
+    const container = scope.current;
+    
+    if (!track || !container || filteredProjects.length === 0) return;
+
+    // Small delay to ensure layout is calculated
+    const timeout = setTimeout(() => {
+      const scrollWidth = track.scrollWidth;
+      const windowWidth = window.innerWidth;
+      const totalWidth = scrollWidth - windowWidth;
+
+      if (totalWidth > 0) {
+        gsap.to(track, {
+          x: -totalWidth,
+          ease: "none",
+          scrollTrigger: {
+            trigger: container,
+            pin: true,
+            scrub: 1,
+            start: "top top",
+            end: () => `+=${totalWidth}`,
+            invalidateOnRefresh: true,
+          }
+        });
+      }
+    }, 100);
+    
+    return () => clearTimeout(timeout);
+  }, [filteredProjects]);
 
   return (
-    <section className="py-24 md:py-32 bg-site-bg relative overflow-hidden" id="portfolio">
-      <div className="container mx-auto px-4 md:px-12 relative z-10">
+    <section ref={scope} className="bg-site-bg relative" id="portfolio">
+      <div className="h-screen flex flex-col justify-center py-24 relative z-10 overflow-hidden">
         
         {/* Header Setup */}
-        <div className="flex flex-col mb-16 md:mb-32">
+        <div className="container mx-auto px-4 md:px-12 mb-12 shrink-0">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-12 h-px bg-site-crimson" />
             <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Selected Works</span>
           </div>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 md:gap-12">
-            <h2 className="text-[clamp(2.25rem,8vw,4.5rem)] font-display font-medium leading-[1.15] md:leading-[1.1] tracking-tight">
-              <span className="text-site-gold block mb-2">Curated</span>
-              <em className="text-white not-italic"> Excellence.</em>
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+            <h2 className="text-[clamp(2.25rem,8vw,4.5rem)] font-display font-medium text-site-text-heading leading-[1.15] md:leading-[1.1] tracking-tight">
+              Curated <br className="hidden md:block" />
+              <em className="text-site-text-muted not-italic"> Excellence.</em>
             </h2>
-            <div className="flex flex-wrap gap-3 md:max-w-md relative z-10">
+            <div className="flex flex-wrap gap-3 max-w-xl">
               {categories.map((category) => (
                 <button
                   key={category}
@@ -138,8 +152,8 @@ const Portfolio = () => {
                   className={cn(
                     "px-5 py-2 rounded-full text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all duration-300 border border-white/5",
                     category === activeFilter
-                      ? "bg-site-crimson text-white border-site-crimson"
-                      : "bg-transparent text-site-text-muted hover:text-site-text hover:border-white/20"
+                      ? "bg-site-crimson text-white border-site-crimson shadow-[0_0_15px_rgba(196,18,48,0.3)]"
+                      : "bg-transparent text-site-text-muted hover:text-site-text hover:border-white/20 hover:bg-white/5"
                   )}
                 >
                   {category}
@@ -149,54 +163,37 @@ const Portfolio = () => {
           </div>
         </div>
 
-        {/* 2-Column Masonry Grid */}
-        <div className="flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-24">
-          <div className="w-full md:w-1/2 flex flex-col">
-            {leftColumn.map((project, idx) => {
-              // The original index in the filtered array for lightbox
-              const originalIndex = filteredProjects.findIndex(p => p.id === project.id);
-              return (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  index={originalIndex}
-                  openLightbox={openLightbox}
-                />
-              );
-            })}
-          </div>
+        {/* Horizontal Track */}
+        <div ref={trackRef} className="horizontal-track flex gap-8 md:gap-12 pl-4 md:pl-12 pr-[15vw] w-max items-center mt-8 pb-8 will-change-transform">
+          {filteredProjects.map((project) => {
+            const originalIndex = filteredProjects.findIndex(p => p.id === project.id);
+            return (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                index={originalIndex}
+                openLightbox={openLightbox}
+              />
+            );
+          })}
           
-          {/* Right column has a top margin to create a staggered masonry effect */}
-          <div className="w-full md:w-1/2 flex flex-col md:mt-40">
-            {rightColumn.map((project, idx) => {
-              const originalIndex = filteredProjects.findIndex(p => p.id === project.id);
-              return (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  index={originalIndex}
-                  openLightbox={openLightbox}
-                />
-              );
-            })}
+          {/* View All CTA inside the track */}
+          <div className="w-[300px] md:w-[400px] shrink-0 flex items-center justify-center pl-12">
+             <Link
+                to="/gallery"
+                className="group flex flex-col items-center gap-6 text-site-text hover:text-site-crimson transition-colors"
+              >
+                <div className="w-32 h-32 rounded-full border border-site-border flex items-center justify-center group-hover:border-site-crimson transition-all duration-500 bg-black/20 group-hover:bg-site-crimson/5">
+                  <ArrowRight className="w-10 h-10 group-hover:scale-110 group-hover:translate-x-2 transition-transform" />
+                </div>
+                <span className="font-mono text-sm uppercase tracking-[0.2em]">Explore Full Archive</span>
+              </Link>
           </div>
         </div>
 
-        {/* View All CTA */}
-        <div className="mt-12 md:mt-20 flex justify-center">
-          <Link
-            to="/gallery"
-            className="group flex flex-col items-center gap-4 text-site-text hover:text-site-crimson transition-colors"
-          >
-            <div className="w-24 h-24 rounded-full border border-site-border flex items-center justify-center group-hover:border-site-crimson transition-colors">
-              <ArrowUpRight className="w-8 h-8 group-hover:scale-110 group-hover:rotate-12 transition-transform" />
-            </div>
-            <span className="font-mono text-xs uppercase tracking-widest">Explore Full Archive</span>
-          </Link>
-        </div>
       </div>
 
-      {/* Lightbox Dialog - Kept mostly intact */}
+      {/* Lightbox Dialog - Intact */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
         <DialogContent hideCloseButton className="max-w-7xl bg-black/95 backdrop-blur-2xl border-none p-0 overflow-hidden h-[100dvh] w-screen max-h-none flex flex-col justify-center rounded-none shadow-2xl">
           <VisuallyHidden>
@@ -210,8 +207,6 @@ const Portfolio = () => {
           >
             <X className="w-6 h-6" />
           </button>
-
-
 
           <motion.div 
             key={currentImageIndex}

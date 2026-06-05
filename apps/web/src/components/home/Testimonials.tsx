@@ -200,9 +200,11 @@ const Testimonials = () => {
         {/* ── Header ── */}
         <div className="text-center mb-16">
           {/* Eyebrow */}
-          <div className="flex justify-center items-center gap-4 mb-6">
+          <div className="flex items-center justify-center gap-4 mb-6">
             <div className="w-12 h-px bg-site-crimson" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Client Reviews</span>
+            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+              Client Reviews
+            </span>
           </div>
 
           {/* Heading — using site-gold color directly, no gradient clip */}

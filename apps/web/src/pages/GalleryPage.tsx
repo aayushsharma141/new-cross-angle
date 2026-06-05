@@ -170,14 +170,15 @@ const GalleryPage = () => {
             className="absolute bottom-0 left-0 right-0 p-8 md:p-16"
             style={{ opacity: heroOpacity }}
           >
-            <motion.span
+            <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-[10px] uppercase tracking-[0.4em] text-site-crimson font-medium"
+              className="flex items-center gap-4"
             >
-              Our Gallery
-            </motion.span>
+              <div className="w-12 h-px bg-site-crimson" />
+              <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Our Gallery</span>
+            </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -348,7 +349,10 @@ const GalleryPage = () => {
         {/* ═══ CTA SECTION ═══ */}
         <section className="py-24 md:py-32 border-t border-white/5">
           <div className="container mx-auto px-4 text-center max-w-2xl">
-            <span className="text-[10px] uppercase tracking-[0.4em] text-site-crimson">Inspired?</span>
+            <div className="flex items-center justify-center gap-4">
+              <div className="w-12 h-px bg-site-crimson" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-site-gold">Inspired?</span>
+            </div>
             <h2 className="font-display text-3xl md:text-5xl font-light mt-4 mb-6">
               Let's create your <span className="italic">space</span>.
             </h2>

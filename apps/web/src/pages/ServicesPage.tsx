@@ -76,17 +76,17 @@ const ServicesPage = () => {
                   viewport={{ once: true }}
                   className="flex items-center gap-4 mb-6"
                 >
-                  <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-crimson">Domain I</span>
-                  <div className="w-12 h-px bg-site-crimson/30" />
+                  <div className="w-12 h-px bg-site-crimson" />
+                  <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">Domain I</span>
                 </motion.div>
                 <motion.h2
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className="font-display font-normal text-[clamp(2.5rem,6vw,5rem)] leading-[1.05] tracking-tight text-white"
+                  className="font-serif font-bold text-[clamp(2.5rem,6vw,5rem)] leading-[1.05] tracking-tight text-white"
                 >
                   Residential<br />
-                  <em className="italic text-site-crimson font-medium underline underline-offset-[12px] decoration-white/10 decoration-[4px]">Design</em>
+                  <em className="italic font-light text-site-crimson underline underline-offset-[12px] decoration-white/10 decoration-[4px]">Design</em>
                 </motion.h2>
               </div>
               <motion.p
@@ -95,7 +95,7 @@ const ServicesPage = () => {
                 viewport={{ once: true }}
                 className="text-[1.1rem] text-white/60 max-w-[36ch] font-light leading-relaxed md:text-right"
               >
-                Personalized turnkey interiors crafted for lifestyle, comfort, and long-term capital value.
+                Custom interiors built for your lifestyle, comfort, and lasting value.
               </motion.p>
             </div>
 
@@ -152,17 +152,17 @@ const ServicesPage = () => {
                   viewport={{ once: true }}
                   className="flex items-center gap-4 mb-6"
                 >
-                  <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-crimson">Domain II</span>
-                  <div className="w-12 h-px bg-site-crimson/30" />
+                  <div className="w-12 h-px bg-site-crimson" />
+                  <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">Domain II</span>
                 </motion.div>
                 <motion.h2
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className="font-display font-normal text-[clamp(2.5rem,6vw,5rem)] leading-[1.05] tracking-tight text-white"
+                  className="font-serif font-bold text-[clamp(2.5rem,6vw,5rem)] leading-[1.05] tracking-tight text-white"
                 >
                   Commercial<br />
-                  <em className="italic text-site-crimson font-medium underline underline-offset-[12px] decoration-white/10 decoration-[4px]">&amp; Office Space</em>
+                  <em className="italic font-light text-site-crimson underline underline-offset-[12px] decoration-white/10 decoration-[4px]">&amp; Office Space</em>
                 </motion.h2>
               </div>
               <motion.p
@@ -171,7 +171,7 @@ const ServicesPage = () => {
                 viewport={{ once: true }}
                 className="text-[1.1rem] text-white/60 max-w-[36ch] font-light leading-relaxed md:text-right"
               >
-                Strategic interior solutions that amplify productivity, brand value, and customer experience.
+                Smart office designs that improve work and impress your clients.
               </motion.p>
             </div>
 
@@ -217,18 +217,17 @@ const ServicesPage = () => {
               viewport={{ once: true }}
               className="flex justify-center items-center gap-4 mb-8"
             >
-              <div className="w-12 h-px bg-site-crimson/30" />
-              <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-crimson">Domain III</span>
-              <div className="w-12 h-px bg-site-crimson/30" />
+              <div className="w-12 h-px bg-site-crimson" />
+              <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">Domain III</span>
             </motion.div>
             <motion.h2
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="font-display font-normal text-[clamp(2.5rem,6vw,5.5rem)] leading-[1] tracking-tight text-white mb-16"
+              className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.1] tracking-tight text-white mb-16"
             >
-              Specialist Execution &<br />
-              <em className="italic text-site-crimson font-medium">Bespoke Manufacturing.</em>
+              Specialized Services &<br />
+              <em className="italic text-site-crimson font-light">Custom Building.</em>
             </motion.h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
