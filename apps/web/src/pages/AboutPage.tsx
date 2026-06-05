@@ -131,9 +131,9 @@ const AboutPage = () => {
         }}
       />
 
+      <FixedSocialBar />
       <Navbar />
       <main id="main-content" className="min-h-screen relative z-10">
-        <FixedSocialBar />
 
         {/* Immersive Hero with Video */}
         <AboutHero videoUrl={videoUrl} onPlayVideo={() => setIsVideoOpen(true)} />

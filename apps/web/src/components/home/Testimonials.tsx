@@ -242,24 +242,47 @@ const Testimonials = () => {
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl border border-white/[0.06] bg-[#0d0d0c] p-7 h-[300px] animate-pulse"
+                  className={`rounded-2xl border bg-[#0d0d0c] p-7 h-[300px] flex flex-col ${
+                    i === 1
+                      ? "border-site-gold/15 shadow-[0_0_40px_rgba(209,175,110,0.06)]"
+                      : "border-white/[0.06]"
+                  }`}
                 >
+                  {/* Star placeholders */}
                   <div className="flex gap-1.5 mb-5">
                     {Array.from({ length: 5 }).map((_, j) => (
-                      <div key={j} className="w-3.5 h-3.5 rounded bg-white/10" />
+                      <div
+                        key={j}
+                        className="skeleton-shimmer w-3.5 h-3.5 rounded"
+                        style={{ animationDelay: `${i * 120 + j * 50}ms` }}
+                      />
                     ))}
                   </div>
-                  <div className="space-y-2.5 mb-7">
-                    <div className="h-3.5 bg-white/[0.05] rounded w-full" />
-                    <div className="h-3.5 bg-white/[0.05] rounded w-5/6" />
-                    <div className="h-3.5 bg-white/[0.05] rounded w-4/6" />
-                    <div className="h-3.5 bg-white/[0.05] rounded w-3/6 mt-1" />
+                  {/* Quote text lines */}
+                  <div className="space-y-2.5 mb-7 flex-1">
+                    {[100, 83, 67, 50].map((w, k) => (
+                      <div
+                        key={k}
+                        className="skeleton-shimmer h-3.5 rounded-lg"
+                        style={{ width: `${w}%`, animationDelay: `${i * 120 + 250 + k * 70}ms` }}
+                      />
+                    ))}
                   </div>
+                  {/* Author row */}
                   <div className="flex items-center gap-3 pt-5 border-t border-white/[0.05]">
-                    <div className="w-10 h-10 rounded-full bg-white/10 flex-shrink-0" />
+                    <div
+                      className="skeleton-shimmer w-10 h-10 rounded-full flex-shrink-0"
+                      style={{ animationDelay: `${i * 120 + 600}ms` }}
+                    />
                     <div className="space-y-2 flex-1">
-                      <div className="h-3 bg-white/10 rounded w-28" />
-                      <div className="h-2 bg-white/[0.05] rounded w-20" />
+                      <div
+                        className="skeleton-shimmer h-3 w-28 rounded-lg"
+                        style={{ animationDelay: `${i * 120 + 680}ms` }}
+                      />
+                      <div
+                        className="skeleton-shimmer h-2 w-20 rounded-lg"
+                        style={{ animationDelay: `${i * 120 + 760}ms` }}
+                      />
                     </div>
                   </div>
                 </div>

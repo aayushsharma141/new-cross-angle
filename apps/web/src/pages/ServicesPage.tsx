@@ -56,9 +56,9 @@ const ServicesPage = () => {
         />
       </Helmet>
 
+      <FixedSocialBar />
       <Navbar />
       <main className="min-h-screen relative z-10 bg-[#000000] overflow-hidden text-[#EDEDED] font-sans">
-        <FixedSocialBar />
 
         <ServicesHero />
         <ServicesMarquee />

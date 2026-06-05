@@ -39,7 +39,7 @@ export const LoadingState = ({
             )}
         >
             <Spinner size={fullScreen ? 'lg' : 'md'} className="mb-4" />
-            <p className="text-lg font-medium text-text-muted animate-pulse">
+            <p className="text-lg font-medium text-text-muted">
                 {text}
             </p>
         </div>

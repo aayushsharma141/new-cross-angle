@@ -949,6 +949,127 @@ em,
   section { break-inside: avoid; page-break-inside: avoid; }
   /* Ensure colors print */
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  line-height: 1.8;
+}
+
+/* ── Glassmorphic panels ── */
+.home-panel {
+  background: linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(5,5,5,0.78);
+  border: 1px solid var(--home-border-soft);
+  box-shadow: var(--home-shadow);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+.home-panel-muted {
+  background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.016)), rgba(5,5,5,0.56);
+  border: 1px solid rgba(255,255,255,0.06);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+/* ── Trust chips ── */
+.home-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: rgba(237, 234, 230, 0.72);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ── Button sweep / shine effect ── */
+.home-button-sweep {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.home-button-sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.16) 50%, transparent 80%);
+  transform: translate(-160%);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 0;
+}
+.home-button-sweep:hover::before {
+  transform: translate(160%);
+}
+
+.skip-nav {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 9999;
+  padding: 0.75rem 1.25rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  border-bottom-right-radius: 0.375rem;
+  transition: top 0.15s ease;
+  text-decoration: none;
+  outline: none;
+}
+
+.skip-nav:focus {
+  top: 0;
+}
+
+/* ════════════════════════════════════╗
+ *  WCAG 2.1 Focus-Visible Styles     ║
+ *  Replaces outline:none patterns    ║
+ * ════════════════════════════════════╝ */
+
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Remove focus ring for mouse users (only for keyboard navigation) */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Interactive elements get a gold glow on keyboard focus (admin theme) */
+.admin-theme :focus-visible {
+  outline: 2px solid hsl(var(--admin-gold));
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px hsl(var(--admin-gold) / 0.18);
+}
+
+/* ════════════════════════════════════╗
+ *  Fluid Type Scale Utilities        ║
+ * ════════════════════════════════════╝ */
+
+.text-fluid-sm  { font-size: clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem); }
+.text-fluid-base{ font-size: clamp(0.875rem, 0.8rem  + 0.375vw, 1rem);    }
+.text-fluid-lg  { font-size: clamp(1rem,     0.9rem  + 0.5vw,  1.125rem); }
+.text-fluid-xl  { font-size: clamp(1.125rem, 1rem    + 0.625vw,1.25rem);  }
+.text-fluid-2xl { font-size: clamp(1.25rem,  1.1rem  + 0.75vw, 1.5rem);  }
+.text-fluid-3xl { font-size: clamp(1.5rem,   1.25rem + 1.25vw, 1.875rem);}
+.text-fluid-4xl { font-size: clamp(1.875rem, 1.5rem  + 1.875vw,2.25rem); }
+.text-fluid-5xl { font-size: clamp(2.25rem,  1.75rem + 2.5vw,  3rem);    }
+
+/* ═══════════════════════════════════════════════════════════════
+   PRINT STYLES — Style Quiz Blueprint PDF Export
+   ═══════════════════════════════════════════════════════════════ */
+@media print {
+  body { background: #040404 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .discovery-addon-container { overflow: visible !important; height: auto !important; }
+  /* Hide non-essential elements */
+  nav, footer, .fixed, [class*="sticky"], [class*="scroll-hint"],
+  button, a[href="/contact-us"], a[href="/portfolio"] { display: none !important; }
+  /* Show all sections */
+  section { break-inside: avoid; page-break-inside: avoid; }
+  /* Ensure colors print */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -962,6 +1083,12 @@ em,
     scroll-behavior: auto !important;
   }
   .animate-pulse, .animate-spin, .animate-bounce { animation: none !important; }
+  /* Skeleton reduced-motion: keep visible static placeholder, no sweep */
+  .skeleton-shimmer,
+  .skeleton-shimmer-admin {
+    animation: none !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -988,4 +1115,46 @@ em,
 
 *::-webkit-scrollbar-thumb:hover {
   background: hsl(43 74% 49% / 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SKELETON SHIMMER — Luxury loading states
+   Replaces Tailwind animate-pulse across all loading placeholders.
+   Uses a gold-tinted directional sweep (LinkedIn/YouTube pattern)
+   tuned to CrossAngle's #050505 dark background.
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: -250% center; }
+  100% { background-position: 250% center; }
+}
+
+/* Public site variant — gold highlight sweep */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06)  0%,
+    rgba(209, 175, 110, 0.13) 38%,
+    rgba(255, 255, 255, 0.10) 50%,
+    rgba(209, 175, 110, 0.13) 62%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  background-size: 250% 100%;
+  animation: skeleton-shimmer 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: background-position;
+}
+
+/* Admin panel variant — wine/burgundy highlight sweep */
+.skeleton-shimmer-admin {
+  background: linear-gradient(
+    90deg,
+    hsl(0 0% 12%)  0%,
+    hsl(350 60% 22% / 0.35) 38%,
+    hsl(0 0% 16%)  50%,
+    hsl(350 60% 22% / 0.35) 62%,
+    hsl(0 0% 12%)  100%
+  );
+  background-size: 250% 100%;
+  animation: skeleton-shimmer 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: background-position;
 }

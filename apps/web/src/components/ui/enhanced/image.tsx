@@ -35,7 +35,7 @@ export const Image = forwardRef<HTMLImageElement, ImageProps>(
     return (
       <div className={cn("relative overflow-hidden w-full h-full", className)}>
         {isLoading && (
-          <div className="absolute inset-0 bg-muted animate-pulse" />
+          <div className="absolute inset-0 skeleton-shimmer" />
         )}
         <img
           ref={ref}

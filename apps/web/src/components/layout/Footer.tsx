@@ -298,7 +298,7 @@ export default function Footer() {
       </div>
 
       {/* --- GRID --- */}
-      <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 relative z-20 border-t border-white/5 px-[6vw] md:pl-[12vw] md:pr-[6vw]">
+      <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 relative z-20 border-t border-white/5 px-[6vw] w-full">
         {/* Col 1 */}
         <motion.div
           className={colStyle}
@@ -426,18 +426,21 @@ export default function Footer() {
       </div>
 
       {/* --- BOTTOM --- */}
-      <div className="flex flex-col md:flex-row items-center justify-between pt-[16px] pb-[20px] px-[6vw] text-[11px] opacity-50 relative z-10 w-full mt-4 md:mt-6 border-t border-white/5 md:border-t-0">
-        <div className="mb-4 md:mb-0 flex flex-wrap gap-4 items-center justify-center">
-          <span>(c) 2026 CrossAngle Interior</span>
-          <span className="hidden md:inline">|</span>
-          <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors duration-300">Privacy & DPDPA Policy</Link>
-          <span className="hidden md:inline">|</span>
-          <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors duration-300">Terms & Conditions</Link>
+      <div className="flex flex-col md:flex-row items-center justify-between pt-[24px] pb-[24px] px-[6vw] text-[10px] md:text-[11px] text-white/50 relative z-10 w-full mt-8 border-t border-white/10 uppercase tracking-[0.15em] font-sans">
+        <div className="flex flex-col md:flex-row items-center gap-3 md:gap-6 mb-4 md:mb-0 text-center md:text-left">
+          <span className="text-white/80">© {new Date().getFullYear()} CrossAngle Interior</span>
+          <span className="hidden md:inline text-[#C41230]/70">✦</span>
+          <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="hover:text-white hover:text-[#C41230] transition-colors duration-300">Privacy & DPDPA Policy</Link>
+          <span className="hidden md:inline text-[#C41230]/70">✦</span>
+          <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="hover:text-white hover:text-[#C41230] transition-colors duration-300">Terms & Conditions</Link>
+        </div>
+        <div className="flex items-center gap-2 tracking-[0.2em] text-white/40">
+          <span>Design is in the Details</span>
         </div>
       </div>
 
       {/* --- BG TEXT --- */}
-      <div className="absolute bottom-[-50px] left-[50%] -translate-x-1/2 text-[clamp(100px,20vw,300px)] opacity-[0.03] font-serif pointer-events-none whitespace-nowrap z-0 select-none">
+      <div className="absolute bottom-[-80px] left-[50%] -translate-x-1/2 text-[clamp(100px,20vw,300px)] opacity-[0.03] font-serif pointer-events-none whitespace-nowrap z-0 select-none">
         CROSSANGLE
       </div>
 

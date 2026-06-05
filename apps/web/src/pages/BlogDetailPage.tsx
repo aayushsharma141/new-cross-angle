@@ -207,7 +207,7 @@ const BlogDetailPage = () => {
                     <Skeleton className="h-16 md:h-20 w-full mb-8 bg-zinc-800/40" />
                     <Skeleton className="h-4 w-40 mb-12 bg-zinc-800/20" />
                 </div>
-                <div className="w-full h-[500px] md:h-[600px] bg-zinc-800/20 animate-pulse mb-16" />
+                <div className="w-full h-[500px] md:h-[600px] skeleton-shimmer mb-16" />
                 <div className="container mx-auto px-4 max-w-3xl space-y-4">
                     <Skeleton className="h-4 w-full bg-zinc-800/20" />
                     <Skeleton className="h-4 w-full bg-zinc-800/20" />

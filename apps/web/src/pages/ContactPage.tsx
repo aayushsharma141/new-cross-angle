@@ -63,7 +63,7 @@ const ContactPage = () => {
             fallback={
               <div className="px-4 pb-16 md:pb-20">
                 <div className="container mx-auto max-w-7xl">
-                  <div className="home-panel rounded-[24px] animate-pulse" style={{ height: "clamp(280px, 38vw, 440px)" }} />
+                  <div className="home-panel skeleton-shimmer rounded-[24px]" style={{ height: "clamp(280px, 38vw, 440px)" }} />
                 </div>
               </div>
             }

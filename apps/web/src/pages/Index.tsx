@@ -54,9 +54,9 @@ const Index = () => {
 
       <ScrollProgress />
       <WelcomePrompt />
+      <FixedSocialBar />
       <Navbar />
       <div className="min-h-screen relative w-full">
-        <FixedSocialBar />
         <SectionNavDots />
 
         {/* Hero — eager, sticky behind everything, curtain scroll effect */}

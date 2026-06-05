@@ -51,13 +51,13 @@ export const SessionsTable = ({ sessions, loading, viewingType, onViewingTypeCha
         <TableBody className="divide-y divide-white/5">
           {loading ? (
             [...Array(3)].map((_, i) => (
-              <TableRow key={i} className="animate-pulse">
-                <TableCell className="px-6 py-5 border-none"><div className="h-4 bg-white/10 rounded w-24"></div></TableCell>
-                <TableCell className="px-6 py-5 border-none"><div className="h-4 bg-white/10 rounded w-32"></div></TableCell>
-                <TableCell className="px-6 py-5 border-none"><div className="h-4 bg-white/10 rounded w-20"></div></TableCell>
-                <TableCell className="px-6 py-5 border-none"><div className="h-4 bg-white/10 rounded w-48"></div></TableCell>
-                <TableCell className="px-6 py-5 border-none"><div className="h-4 bg-white/10 rounded w-24"></div></TableCell>
-                <TableCell className="px-6 py-5 flex justify-end border-none"><div className="h-6 bg-white/10 rounded-full w-20"></div></TableCell>
+              <TableRow key={i}>
+                <TableCell className="px-6 py-5 border-none"><div className="h-4 skeleton-shimmer-admin rounded w-24"></div></TableCell>
+                <TableCell className="px-6 py-5 border-none"><div className="h-4 skeleton-shimmer-admin rounded w-32"></div></TableCell>
+                <TableCell className="px-6 py-5 border-none"><div className="h-4 skeleton-shimmer-admin rounded w-20"></div></TableCell>
+                <TableCell className="px-6 py-5 border-none"><div className="h-4 skeleton-shimmer-admin rounded w-48"></div></TableCell>
+                <TableCell className="px-6 py-5 border-none"><div className="h-4 skeleton-shimmer-admin rounded w-24"></div></TableCell>
+                <TableCell className="px-6 py-5 flex justify-end border-none"><div className="h-6 skeleton-shimmer-admin rounded-full w-20"></div></TableCell>
               </TableRow>
             ))
           ) : sessions.length === 0 ? (

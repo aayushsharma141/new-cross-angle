@@ -192,14 +192,14 @@ const BlogPage = () => {
         <link rel="canonical" href="https://crossangleinterior.com/blog" />
       </Helmet>
 
+      <FixedSocialBar />
       <Navbar />
       <main id="main-content" className="min-h-screen relative z-10" style={{ background: "#000" }}>
-        <FixedSocialBar />
 
         {/* ═══════════════ 1. HERO FEATURED ARTICLE ═══════════════ */}
         {isLoading ? (
           <section className="relative pt-24 pb-0 overflow-hidden" style={{ minHeight: "85vh" }}>
-            <div className="absolute inset-0 bg-zinc-900/50 animate-pulse" />
+            <div className="absolute inset-0 skeleton-shimmer" />
             <div className="container mx-auto px-4 relative z-10 flex items-center" style={{ minHeight: "70vh" }}>
               <div className="max-w-2xl space-y-6">
                 <Skeleton className="h-8 w-40 rounded-full bg-zinc-800/50" />

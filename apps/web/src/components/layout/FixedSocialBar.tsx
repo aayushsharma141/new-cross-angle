@@ -95,7 +95,7 @@ const FixedSocialBar: React.FC = () => {
            (12 px margin at 1440 px wide) clear the bar because the backing strip acts as
            a visual separator and the tooltip expands rightward. */}
       <aside
-        className="hidden md:flex fixed left-0 top-1/2 -translate-y-1/2 z-50 flex-col items-center py-3 rounded-r-2xl"
+        className="hidden md:flex fixed left-0 top-1/2 -translate-y-1/2 z-[99] flex-col items-center py-3 rounded-r-2xl"
         style={{
           background: 'rgba(10,10,10,0.70)',
           backdropFilter: 'blur(12px)',

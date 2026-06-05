@@ -121,16 +121,39 @@ const BlogCard = ({
 /* ─── skeleton ─── */
 const BlogSkeleton = ({ featured = false }: { featured?: boolean }) => (
   <div
-    className={`rounded-2xl border border-white/[0.05] bg-[#0d0c0b] overflow-hidden animate-pulse ${
+    className={`rounded-2xl border border-white/[0.07] bg-[#0d0c0b] overflow-hidden ${
       featured ? "md:row-span-2" : ""
     }`}
   >
-    <div className={`bg-white/5 ${featured ? "h-64 md:h-72" : "h-48"}`} />
+    {/* Image placeholder */}
+    <div
+      className={`skeleton-shimmer ${
+        featured ? "h-64 md:h-72" : "h-48"
+      }`}
+      style={{ animationDelay: "0ms" }}
+    />
     <div className="p-5 md:p-6 space-y-3">
-      <div className="h-2.5 w-24 bg-white/5 rounded" />
-      <div className="h-5 w-3/4 bg-white/[0.07] rounded" />
-      <div className="h-4 w-full bg-white/5 rounded" />
-      <div className="h-3 w-20 bg-white/5 rounded mt-4" />
+      {/* Meta — date + read time */}
+      <div
+        className="skeleton-shimmer h-2.5 w-24 rounded-full"
+        style={{ animationDelay: "80ms" }}
+      />
+      {/* Title */}
+      <div
+        className="skeleton-shimmer h-5 w-3/4 rounded-lg"
+        style={{ animationDelay: "160ms" }}
+      />
+      {featured && (
+        <div
+          className="skeleton-shimmer h-4 w-full rounded-lg"
+          style={{ animationDelay: "240ms" }}
+        />
+      )}
+      {/* CTA link */}
+      <div
+        className="skeleton-shimmer h-3 w-20 rounded-full mt-5"
+        style={{ animationDelay: "320ms" }}
+      />
     </div>
   </div>
 );

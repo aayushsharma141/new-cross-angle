@@ -236,9 +236,21 @@ const GalleryPage = () => {
         {/* ═══ GALLERY GRID — Staggered masonry ═══ */}
         {isLoading ? (
           <div className="container mx-auto px-4 py-20">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className={cn("bg-white/5 animate-pulse rounded-sm", i % 3 === 0 ? "aspect-[3/4]" : "aspect-square")} />
+            <div className="columns-2 md:columns-3 lg:columns-4 gap-2">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`skeleton-shimmer rounded-sm mb-2 break-inside-avoid ${
+                    i % 4 === 0
+                      ? "aspect-[3/4]"
+                      : i % 4 === 1
+                      ? "aspect-square"
+                      : i % 4 === 2
+                      ? "aspect-[4/5]"
+                      : "aspect-[3/4]"
+                  }`}
+                  style={{ animationDelay: `${Math.min(i * 50, 450)}ms` }}
+                />
               ))}
             </div>
           </div>
