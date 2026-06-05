@@ -860,6 +860,16 @@ em,
   text-transform: uppercase;
 }
 
+
+/* hero-specific targeting classes */
+  .hero-kicker-text{font-size:.625rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;}
+.hero-body-text{max-width:35rem;color:rgba(237,234,230,0.74);line-height:1.8;}
+.hero-trust-chip{display:inline-flex;align-items:center;gap:.45rem;}
+.hero-cta-btn{display:inline-flex;}
+.hero-side-panel{display:flex;}
+.hero-title{}
+.hero-title-accent{display:block;}
+
 /* ── Button sweep / shine effect ── */
 .home-button-sweep {
   position: relative;
@@ -950,35 +960,6 @@ em,
   /* Ensure colors print */
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   line-height: 1.8;
-}
-
-/* ── Glassmorphic panels ── */
-.home-panel {
-  background: linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(5,5,5,0.78);
-  border: 1px solid var(--home-border-soft);
-  box-shadow: var(--home-shadow);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-}
-.home-panel-muted {
-  background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.016)), rgba(5,5,5,0.56);
-  border: 1px solid rgba(255,255,255,0.06);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
-}
-
-/* ── Trust chips ── */
-.home-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.55rem 0.85rem;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.03);
-  color: rgba(237, 234, 230, 0.72);
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
 }
 
 /* ── Button sweep / shine effect ── */

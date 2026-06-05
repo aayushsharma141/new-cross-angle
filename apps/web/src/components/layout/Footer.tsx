@@ -185,12 +185,21 @@ const getFooterCopy = (pathname: string, cta: ReturnType<typeof useDynamicCTA>["
   };
 };
 
+interface FooterSectionProps {
+  title: string;
+  id: string;
+  openSection: string | null;
+  toggleSection: (id: string) => void;
+  children: React.ReactNode;
+  delay: number;
+}
+
 // MAIN COMPONENT
-const FooterSection = ({ title, id, openSection, toggleSection, children, delay }: any) => {
+const FooterSection = ({ title, id, openSection, toggleSection, children, delay }: FooterSectionProps) => {
   const isOpen = openSection === id;
   return (
     <motion.div
-      className="flex-1 min-w-[150px] p-[clamp(16px,2vw,32px)] md:border-r border-white/5 border-b md:border-b-0 last:border-b-0"
+      className="flex-1 min-w-[150px] p-[clamp(16px,2vw,32px)]"
       initial={{ opacity: 0, y: 80 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}

@@ -277,7 +277,7 @@ const Hero = () => {
 
       {/* ═══ Content: split-grid layout ═══ */}
       <div className="container-wide mx-auto h-full px-4 sm:px-6 lg:px-10 relative z-20">
-        <div className="grid h-full items-end lg:grid-cols-[minmax(0,1fr)_320px] gap-8 pb-fluid-py pt-fluid-pt">
+        <div className="grid h-full items-end lg:grid-cols-[minmax(0,1fr)_320px] gap-8 pb-fluid-py pt-24 md:pt-32 lg:pt-36">
 
           {/* ── Left column ── */}
           <motion.div

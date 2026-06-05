@@ -227,11 +227,11 @@ const HomeBlog = () => {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, margin: "-80px" }}
-            className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-5"
+            className={`grid grid-cols-1 gap-5 ${posts.length === 3 ? "md:grid-cols-3 md:grid-rows-2" : posts.length === 2 ? "md:grid-cols-2" : ""}`}
           >
             {/* Featured post spans 2 rows */}
             {featured && (
-              <div className="md:col-span-1 md:row-span-2">
+              <div className={posts.length === 3 ? "md:col-span-1 md:row-span-2" : ""}>
                 <BlogCard post={featured} featured />
               </div>
             )}

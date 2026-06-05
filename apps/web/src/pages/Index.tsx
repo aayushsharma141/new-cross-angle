@@ -24,7 +24,6 @@ const TrustSection     = lazy(() => import("@/components/home/TrustSection"));
 const Testimonials     = lazy(() => import("@/components/home/Testimonials"));
 const MarqueeStrip     = lazy(() => import("@/components/home/MarqueeStrip").then(m => ({ default: m.MarqueeStrip })));
 const HomeBlog         = lazy(() => import("@/components/home/HomeBlog"));
-const AboutTimeline    = lazy(() => import("@/components/about/AboutTimeline"));
 
 const Index = () => {
   return (

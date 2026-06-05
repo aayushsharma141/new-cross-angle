@@ -30,7 +30,7 @@ const Services = () => {
   const activeCategory = categoriesWithMedia[hoveredIndex];
 
   return (
-    <section id="services" ref={containerRef} className="py-20 md:py-32 relative bg-black overflow-hidden min-h-screen flex flex-col justify-center">
+    <section id="services" ref={containerRef} className="py-20 md:py-32 relative bg-black overflow-hidden flex flex-col justify-center">
       {/* Dark overlay & Squares pattern */}
       <Squares speed={0.06} opacity={0.04} />
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-site-crimson/20 to-transparent z-[1]" />
