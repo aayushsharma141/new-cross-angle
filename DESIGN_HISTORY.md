@@ -22,6 +22,8 @@ Select a component segment below to view its full visual history, design variati
   Tracks Contact page iterations. v1 = 5-section cluttered layout. v2 = Full redesign: merged hero+form, compact map card, slim FAQ, social pill strip.
 * 📖 **[About Page Layouts](file:///c:/Users/aayus/Desktop/main/design-history/about_page.md)**
   Tracks About page components (Luxury Cursor Hero, dynamic glass panels, cascades, custom gradients, floating ambient glowing orbs, and timeline adjustments).
+* 🗺️ **[Blueprint Page Timeline](file:///c:/Users/aayus/Desktop/main/design-history/blueprint_page.md)**
+  Tracks the System Blueprint page iterations (V1 Tech Stack, V2 Bento Grid, and V3 Active Interactive Chronological Timeline showcasing database schemas, staggering layouts, and CRM realtime syncing).
 
 ---
 

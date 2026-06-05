@@ -3,7 +3,7 @@ import { motion, useSpring, useMotionValue } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useDynamicCTA } from "@/hooks/useDynamicCTA";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { MapPin, Mail, Phone, ArrowRight } from "lucide-react";
+import { MapPin, Mail, Phone, ArrowRight, Plus, Minus } from "lucide-react";
 
 
 
@@ -186,7 +186,37 @@ const getFooterCopy = (pathname: string, cta: ReturnType<typeof useDynamicCTA>["
 };
 
 // MAIN COMPONENT
+const FooterSection = ({ title, id, openSection, toggleSection, children, delay }: any) => {
+  const isOpen = openSection === id;
+  return (
+    <motion.div
+      className="flex-1 min-w-[150px] p-[clamp(16px,2vw,32px)] md:border-r border-white/5 border-b md:border-b-0 last:border-b-0"
+      initial={{ opacity: 0, y: 80 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 1, delay, ease: "easeOut" }}
+    >
+      <div 
+        className="font-sans text-[10px] tracking-[0.3em] text-white/50 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default"
+        onClick={() => toggleSection(id)}
+      >
+        <span>// {title}</span>
+        <span className="md:hidden">
+          {isOpen ? <Minus className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+        </span>
+      </div>
+      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[500px] mt-5 opacity-100' : 'max-h-0 opacity-0 md:max-h-[1000px] md:opacity-100 md:mt-0'}`}>
+        {children}
+      </div>
+    </motion.div>
+  );
+};
+
 export default function Footer() {
+  const [openSection, setOpenSection] = useState<string | null>(null);
+  const toggleSection = (section: string) => {
+    setOpenSection(openSection === section ? null : section);
+  };
 
   const heroRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -298,34 +328,18 @@ export default function Footer() {
       </div>
 
       {/* --- GRID --- */}
-      <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 relative z-20 border-t border-white/5 px-[6vw] w-full">
+      <div ref={gridRef} className="flex flex-col md:flex-row flex-wrap lg:flex-nowrap justify-between w-full relative z-20 border-t border-white/5 px-[6vw]">
         {/* Col 1 */}
-        <motion.div
-          className={colStyle}
-          initial={{ opacity: 0, y: 80 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0, ease: "easeOut" }}
-        >
-          <div className={labelStyle}>// STUDIO</div>
-          <div
-            className="block mb-3 text-[20px] transition-transform duration-300 hover:translate-x-2 hover:text-[#C41230] cursor-pointer"
-          >
+        <FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0}>
+          <div className="block mb-3 text-[20px] transition-transform duration-300 hover:translate-x-2 hover:text-[#C41230] cursor-pointer">
             <a href={`mailto:${settings?.email || 'hello@crossangle.com'}`} className="text-inherit no-underline">
               {settings?.email || 'hello@crossangle.com'}
             </a>
           </div>
-        </motion.div>
+        </FooterSection>
 
         {/* Col 2 */}
-        <motion.div
-          className={colStyle}
-          initial={{ opacity: 0, y: 80 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.1, ease: "easeOut" }}
-        >
-          <div className={labelStyle}>// LOCATIONS</div>
+        <FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1}>
           {settings?.address ? (
             <div className="text-[20px] font-serif mb-1 leading-snug max-w-[280px]">{settings.address}</div>
           ) : (
@@ -335,17 +349,10 @@ export default function Footer() {
             </>
           )}
           <LiveClock />
-        </motion.div>
+        </FooterSection>
 
         {/* Col 3: Quick Links — Core Navigation */}
-        <motion.div
-          className={colStyle}
-          initial={{ opacity: 0, y: 80 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-        >
-          <div className={labelStyle}>// NAVIGATE</div>
+        <FooterSection title="NAVIGATE" id="navigate" openSection={openSection} toggleSection={toggleSection} delay={0.2}>
           {[
             { key: 'home', name: 'Home', path: '/' },
             { key: 'services', name: 'Services', path: '/services' },
@@ -363,22 +370,14 @@ export default function Footer() {
               {name}
             </Link>
           ))}
-        </motion.div>
+        </FooterSection>
 
         {/* Col 4: Quick Links — Tools & Resources */}
-        <motion.div
-          className={colStyle}
-          initial={{ opacity: 0, y: 80 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
-        >
-          <div className={labelStyle}>// TOOLS</div>
+        <FooterSection title="QUICK LINKS" id="quick-links" openSection={openSection} toggleSection={toggleSection} delay={0.3}>
           {[
             { key: 'gallery', name: 'Gallery', path: '/gallery' },
             { key: 'estimate', name: 'Cost Estimator', path: '/estimate' },
-            { key: 'discovery', name: 'Style Discovery', path: '/aesthetic-discovery-engine' },
-            { key: 'blueprint', name: 'Design Blueprint', path: '/blueprint' },
+            { key: 'discovery', name: 'Style Discovery', path: '/aesthetic-discovery-engine' }
           ].map(({ key, name, path }) => (
             <Link
               key={key}
@@ -389,17 +388,10 @@ export default function Footer() {
               {name}
             </Link>
           ))}
-        </motion.div>
+        </FooterSection>
 
         {/* Col 5: Socials */}
-        <motion.div
-          className={colStyle}
-          initial={{ opacity: 0, y: 80 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-        >
-          <div className={labelStyle}>// SOCIALS</div>
+        <FooterSection title="SOCIALS" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.4}>
           {[
             { key: 'facebook', name: 'Facebook' },
             { key: 'instagram', name: 'Instagram' },
@@ -422,25 +414,25 @@ export default function Footer() {
               </a>
             );
           })}
-        </motion.div>
+        </FooterSection>
       </div>
 
       {/* --- BOTTOM --- */}
-      <div className="flex flex-col md:flex-row items-center justify-between pt-[24px] pb-[24px] px-[6vw] text-[10px] md:text-[11px] text-white/50 relative z-10 w-full mt-8 border-t border-white/10 uppercase tracking-[0.15em] font-sans">
-        <div className="flex flex-col md:flex-row items-center gap-3 md:gap-6 mb-4 md:mb-0 text-center md:text-left">
-          <span className="text-white/80">© {new Date().getFullYear()} CrossAngle Interior</span>
-          <span className="hidden md:inline text-[#C41230]/70">✦</span>
-          <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="hover:text-white hover:text-[#C41230] transition-colors duration-300">Privacy & DPDPA Policy</Link>
-          <span className="hidden md:inline text-[#C41230]/70">✦</span>
-          <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="hover:text-white hover:text-[#C41230] transition-colors duration-300">Terms & Conditions</Link>
+      <div className="flex flex-col lg:flex-row items-center justify-between pt-[32px] pb-[40px] px-[6vw] text-[10px] md:text-[11px] text-white/60 relative z-10 w-full mt-8 border-t border-white/10 uppercase tracking-[0.2em] font-sans">
+        <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 mb-6 lg:mb-0 text-center md:text-left">
+          <span className="text-white font-bold tracking-[0.3em]">© {new Date().getFullYear()} CROSSANGLE STUDIO</span>
+          <span className="hidden md:inline text-[#C41230]/70">|</span>
+          <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#C41230] transition-colors duration-300">PRIVACY & DPDPA FRAMEWORK</Link>
+          <span className="hidden md:inline text-[#C41230]/70">|</span>
+          <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#C41230] transition-colors duration-300">TERMS OF EXCELLENCE</Link>
         </div>
-        <div className="flex items-center gap-2 tracking-[0.2em] text-white/40">
-          <span>Design is in the Details</span>
+        <div className="flex items-center gap-2 tracking-[0.25em] text-white/40 font-semibold">
+          <span>AESTHETICS ENGINEERED FOR LUXURY</span>
         </div>
       </div>
 
       {/* --- BG TEXT --- */}
-      <div className="absolute bottom-[-80px] left-[50%] -translate-x-1/2 text-[clamp(100px,20vw,300px)] opacity-[0.03] font-serif pointer-events-none whitespace-nowrap z-0 select-none">
+      <div className="absolute bottom-[-110px] left-[50%] -translate-x-1/2 text-[clamp(100px,20vw,300px)] opacity-[0.03] font-serif pointer-events-none whitespace-nowrap z-0 select-none">
         CROSSANGLE
       </div>
 

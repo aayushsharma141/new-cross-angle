@@ -1886,3 +1886,304 @@ nav a:hover::after {
     transform: translateY(-16px) scale(1.04)
   }
 }
+
+/* ── SYSTEM DOCUMENTATION HUB STYLING ── */
+
+.doc-row {
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.doc-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scaleX(0);
+  width: 2px;
+  height: 50%;
+  background: #C41230;
+  transition: transform 0.2s;
+  transform-origin: left;
+}
+
+.doc-row:hover::before,
+.doc-row.active::before {
+  transform: translateY(-50%) scaleX(1);
+}
+
+/* Scrollbar styling for panels */
+.custom-panel-scroll::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-panel-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.custom-panel-scroll::-webkit-scrollbar-thumb {
+  background: rgba(196, 18, 48, 0.2);
+  border-radius: 2px;
+}
+
+.custom-panel-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(196, 18, 48, 0.5);
+}
+
+/* Prose markdown customizations */
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  font-family: 'Cormorant Garamond', serif !important;
+  color: #ffffff !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.03em !important;
+}
+
+.prose h1 {
+  font-size: 2.6rem !important;
+  line-height: 1.2 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 1rem !important;
+  margin-bottom: 2rem !important;
+}
+
+.prose h2 {
+  font-size: 1.8rem !important;
+  margin-top: 3.5rem !important;
+  margin-bottom: 1.25rem !important;
+  color: #f3f3f3 !important;
+}
+
+.prose h3 {
+  font-size: 1.4rem !important;
+  margin-top: 2.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.prose p {
+  font-family: 'Inter', sans-serif !important;
+  color: #d4d4d4 !important;
+  font-size: 1.05rem !important;
+  line-height: 1.85 !important;
+  margin-bottom: 1.75rem !important;
+}
+
+.prose ul, .prose ol {
+  font-family: 'Inter', sans-serif !important;
+  color: #d4d4d4 !important;
+  font-size: 1.05rem !important;
+  line-height: 1.85 !important;
+  margin-bottom: 1.75rem !important;
+}
+
+.prose li {
+  margin-bottom: 0.75rem !important;
+}
+
+.prose strong {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.prose code {
+  font-family: 'DM Mono', monospace !important;
+  font-size: 0.75rem !important;
+  padding: 0.2rem 0.4rem !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 3px !important;
+  color: #C41230 !important;
+}
+
+.prose pre {
+  margin: 1.5rem 0 !important;
+  padding: 1rem !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  background: #09090b !important;
+}
+
+.prose pre code {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  color: #a8ff60 !important; /* retro light green terminal color */
+  font-size: 0.75rem !important;
+}
+
+.prose table {
+  width: 100% !important;
+  margin: 1.5rem 0 !important;
+  border-collapse: collapse !important;
+  font-family: 'DM Mono', monospace !important;
+  font-size: 0.75rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.prose th {
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  padding: 0.75rem 1rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.prose td {
+  padding: 0.75rem 1rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #e0e0e0 !important;
+}
+
+.prose tr:hover {
+  background: rgba(255, 255, 255, 0.01) !important;
+}
+
+.prose blockquote {
+  border-left: 2px solid #C41230 !important;
+  padding-left: 1.25rem !important;
+  color: #a3a3a3 !important;
+  font-style: italic !important;
+}
+
+/* Workspace terminal window mock */
+.terminal-window {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(196, 18, 48, 0.15) inset, 0 0 0 1px rgba(255,255,255,0.05);
+  background: linear-gradient(180deg, rgba(9,9,11,0.85) 0%, rgba(5,5,7,0.95) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 12px;
+  position: relative;
+}
+
+.terminal-window::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196, 18, 48, 0.5), transparent);
+  opacity: 0.8;
+}
+
+.terminal-header {
+  background: rgba(14, 14, 17, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.5);
+}
+
+.dot-red { background: #ff5f56; box-shadow: 0 0 8px rgba(255, 95, 86, 0.4); }
+.dot-yellow { background: #ffbd2e; box-shadow: 0 0 8px rgba(255, 189, 46, 0.4); }
+.dot-green { background: #27c93f; box-shadow: 0 0 8px rgba(39, 201, 63, 0.4); }
+
+/* Status Scorecard Grid */
+.scorecard-metric {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 12px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.scorecard-metric::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(to bottom right, rgba(255,255,255,0.1), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.scorecard-metric:hover {
+  border-color: rgba(196, 18, 48, 0.6);
+  background: linear-gradient(135deg, rgba(196,18,48,0.08) 0%, rgba(0,0,0,0) 100%);
+  box-shadow: 0 12px 40px rgba(196, 18, 48, 0.2), inset 0 0 20px rgba(196, 18, 48, 0.1);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* Document Row Hover Effects */
+.doc-row {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 6px;
+  margin-bottom: 2px;
+}
+
+.doc-row:hover {
+  background: linear-gradient(90deg, rgba(196,18,48,0.1) 0%, transparent 100%);
+  border-color: rgba(196,18,48,0.2);
+  transform: translateX(4px);
+}
+
+.doc-row.active {
+  background: linear-gradient(90deg, rgba(196,18,48,0.15) 0%, rgba(196,18,48,0.05) 100%);
+  border-left: 2px solid #C41230;
+}
+
+.doc-row::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #C41230;
+  transform: scaleY(0);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center;
+}
+
+.doc-row:hover::before,
+.doc-row.active::before {
+  transform: scaleY(1);
+}
+
+/* FadeIn Animations for Phase switching */
+.animate-fadeIn {
+  animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom Scrollbar for Terminal log outputs */
+.custom-panel-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-panel-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+.custom-panel-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.custom-panel-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(196, 18, 48, 0.4);
+}
