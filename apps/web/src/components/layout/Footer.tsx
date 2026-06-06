@@ -192,14 +192,15 @@ interface FooterSectionProps {
   toggleSection: (id: string) => void;
   children: React.ReactNode;
   delay: number;
+  className?: string;
 }
 
 // MAIN COMPONENT
-const FooterSection = ({ title, id, openSection, toggleSection, children, delay }: FooterSectionProps) => {
+const FooterSection = ({ title, id, openSection, toggleSection, children, delay, className = "" }: FooterSectionProps) => {
   const isOpen = openSection === id;
   return (
     <motion.div
-      className="flex-1 min-w-[150px] p-[clamp(16px,2vw,32px)]"
+      className={`flex-1 min-w-[150px] p-[clamp(16px,2vw,32px)] ${className}`}
       initial={{ opacity: 0, y: 80 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -284,7 +285,7 @@ export default function Footer() {
       <div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-[#020202] via-[#020202]/70 to-transparent z-10 pointer-events-none" />
 
       {/* --- HERO --- */}
-      <div ref={heroRef} className="pt-[80px] pb-[48px] px-[6vw] relative z-20 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-12">
+      <div ref={heroRef} className="pt-[80px] pb-[48px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-12">
         <div className="max-w-[90vw] lg:max-w-[55%]">
           <motion.h2
             className="font-serif leading-[1.05] text-[clamp(2.8rem,6.5vw,5.8rem)] tracking-tighter animate-in fade-in slide-in-from-bottom duration-1000"
@@ -337,9 +338,9 @@ export default function Footer() {
       </div>
 
       {/* --- GRID --- */}
-      <div ref={gridRef} className="flex flex-col md:flex-row flex-wrap lg:flex-nowrap justify-between w-full relative z-20 border-t border-white/5 px-[6vw]">
+      <div ref={gridRef} className="flex flex-col md:flex-row flex-wrap lg:flex-nowrap justify-between w-full relative z-20 border-t border-white/5 container-wide mx-auto px-4 sm:px-6 lg:px-10">
         {/* Col 1 */}
-        <FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0}>
+        <FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="md:pl-0">
           <div className="block mb-3 text-[20px] transition-transform duration-300 hover:translate-x-2 hover:text-[#C41230] cursor-pointer">
             <a href={`mailto:${settings?.email || 'hello@crossangle.com'}`} className="text-inherit no-underline">
               {settings?.email || 'hello@crossangle.com'}
@@ -400,7 +401,7 @@ export default function Footer() {
         </FooterSection>
 
         {/* Col 5: Socials */}
-        <FooterSection title="SOCIALS" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.4}>
+        <FooterSection title="SOCIALS" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.4} className="md:pr-0">
           {[
             { key: 'facebook', name: 'Facebook' },
             { key: 'instagram', name: 'Instagram' },
@@ -427,12 +428,10 @@ export default function Footer() {
       </div>
 
       {/* --- BOTTOM --- */}
-      <div className="flex flex-col lg:flex-row items-center justify-between pt-[32px] pb-[40px] px-[6vw] text-[10px] md:text-[11px] text-white/60 relative z-10 w-full mt-8 border-t border-white/10 uppercase tracking-[0.2em] font-sans">
+      <div className="flex flex-col lg:flex-row items-center justify-between pt-[32px] pb-[40px] container-wide mx-auto px-4 sm:px-6 lg:px-10 text-[10px] md:text-[11px] text-white/60 relative z-10 w-full mt-8 border-t border-white/10 uppercase tracking-[0.2em] font-sans">
         <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 mb-6 lg:mb-0 text-center md:text-left">
           <span className="text-white font-bold tracking-[0.3em]">© {new Date().getFullYear()} CROSSANGLE STUDIO</span>
-          <span className="hidden md:inline text-[#C41230]/70">|</span>
           <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#C41230] transition-colors duration-300">PRIVACY & DPDPA FRAMEWORK</Link>
-          <span className="hidden md:inline text-[#C41230]/70">|</span>
           <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#C41230] transition-colors duration-300">TERMS OF EXCELLENCE</Link>
         </div>
         <div className="flex items-center gap-2 tracking-[0.25em] text-white/40 font-semibold">
