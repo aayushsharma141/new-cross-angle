@@ -75,8 +75,9 @@ const ServiceCategoryPage = () => {
                     </div>
 
                     {/* Services List */}
-                    <section className="py-20">
+                    <section className="py-20" aria-labelledby="services-list-heading">
                         <div className="container px-4">
+                            <h2 id="services-list-heading" className="sr-only">Our {category.title} Services</h2>
                             <div className="grid grid-cols-1 gap-12">
                                 {categoryServices.map((service, index) => (
                                     <motion.div
@@ -98,7 +99,7 @@ const ServiceCategoryPage = () => {
                                             />
                                         </div>
                                         <div className={`${index % 2 === 1 ? 'md:order-1 md:text-right' : ''}`}>
-                                            <h2 className="font-serif text-3xl mb-4 text-primary">{service.title}</h2>
+                                            <h3 className="font-serif text-3xl mb-4 text-primary">{service.title}</h3>
                                             <p className="text-muted-foreground mb-6 leading-relaxed">
                                                 {service.description}
                                             </p>
@@ -122,10 +123,10 @@ const ServiceCategoryPage = () => {
                     </section>
 
                     {/* CTA */}
-                    <section className="py-20 bg-accent/10">
+                    <section className="py-20 bg-accent/10" aria-labelledby="cta-heading">
                         <div className="container text-center">
-                            <h2 className="font-serif text-3xl mb-4">Not finding what you're looking for?</h2>
-                            <p className="text-muted-foreground mb-8">We also offer custom design solutions tailored to your unique needs.</p>
+                            <h2 id="cta-heading" className="font-serif text-3xl mb-4">Need Custom {category.title} Solutions?</h2>
+                            <p className="text-muted-foreground mb-8">We offer bespoke design services tailored to your unique requirements.</p>
                             <Button variant="outline" size="lg" asChild>
                                 <Link to="/contact-us">Contact Our Design Team</Link>
                             </Button>

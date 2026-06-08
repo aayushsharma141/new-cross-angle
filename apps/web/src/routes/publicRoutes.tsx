@@ -20,11 +20,14 @@ const SharedResultPage = lazy(() => import("@/addons/discovery/pages/SharedResul
 const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
 const TermsPage = lazy(() => import("@/pages/TermsPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+const OurProcessPage = lazy(() => import("@/pages/OurProcessPage"));
+const LocationPage = lazy(() => import("@/pages/LocationPage"));
 
 export const publicRoutes = (
   <>
     <Route path="/" element={<PageTransition><Index /></PageTransition>} />
     <Route path="/about-us" element={<PageTransition><AboutPage /></PageTransition>} />
+    <Route path="/our-process" element={<PageTransition><OurProcessPage /></PageTransition>} />
     <Route path="/services" element={<PageTransition><ServicesPage /></PageTransition>} />
     <Route path="/services/:category" element={<PageTransition><ServiceCategoryPage /></PageTransition>} />
     <Route path="/services/:category/:service" element={<PageTransition><ServiceDetailPage /></PageTransition>} />
@@ -38,6 +41,7 @@ export const publicRoutes = (
     <Route path="/aesthetic-discovery-engine/results/:slug" element={<PageTransition><SharedResultPage /></PageTransition>} />
     <Route path="/blueprint" element={<PageTransition><BlueprintPage /></PageTransition>} />
     <Route path="/portfolio/:slug" element={<PageTransition><ProjectPage /></PageTransition>} />
+    <Route path="/locations/:city" element={<PageTransition><LocationPage /></PageTransition>} />
     <Route path="/privacy" element={<PageTransition><PrivacyPage /></PageTransition>} />
     <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
     <Route path="/terms" element={<PageTransition><TermsPage /></PageTransition>} />

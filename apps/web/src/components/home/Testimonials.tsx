@@ -41,35 +41,46 @@ const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md
 
 const TestimonialCard = ({
   item,
-  featured,
   index,
 }: {
   item: Testimonial;
-  featured: boolean;
   index: number;
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const contentRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const checkTruncation = () => {
+      if (contentRef.current && !isExpanded) {
+        setIsTruncated(contentRef.current.scrollHeight > contentRef.current.clientHeight);
+      }
+    };
+    
+    // Slight delay to ensure fonts/layout are fully rendered before calculating
+    const timeoutId = setTimeout(checkTruncation, 100);
+    window.addEventListener("resize", checkTruncation);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", checkTruncation);
+    };
+  }, [item.content, isExpanded]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.45, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.5, delay: Math.min(index * 0.1, 0.5), ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        "relative p-7 rounded-2xl border flex flex-col h-full group overflow-hidden transition-all duration-500",
-        featured
-          ? "bg-[#151412] border-site-gold/25 shadow-[0_0_50px_rgba(209,175,110,0.10)] md:-translate-y-3 z-10 ring-1 ring-site-gold/10"
-          : "bg-[#0d0d0c] border-white/[0.06] hover:border-site-gold/15 hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
+        "relative p-6 md:p-8 rounded-2xl border flex flex-col group overflow-hidden transition-all duration-500",
+        "w-[300px] md:w-[380px] snap-center shrink-0",
+        "h-auto min-h-[280px] md:min-h-[320px]",
+        "bg-[#0d0d0c] border-white/[0.06] hover:border-site-gold/20 hover:shadow-[0_12px_40px_rgba(209,175,110,0.06)]"
       )}
     >
-      {featured && (
-        <div className="absolute inset-0 bg-gradient-to-br from-[rgba(209,175,110,0.06)] via-transparent to-[rgba(180,40,40,0.02)] pointer-events-none" />
-      )}
-
       <Quote
-        className={cn(
-          "absolute -top-1 right-4 w-16 h-16 transition-all duration-500 pointer-events-none",
-          featured ? "opacity-10 text-site-gold" : "opacity-[0.04] text-white group-hover:opacity-[0.08]"
-        )}
+        className="absolute -top-1 right-4 w-16 h-16 transition-all duration-500 pointer-events-none opacity-[0.03] text-white group-hover:opacity-10 group-hover:text-site-gold"
       />
 
       {/* Stars */}
@@ -78,67 +89,56 @@ const TestimonialCard = ({
       </div>
 
       {/* Content */}
-      <p
-        className={cn(
-          "leading-relaxed font-light italic flex-grow relative z-10 mb-7",
-          featured
-            ? "text-white/85 text-[1.0rem] md:text-[1.1rem]"
-            : "text-white/60 text-[0.93rem] md:text-[1.0rem] group-hover:text-white/75 transition-colors duration-300"
+      <div className="flex-grow relative z-10 mb-6 flex flex-col items-start justify-start">
+        <p 
+          ref={contentRef}
+          className={cn(
+            "leading-relaxed font-light italic text-white/70 text-[0.9rem] md:text-[1rem] group-hover:text-white/90 transition-colors duration-300",
+            !isExpanded && "line-clamp-4 md:line-clamp-5"
+          )}
+        >
+          &ldquo;{item.content}&rdquo;
+        </p>
+        {(isTruncated || isExpanded) && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-site-gold/80 hover:text-site-gold text-[0.75rem] md:text-[0.8rem] font-medium tracking-widest uppercase mt-3 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-site-gold rounded px-1 -mx-1"
+          >
+            {isExpanded ? "Read less" : "Read more..."}
+          </button>
         )}
-      >
-        &ldquo;{item.content}&rdquo;
-      </p>
+      </div>
 
       {/* Author */}
-      <div className="flex items-center gap-3.5 mt-auto pt-5 border-t border-white/[0.06] relative z-10">
+      <div className="flex items-center gap-4 mt-auto pt-5 border-t border-white/[0.06] relative z-10">
         {item.avatar_url ? (
           <Image
             src={item.avatar_url}
             alt={item.author_name}
-            className="w-10 h-10 rounded-full flex-shrink-0"
+            className="w-11 h-11 rounded-full flex-shrink-0"
             imageClassName="object-cover border border-white/10"
             width={80}
             height={80}
           />
         ) : (
-          <div
-            className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border transition-colors duration-300",
-              featured
-                ? "bg-site-gold/15 border-site-gold/30"
-                : "bg-white/[0.05] border-white/10 group-hover:bg-site-gold/10 group-hover:border-site-gold/20"
-            )}
-          >
-            <span
-              className={cn(
-                "font-bold font-serif text-sm",
-                featured ? "text-site-gold" : "text-white/60 group-hover:text-site-gold/70 transition-colors duration-300"
-              )}
-            >
+          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 border transition-colors duration-300 bg-white/[0.05] border-white/10 group-hover:bg-site-gold/15 group-hover:border-site-gold/30">
+            <span className="font-bold font-serif text-sm text-white/60 group-hover:text-site-gold transition-colors duration-300">
               {item.author_name.charAt(0).toUpperCase()}
             </span>
           </div>
         )}
         <div className="min-w-0">
-          <h4 className="text-white font-medium text-sm truncate">{item.author_name}</h4>
-          <p className="text-white/35 text-xs mt-0.5 truncate">
+          <h4 className="text-white font-medium text-[0.9rem] truncate">{item.author_name}</h4>
+          <p className="text-white/40 text-[0.75rem] mt-0.5 truncate uppercase tracking-widest font-sans">
             {[item.author_role, item.city].filter(Boolean).join(" · ")}
           </p>
         </div>
-        {featured && (
-          <div className="ml-auto">
-            <span className="text-[9px] uppercase tracking-[0.2em] text-site-gold/70 font-bold bg-site-gold/8 border border-site-gold/20 px-2 py-0.5 rounded-full">
-              Featured
-            </span>
-          </div>
-        )}
       </div>
     </motion.div>
   );
 };
 
 const Testimonials = () => {
-  const [page, setPage] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -163,22 +163,37 @@ const Testimonials = () => {
     gcTime: 30 * 60 * 1000,
   });
 
-  const PER_PAGE = 3;
-  const totalPages = testimonials.length > 0 ? Math.ceil(testimonials.length / PER_PAGE) : 0;
-  const safePage = totalPages > 0 ? Math.min(page, totalPages - 1) : 0;
-  const visibleCards = testimonials.slice(safePage * PER_PAGE, safePage * PER_PAGE + PER_PAGE);
+  const getScrollAmount = () => {
+    if (typeof window === "undefined") return 404;
+    return window.innerWidth < 768 ? 320 : 404; // Card width + gap
+  };
+
+  const scrollLeft = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({ left: -getScrollAmount(), behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy({ left: getScrollAmount(), behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
-    if (totalPages > 0 && page >= totalPages) setPage(0);
-  }, [totalPages, page]);
-
-  useEffect(() => {
-    if (isPaused || totalPages <= 1) return;
+    if (isPaused || testimonials.length <= 1) return;
     const interval = setInterval(() => {
-      setPage((prev) => (prev + 1) % totalPages);
-    }, 6000);
+      if (containerRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+        if (scrollLeft + clientWidth >= scrollWidth - 20) {
+          containerRef.current.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          containerRef.current.scrollBy({ left: getScrollAmount(), behavior: "smooth" });
+        }
+      }
+    }, 5000);
     return () => clearInterval(interval);
-  }, [isPaused, totalPages]);
+  }, [isPaused, testimonials.length]);
 
   if (!isLoading && testimonials.length === 0) return null;
 
@@ -229,26 +244,20 @@ const Testimonials = () => {
 
         {/* ── Cards ── */}
         <div
-          ref={containerRef}
-          className="relative max-w-6xl mx-auto"
+          className="relative max-w-7xl mx-auto"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          {/* Glow behind featured */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45%] h-[65%] bg-site-gold/6 blur-[90px] rounded-full pointer-events-none hidden md:block" />
+          {/* Glow behind the carousel */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-site-gold/5 blur-[100px] rounded-full pointer-events-none hidden md:block" />
 
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
+            <div className="flex overflow-hidden gap-5 md:gap-6 px-4 md:px-8">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className={`rounded-2xl border bg-[#0d0d0c] p-7 h-[300px] flex flex-col ${
-                    i === 1
-                      ? "border-site-gold/15 shadow-[0_0_40px_rgba(209,175,110,0.06)]"
-                      : "border-white/[0.06]"
-                  }`}
+                  className="rounded-2xl border bg-[#0d0d0c] border-white/[0.06] p-6 md:p-8 h-auto min-h-[280px] md:min-h-[320px] flex flex-col w-[300px] md:w-[380px] shrink-0"
                 >
-                  {/* Star placeholders */}
                   <div className="flex gap-1.5 mb-5">
                     {Array.from({ length: 5 }).map((_, j) => (
                       <div
@@ -258,7 +267,6 @@ const Testimonials = () => {
                       />
                     ))}
                   </div>
-                  {/* Quote text lines */}
                   <div className="space-y-2.5 mb-7 flex-1">
                     {[100, 83, 67, 50].map((w, k) => (
                       <div
@@ -268,84 +276,52 @@ const Testimonials = () => {
                       />
                     ))}
                   </div>
-                  {/* Author row */}
                   <div className="flex items-center gap-3 pt-5 border-t border-white/[0.05]">
                     <div
                       className="skeleton-shimmer w-10 h-10 rounded-full flex-shrink-0"
                       style={{ animationDelay: `${i * 120 + 600}ms` }}
                     />
                     <div className="space-y-2 flex-1">
-                      <div
-                        className="skeleton-shimmer h-3 w-28 rounded-lg"
-                        style={{ animationDelay: `${i * 120 + 680}ms` }}
-                      />
-                      <div
-                        className="skeleton-shimmer h-2 w-20 rounded-lg"
-                        style={{ animationDelay: `${i * 120 + 760}ms` }}
-                      />
+                      <div className="skeleton-shimmer h-3 w-28 rounded-lg" style={{ animationDelay: `${i * 120 + 680}ms` }} />
+                      <div className="skeleton-shimmer h-2 w-20 rounded-lg" style={{ animationDelay: `${i * 120 + 760}ms` }} />
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={safePage}
-                className={cn(
-                  "grid grid-cols-1 gap-5 md:gap-6",
-                  visibleCards.length >= 3
-                    ? "md:grid-cols-3"
-                    : visibleCards.length === 2
-                    ? "md:grid-cols-2 max-w-4xl mx-auto"
-                    : "max-w-lg mx-auto"
-                )}
-              >
-                {visibleCards.map((item, i) => (
-                  <TestimonialCard
-                    key={item.id}
-                    item={item}
-                    featured={visibleCards.length === 3 && i === 1}
-                    index={i}
-                  />
-                ))}
-              </motion.div>
-            </AnimatePresence>
+            <div 
+              ref={containerRef}
+              className="flex overflow-x-auto snap-x snap-mandatory gap-5 md:gap-6 pb-12 hide-scrollbar px-4 md:px-12 -mx-4 md:-mx-12 scroll-smooth"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {testimonials.map((item, i) => (
+                <TestimonialCard
+                  key={item.id}
+                  item={item}
+                  index={i}
+                />
+              ))}
+            </div>
           )}
 
-          {/* Pagination */}
-          {!isLoading && totalPages > 1 && (
-            <div className="flex items-center justify-center gap-5 mt-10">
+          {/* Slider Navigation */}
+          {!isLoading && testimonials.length > 1 && (
+            <div className="flex items-center justify-center gap-4 mt-2">
               <button
-                onClick={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
-                className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/35 hover:border-site-gold/40 hover:text-site-gold hover:bg-site-gold/5 transition-all duration-300"
-                aria-label="Previous reviews"
+                onClick={scrollLeft}
+                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:border-site-gold/50 hover:text-site-gold hover:bg-site-gold/10 transition-all duration-300"
+                aria-label="Previous review"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-5 h-5" />
               </button>
-
-              <div className="flex gap-1.5 items-center">
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setPage(i)}
-                    className={cn(
-                      "h-1 rounded-full transition-all duration-300",
-                      i === safePage
-                        ? "w-8 bg-site-gold"
-                        : "w-1.5 bg-white/15 hover:bg-site-gold/40"
-                    )}
-                    aria-label={`Go to page ${i + 1}`}
-                  />
-                ))}
-              </div>
-
+              
               <button
-                onClick={() => setPage((p) => (p + 1) % totalPages)}
-                className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/35 hover:border-site-gold/40 hover:text-site-gold hover:bg-site-gold/5 transition-all duration-300"
-                aria-label="Next reviews"
+                onClick={scrollRight}
+                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:border-site-gold/50 hover:text-site-gold hover:bg-site-gold/10 transition-all duration-300"
+                aria-label="Next review"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-5 h-5" />
               </button>
             </div>
           )}

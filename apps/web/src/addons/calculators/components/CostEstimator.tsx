@@ -179,30 +179,30 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                             const active = i === currentStep;
                             const isClickable = i <= currentStep;
                             return (
-                                <li 
-                                    key={i}
-                                    role="button"
-                                    tabIndex={isClickable ? 0 : -1}
-                                    aria-current={active ? "step" : undefined}
-                                    aria-label={`Step ${i + 1}: ${label}${done ? " (completed)" : active ? " (current)" : ""}`}
-                                    onClick={() => isClickable && goToStep(i)}
-                                    onKeyDown={(e) => { if (isClickable && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); goToStep(i); } }}
-                                    className={`flex items-center gap-3 py-2.5 text-[14px] transition-all duration-200 rounded-md px-1 -mx-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2 ${
-                                        isClickable 
-                                            ? "cursor-pointer text-[#1a1a1a] hover:text-[#8b6f47] hover:bg-[#8b6f47]/[0.04]" 
-                                            : "cursor-not-allowed text-[#5a5a5a]/40"
-                                    } ${active ? "text-[#1a1a1a] font-semibold" : done ? "text-[#8b6f47]" : ""}`}
-                                >
-                                    <div className={`w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center text-[11px] font-semibold shrink-0 transition-all duration-300 bg-white ${
-                                        active 
-                                            ? "border-[#8b6f47] bg-[#8b6f47] text-white shadow-[0_0_8px_rgba(209,175,110,0.4)]" 
-                                            : done 
-                                                ? "border-[#8b6f47] text-[#8b6f47]" 
-                                                : "border-[#1a1a1a]/[0.08] text-[#5a5a5a]/40"
-                                    }`} aria-hidden="true">
-                                        {done ? "✓" : i + 1}
-                                    </div>
-                                    <span>{label}</span>
+                                <li key={i}>
+                                    <button
+                                        type="button"
+                                        disabled={!isClickable}
+                                        aria-current={active ? "step" : undefined}
+                                        aria-label={`Step ${i + 1}: ${label}${done ? " (completed)" : active ? " (current)" : ""}`}
+                                        onClick={() => isClickable && goToStep(i)}
+                                        className={`w-full flex items-center gap-3 py-2.5 text-[14px] transition-all duration-200 rounded-md px-1 -mx-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2 ${
+                                            isClickable 
+                                                ? "cursor-pointer text-[#1a1a1a] hover:text-[#8b6f47] hover:bg-[#8b6f47]/[0.04]" 
+                                                : "cursor-not-allowed text-[#5a5a5a]/40"
+                                        } ${active ? "text-[#1a1a1a] font-semibold" : done ? "text-[#8b6f47]" : ""}`}
+                                    >
+                                        <div className={`w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center text-[11px] font-semibold shrink-0 transition-all duration-300 bg-white ${
+                                            active 
+                                                ? "border-[#8b6f47] bg-[#8b6f47] text-white shadow-[0_0_8px_rgba(209,175,110,0.4)]" 
+                                                : done 
+                                                    ? "border-[#8b6f47] text-[#8b6f47]" 
+                                                    : "border-[#1a1a1a]/[0.08] text-[#5a5a5a]/40"
+                                        }`} aria-hidden="true">
+                                            {done ? "✓" : i + 1}
+                                        </div>
+                                        <span>{label}</span>
+                                    </button>
                                 </li>
                             );
                         })}

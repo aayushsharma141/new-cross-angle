@@ -9,6 +9,7 @@ import {
   okResponse,
   structuredLog,
   getRequestId,
+  readLimitedBody,
 } from "../_lib/security.ts";
 
 const HIGH_VALUE_THRESHOLD = 5_000_000;
@@ -267,7 +268,12 @@ Deno.serve(async (req) => {
       return unauthorizedResponse(req, "Invalid webhook secret", {}, requestId);
     }
 
-    const payload = await req.json() as WebhookPayload;
+    // Enforce 10KB payload limit — DB trigger payloads are typically <1KB.
+    // Oversized payloads could cause OOM crashes or billing abuse.
+    const { body: payload, error: sizeError } = await readLimitedBody<WebhookPayload>(req, 10 * 1024);
+    if (sizeError || !payload) {
+      return badRequestResponse(req, sizeError ?? "Empty payload", {}, requestId);
+    }
     const eventType = payload.type || payload.eventType;
 
     if (eventType && !SUPPORTED_EVENTS.has(eventType)) {

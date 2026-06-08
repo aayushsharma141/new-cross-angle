@@ -62,7 +62,6 @@ const ServicesPage = () => {
 
         <ServicesHero />
         <ServicesMarquee />
-        <OurApproach />
 
         {/* RESIDENTIAL */}
         <section id="residential" className="relative overflow-hidden py-24 lg:py-40 px-6">
@@ -161,8 +160,8 @@ const ServicesPage = () => {
                   viewport={{ once: true }}
                   className="font-serif font-bold text-[clamp(2.5rem,6vw,5rem)] leading-[1.05] tracking-tight text-white"
                 >
-                  Commercial<br />
-                  <em className="italic font-light text-site-crimson underline underline-offset-[12px] decoration-white/10 decoration-[4px]">&amp; Office Space</em>
+                  <span className="whitespace-nowrap">Office &amp; Commercial</span><br />
+                  <em className="italic font-light text-site-crimson underline underline-offset-[12px] decoration-white/10 decoration-[4px]">Interiors</em>
                 </motion.h2>
               </div>
               <motion.p
@@ -171,7 +170,7 @@ const ServicesPage = () => {
                 viewport={{ once: true }}
                 className="text-[1.1rem] text-white/60 max-w-[36ch] font-light leading-relaxed md:text-right"
               >
-                Smart office designs that improve work and impress your clients.
+                Functional workspaces designed for productivity and brand impact.
               </motion.p>
             </div>
 
@@ -266,6 +265,8 @@ const ServicesPage = () => {
             )}
           </div>
         </section>
+
+        <OurApproach />
 
         <ServicesEngines />
 

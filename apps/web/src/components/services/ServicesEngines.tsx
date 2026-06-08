@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, useInView, useSpring, useMotionValue, AnimatePresence } from "framer-motion";
-import { ArrowRight, Compass, Calculator, Sparkles } from "lucide-react";
+import { ArrowRight, Compass, Calculator, Sparkles, Fingerprint, Palette, Layers, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /* ─── Types ─────────────────────────────────────────────── */
@@ -11,13 +11,147 @@ interface Engine {
   subheading: string;
   description: string;
   primaryCta: { label: string; href: string };
-  secondaryCta?: { label: string; href: string };
+  secondaryCta?: { label: string; href?: string; modalTitle?: string; modalContent?: React.ReactNode };
   icon: React.ReactNode;
   glowColor: string;
   decorNumber: string;
   credibility: string;
   reverse?: boolean;
+  visual: React.ReactNode;
+  useCases?: string[];
 }
+
+const DiscoveryVisual = () => (
+  <motion.div 
+    whileHover={{ y: -5, scale: 1.02 }}
+    transition={{ duration: 0.4, ease: "easeOut" }}
+    className="relative w-full aspect-square md:aspect-[4/3] rounded-3xl border border-white/10 bg-[#0a0a0a]/80 overflow-hidden backdrop-blur-xl p-6 md:p-8 flex flex-col shadow-2xl shadow-black/50"
+  >
+    <div className="absolute -top-20 -right-20 w-64 h-64 bg-site-gold/10 blur-[80px] rounded-full pointer-events-none" />
+    
+    <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-6 relative z-10">
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-white/5 rounded-lg border border-white/5">
+          <Fingerprint className="w-5 h-5 text-site-gold" />
+        </div>
+        <span className="text-white/90 font-medium text-sm tracking-wide">Spatial DNA Profile</span>
+      </div>
+      <div className="flex items-center gap-2 bg-site-gold/10 px-3 py-1.5 rounded-full border border-site-gold/20">
+        <Sparkles className="w-3 h-3 text-site-gold" />
+        <span className="text-[10px] text-site-gold uppercase tracking-widest font-bold">100% Match</span>
+      </div>
+    </div>
+
+    <div className="flex-1 flex flex-col justify-center space-y-8 relative z-10">
+      <div>
+        <span className="block text-[10px] text-white/40 uppercase tracking-[0.2em] mb-2">Design Archetype</span>
+        <div className="text-2xl md:text-3xl font-serif text-white tracking-tight">Modern <span className="italic text-site-gold">Minimalist</span></div>
+      </div>
+      
+      <div>
+        <span className="block text-[10px] text-white/40 uppercase tracking-[0.2em] mb-3">Palette Extraction</span>
+        <div className="flex gap-3">
+          {['#121212', '#2A2A2A', '#D1AF6E', '#C41E3A', '#EFEFEF'].map((color, i) => (
+            <motion.div 
+              key={color}
+              initial={{ scale: 0, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              transition={{ delay: i * 0.1 + 0.3 }}
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-[#1a1a1a] shadow-lg relative group/color"
+              style={{ backgroundColor: color }}
+            >
+              <div className="absolute inset-0 rounded-full bg-white/0 group-hover/color:bg-white/20 transition-colors" />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 md:gap-4 mt-2">
+        {[
+          { icon: <Layers className="w-4 h-4 text-white/40" />, label: "Texture", value: "Matte & Fluted" },
+          { icon: <Palette className="w-4 h-4 text-white/40" />, label: "Contrast", value: "High / Dramatic" }
+        ].map((trait, i) => (
+          <motion.div 
+            key={i}
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.2 + 0.6 }}
+            className="flex flex-col gap-2 bg-white/[0.02] p-3 md:p-4 rounded-xl border border-white/[0.04]"
+          >
+            <div className="flex items-center gap-2">
+              {trait.icon}
+              <span className="text-[9px] md:text-[10px] text-white/40 uppercase tracking-widest">{trait.label}</span>
+            </div>
+            <span className="text-xs md:text-sm text-white/90 font-medium">{trait.value}</span>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </motion.div>
+);
+
+const EstimatorVisual = () => (
+  <motion.div 
+    whileHover={{ y: -5, scale: 1.02 }}
+    transition={{ duration: 0.4, ease: "easeOut" }}
+    className="relative w-full aspect-square md:aspect-[4/3] rounded-3xl border border-white/10 bg-[#0a0a0a]/80 overflow-hidden backdrop-blur-xl p-6 md:p-8 flex flex-col shadow-2xl shadow-black/50"
+  >
+    <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-site-crimson/10 blur-[80px] rounded-full pointer-events-none" />
+    
+    <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-6 relative z-10">
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-white/5 rounded-lg border border-white/5">
+          <Calculator className="w-5 h-5 text-site-crimson" />
+        </div>
+        <span className="text-white/90 font-medium text-sm tracking-wide">Investment Projection</span>
+      </div>
+      <div className="flex items-center gap-2 bg-green-500/10 px-3 py-1.5 rounded-full border border-green-500/20">
+        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+        <span className="text-[10px] text-green-400 uppercase tracking-widest font-bold">Live Data</span>
+      </div>
+    </div>
+
+    <div className="flex-1 flex flex-col justify-center space-y-6 relative z-10">
+      <div className="grid grid-cols-2 gap-3 md:gap-4">
+        <div className="bg-black/60 p-3 md:p-4 rounded-xl border border-white/[0.04] flex flex-col gap-1">
+          <span className="text-[9px] md:text-[10px] text-white/40 uppercase tracking-widest">Property Scope</span>
+          <span className="text-white font-medium text-sm md:text-base">3 BHK Premium</span>
+        </div>
+        <div className="bg-black/60 p-3 md:p-4 rounded-xl border border-white/[0.04] flex flex-col gap-1">
+          <span className="text-[9px] md:text-[10px] text-white/40 uppercase tracking-widest">Carpet Area</span>
+          <span className="text-white font-medium text-sm md:text-base">2,500 Sq.Ft</span>
+        </div>
+      </div>
+
+      <div className="bg-white/[0.02] border border-site-gold/20 p-5 md:p-6 rounded-2xl relative overflow-hidden mt-2">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-site-gold/20 via-site-gold to-site-crimson" />
+        <span className="block text-[9px] md:text-[10px] text-white/40 uppercase tracking-[0.2em] mb-3">Calibrated Investment Range</span>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+          className="flex items-baseline gap-3"
+        >
+          <span className="text-3xl md:text-5xl font-serif text-white tracking-tight">₹45L</span>
+          <span className="text-white/30 text-xl md:text-2xl">—</span>
+          <span className="text-3xl md:text-5xl font-serif text-site-gold tracking-tight">₹60L</span>
+        </motion.div>
+        
+        <div className="flex items-center gap-4 mt-6 pt-5 border-t border-white/5">
+          <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              whileInView={{ width: "65%" }}
+              transition={{ delay: 0.6, duration: 1.5, ease: "easeOut" }}
+              className="h-full bg-gradient-to-r from-site-gold to-site-crimson rounded-full"
+            />
+          </div>
+          <span className="text-[9px] md:text-[10px] text-white/50 font-mono tracking-wider">±12% Variance</span>
+        </div>
+      </div>
+    </div>
+  </motion.div>
+);
 
 const ENGINES: Engine[] = [
   {
@@ -27,26 +161,76 @@ const ENGINES: Engine[] = [
     description:
       "Most clients arrive with inspiration images and a vague sense of what they want. Our Discovery Engine translates that ambiguity into a precise aesthetic profile — your spatial DNA. Answer a curated set of questions and receive a design archetype, mood alignment, and a personalised brief your designer can act on from day one.",
     primaryCta: { label: "Begin Discovery", href: "/aesthetic-discovery-engine" },
-    secondaryCta: { label: "How It Works", href: "/services#discovery" },
+    secondaryCta: { 
+      label: "How It Works", 
+      modalTitle: "How the Discovery Engine Works",
+      modalContent: (
+        <div className="space-y-5 text-white/70 text-sm leading-relaxed">
+          <p>
+            <strong className="text-white">1. The Questionnaire:</strong> You start by answering a carefully curated sequence of questions covering your daily routines, aesthetic leanings, and functional requirements.
+          </p>
+          <p>
+            <strong className="text-white">2. Pattern Recognition:</strong> Our algorithm analyzes your responses to identify underlying design preferences—even ones you might not explicitly know you have.
+          </p>
+          <p>
+            <strong className="text-white">3. The Output:</strong> We generate a comprehensive "Spatial DNA" profile, complete with a color palette, material suggestions, and architectural style guidelines.
+          </p>
+          <p>
+            <strong className="text-white">4. Actionable Brief:</strong> This profile directly translates into a precise brief for our designers, skipping the typical trial-and-error phase.
+          </p>
+        </div>
+      )
+    },
     icon: <Compass strokeWidth={1.5} className="w-4 h-4" />,
     glowColor: "rgba(196, 30, 58, 0.12)",
     decorNumber: "01",
     credibility: "Style profiles generated in under 4 minutes",
     reverse: false,
+    visual: <DiscoveryVisual />,
+    useCases: [
+      "Aesthetic alignment for couples and co-founders",
+      "Remote briefing for international clients",
+      "Zero-ambiguity design briefs to eliminate revisions"
+    ]
   },
   {
     system: "System 02",
-    heading: ["The", "Estimator", "Engine"],
+    heading: ["Project", "Cost", "Estimator"],
     subheading: "Investment Clarity Before Commitment.",
     description:
       "Great design decisions require financial clarity. Our Estimator Engine maps your property size, quality tier, and project scope to a calibrated investment range — factoring material grades, labour complexity, and regional market rates. No vague ballparks. A real number you can plan around.",
     primaryCta: { label: "Get Your Estimate", href: "/estimate" },
-    secondaryCta: { label: "See Methodology", href: "/services#estimator" },
+    secondaryCta: { 
+      label: "See Methodology", 
+      modalTitle: "Estimator Engine Methodology",
+      modalContent: (
+        <div className="space-y-5 text-white/70 text-sm leading-relaxed">
+          <p>
+            <strong className="text-white">1. Data Ingestion:</strong> We maintain a constantly updated database of material costs, labor rates, and premium furniture pricing across different regions.
+          </p>
+          <p>
+            <strong className="text-white">2. Scope Mapping:</strong> You input your property size, the level of finish desired (e.g., Ultra-Luxury vs. Premium), and specific requirements.
+          </p>
+          <p>
+            <strong className="text-white">3. Algorithmic Calculation:</strong> The engine correlates your inputs with historical project data and real-time market rates.
+          </p>
+          <p>
+            <strong className="text-white">4. Transparent Variance:</strong> We provide an estimated range (with a ±12% variance) rather than a single misleading number, ensuring you have a realistic financial baseline.
+          </p>
+        </div>
+      )
+    },
     icon: <Calculator strokeWidth={1.5} className="w-4 h-4" />,
     glowColor: "rgba(196, 30, 58, 0.08)",
     decorNumber: "02",
     credibility: "Estimates accurate within ±12% of final project cost",
     reverse: true,
+    visual: <EstimatorVisual />,
+    useCases: [
+      "Pre-purchase property vetting & budgeting",
+      "Transparent material vs. labor cost breakdown",
+      "Preventing mid-project budget creep"
+    ]
   },
 ];
 
@@ -79,6 +263,7 @@ const fadeIn = {
 function EngineBlock({ engine }: { engine: Engine }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-10%" });
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Mouse Parallax Logic
   const mouseX = useMotionValue(0);
@@ -102,7 +287,7 @@ function EngineBlock({ engine }: { engine: Engine }) {
       animate={inView ? "visible" : "hidden"}
       onMouseMove={handleMouseMove}
       variants={containerVariants}
-      className="relative overflow-hidden border-t border-white/[0.04] bg-black"
+      className="relative overflow-hidden border border-white/[0.05] bg-[#050505] rounded-3xl flex flex-col group hover:border-white/[0.08] transition-colors duration-500"
     >
       {/* ── Faded Background Art & Grid ───────────────── */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 select-none flex items-center justify-center">
@@ -115,38 +300,36 @@ function EngineBlock({ engine }: { engine: Engine }) {
               linear-gradient(to right, rgba(255,255,255,1) 1px, transparent 1px),
               linear-gradient(to bottom, rgba(255,255,255,1) 1px, transparent 1px)
             `,
-            backgroundSize: "120px 120px",
+            backgroundSize: "80px 80px",
             backgroundPosition: "center center",
             maskImage: "radial-gradient(circle at center, black, transparent 80%)",
             WebkitMaskImage: "radial-gradient(circle at center, black, transparent 80%)"
           }}
-          className="absolute inset-[-10%] opacity-[0.04]"
+          className="absolute inset-[-10%] opacity-[0.03]"
         />
 
         {/* Ambient Glow */}
         <motion.div
           animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.4, 0.7, 0.4]
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.5, 0.3]
           }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute w-[600px] h-[400px] rounded-[100%] blur-[100px] opacity-70 transition-opacity duration-1000"
+          className="absolute w-[400px] h-[300px] rounded-[100%] blur-[80px] opacity-50 transition-opacity duration-1000"
           style={{
             background: `radial-gradient(ellipse at center, ${engine.glowColor} 0%, transparent 70%)`,
-            transform: engine.reverse ? "translate(35%, 0)" : "translate(-35%, 0)",
           }}
         />
 
         {/* Giant Watermark Number */}
         <span
-          className="absolute leading-none pointer-events-none"
+          className="absolute leading-none pointer-events-none top-8 right-8"
           style={{
             fontFamily: "'Cormorant Garamond', serif",
             fontWeight: 300,
-            fontSize: "clamp(8rem, 15vw, 14rem)",
-            color: "rgba(255,255,255,0.015)",
+            fontSize: "clamp(6rem, 10vw, 8rem)",
+            color: "rgba(255,255,255,0.02)",
             letterSpacing: "-0.05em",
-            [engine.reverse ? "left" : "right"]: "clamp(1rem, 5vw, 4rem)",
           }}
         >
           {engine.decorNumber}
@@ -154,24 +337,19 @@ function EngineBlock({ engine }: { engine: Engine }) {
       </div>
 
       {/* ── Content Grid ─────────────────────────────────── */}
-      <div
-        className={`relative z-10 max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 py-16 md:py-24
-          flex flex-col md:flex-row gap-12 md:gap-16 items-center justify-between
-          ${engine.reverse ? "md:flex-row-reverse" : ""}`}
-      >
-        {/* ── Narrative Column ───────────────────── */}
-        <div className="flex-1 max-w-[500px]">
-          {/* System badge with Magnetic effect (simplified through motion) */}
+      <div className="relative z-10 p-8 md:p-12 flex flex-col flex-1">
+        {/* ── Narrative Top ───────────────────── */}
+        <div className="mb-10">
           <motion.div 
             whileHover={{ x: 5 }}
-            className="flex items-center gap-3 mb-8"
+            className="flex items-center gap-3 mb-6"
           >
             <div className="border border-white/10 bg-white/[0.03] backdrop-blur-xl rounded-full p-2 flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.05)]">
               <span className="text-site-crimson">{engine.icon}</span>
             </div>
             <div className="flex flex-col">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-px bg-site-crimson" />
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-px bg-site-crimson" />
                 <span
                   style={{ fontFamily: "'DM Sans', sans-serif" }}
                   className="text-[9px] font-bold tracking-[0.3em] uppercase text-site-gold"
@@ -183,113 +361,178 @@ function EngineBlock({ engine }: { engine: Engine }) {
             </div>
           </motion.div>
 
-          {/* Heading with Character Stagger */}
           <motion.h2
-            className="leading-[1.05] tracking-[-0.03em] mb-6 text-white"
+            className="leading-[1.05] tracking-[-0.03em] mb-4 text-white"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 400,
-              fontSize: "clamp(2.75rem, 6vw, 4.5rem)",
+              fontSize: "clamp(2rem, 4vw, 3rem)",
             }}
           >
             {engine.heading.map((word, i) => (
-              <span key={i} className="block overflow-hidden pb-1">
-                <motion.span
-                  variants={fadeUp}
-                  className="block"
-                >
+              <span key={i} className="inline-block pb-1 mr-2">
+                <motion.span variants={fadeUp} className="inline-block">
                   {word}
                 </motion.span>
               </span>
             ))}
           </motion.h2>
 
-          {/* Subheading */}
           <motion.p
             variants={fadeUp}
-            className="italic text-white/55 mb-4"
+            className="italic text-white/55"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: "clamp(1.05rem, 1.5vw, 1.3rem)",
+              fontSize: "clamp(1rem, 1.2vw, 1.15rem)",
             }}
           >
             {engine.subheading}
           </motion.p>
+        </div>
 
-          {/* Crimson rule */}
+        {/* ── Visual Showcase Middle ───────────────────── */}
+        <motion.div 
+          variants={fadeUp}
+          className="w-full max-w-[360px] mx-auto mb-10 relative"
+        >
+          <div className="relative w-full group/visual perspective-1000">
+            <div className="absolute inset-0 bg-gradient-to-br from-site-gold/10 to-site-crimson/10 rounded-3xl blur-2xl opacity-0 group-hover/visual:opacity-100 transition-opacity duration-700" />
+            {engine.visual}
+          </div>
+        </motion.div>
+
+        {/* ── Narrative Bottom ───────────────────── */}
+        <div className="flex-1 flex flex-col">
           <motion.div
             variants={fadeIn}
-            className="w-16 h-[1px] bg-[#C41E3A] mb-5 opacity-80"
+            className="w-12 h-[1px] bg-[#C41E3A] mb-5 opacity-80"
           />
 
-          {/* Body copy */}
           <motion.p
             variants={fadeUp}
-            className="text-[#EDEDED]/45 leading-[1.7] max-w-[440px]"
+            className="text-[#EDEDED]/60 leading-[1.6] mb-8"
             style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem" }}
           >
             {engine.description}
           </motion.p>
-        </div>
 
-        {/* ── Right / CTA column ───────────────────────── */}
-        <div
-          className={`flex flex-col gap-6 items-start md:items-center flex-1 max-w-[340px]
-            ${engine.reverse ? "md:items-start" : "md:items-end"}`}
-        >
-          {/* Decorative vertical accent (desktop only) */}
-          <motion.div
-            variants={fadeIn}
-            className="hidden md:flex w-px h-16 bg-gradient-to-b from-transparent via-[#C41E3A]/40 to-transparent mb-2"
-          />
-
-          {/* Primary CTA */}
-          <motion.div variants={fadeUp} className="w-full sm:w-auto">
-            <Link
-              to={engine.primaryCta.href}
-              className="group relative flex items-center justify-between sm:justify-center gap-6 px-10 py-5 bg-site-crimson text-white transition-all duration-500 hover:shadow-[0_0_40px_rgba(196,18,48,0.3)] border border-site-crimson w-full rounded-full"
-            >
-              <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 pointer-events-none" />
-              <span
-                className="relative tracking-[0.2em] uppercase whitespace-nowrap"
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: 700 }}
-              >
-                {engine.primaryCta.label}
-              </span>
-              <div className="relative">
-                <ArrowRight
-                  strokeWidth={2}
-                  className="w-4 h-4 transition-transform duration-500 group-hover:translate-x-2"
-                />
-                <Sparkles className="absolute -top-1 -right-1 w-2 h-2 text-white/0 group-hover:text-white/80 transition-all duration-500 delay-100 group-hover:animate-pulse" />
-              </div>
-            </Link>
-          </motion.div>
-
-          {/* Secondary CTA */}
-          {engine.secondaryCta && (
-            <motion.div variants={fadeUp} className="w-full sm:w-auto flex justify-start sm:justify-center">
-              <Link
-                to={engine.secondaryCta.href}
-                className="group flex items-center justify-center gap-3 text-white/60 hover:text-[#C41E3A] transition-colors duration-300"
-                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: 500 }}
-              >
-                <span className="w-6 h-px bg-current transition-all duration-300 group-hover:w-8" />
-                <span className="tracking-[0.15em] uppercase">{engine.secondaryCta.label}</span>
-              </Link>
+          {engine.useCases && (
+            <motion.div variants={fadeUp} className="mb-8">
+              <span className="block text-[10px] text-white/40 uppercase tracking-[0.2em] mb-4">Core Applications</span>
+              <ul className="flex flex-col gap-2.5">
+                {engine.useCases.map((useCase, idx) => (
+                  <motion.li 
+                    key={idx} 
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + idx * 0.1 }}
+                    className="flex items-start gap-3"
+                  >
+                    <div className="mt-1 p-[3px] rounded-full bg-white/[0.03] border border-white/10 group-hover:border-site-gold/30 transition-colors">
+                      <Sparkles className="w-2 h-2 text-site-gold/70" />
+                    </div>
+                    <span className="text-[0.85rem] text-[#EDEDED]/80 leading-relaxed font-light">{useCase}</span>
+                  </motion.li>
+                ))}
+              </ul>
             </motion.div>
           )}
 
-          {/* Credibility micro-copy */}
+          {/* ── CTAs ── */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 mt-auto pt-8 border-t border-white/[0.04]">
+            <motion.div variants={fadeUp} className="w-full sm:w-auto">
+              <Link
+                to={engine.primaryCta.href}
+                className="group relative flex items-center justify-center gap-3 px-6 py-3 bg-site-crimson text-white transition-all duration-500 hover:shadow-[0_0_30px_rgba(196,30,58,0.3)] border border-site-crimson rounded-full overflow-hidden w-full"
+              >
+                <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 pointer-events-none" />
+                <span
+                  className="relative tracking-[0.15em] uppercase whitespace-nowrap"
+                  style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: 700 }}
+                >
+                  {engine.primaryCta.label}
+                </span>
+                <ArrowRight
+                  strokeWidth={2}
+                  className="relative w-3.5 h-3.5 transition-transform duration-500 group-hover:translate-x-1"
+                />
+              </Link>
+            </motion.div>
+
+            {engine.secondaryCta && (
+              <motion.div variants={fadeUp} className="w-full sm:w-auto mt-2 sm:mt-0">
+                {engine.secondaryCta.modalContent ? (
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="group flex items-center justify-center gap-2 text-white/60 hover:text-site-gold transition-colors duration-300 w-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-site-gold rounded p-1"
+                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: 500 }}
+                  >
+                    <span className="w-6 h-px bg-white/20 group-hover:bg-site-gold transition-colors duration-300" />
+                    <span className="tracking-[0.1em] uppercase">{engine.secondaryCta.label}</span>
+                  </button>
+                ) : engine.secondaryCta.href ? (
+                  <Link
+                    to={engine.secondaryCta.href}
+                    className="group flex items-center justify-center gap-2 text-white/60 hover:text-site-gold transition-colors duration-300 w-full"
+                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: 500 }}
+                  >
+                    <span className="w-6 h-px bg-white/20 group-hover:bg-site-gold transition-colors duration-300" />
+                    <span className="tracking-[0.1em] uppercase">{engine.secondaryCta.label}</span>
+                  </Link>
+                ) : null}
+              </motion.div>
+            )}
+          </div>
+          
           <motion.p
             variants={fadeIn}
-            className="mt-2 text-white/25 uppercase tracking-[0.1em] text-left sm:text-center w-full"
-            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", lineHeight: "1.6" }}
+            className="mt-6 text-white/30 uppercase tracking-[0.1em] text-center"
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "9px" }}
           >
             {engine.credibility}
           </motion.p>
         </div>
       </div>
+
+      {/* ── Modal Overlay ── */}
+      <AnimatePresence>
+        {isModalOpen && engine.secondaryCta?.modalContent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="relative w-full max-w-lg bg-[#0d0d0c] border border-white/10 rounded-3xl p-8 shadow-2xl overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-site-gold/20 via-site-gold to-site-crimson" />
+              
+              <div className="flex items-start justify-between mb-6">
+                <h3 className="font-serif text-2xl text-white pr-8 leading-tight">
+                  {engine.secondaryCta.modalTitle}
+                </h3>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-2 -mr-2 -mt-2 text-white/50 hover:text-white hover:bg-white/5 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="relative z-10">
+                {engine.secondaryCta.modalContent}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -300,10 +543,10 @@ export default function ServicesEngines() {
     <section
       id="engines"
       aria-label="Precision design tools — Discovery and Estimator"
-      className="bg-[#020202] relative"
+      className="bg-[#020202] relative pb-12"
     >
       {/* Section prelude */}
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 pt-16 pb-8">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 pt-16 pb-12">
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -326,18 +569,31 @@ export default function ServicesEngines() {
             fontSize: "clamp(1.6rem, 3.5vw, 2.4rem)",
           }}
         >
-          Tools That Think Before You Spend.
+          Plan Your Interior Before You Invest.
         </motion.h2>
+        
+        <motion.p
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-white/60 max-w-[600px] mt-6 text-[1.05rem] font-light leading-relaxed"
+        >
+          We've engineered proprietary digital instruments that eliminate the guesswork from luxury interior design. By combining deep analytical frameworks with high-end aesthetic sensibilities, these engines provide absolute clarity and control over your project before a single material is sourced.
+        </motion.p>
       </div>
 
       {/* Engine blocks */}
-      {ENGINES.map((engine) => (
-        <EngineBlock key={engine.system} engine={engine} />
-      ))}
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+          {ENGINES.map((engine) => (
+            <EngineBlock key={engine.system} engine={engine} />
+          ))}
+        </div>
+      </div>
       
       {/* Closing border */}
       <div className="border-b border-white/[0.04]" />
     </section>
   );
 }
-

@@ -3,7 +3,7 @@ import { motion, useSpring, useMotionValue } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useDynamicCTA } from "@/hooks/useDynamicCTA";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { MapPin, Mail, Phone, ArrowRight, Plus, Minus } from "lucide-react";
+import { MapPin, Mail, Phone, ArrowRight, Plus, Minus, Instagram, Youtube, Linkedin, Twitter, Facebook, ExternalLink } from "lucide-react";
 
 
 
@@ -200,7 +200,7 @@ const FooterSection = ({ title, id, openSection, toggleSection, children, delay,
   const isOpen = openSection === id;
   return (
     <motion.div
-      className={`flex-1 min-w-[150px] p-[clamp(16px,2vw,32px)] ${className}`}
+      className={`flex-1 min-w-[150px] p-0 ${className}`}
       initial={{ opacity: 0, y: 80 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -285,38 +285,47 @@ export default function Footer() {
       <div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-[#020202] via-[#020202]/70 to-transparent z-10 pointer-events-none" />
 
       {/* --- HERO --- */}
-      <div ref={heroRef} className="pt-[80px] pb-[48px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-12">
-        <div className="max-w-[90vw] lg:max-w-[55%]">
+      <div ref={heroRef} className="pt-[100px] pb-[64px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col items-center justify-center text-center gap-8 overflow-hidden">
+        {/* Ambient Red Glow for premium look */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#C41230]/[0.06] rounded-full blur-[100px] pointer-events-none z-0" />
+        
+        {/* Subtle Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
+          The Next Step
+        </motion.div>
+
+        <div className="w-full max-w-[1400px] mx-auto relative z-10">
           <motion.h2
-            className="font-serif leading-[1.05] text-[clamp(2.8rem,6.5vw,5.8rem)] tracking-tighter animate-in fade-in slide-in-from-bottom duration-1000"
-            initial={{ y: 100, opacity: 0 }}
+            className="font-serif leading-[1.1] text-[clamp(2.2rem,4.2vw,4.5rem)] tracking-tight text-white mb-2 text-center whitespace-normal md:whitespace-nowrap"
+            initial={{ y: 80, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
           >
-            {footerCopy.headlineStart}<br className="hidden sm:block" />
-            <span className="text-[#C41230] italic">{footerCopy.headlineHighlight}</span>
+            {footerCopy.headlineStart}{" "}
+            <span className="text-[#C41230] italic font-medium">{footerCopy.headlineHighlight}</span>
           </motion.h2>
         </div>
 
         <motion.div
-          className="flex flex-col gap-6 lg:max-w-[38%] xl:max-w-[35%]"
-          initial={{ y: 50, opacity: 0 }}
+          className="flex flex-col items-center gap-6 w-full relative z-10"
+          initial={{ y: 40, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 1.2, delay: 0.2, ease: [0.25, 1, 0.5, 1] }}
+          transition={{ duration: 1.2, delay: 0.15, ease: [0.25, 1, 0.5, 1] }}
         >
-          {footerCopy.sub && (
-            <p className="text-white/60 text-[clamp(0.9rem,1vw,1.15rem)] font-sans leading-relaxed tracking-wide max-w-[420px] m-0">
-              {footerCopy.sub}
-            </p>
-          )}
-
-          <div className="flex flex-wrap gap-4 w-full">
+          <div className="flex flex-wrap justify-center gap-4 w-full">
             <Magnetic>
               <Link
                 to={footerCopy.btn1Link}
-                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#C41230] text-white rounded-full font-sans text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-colors duration-300 w-full sm:w-auto text-center"
+                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#C41230] text-white rounded-full font-sans text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 w-full sm:w-auto text-center font-semibold border border-transparent shadow-[0_4px_20px_rgba(196,18,48,0.25)] hover:shadow-none"
               >
                 <span>{footerCopy.btn1}</span>
                 <ArrowRight className="h-4 w-4" />
@@ -327,7 +336,7 @@ export default function Footer() {
               <Magnetic>
                 <Link
                   to={footerCopy.btn2Link}
-                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-transparent border border-white/20 text-white rounded-full font-sans text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-colors duration-300 w-full sm:w-auto text-center"
+                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-transparent border border-white/15 text-white rounded-full font-sans text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 w-full sm:w-auto text-center font-semibold"
                 >
                   <span>{footerCopy.btn2}</span>
                 </Link>
@@ -338,104 +347,115 @@ export default function Footer() {
       </div>
 
       {/* --- GRID --- */}
-      <div ref={gridRef} className="flex flex-col md:flex-row flex-wrap lg:flex-nowrap justify-between w-full relative z-20 border-t border-white/5 container-wide mx-auto px-4 sm:px-6 lg:px-10">
-        {/* Col 1 */}
-        <FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="md:pl-0">
-          <div className="block mb-3 text-[20px] transition-transform duration-300 hover:translate-x-2 hover:text-[#C41230] cursor-pointer">
-            <a href={`mailto:${settings?.email || 'hello@crossangle.com'}`} className="text-inherit no-underline">
-              {settings?.email || 'hello@crossangle.com'}
+      <div ref={gridRef} className="w-full relative z-20 border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 py-12 md:py-14 divide-y md:divide-y-0 md:divide-x divide-white/[0.06]">
+
+          {/* Col 1 — Studio Contact */}
+          <FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="pr-0 md:pr-10 pb-8 md:pb-0">
+            <p className="text-white/40 text-[11px] leading-relaxed font-sans mb-5 max-w-[220px]">
+              Premium turnkey interior design studio headquartered in Jamshedpur, India.
+            </p>
+            <a
+              href={`mailto:${settings?.email || 'info@crossangleinterior.com'}`}
+              className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans mb-3 group"
+            >
+              <Mail className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-[#C41230] transition-colors" />
+              {settings?.email || 'info@crossangleinterior.com'}
             </a>
-          </div>
-        </FooterSection>
-
-        {/* Col 2 */}
-        <FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1}>
-          {settings?.address ? (
-            <div className="text-[20px] font-serif mb-1 leading-snug max-w-[280px]">{settings.address}</div>
-          ) : (
-            <>
-              <div className="text-[30px] font-serif mb-1">Jamshedpur</div>
-              <div className="text-[20px] font-serif text-white/55">Jharkhand, India</div>
-            </>
-          )}
-          <LiveClock />
-        </FooterSection>
-
-        {/* Col 3: Quick Links — Core Navigation */}
-        <FooterSection title="NAVIGATE" id="navigate" openSection={openSection} toggleSection={toggleSection} delay={0.2}>
-          {[
-            { key: 'home', name: 'Home', path: '/' },
-            { key: 'services', name: 'Services', path: '/services' },
-            { key: 'portfolio', name: 'Portfolio', path: '/portfolio' },
-            { key: 'about', name: 'About Us', path: '/about-us' },
-            { key: 'blog', name: 'Blog', path: '/blog' },
-            { key: 'contact', name: 'Contact Us', path: '/contact-us' },
-          ].map(({ key, name, path }) => (
-            <Link
-              key={key}
-              to={path}
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="block mb-3 text-[18px] transition-transform duration-300 hover:translate-x-[10px] hover:text-[#C41230] cursor-pointer text-white no-underline"
-            >
-              {name}
-            </Link>
-          ))}
-        </FooterSection>
-
-        {/* Col 4: Quick Links — Tools & Resources */}
-        <FooterSection title="QUICK LINKS" id="quick-links" openSection={openSection} toggleSection={toggleSection} delay={0.3}>
-          {[
-            { key: 'gallery', name: 'Gallery', path: '/gallery' },
-            { key: 'estimate', name: 'Cost Estimator', path: '/estimate' },
-            { key: 'discovery', name: 'Style Discovery', path: '/aesthetic-discovery-engine' }
-          ].map(({ key, name, path }) => (
-            <Link
-              key={key}
-              to={path}
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="block mb-3 text-[18px] transition-transform duration-300 hover:translate-x-[10px] hover:text-[#C41230] cursor-pointer text-white no-underline"
-            >
-              {name}
-            </Link>
-          ))}
-        </FooterSection>
-
-        {/* Col 5: Socials */}
-        <FooterSection title="SOCIALS" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.4} className="md:pr-0">
-          {[
-            { key: 'facebook', name: 'Facebook' },
-            { key: 'instagram', name: 'Instagram' },
-            { key: 'twitter', name: 'Twitter' },
-            { key: 'linkedin', name: 'LinkedIn' },
-            { key: 'youtube', name: 'YouTube' },
-            { key: 'pinterest', name: 'Pinterest' }
-          ].map(({ key, name }) => {
-            const url = settings?.social_links?.[key];
-            const href = (url && typeof url === 'string' && url.trim().length > 0) ? url : "#";
-            return (
+            {settings?.phone && (
               <a
-                key={key}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block mb-3 text-[20px] transition-transform duration-300 hover:translate-x-[10px] hover:text-[#C41230] cursor-pointer text-white no-underline capitalize"
+                href={`tel:${settings.phone}`}
+                className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans group"
               >
-                {name}
+                <Phone className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-[#C41230] transition-colors" />
+                {settings.phone}
               </a>
-            );
-          })}
-        </FooterSection>
+            )}
+          </FooterSection>
+
+          {/* Col 2 — Location */}
+          <FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1} className="px-0 md:px-10 py-8 md:py-0">
+            <div className="flex items-start gap-2.5 mb-4">
+              <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#C41230]" />
+              {settings?.address ? (
+                <p className="text-[13px] text-white/70 font-sans leading-relaxed">{settings.address}</p>
+              ) : (
+                <div>
+                  <p className="text-[14px] text-white font-sans font-medium">Jamshedpur</p>
+                  <p className="text-[13px] text-white/50 font-sans">Jharkhand 831012, India</p>
+                </div>
+              )}
+            </div>
+            <LiveClock />
+          </FooterSection>
+
+          {/* Col 3 — All Links (merged) */}
+          <FooterSection title="NAVIGATE" id="navigate" openSection={openSection} toggleSection={toggleSection} delay={0.2} className="px-0 md:px-10 py-8 md:py-0">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-0">
+              {[
+                { key: 'home', name: 'Home', path: '/' },
+                { key: 'gallery', name: 'Gallery', path: '/gallery' },
+                { key: 'services', name: 'Services', path: '/services' },
+                { key: 'estimate', name: 'Estimator', path: '/estimate' },
+                { key: 'portfolio', name: 'Portfolio', path: '/portfolio' },
+                { key: 'discovery', name: 'Discovery', path: '/aesthetic-discovery-engine' },
+                { key: 'about', name: 'About Us', path: '/about-us' },
+                { key: 'blog', name: 'Blog', path: '/blog' },
+                { key: 'contact', name: 'Contact', path: '/contact-us' },
+              ].map(({ key, name, path }) => (
+                <Link
+                  key={key}
+                  to={path}
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="block mb-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans"
+                >
+                  {name}
+                </Link>
+              ))}
+            </div>
+          </FooterSection>
+
+          {/* Col 4 — Socials as labelled icon pills */}
+          <FooterSection title="CONNECT" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.3} className="pl-0 md:pl-10 pt-8 md:pt-0">
+            <p className="text-white/40 text-[11px] font-sans mb-5">Follow us on social media</p>
+            <div className="flex flex-col gap-2.5">
+              {([
+                { key: 'instagram', name: 'Instagram', Icon: Instagram },
+                { key: 'facebook', name: 'Facebook', Icon: Facebook },
+                { key: 'youtube', name: 'YouTube', Icon: Youtube },
+                { key: 'linkedin', name: 'LinkedIn', Icon: Linkedin },
+                { key: 'twitter', name: 'Twitter / X', Icon: Twitter },
+              ] as { key: string; name: string; Icon: React.ElementType }[]).map(({ key, name, Icon }) => {
+                const url = settings?.social_links?.[key];
+                const href = (url && typeof url === 'string' && url.trim().length > 0) ? url : "#";
+                return (
+                  <a
+                    key={key}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans group"
+                  >
+                    <span className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#C41230]/10 group-hover:border-[#C41230]/20 transition-all duration-200">
+                      <Icon className="w-3.5 h-3.5" />
+                    </span>
+                    {name}
+                  </a>
+                );
+              })}
+            </div>
+          </FooterSection>
+        </div>
       </div>
 
       {/* --- BOTTOM --- */}
-      <div className="flex flex-col lg:flex-row items-center justify-between pt-[32px] pb-[40px] container-wide mx-auto px-4 sm:px-6 lg:px-10 text-[10px] md:text-[11px] text-white/60 relative z-10 w-full mt-8 border-t border-white/10 uppercase tracking-[0.2em] font-sans">
-        <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 mb-6 lg:mb-0 text-center md:text-left">
-          <span className="text-white font-bold tracking-[0.3em]">© {new Date().getFullYear()} CROSSANGLE STUDIO</span>
-          <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#C41230] transition-colors duration-300">PRIVACY & DPDPA FRAMEWORK</Link>
-          <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="hover:text-[#C41230] transition-colors duration-300">TERMS OF EXCELLENCE</Link>
-        </div>
-        <div className="flex items-center gap-2 tracking-[0.25em] text-white/40 font-semibold">
-          <span>AESTHETICS ENGINEERED FOR LUXURY</span>
+      <div className="border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-10 w-full">
+        <div className="flex flex-col md:flex-row items-center justify-between py-5 gap-3 text-[10px] md:text-[11px] text-white/40 uppercase tracking-[0.2em] font-sans">
+          <span className="text-white/60 font-medium tracking-[0.2em]">© {new Date().getFullYear()} Crossangle Studio. All Rights Reserved.</span>
+          <div className="flex items-center gap-6">
+            <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors duration-200">Privacy Policy</Link>
+            <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors duration-200">Terms</Link>
+          </div>
         </div>
       </div>
 

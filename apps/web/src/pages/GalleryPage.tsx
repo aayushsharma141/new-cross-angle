@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import { Heart } from "lucide-react";
+import { Heart, Share2 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -13,13 +13,19 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
 import GalleryLightbox from "@/components/gallery/GalleryLightbox";
 
-function useSavedItems() {
+function useSavedItems(urlBoardIds: string[]) {
   const [saved, setSaved] = useState<string[]>(() => {
     try {
       const item = window.localStorage.getItem("gallery_saved");
-      return item ? JSON.parse(item) : [];
+      const local = item ? JSON.parse(item) : [];
+      if (urlBoardIds.length > 0) {
+        const merged = Array.from(new Set([...local, ...urlBoardIds]));
+        window.localStorage.setItem("gallery_saved", JSON.stringify(merged));
+        return merged;
+      }
+      return local;
     } catch {
-      return [];
+      return urlBoardIds;
     }
   });
 
@@ -49,8 +55,10 @@ interface GalleryItem {
 const GalleryPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlCategory = searchParams.get("category");
+  const urlBoard = searchParams.get("board");
+  const urlBoardIds = useMemo(() => urlBoard ? urlBoard.split(",") : [], [urlBoard]);
 
-  const [activeCategory, setActiveCategory] = useState(urlCategory || "All");
+  const [activeCategory, setActiveCategory] = useState(urlCategory || (urlBoard ? "Saved" : "All"));
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
@@ -87,8 +95,18 @@ const GalleryPage = () => {
     return ["All", "Saved", ...cats];
   }, [categories]);
 
-  const { saved, toggleSave } = useSavedItems();
+  const { saved, toggleSave } = useSavedItems(urlBoardIds);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (urlBoard && urlBoardIds.length > 0) {
+      toast({ title: "Inspiration Board Loaded", description: `Imported items from shared link.`, duration: 3000 });
+      // Clean up the URL so it doesn't keep importing
+      const params = new URLSearchParams(searchParams);
+      params.delete("board");
+      setSearchParams(params, { replace: true });
+    }
+  }, [urlBoard, urlBoardIds.length, searchParams, setSearchParams, toast]);
 
   const filtered = activeCategory === "All"
     ? items
@@ -257,7 +275,7 @@ const GalleryPage = () => {
         ) : (
           <>
             {/* ═══ STYLE QUIZ PROMO ═══ */}
-            <div className="container mx-auto px-4 mt-8 mb-4">
+            <div className="container mx-auto px-4 mt-8 mb-4 flex flex-col gap-4">
               <div className="bg-site-crimson/10 border border-site-crimson/20 rounded-md p-4 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-center sm:text-left">
                   <h3 className="text-white text-sm md:text-base font-medium">Not sure what your exact style is?</h3>
@@ -269,6 +287,22 @@ const GalleryPage = () => {
                   </button>
                 </Link>
               </div>
+
+              {activeCategory === "Saved" && saved.length > 0 && (
+                <div className="flex justify-between items-center bg-white/5 border border-white/10 rounded-md p-4 mt-2">
+                  <h3 className="text-white font-medium text-sm">Your Inspiration Board ({saved.length} items)</h3>
+                  <button 
+                    onClick={() => {
+                      const url = `${window.location.origin}/gallery?category=Saved&board=${saved.join(",")}`;
+                      navigator.clipboard.writeText(url);
+                      toast({ title: "Link Copied!", description: "Share your inspiration board with anyone.", duration: 3000 });
+                    }}
+                    className="px-4 py-2 border border-white/20 rounded-full text-xs text-white hover:bg-white/10 flex items-center gap-2 transition"
+                  >
+                    <Share2 className="w-3 h-3" /> Share Board
+                  </button>
+                </div>
+              )}
             </div>
 
             <section className="container mx-auto px-2 md:px-4 py-4">

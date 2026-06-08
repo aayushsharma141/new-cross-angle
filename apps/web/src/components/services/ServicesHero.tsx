@@ -109,10 +109,10 @@ const ServicesHero = () => {
             transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           >
             <h1 className="font-sans text-[clamp(2.4rem,4.8vw,5.2rem)] font-normal text-[#FFFFFF] leading-[1.08] tracking-tight">
-              Turnkey Interior Projects
+              One Team. One Contract.
               <br />
-              Delivered with{" "}
-              <span className="text-[#FF2A2A] font-semibold">Precision.</span>
+              Complete Turnkey{" "}
+              <span className="text-[#FF2A2A] font-semibold">Interiors.</span>
             </h1>
           </motion.div>
 
@@ -169,8 +169,7 @@ const ServicesHero = () => {
             transition={{ duration: 0.8, delay: 0.26, ease: [0.22, 1, 0.36, 1] }}
             className="text-[clamp(0.9rem,1.1vw,1.05rem)] font-normal leading-[1.75] text-[#6B6B6B] max-w-[44ch]"
           >
-            We deliver fully managed interior environments combining design intelligence,
-            execution precision, and premium detailing — from concept sketch to final handover.
+            From design and material selection to execution and handover, we manage your entire interior project under one roof.
           </motion.p>
 
           {/* Value Points */}

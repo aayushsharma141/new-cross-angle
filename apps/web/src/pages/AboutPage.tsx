@@ -29,7 +29,7 @@ import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
 
 const studioHighlights = [
   "Custom homes built for your daily life, comfort, and lasting value.",
-  "Smart office designs that improve work and impress your clients.",
+  "Functional workspaces designed for productivity and brand impact.",
   "We handle everything from start to finish, so you don't have to.",
 ];
 

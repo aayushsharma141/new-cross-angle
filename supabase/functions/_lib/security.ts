@@ -668,7 +668,56 @@ export function structuredLog(
     }
 }
 
-// ─── Webhook Signature Helper ────────────────────────────────────────────────
+// ─── Payload Size Guard ───────────────────────────────────────────────────────
+
+const DEFAULT_MAX_BODY_BYTES = 10 * 1024; // 10 KB — sufficient for all lead payloads
+
+/**
+ * Reads the request body and enforces a size limit BEFORE calling .json().
+ *
+ * Attack prevented: Denial-of-service via oversized JSON bodies.
+ * Without this, a malicious actor can send a multi-MB payload that:
+ *   1. Consumes all Deno edge function memory (OOM crash).
+ *   2. Keeps the function alive for the max timeout (billing abuse).
+ *
+ * @param req        - The incoming Request
+ * @param maxBytes   - Max allowed body size in bytes (default: 10 KB). 
+ *                     Override via MAX_BODY_BYTES env var.
+ * @returns          - { body: parsed JSON } on success, { error: ... } on rejection
+ */
+export async function readLimitedBody<T = unknown>(
+    req: Request,
+    maxBytes?: number,
+): Promise<{ body: T; error: null } | { body: null; error: string }> {
+    const limit = maxBytes ?? parseInt(Deno.env.get("MAX_BODY_BYTES") ?? String(DEFAULT_MAX_BODY_BYTES));
+
+    const contentLength = req.headers.get("content-length");
+    if (contentLength && parseInt(contentLength, 10) > limit) {
+        return {
+            body: null,
+            error: `Payload too large. Maximum allowed size is ${limit} bytes.`,
+        };
+    }
+
+    try {
+        const arrayBuffer = await req.arrayBuffer();
+        if (arrayBuffer.byteLength > limit) {
+            return {
+                body: null,
+                error: `Payload too large. Maximum allowed size is ${limit} bytes.`,
+            };
+        }
+        const text = new TextDecoder().decode(arrayBuffer);
+        const parsed = JSON.parse(text) as T;
+        return { body: parsed, error: null };
+    } catch (e) {
+        return {
+            body: null,
+            error: `Failed to parse request body: ${e instanceof Error ? e.message : String(e)}`,
+        };
+    }
+}
+
 
 /**
  * Signs a JSON payload for outbound webhooks using HMAC-SHA256.

@@ -14,6 +14,7 @@ const InspirationGallery = lazy(() => import("@/components/portfolio/Inspiration
 const HubLightExperience = lazy(() => import("@/components/portfolio/HubLightExperience"));
 const TrustSection = lazy(() => import("@/components/portfolio/TrustSection"));
 const HubFinalCTA = lazy(() => import("@/components/portfolio/HubFinalCTA"));
+const ProjectGrid = lazy(() => import("@/components/portfolio/ProjectGrid"));
 
 const ProjectHubPage = () => {
   return (
@@ -49,6 +50,14 @@ const ProjectHubPage = () => {
           <div className="max-w-7xl mx-auto">
             <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Journeys...</div>}>
               <FeaturedJourneys />
+            </Suspense>
+          </div>
+        </section>
+
+        <section id="all-projects" className="bg-[#050505]">
+          <div className="max-w-7xl mx-auto">
+            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Archives...</div>}>
+              <ProjectGrid />
             </Suspense>
           </div>
         </section>

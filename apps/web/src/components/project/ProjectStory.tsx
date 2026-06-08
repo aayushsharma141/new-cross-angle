@@ -19,17 +19,27 @@ const ProjectStory = ({ brief, approach, image }: ProjectStoryProps) => {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="flex flex-col gap-8 order-2 lg:order-1"
+          className="flex flex-col gap-12 order-2 lg:order-1"
         >
-          <span className="text-xs font-medium tracking-[0.2em] uppercase text-primary flex items-center gap-4">
-            <span className="w-8 h-px bg-primary/50" /> The Intent
-          </span>
-          <h2 className="text-3xl md:text-5xl text-white tracking-tight font-serif font-normal leading-[1.2]">
-            {brief}
-          </h2>
-          <p className="text-base md:text-lg text-stone-400 font-light leading-relaxed">
-            {approach}
-          </p>
+          {/* The Challenge */}
+          <div>
+            <span className="text-xs font-medium tracking-[0.2em] uppercase text-primary flex items-center gap-4 mb-4">
+              <span className="w-8 h-px bg-primary/50" /> The Challenge
+            </span>
+            <h2 className="text-3xl md:text-4xl text-white tracking-tight font-serif font-normal leading-[1.3]">
+              {brief || "Redefining the standard of living through intentional design and thoughtful space planning."}
+            </h2>
+          </div>
+
+          {/* The Solution */}
+          <div>
+            <span className="text-xs font-medium tracking-[0.2em] uppercase text-primary flex items-center gap-4 mb-4">
+              <span className="w-8 h-px bg-primary/50" /> The Solution
+            </span>
+            <p className="text-base md:text-lg text-stone-400 font-light leading-relaxed">
+              {approach || "We engaged with the core architecture of the space, blending modern minimalism with timeless materials to create an atmosphere that feels both expansive and intimate."}
+            </p>
+          </div>
         </motion.div>
 
         {/* Right: Immersive Image */}

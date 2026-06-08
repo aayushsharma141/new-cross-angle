@@ -239,10 +239,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         const timeoutId = setTimeout(() => {
             if (isMounted && loading) {
-                console.warn("Auth: Loading timeout exceeded (15s). Forcing loading=false to prevent white screen.");
+                console.warn("Auth: Loading timeout exceeded (3s). Forcing loading=false to prevent white screen.");
                 setLoading(false);
             }
-        }, 15000);
+        }, 3000); // Reduced from 15s → 3s: prevents white-screen on public pages (estimator, gallery) when Supabase auth is unreachable. Role fetch has its own per-attempt timeouts.
 
         if (!supabase) {
             if (isMounted) setLoading(false);

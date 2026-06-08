@@ -160,16 +160,13 @@ const StepNode = ({
           color: textColor,
         }}
       >
-        <span className="font-display">{step.id}</span>
+        <step.icon aria-hidden="true" className="h-5 w-5 md:h-6 md:w-6" />
       </motion.div>
 
-      {/* Icon + Title below the circle */}
+      {/* Title below the circle */}
       <div className="mt-4 flex flex-col items-center gap-1.5">
-        <motion.div style={{ color: iconColor }}>
-          <step.icon aria-hidden="true" className="h-4 w-4" />
-        </motion.div>
         <motion.h3
-          className="text-xs font-semibold uppercase tracking-[0.12em] md:text-sm"
+          className="text-xs font-semibold uppercase tracking-[0.12em] md:text-sm text-center"
           style={{ color: titleColor }}
         >
           {step.title}
@@ -258,11 +255,11 @@ const Process = () => {
       <FlowingCADLines />
       <div className="sticky top-0 flex h-screen w-full flex-col overflow-hidden">
         {/* ── Top content area ── */}
-        <div className="flex flex-1 flex-col overflow-hidden px-5 pt-20 md:px-10 lg:px-14">
-          <div className="mx-auto grid w-full max-w-[1480px] flex-1 grid-cols-1 gap-6 lg:grid-cols-[300px_1fr] lg:gap-10">
+        <div className="flex flex-1 flex-col overflow-hidden px-5 pt-32 md:px-10 lg:px-14 lg:pt-40">
+          <div className="mx-auto grid w-full max-w-[1480px] flex-1 grid-cols-1 gap-6 lg:grid-cols-[400px_1fr] xl:grid-cols-[450px_1fr] lg:gap-16">
 
             {/* LEFT — label + heading + body */}
-            <div className="flex flex-col justify-center lg:justify-start lg:pt-10">
+            <div className="flex flex-col justify-center lg:justify-start lg:pt-10 z-10 relative">
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -339,19 +336,25 @@ const Process = () => {
                     }}
                     className="flex flex-col"
                   >
-                    {/* Kicker */}
-                    <motion.p 
+                    {/* Kicker & Subtitle row */}
+                    <motion.div 
                       variants={{
                         hidden: { opacity: 0, y: 15 },
                         visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
                         exit: { opacity: 0, y: -10, transition: { duration: 0.4 } },
                       }}
-                      className="mb-3 font-mono text-[10px] uppercase tracking-[0.38em] text-white/50"
+                      className="mb-4 flex items-center gap-4"
                     >
-                      {activeStep.kicker}
-                    </motion.p>
+                      <span className="font-mono text-[10px] uppercase tracking-[0.38em] text-white/50">
+                        {activeStep.kicker}
+                      </span>
+                      <span className="h-px w-6 bg-white/20"></span>
+                      <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-site-crimson/90">
+                        {activeStep.subtitle}
+                      </span>
+                    </motion.div>
 
-                    {/* Title + subtitle row */}
+                    {/* Title row */}
                     <motion.div 
                       variants={{
                         hidden: { opacity: 0, y: 15 },
@@ -362,9 +365,6 @@ const Process = () => {
                     >
                       <span className="font-serif text-[clamp(2.2rem,4.5vw,4.2rem)] font-bold leading-none tracking-tight text-white">
                         {activeStep.title}
-                      </span>
-                      <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-site-crimson/90">
-                        {activeStep.subtitle}
                       </span>
                     </motion.div>
 

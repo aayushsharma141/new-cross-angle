@@ -286,7 +286,7 @@ const AdminAuth: React.FC = () => {
             />
             <AnimatedLogo
               isScrolled={false}
-              className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0 [&_span]:text-[#D1AF6E]"
+              className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0 [&_span]:text-[#C41230]"
             />
           </a>
           <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-500 mt-3.5 font-sans">Admin Console</p>

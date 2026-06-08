@@ -40,7 +40,7 @@ const ServicesCTA = () => {
         </motion.div>
         
         <h2 className="font-display font-normal text-[clamp(2.8rem,7vw,5.5rem)] text-white mb-8 leading-[1.1] tracking-tight">
-          Ready to build your <span className="italic font-medium text-site-crimson underline decoration-site-crimson/30 decoration-[6px] underline-offset-8">legacy?</span>
+          Ready To Transform Your <span className="italic font-medium text-site-crimson underline decoration-site-crimson/30 decoration-[6px] underline-offset-8">Home Or Office?</span>
         </h2>
         
         <p className="text-[clamp(1rem,1.5vw,1.25rem)] text-white/50 leading-[1.8] font-light mb-14 max-w-[55ch] mx-auto">

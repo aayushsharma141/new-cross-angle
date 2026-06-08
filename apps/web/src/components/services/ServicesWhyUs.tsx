@@ -45,10 +45,10 @@ const ServicesWhyUs = () => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-display font-normal text-[clamp(2.5rem,5vw,5rem)] leading-[1.05] tracking-tight text-white mb-10"
+            className="font-display font-normal text-[clamp(2.2rem,3.8vw,3.8rem)] leading-[1.1] tracking-tight text-white mb-10"
           >
-            <em className="italic text-site-crimson font-medium">Uncompromising</em><br />
-            Standards in every joint.
+            <span className="block lg:inline-block lg:whitespace-nowrap"><em className="italic text-site-crimson font-medium">Quality</em> You Can See.</span><br className="hidden lg:block" />
+            <span className="block lg:inline-block lg:whitespace-nowrap">Durability You Can Trust.</span>
           </motion.h2>
 
           <motion.p
@@ -109,7 +109,7 @@ const ServicesWhyUs = () => {
             {/* Dynamic Glow */}
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
             <div className="absolute bottom-10 left-10 right-10 p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl">
-               <div className="font-display italic text-2xl text-white mb-2">Zero Ambiguity.</div>
+               <div className="font-display italic text-2xl text-white mb-2">Clear Scope. Clear Pricing. Clear Delivery.</div>
                <div className="text-[10px] uppercase tracking-widest text-white/60">Our commitment since day one.</div>
             </div>
           </div>

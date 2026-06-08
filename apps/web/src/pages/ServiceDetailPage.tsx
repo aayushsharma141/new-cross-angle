@@ -52,6 +52,22 @@ const ServiceDetailPage = () => {
             <Helmet>
                 <title>{`${service.title} - ${category.title} | Cross Angle Interior`}</title>
                 <meta name="description" content={service.description} />
+                {service.faq && service.faq.length > 0 && (
+                    <script type="application/ld+json">
+                        {JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "FAQPage",
+                            "mainEntity": service.faq.map((item: { question: string; answer: string }) => ({
+                                "@type": "Question",
+                                "name": item.question,
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": item.answer
+                                }
+                            }))
+                        })}
+                    </script>
+                )}
             </Helmet>
             <SchemaMarkup
                 type="Service"
@@ -159,10 +175,10 @@ const ServiceDetailPage = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
                                 {/* Features */}
                                 <div>
-                                    <h3 className="font-serif text-3xl mb-8 flex items-center gap-3">
+                                    <h2 className="font-serif text-3xl mb-8 flex items-center gap-3">
                                         <Sparkles className="w-6 h-6 text-primary" />
                                         Why Choose This Service?
-                                    </h3>
+                                    </h2>
                                     <div className="space-y-6">
                                         {service.features.map((feature, i) => (
                                             <motion.div
@@ -186,13 +202,13 @@ const ServiceDetailPage = () => {
 
                                 {/* Process */}
                                 <div>
-                                    <h3 className="font-serif text-3xl mb-8">Our Process</h3>
+                                    <h2 className="font-serif text-3xl mb-8">Our Process</h2>
                                     <div className="space-y-0 relative pl-8 border-l-2 border-primary/20">
                                         {(service.process_steps || []).map((step, i) => (
                                             <div key={i} className="mb-10 last:mb-0 relative">
                                                 <div className="absolute -left-[41px] w-6 h-6 rounded-full bg-background border-4 border-primary flex items-center justify-center top-1">
                                                 </div>
-                                                <h4 className="font-serif text-xl mb-2 font-semibold text-foreground">{step.title}</h4>
+                                                <h3 className="font-serif text-xl mb-2 font-semibold text-foreground">{step.title}</h3>
                                                 <p className="text-muted-foreground">{step.description}</p>
                                             </div>
                                         ))}
@@ -251,6 +267,14 @@ const ServiceDetailPage = () => {
 
                 </main>
                 <Footer />
+                
+                {/* Sticky CTA */}
+                <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-md border-t border-border z-50 flex justify-center items-center gap-4 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+                    <p className="hidden md:block text-foreground font-serif text-lg">Ready to start your project?</p>
+                    <Button size="lg" className="rounded-full px-8 py-6 text-lg shadow-xl shadow-primary/20 w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+                        <Link to="/contact-us">Consult with us <ArrowRight className="ml-2 w-5 h-5" /></Link>
+                    </Button>
+                </div>
             </div>
         </>
     );

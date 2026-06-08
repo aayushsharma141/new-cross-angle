@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -11,6 +11,7 @@ import ProjectHero from "@/components/project/ProjectHero";
 import ProjectStats from "@/components/project/ProjectStats";
 import ProjectGallery from "@/components/project/ProjectGallery";
 import ProjectStory from "@/components/project/ProjectStory";
+import ProjectServices from "@/components/project/ProjectServices";
 import ProjectPalette from "@/components/project/ProjectPalette";
 import ProjectQuote from "@/components/project/ProjectQuote";
 import ProjectMoodboard from "@/components/project/ProjectMoodboard";
@@ -151,6 +152,9 @@ const ProjectPage = () => {
             image={project.gallery?.[0]?.images?.[1] || project.heroImage}
           />
         </section>
+
+        {/* 3.5 Services Rendered */}
+        <ProjectServices category={project.category || ''} type={project.type || ''} />
 
         {/* 4. Color Palette & Tactile Materials */}
         <section className="px-6 max-w-7xl mx-auto w-full">
@@ -321,6 +325,14 @@ const ProjectPage = () => {
       </main>
 
       <Footer />
+      
+      {/* Sticky CTA */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-md border-t border-white/10 z-50 flex justify-center items-center gap-4 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+          <p className="hidden md:block text-foreground font-serif text-lg">Inspired by this project?</p>
+          <Button size="lg" className="rounded-full px-8 py-6 text-lg shadow-xl shadow-primary/20 w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+              <Link to="/contact-us">Start Your Transformation <ArrowRight className="ml-2 w-5 h-5" /></Link>
+          </Button>
+      </div>
     </>
   );
 };

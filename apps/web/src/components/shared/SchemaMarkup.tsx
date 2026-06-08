@@ -215,10 +215,12 @@ export const SchemaMarkup = ({ type, data, locale = "en-IN" }: SchemaMarkupProps
             break;
     }
 
+    const safeJsonLd = JSON.stringify(formattedData).replace(/</g, '\\u003c');
+
     return (
         <Helmet>
             <script type="application/ld+json">
-                {JSON.stringify(formattedData)}
+                {safeJsonLd}
             </script>
         </Helmet>
     );

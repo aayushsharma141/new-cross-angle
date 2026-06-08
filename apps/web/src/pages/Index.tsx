@@ -120,14 +120,6 @@ const Index = () => {
           </LazySection>
 
           <LazySection
-            className="bg-background border-t border-site-border"
-            minHeight={800}
-            rootMargin="300px 0px"
-          >
-            <AboutTimeline />
-          </LazySection>
-
-          <LazySection
             className="bg-site-bg border-t border-site-border"
             minHeight={700}
             rootMargin="300px 0px"

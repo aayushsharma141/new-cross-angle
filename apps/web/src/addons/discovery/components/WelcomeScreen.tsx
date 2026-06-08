@@ -243,7 +243,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
                 key={l}
                 type="button"
                 onClick={() => setLang(l)}
-                aria-pressed={lang === l ? "true" : "false"}
+                {...(lang === l ? { "aria-pressed": "true" } : { "aria-pressed": "false" })}
                 aria-label={l === "en" ? "Switch to English" : "Switch to Hinglish"}
                 className={`px-4 py-1.5 text-[10px] font-mono tracking-widest uppercase transition-all duration-300 ${
                   lang === l

@@ -97,7 +97,7 @@ export default defineConfig(() => {
     },
     build: {
       target: 'es2020',
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 500, // Enforced budget: alert if any chunk exceeds 500KB — prevents accidental revert of dynamic imports
       cssCodeSplit: true,
       /**
        * Always generate sourcemaps in hidden mode.

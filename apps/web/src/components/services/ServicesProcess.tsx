@@ -11,13 +11,13 @@ const steps = [
   {
     number: "02",
     label: "Phase Two",
-    title: "Strategic Concept",
+    title: "Design & Planning",
     description: "Development of precise floor plans, material palettes, and 3D technical visualizations. You see the exact finishing before execution begins.",
   },
   {
     number: "03",
     label: "Phase Three",
-    title: "Procurement & Manufacturing",
+    title: "Material Selection & Production",
     description: "In-house fabrication combined with global sourcing. We handle all vendor coordination, quality checks, and logistics to ensure on-time availability.",
   },
   {
@@ -49,7 +49,7 @@ const ServicesProcess = () => {
         
         {/* Header */}
         <div className="flex flex-col md:flex-row items-end justify-between mb-20 md:mb-32 border-b border-white/10 pb-12">
-          <div className="max-w-[600px] mb-8 md:mb-0">
+          <div className="max-w-[950px] mb-8 md:mb-0">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -65,7 +65,7 @@ const ServicesProcess = () => {
               viewport={{ once: true }}
               className="font-display text-[clamp(2.5rem,6vw,5rem)] leading-[1.05] tracking-tight text-white mb-6"
             >
-              Borrowing Precision from <br/> <span className="italic font-medium text-site-crimson underline decoration-white/10 decoration-[4px] underline-offset-[12px]">Hospitality Standards.</span>
+              The Turnkey Process We <br/> <span className="italic font-medium text-site-crimson underline decoration-white/10 decoration-[4px] underline-offset-[12px]">Follow For Every Project</span>
             </motion.h2>
           </div>
           <motion.p

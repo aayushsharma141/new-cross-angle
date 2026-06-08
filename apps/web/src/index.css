@@ -734,25 +734,22 @@ em,
 
 @keyframes logoMetallicDrift {
   0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
+    background-position: 200% 50%;
   }
   100% {
-    background-position: 0% 50%;
+    background-position: -200% 50%;
   }
 }
 
 .logo-metallic-text {
   background: linear-gradient(
     110deg,
-    #D1AF6E 0%,
-    #D1AF6E 40%,
-    #C41230 48%,
-    #C41230 52%,
-    #D1AF6E 60%,
-    #D1AF6E 100%
+    #C41230 0%,
+    #C41230 40%,
+    #D1AF6E 48%,
+    #D1AF6E 52%,
+    #C41230 60%,
+    #C41230 100%
   );
   background-size: 200% auto;
   color: transparent;

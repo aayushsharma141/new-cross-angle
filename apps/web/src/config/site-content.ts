@@ -37,7 +37,7 @@ export const serviceCategories: ServiceCategory[] = [
         id: "commercial",
         title: "Commercial Design",
         slug: "commercial",
-        description: "Smart designs that improve work and build your brand.",
+        description: "Functional workspaces designed for productivity and brand impact.",
         heroImage: "/images/projects/discovery/visual-16.jpg",
         icon: Building2,
     },
@@ -71,6 +71,9 @@ Whether you prefer a **Clean & Calm** look or a **Rich & Bold** style, our team 
 
 ### Premium Materials
 We use only high-quality materials for your cabinets and fabrics, ensuring your room looks great and lasts long.
+
+### Complete Your Space
+Looking to upgrade other areas? Explore our [False Ceiling & Lighting](/services/specialized/ceilings) designs, or revamp your cooking space with our [Modular Kitchen Systems](/services/specialized/modular-kitchens).
         `,
         heroImage: "/reality_render.jpg",
         galleryImages: [
@@ -111,6 +114,9 @@ Our speciality lies in creating great storage. From **Walk-in Closets** to space
 
 ### Mood Lighting
 Lighting plays a big role in setting the mood. We include warm ceiling lights, reading lamps, and easy dimmers to help you relax effortlessly.
+
+### Enhance Your Home
+Pair your new bedroom with our [False Ceiling & Lighting](/services/specialized/ceilings) solutions for the perfect ambiance, or extend the comfort to your [Living Room Design](/services/residential/living-room).
         `,
         heroImage: "/images/projects/discovery/lifestyle-7.jpg",
         galleryImages: [
@@ -153,6 +159,9 @@ Kitchens face heat, water, and heavy use. That's why we use:
 *   **Water-Proof Premium Wood:** For a strong core.
 *   **Strong Countertops:** Stain and scratch resistant.
 *   **Smooth Hardware:** For easy, silent drawers.
+
+### Beyond the Kitchen
+We also offer specialized [Modular Kitchen Systems](/services/specialized/modular-kitchens) for precision-engineered cabinetry. If you have an open floor plan, consider coordinating with our [Living Room Design](/services/residential/living-room) services.
         `,
         heroImage: "/images/projects/discovery/visual-12.jpg",
         galleryImages: [
@@ -243,6 +252,9 @@ We use the best brands to bring you smooth and easy-to-use kitchens.
 *   **Soft-Close Drawers:** Quiet and smooth every time.
 *   **Tall Units:** For pantry storage that slides out easily.
 *   **Corner Solutions:** Smart racks to use every inch of space.
+
+### Related Upgrades
+Our modular setups integrate beautifully into full [Kitchen & Dining](/services/residential/kitchen) renovations. Top it off with our [False Ceiling & Lighting](/services/specialized/ceilings) for a brilliant finish.
         `,
         heroImage: "/images/projects/discovery/visual-12.jpg",
         features: [
@@ -297,6 +309,9 @@ A great restaurant design makes the food taste better. We create spaces that gue
 
 ### Durable & Beautiful
 Restaurants face a lot of daily wear. We choose materials that look great and are tough enough to last for years, even on your busiest days.
+
+### Expand Your Vision
+We also design exceptional [Retail & Showroom](/services/commercial/retail) spaces and offer specialized [Lighting Design](/services/specialized/lighting) to create the perfect atmosphere for your guests.
         `,
         heroImage: "/images/projects/discovery/visual-10.jpg", 
         galleryImages: [
@@ -333,6 +348,9 @@ Lighting is the most powerful tool in design. It sets the mood and makes everyth
 
 ### The Right Setup
 We mix different types of lights to get the right feel. Whether you want a bright workspace or a cozy bedroom, we pick the right colors and brightness for you.
+
+### Perfect Pairings
+Lighting pairs flawlessly with our [False Ceiling & Lighting](/services/specialized/ceilings) installations. Want to see it in action? Discover how we transform spaces in our [Living Room Design](/services/residential/living-room) projects.
         `,
         heroImage: "/images/projects/discovery/visual-9.jpg",
         galleryImages: [
@@ -368,6 +386,9 @@ When standard sizes don't fit, we build exactly what you need. Every piece is ma
 
 ### High Quality
 Every piece of custom furniture is made by skilled craftsmen. We use top-quality wood and fabrics so your furniture is comfortable and lasts a long time.
+
+### Furnish Your Entire Home
+Our custom pieces are the perfect addition to a complete [Living Room Design](/services/residential/living-room) or to create a cohesive look in your [Bedroom Sanctuary](/services/residential/bedroom).
         `,
         heroImage: "/images/projects/discovery/visual-2.jpg",
         galleryImages: [
