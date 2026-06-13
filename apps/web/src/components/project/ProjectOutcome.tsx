@@ -1,159 +1,114 @@
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
 
-interface ProjectSnapshotProps {
-  location: string;
-  area: string;
-  duration: string;
-  style: string;
-  year: number;
+interface ProjectOutcomeProps {
+  location?: string;
+  area?: string;
+  duration?: string;
+  style?: string;
+  year?: number;
   type?: string;
 }
 
-const deriveScope = (type: string | undefined): string[] => {
-  if (type === "commercial") {
-    return [
-      "Discovery Workshop",
-      "Corporate Identity Mapping",
-      "Space Planning",
-      "Material Strategy",
-      "Lighting Design",
-      "Furniture Curation",
-      "Acoustic Strategy",
-    ];
-  }
-  return [
-    "Discovery Workshop",
-    "Lifestyle Mapping",
-    "Space Planning",
-    "Material Strategy",
-    "Lighting Design",
-    "Furniture Curation",
-    "Styling & Finishing",
-  ];
-};
+/** Animates a number from 0 to `end` over `duration` ms when `active` becomes true. */
+function useCountUp(end: number, durationMs: number, active: boolean) {
+  const [value, setValue] = useState(0);
+  const rafRef = useRef<number>(0);
 
-const dnaScores = [
-  { label: "Warmth", score: 92 },
-  { label: "Comfort", score: 89 },
-  { label: "Storage", score: 95 },
-  { label: "Luxury", score: 85 },
-  { label: "Minimalism", score: 78 },
-];
+  useEffect(() => {
+    if (!active) return;
+    const start = performance.now();
+    function tick(now: number) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / durationMs, 1);
+      // Ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.round(eased * end));
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [end, durationMs, active]);
 
-const ProjectOutcome = ({ location, area, duration, style, year, type }: ProjectSnapshotProps) => {
-  const scope = deriveScope(type);
-  const isCommercial = type === "commercial";
+  return value;
+}
 
-  const metrics = [
-    { label: "Location", value: location || "Jamshedpur, India" },
-    { label: "Project Type", value: isCommercial ? "Executive Workspace" : "Premium Residential" },
-    { label: "Client Profile", value: isCommercial ? "Corporate" : "Private Client" },
-    { label: "Archetype", value: "The Warm Minimalist" },
-    { label: "Area", value: area && area !== "-" ? area : "4,500 sq ft" },
-    { label: "Timeline", value: duration && duration !== "-" ? duration : "12 Weeks" },
-    { label: "Year", value: String(year || 2023) },
-    { label: "Style", value: style || "Contemporary" },
-  ];
+interface StatConfig {
+  /** Prefix shown before the number, e.g. "<" */
+  prefix?: string;
+  /** Suffix shown after the number, e.g. "+" */
+  suffix?: string;
+  /** The numeric value to animate to */
+  end: number;
+  /** Label below the number */
+  label: string;
+  /** Duration of count-up animation in ms */
+  durationMs?: number;
+  /** If true, shows the prefix BEFORE the animated number */
+  prefixBefore?: boolean;
+}
+
+function StatCard({ prefix, suffix, end, label, durationMs = 1800, prefixBefore, active }: StatConfig & { active: boolean }) {
+  const count = useCountUp(end, durationMs, active);
 
   return (
-    <section className="py-24 md:py-36 border-t border-white/5 bg-neutral-950">
-      <div className="max-w-6xl mx-auto px-6 md:px-12">
+    <div className="flex flex-col gap-2 text-center">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={active ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="text-4xl md:text-6xl font-serif text-white tracking-tight"
+        aria-label={`${prefix ?? ""}${end}${suffix ?? ""}`}
+      >
+        {prefixBefore && <span className="text-site-gold mr-0.5">{prefix}</span>}
+        {count}
+        {suffix && <span className="text-site-gold">{suffix}</span>}
+        {!prefixBefore && prefix && <span className="text-site-gold">{prefix}</span>}
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={active ? { opacity: 1 } : {}}
+        transition={{ duration: 0.7, delay: 0.25 }}
+        className="text-xs md:text-sm font-medium tracking-[0.2em] uppercase text-stone-500"
+      >
+        {label}
+      </motion.div>
+    </div>
+  );
+}
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="flex items-center gap-4 mb-20 md:mb-28"
-        >
-          <span className="text-xs font-medium tracking-[0.3em] uppercase text-primary">Project Dashboard</span>
-          <span className="flex-1 h-px bg-white/10 max-w-xs" />
-        </motion.div>
+const ProjectOutcome = ({ area, duration }: ProjectOutcomeProps) => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
 
-        {/* 3-column dashboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-white/5 border border-white/5 rounded-2xl overflow-hidden">
+  const daysValue = parseInt(duration ?? "45", 10) || 45;
+  const areaValue = parseInt((area ?? "1200").replace(/\D/g, ""), 10) || 1200;
 
-          {/* Column 1: Project Profile */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="bg-neutral-950 p-10 md:p-12 hover:bg-neutral-900/80 transition-colors duration-500"
-          >
-            <h3 className="text-[10px] uppercase tracking-[0.3em] text-stone-500 mb-10 font-medium">
-              Project Profile
-            </h3>
-            <div className="flex flex-col gap-8">
-              {metrics.map((m) => (
-                <div key={m.label} className="border-b border-white/5 pb-8 last:border-b-0 last:pb-0">
-                  <p className="text-[9px] uppercase tracking-[0.2em] text-stone-600 mb-2">{m.label}</p>
-                  <p className="text-sm font-light text-stone-200">{m.value}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+  return (
+    <section
+      ref={sectionRef}
+      aria-label="Project results and metrics"
+      className="py-24 md:py-32 bg-neutral-950 border-t border-white/5 relative overflow-hidden"
+    >
+      {/* Background */}
+      <div
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-900/50 via-neutral-950 to-neutral-950 pointer-events-none"
+        aria-hidden="true"
+      />
 
-          {/* Column 2: Design DNA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="bg-neutral-900/60 p-10 md:p-12 hover:bg-neutral-800/60 transition-colors duration-500"
-          >
-            <h3 className="text-[10px] uppercase tracking-[0.3em] text-stone-500 mb-10 font-medium">
-              Design DNA
-            </h3>
-            <div className="flex flex-col gap-7">
-              {dnaScores.map((dna, idx) => (
-                <motion.div key={dna.label}>
-                  <div className="flex justify-between items-end mb-3">
-                    <span className="text-xs text-stone-400 uppercase tracking-[0.1em]">{dna.label}</span>
-                    <span className="text-[10px] font-mono text-stone-600">{dna.score}</span>
-                  </div>
-                  <div className="w-full h-px bg-white/8 relative">
-                    <motion.div
-                      className="absolute left-0 top-0 h-full bg-primary"
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${dna.score}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.8, delay: 0.3 + idx * 0.12, ease: "easeOut" }}
-                    />
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+      <div className="max-w-6xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-20">
+          <span className="text-xs font-medium tracking-[0.3em] uppercase text-site-gold block mb-4">Results</span>
+          <h2 className="text-3xl md:text-5xl text-white tracking-tight font-serif font-normal leading-[1.1]">
+            By the <em className="italic text-site-crimson font-light not-italic">Numbers</em>
+          </h2>
+        </div>
 
-          {/* Column 3: Services Delivered */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="bg-neutral-950 p-10 md:p-12 hover:bg-neutral-900/80 transition-colors duration-500"
-          >
-            <h3 className="text-[10px] uppercase tracking-[0.3em] text-stone-500 mb-10 font-medium">
-              Services Delivered
-            </h3>
-            <div className="flex flex-col gap-5">
-              {scope.map((item, idx) => (
-                <motion.div
-                  key={item}
-                  initial={{ opacity: 0, x: 10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: 0.3 + idx * 0.06 }}
-                  className="flex items-center gap-4 pb-5 border-b border-white/5 last:border-b-0 last:pb-0"
-                >
-                  <span className="text-primary text-[10px] flex-shrink-0">✓</span>
-                  <span className="text-sm text-stone-300 font-light">{item}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-8">
+          <StatCard end={daysValue} suffix="d" label="Days to Deliver" active={isInView} durationMs={1200} />
+          <StatCard end={3} prefixBefore prefix="<" suffix="%" label="Budget Variance" active={isInView} durationMs={1000} />
+          <StatCard end={0} label="Contractor Delays" active={isInView} durationMs={600} />
+          <StatCard end={areaValue} suffix="+" label="Sq Ft Transformed" active={isInView} durationMs={1600} />
         </div>
       </div>
     </section>

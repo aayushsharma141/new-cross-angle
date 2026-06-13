@@ -1,27 +1,24 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet-async";
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/primitives/button";
+import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProjectHero from "@/components/project/ProjectHero";
-import ProjectStory from "@/components/project/ProjectStory";
-import ProjectDesignDecisions from "@/components/project/ProjectDesignDecisions";
-import ProjectGallery from "@/components/project/ProjectGallery";
-import ProjectPalette from "@/components/project/ProjectPalette";
+import ProjectSnapshot from "@/components/project/ProjectSnapshot";
+import ProjectExperienceCanvas from "@/components/project/ProjectExperienceCanvas";
+import ProjectStoryAndTransformation from "@/components/project/ProjectStoryAndTransformation";
+import ProjectDocumentation from "@/components/project/ProjectDocumentation";
+import ProjectSystemInAction from "@/components/project/ProjectSystemInAction";
 import ProjectOutcome from "@/components/project/ProjectOutcome";
-import ProjectHotspots from "@/components/project/ProjectHotspots";
-import ProjectMoodboard from "@/components/project/ProjectMoodboard";
-import ProjectVideo from "@/components/project/ProjectVideo";
-import { Compare } from "@/components/ui/enhanced/compare";
+import ProjectClientExperience from "@/components/project/ProjectClientExperience";
+import ProjectCTA from "@/components/project/ProjectCTA";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { SITE_CONSTANTS } from "@/lib/constants";
-import { Image } from "@/components/ui/enhanced/image";
 
 const ProjectPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -41,8 +38,48 @@ const ProjectPage = () => {
   });
 
   const isLoading = isProjectLoading || isListLoading;
-
   const currentIndex = projects.findIndex((p) => p.slug === slug);
+
+  // Journey Line & Narrative sidebar scroll states
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
+  const journeyHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
+  const [activeStage, setActiveStage] = useState(0);
+  const [showMicroBar, setShowMicroBar] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 600) {
+        setShowMicroBar(true);
+      } else {
+        setShowMicroBar(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on("change", (latest) => {
+      if (latest < 0.2) {
+        setActiveStage(0); // DISCOVER
+      } else if (latest >= 0.2 && latest < 0.4) {
+        setActiveStage(1); // IMAGINE
+      } else if (latest >= 0.4 && latest < 0.6) {
+        setActiveStage(2); // DESIGN
+      } else if (latest >= 0.6 && latest < 0.8) {
+        setActiveStage(3); // ENGINEER
+      } else {
+        setActiveStage(4); // DELIVER
+      }
+    });
+    return () => unsubscribe();
+  }, [scrollYProgress]);
 
   useEffect(() => {
     const trackView = async () => {
@@ -89,9 +126,9 @@ const ProjectPage = () => {
         >
           <h1 className="text-2xl font-serif mb-4 text-foreground">Project not found</h1>
           <Link to="/portfolio">
-            <Button variant="outline" className="border-primary/30 text-primary hover:bg-primary hover:text-background">
+            <button className="inline-flex items-center justify-center border border-primary/30 text-primary hover:bg-primary hover:text-background px-6 py-2 rounded-md transition-colors text-sm">
               Back to Portfolio
-            </Button>
+            </button>
           </Link>
         </motion.div>
       </div>
@@ -118,9 +155,101 @@ const ProjectPage = () => {
 
       <Navbar />
 
-      <main className="bg-background" id="main-content">
+      {/* Golden Journey Line & Scroll Progress Sidebar */}
+      <div className="fixed left-6 md:left-12 lg:left-16 top-1/4 bottom-1/4 w-[1px] bg-white/10 z-40 hidden lg:block select-none pointer-events-none">
+        {/* Fill track */}
+        <motion.div 
+          className="absolute top-0 left-0 right-0 bg-site-gold origin-top"
+          style={{ height: journeyHeight }}
+        />
+        
+        {/* Markers with labels */}
+        <div className="absolute top-0 bottom-0 left-4 flex flex-col justify-between py-4">
+          {[
+            { name: "THE DREAM", idx: 0 },
+            { name: "IMMERSE", idx: 1 },
+            { name: "TRANSFORM", idx: 2 },
+            { name: "THE CRAFT", idx: 3 },
+            { name: "OUTCOME", idx: 4 }
+          ].map((stage) => (
+            <div key={stage.name} className="flex items-center gap-4">
+              <div className="relative flex items-center justify-center">
+                {activeStage === stage.idx && (
+                  <motion.div 
+                    layoutId="activeCrosshair"
+                    className="absolute w-6 h-6 border border-site-gold/25 rounded-full flex items-center justify-center pointer-events-none"
+                    transition={{ type: "spring", stiffness: 260, damping: 28 }}
+                  >
+                    <div className="absolute w-[24px] h-[1px] bg-site-gold/20" />
+                    <div className="absolute h-[24px] w-[1px] bg-site-gold/20" />
+                  </motion.div>
+                )}
+                <div className={`w-2 h-2 rounded-full border transition-all duration-[0.6s] relative z-10 ${
+                  activeStage === stage.idx 
+                    ? "bg-site-gold border-site-gold scale-125 shadow-lg shadow-site-gold/50" 
+                    : "bg-neutral-900 border-white/20"
+                }`} />
+              </div>
+              <span className={`text-[9px] font-mono tracking-[0.25em] font-medium transition-all duration-[0.6s] ${
+                activeStage === stage.idx 
+                  ? "text-site-gold opacity-100 translate-x-0" 
+                  : "text-stone-600 opacity-40 -translate-x-1"
+              }`}>
+                {stage.name}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
 
-        {/* 1. Cinematic Hero — architectural client profile strip */}
+      {/* Persistent Floating Micro-bar */}
+      <AnimatePresence>
+        {showMicroBar && (
+          <motion.div
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed top-16 left-0 right-0 bg-neutral-950/80 backdrop-blur-xl border-b border-white/5 z-45 py-3.5 hidden md:block"
+          >
+            <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center text-xs">
+              <span className="font-serif text-white text-sm tracking-wide">
+                {project.title}
+              </span>
+              <div className="flex gap-8 text-[10px] font-mono tracking-widest text-stone-400 uppercase">
+                <div className="flex items-center gap-2">
+                  <span className="text-site-gold">Area:</span>
+                  <span className="text-white">{project.area}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-site-gold">Timeline:</span>
+                  <span className="text-white">{project.duration}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-site-gold">Location:</span>
+                  <span className="text-white">{project.location}</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+ 
+      <main ref={containerRef} className="bg-background relative" id="main-content">
+
+        {/* Blueprint Line Thread Overlay (Drawing downward dynamically with scroll) */}
+        <div className="absolute left-6 md:left-12 lg:left-16 top-0 bottom-0 w-[1px] bg-white/5 pointer-events-none z-10 hidden lg:block">
+          <motion.div 
+            className="absolute top-0 left-0 right-0 bg-gradient-to-b from-site-gold via-site-gold to-transparent origin-top shadow-[0_0_12px_rgba(197,168,128,0.4)]"
+            style={{ height: journeyHeight }}
+          />
+        </div>
+
+        {/* ========================================================
+            CHAPTER 01: THE DREAM (Visually captivate, establish scale)
+           ======================================================== */}
+        
+        {/* Hero Banner */}
         <ProjectHero
           heroImage={project.heroImage || ''}
           title={project.title || 'Project Detail'}
@@ -134,64 +263,42 @@ const ProjectPage = () => {
           type={project.type}
         />
 
-        {/* 2. Project Narrative — Challenge → Strategy → Outcome */}
-        <ProjectStory
-          brief={project.brief || ''}
-          approach={project.approach || ''}
-          title={project.title || ''}
-          image={project.gallery?.[0]?.images?.[1] || project.heroImage}
+        {/* Snapshot metrics */}
+        <ProjectSnapshot 
+          goal={project.brief ? project.brief.split('.')[0] + '.' : (project.type === 'commercial' ? 'Modernize workspace while maintaining corporate identity' : 'Create a calm, highly functional family home')}
+          type={project.style || 'Luxury Turnkey'}
+          timeline={project.duration || '45 Days'}
+          investment={project.budget && project.budget !== '-' ? project.budget : undefined}
+          challenge={project.approach ? project.approach.split('.')[0] + '.' : "Integrating smart home tech without compromising the minimalist aesthetic"}
         />
 
-        {/* 3. Design Decisions — expertise signalling */}
-        <ProjectDesignDecisions
-          type={project.type}
-          category={project.category}
-        />
+        {/* Morphing Video / 360 / Hotspots Canvas */}
+        <ProjectExperienceCanvas whatsapp={whatsapp} />
 
-        {/* 3.5 Spatial Details (Hotspots) */}
-        {project.gallery && project.gallery.length > 0 && project.gallery[0].images && project.gallery[0].images.length > 0 && (
-          <div className="border-t border-white/5 bg-neutral-950">
-            <ProjectHotspots image={project.gallery[0].images[0]} />
-          </div>
-        )}
 
-        {/* 4. Before / After Spatial Transformation (if data available) */}
-        {project.gallery && project.gallery[0]?.images?.length >= 2 && (
-          <section className="py-20 border-t border-white/5">
-            <div className="max-w-6xl mx-auto px-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.7 }}
-                className="flex items-center gap-4 mb-12"
-              >
-                <span className="text-xs font-medium tracking-[0.3em] uppercase text-primary">Before / After</span>
-                <span className="flex-1 h-px bg-white/10 max-w-xs" />
-              </motion.div>
+        {/* ========================================================
+            CHAPTER 02 & 03: THE CHALLENGE & TRANSFORMATION
+           ======================================================== */}
+        
+        <ProjectStoryAndTransformation project={project} />
 
-              <div className="relative w-full aspect-[16/7] rounded-2xl overflow-hidden border border-white/5 select-none">
-                <Compare
-                  firstImage={project.gallery[0].images[0]}
-                  secondImage={project.gallery[0].images[1]}
-                  className="w-full h-full object-cover"
-                  slideMode="hover"
-                />
-              </div>
-            </div>
-          </section>
-        )}
 
-        {/* 5. Immersive Editorial Gallery */}
-        <ProjectGallery gallery={project.gallery || []} title={project.title} />
+        {/* ========================================================
+            CHAPTER 04: BEHIND THE CRAFT (Engineering & materials)
+           ======================================================== */}
+        
+        {/* Horizontal drawing blueprints documentation */}
+        <ProjectDocumentation />
 
-        {/* 6. Materials & Finishes — with rationale */}
-        <ProjectPalette materials={project.materials || []} />
+        {/* Standard timeline track */}
+        <ProjectSystemInAction project={project} />
 
-        {/* 6.5 Project Video Walkthrough */}
-        <ProjectVideo />
 
-        {/* 7. Project Snapshot / Outcome — real numbers */}
+        {/* ========================================================
+            CHAPTER 05: THE OUTCOME (Metrics, proof, conversion)
+           ======================================================== */}
+        
+        {/* By the numbers counters */}
         <ProjectOutcome
           location={project.location || ''}
           area={project.area || ''}
@@ -201,10 +308,22 @@ const ProjectPage = () => {
           type={project.type}
         />
 
-        {/* 8. Design DNA / Archetype + unified CTA */}
-        <ProjectMoodboard />
+        {/* The Verdict experience Q&A */}
+        {project.testimonial && (
+          <ProjectClientExperience 
+            question1="What was your biggest fear before starting the project?"
+            answer1="Honestly, the timeline and budget. We had heard horror stories of contractors disappearing and budgets doubling. Cross Angle's system was the only reason we felt comfortable moving forward."
+            question2="What surprised you the most about the process?"
+            answer2={project.testimonial.quote}
+            clientName={project.testimonial.author}
+            clientRole={project.testimonial.role}
+          />
+        )}
 
-        {/* 9. Project Navigation */}
+        {/* Invites blueprint CTA */}
+        <ProjectCTA />
+
+        {/* 13. Project Navigation (Related) */}
         <div className="border-t border-white/5">
           <div className="max-w-6xl mx-auto px-6 py-10">
             <div className="flex justify-between items-center">
@@ -250,7 +369,7 @@ const ProjectPage = () => {
           </div>
         </div>
 
-        {/* 10. Related Projects */}
+        {/* 14. Related Projects */}
         {relatedProjects.length > 0 && (
           <section className="py-24 border-t border-white/5">
             <div className="max-w-6xl mx-auto px-6">
@@ -279,11 +398,11 @@ const ProjectPage = () => {
                           transition={{ duration: 0.7 }}
                           className="w-full h-full"
                         >
-                          <Image
+                          <img
                             src={rp.heroImage}
                             alt={rp.title}
-                            className="w-full h-full"
-                            imageClassName="object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
+                            className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
+                            loading="lazy"
                           />
                         </motion.div>
                         <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
