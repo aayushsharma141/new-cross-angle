@@ -1,12 +1,8 @@
-import { Award, Users, Clock, ArrowRight, Sparkles } from "lucide-react";
+import { Award, Users, Clock, Sparkles } from "lucide-react";
 import useCountUp from "@/hooks/useCountUp";
-import { Link } from "react-router-dom";
 import { ScrollReveal } from "../ui/enhanced/scroll-reveal";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { Button } from "@/components/ui/primitives/button";
-import { DesignProcessVisual } from "./DesignProcessVisual";
-import { cn } from "@/lib/utils";
 import { Image } from "@/components/ui/enhanced/image";
 
 const stats = [
@@ -16,13 +12,6 @@ const stats = [
   { icon: Sparkles, value: 25, suffix: "+", label: "Design Awards" },
 ];
 
-const features = [
-  "Bespoke Design Narrative",
-  "Curated Material Palette",
-  "Precision-Timed Execution",
-  "Enduring Aftercare",
-];
-
 const StatCard = ({
   stat,
   index
@@ -30,28 +19,18 @@ const StatCard = ({
   stat: typeof stats[0];
   index: number;
 }) => {
-  const { count, ref } = useCountUp(stat.value, { duration: 2000, delay: index * 150 });
+  const { count, ref } = useCountUp(stat.value, { duration: 2000, delay: index * 100 });
 
   return (
     <div
       ref={ref}
-      className="relative group p-8 rounded-2xl bg-[#0a0a0a]/80 border border-site-crimson/30 backdrop-blur-md overflow-hidden transition-all duration-500 shadow-[0_8px_32px_rgba(227,24,55,0.08)] hover:-translate-y-2 hover:border-site-crimson/50 hover:shadow-[0_12px_40px_rgba(227,24,55,0.18)] flex flex-col items-center text-center w-full"
+      className="relative group p-4 rounded-xl bg-[#0a0a0a]/80 border border-white/[0.04] backdrop-blur-md overflow-hidden transition-all duration-300 flex flex-col items-start w-full"
     >
-      {/* Background radial glow (Permanent) */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-site-crimson/20 rounded-full blur-[40px] opacity-100 pointer-events-none" />
-      
-      {/* Icon Box (Permanent Crimson Glow) */}
-      <div className="mb-6 relative z-10 w-14 h-14 flex items-center justify-center rounded-2xl bg-site-crimson/10 border border-site-crimson/40 shadow-inner">
-         <stat.icon className="w-6 h-6 text-site-crimson transition-all duration-500 group-hover:scale-110 drop-shadow-[0_0_8px_rgba(232,27,57,0.3)]" />
-      </div>
-        
-      {/* Value */}
-      <div className="relative z-10 font-serif text-4xl md:text-5xl font-bold text-white tracking-tight mb-3 group-hover:text-[#F9F6F0] transition-colors duration-500">
+      <div className="absolute top-0 right-0 w-16 h-16 bg-site-crimson/5 rounded-full blur-[20px] pointer-events-none" />
+      <div className="font-serif text-3xl font-bold text-white mb-1">
         {count}{stat.suffix}
       </div>
-
-      {/* Label (Permanent Crimson Accent) */}
-      <div className="relative z-10 text-site-crimson text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] transition-colors duration-300">
+      <div className="text-[10px] text-white/50 font-bold uppercase tracking-widest">
         {stat.label}
       </div>
     </div>
@@ -71,7 +50,7 @@ const About = () => {
     <section
       id="about"
       ref={sectionRef}
-      className="py-24 md:py-40 relative overflow-hidden bg-site-bg-section selection:bg-site-crimson/30"
+      className="py-20 md:py-24 relative overflow-hidden bg-site-bg-section"
     >
       {/* Texture Overlay */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] opacity-[0.03] z-[1] pointer-events-none" />
@@ -83,108 +62,58 @@ const About = () => {
       />
       <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-site-bg via-transparent to-transparent z-0" />
 
-      <div className="container mx-auto px-6 md:px-16 lg:px-24 xl:px-32 relative z-10">
-        {/* Minimalist Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-32 border-b border-white/5 pb-12">
-          {stats.map((stat, index) => (
-            <ScrollReveal key={index} animation="fade-up" delay={index * 0.1}>
-              <StatCard stat={stat} index={index} />
-            </ScrollReveal>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
-          {/* Content Column */}
-          <div className="lg:col-span-5 pt-8">
+      <div className="container mx-auto relative z-10 px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start max-w-6xl mx-auto">
+          {/* Left Column: Founder Note & Stats */}
+          <div className="lg:col-span-7 pt-4">
             <ScrollReveal animation="slide-in-left">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-px bg-site-crimson" />
-                <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">The Philosophy</span>
+                <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Founder Note</span>
               </div>
               
-              <h2 className="font-serif text-[clamp(2.5rem,5vw,4.5rem)] font-bold text-site-text-heading mb-10 leading-[1.1] tracking-tight">
-                Your Home. <br />
-                <span className="text-site-crimson italic font-light serif">Exactly as You Imagined.</span>
+              <h2 className="font-serif text-[clamp(2rem,4vw,3.2rem)] font-bold text-white mb-8 leading-[1.15] tracking-tight">
+                Design is an <span className="text-site-crimson italic font-light serif">engineering challenge</span>, not decoration.
               </h2>
 
-              <div className="space-y-6 text-site-text-muted text-base md:text-lg leading-relaxed font-light">
+              <div className="space-y-6 text-white/70 text-sm md:text-base leading-relaxed font-light mb-10">
                 <p>
-                  Your home should reflect the life you’ve built. We work closely with you to design beautiful, functional spaces customized to your daily habits.
+                  &ldquo;I started CrossAngle because I saw too many homeowners getting burned by contractor delays, weak plywood swaps, and unexpected cost additions mid-project. High-ticket interior design should be a structured, stress-free journey, not a series of unpleasant surprises.&rdquo;
                 </p>
                 <p>
-                  From selecting high-grade marble to coordinating on-site handovers, we manage every single detail so you don't have to.
+                  &ldquo;That is why we operate on transparent, factory-calibrated board cutting, fixed-price line-item contracts, and a penalty-backed 45-day handover schedule. We design to your real budget and stand by our execution for a decade.&rdquo;
                 </p>
-                <div className="pt-4 flex items-center gap-4">
-                  <div className="w-8 h-[1px] bg-white/20" />
-                  <p className="text-xs uppercase tracking-widest text-site-text-heading/60 font-semibold">
-                    Guiding premium transformations since 2009.
-                  </p>
+                <div className="pt-2 flex flex-col">
+                  <span className="font-semibold text-white tracking-wider">Aayush Sharma</span>
+                  <span className="text-xs text-site-gold uppercase tracking-widest font-medium mt-1">Founder, CrossAngle Studio</span>
                 </div>
               </div>
-            </ScrollReveal>
 
-            {/* Premium Feature Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12 my-12 py-10 border-y border-white/5">
-              {[
-                "Custom Home Designs",
-                "Premium Selected Materials",
-                "On-Time Handover",
-                "Dedicated Lifetime Support"
-              ].map((feature, index) => (
-                <ScrollReveal key={index} delay={index * 0.1} animation="fade-up">
-                  <div className="flex items-center gap-4 group cursor-default">
-                    <div className="relative">
-                      <div className="w-2 h-2 bg-site-crimson rotate-45 group-hover:scale-150 transition-transform duration-500" />
-                      <div className="absolute inset-0 bg-site-crimson/50 blur-sm animate-pulse rounded-full" />
-                    </div>
-                    <span className="text-site-text/80 text-sm font-medium tracking-tight group-hover:text-site-text-heading transition-colors">{feature}</span>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-
-            {/* Action with floating effect */}
-            <ScrollReveal animation="fade-up" delay={0.4}>
-              <Link to="/contact-us" className="inline-block group">
-                <Button className="pl-0 pr-8 !h-auto py-4 bg-transparent hover:bg-transparent text-site-text-heading border-none shadow-none group relative overflow-hidden transition-all duration-500">
-                  <span className="relative z-10 font-bold uppercase tracking-[0.2em] text-xs">Begin Your Journey</span>
-                  <div className="ml-4 w-10 h-10 border border-site-crimson/30 rounded-none flex items-center justify-center group-hover:bg-site-crimson group-hover:border-site-crimson transition-all duration-500 inline-flex group-hover:translate-x-2">
-                    <ArrowRight className="w-4 h-4 text-site-crimson group-hover:text-white transition-colors" />
-                  </div>
-                  <div className="absolute bottom-4 left-0 w-0 h-px bg-site-crimson group-hover:w-[calc(100%-48px)] transition-all duration-700 delay-100" />
-                </Button>
-              </Link>
+              {/* Compact stats grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-white/5">
+                {stats.map((stat, index) => (
+                  <StatCard key={index} stat={stat} index={index} />
+                ))}
+              </div>
             </ScrollReveal>
           </div>
 
-          {/* Visual Canvas Column */}
-          <div className="lg:col-span-7 relative h-full flex items-center justify-center">
-            <ScrollReveal animation="slide-in-right" delay={0.3} className="w-full relative h-[500px] lg:h-[650px] group">
-               <div className="absolute inset-0 z-10 border border-white/5 pointer-events-none group-hover:border-site-crimson/20 transition-colors duration-700" />
-               <div className="absolute top-0 right-0 p-8 z-20 opacity-30 group-hover:opacity-100 transition-opacity duration-700">
-                  <div className="w-24 h-24 lg:w-32 lg:h-32 border-r border-t border-site-crimson/50" />
-               </div>
-               
-               <div className="relative w-full h-full overflow-hidden bg-site-bg">
-                 <Image 
-                   src="/hero_reality_render_1775299733746.png" 
-                   alt="Elegant minimal interior" 
-                   className="w-full h-full"
-                   imageClassName="object-cover object-center grayscale-[0.3] contrast-110 brightness-90 group-hover:scale-105 transition-transform ease-out" 
-                   style={{ transitionDuration: '2500ms' }}
-                   width={1200}
-                   height={800}
-                 />
-                 <div className="absolute inset-0 bg-gradient-to-t from-site-bg-section via-site-bg-section/20 to-transparent opacity-90" />
-                 <div className="absolute inset-0 bg-site-bg/10 mix-blend-overlay" />
-               </div>
-
-               <div className="absolute bottom-0 left-0 bg-site-bg-section px-6 py-4 flex items-center gap-4 z-20">
-                  <div className="w-8 h-px bg-site-crimson" />
-                  <div className="text-[9px] uppercase tracking-[0.5em] text-site-text-heading/80 font-semibold whitespace-nowrap">
-                    Material Sophistication
-                  </div>
-               </div>
+          {/* Right Column: Single photo */}
+          <div className="lg:col-span-5 relative">
+            <ScrollReveal animation="slide-in-right" delay={0.2} className="w-full relative h-[400px] lg:h-[520px] rounded-2xl overflow-hidden shadow-2xl border border-white/10 group">
+              <Image 
+                src="/hero_reality_render_1775299733746.png" 
+                alt="Aayush Sharma | CrossAngle Studio Founder Note" 
+                className="w-full h-full"
+                imageClassName="object-cover object-center grayscale-[0.2] contrast-105 brightness-90 group-hover:scale-105 transition-transform duration-[2000ms] ease-out" 
+                width={800}
+                height={1000}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+              <div className="absolute bottom-6 left-6 flex items-center gap-3">
+                <div className="w-6 h-px bg-site-crimson" />
+                <span className="text-[9px] uppercase tracking-[0.4em] text-white/80 font-mono">Precision Execution since 2009</span>
+              </div>
             </ScrollReveal>
           </div>
         </div>

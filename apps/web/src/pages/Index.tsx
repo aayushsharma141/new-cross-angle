@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -14,16 +14,17 @@ import { SITE_CONSTANTS } from "@/lib/constants";
 import Hero from "@/components/home/Hero";
 
 // ── Below-fold: code-split + IntersectionObserver-triggered ─────────────────
-const About            = lazy(() => import("@/components/home/About"));
+const ClientProblems = lazy(() => import("@/components/home/ClientProblems"));
 const Services         = lazy(() => import("@/components/home/Services"));
-const Process          = lazy(() => import("@/components/home/Process"));
 const Portfolio        = lazy(() => import("@/components/home/Portfolio"));
-const TactileJourney   = lazy(() => import("@/components/home/TactileJourney").then(m => ({ default: m.TactileJourney })));
 const BeforeAfterShowcase = lazy(() => import("@/components/home/BeforeAfterShowcase").then(m => ({ default: m.BeforeAfterShowcase })));
-const TrustSection     = lazy(() => import("@/components/home/TrustSection"));
+const ProjectFailurePrevention = lazy(() => import("@/components/home/ProjectFailurePrevention"));
 const Testimonials     = lazy(() => import("@/components/home/Testimonials"));
-const MarqueeStrip     = lazy(() => import("@/components/home/MarqueeStrip").then(m => ({ default: m.MarqueeStrip })));
-const HomeBlog         = lazy(() => import("@/components/home/HomeBlog"));
+const TrustSection     = lazy(() => import("@/components/home/TrustSection"));
+const Process          = lazy(() => import("@/components/home/Process"));
+const EstimatorPromo   = lazy(() => import("@/components/home/EstimatorPromo"));
+const About            = lazy(() => import("@/components/home/About"));
+const ServiceLocations = lazy(() => import("@/components/home/ServiceLocations"));
 
 const Index = () => {
   return (
@@ -32,14 +33,14 @@ const Index = () => {
         <title>Crossangle Interior | Premium Interior Design Studio in Jamshedpur</title>
         <meta
           name="description"
-          content="Transform your vision into exquisite living spaces with Crossangle Interior. Award-winning interior design for homes and commercial spaces in Jamshedpur. 500+ projects completed."
+          content="Transform your vision into exquisite living spaces with Crossangle Interior. Innovative and personalized interior design solutions for homes and commercial spaces in Jamshedpur."
         />
         <meta
           name="keywords"
           content="interior design, residential design, commercial design, luxury interiors, home design, space planning, Jamshedpur, modular kitchen, false ceiling"
         />
-        <meta property="og:title" content="Crossangle Interior | Premium Interior Design Studio" />
-        <meta property="og:description" content="Transform your vision into exquisite living spaces. Award-winning interior design in Jamshedpur and nearby neighborhoods." />
+        <meta property="og:title" content="Crossangle Interior | Premium Interior Design Studio in Jamshedpur" />
+        <meta property="og:description" content="Transform your vision into exquisite living spaces with Crossangle Interior. Innovative and personalized interior design solutions." />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/" />
         {/* ✦ LCP Preload: fetch above-fold hero image with highest browser priority */}
@@ -55,7 +56,7 @@ const Index = () => {
       <WelcomePrompt />
       <FixedSocialBar />
       <Navbar />
-      <div className="min-h-screen relative w-full">
+      <main id="main-content" className="min-h-screen relative w-full">
         <SectionNavDots />
 
         {/* Hero — eager, sticky behind everything, curtain scroll effect */}
@@ -66,95 +67,118 @@ const Index = () => {
         {/* Content slides OVER the hero as you scroll (curtain effect) */}
         <div className="relative z-10">
 
+          {/* 2. Client Problems / Reality Check (Empathy Layer) */}
           <LazySection
-            id="about"
-            className="bg-site-bg-section border-t border-site-border"
-            minHeight={800}
+            id="reality-check"
+            className="bg-[#050505] border-t border-white/[0.05]"
+            minHeight={700}
             rootMargin="400px 0px"
           >
-            <About />
+            <ClientProblems />
           </LazySection>
 
+          {/* 3. Services Offered */}
           <LazySection
             id="services"
-            className="bg-site-bg border-t border-site-border"
+            className="bg-black border-t border-white/[0.05]"
             minHeight={900}
             rootMargin="300px 0px"
           >
             <Services />
           </LazySection>
 
-          <LazySection
-            id="process"
-            className="bg-site-bg-section border-t border-site-border"
-            minHeight={700}
-            rootMargin="300px 0px"
-          >
-            <Process />
-          </LazySection>
-
-          {/* MarqueeStrip is lightweight but still below fold */}
-          <LazySection
-            className="bg-site-bg-section border-t border-site-border"
-            minHeight={80}
-            rootMargin="200px 0px"
-          >
-            <MarqueeStrip />
-          </LazySection>
-
+          {/* 4. Portfolio Showcase */}
           <LazySection
             id="portfolio"
-            className="bg-site-bg border-t border-site-border"
+            className="bg-neutral-950 border-t border-white/[0.05]"
             minHeight={1000}
             rootMargin="300px 0px"
           >
             <Portfolio />
           </LazySection>
 
+          {/* 5. Before & After Slides */}
           <LazySection
-            className="bg-site-bg-section border-t border-site-border"
-            minHeight={800}
-            rootMargin="300px 0px"
-          >
-            <TactileJourney />
-          </LazySection>
-
-          <LazySection
-            className="bg-site-bg border-t border-site-border"
-            minHeight={700}
+            id="before-after"
+            className="bg-[#060504] border-t border-white/[0.05]"
+            minHeight={750}
             rootMargin="300px 0px"
           >
             <BeforeAfterShowcase />
           </LazySection>
 
+          {/* 6. Project Failure Prevention (Differentiation) */}
           <LazySection
-            className="bg-site-bg-section border-t border-site-border"
-            minHeight={600}
+            id="prevention"
+            className="bg-[#060504] border-t border-white/[0.05]"
+            minHeight={800}
             rootMargin="300px 0px"
           >
-            <TrustSection />
+            <ProjectFailurePrevention />
           </LazySection>
 
+          {/* 7. Testimonials */}
           <LazySection
             id="testimonials"
-            className="bg-site-bg-section border-t border-site-border"
+            className="bg-[#080807] border-t border-white/[0.05]"
             minHeight={700}
             rootMargin="300px 0px"
           >
             <Testimonials />
           </LazySection>
 
+          {/* 8. Trust & Guarantees */}
           <LazySection
-            id="blog"
-            className="bg-[#090807] border-t border-site-border"
+            id="trust"
+            className="bg-[#0c0a09] border-t border-white/[0.05]"
             minHeight={600}
             rootMargin="300px 0px"
           >
-            <HomeBlog />
+            <TrustSection />
+          </LazySection>
+
+          {/* 9. Methodology Process */}
+          <LazySection
+            id="process"
+            className="bg-site-bg border-t border-white/[0.05]"
+            minHeight={800}
+            rootMargin="300px 0px"
+          >
+            <Process />
+          </LazySection>
+
+          {/* 10. Cost Estimator Teaser */}
+          <LazySection
+            id="estimator"
+            className="bg-black border-t border-white/[0.05]"
+            minHeight={600}
+            rootMargin="300px 0px"
+          >
+            <EstimatorPromo />
+          </LazySection>
+
+          {/* 11. Founder Note + Studio Stats */}
+          <LazySection
+            id="about"
+            className="bg-site-bg-section border-t border-white/[0.05]"
+            minHeight={800}
+            rootMargin="300px 0px"
+          >
+            <About />
+          </LazySection>
+
+          {/* 12. Service Locations */}
+          <LazySection
+            id="locations"
+            className="bg-[#020202] border-t border-white/[0.05]"
+            minHeight={600}
+            rootMargin="300px 0px"
+          >
+            <ServiceLocations />
           </LazySection>
 
         </div>
-      </div>
+      </main>
       <Footer />
 
       <SchemaMarkup

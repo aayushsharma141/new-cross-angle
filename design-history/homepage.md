@@ -8,11 +8,14 @@ This file tracks the design variations, sections, and layout checkpoints for the
 
 | Component | Checkpoint Tag | Version / Commit | Description & Design Highlights | Visual Reference / Links |
 | :--- | :--- | :--- | :--- | :--- |
+| **Homepage Funnel** | `checkpoint/home-page-ux-replanning` | `HEAD` | **13-Stage Acquisition Funnel:** Reordered sections based on psychological user journey. Added ClientProblems (empathy) and ProjectFailurePrevention (differentiation). Removed TactileJourney and HomeBlog from homepage to focus attention. | [View Config](file:///c:/Users/aayus/Desktop/main/apps/web/src/pages/Index.tsx) |
+| **ClientProblems** | `checkpoint/home-page-ux-replanning` | `HEAD` | **Empathy Reality Check:** Addresses 5 critical homeowner worries (cost, delays, Pinterest overflow, style matching, designer trust) right after Hero. | [View Component](file:///c:/Users/aayus/Desktop/main/apps/web/src/components/home/ClientProblems.tsx) |
+| **ProjectFailurePrevention** | `checkpoint/home-page-ux-replanning` | `HEAD` | **Prevention Protocol Matrix:** Contrasts standard builder pitfalls (delays, budget runs, cheap materials) with CrossAngle safeguards. | [View Component](file:///c:/Users/aayus/Desktop/main/apps/web/src/components/home/ProjectFailurePrevention.tsx) |
+| **EstimatorPromo** | `checkpoint/home-page-ux-replanning` | `HEAD` | **Cost Calculator Teaser:** Previews 3BHK Luxury vs Premium configurations, prompting navigation to the `/estimate` budget tool. | [View Component](file:///c:/Users/aayus/Desktop/main/apps/web/src/components/home/EstimatorPromo.tsx) |
+| **Founder Note (About)** | `checkpoint/home-page-ux-replanning` | `HEAD` | **Refactored About:** Replaced generic philosophy with a personal letter from the founder, compact studio stats, and one photo. | [View Component](file:///c:/Users/aayus/Desktop/main/apps/web/src/components/home/About.tsx) |
 | **Hero** | `checkpoint/home-hero-curated` | `HEAD` | **Curated Minimal Hero:** Large typography, plain wordmark logo header integration, clean CTA triggers, and premium fading image background. | [View Component](file:///c:/Users/aayus/Desktop/main/apps/web/src/components/home/Hero.tsx) |
 | **Hero Trust Chips** | `checkpoint/v-pre-homepage-research-improvements` | `HEAD` | Added **Google Rating chip** (4.9★ · 200+ Google Reviews) to the hero trust strip using a gold Star icon, matching existing chip styling. | [View Component](file:///c:/Users/aayus/Desktop/main/apps/web/src/components/home/Hero.tsx) |
 | **Services** | `checkpoint/v-pre-homepage-research-improvements` | `HEAD` | Added **neighborhood callout line** ("Serving Jamshedpur · Kolkata · Mango · Bistupur · Sakchi · Adityapur") below the section heading for local trust signaling. | [View Component](file:///c:/Users/aayus/Desktop/main/apps/web/src/components/home/Services.tsx) |
-| **HomeBlog** | `checkpoint/v-pre-homepage-research-improvements` | `HEAD` | **New section:** Top 3 latest published blogs rendered in a premium editorial grid (1 featured + 2 side posts). "View All Articles" CTA links to /blog. | [View Component](file:///c:/Users/aayus/Desktop/main/apps/web/src/components/home/HomeBlog.tsx) |
-| **TactileJourney** | `checkpoint/tactile-carousel` | `HEAD` | **Interactive Tactile Carousel:** Showcase of fine textures, marble grains, oak panels, and luxury fabrics with responsive layout configurations. | [View Component](file:///c:/Users/aayus/Desktop/main/apps/web/src/components/home/TactileJourney.tsx) |
 | **BeforeAfterShowcase** | `checkpoint/slide-reveal` | `HEAD` | **Premium Slide Splitter:** Visual comparison of before/after interior transformations with custom dragging split handles. | [View Component](file:///c:/Users/aayus/Desktop/main/apps/web/src/components/home/BeforeAfterShowcase.tsx) |
 | **Testimonials** | `checkpoint/testimonial-slider` | `HEAD` | **Clean Slider:** Single-row high contrast client testimonials with location tag elements. | [View Component](file:///c:/Users/aayus/Desktop/main/apps/web/src/components/home/Testimonials.tsx) |
 
@@ -21,6 +24,7 @@ This file tracks the design variations, sections, and layout checkpoints for the
 ## 2. Key Code Diffs and Code Snippets
 
 ### A. Before/After Split Handle Structure
+
 ```tsx
 <div 
   className="absolute inset-y-0 w-1 bg-white cursor-ew-resize z-30 shadow-[0_0_10px_rgba(0,0,0,0.3)]"
