@@ -15,13 +15,27 @@ const ServiceCategoryPage = () => {
     const { category: categorySlug } = useParams();
     const category = serviceCategories.find((c) => c.slug === categorySlug);
 
-    const { data: services, isLoading } = useQuery({
+    const { data: services, isLoading, isError, refetch } = useQuery({
         queryKey: ["services"],
         queryFn: api.getServices,
     });
 
     if (!category) {
         return <NotFound />;
+    }
+
+    if (isError) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
+                <div className="max-w-md text-center space-y-6">
+                    <h2 className="font-serif text-3xl text-primary">Failed to load services</h2>
+                    <p className="text-muted-foreground font-light">There was a network error loading our design portfolio. Please try again.</p>
+                    <Button onClick={() => refetch()} className="rounded-full px-8 py-6 text-lg">
+                        Retry Connection
+                    </Button>
+                </div>
+            </div>
+        );
     }
 
     if (isLoading) {
@@ -43,12 +57,16 @@ const ServiceCategoryPage = () => {
             <Helmet>
                 <title>{`${category.title} services | Cross Angle Interior`}</title>
                 <meta name="description" content={category.description} />
+                <meta property="og:title" content={`${category.title} services | Cross Angle Interior`} />
+                <meta property="og:description" content={category.description} />
+                <meta property="og:type" content="website" />
+                <link rel="canonical" href={`https://crossangleinterior.com/services/${categorySlug}`} />
             </Helmet>
 
             <div className="min-h-screen bg-background flex flex-col">
                 <Navbar />
 
-                <main className="flex-grow">
+                <main id="main-content" className="flex-grow">
                     {/* Hero Section */}
                     <div className="relative h-[50vh] flex items-center justify-center overflow-hidden">
                         <div className="absolute inset-0 z-0">
@@ -118,6 +136,11 @@ const ServiceCategoryPage = () => {
                                         </div>
                                     </motion.div>
                                 ))}
+                                {categoryServices.length === 0 && (
+                                    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-12 text-center text-muted-foreground max-w-lg mx-auto">
+                                        No {category.title.toLowerCase()} services are currently listed. Please contact us for bespoke enquiries.
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </section>

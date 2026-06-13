@@ -42,6 +42,7 @@ export const ADMIN_STATIC_PATHS = [
   '/admin/cms/studio-statistics',
   '/admin/cms/milestones',
   '/admin/cms/process-steps',
+  '/admin/cms/site-assets',
 
   // CRM module
   '/admin/crm',
@@ -69,4 +70,10 @@ export const ADMIN_STATIC_PATHS = [
   '/admin/system/team-members',
   '/admin/system/audit-logs',
   '/admin/system/access-control',
+
+  // User Access module
+  '/admin/user-access',
+  '/admin/user-access/users',
+  '/admin/user-access/roles',
+  '/admin/user-access/security',
 ];

@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import {
   Users, Activity, TrendingUp, Timer, Download, BarChart3, PieChartIcon,
-  TrendingDown, Layers, RefreshCw, CalendarIcon, Monitor, UserCheck
+  TrendingDown, Layers, RefreshCw, CalendarIcon, Monitor, UserCheck, Target
 } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { ScrollArea } from "@/components/ui/primitives/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/design-system/components/Table";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, AreaChart, Area, CartesianGrid, XAxis, YAxis } from "recharts";
 import { icons } from "@/design-system/tokens/icons";
 
 import { StatCard } from "@/components/admin/analytics/StatCard";
@@ -43,6 +43,12 @@ export default function AdminAnalytics() {
   const [selectedLead, setSelectedLead] = useState<LeadRow | null>(null);
   const [activeTab, setActiveTab] = useState<"analytics" | "leads">("analytics");
   const [viewingType, setViewingType] = useState<"all" | "completed">("all");
+  // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [posthogFunnel, setPosthogFunnel] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [posthogRetention, setPosthogRetention] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [posthogEstimator, setPosthogEstimator] = useState<any[]>([]);
 
   const loadData = useCallback(async () => {
     setRefreshing(true);
@@ -99,7 +105,17 @@ export default function AdminAnalytics() {
           name: String(lead.name ?? ""), email: String(lead.email ?? ""), phone: typeof lead.phone === "string" ? lead.phone : null, project_type: typeof lead.project_type === "string" ? lead.project_type : null, budget_range: typeof lead.budget === "string" ? lead.budget : null, timeline: typeof lead.start_timing === "string" ? lead.start_timing : null, city: typeof lead.city === "string" ? lead.city : null, lead_source: typeof lead.lead_source === "string" ? lead.lead_source : null, utm_source: typeof lead.source === "string" ? lead.source : null, utm_medium: null, utm_campaign: typeof lead.source_url === "string" ? lead.source_url : null, created_at: String(lead.created_at),
         };
       });
+      // PostHog Data
+      const fromIso = from || subDays(new Date(), 30).toISOString();
+      const toIso = to || new Date().toISOString();
+      const phFunnelRes = await supabase.functions.invoke("posthog-query", { body: { action: "funnel-discovery", from: fromIso, to: toIso } }).catch(() => ({ data: [] }));
+      const phEstimatorRes = await supabase.functions.invoke("posthog-query", { body: { action: "funnel-estimator", from: fromIso, to: toIso } }).catch(() => ({ data: [] }));
+      const phRetentionRes = await supabase.functions.invoke("posthog-query", { body: { action: "retention-summary", from: fromIso, to: toIso } }).catch(() => ({ data: [] }));
+
       setSessions(nextSessions); setEvents(nextEvents); setLeads(nextLeads);
+      setPosthogFunnel(phFunnelRes.data || []);
+      setPosthogEstimator(phEstimatorRes.data || []);
+      setPosthogRetention(phRetentionRes.data || []);
     } finally { setLoading(false); setRefreshing(false); }
   }, [dateFrom, dateTo]);
 
@@ -143,7 +159,7 @@ export default function AdminAnalytics() {
 
 
   return (
-    <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
+      <div className="flex flex-col space-y-4 animate-in fade-in duration-700">
 
       {/* Quick Stats + Date Filters */}
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mt-2 mb-4">
@@ -222,6 +238,86 @@ export default function AdminAnalytics() {
             {funnel.map((f, i) => (<div key={f.stage} className="flex items-center gap-3"><span className="text-xs text-muted-foreground w-24 text-right shrink-0 truncate">{STAGE_LABELS[f.stage] ?? f.stage}</span><div className="flex-1 h-7 rounded bg-white/5 overflow-hidden relative"><motion.div initial={{ width: 0 }} animate={{ width: `${(f.count / maxFunnel) * 100}%` }} transition={{ delay: 0.3 + i * 0.04, duration: 0.5 }} className="h-full rounded" style={{ background: i === funnel.length - 1 && f.count > 0 ? `hsl(var(--gold))` : `hsl(var(--foreground) / ${0.15 + (1 - i / funnel.length) * 0.25})` }} /><span className="absolute inset-y-0 right-2 flex items-center text-xs text-muted-foreground">{f.count}</span></div><span className="text-xs text-muted-foreground w-12 shrink-0">{f.pct.toFixed(0)}%</span></div>))}
           </div>
         </motion.section>
+
+        {/* PostHog Charts */}
+        {(posthogFunnel.length > 0 || posthogRetention.length > 0 || posthogEstimator.length > 0) && (
+          <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="mb-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {posthogFunnel.length > 0 && (
+              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                <h2 className="text-lg font-serif-display font-medium mb-4 flex items-center gap-2"><Target className={cn("text-muted-foreground", icons.md)} /> Discovery Engine Funnel (PostHog)</h2>
+                <div className="h-[200px] w-full mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={posthogFunnel.map((d: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
+                      step: d.step.replace('quiz_', '').replace('_', ' '),
+                      count: d.count
+                    }))}>
+                      <defs>
+                        <linearGradient id="phFunnelColor" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="hsl(var(--gold))" stopOpacity={0.4}/>
+                          <stop offset="95%" stopColor="hsl(var(--gold))" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
+                      <XAxis dataKey="step" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} dy={10} />
+                      <Tooltip contentStyle={{ backgroundColor: "rgba(0, 0, 0, 0.8)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", color: "#fff" }} />
+                      <Area type="monotone" dataKey="count" stroke="hsl(var(--gold))" strokeWidth={2} fillOpacity={1} fill="url(#phFunnelColor)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+            
+            {posthogEstimator.length > 0 && (
+              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                <h2 className="text-lg font-serif-display font-medium mb-4 flex items-center gap-2"><Target className={cn("text-muted-foreground", icons.md)} /> Estimator Funnel (PostHog)</h2>
+                <div className="h-[200px] w-full mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={posthogEstimator.map((d: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
+                      step: d.step,
+                      count: d.count
+                    }))}>
+                      <defs>
+                        <linearGradient id="phEstimatorColor" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
+                          <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
+                      <XAxis dataKey="step" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} dy={10} />
+                      <Tooltip contentStyle={{ backgroundColor: "rgba(0, 0, 0, 0.8)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", color: "#fff" }} />
+                      <Area type="monotone" dataKey="count" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#phEstimatorColor)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+            
+            {posthogRetention.length > 0 && (
+              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                <h2 className="text-lg font-serif-display font-medium mb-4 flex items-center gap-2"><RefreshCw className={cn("text-muted-foreground", icons.md)} /> Retention Curve (PostHog)</h2>
+                <div className="h-[200px] w-full mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={posthogRetention.map((d: any, i: number) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
+                      day: `Day ${i}`,
+                      retention: typeof d.count === 'number' ? d.count : (d.values?.[0]?.count || 0)
+                    }))}>
+                      <defs>
+                        <linearGradient id="phRetentionColor" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
+                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
+                      <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} dy={10} />
+                      <Tooltip contentStyle={{ backgroundColor: "rgba(0, 0, 0, 0.8)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", color: "#fff" }} />
+                      <Area type="monotone" dataKey="retention" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#phRetentionColor)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+          </motion.section>
+        )}
 
         {/* Drop-offs */}
         {dropoffs.length > 0 && (

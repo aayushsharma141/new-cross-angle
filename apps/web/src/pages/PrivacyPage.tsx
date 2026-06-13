@@ -35,11 +35,15 @@ const PrivacyPage = () => {
       <Helmet>
         <title>Privacy Policy & DPDPA Rights | Cross Angle Interior</title>
         <meta name="description" content="Cross Angle Interior's Privacy Policy compliant with DPDPA 2023. Learn how we collect, use, and protect your personal data." />
+        <meta property="og:title" content="Privacy Policy | Cross Angle Interior" />
+        <meta property="og:description" content="Cross Angle Interior's Privacy Policy compliant with DPDPA 2023." />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://crossangleinterior.com/privacy" />
       </Helmet>
 
       <Navbar />
 
-      <main className="pt-32 pb-24 relative z-10 overflow-hidden">
+      <main id="main-content" className="pt-32 pb-24 relative z-10 overflow-hidden">
         {/* Decorative background */}
         <div className="pointer-events-none absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-[#C41230]/8 to-transparent -z-10" />
         <div className="pointer-events-none absolute top-24 right-0 w-[600px] h-[600px] bg-[#C41230]/4 rounded-full blur-[140px] -z-10" />

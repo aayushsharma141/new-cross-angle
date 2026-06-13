@@ -2,6 +2,17 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
+
+const assetKeyForMilestone = (year: string): string => {
+  const map: Record<string, string> = {
+    "2012": "about_timeline_2012",
+    "2016": "about_timeline_2016",
+    "2020": "about_timeline_2020",
+    "2024": "about_timeline_2024",
+  };
+  return map[year] || "about_timeline_2012";
+};
 
 interface Milestone {
   year: string;
@@ -136,8 +147,9 @@ const AboutTimeline = () => {
                     {/* Image Header */}
                     <div className="relative h-48 w-full overflow-hidden border-b border-white/5">
                       <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors duration-500" />
-                      <img 
-                        src={milestone.image} 
+                      <MediaSlot
+                        assetKey={assetKeyForMilestone(milestone.year)}
+                        fallbackUrl={milestone.image}
                         alt={milestone.title}
                         className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
                       />

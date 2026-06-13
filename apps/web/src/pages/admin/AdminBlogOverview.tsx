@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { cn } from "@/lib/utils";
-import { AdminPageHeader } from "@/components/admin/shared/AdminPageHeader";
+
 import { Button } from "@/components/ui/primitives/button";
 import { Skeleton } from "@/components/ui/primitives/skeleton";
 import { Card, CardContent } from "@/components/ui/primitives/card";
@@ -66,7 +66,8 @@ async function fetchBlogOverview(): Promise<BlogOverviewData> {
         .order("created_at", { ascending: false });
 
     const ninetyDaysAgo = subDays(new Date(), 90).toISOString();
-    const { data: events } = await (supabase as unknown as { from: (table: string) => unknown })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: events } = await (supabase as any)
         .from("blog_user_events")
         .select("article_id, event_type, metadata, created_at")
         .gte("created_at", ninetyDaysAgo);
@@ -153,17 +154,17 @@ export default function AdminBlogOverview() {
         queryFn: fetchBlogOverview,
     });
 
-    const dailyStats = data?.dailyStats ?? [];
+    const dailyStats = useMemo(() => data?.dailyStats ?? [], [data?.dailyStats]);
+    const articles = useMemo(() => data?.articles ?? [], [data?.articles]);
 
     const topStats = useMemo(() => {
-        const articlesList = data?.articles ?? [];
-        const totalViews = articlesList.reduce((s, a) => s + a.views, 0);
-        const avgReadTime = articlesList.length > 0 ? articlesList.reduce((s, a) => s + a.readTime, 0) / articlesList.length : 0;
-        const avgScrollDepth = articlesList.length > 0 ? articlesList.reduce((s, a) => s + a.scrollDepth, 0) / articlesList.length : 0;
-        const totalCta = articlesList.reduce((s, a) => s + a.ctaClicks, 0);
-        const totalShares = articlesList.reduce((s, a) => s + a.shares, 0);
+        const totalViews = articles.reduce((s, a) => s + a.views, 0);
+        const avgReadTime = articles.length > 0 ? articles.reduce((s, a) => s + a.readTime, 0) / articles.length : 0;
+        const avgScrollDepth = articles.length > 0 ? articles.reduce((s, a) => s + a.scrollDepth, 0) / articles.length : 0;
+        const totalCta = articles.reduce((s, a) => s + a.ctaClicks, 0);
+        const totalShares = articles.reduce((s, a) => s + a.shares, 0);
         return { totalViews, avgReadTime, avgScrollDepth, totalCta, totalShares };
-    }, [data?.articles]);
+    }, [articles]);
 
     const COLORS = ["hsl(43,74%,49%)", "hsl(200,70%,50%)", "hsl(150,60%,45%)", "hsl(280,60%,55%)", "hsl(350,65%,50%)", "hsl(30,80%,55%)"];
 
@@ -198,8 +199,7 @@ export default function AdminBlogOverview() {
                 .fade-up-4 { animation: fadeUp var(--anim-duration) var(--anim-stagger-4) var(--anim-ease) both; }
             `}</style>
             
-            <AdminPageHeader moduleName="Blog" tabName="Overview" />
-            
+                        
             <ModuleActions>
                 <Button
                     variant="outline"

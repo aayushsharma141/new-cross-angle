@@ -14,6 +14,8 @@ interface AuthContextType {
     user: User | null;
     session: Session | null;
     role: AppRole | null;
+    roleLoading: boolean;
+    roleError: string | null;
     isAdmin: boolean;
     isEditor: boolean;
     /** True when the user has any platform role. Kept for backward compat. */
@@ -28,6 +30,8 @@ const AuthContext = createContext<AuthContextType>({
     user: null,
     session: null,
     role: null,
+    roleLoading: false,
+    roleError: null,
     isAdmin: false,
     isEditor: false,
     isViewer: false,
@@ -40,9 +44,10 @@ export const useAuth = () => {
     return useContext(AuthContext);
 };
 
-// ─── Role Cache (localStorage + 5-min TTL) ─────────────────────────────────
+// ─── Role Cache (sessionStorage + 5-min TTL) ───────────────────────────────
 const ROLE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-const ROLE_CACHE_VERSION = "admin-rbac-v3";
+const ROLE_CACHE_VERSION = "admin-rbac-v4";
+const ROLE_PRIORITY: AppRole[] = ["super_admin", "admin", "viewer"];
 
 interface CachedRole {
     role: string | null;
@@ -51,7 +56,7 @@ interface CachedRole {
 }
 
 type RoleQueryResult = {
-    data: { role: string | null } | null;
+    data: { role: string | null }[] | null;
     error: { message?: string } | null;
 };
 
@@ -86,6 +91,15 @@ function setCachedRole(userId: string, role: AppRole | null): void {
         version: ROLE_CACHE_VERSION,
     };
     sessionStorage.setItem(`user_role_${userId}`, JSON.stringify(entry));
+}
+
+export function cacheVerifiedRole(userId: string, role: AppRole): void {
+    setCachedRole(userId, role);
+}
+
+function pickBestStoredRole(rows: { role: string | null }[] | null | undefined): AppRole | null {
+    const roles = new Set((rows ?? []).map((row) => mapStoredUserRole(row.role)).filter(Boolean));
+    return ROLE_PRIORITY.find((candidate) => roles.has(candidate)) ?? null;
 }
 
 function clearRoleCache(): void {
@@ -136,6 +150,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [session, setSession] = useState<Session | null>(null);
     const [role, setRole] = useState<AppRole | null>(null);
+    const [roleLoading, setRoleLoading] = useState(false);
+    const [roleError, setRoleError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [loggingOut, setLoggingOut] = useState(false);
     const analytics = useAnalytics();
@@ -172,18 +188,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                         .from('user_roles')
                         .select('role')
                         .eq('user_id', userId)
-                        .maybeSingle() as unknown as Promise<RoleQueryResult>,
+                        .limit(5) as unknown as Promise<RoleQueryResult>,
                     3500,
                     "user_roles query",
                 );
 
-                if (!error && data?.role) {
-                    const directRole = mapStoredUserRole(data.role as string);
-                    if (directRole) {
-                        console.log("Auth: Got role from user_roles:", directRole, `(${(performance.now() - start).toFixed(0)}ms)`);
-                        setCachedRole(userId, directRole);
-                        return directRole;
-                    }
+                const directRole = !error ? pickBestStoredRole(data) : null;
+                if (directRole) {
+                    console.log("Auth: Got role from user_roles:", directRole, `(${(performance.now() - start).toFixed(0)}ms)`);
+                    setCachedRole(userId, directRole);
+                    return directRole;
                 }
                 if (error) {
                     console.warn("Auth: user_roles query failed:", error);
@@ -217,7 +231,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     // Edge function succeeded but returned no role — the user definitively has no role
                     if (syncData !== null && syncData !== undefined) {
                         console.log("Auth: User has no role definitively.", `(${(performance.now() - start).toFixed(0)}ms)`);
-                        setCachedRole(userId, null);
                         return null;
                     }
                 }
@@ -237,13 +250,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         let isMounted = true;
 
-        const timeoutId = setTimeout(() => {
-            if (isMounted && loading) {
-                console.warn("Auth: Loading timeout exceeded (3s). Forcing loading=false to prevent white screen.");
-                setLoading(false);
-            }
-        }, 3000); // Reduced from 15s → 3s: prevents white-screen on public pages (estimator, gallery) when Supabase auth is unreachable. Role fetch has its own per-attempt timeouts.
-
         if (!supabase) {
             if (isMounted) setLoading(false);
             return;
@@ -252,11 +258,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const getInitialSession = async () => {
             const start = performance.now();
             try {
-                // Step 1: Validate session server-side first
-                const { data: { user: validatedUser }, error: userError } = await supabase.auth.getUser();
+                // Step 1: Read the local session first so login pages are not
+                // blocked by a slow Supabase auth validation request.
+                const { data: { session: currentSession } } = await withTimeout(
+                    supabase.auth.getSession(),
+                    2500,
+                    "auth session lookup",
+                );
 
-                if (userError || !validatedUser) {
-                    console.warn("Auth: No valid session found.", userError?.message);
+                if (!currentSession?.user) {
                     if (isMounted) {
                         setUser(null);
                         setSession(null);
@@ -266,7 +276,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     return;
                 }
 
-                // Step 1b: Enforce Remember Me TTL (24-hour expiry for non-persistent sessions)
+                let validatedUser = currentSession.user;
+
+                // Step 2: Validate session server-side when reachable. If this
+                // is slow, continue with the locally restored session and let
+                // role verification prove access.
+                try {
+                    const { data: { user: serverUser }, error: userError } = await withTimeout(
+                        supabase.auth.getUser(),
+                        6000,
+                        "auth user validation",
+                    );
+
+                    if (userError || !serverUser) {
+                        console.warn("Auth: No valid session found.", userError?.message);
+                        if (isMounted) {
+                            setUser(null);
+                            setSession(null);
+                            setRole(null);
+                            setLoading(false);
+                        }
+                        return;
+                    }
+
+                    validatedUser = serverUser;
+                } catch (error) {
+                    console.warn("Auth: Session validation was slow; continuing with restored session.", error);
+                }
+
+                // Step 3: Enforce Remember Me TTL (24-hour expiry for non-persistent sessions)
                 if (isSessionExpired()) {
                     console.log('Auth: Session TTL expired (Remember Me was unchecked). Signing out.');
                     await supabase.auth.signOut();
@@ -281,26 +319,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     return;
                 }
 
-                // Step 2: Get session data (now guaranteed to have valid tokens)
-                const { data: { session: currentSession } } = await supabase.auth.getSession();
-
                 if (isMounted) {
                     setSession(currentSession);
                     setUser(validatedUser);
                 }
 
-                // Step 3: Fetch role — auth.uid() is now guaranteed to be set
+                if (isMounted) {
+                    setLoading(false);
+                    setRoleLoading(true);
+                    setRoleError(null);
+                }
+
+                // Step 4: Fetch role — this has its own retry window and should
+                // not be collapsed into the initial auth loading state.
                 const userRole = await fetchUserRole(validatedUser.id);
                 console.log(`Auth: Resolved role for ${validatedUser.email}: '${userRole}'`);
                 if (isMounted) {
                     setRole(userRole);
-                    setLoading(false);
+                    setRoleError(userRole ? null : "Admin role could not be verified");
+                    setRoleLoading(false);
                 }
 
                 console.log(`Auth: Initial load took ${(performance.now() - start).toFixed(2)}ms`);
             } catch (error) {
                 console.error("Auth: Error getting session:", error);
-                if (isMounted) setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                    setRoleLoading(false);
+                    setRoleError(error instanceof Error ? error.message : "Unable to verify admin role");
+                }
             }
         };
 
@@ -321,6 +368,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     setSession(null);
                     setUser(null);
                     setRole(null);
+                    setRoleLoading(false);
+                    setRoleError(null);
                     clearRoleCache();
                     analytics.reset();
                     setLoading(false);
@@ -346,27 +395,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 if (event === "SIGNED_IN" || event === "USER_UPDATED") {
                     setSession(newSession);
                     setUser(newSession?.user ?? null);
+                    setLoading(false);
 
                     if (newSession?.user) {
-                        // Clear cache on sign-in so we always get fresh role
-                        if (event === "SIGNED_IN") {
-                            clearRoleCache();
-                        }
-
                         // Bind anonymous user actions to authenticated user
                         analytics.identify(newSession.user.id, {
                             email: newSession.user.email,
                             role: role ?? undefined,
                         });
 
+                        setRoleLoading(true);
+                        setRoleError(null);
                         const userRole = await fetchUserRole(newSession.user.id);
                         // Always set the role (even null) so RoleGuard can act correctly.
                         // Previously, null was not set which left role in its old state.
                         if (isMounted) {
                             setRole(userRole);
+                            setRoleError(userRole ? null : "Admin role could not be verified");
+                            setRoleLoading(false);
                         }
                     } else {
                         setRole(null);
+                        setRoleLoading(false);
+                        setRoleError(null);
                         clearRoleCache();
                     }
                     if (isMounted) setLoading(false);
@@ -376,7 +427,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         return () => {
             isMounted = false;
-            clearTimeout(timeoutId);
             subscription.unsubscribe();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -394,6 +444,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(null);
         setSession(null);
         setRole(null);
+        setRoleLoading(false);
+        setRoleError(null);
         analytics.reset();
     };
 
@@ -406,6 +458,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             user,
             session,
             role,
+            roleLoading,
+            roleError,
             isAdmin: isAdminRole,
             isEditor: isEditorRole,
             isViewer: isViewerRole,

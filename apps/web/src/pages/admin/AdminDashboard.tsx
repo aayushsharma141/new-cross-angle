@@ -1,5 +1,5 @@
-import { useEffect, useState, lazy, Suspense, type JSX } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState, lazy, Suspense, type JSX, useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   Plus,
@@ -21,11 +21,11 @@ import { DateRange } from "react-day-picker";
 import { subDays, endOfDay } from "date-fns";
 import { useSystem } from "@/context/SystemContext";
 import { ModuleLayout, ModuleActions } from "@/components/admin/layout/ModuleLayout";
-import { AdminTabSlider } from "@/components/admin/ui/AdminTabSlider";
 import { useAdminDisplayName } from "@/hooks/useAdminDisplayName";
 import { usePermissions } from "@/hooks/usePermissions";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const OverviewTab = lazy(() => import("./tabs/OverviewTab"));
 const TrafficTab = lazy(() => import("./tabs/TrafficTab"));
@@ -65,16 +65,20 @@ const AdminDashboard = (): JSX.Element => {
   const { health, refreshHealth } = useSystem();
   const { displayName } = useAdminDisplayName();
   const { can, role } = usePermissions();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = (searchParams.get("tab") as TabType) || "overview";
+  
   const [date, setDate] = useState<DateRange | undefined>({
     from: subDays(new Date(), 30),
     to: new Date(),
   });
   const [isExporting, setIsExporting] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>("overview");
 
   useEffect(() => { void refreshHealth(); }, [refreshHealth]);
 
-  const changeTab = (tabId: TabType) => setActiveTab(tabId);
+  const changeTab = (tabId: TabType) => {
+    setSearchParams({ tab: tabId });
+  };
 
   const handleDownloadReport = async (): Promise<void> => {
     try {
@@ -85,7 +89,6 @@ const AdminDashboard = (): JSX.Element => {
       let leadsQuery = supabase.from("leads").select("id, status", { count: "exact" });
       let projectsQuery = supabase.from("projects").select("id", { count: "exact" });
       let blogsQuery = supabase.from("blog_posts").select("id", { count: "exact" });
-      let viewsQuery = supabase.from("analytics_events").select("id", { count: "exact" }).eq("event_type", "page_view");
       const testimonialsQuery = supabase.from("testimonials").select("id, rating", { count: "exact" }).eq("active", true);
       const mediaQuery = supabase.rpc("get_total_media_bytes");
 
@@ -93,17 +96,23 @@ const AdminDashboard = (): JSX.Element => {
         leadsQuery = leadsQuery.gte("created_at", fromIso);
         projectsQuery = projectsQuery.gte("created_at", fromIso);
         blogsQuery = blogsQuery.gte("created_at", fromIso);
-        viewsQuery = viewsQuery.gte("occurred_at", fromIso);
       }
       if (toIso) {
         leadsQuery = leadsQuery.lte("created_at", toIso);
         projectsQuery = projectsQuery.lte("created_at", toIso);
         blogsQuery = blogsQuery.lte("created_at", toIso);
-        viewsQuery = viewsQuery.lte("occurred_at", toIso);
       }
 
-      const [leadsRes, projectsRes, blogsRes, viewsRes, testimonialsRes, mediaRes] = await Promise.all([
-        leadsQuery, projectsQuery, blogsQuery, viewsQuery, testimonialsQuery, mediaQuery,
+      const trafficResPromise = supabase.functions.invoke("posthog-query", {
+        body: {
+          action: "traffic-stats",
+          from: fromIso || subDays(new Date(), 30).toISOString(),
+          to: toIso || new Date().toISOString()
+        }
+      });
+
+      const [leadsRes, projectsRes, blogsRes, trafficRes, testimonialsRes, mediaRes] = await Promise.all([
+        leadsQuery, projectsQuery, blogsQuery, trafficResPromise, testimonialsQuery, mediaQuery,
       ]);
 
       const leads = leadsRes.data || [];
@@ -124,7 +133,7 @@ const AdminDashboard = (): JSX.Element => {
         ["Total leads", String(totalLeads)],
         ["Conversion rate", `${conversionRate}%`],
         ["Projects", String(projectsRes.count || 0)],
-        ["Page views", String(viewsRes.count || 0)],
+        ["Page views", String(trafficRes.data?.views || 0)],
         ["Blog posts", String(blogsRes.count || 0)],
         ["Avg testimonial rating", avgRating],
         ["Media storage", formatStorage(Number(mediaRes.data) || 0)],
@@ -154,10 +163,26 @@ const AdminDashboard = (): JSX.Element => {
     </Suspense>
   );
 
+  const dashboardTabs = useMemo(() => [
+    { label: "Executive Overview", path: "/admin/dashboard?tab=overview", group: "Dashboard" },
+    { label: "Sales & Leads", path: "/admin/dashboard?tab=sales", group: "Dashboard" },
+    { label: "Website Traffic", path: "/admin/dashboard?tab=traffic", group: "Dashboard" },
+    { label: "Content & Media", path: "/admin/dashboard?tab=content", group: "Dashboard" },
+    { label: "System Health", path: "/admin/dashboard?tab=system", group: "Dashboard" },
+  ], []);
+
+  // Make default route match activeTab visually
+  useEffect(() => {
+    if (!searchParams.get("tab")) {
+      setSearchParams({ tab: "overview" }, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
   return (
     <ModuleLayout
       title={`${getGreeting()}, ${displayName || "Executive"}`}
       description="Here's your high-level business overview for this period."
+      tabs={dashboardTabs}
     >
       <ModuleActions>
           <div className="flex items-center gap-3">
@@ -166,7 +191,7 @@ const AdminDashboard = (): JSX.Element => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => toast({ title: "Automation Configured", description: "You will now receive this report weekly via email." })}
+                onClick={() => window.location.href = "/admin/system/settings?tab=reports"}
                 className="bg-admin-primary text-black border-transparent hover:bg-admin-primary/90 px-4"
               >
                 <Send className="w-4 h-4 mr-2" /> Automate Report
@@ -187,48 +212,21 @@ const AdminDashboard = (): JSX.Element => {
           </div>
       </ModuleActions>
 
-      {/* Body: tab slider + right sidebar */}
-      <div className="flex flex-1 min-h-0 mt-6 gap-6 overflow-hidden">
-        {/* Tab slider takes remaining width */}
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <AdminTabSlider
-            tabs={[
-              {
-                id: "overview",
-                label: "Executive Overview",
-                icon: BarChart3,
-                content: tabContent("Overview", <OverviewTab date={date} changeTab={changeTab} />),
-              },
-              {
-                id: "sales",
-                label: "Sales & Leads",
-                icon: Package,
-                content: tabContent("Sales & Leads", <SalesTab date={date} />),
-              },
-              {
-                id: "traffic",
-                label: "Website Traffic",
-                icon: Globe,
-                content: tabContent("Traffic", <TrafficTab date={date} />),
-              },
-              {
-                id: "content",
-                label: "Content & Media",
-                icon: Layers,
-                content: tabContent("Content & Media", <ContentTab date={date} />),
-              },
-              {
-                id: "system",
-                label: "System Health",
-                icon: Activity,
-                content: tabContent("System Health", <SystemTab date={date} />),
-              },
-            ]}
-          />
+      {/* Body: active tab + right sidebar */}
+      <div className="flex flex-1 min-h-0 mt-4 gap-4 overflow-hidden">
+        {/* Main Content Area */}
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden relative">
+          <div className="absolute inset-0 overflow-y-auto pr-2 custom-scrollbar fade-in">
+            {activeTab === "overview" && tabContent("Overview", <OverviewTab date={date} changeTab={changeTab} />)}
+            {activeTab === "sales" && tabContent("Sales & Leads", <SalesTab date={date} />)}
+            {activeTab === "traffic" && tabContent("Traffic", <TrafficTab date={date} />)}
+            {activeTab === "content" && tabContent("Content & Media", <ContentTab date={date} />)}
+            {activeTab === "system" && tabContent("System Health", <SystemTab date={date} />)}
+          </div>
         </div>
 
         {/* Right sidebar — fixed width, scrollable independently */}
-        <div className="w-[300px] shrink-0 space-y-5 overflow-y-auto hidden xl:block pt-16">
+        <div className="w-[300px] shrink-0 space-y-3 overflow-y-auto hidden xl:block">
           <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-2xl p-5">
             <h3 className="text-xs font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-widest mb-4">Quick Actions</h3>
             <div className="flex flex-col gap-2">

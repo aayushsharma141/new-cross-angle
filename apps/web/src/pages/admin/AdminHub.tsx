@@ -76,7 +76,7 @@ export function useHubStats() {
                     .from("leads")
                     .select("*", { count: "exact", head: true })
                     .eq("status", "new"),
-                supabase.from("media").select("size_bytes"),
+                supabase.from("media_files").select("size_bytes"),
                 supabase
                     .from("leads")
                     .select("estimated_min, estimated_max")
@@ -435,14 +435,14 @@ export const getModules = (
         title: "User Access",
         description: "Manage admin users, roles, security credentials, and permissions.",
         icon: Shield,
-        href: "/admin/system/access-control",
+        href: "/admin/user-access/users",
         allowedRoles: ["super_admin", "admin"],
         quickStats: [
             { label: "Login Security", value: "Active" },
             { label: "2-Step Verify", value: "On" },
         ],
         insight: { type: "success", text: "Access controls enforced" },
-        primaryAction: { label: "Manage Users", href: "/admin/system/access-control" },
+        primaryAction: { label: "Manage Users", href: "/admin/user-access/users" },
     },
     {
         title: "Settings",

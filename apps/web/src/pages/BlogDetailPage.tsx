@@ -89,14 +89,18 @@ const ReadingProgressBar = ({ totalMinutes }: { totalMinutes: number }) => {
 
     const remaining = Math.max(0, Math.ceil(totalMinutes * (1 - progress / 100)));
 
+    const progressAriaProps = {
+        "aria-valuenow": progress,
+        "aria-valuemin": 0,
+        "aria-valuemax": 100
+    };
+
     return createPortal(
         <div className="fixed top-0 left-0 right-0 z-[60]">
             <div
                 role="progressbar"
                 aria-label="Reading progress"
-                aria-valuenow={progress}
-                aria-valuemin={0}
-                aria-valuemax={100}
+                {...progressAriaProps}
                 className="h-[3px]"
                 style={{ background: "rgba(255,255,255,0.04)" }}
             >
@@ -304,12 +308,15 @@ const BlogDetailPage = () => {
         const fetchPost = async () => {
             if (!slug) return;
             try {
-                const { data, error } = await supabase
-                    .from("blog_posts")
-                    .select("*")
-                    .eq("slug", slug)
-                    .single();
-                if (error) throw error;
+                const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(slug);
+                let query = supabase.from("blog_posts").select("*");
+                if (isUuid) {
+                    query = query.eq("id", slug);
+                } else {
+                    query = query.eq("slug", slug);
+                }
+                const { data, error } = await query.maybeSingle();
+                if (error || !data) throw error || new Error("Not found");
                 setPost(data as unknown as BlogPost);
 
                 // Fetch related + prev/next
@@ -322,11 +329,11 @@ const BlogDetailPage = () => {
 
                     if (allPosts) {
                         const typedPosts = allPosts as unknown as BlogPost[];
-                        const currentIdx = typedPosts.findIndex(p => p.slug === slug);
+                        const currentIdx = typedPosts.findIndex(p => p.slug === slug || p.id === slug);
                         setPrevPost(currentIdx > 0 ? typedPosts[currentIdx - 1] : null);
                         setNextPost(currentIdx < typedPosts.length - 1 ? typedPosts[currentIdx + 1] : null);
                         setRelatedPosts(
-                            typedPosts.filter(p => p.slug !== slug).slice(0, 3)
+                            typedPosts.filter(p => p.slug !== slug && p.id !== slug).slice(0, 3)
                         );
                     }
                 }
@@ -337,18 +344,6 @@ const BlogDetailPage = () => {
             }
         };
         fetchPost();
-    }, [slug]);
-
-    /* ── View count ── */
-    useEffect(() => {
-        if (!slug) return;
-        const sessionKey = `blog_viewed_${slug}`;
-        if (sessionStorage.getItem(sessionKey)) return;
-        sessionStorage.setItem(sessionKey, "1");
-        // @ts-ignore - Supabase type might not be updated
-        supabase.rpc("increment_blog_view", { post_slug: slug }).then(({ error }) => {
-            if (error) console.warn("View increment failed:", error.message);
-        });
     }, [slug]);
 
     /* ── Extract Table of Contents from rendered HTML ── */
@@ -506,7 +501,7 @@ const BlogDetailPage = () => {
             <ReadingProgressBar totalMinutes={readMinutes} />
             <StickyArticleBar post={post} />
 
-            <main className="min-h-screen w-full font-sans overflow-clip" style={{ background: "#050505" }}>
+            <main id="main-content" className="min-h-screen w-full font-sans overflow-clip" style={{ background: "#050505" }}>
                 <Navbar />
                 <ScrollToTop />
 
@@ -674,7 +669,7 @@ const BlogDetailPage = () => {
                         <div
                             ref={contentRef}
                             className="blog-prose"
-                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(typeof post.content === 'string' ? post.content : (post.content ? JSON.stringify(post.content) : '')) }}
                         />
 
                         {/* Tags */}

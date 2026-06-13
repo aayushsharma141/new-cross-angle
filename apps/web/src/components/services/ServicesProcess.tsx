@@ -4,27 +4,33 @@ import { useRef } from "react";
 const steps = [
   {
     number: "01",
-    label: "Phase One",
-    title: "Discovery & Free Consultation",
-    description: "Deep dive into lifestyle requirements, brand identity, and structural constraints. We map the functional needs before touching the aesthetics.",
+    label: "Stage One",
+    title: "Consult",
+    description: "Share your ideas, budget, and timeline with our design team. We start by understanding your daily routine, budget, and project goals to ensure we align with your needs from day one.",
   },
   {
     number: "02",
-    label: "Phase Two",
-    title: "Design & Planning",
-    description: "Development of precise floor plans, material palettes, and 3D technical visualizations. You see the exact finishing before execution begins.",
+    label: "Stage Two",
+    title: "Measure & Plan",
+    description: "Laser-precise measurements and floor plan planning for optimal layout. We measure your space carefully to design floor plans that optimize movement and make the best use of every room.",
   },
   {
     number: "03",
-    label: "Phase Three",
-    title: "Material Selection & Production",
-    description: "In-house fabrication combined with global sourcing. We handle all vendor coordination, quality checks, and logistics to ensure on-time availability.",
+    label: "Stage Three",
+    title: "Design",
+    description: "Review colors, furniture, and realistic 3D views before we begin. We choose materials, lighting, and colors, then show you realistic 3D drawings so you can decide with confidence.",
   },
   {
     number: "04",
-    label: "Phase Four",
-    title: "Turnkey Execution & Delivery",
-    description: "On-site execution by specialist teams. Final styling, deep cleaning, and a definitive handover of a ready-to-use environment.",
+    label: "Stage Four",
+    title: "Execute",
+    description: "Our skilled installation team brings the designs to life. We manufacture the modular cabinets and coordinate all on-site work to ensure high-quality execution without delays.",
+  },
+  {
+    number: "05",
+    label: "Stage Five",
+    title: "Handover",
+    description: "Walk through your completed, clean, and ready-to-use home. We perform a final quality check, clean the entire space, and hand over your keys for a stress-free move-in.",
   },
 ];
 

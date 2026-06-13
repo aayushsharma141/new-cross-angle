@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, Eye, EyeOff, Loader2, Shield, User, X } from "lucide-react";

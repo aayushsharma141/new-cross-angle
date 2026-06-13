@@ -8,14 +8,14 @@ const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
 
 interface MediaUploadZoneProps {
-    onUpload: (files: File[]) => Promise<void>;
+    onUpload: (files: File[]) => Promise<void> | void;
     isUploading: boolean;
-    selectedFolder: string;
+    folderName: string;
     errorMessage?: string | null;
     onError?: (message: string) => void;
 }
 
-export const MediaUploadZone = ({ onUpload, isUploading, selectedFolder, errorMessage, onError }: MediaUploadZoneProps) => {
+export const MediaUploadZone = ({ onUpload, isUploading, folderName, errorMessage, onError }: MediaUploadZoneProps) => {
     const onDrop = useCallback((acceptedFiles: File[], rejections: FileRejection[]) => {
         if (rejections.length > 0) {
             const msgs = rejections.map(r => {
@@ -52,44 +52,33 @@ export const MediaUploadZone = ({ onUpload, isUploading, selectedFolder, errorMe
     });
 
     return (
-        <div className="space-y-4">
+        <div className="relative h-full">
             {errorMessage && (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Upload Error</AlertTitle>
-                    <AlertDescription>{errorMessage}</AlertDescription>
+                <Alert variant="destructive" className="absolute top-0 left-0 right-0 z-50 m-2">
+                    <AlertDescription className="text-xs">{errorMessage}</AlertDescription>
                 </Alert>
             )}
 
             <div
                 {...getRootProps()}
-                className={`border-2 border-dashed rounded-xl p-10 text-center transition-all duration-200 cursor-pointer ${isDragActive ? "border-[hsl(var(--admin-primary))] bg-[hsl(var(--admin-primary)/0.05)] scale-[1.01]" : "border-border hover:border-[hsl(var(--admin-primary)/0.5)] hover:bg-muted/50"
-                    } ${isUploading ? "opacity-50 cursor-not-allowed" : ""} ${errorMessage ? "border-destructive/50 bg-destructive/5" : ""}`}
+                className={`group h-full min-h-[140px] border-2 border-dashed border-admin-border/50 bg-admin-card/50 rounded-xl p-6 flex flex-col items-center justify-center text-center space-y-3 transition-all duration-300 cursor-pointer 
+                ${isDragActive ? "border-admin-primary bg-admin-primary/20 scale-105 ring-2 ring-admin-primary shadow-lg shadow-admin-primary/20" : "hover:border-admin-primary/50 hover:bg-admin-card"} 
+                ${isUploading ? "opacity-50 cursor-not-allowed" : ""} 
+                ${errorMessage ? "border-destructive/50 bg-destructive/5" : ""}`}
             >
                 <input {...getInputProps()} />
-                <div className="flex flex-col items-center justify-center gap-4">
-                    <div className={`p-4 rounded-full ${isDragActive ? "bg-[hsl(var(--admin-primary)/0.1)]" : "bg-muted"}`}>
-                        {isUploading ? (
-                            <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--admin-primary))]" />
-                        ) : (
-                            <Upload className={`w-8 h-8 ${isDragActive ? "text-[hsl(var(--admin-primary))]" : "text-muted-foreground"}`} />
-                        )}
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-semibold">
-                            {isUploading ? "Uploading files..." : isDragActive ? "Drop files here" : "Drag & drop files here"}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-                            Or click to select files. Images up to 10MB, videos up to 100MB.
-                        </p>
-                    </div>
-
-                    {!isUploading && (
-                        <div className="mt-2 text-xs px-3 py-1 bg-secondary rounded-full inline-flex items-center gap-2">
-                            <FileImage className="w-3 h-3" />
-                            Uploading to: <span className="font-medium capitalize text-[hsl(var(--admin-primary))]">{selectedFolder === "all" ? "general" : selectedFolder}</span>
-                        </div>
-                    )}
+                {isUploading ? (
+                    <Loader2 className="w-14 h-14 animate-spin text-admin-primary shrink-0" />
+                ) : (
+                    <Upload className={`w-14 h-14 shrink-0 transition-transform duration-300 ${isDragActive ? "text-white scale-110" : "text-admin-text-subtle group-hover:text-admin-primary group-hover:scale-110"}`} />
+                )}
+                <div className="flex flex-col min-w-0 w-full px-2">
+                    <span className="font-medium text-sm text-admin-text truncate w-full">
+                        {isDragActive ? "Drop here" : "Upload Files"}
+                    </span>
+                    <span className="text-[10px] text-admin-text-subtle truncate w-full">
+                        {folderName !== "root" ? `to "${folderName}" — ` : ""}Max: 10MB (Img) / 100MB (Vid)
+                    </span>
                 </div>
             </div>
         </div>

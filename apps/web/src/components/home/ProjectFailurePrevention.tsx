@@ -30,7 +30,7 @@ export const ProjectFailurePrevention = () => {
               </h2>
 
               <p className="text-white/80 text-lg md:text-xl font-light leading-relaxed mb-10 max-w-lg border-l-2 border-site-crimson pl-6">
-                Most homeowners struggle with budget clarity, endless contractor delays, and decision fatigue. We designed our studio to eliminate all three.
+                Most homeowners treat interiors as a decoration project, leading to budget blowouts, endless delays, and decision fatigue. We treat it as an engineered system to eliminate all three.
               </p>
 
               {/* Guarantees list */}

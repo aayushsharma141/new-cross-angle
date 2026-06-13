@@ -105,7 +105,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       id: 'users',
       label: 'User Management',
       icon: <Users className="h-4 w-4" />,
-      href: ADMIN_ROUTES.access.path,
+      href: ADMIN_ROUTES.userAccess.path,
       category: 'Admin',
     },
     ...(isSuperAdmin ? [{

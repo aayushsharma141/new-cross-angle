@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import logoIcon from "@/assets/logo-icon.png";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { navLinks } from "@/config/navigation";
@@ -12,9 +12,11 @@ import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
 const GOLD = "text-[#D1AF6E]";
 const GOLD_BG = "bg-[#D1AF6E]/10";
 
-const Navbar = () => {
+export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { settings } = useSiteSettings();
+  const logoUrl = settings?.company_logo_url || settings?.logo_light_url || '/logo-icon.png';
   const location = useLocation();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -80,12 +82,12 @@ const Navbar = () => {
           <div className="flex justify-start items-center min-w-0">
             <Link to="/" className="flex items-center gap-2 sm:gap-3 z-10 shrink-0 group min-w-0">
               <img
-                src={logoIcon}
-                alt="Cross Angle Interior"
+                src={logoUrl}
+                alt={settings?.studio_name || "Cross Angle Interior"}
                 style={{ imageRendering: "auto" }}
                 className={cn(
                   "w-auto transition-all duration-500 shrink-0 drop-shadow-[0_0_1px_rgba(255,255,255,0.1)]",
-                  isScrolled ? "h-9 md:h-12" : "h-11 md:h-16"
+                  isScrolled ? "h-10 md:h-14" : "h-12 md:h-20"
                 )}
               />
               <AnimatedLogo

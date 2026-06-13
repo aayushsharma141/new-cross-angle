@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/primitives/switch";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/primitives/dialog";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 export interface TestimonialFormData {
   author_name: string;
@@ -31,7 +32,7 @@ interface TestimonialFormDialogProps {
 
 export const TestimonialFormDialog = ({ open, onClose, formData, onChange, onSave, isSaving, isEditing }: TestimonialFormDialogProps) => (
   <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-    <DialogContent className="bg-admin-card border-admin-border text-admin-text max-w-lg max-h-[90vh] flex flex-col overflow-hidden sm:rounded-2xl shadow-2xl">
+    <DialogContent className="admin-theme bg-admin-card border-admin-border text-admin-text max-w-lg max-h-[90vh] flex flex-col overflow-hidden sm:rounded-2xl shadow-2xl">
       <DialogHeader className="px-6 pt-6 pb-4 border-b border-[hsl(var(--admin-border))]">
         <DialogTitle className="text-xl font-serif">{isEditing ? "Edit Testimonial" : "Add Testimonial"}</DialogTitle>
         <DialogDescription className="text-[hsl(var(--admin-text-muted))]">
@@ -65,7 +66,12 @@ export const TestimonialFormDialog = ({ open, onClose, formData, onChange, onSav
         </div>
         <div className="space-y-2">
           <Label htmlFor="avatar_url" className="text-[hsl(var(--admin-text-muted))]">Avatar Image URL</Label>
-          <Input id="avatar_url" value={formData.avatar_url} onChange={(e) => onChange({ ...formData, avatar_url: e.target.value })} className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] focus:border-[hsl(var(--admin-primary))]" placeholder="https://example.com/avatar.jpg" />
+          <MediaPickerField
+              value={formData.avatar_url}
+              onChange={(url) => onChange({ ...formData, avatar_url: url })}
+              label="Avatar Image"
+              previewClassName="w-20 h-20 rounded-full object-cover border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))]"
+          />
         </div>
         <div className="flex items-center gap-3 p-4 bg-[hsl(var(--admin-surface))]/50 border border-[hsl(var(--admin-border))]/50 rounded-xl">
           <Switch id="active" checked={formData.active} onCheckedChange={(checked) => onChange({ ...formData, active: checked })} className="data-[state=checked]:bg-[hsl(var(--admin-primary))]" />

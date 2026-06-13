@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type JSX } from "react";
 import { Outlet, Navigate, useLocation, Link } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -11,19 +11,24 @@ import {
 import { AdminRouteErrorBoundary } from "@/components/admin/AdminRouteErrorBoundary";
 import { Database, Loader2 } from "lucide-react";
 import { useHubStats, getModules, formatStorage } from "@/pages/admin/AdminHub";
-import { useSystem } from "@/context/SystemContext";
 import { useNavigate } from "react-router-dom";
 import { SkipNav } from "@/components/ui/enhanced/SkipNav";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/useToast";
 
 const AdminLayout = (): JSX.Element | null => {
     const { isAuthenticated, isLoading, role, logout } = useAdminAuth();
     const { can } = usePermissions();
     const location = useLocation();
+
     const [paletteOpen, setPaletteOpen] = useState(false);
     const [shortcutsOpen, setShortcutsOpen] = useState(false);
     const [roleTimeout, setRoleTimeout] = useState(false);
-    const { maintenanceMode, setMaintenanceMode } = useSystem();
+    const { settings, refetch: refetchSettings } = useSiteSettings();
+    const maintenanceMode = settings?.maintenance_mode_active || false;
     const navigate = useNavigate();
+    const { toast } = useToast();
 
     const { stats } = useHubStats();
     const allModules = getModules(stats);
@@ -35,6 +40,22 @@ const AdminLayout = (): JSX.Element | null => {
         setShortcutsOpen((prev) => !prev);
     }, []);
     useKeyboardShortcutsHelp(toggleShortcuts);
+
+    const handleDeactivateMaintenance = async () => {
+        if (!settings?.id) return;
+        try {
+            const { error } = await supabase
+                .from("site_settings")
+                .update({ maintenance_mode_active: false })
+                .eq("id", settings.id);
+            if (error) throw error;
+            await refetchSettings();
+            toast({ title: "Maintenance Mode Disabled", description: "The site is now live." });
+        } catch (err) {
+            console.error(err);
+            toast({ title: "Error", description: "Failed to disable maintenance mode.", variant: "destructive" });
+        }
+    };
 
     // Grace period: wait up to 10s for role to resolve after auth loads.
     // Extended from 6s to accommodate retry logic in AuthProvider.
@@ -102,13 +123,14 @@ const AdminLayout = (): JSX.Element | null => {
         );
     }
 
-    const isFullWidth = location.pathname === "/admin" || location.pathname === "/admin/" || location.pathname.startsWith("/admin/crm") || location.pathname.startsWith("/admin/cms") || location.pathname.startsWith("/admin/blog") || location.pathname.startsWith("/admin/estimate") || location.pathname.startsWith("/admin/discovery");
+    const isFullWidth = location.pathname === "/admin" || location.pathname === "/admin/" || location.pathname.startsWith("/admin/crm") || location.pathname.startsWith("/admin/cms") || location.pathname.startsWith("/admin/blog") || location.pathname.startsWith("/admin/estimate") || location.pathname.startsWith("/admin/estimator") || location.pathname.startsWith("/admin/discovery") || location.pathname.startsWith("/admin/dashboard") || location.pathname.startsWith("/admin/system") || location.pathname.startsWith("/admin/user-access");
+    const isHub = location.pathname === "/admin" || location.pathname === "/admin/" || location.pathname.startsWith("/admin/dashboard");
 
     return (
         <div className="h-screen max-h-screen flex flex-col bg-admin-bg admin-theme overflow-hidden">
             <SkipNav targetId="admin-main" />
             {/* Premium Top Navigation */}
-            <TopBar />
+            {isHub && <TopBar />}
 
             {/* Global Maintenance Mode Banner — persists on every admin page */}
             {maintenanceMode && (
@@ -119,9 +141,7 @@ const AdminLayout = (): JSX.Element | null => {
                         <span className="hidden sm:inline">Public visitors are redirected to the Offline System Notice page. Admins bypass this restriction.</span>
                     </div>
                     <button
-                        onClick={() => {
-                            setMaintenanceMode(false);
-                        }}
+                        onClick={handleDeactivateMaintenance}
                         className="text-red-400 hover:text-white hover:bg-red-500/20 text-xs font-semibold px-3 py-1 rounded-md transition-colors ml-4 shrink-0"
                     >
                         Deactivate

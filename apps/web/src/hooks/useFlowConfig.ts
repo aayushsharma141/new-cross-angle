@@ -16,6 +16,7 @@ import {
   TIMELINE_OPTIONS,
 } from "@/addons/calculators/components/data/pricing-config";
 import { ADJECTIVE_OPTIONS, materialOptions, lightOptions } from "@/constants/discovery";
+import { CRM_STAGES } from "@/lib/crm/stages";
 
 export type FlowConfigKey =
   | "property_types"
@@ -35,7 +36,8 @@ export type FlowConfigKey =
   | "discovery_adjectives"
   | "discovery_materials"
   | "discovery_lights"
-  | "discovery_archetypes";
+  | "discovery_archetypes"
+  | "crm_stages";
 
 const DEFAULTS: Record<FlowConfigKey, unknown> = {
   property_types: PROPERTY_TYPES,
@@ -56,6 +58,7 @@ const DEFAULTS: Record<FlowConfigKey, unknown> = {
   discovery_materials: materialOptions,
   discovery_lights: lightOptions,
   discovery_archetypes: [],
+  crm_stages: CRM_STAGES.map(s => ({ id: s.id, label: s.label, dotClass: s.dotClass })),
 };
 
 export function useFlowConfig<T = unknown>(key: FlowConfigKey) {

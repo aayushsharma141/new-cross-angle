@@ -40,9 +40,37 @@ const DeferredExperienceEnhancements = () => {
   );
 };
 
+import { useSiteSettings } from "./hooks/useSiteSettings";
+
+const SiteMetaUpdater = () => {
+  const { settings } = useSiteSettings();
+
+  useEffect(() => {
+    if (!settings) return;
+    
+    // Update favicon
+    const logoUrl = settings.company_logo_url || settings.logo_light_url || '/logo-icon.png';
+    const links = document.querySelectorAll("link[rel~='icon']");
+    if (links.length > 0) {
+      links.forEach(link => {
+        (link as HTMLLinkElement).href = logoUrl;
+      });
+    } else {
+      const link = document.createElement('link');
+      link.rel = 'icon';
+      link.href = logoUrl;
+      document.head.appendChild(link);
+    }
+
+  }, [settings]);
+
+  return null;
+};
+
 const AnimatedRoutes = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
+  const { settings } = useSiteSettings();
 
   return (
     <>
@@ -64,6 +92,13 @@ const AnimatedRoutes = () => {
             </Suspense>
           </AdminDeviceGate>
         </ErrorBoundary>
+      ) : settings?.maintenance_mode_active ? (
+        <div className="min-h-screen flex items-center justify-center bg-site-bg-dark text-white p-6 text-center">
+          <div className="max-w-md">
+            <h1 className="text-4xl font-serif mb-4 tracking-tight">System Update</h1>
+            <p className="text-site-gray">Our digital experience is currently undergoing scheduled maintenance. Please check back shortly.</p>
+          </div>
+        </div>
       ) : (
         <Suspense fallback={null}>
           <SmoothScroll>
@@ -81,13 +116,14 @@ const AnimatedRoutes = () => {
         </Suspense>
       )}
       {/* Cookie consent only shown on public pages — admin has no router context need */}
-      {!isAdmin && <CookieConsentBanner />}
+      {!isAdmin && !settings?.maintenance_mode_active && <CookieConsentBanner />}
     </>
   );
 };
 
 const App = () => (
   <CoreProviders>
+    <SiteMetaUpdater />
     <DeferredExperienceEnhancements />
     <Toaster />
     <ErrorBoundary>

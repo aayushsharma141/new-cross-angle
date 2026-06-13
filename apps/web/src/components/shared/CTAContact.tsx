@@ -21,7 +21,7 @@ import useScrollReveal from "@/hooks/useScrollReveal";
 import { Link, useSearchParams } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import gsap from "gsap";
-import { Image } from "@/components/ui/enhanced/image";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 import { useLeadValidation } from "@/hooks/useLeadValidation";
 import useReducedMotion from "@/hooks/useReducedMotion";
 import { PROPERTY_TYPES } from "@/addons/calculators/components/data/pricing-config";
@@ -121,7 +121,7 @@ const CTAContact = () => {
   });
 
   const containerRef = useRef<HTMLElement>(null);
-  const bgRef = useRef<HTMLImageElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const firstNameRef = useRef<HTMLInputElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
@@ -171,16 +171,7 @@ const CTAContact = () => {
     }
   }, [step]);
 
-  useEffect(() => {
-    if (prefersReducedMotion) return;
-    const ctx = gsap.context(() => {
-      gsap.to(bgRef.current, {
-        y: "18%", ease: "none",
-        scrollTrigger: { trigger: containerRef.current, start: "top bottom", end: "bottom top", scrub: true },
-      });
-    }, containerRef);
-    return () => ctx.revert();
-  }, [prefersReducedMotion]);
+  /* bg parallax removed — background now managed via MediaSlot */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -244,16 +235,11 @@ const CTAContact = () => {
     >
       {/* ── Background ── */}
       <div className="absolute inset-0 z-0 bg-[#050505]">
-        <Image
-          ref={bgRef}
-          src="/reality_render.jpg"
+        <MediaSlot
+          assetKey="contact_hero_bg"
+          fallbackUrl="/reality_render.jpg"
           alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-[15%] left-0 h-[130%] w-full"
-          imageClassName="opacity-[0.18] saturate-[0.4] select-none pointer-events-none"
-          width={1800}
-          height={1200}
-          loading="lazy"
+          className="pointer-events-none absolute -top-[15%] left-0 h-[130%] w-full opacity-[0.18] saturate-[0.4] select-none"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/90 via-[#050505]/60 to-[#050505]/95" />
       </div>

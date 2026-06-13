@@ -13,6 +13,33 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
 import GalleryLightbox from "@/components/gallery/GalleryLightbox";
 
+function distributeIntoColumns<T>(items: T[], columns: number): T[][] {
+  const cols: T[][] = Array.from({ length: columns }, () => []);
+  items.forEach((item, i) => cols[i % columns].push(item));
+  return cols;
+}
+
+function useColumnCount(): number {
+  const [cols, setCols] = useState(4);
+  useEffect(() => {
+    const mqMd = window.matchMedia("(max-width: 767px)");
+    const mqLg = window.matchMedia("(max-width: 1023px)");
+    const update = () => {
+      if (mqMd.matches) setCols(2);
+      else if (mqLg.matches) setCols(3);
+      else setCols(4);
+    };
+    update();
+    mqMd.addEventListener("change", update);
+    mqLg.addEventListener("change", update);
+    return () => {
+      mqMd.removeEventListener("change", update);
+      mqLg.removeEventListener("change", update);
+    };
+  }, []);
+  return cols;
+}
+
 function useSavedItems(urlBoardIds: string[]) {
   const [saved, setSaved] = useState<string[]>(() => {
     try {
@@ -69,7 +96,7 @@ const GalleryPage = () => {
     }
   }, [urlCategory]);
 
-  const { data: dbItems, isLoading } = useGallery();
+  const { data: dbItems, isLoading, isError, refetch } = useGallery();
   const { data: categories } = useGalleryCategories();
 
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
@@ -113,6 +140,12 @@ const GalleryPage = () => {
     : activeCategory === "Saved"
     ? items.filter(i => saved.includes(i.id))
     : items.filter((i) => i.category === activeCategory);
+
+  const columnCount = useColumnCount();
+  const masonryColumns = useMemo(
+    () => distributeIntoColumns(filtered.map((item, i) => ({ item, idx: i })), columnCount),
+    [filtered, columnCount]
+  );
 
   const openLightbox = useCallback((idx: number) => setLightboxIndex(idx), []);
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
@@ -160,13 +193,17 @@ const GalleryPage = () => {
       <Helmet>
         <title>Gallery | Cross Angle Interior — Spaces We've Crafted</title>
         <meta name="description" content="Explore our curated gallery of interior spaces — kitchens, bedrooms, living rooms, and commercial interiors crafted with precision." />
+        <meta property="og:title" content="Gallery | Cross Angle Interior — Spaces We've Crafted" />
+        <meta property="og:description" content="Explore our curated gallery of interior spaces — kitchens, bedrooms, living rooms, and commercial interiors crafted with precision." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://crossangleinterior.com/gallery" />
         <link rel="canonical" href="https://crossangleinterior.com/gallery" />
       </Helmet>
 
       <FixedSocialBar />
       <Navbar />
 
-      <main className="min-h-screen bg-[#060606] text-white">
+      <main id="main-content" className="min-h-screen bg-[#060606] text-white">
         {/* ═══ HERO — Full-bleed featured image ═══ */}
         <section ref={heroRef} className="relative h-[85vh] overflow-hidden">
           {heroItem && (
@@ -313,61 +350,66 @@ const GalleryPage = () => {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="columns-2 md:columns-3 lg:columns-4 gap-2 [column-fill:_balance]"
+                  className="flex gap-2"
+                  style={{ alignItems: 'flex-start' as const }}
                 >
-                  {filtered.map((item, idx) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-50px" }}
-                      transition={{ duration: 0.5, delay: Math.min(idx * 0.04, 0.25) }}
-                      className="break-inside-avoid mb-2 group relative overflow-hidden cursor-pointer rounded-sm"
-                      onClick={() => openLightbox(idx)}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`View ${item.title}`}
-                      onKeyDown={(e) => { if (e.key === "Enter") openLightbox(idx); }}
-                    >
-                      <div className={cn(
-                        "relative overflow-hidden",
-                        idx === 0 ? "aspect-[3/4]" : idx % 7 === 1 ? "aspect-square" : idx % 7 === 3 ? "aspect-[4/5]" : "aspect-[3/4]"
-                      )}>
-                        <Image
-                          src={item.image}
-                          alt={item.title}
-                          className="w-full h-full pointer-events-none"
-                          imageClassName="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
-                          draggable={false}
-                          loading="lazy"
-                        />
-                        {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                        {/* Heart Save Icon */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleSave(item.id);
-                            if (!saved.includes(item.id)) {
-                              toast({ title: "Saved", description: "Image added to your Inspiration Board.", duration: 2500 });
-                            }
-                          }}
-                          className="absolute top-3 left-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
-                          aria-label="Save to moodboard"
+                  {masonryColumns.map((col, ci) => (
+                    <div key={ci} className="flex-1 flex flex-col gap-2">
+                      {col.map(({ item, idx }) => (
+                        <motion.div
+                          key={item.id}
+                          initial={{ opacity: 0, y: 30 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true, margin: "-50px" }}
+                          transition={{ duration: 0.5, delay: Math.min(idx * 0.04, 0.25) }}
+                          className="group relative overflow-hidden cursor-pointer rounded-sm"
+                          onClick={() => openLightbox(idx)}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`View ${item.title}`}
+                          onKeyDown={(e) => { if (e.key === "Enter") openLightbox(idx); }}
                         >
-                          <Heart className={cn("w-4 h-4 transition-colors", saved.includes(item.id) ? "fill-site-crimson text-site-crimson" : "text-white")} />
-                        </button>
+                          <div className={cn(
+                            "relative overflow-hidden",
+                            idx === 0 ? "aspect-[3/4]" : idx % 7 === 1 ? "aspect-square" : idx % 7 === 3 ? "aspect-[4/5]" : "aspect-[3/4]"
+                          )}>
+                            <Image
+                              src={item.image}
+                              alt={item.title}
+                              className="w-full h-full pointer-events-none"
+                              imageClassName="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
+                              draggable={false}
+                              loading="lazy"
+                            />
+                            {/* Hover overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                        <div className="absolute inset-0 flex flex-col justify-end p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-400">
-                          <span className="text-[9px] uppercase tracking-[0.3em] text-site-crimson font-medium">{item.category}</span>
-                          <h3 className="text-sm font-medium text-white mt-1 line-clamp-2">{item.title}</h3>
-                          {item.location && (
-                            <span className="text-[10px] text-white/50 mt-0.5">{item.location}{item.year ? ` · ${item.year}` : ""}</span>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
+                            {/* Heart Save Icon */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleSave(item.id);
+                                if (!saved.includes(item.id)) {
+                                  toast({ title: "Saved", description: "Image added to your Inspiration Board.", duration: 2500 });
+                                }
+                              }}
+                              className="absolute top-3 left-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
+                              aria-label="Save to moodboard"
+                            >
+                              <Heart className={cn("w-4 h-4 transition-colors", saved.includes(item.id) ? "fill-site-crimson text-site-crimson" : "text-white")} />
+                            </button>
+
+                            <div className="absolute inset-0 flex flex-col justify-end p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-400">
+                              <span className="text-[9px] uppercase tracking-[0.3em] text-site-crimson font-medium">{item.category}</span>
+                              <h3 className="text-sm font-medium text-white mt-1 line-clamp-2">{item.title}</h3>
+                              {item.location && (
+                                <span className="text-[10px] text-white/50 mt-0.5">{item.location}{item.year ? ` · ${item.year}` : ""}</span>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
                   ))}
                 </motion.div>
               </AnimatePresence>

@@ -15,7 +15,6 @@ const ContactPage = lazy(() => import("@/pages/ContactPage"));
 const ProjectPage = lazy(() => import("@/pages/ProjectPage"));
 const CostEstimatorPage = lazy(() => import("@/addons/calculators/pages/PriceEstimator"));
 const DiscoveryPage = lazy(() => import("@/addons/discovery/pages/DiscoveryPage"));
-const BlueprintPage = lazy(() => import("@/addons/discovery/pages/BlueprintPage"));
 const SharedResultPage = lazy(() => import("@/addons/discovery/pages/SharedResultPage"));
 const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
 const TermsPage = lazy(() => import("@/pages/TermsPage"));
@@ -39,7 +38,6 @@ export const publicRoutes = (
     <Route path="/estimate" element={<PageTransition><CostEstimatorPage /></PageTransition>} />
     <Route path="/aesthetic-discovery-engine" element={<PageTransition><DiscoveryPage /></PageTransition>} />
     <Route path="/aesthetic-discovery-engine/results/:slug" element={<PageTransition><SharedResultPage /></PageTransition>} />
-    <Route path="/blueprint" element={<PageTransition><BlueprintPage /></PageTransition>} />
     <Route path="/portfolio/:slug" element={<PageTransition><ProjectPage /></PageTransition>} />
     <Route path="/locations/:city" element={<PageTransition><LocationPage /></PageTransition>} />
     <Route path="/privacy" element={<PageTransition><PrivacyPage /></PageTransition>} />

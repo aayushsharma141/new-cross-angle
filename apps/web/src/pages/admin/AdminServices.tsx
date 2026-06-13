@@ -1,5 +1,6 @@
+import React from 'react';
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Pencil, Trash2, Loader2, ImagePlus, Briefcase, FileText } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, ImagePlus, Briefcase, FileText, Search } from "lucide-react";
 import { Button } from "@/design-system/components/Button";
 import { Input } from "@/design-system/components/Input";
 import { Textarea } from "@/components/ui/primitives/textarea";
@@ -18,14 +19,9 @@ import { auditService } from "@/services/AuditService";
 import { ServiceDetail } from "@repo/types";
 import { serviceSchema, formatZodErrors } from "@/lib/validation/validations";
 import { FeaturesEditor, ProcessEditor, FAQEditor } from "@/components/admin/ServiceFormFields";
-import MediaPickerModal from "@/components/admin/MediaPickerModal";
-import {
-    AdminPageHeader,
-    AdminFilterBar,
-    AdminSafeAction,
-    AdminEmptyState,
-    AdminSkeletonCard
-} from "@/components/admin/shared";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
+import { AdminFilterBar, AdminSafeAction, AdminEmptyState, AdminSkeletonCard } from "@/components/admin/shared";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import * as LucideIcons from "lucide-react";
 
@@ -58,6 +54,7 @@ const AdminServices = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingService, setEditingService] = useState<ServiceDetail | null>(null);
     const [categoryFilter, setCategoryFilter] = useState<ServiceFilter>("All");
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Form State
     const [formData, setFormData] = useState<Partial<ServiceDetail>>({
@@ -74,7 +71,6 @@ const AdminServices = () => {
     });
 
     const [isSaving, setIsSaving] = useState(false);
-    const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -275,9 +271,18 @@ const AdminServices = () => {
     };
 
     const filteredServices = useMemo(() => {
-        if (categoryFilter === "All") return services;
-        return services.filter(s => s.category_id?.toLowerCase() === categoryFilter.toLowerCase());
-    }, [services, categoryFilter]);
+        let filtered = services;
+        if (searchQuery) {
+            filtered = filtered.filter(s => 
+                s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (s.slug?.toLowerCase() || "").includes(searchQuery.toLowerCase())
+            );
+        }
+        if (categoryFilter !== "All") {
+            filtered = filtered.filter(s => s.category_id?.toLowerCase() === categoryFilter.toLowerCase());
+        }
+        return filtered;
+    }, [services, categoryFilter, searchQuery]);
 
     const activeCount = services.filter(s => s.active).length;
 
@@ -293,7 +298,8 @@ const AdminServices = () => {
                 .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
             `}</style>
 
-            <AdminPageHeader moduleName="CMS" tabName="Services" />
+            
+
 
             <div className="fade-up-1 mt-6">
                 <AdminFilterBar
@@ -303,6 +309,8 @@ const AdminServices = () => {
                     filters={["All", "Residential", "Commercial", "Specialized"]}
                     activeFilter={categoryFilter}
                     onFilterChange={(f) => setCategoryFilter(f as ServiceFilter)}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
                 />
             </div>
 
@@ -506,27 +514,11 @@ const AdminServices = () => {
 
                                     <div className="space-y-2">
                                         <Label htmlFor="svc-hero" className="text-[hsl(var(--admin-text))]">Hero Image URL</Label>
-                                        <div className="flex gap-2">
-                                            <Input
-                                                id="svc-hero"
-                                                value={formData.hero_image}
-                                                onChange={(e) => setFormData({ ...formData, hero_image: e.target.value })}
-                                                placeholder="https://..."
-                                                className="flex-1 admin-input"
-                                            />
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => setIsMediaPickerOpen(true)}
-                                                className="admin-btn-secondary px-3"
-                                            >
-                                                <ImagePlus className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                        <MediaPickerModal
-                                            open={isMediaPickerOpen}
-                                            onOpenChange={setIsMediaPickerOpen}
-                                            onSelect={(url) => setFormData({ ...formData, hero_image: url })}
+                                        <MediaPickerField
+                                            id="svc-hero"
+                                            value={formData.hero_image || ""}
+                                            onChange={(url) => setFormData({ ...formData, hero_image: url })}
+                                            placeholder="https://..."
                                         />
                                     </div>
 

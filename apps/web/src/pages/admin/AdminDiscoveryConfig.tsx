@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { MessageSquare, Palette, Sun, Users } from "lucide-react";
-import { AdminPageHeader } from "@/components/admin/shared";
+import { MessageSquare, Palette, Sun, Users, Target } from "lucide-react";
+
+import { PosthogFunnelChart } from "@/components/admin/analytics/PosthogFunnelChart";
+
 import { AdjectivesEditor } from "@/components/admin/discovery-flow/AdjectivesEditor";
 import { MaterialsEditor } from "@/components/admin/discovery-flow/MaterialsEditor";
 import { LightingEditor } from "@/components/admin/discovery-flow/LightingEditor";
@@ -42,7 +44,7 @@ export default function AdminDiscoveryConfig() {
   const activeTab = TABS.find((t) => t.id === tab)!;
 
   return (
-    <div className="flex flex-col space-y-6">
+      <div className="flex flex-col space-y-4">
       <style>{`
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(12px); }
@@ -52,9 +54,19 @@ export default function AdminDiscoveryConfig() {
         .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
       `}</style>
       
-      <AdminPageHeader moduleName="Discovery" tabName="Config Builder" />
-
+      
       <div className="fade-up-1">
+        {/* PostHog Engine Funnel summary */}
+        <div className="mb-6 rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6">
+          <h3 className="text-sm font-bold text-[hsl(var(--admin-text))] mb-1 flex items-center gap-2">
+            <Target className="w-4 h-4 text-emerald-400" /> Discovery Engine Funnel (PostHog)
+          </h3>
+          <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-4">PostHog conversion metrics (Last 30 Days)</p>
+          <div className="h-[200px]">
+            <PosthogFunnelChart action="funnel-discovery" color="emerald" />
+          </div>
+        </div>
+
         {/* Sub-nav */}
         <div className="flex gap-0.5 border-b border-[hsl(var(--admin-border))]/50 overflow-x-auto pb-px">
         {TABS.map((t) => {

@@ -10,7 +10,7 @@ interface BreadcrumbItem {
 
 interface AdminPageHeaderProps {
   moduleName: string;
-  tabName: string;
+  tabName: ReactNode;
   actions?: ReactNode;
   className?: string;
 }
@@ -37,7 +37,7 @@ export function AdminPageHeader({
           </li>
           <li className="flex items-center">
             <ChevronRight className="w-4 h-4 mx-1 opacity-50" />
-            <span className="text-[hsl(var(--admin-text))] font-semibold">{tabName}</span>
+            <span className="text-[hsl(var(--admin-text))] font-semibold flex items-center gap-1">{tabName}</span>
           </li>
         </ol>
       </nav>

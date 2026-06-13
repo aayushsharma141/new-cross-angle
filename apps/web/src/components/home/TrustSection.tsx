@@ -3,7 +3,19 @@ import { Award, Users, ShieldCheck, Wrench, Package, HeadphonesIcon } from "luci
 import { cn } from "@/lib/utils";
 import { CountUp } from "@/components/ReactBits";
 import { motion } from "framer-motion";
-import { Image } from "@/components/ui/enhanced/image";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
+
+const assetKeyForPartner = (name: string): string => {
+  const map: Record<string, string> = {
+    "Asian Paints": "home_brand_asian_paints",
+    "Hafele": "home_brand_hafele",
+    "Godrej": "home_brand_godrej",
+    "Philips": "home_brand_philips",
+    "Hettich": "home_brand_hettich",
+    "Jaquar": "home_brand_jaquar",
+  };
+  return map[name] || "home_brand_asian_paints";
+};
 
 const trustItems = [
   {
@@ -91,7 +103,7 @@ const TrustSection = () => {
   }, []);
 
   return (
-    <section id="trust" ref={sectionRef} className="py-20 md:py-32 relative overflow-hidden bg-muted/5">
+    <section id="trust" ref={sectionRef} className="py-section-y relative overflow-hidden bg-muted/5">
       {/* Blurred Background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-background/50" />
@@ -100,7 +112,7 @@ const TrustSection = () => {
 
       {/* Background is now clean bg-muted/5 with background/50 overlay as defined above */}
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto relative z-10">
 
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -172,14 +184,11 @@ const TrustSection = () => {
                   className="flex flex-col items-center justify-center gap-2 px-6 md:px-8 mx-2 md:mx-3 group"
                 >
                   <div className="h-14 md:h-20 w-36 md:w-56 flex items-center justify-center mb-1">
-                    <Image 
-                      src={partner.logo} 
-                      alt={partner.name} 
-                      className="w-full h-full"
-                      imageClassName="object-contain transition-all duration-500 opacity-90 group-hover:opacity-100 group-hover:scale-105 filter brightness-110 contrast-110"
-                      width={224}
-                      height={80}
-                      loading="lazy"
+                    <MediaSlot
+                      assetKey={assetKeyForPartner(partner.name)}
+                      fallbackUrl={partner.logo}
+                      alt={partner.name}
+                      className="w-full h-full object-contain transition-all duration-500 opacity-90 group-hover:opacity-100 group-hover:scale-105 filter brightness-110 contrast-110"
                     />
                   </div>
                   <div className="text-center">

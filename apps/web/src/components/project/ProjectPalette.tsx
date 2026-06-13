@@ -1,7 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
-import { ArrowRight, Palette } from "lucide-react";
-import { Image } from "@/components/ui/enhanced/image";
+import { motion } from "framer-motion";
 
 interface MaterialItem {
   name: string;
@@ -10,117 +7,125 @@ interface MaterialItem {
 
 interface ProjectPaletteProps {
   materials: MaterialItem[];
-  palette?: Array<{ name: string; hex: string }>;
 }
 
-const defaultPalette = [
-  { name: "Smoked Oak", hex: "#5C3A21" },
-  { name: "Bouclé Cream", hex: "#E8E6E1" },
-  { name: "Aged Brass", hex: "#C4A05A" },
-];
+// Outcome-mapped rationale for common material types
+const getRationale = (name: string, details: string, idx: number): { why: string; outcome: string } => {
+  const nameLower = name.toLowerCase();
+  const detailsLower = details.toLowerCase();
 
-const ProjectPalette = ({ materials, palette = defaultPalette }: ProjectPaletteProps) => {
-  const displayPalette = palette.length > 0 ? palette : defaultPalette;
-  const [activeMaterial, setActiveMaterial] = useState<number | null>(null);
+  if (nameLower.includes("floor") || detailsLower.includes("marble") || detailsLower.includes("wood")) {
+    return {
+      why: "Grounds the space with permanence and warmth",
+      outcome: "A material that ages beautifully and signals quality immediately underfoot",
+    };
+  }
+  if (nameLower.includes("wall") || detailsLower.includes("paint") || detailsLower.includes("acoustic")) {
+    return {
+      why: "Controls acoustics and sets the visual temperature of the room",
+      outcome: "Background that makes every other material look more refined",
+    };
+  }
+  if (nameLower.includes("light") || detailsLower.includes("led") || detailsLower.includes("hue")) {
+    return {
+      why: "Light is designed in three layers — ambient, task, accent",
+      outcome: "Dynamic atmosphere that shifts from productive focus to relaxed presence",
+    };
+  }
+  if (nameLower.includes("furniture") || detailsLower.includes("ergonomic") || detailsLower.includes("desk")) {
+    return {
+      why: "Scaled precisely to human movement, not arbitrary room dimensions",
+      outcome: "Spaces that feel spacious even at full occupancy",
+    };
+  }
 
-  // Fallback images for the visualizer if no specific images exist
-  const materialImages = [
-    "/images/projects/discovery/lifestyle-4.jpg", // Default
-    "/images/projects/discovery/lifestyle-7.jpg", // Mat 1
-    "/images/projects/discovery/visual-13.jpg", // Mat 2
-    "/images/projects/discovery/visual-10.jpg"  // Mat 3
+  // Generic fallback based on index
+  const fallbacks = [
+    { why: "Creates executive warmth and visual authority", outcome: "Sets the foundational tone of the space" },
+    { why: "Adds sophistication and a point of intentionality", outcome: "Elevates surrounding materials through contrast" },
+    { why: "Reduces distraction and improves focus quality", outcome: "A detail noticed only by those who know what to look for" },
+    { why: "Balances hard and soft surfaces across the room", outcome: "A tactile richness that photographs well and lives better" },
   ];
+  return fallbacks[idx % fallbacks.length];
+};
 
-  const currentImage = activeMaterial !== null && activeMaterial < materialImages.length - 1 
-    ? materialImages[activeMaterial + 1] 
-    : materialImages[0];
+const ProjectPalette = ({ materials }: ProjectPaletteProps) => {
+  if (!materials || materials.length === 0) return null;
 
   return (
-    <section className="px-6 max-w-7xl mx-auto w-full py-24 md:py-32">
-      <div className="flex flex-col lg:flex-row gap-16">
+    <section className="py-20 md:py-28 border-t border-white/5">
+      <div className="max-w-6xl mx-auto px-6">
         
-        {/* Left: Interactive Visualizer */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="w-full lg:w-3/5 relative aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden bg-neutral-900 border border-white/5"
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentImage}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.7 }}
-              className="absolute inset-0"
-            >
-              <Image
-                src={currentImage}
-                alt="Material Visualization"
-                className="h-full w-full"
-                width={1100}
-                height={825}
-              />
-            </motion.div>
-          </AnimatePresence>
-          <div className="absolute inset-0 bg-black/20 pointer-events-none" />
-          <div className="absolute bottom-6 left-6 right-6 backdrop-blur-md bg-neutral-950/60 border border-white/10 rounded-xl p-4 flex justify-between items-center z-10">
-            <span className="text-xs font-medium tracking-widest text-stone-300 uppercase">Material Palette</span>
-            <Palette className="w-5 h-5 text-stone-400" />
-          </div>
-        </motion.div>
-
-        {/* Right: Chips */}
-        <div className="w-full lg:w-2/5 flex flex-col justify-center gap-12">
+        <div className="grid lg:grid-cols-[1fr_2fr] gap-16 md:gap-24 items-start">
+          
+          {/* Left: heading */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 1, ease: "easeOut" }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="lg:sticky lg:top-32"
           >
-            <span className="text-xs font-medium tracking-[0.2em] uppercase text-primary flex items-center gap-4 mb-6">
-              <span className="w-8 h-px bg-primary/50" /> The Concept
+            <span className="text-xs font-medium tracking-[0.3em] uppercase text-primary flex items-center gap-4 mb-6">
+              <span className="w-8 h-px bg-primary/50" /> Materials & Finishes
             </span>
-            <h3 className="text-3xl text-white tracking-tight font-serif font-normal mb-4">Curated Textures</h3>
-            <p className="text-sm text-stone-400 font-light leading-relaxed mb-8">
-              Hover or tap to explore how foundational materials shape the ambient warmth of the room.
+            <h2 className="text-3xl md:text-4xl text-white tracking-tight font-serif font-normal leading-[1.2] mb-6">
+              Why these materials?
+            </h2>
+            <p className="text-stone-400 font-light leading-relaxed text-sm">
+              Every finish was selected for a functional reason, then refined for beauty. None were chosen randomly.
             </p>
           </motion.div>
 
-          <div className="flex flex-col gap-4">
-            {displayPalette.slice(0, 3).map((item, idx) => (
-              <motion.button 
-                key={item.name}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6, delay: 0.2 + (idx * 0.1), ease: "easeOut" }}
-                onMouseEnter={() => setActiveMaterial(idx)}
-                onMouseLeave={() => setActiveMaterial(null)}
-                className="group flex items-center justify-between p-4 rounded-xl border border-white/5 hover:border-primary/40 hover:bg-white/5 transition-all text-left"
-              >
-                <div className="flex items-center gap-4">
-                  <div 
-                    className="w-10 h-10 rounded-full overflow-hidden border border-white/10 relative"
-                    style={{ backgroundColor: item.hex }}
-                  >
-                    <div className="absolute inset-0 bg-black/20 mix-blend-multiply" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-white tracking-wide">{item.name}</h4>
-                    <p className="text-xs text-stone-500 font-light mt-0.5">
-                      {materials[idx]?.details || "Curated finish"}
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-stone-600 group-hover:text-primary transition-colors" />
-              </motion.button>
-            ))}
-          </div>
-        </div>
+          {/* Right: material list with rationale */}
+          <div className="flex flex-col gap-0">
+            {materials.map((material, idx) => {
+              const { why, outcome } = getRationale(material.name, material.details, idx);
+              return (
+                <motion.div
+                  key={material.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.6, ease: "easeOut", delay: idx * 0.08 }}
+                  className="group border-b border-white/5 py-8 first:pt-0 last:border-b-0"
+                >
+                  <div className="flex items-start gap-6">
+                    {/* Index */}
+                    <span className="text-xs text-stone-700 font-light tracking-widest pt-1 min-w-[24px]">
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
+                    
+                    <div className="flex-1">
+                      {/* Name + details */}
+                      <div className="flex items-baseline justify-between gap-4 mb-3">
+                        <h3 className="text-white font-serif text-lg group-hover:text-primary transition-colors duration-300">
+                          {material.name}
+                        </h3>
+                        <span className="text-xs text-stone-500 font-light text-right max-w-[200px]">
+                          {material.details}
+                        </span>
+                      </div>
 
+                      {/* Why + outcome */}
+                      <div className="grid sm:grid-cols-2 gap-4 mt-4">
+                        <div>
+                          <span className="text-[10px] uppercase tracking-[0.2em] text-stone-600 block mb-1.5">Why</span>
+                          <p className="text-stone-400 font-light text-sm leading-relaxed">{why}</p>
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase tracking-[0.2em] text-primary/60 block mb-1.5">Outcome</span>
+                          <p className="text-stone-300 font-light text-sm leading-relaxed">{outcome}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+        </div>
       </div>
     </section>
   );

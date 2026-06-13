@@ -1,36 +1,41 @@
 import { useRef, useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import portfolioBedroom from "@/assets/portfolio-bedroom.jpg";
-import portfolioKitchen from "@/assets/portfolio-kitchen.jpg";
-import portfolioOffice from "@/assets/portfolio-office.jpg";
 import { cn } from "@/lib/utils";
 import { TactileMaterial } from "@/components/ui/enhanced/TactileMaterial";
-import { Image } from "@/components/ui/enhanced/image";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
+
+const portfolioBedroom = "@/assets/portfolio-bedroom.jpg";
+const portfolioKitchen = "@/assets/portfolio-kitchen.jpg";
+const portfolioOffice = "@/assets/portfolio-office.jpg";
 
 const moods = [
   {
     id: "modern-wardrobe",
     title: "The Modern Wardrobe",
     description: (<>Fluted <TactileMaterial name="glass" texture="glass" />, back-lit shelving, and seamless matte finishes designed for quiet mornings.</>),
+    assetKey: "home_tactile_bedroom",
     image: portfolioBedroom,
   },
   {
     id: "minimalist-kitchen",
     title: "The Minimalist Kitchen",
     description: (<>Handleless cabinetry, striking <TactileMaterial name="stone countertops" texture="stone" />, and hidden appliances for a clutter-free mind.</>),
+    assetKey: "home_tactile_kitchen",
     image: portfolioKitchen,
   },
   {
     id: "executive-lounge",
     title: "The Executive Lounge",
     description: (<>Deep <TactileMaterial name="wood grains" texture="wood" />, acoustic paneling, and warm ambient lighting for deep, uninterrupted focus.</>),
+    assetKey: "home_tactile_office",
     image: portfolioOffice,
   },
   {
     id: "serene-bath",
     title: "The Serene Bath",
     description: (<>Textured <TactileMaterial name="stone" texture="stone" />, <TactileMaterial name="brushed brass" texture="brass" /> fixtures, and natural light creating a spa-like daily ritual.</>),
+    assetKey: "home_tactile_bedroom",
     image: portfolioBedroom,
   }
 ];
@@ -64,8 +69,8 @@ export const TactileJourney = () => {
   }, []);
 
   return (
-    <section className="py-24 md:py-32 relative bg-[#050505] overflow-hidden" ref={containerRef}>
-      <div className="container mx-auto px-6 lg:px-12 mb-12 md:mb-20">
+    <section className="py-section-y relative bg-[#050505] overflow-hidden" ref={containerRef}>
+      <div className="container mx-auto mb-12 md:mb-20">
         <span className="home-kicker mb-6 block">
           <span>The Tactile Journey</span>
         </span>
@@ -96,15 +101,11 @@ export const TactileJourney = () => {
             className="shrink-0 w-[85vw] sm:w-[50vw] md:w-[40vw] lg:w-[30vw] max-w-[480px] group cursor-pointer"
           >
             <div className="relative aspect-[4/5] overflow-hidden bg-white/5">
-              <Image
-                src={mood.image} 
+              <MediaSlot
+                assetKey={mood.assetKey}
+                fallbackUrl={mood.image}
                 alt={mood.title}
-                loading="lazy"
-                className="h-full w-full pointer-events-none"
-                imageClassName="transition-transform duration-1000 group-hover:scale-110 opacity-80 group-hover:opacity-100"
-                width={720}
-                height={900}
-                draggable={false}
+                className="h-full w-full pointer-events-none transition-transform duration-1000 group-hover:scale-110 opacity-80 group-hover:opacity-100"
               />
               
               {/* Cinematic Vignette */}

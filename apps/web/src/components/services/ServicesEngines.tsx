@@ -419,10 +419,10 @@ function EngineBlock({ engine }: { engine: Engine }) {
           {engine.useCases && (
             <motion.div variants={fadeUp} className="mb-8">
               <span className="block text-[10px] text-white/40 uppercase tracking-[0.2em] mb-4">Core Applications</span>
-              <ul className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-2.5">
                 {engine.useCases.map((useCase, idx) => (
-                  <motion.li 
-                    key={idx} 
+                  <motion.div 
+                    key={idx}
                     initial={{ opacity: 0, x: -10 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 + idx * 0.1 }}
@@ -432,9 +432,9 @@ function EngineBlock({ engine }: { engine: Engine }) {
                       <Sparkles className="w-2 h-2 text-site-gold/70" />
                     </div>
                     <span className="text-[0.85rem] text-[#EDEDED]/80 leading-relaxed font-light">{useCase}</span>
-                  </motion.li>
+                  </motion.div>
                 ))}
-              </ul>
+              </div>
             </motion.div>
           )}
 
@@ -519,6 +519,8 @@ function EngineBlock({ engine }: { engine: Engine }) {
                   {engine.secondaryCta.modalTitle}
                 </h3>
                 <button
+                  aria-label="Close modal"
+                  title="Close"
                   onClick={() => setIsModalOpen(false)}
                   className="p-2 -mr-2 -mt-2 text-white/50 hover:text-white hover:bg-white/5 rounded-full transition-colors"
                 >

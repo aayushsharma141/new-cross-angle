@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useGSAP, gsap } from "@/hooks/useGsap";
+import { useGSAP } from "@/hooks/useGsap";
 
 interface ScrollRevealProps {
     children: React.ReactNode;
@@ -21,9 +21,9 @@ export const ScrollReveal = ({
     threshold = 0.2, // Trigger when 20% in view
     once = true,
 }: ScrollRevealProps) => {
-    const { scope } = useGSAP((ctx) => {
+    const { scope } = useGSAP((ctx, gsap) => {
         // Initial states based on animation type
-        let initialVars: gsap.TweenVars = {};
+        let initialVars: Record<string, unknown> = {};
 
         switch (animation) {
             case "fade-up":

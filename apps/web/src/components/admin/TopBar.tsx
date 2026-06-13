@@ -15,7 +15,7 @@ import { useAdminDisplayName } from "@/hooks/useAdminDisplayName";
 import { useNavigate, Link } from "react-router-dom";
 import { ROLE_LABELS } from "@/lib/auth/rbac";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
-import logoIcon from "@/assets/logo-icon.png";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 /**
  * Admin top navigation. The breadcrumb trail lives on each page via
@@ -27,18 +27,20 @@ export function TopBar() {
     const { user, logout, role, isLoading } = useAdminAuth();
     const { can } = usePermissions();
     const { displayName, initials } = useAdminDisplayName();
+    const { settings } = useSiteSettings();
     const navigate = useNavigate();
+    const logoUrl = settings?.company_logo_url || settings?.logo_light_url || '/logo-icon.png';
     const roleLabel = isLoading ? "Loading Role" : role ? ROLE_LABELS[role] : "No Role";
     const avatarSeed = encodeURIComponent(displayName || user?.email || "admin");
 
     return (
         <header className="sticky top-0 z-40 w-full border-b border-admin-border/50 bg-admin-surface/80 backdrop-blur-xl px-6 h-16 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
             <div className="flex items-center gap-6">
-                <Link to={ADMIN_ROUTES.hub.path} className="flex items-center gap-3 group">
-                    <img src={logoIcon} alt="CrossAngle Logo" className="w-8 h-8 object-contain" />
+                <Link to={ADMIN_ROUTES.hub.path} className="flex items-center gap-4 group">
+                    <img src={logoUrl} alt="Company Logo" className="w-16 h-16 object-contain" />
                     <div className="flex flex-col justify-center">
-                        <span className="text-xl text-admin-text uppercase tracking-[0.1em] font-extrabold leading-none pt-1">CrossAngle</span>
-                        <span className="text-[11px] text-admin-primary uppercase tracking-[0.2em] font-medium block mt-0.5 drop-shadow-[0_0_8px_hsl(var(--admin-primary)/0.35)]">Intelligence</span>
+                        <span className="text-xl text-admin-text uppercase tracking-[0.1em] font-extrabold leading-none pt-1">{settings?.studio_name || "CrossAngle"}</span>
+                        <span className="text-[11px] text-admin-primary uppercase tracking-[0.2em] font-medium block mt-1 drop-shadow-[0_0_8px_hsl(var(--admin-primary)/0.35)]">Intelligence</span>
                     </div>
                 </Link>
             </div>
@@ -85,7 +87,7 @@ export function TopBar() {
                             {can('users', 'view') && (
                                 <DropdownMenuItem
                                     className="cursor-pointer text-xs py-2 px-3 hover:bg-admin-surface focus:bg-admin-surface"
-                                    onClick={() => navigate(ADMIN_ROUTES.access.path)}
+                                    onClick={() => navigate(ADMIN_ROUTES.userAccess.path)}
                                 >
                                     <User className="mr-3 h-3.5 w-3.5 text-admin-muted" /> Account management
                                 </DropdownMenuItem>

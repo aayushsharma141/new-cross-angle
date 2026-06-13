@@ -21,6 +21,7 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
+    const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const analytics = useAnalytics();
     const analyticsTrack = analytics.track.bind(analytics);
@@ -33,7 +34,14 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name.trim() || !email.trim()) {
+        
+        const newErrors: { name?: string; email?: string } = {};
+        if (!name.trim()) newErrors.name = "Name is required.";
+        if (!email.trim()) newErrors.email = "Email is required.";
+        
+        setErrors(newErrors);
+        
+        if (Object.keys(newErrors).length > 0) {
             toast.error("Please provide your name and email.");
             return;
         }
@@ -119,11 +127,19 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                                 id="name"
                                 type="text"
                                 required
+                                aria-invalid={!!errors.name}
+                                aria-describedby={errors.name ? "name-error" : undefined}
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={(e) => {
+                                    setName(e.target.value);
+                                    if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                                }}
                                 className="bg-[#faf8f5] border border-[#e8e4dd] h-14 rounded-xl text-[#1a1a1a] placeholder:text-[#a0a0a0] focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:bg-white focus-visible:border-[#233526] transition-all px-4"
                                 placeholder="Your name"
                             />
+                            {errors.name && (
+                                <p id="name-error" className="text-red-500 text-xs mt-1" aria-live="polite">{errors.name}</p>
+                            )}
                         </div>
                         <div>
                             <label htmlFor="email" className="block text-[11px] uppercase tracking-[0.15em] text-[#5a5a5a] mb-2 font-semibold">
@@ -133,11 +149,19 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                                 id="email"
                                 type="email"
                                 required
+                                aria-invalid={!!errors.email}
+                                aria-describedby={errors.email ? "email-error" : undefined}
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                                }}
                                 className="bg-[#faf8f5] border border-[#e8e4dd] h-14 rounded-xl text-[#1a1a1a] placeholder:text-[#a0a0a0] focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:bg-white focus-visible:border-[#233526] transition-all px-4"
                                 placeholder="you@example.com"
                             />
+                            {errors.email && (
+                                <p id="email-error" className="text-red-500 text-xs mt-1" aria-live="polite">{errors.email}</p>
+                            )}
                         </div>
                         <div>
                             <label htmlFor="phone" className="block text-[11px] uppercase tracking-[0.15em] text-[#5a5a5a] mb-2 font-semibold">

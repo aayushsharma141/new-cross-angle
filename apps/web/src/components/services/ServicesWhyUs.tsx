@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Check, ShieldCheck, Zap, BarChart3 } from "lucide-react";
-import { Image } from "@/components/ui/enhanced/image";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 import { cn } from "@/lib/utils";
 
 const whyUsPoints = [
@@ -98,13 +98,11 @@ const ServicesWhyUs = () => {
           <div className="absolute -inset-20 border border-white/[0.02] rounded-full pointer-events-none" />
           
           <div className="relative aspect-[4/5] overflow-hidden rounded-2xl shadow-[0_40px_100px_rgba(0,0,0,0.8)] border border-white/[0.08]">
-            <Image
-              src="/images/projects/discovery/visual-5.jpg" 
+            <MediaSlot
+              assetKey="services_why_us"
+              fallbackUrl="/images/projects/discovery/visual-5.jpg"
               alt="Why CrossAngle" 
-              className="h-full w-full"
-              imageClassName="grayscale-[0.4] brightness-[0.8] transition-all duration-1000 group-hover:scale-110"
-              width={800}
-              height={1000}
+              className="h-full w-full object-cover grayscale-[0.4] brightness-[0.8] transition-all duration-1000 group-hover:scale-110"
             />
             {/* Dynamic Glow */}
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />

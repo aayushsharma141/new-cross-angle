@@ -22,6 +22,7 @@ export interface LifestyleOption {
   label: string;
   description: string;
   image: string;
+  assetKey?: string;
   scores: Partial<AestheticScores>;
 }
 
@@ -64,6 +65,7 @@ export interface Archetype {
 export interface VisualImage {
   id: number;
   url: string;
+  assetKey?: string;
   tags: Partial<AestheticScores>;
 }
 

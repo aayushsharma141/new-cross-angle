@@ -13,38 +13,48 @@ interface Particle {
   y: number;
   duration: number;
   delay: number;
+  size: number;
+  wobble: number;
 }
 
-// Particles
+// Particles (Ocean Bubbles)
 const Particles = () => {
   const [particles, setParticles] = useState<Particle[]>([]);
   useEffect(() => {
     const arr = [];
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 250; i++) {
       arr.push({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
-        duration: 10 + Math.random() * 10,
-        delay: Math.random() * -5,
+        duration: 10 + Math.random() * 30,
+        delay: Math.random() * -20,
+        size: 1 + Math.random() * 6,
+        wobble: Math.random() * 40 - 20,
       });
     }
     setParticles(arr);
   }, []);
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute w-[1.5px] h-[1.5px] bg-[#C41230] rounded-full opacity-10"
-          style={{ left: `${p.x}vw`, bottom: `${p.y}vh` }}
-          animate={{ y: [0, -1000] }}
+          className="absolute rounded-full border border-white/30 bg-white/20"
+          style={{ 
+            left: `${p.x}vw`, 
+            top: `100%`, 
+            width: `${p.size}px`, 
+            height: `${p.size}px` 
+          }}
+          animate={{ 
+            y: [0, -3000],
+            x: [0, p.wobble, -p.wobble, 0]
+          }}
           transition={{
-            duration: p.duration,
-            repeat: Infinity,
-            ease: "linear",
-            delay: p.delay,
+            y: { duration: p.duration, repeat: Infinity, ease: "linear", delay: p.delay },
+            x: { duration: p.duration / 2, repeat: Infinity, ease: "easeInOut", delay: p.delay }
           }}
         />
       ))}
@@ -371,22 +381,69 @@ export default function Footer() {
                 {settings.phone}
               </a>
             )}
+            <LiveClock />
           </FooterSection>
 
           {/* Col 2 — Location */}
           <FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1} className="px-0 md:px-10 py-8 md:py-0">
-            <div className="flex items-start gap-2.5 mb-4">
-              <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#C41230]" />
-              {settings?.address ? (
-                <p className="text-[13px] text-white/70 font-sans leading-relaxed">{settings.address}</p>
-              ) : (
-                <div>
-                  <p className="text-[14px] text-white font-sans font-medium">Jamshedpur</p>
-                  <p className="text-[13px] text-white/50 font-sans">Jharkhand 831012, India</p>
+            <div className="flex flex-col gap-5 mb-5">
+              <div className="flex items-start gap-2.5">
+                <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#C41230]" />
+                {settings?.address ? (
+                  <p className="text-[13px] text-white/70 font-sans leading-relaxed">{settings.address}</p>
+                ) : (
+                  <div>
+                    <span className="text-[14px] text-white font-sans font-medium">Headquarters</span>
+                    <p className="text-[13px] text-white/50 font-sans mt-0.5">Jamshedpur, Jharkhand 831012, India</p>
+                  </div>
+                )}
+              </div>
+              
+              <div>
+                <p className="font-sans text-[10px] tracking-[0.3em] text-white/30 mb-3">SERVICING REGIONS</p>
+                <div className="flex flex-col gap-2.5">
+                  {(() => {
+                    const cities = [
+                      { id: 'jamshedpur', name: 'Jamshedpur' },
+                      { id: 'bistupur', name: 'Bistupur' },
+                      { id: 'adityapur', name: 'Adityapur' },
+                      { id: 'kadma', name: 'Kadma' },
+                      { id: 'mango', name: 'Mango' },
+                      { id: 'sakchi', name: 'Sakchi' },
+                      { id: 'sonari', name: 'Sonari' },
+                      { id: 'telco', name: 'Telco' },
+                      { id: 'golmuri', name: 'Golmuri' },
+                      { id: 'baridih', name: 'Baridih' },
+                      { id: 'dimna', name: 'Dimna' },
+                    ];
+                    
+                    const rows = [];
+                    for (let i = 0; i < cities.length; i += 3) {
+                      rows.push(cities.slice(i, i + 3));
+                    }
+                    
+                    return rows.map((row, rIndex) => (
+                      <div key={rIndex} className="flex items-center gap-x-2.5 flex-wrap">
+                        {row.map((city, cIndex, arr) => (
+                          <React.Fragment key={city.id}>
+                            <Link
+                              to={`/locations/${city.id}`}
+                              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                              className="text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans whitespace-nowrap"
+                            >
+                              {city.name}
+                            </Link>
+                            {cIndex < arr.length - 1 && (
+                              <span className="text-white/20 text-[12px] select-none">|</span>
+                            )}
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    ));
+                  })()}
                 </div>
-              )}
+              </div>
             </div>
-            <LiveClock />
           </FooterSection>
 
           {/* Col 3 — All Links (merged) */}

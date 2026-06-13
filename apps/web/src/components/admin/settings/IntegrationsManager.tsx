@@ -161,10 +161,12 @@ function SystemHealthPanel() {
   );
 }
 
-function IntegrationCard({ integration, onRevoke, onConfigure }: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function IntegrationCard({ integration, onRevoke, onConfigure }: { integration: any, onRevoke: (id: string) => void, onConfigure: (id: string) => void }) {
   const [hovered, setHovered] = useState(false);
   const [revokeConfirm, setRevokeConfirm] = useState(false);
-  const Icon = integration.icon;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Icon = (integration as any).icon;
 
   return (
     <div

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/primitives/button";
 import { MessageCircle, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 
 const HubFinalCTA = () => {
   const { settings } = useSiteSettings();
@@ -16,9 +17,11 @@ const HubFinalCTA = () => {
         transition={{ duration: 2 }}
         className="absolute inset-0"
       >
-        <div 
-          className="h-full w-full bg-cover bg-center bg-no-repeat opacity-40 brightness-50"
-          style={{ backgroundImage: `url('https://static.wixstatic.com/media/59fa67_d16a3e2cd29944beac603524f8290acb~mv2.jpg/v1/fill/w_1000%2Ch_844%2Cal_c%2Cq_85%2Cusm_0.66_1.00_0.01/59fa67_d16a3e2cd29944beac603524f8290acb~mv2.jpg')` }}
+        <MediaSlot
+          assetKey="portfolio_hub_cta"
+          fallbackUrl="https://static.wixstatic.com/media/59fa67_d16a3e2cd29944beac603524f8290acb~mv2.jpg/v1/fill/w_1000%2Ch_844%2Cal_c%2Cq_85%2Cusm_0.66_1.00_0.01/59fa67_d16a3e2cd29944beac603524f8290acb~mv2.jpg"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover opacity-40 brightness-50"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
       </motion.div>

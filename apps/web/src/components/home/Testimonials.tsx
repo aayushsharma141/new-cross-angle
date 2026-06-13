@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { getOptimizedUrl } from "@/lib/cdn";
 import { Image } from "@/components/ui/enhanced/image";
+import { serializeJsonLd } from "@/components/shared/SchemaMarkup";
 
 interface Testimonial {
   id: string;
@@ -47,25 +48,18 @@ const TestimonialCard = ({
   index: number;
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isTruncated, setIsTruncated] = useState(false);
-  const contentRef = useRef<HTMLParagraphElement>(null);
+  const needsTruncation = item.content.length > 160;
 
-  useEffect(() => {
-    const checkTruncation = () => {
-      if (contentRef.current && !isExpanded) {
-        setIsTruncated(contentRef.current.scrollHeight > contentRef.current.clientHeight);
-      }
-    };
-    
-    // Slight delay to ensure fonts/layout are fully rendered before calculating
-    const timeoutId = setTimeout(checkTruncation, 100);
-    window.addEventListener("resize", checkTruncation);
-    
-    return () => {
-      clearTimeout(timeoutId);
-      window.removeEventListener("resize", checkTruncation);
-    };
-  }, [item.content, isExpanded]);
+  const getPreviewText = (text: string) => {
+    if (isExpanded || !needsTruncation) return text;
+    const maxLength = 160;
+    const substr = text.slice(0, maxLength);
+    const lastPunctuation = Math.max(substr.lastIndexOf('.'), substr.lastIndexOf('!'), substr.lastIndexOf('?'));
+    if (lastPunctuation > maxLength * 0.6) {
+      return text.slice(0, lastPunctuation + 1);
+    }
+    return substr.slice(0, substr.lastIndexOf(' ')) + '...';
+  };
 
   return (
     <motion.div
@@ -91,15 +85,13 @@ const TestimonialCard = ({
       {/* Content */}
       <div className="flex-grow relative z-10 mb-6 flex flex-col items-start justify-start">
         <p 
-          ref={contentRef}
           className={cn(
-            "leading-relaxed font-light italic text-white/70 text-[0.9rem] md:text-[1rem] group-hover:text-white/90 transition-colors duration-300",
-            !isExpanded && "line-clamp-4 md:line-clamp-5"
+            "leading-relaxed font-light italic text-white/70 text-[0.9rem] md:text-[1rem] group-hover:text-white/90 transition-colors duration-300"
           )}
         >
-          &ldquo;{item.content}&rdquo;
+          &ldquo;{getPreviewText(item.content)}&rdquo;
         </p>
-        {(isTruncated || isExpanded) && (
+        {needsTruncation && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="text-site-gold/80 hover:text-site-gold text-[0.75rem] md:text-[0.8rem] font-medium tracking-widest uppercase mt-3 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-site-gold rounded px-1 -mx-1"
@@ -203,14 +195,14 @@ const Testimonials = () => {
       : "5.0";
 
   return (
-    <section id="testimonials" className="py-20 md:py-28 relative overflow-hidden">
+    <section id="testimonials" className="py-section-y relative overflow-hidden">
       <div className="absolute inset-0 bg-[#080807]" />
       {/* Top rule */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-site-gold/25 to-transparent" />
       {/* Bottom rule */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto relative z-10">
 
         {/* ── Header ── */}
         <div className="text-center mb-16">
@@ -332,7 +324,7 @@ const Testimonials = () => {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: serializeJsonLd({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
               name: "Crossangle Interior",
@@ -341,7 +333,7 @@ const Testimonials = () => {
                 ratingValue: avgRating,
                 reviewCount: testimonials.length,
               },
-            }).replace(/<\/script/gi, '<\\/script'),
+            }),
           }}
         />
       )}

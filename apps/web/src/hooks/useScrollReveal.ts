@@ -1,8 +1,5 @@
 import { useEffect, RefObject } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+// Removed static gsap imports to enable dynamic chunking
 
 interface ScrollRevealOptions {
     y?: number;
@@ -47,23 +44,41 @@ const useScrollReveal = (
         const els = container.querySelectorAll(targets);
         if (!els.length) return;
 
-        const ctx = gsap.context(() => {
-            gsap.from(els, {
-                y,
-                opacity,
-                duration,
-                delay,
-                stagger,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: container,
-                    start,
-                    once,
-                },
-            });
-        }, container);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let ctx: any;
 
-        return () => ctx.revert();
+        const initAnimation = async () => {
+            const [gsapMod, stMod] = await Promise.all([
+                import("gsap"),
+                import("gsap/ScrollTrigger")
+            ]);
+            
+            const gsap = gsapMod.default || gsapMod;
+            const ScrollTrigger = stMod.ScrollTrigger || stMod.default;
+            gsap.registerPlugin(ScrollTrigger);
+
+            ctx = gsap.context(() => {
+                gsap.from(els, {
+                    y,
+                    opacity,
+                    duration,
+                    delay,
+                    stagger,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: container,
+                        start,
+                        once,
+                    },
+                });
+            }, container);
+        };
+
+        initAnimation();
+
+        return () => {
+            if (ctx) ctx.revert();
+        };
     }, [containerRef, targets, y, opacity, duration, delay, stagger, start, once]);
 };
 

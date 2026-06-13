@@ -1,6 +1,15 @@
 import { Helmet } from "react-helmet-async";
 import { SITE_CONSTANTS } from "@/lib/constants";
 
+/**
+ * Escapes characters that could break out of a <script> block,
+ * ensuring the JSON-LD string is safe to be injected into the DOM.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const serializeJsonLd = (data: Record<string, any>): string => {
+    return JSON.stringify(data).replace(/<\/script/gi, '<\\/script').replace(/</g, '\\u003c');
+};
+
 export type SchemaType =
     | "LocalBusiness"
     | "InteriorDesigner"
@@ -215,13 +224,11 @@ export const SchemaMarkup = ({ type, data, locale = "en-IN" }: SchemaMarkupProps
             break;
     }
 
-    const safeJsonLd = JSON.stringify(formattedData).replace(/</g, '\\u003c');
+    const safeJsonLd = serializeJsonLd(formattedData);
 
     return (
         <Helmet>
-            <script type="application/ld+json">
-                {safeJsonLd}
-            </script>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd }} />
         </Helmet>
     );
 };

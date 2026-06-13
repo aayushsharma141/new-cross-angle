@@ -25,13 +25,18 @@ const ProjectHubPage = () => {
           name="description"
           content="Explore our cinematic portfolio of luxury interiors. From modular kitchens to peaceful bedrooms, experience spaces designed for real lifestyles."
         />
+        <meta property="og:title" content="Project Portfolio | Cross Angle Interior" />
+        <meta property="og:description" content="Explore our cinematic portfolio of luxury interiors — spaces designed for real lifestyles." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://crossangleinterior.com/portfolio" />
+        <link rel="canonical" href="https://crossangleinterior.com/portfolio" />
       </Helmet>
 
       <ScrollProgress />
       <Navbar />
       <FixedSocialBar />
 
-      <main className="bg-[#050505] text-white overflow-x-hidden">
+      <main id="main-content" className="bg-[#050505] text-white overflow-x-hidden">
         <section id="hero">
           <Suspense fallback={<div className="h-screen flex items-center justify-center bg-black text-white/50 text-sm tracking-widest uppercase">Loading Hero...</div>}>
             <HubHero />

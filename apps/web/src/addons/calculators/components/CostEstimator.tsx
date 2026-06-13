@@ -16,6 +16,7 @@ import { track } from "@/analytics/track";
 import { useToast } from "@/hooks/useToast";
 import { EstimatorBackground } from "@/addons/_shared/components/backgrounds/EstimatorBackground";
 import { ECOSYSTEM_COPY } from "@/addons/_shared/ecosystemCopy";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import logoIcon from "@/assets/logo-icon.png";
 import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
 
@@ -36,6 +37,8 @@ interface CostEstimatorProps {
 }
 
 export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
+    const { settings } = useSiteSettings();
+    const logoUrl = settings?.company_logo_url || settings?.logo_light_url || logoIcon;
     const analytics = useAnalytics();
     const { toast } = useToast();
     const {
@@ -86,7 +89,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                     aria-label="Return to CrossAngle Home"
                   >
                     <img
-                      src={logoIcon}
+                      src={logoUrl}
                       alt="Cross Angle Interior"
                       className="h-11 md:h-16 w-auto transition-all duration-500 shrink-0 animate-in fade-in zoom-in duration-300"
                     />
@@ -121,7 +124,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
             {/* Sidebar */}
             <aside aria-label="Estimator progress" className="hidden md:flex flex-col bg-[#ffffff] border-r border-[#e8e4dd] p-8 sticky top-0 h-[100dvh] overflow-y-auto z-20 shadow-[4px_0_16px_rgba(0,0,0,0.02)]">
                 <div className="flex items-center gap-2 mb-8">
-                    <img src={logoIcon} alt="CrossAngle Logo" className="h-5 w-auto shrink-0 animate-in fade-in duration-300" />
+                    <img src={logoUrl} alt="CrossAngle Logo" className="h-5 w-auto shrink-0 animate-in fade-in duration-300" />
                     <h1 className="text-[14px] tracking-[0.08em] uppercase text-[#8b6f47] font-semibold font-label m-0">
                         Cost Estimator
                     </h1>

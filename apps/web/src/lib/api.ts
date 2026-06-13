@@ -263,7 +263,8 @@ export const api = {
       }
 
       if (!data || data.length === 0) {
-        return [];
+        const { projects: localProjects } = await import('@/data/projects');
+        return localProjects;
       }
 
       return data.map(mapSupabaseToProject);
@@ -285,10 +286,13 @@ export const api = {
             project_materials (*),
             project_categories (name)
           `)
-        .eq('slug', slug)
-        .single();
+        .or(`slug.eq.${slug},id.eq.${slug}`)
+        .maybeSingle();
 
       if (error || !data) {
+        const { projects: localProjects } = await import('@/data/projects');
+        const localP = localProjects.find(p => p.slug === slug || p.id === slug);
+        if (localP) return localP;
         return null;
       }
       return mapSupabaseToProject(data);
@@ -307,8 +311,16 @@ export const api = {
         .select('id, title, slug, type, location, cover_image_url')
         .order('display_order', { ascending: true });
 
-      if (error || !data) {
-        return [];
+      if (error || !data || data.length === 0) {
+        const { projects: localProjects } = await import('@/data/projects');
+        return localProjects.map(item => ({
+          id: item.id,
+          title: item.title,
+          slug: item.slug,
+          type: item.type,
+          location: item.location,
+          heroImage: item.heroImage
+        }));
       }
       
       return data.map(item => ({

@@ -12,10 +12,9 @@ import {
     RefreshCw,
     FileText,
     Search,
-    Search,
     TrendingUp,
 } from "lucide-react";
-import { AdminPageHeader, AdminMetricsPanel } from "@/components/admin/shared";
+import { AdminMetricsPanel } from "@/components/admin/shared";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
@@ -67,9 +66,9 @@ export default function AdminBlogPerformance() {
             try {
                 const { data: ad } = await supabase
                     .from("article_analytics")
-                    .select("article_id, total_views, avg_read_time_seconds, avg_scroll_depth");
-                if (ad) ad.forEach((a: { article_id: string; total_views: number; avg_read_time_seconds: number; avg_scroll_depth: number }) => {
-                    analyticsMap[a.article_id] = { views: a.total_views || 0, read_time: a.avg_read_time_seconds || 0, scroll_depth: a.avg_scroll_depth || 0 };
+                    .select("article_id, views, avg_read_time_seconds, scroll_completion_rate");
+                if (ad) ad.forEach((a: { article_id: string; views: number; avg_read_time_seconds: number; scroll_completion_rate: number }) => {
+                    analyticsMap[a.article_id] = { views: a.views || 0, read_time: a.avg_read_time_seconds || 0, scroll_depth: a.scroll_completion_rate || 0 };
                 });
             } catch { /* table may not exist */ }
 
@@ -151,8 +150,7 @@ export default function AdminBlogPerformance() {
                 .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
             `}</style>
             
-            <AdminPageHeader moduleName="Blog" tabName="Performance" />
-            
+                        
             <ModuleActions>
                 <Button variant="outline" size="sm" onClick={loadData} className="gap-2 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))]">
                     <RefreshCw className="w-3.5 h-3.5" />

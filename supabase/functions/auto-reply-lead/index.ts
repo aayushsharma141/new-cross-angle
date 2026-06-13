@@ -48,8 +48,35 @@ Deno.serve(async (req) => {
 
         structuredLog("info", FN, `Processing Auto-Reply`, { email: lead.email, lead_id: lead.id }, requestId);
 
-        // 1. Send Email via Resend
-        const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+        // 1. Fetch template from DB or use fallback
+        const { data: settings } = await supabaseClient.from('site_settings').select('integrations').limit(1).maybeSingle();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const integrations = (settings?.integrations as any) || {};
+        const customTemplate = integrations?.email_templates?.auto_reply_lead;
+
+        let htmlContent = `
+            <div style="font-family: sans-serif; color: #333;">
+              <h2>Hi ${lead.name},</h2>
+              <p>Thank you for reaching out to Cross Angle Interior. We have received your inquiry regarding <strong>${lead.service || "your project"}</strong>.</p>
+              <p>Our team is reviewing your details and will get back to you within 24 hours to discuss how we can bring your vision to life.</p>
+              <p>In the meantime, feel free to browse our <a href="https://crossangleinterior.com/portfolio">latest projects</a> for inspiration.</p>
+              <br/>
+              <p>Best regards,</p>
+              <p><strong>The Cross Angle Team</strong></p>
+              <p style="font-size: 12px; color: #888;">Jamshedpur, India</p>
+            </div>
+        `;
+
+        if (customTemplate) {
+            htmlContent = customTemplate
+                .replace(/\{\{lead\.name\}\}/g, lead.name)
+                .replace(/\{\{lead\.service\}\}/g, lead.service || "your project")
+                .replace(/\{\{lead\.email\}\}/g, lead.email)
+                .replace(/\{\{lead\.phone\}\}/g, lead.phone || "");
+        }
+
+        // 2. Send Email via Resend
+        const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') || integrations?.resend_api_key;
         if (RESEND_API_KEY) {
             const res = await fetch('https://api.resend.com/emails', {
                 method: 'POST',
@@ -61,18 +88,7 @@ Deno.serve(async (req) => {
                     from: 'Cross Angle <hello@crossangleinterior.com>', // User needs to verify domain
                     to: [lead.email],
                     subject: `Thank you for contacting Cross Angle Interior!`,
-                    html: `
-            <div style="font-family: sans-serif; color: #333;">
-              <h2>Hi ${lead.name},</h2>
-              <p>Thank you for reaching out to Cross Angle Interior. We have received your inquiry regarding <strong>${lead.service || "your project"}</strong>.</p>
-              <p>Our team is reviewing your details and will get back to you within 24 hours to discuss how we can bring your vision to life.</p>
-              <p>In the meantime, feel free to browse our <a href="https://crossangleinterior.com/portfolio">latest projects</a> for inspiration.</p>
-              <br/>
-              <p>Best regards,</p>
-              <p><strong>The Cross Angle Team</strong></p>
-              <p style="font-size: 12px; color: #888;">Jamshedpur, India</p>
-            </div>
-          `
+                    html: htmlContent
                 })
             });
 

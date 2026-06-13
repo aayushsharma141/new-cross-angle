@@ -5,6 +5,7 @@ import {
   Sun, Layers, Leaf, Lamp, BookOpen
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import logoIcon from "@/assets/logo-icon.png";
 import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
 import SoftAurora from "@/components/ReactBits/SoftAurora";
@@ -142,6 +143,8 @@ const InputNode = ({
 );
 
 const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
+  const { settings } = useSiteSettings();
+  const logoUrl = settings?.company_logo_url || settings?.logo_light_url || logoIcon;
   const { lang, setLang, t } = useLanguage();
   const [step, setStep] = useState(0);
   const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
@@ -213,7 +216,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
             aria-label="Return to CrossAngle Home"
           >
             <img
-              src={logoIcon}
+              src={logoUrl}
               alt="Cross Angle Interior"
               className="h-11 md:h-16 w-auto transition-all duration-500 shrink-0"
             />

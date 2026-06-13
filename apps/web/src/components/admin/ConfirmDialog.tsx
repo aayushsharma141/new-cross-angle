@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import {
     AlertDialog,
@@ -19,6 +20,7 @@ interface ConfirmDialogProps {
     confirmText?: string;
     cancelText?: string;
     variant?: "default" | "destructive";
+    children?: React.ReactNode;
     onConfirm: () => Promise<void> | void;
 }
 
@@ -30,6 +32,7 @@ export const ConfirmDialog = ({
     confirmText = "Confirm",
     cancelText = "Cancel",
     variant = "default",
+    children,
     onConfirm,
 }: ConfirmDialogProps) => {
     const [isLoading, setIsLoading] = useState(false);
@@ -46,11 +49,12 @@ export const ConfirmDialog = ({
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="bg-admin-card border-admin-border text-admin-text">
+            <AlertDialogContent className="admin-theme bg-admin-card border-admin-border text-admin-text">
                 <AlertDialogHeader>
                     <AlertDialogTitle>{title}</AlertDialogTitle>
                     <AlertDialogDescription>{description}</AlertDialogDescription>
                 </AlertDialogHeader>
+                {children}
                 <AlertDialogFooter>
                     <AlertDialogCancel disabled={isLoading}>{cancelText}</AlertDialogCancel>
                     <AlertDialogAction

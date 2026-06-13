@@ -9,12 +9,13 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { Check, Hammer, Home, Palette, Ruler } from "lucide-react";
-import { Image } from "@/components/ui/enhanced/image";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 import useReducedMotion from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FlowingCADLines } from "@/components/shared/FlowingCADLines";
+import { serializeJsonLd } from "@/components/shared/SchemaMarkup";
 
 const iconMap: Record<string, React.ElementType> = {
   Home,
@@ -22,6 +23,17 @@ const iconMap: Record<string, React.ElementType> = {
   Palette,
   Hammer,
   Check,
+};
+
+const assetKeyForStep = (id: string): string => {
+  const map: Record<string, string> = {
+    "01": "home_process_consult",
+    "02": "home_process_measure",
+    "03": "home_process_design",
+    "04": "home_process_execute",
+    "05": "home_process_handover",
+  };
+  return map[id] || "home_process_consult";
 };
 
 const fallbackSteps = [
@@ -36,6 +48,7 @@ const fallbackSteps = [
     image: "/reality_render.jpg",
     imageAlt: "Luxury living room consultation setting",
     kicker: "Stage One",
+    assetKey: "home_process_consult",
   },
   {
     id: "02",
@@ -48,6 +61,7 @@ const fallbackSteps = [
     image: "/blueprint_shell.jpg",
     imageAlt: "Architectural blueprint and measured planning sheet",
     kicker: "Stage Two",
+    assetKey: "home_process_measure",
   },
   {
     id: "03",
@@ -60,6 +74,7 @@ const fallbackSteps = [
     image: "/hero_reality_render_1775299733746.png",
     imageAlt: "Photorealistic interior design preview",
     kicker: "Stage Three",
+    assetKey: "home_process_design",
   },
   {
     id: "04",
@@ -72,6 +87,7 @@ const fallbackSteps = [
     image: "/reality_render.jpg",
     imageAlt: "Finished interior under installation and styling",
     kicker: "Stage Four",
+    assetKey: "home_process_execute",
   },
   {
     id: "05",
@@ -84,6 +100,7 @@ const fallbackSteps = [
     image: "/hero_reality_render_1775299733746.png",
     imageAlt: "Completed premium interior ready for handover",
     kicker: "Stage Five",
+    assetKey: "home_process_handover",
   },
 ];
 
@@ -97,6 +114,7 @@ export type ProcessStepConfig = {
   image: string;
   imageAlt: string;
   kicker: string;
+  assetKey: string;
 };
 
 /** Individual step node in the bottom timeline */
@@ -202,6 +220,7 @@ const Process = () => {
           image: step.image_url || "/reality_render.jpg",
           imageAlt: step.image_alt || step.title,
           kicker: step.kicker || "",
+          assetKey: assetKeyForStep(step.step_number),
         }));
       }
       return fallbackSteps;
@@ -284,7 +303,7 @@ const Process = () => {
                 transition={{ duration: 0.7, delay: 0.16 }}
                 className="mt-5 max-w-[28ch] text-[0.95rem] leading-[1.65] text-white/70 font-light md:text-[1.05rem]"
               >
-                A seamless five-stage journey guiding you from initial vision to a flawless final reveal.
+                An engineered approach to interior design. No guesswork, just predictable outcomes from first sketch to final handover.
               </motion.p>
             </div>
 
@@ -306,13 +325,11 @@ const Process = () => {
                   }}
                   aria-hidden={activeIndex !== i}
                 >
-                  <Image
-                    src={step.image}
+                  <MediaSlot
+                    assetKey={step.assetKey}
+                    fallbackUrl={step.image}
                     alt={step.imageAlt}
-                    width={1600}
-                    height={1000}
-                    className="h-full w-full"
-                    imageClassName="object-cover"
+                    className="h-full w-full object-cover"
                   />
                   {/* Overlay gradients */}
                   <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
@@ -452,7 +469,7 @@ const Process = () => {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: serializeJsonLd({
             "@context": "https://schema.org",
             "@type": "FAQPage",
             mainEntity: steps.map((step) => ({
@@ -463,7 +480,7 @@ const Process = () => {
                 text: `${step.description} ${step.detail}`,
               },
             })),
-          }).replace(/<\/script/gi, '<\\/script'),
+          }),
         }}
       />
     </section>

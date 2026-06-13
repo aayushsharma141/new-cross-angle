@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Stage } from "@/types/discovery";
 import { cn } from "@/lib/utils";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import logoIcon from "@/assets/logo-icon.png";
 
 const SIDEBAR_STAGES: { stage: Stage; label: string; eyebrow: string }[] = [
@@ -43,12 +44,14 @@ export const DiscoveryProgressSidebar = ({
     archetype,
     onNavigate,
 }: DiscoveryProgressSidebarProps) => {
+    const { settings } = useSiteSettings();
+    const logoUrl = settings?.company_logo_url || settings?.logo_light_url || logoIcon;
     const progress = getProgress(currentStage);
 
     return (
         <aside aria-label="Discovery progress" className="hidden md:flex flex-col bg-[#ffffff] border-r border-[#e8e4dd] p-8 sticky top-0 h-[100dvh] overflow-y-auto w-[280px] shrink-0">
             <div className="flex items-center gap-2 text-[14px] tracking-[0.08em] uppercase text-[#8b6f47] font-semibold mb-8">
-                <img src={logoIcon} alt="CrossAngle Logo" className="h-5 w-auto shrink-0 animate-in fade-in duration-300" />
+                <img src={logoUrl} alt="CrossAngle Logo" className="h-6 w-6 object-contain shrink-0 animate-in fade-in duration-300" />
                 <span>Aesthetic Discovery</span>
             </div>
             
@@ -58,6 +61,7 @@ export const DiscoveryProgressSidebar = ({
                     <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-[#5a5a5a]">Journey</span>
                     <motion.span
                         key={progress}
+                        aria-live="polite"
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="text-[10px] font-mono text-[#8b6f47] font-semibold"
@@ -143,6 +147,7 @@ export const DiscoveryProgressSidebar = ({
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
+                        aria-live="polite"
                         className="shrink-0 mt-6 p-4 border border-[#e8e4dd] bg-kiro-accentSoft rounded-[8px] relative overflow-hidden"
                     >
                         <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-[#8b6f47] font-semibold block mb-1">

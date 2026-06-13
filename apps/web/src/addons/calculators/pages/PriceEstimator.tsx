@@ -20,6 +20,8 @@ import { CostEstimator } from "@/addons/calculators/components/CostEstimator";
 import { EstimatorBackground } from "@/addons/_shared/components/backgrounds/EstimatorBackground";
 import { loadDiscoveryResult } from "@/addons/discovery/core/persistence";
 import { ECOSYSTEM_COPY, ECOSYSTEM_ROUTES } from "@/addons/_shared/ecosystemCopy";
+import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
+import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
 
 const CostEstimatorPage = () => {
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
@@ -71,12 +73,21 @@ const CostEstimatorPage = () => {
 
   if (selectedPath) {
     return (
-      <div className="h-screen w-full bg-[#faf8f5] overflow-hidden relative">
+      <main id="main-content" className="h-screen w-full bg-[#faf8f5] overflow-hidden relative">
         <Helmet>
           <title>Interior Cost Estimator | Cross Angle Interior</title>
+          <meta property="og:title" content="Interior Cost Estimator | Cross Angle Interior" />
+          <meta property="og:description" content="Estimate your interior design project cost — personalized for your style and scope." />
+          <meta property="og:type" content="website" />
+          <meta property="og:url" content="https://crossangleinterior.com/estimate" />
+          <link rel="canonical" href="https://crossangleinterior.com/estimate" />
         </Helmet>
+        <a href="/" aria-label="Return to CrossAngle Home" className="fixed top-4 left-4 z-[60] text-xs text-[#8b6f47] hover:text-[#6b5537] transition-colors bg-white/80 backdrop-blur-sm px-3 py-2 rounded-full shadow-sm border border-[#e8dcc8] flex items-center gap-1.5">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
+          Home
+        </a>
         <CostEstimator onBack={() => setSelectedPath(null)} />
-      </div>
+      </main>
     );
   }
 
@@ -88,9 +99,24 @@ const CostEstimatorPage = () => {
           name="description"
           content="Turn your Discovery Blueprint into a personalized interior estimate, or start with a direct scope-based estimate."
         />
+        <meta property="og:title" content="Interior Cost Estimator | Cross Angle Interior" />
+        <meta property="og:description" content="Turn your Discovery Blueprint into a personalized interior estimate, or start with a direct scope-based estimate." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://crossangleinterior.com/estimate" />
+        <link rel="canonical" href="https://crossangleinterior.com/estimate" />
       </Helmet>
       
-      <main className="min-h-screen flex flex-col relative z-10 bg-[#faf8f5] overflow-x-hidden">
+      <SchemaMarkup
+        type="BreadcrumbList"
+        data={{
+          items: [
+            { name: "Home", url: "/" },
+            { name: "Cost Estimator", url: "/estimator" }
+          ]
+        }}
+      />
+
+      <main id="main-content" className="min-h-screen flex flex-col relative z-10 bg-[#faf8f5] overflow-x-hidden">
         
         {/* Nav Header (Standalone) */}
         <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4">
@@ -127,6 +153,8 @@ const CostEstimatorPage = () => {
             >
               <section className="relative flex flex-col items-center justify-center max-w-4xl mx-auto text-center px-6">
                 
+                <SiteBreadcrumb items={[{ label: "Cost Estimator" }]} className="mb-4" />
+
                 {/* Urgency badge */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}

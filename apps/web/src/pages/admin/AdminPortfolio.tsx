@@ -1,16 +1,12 @@
 import { useState, useMemo, useEffect, useRef, JSX } from "react";
 import { useSearchParams } from "react-router-dom";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/primitives/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { projectRepo } from "@/repositories";
 import { PortfolioFormDialog } from "@/components/admin/portfolio/PortfolioFormDialog";
-import { 
-  AdminPageHeader,
-  AdminMetricsPanel,
-  AdminFilterBar,
-  AdminSafeAction,
-  AdminEmptyState,
-  AdminSkeletonCard
-} from "@/components/admin/shared";
+import { AdminMetricsPanel, AdminFilterBar, AdminSafeAction, AdminEmptyState, AdminSkeletonCard } from "@/components/admin/shared";
+import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { Pencil, Trash2, Image as ImageIcon, Star, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
@@ -25,6 +21,7 @@ export default function AdminPortfolio(): JSX.Element {
   const deepLinkHandled = useRef(false);
 
   const [statusFilter, setStatusFilter] = useState<ProjectFilter>("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ProjectWithCategory | null>(null);
 
@@ -49,12 +46,16 @@ export default function AdminPortfolio(): JSX.Element {
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
+      const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            (project.client_name?.toLowerCase() || "").includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+      
       if (statusFilter === "Published") return project.status === "live";
       if (statusFilter === "Drafts") return project.status !== "live";
       if (statusFilter === "Featured") return project.featured;
       return true; // "All"
     });
-  }, [projects, statusFilter]);
+  }, [projects, statusFilter, searchQuery]);
 
   const activeCount = projects.filter(p => p.status === 'live').length;
   const draftCount = projects.length - activeCount;
@@ -101,7 +102,7 @@ export default function AdminPortfolio(): JSX.Element {
           .fade-up-4 { animation: fadeUp var(--anim-duration) var(--anim-stagger-4) var(--anim-ease) both; }
       `}</style>
       
-      <AdminPageHeader moduleName="CMS" tabName="Portfolio" />
+      
 
       <div className="fade-up-1">
           <AdminMetricsPanel metrics={metrics} />
@@ -115,6 +116,8 @@ export default function AdminPortfolio(): JSX.Element {
               filters={["All", "Published", "Drafts", "Featured"]}
               activeFilter={statusFilter}
               onFilterChange={(f) => setStatusFilter(f as ProjectFilter)}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
           />
       </div>
 

@@ -1,11 +1,12 @@
 import { useState, lazy, Suspense } from "react";
 import { cn } from "@/lib/utils";
-import { Home, LayoutList, Wrench, Sparkles, IndianRupee, Loader2 } from "lucide-react";
+import { Home, LayoutList, Wrench, Sparkles, IndianRupee, Loader2, BarChart3 } from "lucide-react";
+import { PosthogFunnelChart } from "@/components/admin/analytics/PosthogFunnelChart";
 import { PropertyTypesEditor } from "@/components/admin/estimator-flow/PropertyTypesEditor";
 import { DetailsEditor } from "@/components/admin/estimator-flow/DetailsEditor";
 import { ServicesEditor } from "@/components/admin/estimator-flow/ServicesEditor";
 import { AddonsEditor } from "@/components/admin/estimator-flow/AddonsEditor";
-import { AdminPageHeader } from "@/components/admin/shared";
+
 
 const AdminEstimateRates = lazy(() => import("./AdminEstimateRates"));
 
@@ -23,7 +24,7 @@ export default function AdminEstimateFlow() {
   const [tab, setTab] = useState<TabId>("pricing");
 
   return (
-    <div className="flex flex-col space-y-6">
+      <div className="flex flex-col space-y-4">
       <style>{`
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(12px); }
@@ -33,9 +34,19 @@ export default function AdminEstimateFlow() {
         .fade-up-2 { animation: fadeUp var(--anim-duration) var(--anim-stagger-2) var(--anim-ease) both; }
       `}</style>
       
-      <AdminPageHeader moduleName="Estimator" tabName="Rates & Logic" />
-
+      
       <div className="fade-up-1">
+        {/* PostHog Engine Funnel summary */}
+        <div className="mb-6 rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6">
+          <h3 className="text-sm font-bold text-[hsl(var(--admin-text))] mb-1 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-blue-400" /> Estimator Engine Funnel (PostHog)
+          </h3>
+          <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-4">PostHog conversion metrics (Last 30 Days)</p>
+          <div className="h-[200px]">
+            <PosthogFunnelChart action="funnel-estimator" color="blue" />
+          </div>
+        </div>
+
         {/* Sub-tabs */}
         <div className="flex gap-1 border-b border-[hsl(var(--admin-border))]/50 overflow-x-auto">
         {TABS.map((t) => (

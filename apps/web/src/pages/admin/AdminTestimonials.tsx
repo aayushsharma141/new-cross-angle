@@ -5,14 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/useToast";
 import { usePermissions } from "@/hooks/usePermissions";
 import { auditService } from "@/services/AuditService";
-import { 
-  AdminPageHeader, 
-  AdminMetricsPanel, 
-  AdminFilterBar, 
-  AdminEmptyState, 
-  AdminSafeAction, 
-  AdminSkeletonCard 
-} from "@/components/admin/shared";
+import { AdminMetricsPanel, AdminFilterBar, AdminEmptyState, AdminSafeAction, AdminSkeletonCard } from "@/components/admin/shared";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { TestimonialFormDialog, type TestimonialFormData } from "@/components/admin/testimonials/TestimonialFormDialog";
 import type { Testimonial } from "@/components/admin/testimonials/TestimonialsTable";
@@ -33,6 +26,7 @@ const AdminTestimonials = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<TestimonialStatus>("All");
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Dialog state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -144,10 +138,19 @@ const AdminTestimonials = () => {
   ];
 
   const filteredTestimonials = useMemo(() => {
-    if (statusFilter === "Active") return testimonials.filter(t => t.active);
-    if (statusFilter === "Hidden") return testimonials.filter(t => !t.active);
-    return testimonials;
-  }, [testimonials, statusFilter]);
+    let result = testimonials;
+    if (statusFilter === "Active") result = result.filter(t => t.active);
+    if (statusFilter === "Hidden") result = result.filter(t => !t.active);
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter(t => 
+        t.author_name.toLowerCase().includes(lowerQuery) || 
+        (t.author_role && t.author_role.toLowerCase().includes(lowerQuery)) ||
+        (t.city && t.city.toLowerCase().includes(lowerQuery))
+      );
+    }
+    return result;
+  }, [testimonials, statusFilter, searchQuery]);
 
   return (
     <div className="w-full font-mono">
@@ -162,8 +165,7 @@ const AdminTestimonials = () => {
         .fade-up-4 { animation: fadeUp var(--anim-duration) var(--anim-stagger-4) var(--anim-ease) both; }
       `}</style>
       
-      <AdminPageHeader moduleName="CMS" tabName="Testimonials" />
-
+      
       <div className="fade-up-1">
         <AdminMetricsPanel metrics={metrics} />
       </div>
@@ -176,6 +178,8 @@ const AdminTestimonials = () => {
           filters={["All", "Active", "Hidden"]}
           activeFilter={statusFilter}
           onFilterChange={(f) => setStatusFilter(f as TestimonialStatus)}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
       </div>
 

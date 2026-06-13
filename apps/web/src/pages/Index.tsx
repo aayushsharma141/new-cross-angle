@@ -23,7 +23,105 @@ const Process          = lazy(() => import("@/components/home/Process"));
 const EstimatorPromo   = lazy(() => import("@/components/home/EstimatorPromo"));
 const About            = lazy(() => import("@/components/home/About"));
 
+import { useState, useEffect } from "react";
+
 const Index = () => {
+  const [layoutVariant, setLayoutVariant] = useState<'A' | 'B'>('A');
+
+  useEffect(() => {
+    // Check URL params first
+    const params = new URLSearchParams(window.location.search);
+    const layoutParam = params.get("layout");
+    if (layoutParam === "B" || layoutParam === "b") {
+      setLayoutVariant('B');
+      return;
+    }
+    if (layoutParam === "A" || layoutParam === "a") {
+      setLayoutVariant('A');
+      return;
+    }
+    
+    // Simple 50/50 split stored in localStorage
+    const storedVariant = localStorage.getItem("homepage_layout_variant");
+    if (storedVariant === 'A' || storedVariant === 'B') {
+      setLayoutVariant(storedVariant);
+    } else {
+      const newVariant = Math.random() > 0.5 ? 'A' : 'B';
+      localStorage.setItem("homepage_layout_variant", newVariant);
+      setLayoutVariant(newVariant);
+    }
+  }, []);
+
+  // Variant A: Portfolio -> Process -> BeforeAfterShowcase -> ProjectFailurePrevention -> Testimonials -> Services -> EstimatorPromo -> About
+  // Variant B: Process -> ProjectFailurePrevention -> Portfolio -> BeforeAfterShowcase -> Testimonials -> Services -> EstimatorPromo -> About
+
+  const sections = {
+    portfolio: (
+      <LazySection key="portfolio" id="portfolio" className="bg-neutral-950 border-t border-white/[0.05]" minHeight={1000} rootMargin="300px 0px">
+        <Portfolio />
+      </LazySection>
+    ),
+    process: (
+      <LazySection key="process" id="process" className="bg-site-bg border-t border-white/[0.05]" minHeight={800} rootMargin="300px 0px">
+        <Process />
+      </LazySection>
+    ),
+    beforeAfter: (
+      <LazySection key="before-after" id="before-after" className="bg-[#060504] border-t border-white/[0.05]" minHeight={750} rootMargin="300px 0px">
+        <BeforeAfterShowcase />
+      </LazySection>
+    ),
+    prevention: (
+      <LazySection key="prevention" id="prevention" className="bg-[#050505] border-t border-white/[0.05]" minHeight={800} rootMargin="300px 0px">
+        <ProjectFailurePrevention />
+      </LazySection>
+    ),
+    testimonials: (
+      <LazySection key="testimonials" id="testimonials" className="bg-[#080807] border-t border-white/[0.05]" minHeight={700} rootMargin="300px 0px">
+        <Testimonials />
+      </LazySection>
+    ),
+    services: (
+      <LazySection key="services" id="services" className="bg-black border-t border-white/[0.05]" minHeight={900} rootMargin="300px 0px">
+        <Services />
+      </LazySection>
+    ),
+    estimator: (
+      <LazySection key="estimator" id="estimator" className="bg-black border-t border-white/[0.05]" minHeight={600} rootMargin="300px 0px">
+        <EstimatorPromo />
+      </LazySection>
+    ),
+    about: (
+      <LazySection key="about" id="about" className="bg-site-bg-section border-t border-white/[0.05]" minHeight={800} rootMargin="300px 0px">
+        <About />
+      </LazySection>
+    )
+  };
+
+  const layoutA = [
+    sections.portfolio,
+    sections.process,
+    sections.beforeAfter,
+    sections.prevention,
+    sections.testimonials,
+    sections.services,
+    sections.estimator,
+    sections.about
+  ];
+
+  const layoutB = [
+    sections.process,
+    sections.prevention,
+    sections.portfolio,
+    sections.beforeAfter,
+    sections.testimonials,
+    sections.services,
+    sections.estimator,
+    sections.about
+  ];
+
+  const currentLayout = layoutVariant === 'B' ? layoutB : layoutA;
+
   return (
     <>
       <Helmet>
@@ -63,87 +161,8 @@ const Index = () => {
 
         {/* Content slides OVER the hero as you scroll (curtain effect) */}
         <div className="relative z-10">
-
-          {/* 2. Services Offered */}
-          <LazySection
-            id="services"
-            className="bg-black border-t border-white/[0.05]"
-            minHeight={900}
-            rootMargin="300px 0px"
-          >
-            <Services />
-          </LazySection>
-
-          {/* 3. Portfolio Showcase */}
-          <LazySection
-            id="portfolio"
-            className="bg-neutral-950 border-t border-white/[0.05]"
-            minHeight={1000}
-            rootMargin="300px 0px"
-          >
-            <Portfolio />
-          </LazySection>
-
-          {/* 4. Before & After Slides */}
-          <LazySection
-            id="before-after"
-            className="bg-[#060504] border-t border-white/[0.05]"
-            minHeight={750}
-            rootMargin="300px 0px"
-          >
-            <BeforeAfterShowcase />
-          </LazySection>
-
-          {/* 5. Project Failure Prevention (Differentiation, Empathy, Trust & Brands) */}
-          <LazySection
-            id="prevention"
-            className="bg-[#050505] border-t border-white/[0.05]"
-            minHeight={800}
-            rootMargin="300px 0px"
-          >
-            <ProjectFailurePrevention />
-          </LazySection>
-
-          {/* 6. Testimonials */}
-          <LazySection
-            id="testimonials"
-            className="bg-[#080807] border-t border-white/[0.05]"
-            minHeight={700}
-            rootMargin="300px 0px"
-          >
-            <Testimonials />
-          </LazySection>
-
-          {/* 7. Methodology Process */}
-          <LazySection
-            id="process"
-            className="bg-site-bg border-t border-white/[0.05]"
-            minHeight={800}
-            rootMargin="300px 0px"
-          >
-            <Process />
-          </LazySection>
-
-          {/* 8. Cost Estimator Teaser */}
-          <LazySection
-            id="estimator"
-            className="bg-black border-t border-white/[0.05]"
-            minHeight={600}
-            rootMargin="300px 0px"
-          >
-            <EstimatorPromo />
-          </LazySection>
-
-          {/* 9. Founder Note + Studio Stats */}
-          <LazySection
-            id="about"
-            className="bg-site-bg-section border-t border-white/[0.05]"
-            minHeight={800}
-            rootMargin="300px 0px"
-          >
-            <About />
-          </LazySection>
-
+          {/* Render the sections based on A/B test variant */}
+          {currentLayout}
         </div>
       </main>
       <Footer />

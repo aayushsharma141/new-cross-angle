@@ -1,16 +1,17 @@
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { Check } from "lucide-react";
 import { useRef } from "react";
-import { Image } from "@/components/ui/enhanced/image";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 
 interface ImageOptionProps {
   label: string;
   imageSrc: string;
+  assetKey?: string;
   isActive: boolean;
   onClick: () => void;
 }
 
-const ImageOption = ({ label, imageSrc, isActive, onClick }: ImageOptionProps) => {
+const ImageOption = ({ label, imageSrc, assetKey, isActive, onClick }: ImageOptionProps) => {
   const ref = useRef<HTMLButtonElement>(null);
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
@@ -57,14 +58,11 @@ const ImageOption = ({ label, imageSrc, isActive, onClick }: ImageOptionProps) =
           }
         `}
       >
-        <Image
-          src={imageSrc}
+        <MediaSlot
+          assetKey={assetKey || `discovery_reflect-${label.replace(/\s+/g, '-').toLowerCase()}`}
+          fallbackUrl={imageSrc}
           alt={label}
-          className="h-full w-full"
-          imageClassName="transition-transform duration-500 group-hover:scale-105"
-          width={560}
-          height={420}
-          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {/* Gradient overlay at bottom for caption */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />

@@ -11,11 +11,16 @@ const OurProcessPage = () => {
       <Helmet>
         <title>Our Process | Cross Angle Interior</title>
         <meta name="description" content="Discover our turnkey execution process from discovery and planning to material selection and final delivery. We design and deliver complete environments." />
+        <meta property="og:title" content="Our Process | Cross Angle Interior" />
+        <meta property="og:description" content="Discover our turnkey execution process — from discovery and planning to material selection and final delivery." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://crossangleinterior.com/our-process" />
+        <link rel="canonical" href="https://crossangleinterior.com/our-process" />
       </Helmet>
       
       <Navbar />
 
-      <main className="bg-[#020202] min-h-screen pt-32 md:pt-40">
+      <main id="main-content" className="bg-[#020202] min-h-screen pt-32 md:pt-40">
         <div className="max-w-[1400px] mx-auto px-6 mb-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

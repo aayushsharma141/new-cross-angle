@@ -62,14 +62,14 @@ export const BeforeAfterShowcase = () => {
   const goPrev = () => setActiveIndex((i) => (i - 1 + stories.length) % stories.length);
 
   return (
-    <section className="py-20 lg:py-28 bg-[#060504] relative overflow-hidden">
+    <section className="py-section-y bg-[#060504] relative overflow-hidden">
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 -left-32 w-[40rem] h-[40rem] bg-site-crimson/4 rounded-full blur-[150px]" />
         <div className="absolute bottom-1/4 -right-32 w-[40rem] h-[40rem] bg-site-gold/4 rounded-full blur-[150px]" />
       </div>
 
-      <div className="container mx-auto px-6 lg:px-12 relative z-10">
+      <div className="container mx-auto relative z-10">
         {/* Section Header */}
         <div className="max-w-3xl mb-14">
           <div className="flex items-center gap-4 mb-6">

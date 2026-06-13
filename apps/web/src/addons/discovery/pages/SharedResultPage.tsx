@@ -41,16 +41,13 @@ export default function SharedResultPage() {
 
   useEffect(() => {
     if (!slug) { setError(true); setLoading(false); return; }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any)
+    supabase
       .from("quiz_results")
       .select("*")
       .eq("slug", slug)
       .single()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then((res: any) => {
-        const { data, error: err } = res;
-        if (err || !data) { setError(true); setLoading(false); return; }
+      .then(({ data, error }) => {
+        if (error || !data) { setError(true); setLoading(false); return; }
         const s = data.scores as AestheticScores;
         setScores(s);
         setArchetype(getArchetype(s));
@@ -73,9 +70,9 @@ export default function SharedResultPage() {
       <Helmet>
         <title>Loading Aesthetic Blueprint… | Cross Angle Interior</title>
       </Helmet>
-      <div className="min-h-screen bg-site-bg flex items-center justify-center">
+      <main id="main-content" className="min-h-screen bg-site-bg flex items-center justify-center">
         <div className="w-10 h-10 border border-site-border border-t-site-gold rounded-full animate-spin" />
-      </div>
+      </main>
     </>
   );
 
@@ -85,15 +82,15 @@ export default function SharedResultPage() {
         <title>Aesthetic Blueprint Not Found | Cross Angle Interior</title>
         <meta name="robots" content="noindex" />
       </Helmet>
-      <div className="min-h-screen bg-site-bg flex flex-col items-center justify-center gap-4 text-white">
+      <main id="main-content" className="min-h-screen bg-site-bg flex flex-col items-center justify-center gap-4 text-white">
         <p className="text-lg">Result not found</p>
         <a href="/aesthetic-discovery-engine" className="text-[#c9a96e] underline text-sm">Discover your aesthetic yourself →</a>
-      </div>
+      </main>
     </>
   );
 
   return (
-    <div className="min-h-screen bg-site-bg">
+    <main id="main-content" className="min-h-screen bg-site-bg">
       <Helmet>
         {/* Primary */}
         <title>{displayName} — Aesthetic Discovery Engine | Cross Angle Interior</title>
@@ -149,6 +146,6 @@ export default function SharedResultPage() {
           signals={initialSignals}
         />
       </Suspense>
-    </div>
+    </main>
   );
 }

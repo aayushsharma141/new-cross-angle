@@ -29,10 +29,10 @@ export function AdminSafeAction({
       // On success, the parent usually removes the component from the DOM.
       // If not, we could transition to a success state or back to idle.
       setState("idle");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Action failed:", error);
       setState("idle");
-      setErrorMsg(error?.message || "Action failed. Please try again.");
+      setErrorMsg(error instanceof Error ? error.message : "Action failed. Please try again.");
       
       // Clear error after 5 seconds
       setTimeout(() => {

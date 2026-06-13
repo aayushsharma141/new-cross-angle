@@ -1,3 +1,4 @@
+import React from 'react';
 import { Component, ReactNode } from "react";
 import { AlertTriangle, RefreshCw, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";

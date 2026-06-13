@@ -19,8 +19,8 @@ import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
 import { AdminPageHeader, AdminMetricsPanel, type AdminMetric } from '@/components/admin/shared';
 import { auditService } from '@/services/AuditService';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from 'recharts';
+import { format, subDays } from 'date-fns';
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell, AreaChart, Area, CartesianGrid } from 'recharts';
 
 type Lead = Database['public']['Tables']['leads']['Row'];
 type EstimateLeadStatus = 'new' | 'contacted' | 'qualified' | 'won' | 'lost';
@@ -143,6 +143,41 @@ export default function AdminEstimateLeads() {
     else { setSortField(field); setSortDir('desc'); }
   };
 
+  const { data: funnelData, isLoading: funnelLoading } = useQuery({
+    queryKey: ['estimator-funnel'],
+    queryFn: async () => {
+      const fromIso = subDays(new Date(), 30).toISOString();
+      const toIso = new Date().toISOString();
+      const res = await supabase.functions.invoke("posthog-query", {
+        body: { action: "funnel-estimator", from: fromIso, to: toIso }
+      });
+      if (res.error) throw res.error;
+      const labels: Record<string, string> = {
+        calculator_started: 'Started',
+        calculator_step_1: 'Property Details',
+        calculator_step_2: 'Condition',
+        calculator_step_3: 'Services',
+        calculator_step_4: 'Review',
+        calculator_complete: 'Completed'
+      };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const rawData = (res.data || []).map((d: any) => ({
+        step: labels[d.step] || d.step,
+        count: d.count,
+        rawStep: d.step
+      }));
+      const sortOrder = ['Started', 'Property Details', 'Condition', 'Services', 'Review', 'Completed'];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return rawData.sort((a: any, b: any) => {
+        let iA = sortOrder.indexOf(a.step);
+        let iB = sortOrder.indexOf(b.step);
+        if (iA === -1) iA = 99;
+        if (iB === -1) iB = 99;
+        return iA - iB;
+      });
+    }
+  });
+
   if (isLoading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-[hsl(var(--admin-primary))]" /></div>;
   if (error) return <div className="text-center py-20 text-[hsl(var(--admin-danger))]">Error: {(error as Error).message}</div>;
 
@@ -196,6 +231,33 @@ export default function AdminEstimateLeads() {
           </ResponsiveContainer>
         </div>
       )}
+
+      {/* PostHog Funnel */}
+      {funnelData && funnelData.length > 0 && (
+        <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-widest flex items-center gap-2"><Target className="w-3.5 h-3.5"/>Estimator Funnel (30d)</h3>
+            {funnelLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-[hsl(var(--admin-text-muted))]" />}
+          </div>
+          <div className="h-[120px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={funnelData}>
+                <defs>
+                  <linearGradient id="funnelColor" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--admin-primary))" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="hsl(var(--admin-primary))" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--admin-border))" />
+                <XAxis dataKey="step" axisLine={false} tickLine={false} tick={{ fill: 'hsl(var(--admin-text-muted))', fontSize: 10 }} dy={10} />
+                <Tooltip contentStyle={{ background: 'hsl(var(--admin-card))', border: '1px solid hsl(var(--admin-border))', borderRadius: 8, fontSize: 12 }} />
+                <Area type="monotone" dataKey="count" stroke="hsl(var(--admin-primary))" strokeWidth={2} fillOpacity={1} fill="url(#funnelColor)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">

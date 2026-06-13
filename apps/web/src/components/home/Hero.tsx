@@ -1,10 +1,10 @@
-import { ArrowRight, Sparkles, MapPin, Star } from "lucide-react";
+import { ArrowRight, Sparkles, MapPin, Star, ShieldCheck } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
-import { Image } from "@/components/ui/enhanced/image";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 
 /* ─── Types ─── */
 type AnimationEffect = "none" | "ken-burns-in" | "ken-burns-out" | "pan-left" | "pan-right" | "pan-up" | "pan-down" | "zoom-pan";
@@ -220,15 +220,11 @@ const Hero = () => {
       <div className="absolute inset-0 overflow-hidden">
         {/* Static fallback while CMS loads */}
         {mediaItems.length === 0 && (
-          <Image
-            src="/hero_reality_render_1775299733746.png"
+          <MediaSlot
+            assetKey="home_hero_bg"
+            fallbackUrl="/hero_reality_render_1775299733746.png"
             alt=""
-            width={1920}
-            height={1080}
-            className="absolute inset-0 w-full h-full"
-            imageClassName="object-cover"
-            loading="eager"
-            fetchPriority="high"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         )}
 
@@ -291,24 +287,25 @@ const Hero = () => {
             </motion.span>
 
             <div className="mb-6">
-              <motion.h1
-                variants={itemUp}
-                className="hero-title font-display text-fluid-h1 font-semibold text-white max-w-full sm:max-w-[12ch]"
-                style={{ textShadow: "0 10px 38px rgba(0,0,0,0.42), 0 2px 10px rgba(0,0,0,0.24)" }}
-              >
-                <span className="text-[#F9F6F0]">Design Your</span>
-                <br />
-                <span
-                  className="hero-title-accent text-transparent bg-clip-text drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-                  style={{
-                    backgroundImage: "linear-gradient(to bottom, #FFFFFF 0%, #EAD5B7 30%, #C39E5C 70%, #8C6730 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
+              <motion.div variants={itemUp}>
+                <h1
+                  className="hero-title font-display text-fluid-h1 font-semibold text-white max-w-full sm:max-w-[12ch]"
+                  style={{ textShadow: "0 10px 38px rgba(0,0,0,0.42), 0 2px 10px rgba(0,0,0,0.24)" }}
                 >
-                  Dream Home.
-                </span>
-              </motion.h1>
+                  <span className="text-[#F9F6F0]">Engineered</span>
+                  <br />
+                  <span
+                    className="hero-title-accent text-transparent bg-clip-text drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+                    style={{
+                      backgroundImage: "linear-gradient(to bottom, #FFFFFF 0%, #EAD5B7 30%, #C39E5C 70%, #8C6730 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}
+                  >
+                    Interiors.
+                  </span>
+                </h1>
+              </motion.div>
             </div>
 
             <motion.p
@@ -316,9 +313,7 @@ const Hero = () => {
               className="hero-body-text home-body text-base md:text-lg lg:text-xl mb-10 max-w-[35rem]"
               style={{ textShadow: "0 1px 10px rgba(0,0,0,0.45)" }}
             >
-              We design and build premium, move-in-ready spaces. Enjoy a
-              seamless journey from initial sketch to final hand-over, backed
-              by our 45-day completion guarantee.
+              We treat interior design as an engineering challenge, not just decoration. Enjoy predictable outcomes and zero guesswork, backed by our 45-day completion guarantee.
             </motion.p>
 
             <motion.div variants={itemUp} className="flex flex-col sm:flex-row gap-4 mb-8">
@@ -355,6 +350,15 @@ const Hero = () => {
                 <Star className="h-3.5 w-3.5 fill-[#D1AF6E] text-[#D1AF6E]" />
                 <span className="text-[#D1AF6E] font-bold">4.9</span>
                 <span className="text-white/70">· 200+ Google Reviews</span>
+              </motion.span>
+              {/* 45-Day Guarantee chip */}
+              <motion.span
+                variants={popIn}
+                className="hero-trust-chip home-chip bg-site-crimson/15 backdrop-blur-md border-site-crimson/30 flex items-center gap-1.5"
+              >
+                <ShieldCheck className="h-3.5 w-3.5 text-site-crimson" />
+                <span className="text-white font-semibold">45-Day</span>
+                <span className="text-white/80">Delivery Guarantee</span>
               </motion.span>
             </motion.div>
           </motion.div>

@@ -1,8 +1,6 @@
 import { DiscoveryAddon } from "@/addons/discovery";
 import { Helmet } from "react-helmet-async";
 
-import { Link } from "react-router-dom";
-import logoIcon from "@/assets/logo-icon.png";
 
 const DiscoveryPage = () => {
     return (

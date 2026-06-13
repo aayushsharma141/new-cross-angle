@@ -25,6 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
 import { Image } from "@/components/ui/enhanced/image";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import logoIcon from "@/assets/logo-icon.png";
 
 type AuthView = 'login' | 'forgot' | 'check-email' | 'reset-password' | 'reset-success' | 'expired' | 'logged-out';
@@ -47,6 +48,8 @@ function getInitialView(): AuthView {
 
 const AdminAuth: React.FC = () => {
   const [view, setView] = useState<AuthView>(getInitialView);
+  const { settings } = useSiteSettings();
+  const logoUrl = settings?.company_logo_url || settings?.logo_light_url || logoIcon;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -280,7 +283,7 @@ const AdminAuth: React.FC = () => {
             aria-label="Return to CrossAngle Home"
           >
             <img 
-              src={logoIcon} 
+              src={logoUrl} 
               alt="Cross Angle Interior" 
               className="h-11 md:h-16 w-auto transition-all duration-500 shrink-0" 
             />

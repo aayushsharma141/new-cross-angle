@@ -295,8 +295,10 @@ export default {
               'fluid-h2': ['clamp(2rem, 5vw, 4rem)', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
             },
             spacing: {
-              'fluid-py': 'clamp(5rem, 12vh, 10rem)',
-              'fluid-pt': 'clamp(7rem, 15vh, 12rem)',
+              'fluid-py':    'clamp(5rem, 12vh, 10rem)',
+              'fluid-pt':    'clamp(7rem, 15vh, 12rem)',
+              'section-y':   'clamp(5rem, 10vw, 9rem)',
+              'section-top': 'clamp(6rem, 13vh, 11rem)',
             }
         }
     },

@@ -1,0 +1,96 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
+
+interface MediaSlotProps {
+  assetKey: string;
+  className?: string;
+  fallbackUrl?: string;
+  alt?: string;
+  onLoad?: () => void;
+}
+
+export function MediaSlot({ assetKey, className, fallbackUrl, alt, onLoad }: MediaSlotProps) {
+  const [media, setMedia] = useState<{ url: string; mime_type: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadMedia() {
+      try {
+        const result = await supabase
+          .from("site_media_assets" as any)
+          .select("media_files(url, mime_type)")
+          .eq("asset_key", assetKey)
+          .maybeSingle();
+          
+        const data = result.data as any;
+        if (data?.media_files) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setMedia(data.media_files as any);
+        }
+      } catch (err) {
+        console.error(`Error loading media slot for ${assetKey}:`, err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadMedia();
+  }, [assetKey]);
+
+  if (isLoading) {
+    // Show a pulsing skeleton while we check if there's a mapped asset
+    return <div className={cn("animate-pulse bg-muted rounded-md", className)} />;
+  }
+
+  const url = media?.url || fallbackUrl;
+  const isVideo = media?.mime_type?.startsWith("video") || url?.match(/\.(mp4|webm|ogg)$/i);
+
+  if (!url) {
+    // If no media mapped and no fallback provided
+    return (
+      <div className={cn("bg-muted border border-dashed rounded-md flex items-center justify-center text-muted-foreground", className)}>
+        No Media Mapped
+      </div>
+    );
+  }
+
+  if (isVideo) {
+    // Auto-generate a high-quality video thumbnail from ImageKit for fast loading/buffering
+    const isImageKit = url.includes("ik.imagekit.io");
+    let poster = undefined;
+    if (isImageKit) {
+      // ImageKit transformation: Start Offset (so) 1 grabs the frame at 1 second
+      // We also add w-1920 to ensure it's a high-res placeholder
+      poster = url.replace('cross-angle/', 'cross-angle/tr:so-1,w-1920/');
+    }
+
+    return (
+      <video
+        src={url}
+        className={cn("w-full h-full object-cover", className)}
+        poster={poster}
+        onLoadedData={onLoad}
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
+    );
+  }
+
+  // Handle optimized image delivery for 4K
+  let optimizedUrl = url;
+  if (url.includes("ik.imagekit.io")) {
+    optimizedUrl = url.replace('cross-angle/', 'cross-angle/tr:q-100,w-1920/'); // Force max quality + ultra width
+  }
+
+  return (
+    <img
+      src={optimizedUrl}
+      alt={alt || assetKey}
+      className={cn("w-full h-full object-cover", className)}
+      loading="lazy"
+      onLoad={onLoad}
+    />
+  );
+}

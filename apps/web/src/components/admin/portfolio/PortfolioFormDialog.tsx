@@ -1,5 +1,6 @@
+import React from 'react';
 import { useState, useRef, useEffect } from "react";
-import { Loader2, Upload, X, ImagePlus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import { Textarea } from "@/components/ui/primitives/textarea";
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/primitives/select";
 import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
-import MediaPickerModal from "@/components/admin/MediaPickerModal";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { portfolioSchema, formatZodErrors } from "@/lib/validation/validations";
 import { Switch } from "@/components/ui/primitives/switch";
 import { getOptimizedUrl } from "@/lib/cdn";
@@ -43,7 +44,7 @@ interface ProjectDescription {
 interface ProjectRow {
     id: string;
     title: string;
-    slug: string;
+    slug: string | null;
     short_description?: string | null;
     category_id?: string | null;
     client_name?: string | null;
@@ -69,11 +70,7 @@ interface PortfolioFormDialogProps {
 
 export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess }: PortfolioFormDialogProps) {
     const [isSaving, setIsSaving] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
-    const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
-    const [mediaPickerTarget, setMediaPickerTarget] = useState<"cover" | "hero">("cover");
     const [categories, setCategories] = useState<Category[]>([]);
-    const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
     // Form state matching the new schema
@@ -182,39 +179,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
         }
     };
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetField: "cover_image_url" | "hero_image_url") => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        setIsUploading(true);
-
-        try {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-            const filePath = `portfolio/${fileName}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from('media')
-                .upload(filePath, file);
-
-            if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage
-                .from('media')
-                .getPublicUrl(filePath);
-
-            setFormData({ ...formData, [targetField]: publicUrl });
-            toast({ title: "Image uploaded successfully" });
-        } catch (error) {
-            toast({
-                title: "Upload failed",
-                description: (error as Error).message,
-                variant: "destructive",
-            });
-        } finally {
-            setIsUploading(false);
-        }
-    };
+    // File uploads are now handled inside MediaPickerField
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -298,7 +263,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-admin-card border-admin-border text-admin-text">
+            <DialogContent className="admin-theme max-w-4xl max-h-[90vh] overflow-y-auto bg-admin-card border-admin-border text-admin-text">
                 <DialogHeader>
                     <DialogTitle>
                         {initialData ? "Edit Project" : "New Project"}
@@ -369,7 +334,6 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                 </div>
                             </div>
 
-                            {/* Additional details */}
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="portfolio-client">Client</Label>
@@ -454,59 +418,13 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                     <Label htmlFor="portfolio-cover-image" className="text-base font-semibold text-white">Grid Cover Image</Label>
                                     <p className="text-sm text-zinc-500 mb-4">Displayed on the portfolio listing page.</p>
                                 </div>
-                                <div className="flex flex-col sm:flex-row gap-3">
-                                    <Input
+                                <div className="max-w-xl">
+                                    <MediaPickerField
                                         value={formData.cover_image_url}
-                                        onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
+                                        onChange={(url) => setFormData({ ...formData, cover_image_url: url })}
                                         placeholder="Cover Image URL"
-                                        className="flex-1"
                                     />
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="file"
-                                            ref={fileInputRef}
-                                            onChange={(e) => handleFileUpload(e, "cover_image_url")}
-                                            accept="image/*"
-                                            className="hidden"
-                                            aria-label="Upload cover image"
-                                            id="cover-upload"
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => document.getElementById('cover-upload')?.click()}
-                                            disabled={isUploading}
-                                        >
-                                            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}Upload
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => { setMediaPickerTarget("cover"); setIsMediaPickerOpen(true); }}
-                                            title="Open Media Library"
-                                        >
-                                            <ImagePlus className="w-4 h-4" />
-                                        </Button>
-                                    </div>
                                 </div>
-                                {formData.cover_image_url && (
-                                    <div className="relative mt-2 w-full max-w-sm h-48 group">
-                                        <img
-                                            src={getOptimizedUrl(formData.cover_image_url, { width: 720, quality: 76 })}
-                                            alt="Cover Preview"
-                                            className="w-full h-full object-cover rounded-xl border border-zinc-800"
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="destructive"
-                                            size="icon"
-                                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity rounded-full shadow-lg"
-                                            onClick={() => setFormData({ ...formData, cover_image_url: "" })}
-                                        >
-                                            <X className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                )}
                             </div>
 
                             {/* Project Page Hero */}
@@ -515,58 +433,13 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                     <Label htmlFor="portfolio-hero-image" className="text-base font-semibold text-white">Project Detail Hero Image</Label>
                                     <p className="text-sm text-zinc-500 mb-4">The massive banner image shown at the top of the individual project page. Falls back to Grid Cover if empty.</p>
                                 </div>
-                                <div className="flex flex-col sm:flex-row gap-3">
-                                    <Input
+                                <div className="max-w-xl">
+                                    <MediaPickerField
                                         value={formData.hero_image_url}
-                                        onChange={(e) => setFormData({ ...formData, hero_image_url: e.target.value })}
+                                        onChange={(url) => setFormData({ ...formData, hero_image_url: url })}
                                         placeholder="Hero Image URL"
-                                        className="flex-1"
                                     />
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="file"
-                                            onChange={(e) => handleFileUpload(e, "hero_image_url")}
-                                            accept="image/*"
-                                            className="hidden"
-                                            aria-label="Upload hero image"
-                                            id="hero-upload"
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => document.getElementById('hero-upload')?.click()}
-                                            disabled={isUploading}
-                                        >
-                                            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}Upload
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => { setMediaPickerTarget("hero"); setIsMediaPickerOpen(true); }}
-                                            title="Open Media Library"
-                                        >
-                                            <ImagePlus className="w-4 h-4" />
-                                        </Button>
-                                    </div>
                                 </div>
-                                {formData.hero_image_url && (
-                                    <div className="relative mt-2 w-full h-56 group">
-                                        <img
-                                            src={getOptimizedUrl(formData.hero_image_url, { width: 960, quality: 78 })}
-                                            alt="Hero Preview"
-                                            className="w-full h-full object-cover rounded-xl border border-zinc-800"
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="destructive"
-                                            size="icon"
-                                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity rounded-full shadow-lg"
-                                            onClick={() => setFormData({ ...formData, hero_image_url: "" })}
-                                        >
-                                            <X className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                )}
                             </div>
                         </TabsContent>
                     </Tabs>
@@ -582,12 +455,6 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                     </div>
                 </form>
             </DialogContent>
-
-            <MediaPickerModal
-                open={isMediaPickerOpen}
-                onOpenChange={setIsMediaPickerOpen}
-                onSelect={(url) => setFormData({ ...formData, [mediaPickerTarget === "hero" ? "hero_image_url" : "cover_image_url"]: url })}
-            />
         </Dialog>
     );
 }

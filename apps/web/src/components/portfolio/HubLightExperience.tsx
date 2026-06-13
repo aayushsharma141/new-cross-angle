@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Image } from "@/components/ui/enhanced/image";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 
 type LightMode = "day" | "evening" | "night" | "ambient";
 
@@ -74,13 +74,11 @@ const HubLightExperience = () => {
         className="relative w-full aspect-[4/3] md:aspect-[21/9] rounded-3xl overflow-hidden bg-neutral-950"
       >
         {/* Base Image */}
-        <Image
-          src="/images/projects/discovery/lifestyle-5.jpg"
+        <MediaSlot
+          assetKey="portfolio_hub_lifestyle"
+          fallbackUrl="/images/projects/discovery/lifestyle-5.jpg"
           alt="Interior lighting preview"
-          className="absolute inset-0 h-full w-full"
-          imageClassName="brightness-110"
-          width={1800}
-          height={772}
+          className="absolute inset-0 h-full w-full brightness-110"
         />
 
         {/* Overlay blend layer — transitions between modes */}

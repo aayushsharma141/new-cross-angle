@@ -36,7 +36,7 @@ export const About = () => {
               </h3>
 
               <p className="text-white/70 text-sm md:text-base leading-relaxed font-light mb-8">
-                &ldquo;We believe interior design is more than selecting colors—it is a project management and execution challenge. I started CrossAngle to bring structure, on-time delivery, and absolute price transparency to Jamshedpur home interiors. Our team handles every measurement, factory calibration, and on-site handover so you can experience a seamless transformation.&rdquo;
+                &ldquo;We believe interior design is more than selecting colors—it is an engineering and execution challenge. I started CrossAngle to bring structured processes, on-time delivery, and absolute price predictability to Jamshedpur home interiors. Our team handles every measurement, factory calibration, and on-site handover to ensure flawless outcomes.&rdquo;
               </p>
 
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 font-mono">

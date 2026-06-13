@@ -23,12 +23,12 @@ export const EstimatorPromo = () => {
               </div>
               
               <h2 className="font-display text-[clamp(2.2rem,4.5vw,3.8rem)] leading-[1.1] tracking-tight text-white mb-6">
-                What Will Your <br />
-                <span className="text-site-gold italic">Project Cost?</span>
+                Engineered for <br />
+                <span className="text-site-gold italic">Predictability.</span>
               </h2>
 
               <p className="text-white/50 text-base md:text-lg leading-relaxed mb-8 font-light">
-                Skip the vague guessing games. Use our digital cost estimator to build a detailed, line-item budget based on your property configuration, finish selections, and material preferences.
+                Because interior design is an engineering challenge, costs should be calculated, not guessed. Use our digital cost estimator to build a detailed, line-item budget based on hard data.
               </p>
 
               <div className="space-y-4 mb-10">

@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/all";
-import { Image } from "@/components/ui/enhanced/image";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
 
 // Ensure GSAP plugins are registered if in a browser environment
 if (typeof window !== "undefined") {
@@ -90,6 +91,8 @@ const ServicesHero = () => {
 
         {/* ───────── LEFT CONTENT ───────── */}
         <div className="hero-left-content w-full lg:w-[55%] xl:w-[58%] flex flex-col justify-center gap-7 px-6 sm:px-10 lg:pl-14 xl:pl-20 2xl:pl-28 lg:pr-10 py-10 lg:py-0">
+
+          <SiteBreadcrumb items={[{ label: "Services" }]} className="mb-[-1rem] mt-4" />
 
           {/* Label */}
           <motion.div
@@ -212,13 +215,11 @@ const ServicesHero = () => {
             transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
             className="absolute inset-0 bg-[#050505] overflow-hidden"
           >
-            <Image
-              src={blueprintImage}
+            <MediaSlot
+              assetKey="services_hero_blueprint"
+              fallbackUrl={blueprintImage}
               alt="Concrete Shell Blueprint"
-              className="absolute inset-0 h-full w-full"
-              imageClassName="object-cover opacity-55 grayscale w-full h-full"
-              width={1200}
-              height={900}
+              className="absolute inset-0 h-full w-full object-cover opacity-55 grayscale"
             />
             <div className="absolute inset-0 opacity-[0.04] bg-[linear-gradient(to_right,#FFFFFF_1px,transparent_1px),linear-gradient(to_bottom,#FFFFFF_1px,transparent_1px)] bg-[size:40px_40px]" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
@@ -231,13 +232,11 @@ const ServicesHero = () => {
             transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
             className="absolute inset-0 z-20 pointer-events-none overflow-hidden"
           >
-            <Image
-              src={realityImage}
+            <MediaSlot
+              assetKey="services_hero_bg"
+              fallbackUrl={realityImage}
               alt="Finished Interior"
-              className="absolute inset-0 h-full w-full"
-              imageClassName="object-cover w-full h-full"
-              width={1200}
-              height={900}
+              className="absolute inset-0 h-full w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           </motion.div>

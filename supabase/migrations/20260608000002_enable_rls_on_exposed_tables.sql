@@ -84,7 +84,7 @@ CREATE POLICY "owner_delete_comments"
   ON public.comments
   FOR DELETE
   TO authenticated
-  USING (user_id = auth.uid());
+  USING (author_id = auth.uid());
 
 -- Admins may manage all comments
 CREATE POLICY "admin_manage_all_comments"

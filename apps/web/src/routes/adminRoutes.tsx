@@ -14,20 +14,24 @@ const AdminLeads = lazy(() => import("@/pages/admin/AdminLeads"));
 const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
 const AdminMedia = lazy(() => import("@/pages/admin/AdminMedia"));
 const AdminTestimonials = lazy(() => import("@/pages/admin/AdminTestimonials"));
-const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
+const AdminUserAccessUsers = lazy(() => import("@/pages/admin/AdminUserAccessUsers"));
+const AdminUserAccessRoles = lazy(() => import("@/pages/admin/AdminUserAccessRoles"));
+const AdminUserAccessSecurity = lazy(() => import("@/pages/admin/AdminUserAccessSecurity"));
+const UserAccessModule = lazy(() => import("@/pages/admin/modules/UserAccessModule").then((m) => ({ default: m.UserAccessModule })));
 const AdminTeam = lazy(() => import("@/pages/admin/AdminTeam"));
 const AdminEstimateLeads = lazy(() => import("@/pages/admin/AdminEstimateLeads"));
 const AdminEstimateFlow = lazy(() => import("@/pages/admin/AdminEstimateFlow"));
-const AdminTeamMembers = lazy(() => import("@/pages/admin/AdminTeamMembers"));
 const AdminHero = lazy(() => import("@/pages/admin/AdminHero"));
 const AdminGallery = lazy(() => import("@/pages/admin/AdminGallery"));
 const AdminTransformations = lazy(() => import("@/pages/admin/AdminTransformations"));
 const AdminStats = lazy(() => import("@/pages/admin/AdminStats"));
 const AdminMilestones = lazy(() => import("@/pages/admin/AdminMilestones"));
 const AdminProcessSteps = lazy(() => import("@/pages/admin/AdminProcessSteps"));
+const AdminSiteAssets = lazy(() => import("@/pages/admin/AdminSiteAssets"));
 const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
 const AdminDiscoveryConfig = lazy(() => import("@/pages/admin/AdminDiscoveryConfig"));
 const AdminAuditLogs = lazy(() => import("@/pages/admin/AdminAuditLogs"));
+const AdminEmailTemplates = lazy(() => import("@/pages/admin/AdminEmailTemplates"));
 const CmsModule = lazy(() => import("@/pages/admin/modules/CmsModule").then((m) => ({ default: m.CmsModule })));
 const CrmModule = lazy(() => import("@/pages/admin/modules/CrmModule").then((m) => ({ default: m.CrmModule })));
 const DiscoveryModule = lazy(() => import("@/pages/admin/modules/DiscoveryModule").then((m) => ({ default: m.DiscoveryModule })));
@@ -37,6 +41,8 @@ const BlogModule = lazy(() => import("@/pages/admin/modules/BlogModule").then((m
 const AdminBlogOverview = lazy(() => import("@/pages/admin/AdminBlogOverview"));
 const AdminBlogPerformance = lazy(() => import("@/pages/admin/AdminBlogPerformance"));
 const AdminBlogEngagement = lazy(() => import("@/pages/admin/AdminBlogEngagement"));
+const CrmAnalytics = lazy(() => import("@/pages/admin/CrmAnalytics"));
+const CrmSettings = lazy(() => import("@/pages/admin/CrmSettings"));
 
 export const adminRoutes = (
   <>
@@ -58,16 +64,16 @@ export const adminRoutes = (
           <Route path="hero-carousel" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminHero /></RoleGuard>} />
           <Route path="gallery" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminGallery /></RoleGuard>} />
           <Route path="before-and-after" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTransformations /></RoleGuard>} />
-          <Route path="studio-statistics" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminStats /></RoleGuard>} />
           <Route path="milestones" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminMilestones /></RoleGuard>} />
           <Route path="process-steps" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminProcessSteps /></RoleGuard>} />
+          <Route path="site-assets" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminSiteAssets /></RoleGuard>} />
         </Route>
 
         <Route path="crm" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><CrmModule /></RoleGuard>}>
           <Route path="leads" element={<AdminLeads />} />
-          <Route path="analytics" element={null} />
-          <Route path="settings" element={null} />
-          <Route path="users" element={<Navigate to="/admin/access" replace />} />
+          <Route path="analytics" element={<CrmAnalytics />} />
+          <Route path="settings" element={<CrmSettings />} />
+          <Route path="users" element={<Navigate to="/admin/user-access/users" replace />} />
         </Route>
 
         <Route path="discovery" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><DiscoveryModule /></RoleGuard>}>
@@ -86,10 +92,15 @@ export const adminRoutes = (
           <Route path="reader-engagement" element={<AdminBlogEngagement />} />
         </Route>
 
+        <Route path="user-access" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><UserAccessModule /></RoleGuard>}>
+          <Route path="users" element={<AdminUserAccessUsers />} />
+          <Route path="roles" element={<RoleGuard allowedRoles={["super_admin"]}><AdminUserAccessRoles /></RoleGuard>} />
+          <Route path="security" element={<AdminUserAccessSecurity />} />
+        </Route>
+
         <Route path="system" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><SystemModule /></RoleGuard>}>
-          <Route path="access-control" element={<AdminUsers />} />
           <Route path="settings" element={<RoleGuard allowedRoles={["super_admin"]}><AdminSettings /></RoleGuard>} />
-          <Route path="team-members" element={<RoleGuard allowedRoles={["super_admin"]}><AdminTeamMembers /></RoleGuard>} />
+          <Route path="email-templates" element={<RoleGuard allowedRoles={["super_admin"]}><AdminEmailTemplates /></RoleGuard>} />
           <Route path="audit-logs" element={<RoleGuard allowedRoles={["super_admin"]}><AdminAuditLogs /></RoleGuard>} />
         </Route>
       </Route>

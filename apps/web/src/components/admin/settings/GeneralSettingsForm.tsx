@@ -14,6 +14,7 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/primitives/form";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { Card, CardContent } from "@/components/ui/primitives/card";
 import { AdminFormCard } from "@/components/admin/shared";
 import { useToast } from "@/hooks/useToast";
@@ -218,8 +219,9 @@ export function GeneralSettingsForm() {
     const form = useForm<SiteSettingsFormData>({
         resolver: zodResolver(siteSettingsSchema),
         defaultValues: {
-            site_name: "",
-            site_description: "",
+            company_name: "",
+            company_description: "",
+            company_logo_url: "",
             contact_email: "",
             contact_phone: "",
             contact_whatsapp: "",
@@ -257,8 +259,9 @@ export function GeneralSettingsForm() {
             if (data) {
                 const socialLinks = data.social_links as Record<string, string> || {};
                 form.reset({
-                    site_name: data.studio_name || "",
-                    site_description: data.seo_description || "",
+                    company_name: data.studio_name || "",
+                    company_description: data.seo_description || "",
+                    company_logo_url: (data as Record<string, unknown>).company_logo_url as string || "",
                     contact_email: data.email || "",
                     contact_phone: data.phone || "",
                     contact_whatsapp: (data as { whatsapp?: string }).whatsapp || "",
@@ -301,12 +304,6 @@ export function GeneralSettingsForm() {
 
             // Check if a row exists to decide between insert and update, 
             // but since it's a singleton with a unique index, we can just upsert if we had a fixed ID or constraint.
-            // However, the unique index is on ((TRUE)).
-            // Let's first check if we have an ID from fetching.
-            // Actually, simpler to just get the existing row again or assume one exists if we seeded it.
-            // The migration adds a constraint so there is only one row.
-
-            // We can just update if it exists, or insert if not.
             const { data: existingData } = await supabase.from("site_settings").select("id").limit(1).maybeSingle();
 
             let error;
@@ -314,35 +311,36 @@ export function GeneralSettingsForm() {
                 const { error: updateError } = await supabase
                     .from("site_settings")
                     .update({
-                        studio_name: values.site_name,
-                        seo_description: values.site_description,
+                        studio_name: values.company_name,
+                        seo_description: values.company_description,
+                        company_logo_url: values.company_logo_url || null,
                         email: values.contact_email,
                         phone: values.contact_phone,
                         whatsapp: values.contact_whatsapp || null,
                         about_video_url: values.about_video_url || null,
-                        address: values.address,
+                        address: values.address || null,
                         social_links: socialLinks,
                         telegram_chat_ids: values.telegram_chat_ids,
-                        business_hours: values.office_hours as unknown as Record<string, unknown>,
-                        updated_at: new Date().toISOString(),
-                    })
+                        business_hours: values.office_hours,
+                    } as never)
                     .eq("id", existingData.id);
                 error = updateError;
             } else {
                 const { error: insertError } = await supabase
                     .from("site_settings")
                     .insert({
-                        studio_name: values.site_name,
-                        seo_description: values.site_description,
+                        studio_name: values.company_name,
+                        seo_description: values.company_description,
+                        company_logo_url: values.company_logo_url || null,
                         email: values.contact_email,
                         phone: values.contact_phone,
                         whatsapp: values.contact_whatsapp || null,
                         about_video_url: values.about_video_url || null,
-                        address: values.address,
+                        address: values.address || null,
                         social_links: socialLinks,
                         telegram_chat_ids: values.telegram_chat_ids,
-                        business_hours: values.office_hours as unknown as Record<string, unknown>,
-                    });
+                        business_hours: values.office_hours,
+                    } as never);
                 error = insertError;
             }
 
@@ -357,7 +355,7 @@ export function GeneralSettingsForm() {
 
             toast({
                 title: "Settings saved",
-                description: "Your site settings have been updated successfully.",
+                description: "Your company settings have been updated successfully.",
             });
         } catch (error) {
             const err = error as Error;
@@ -390,37 +388,61 @@ export function GeneralSettingsForm() {
         <Form {...form}>
             <form id="general-settings-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid lg:grid-cols-2 gap-4">
-                <AdminFormCard title="General Information" icon={Globe} iconClassName="text-blue-500" contentClassName="grid gap-3">
-                        <FormField
-                            control={form.control}
-                            name="site_name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Site Name</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="My Awesome Website" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="site_description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Site Description</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="A brief description of your site for SEO..."
-                                            className="min-h-[80px]"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                <AdminFormCard title="General Information" icon={Globe} iconClassName="text-blue-500" contentClassName="grid gap-4 sm:grid-cols-2">
+                        <div className="col-span-2 sm:col-span-1 flex flex-col gap-4">
+                            <FormField
+                                control={form.control}
+                                name="company_name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Company Name</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="CrossAngle Interiors" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="company_description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Company Description</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="A brief description of your company for SEO..."
+                                                className="min-h-[80px]"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="col-span-2 sm:col-span-1">
+                            <FormField
+                                control={form.control}
+                                name="company_logo_url"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Company Logo</FormLabel>
+                                        <FormControl>
+                                            <MediaPickerField
+                                                value={field.value || ""}
+                                                onChange={field.onChange}
+                                                previewClassName="w-32 h-32 object-contain aspect-square bg-zinc-900/50 rounded-md border border-white/10 p-2"
+                                            />
+                                        </FormControl>
+                                        <FormDescription>
+                                            High-resolution logo with transparent background recommended. This logo will be used everywhere on the site including the favicon.
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                 </AdminFormCard>
 
                 <AdminFormCard title="Contact Information" icon={Phone} iconClassName="text-green-500" contentClassName="grid gap-3 grid-cols-2">

@@ -13,6 +13,7 @@ export interface SiteSettings {
   business_hours: Record<string, unknown> | null;
   logo_light_url: string | null;
   logo_dark_url: string | null;
+  company_logo_url: string | null;
   favicon_url: string | null;
   og_image_url: string | null;
   about_video_url: string | null;
@@ -22,11 +23,16 @@ export interface SiteSettings {
   fb_pixel_id: string | null;
   posthog_api_key: string | null;
   posthog_host: string | null;
+  resend_api_key: string | null;
+  supabase_api_key: string | null;
+  vercel_api_key: string | null;
+  maintenance_mode_active: boolean | null;
   admin_email: string | null;
   nav_links: Record<string, unknown>[] | null;
   footer_columns: Record<string, unknown>[] | null;
   social_links: Record<string, string> | null;
   studio_stats: Record<string, number> | null;
+  integrations: Record<string, unknown> | null;
   updated_at: string | null;
 }
 
@@ -49,6 +55,7 @@ const defaultSettings: SiteSettings = {
   business_hours: null,
   logo_light_url: null,
   logo_dark_url: null,
+  company_logo_url: null,
   favicon_url: null,
   og_image_url: null,
   about_video_url: "https://www.youtube.com/embed/gJMCIaI7nKg",
@@ -58,6 +65,10 @@ const defaultSettings: SiteSettings = {
   fb_pixel_id: null,
   posthog_api_key: null,
   posthog_host: null,
+  resend_api_key: null,
+  supabase_api_key: null,
+  vercel_api_key: null,
+  maintenance_mode_active: false,
   admin_email: null,
   nav_links: null,
   footer_columns: null,
@@ -75,6 +86,7 @@ const defaultSettings: SiteSettings = {
     projectsCompleted: 750,
     awardsWon: 25,
   },
+  integrations: null,
   updated_at: null,
 };
 

@@ -177,11 +177,11 @@ const HomeBlog = () => {
   const [featured, ...rest] = posts;
 
   return (
-    <section className="py-20 md:py-32 relative overflow-hidden bg-[#090807]">
+    <section className="py-section-y relative overflow-hidden bg-[#090807]">
       {/* Ambient glow top */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-px bg-gradient-to-r from-transparent via-site-gold/20 to-transparent" />
 
-      <div className="container mx-auto px-4 md:px-10 lg:px-14 relative z-10">
+      <div className="container mx-auto relative z-10">
         {/* ── Header ── */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
           <div>

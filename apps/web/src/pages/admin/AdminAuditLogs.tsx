@@ -14,7 +14,7 @@ import { ACTION_COLORS, ENTITY_LABELS } from '@/types/audit';
 import { useToast } from '@/hooks/useToast';
 import { format } from 'date-fns';
 import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
-import { AdminPageHeader, AdminMetricsPanel } from '@/components/admin/shared';
+import { AdminMetricsPanel } from "@/components/admin/shared";
 
 export default function AdminAuditLogs() {
   const { toast } = useToast();
@@ -136,7 +136,7 @@ export default function AdminAuditLogs() {
   };
 
   return (
-    <div className="flex flex-col space-y-6">
+      <div className="flex flex-col space-y-4">
       <style>{`
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(12px); }
@@ -147,8 +147,7 @@ export default function AdminAuditLogs() {
         .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
       `}</style>
 
-      <AdminPageHeader moduleName="System" tabName="Audit Logs" />
-
+      
       <div className="fade-up-1">
         <AdminMetricsPanel metrics={[
           { label: "Total Activities (7d)", value: statsData?.totalLogs || 0, icon: Activity },

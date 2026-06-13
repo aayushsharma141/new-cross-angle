@@ -21,6 +21,7 @@ interface RequestBody {
 const FN = "generate-caption";
 const RATE_OPTS = { bucket: "generate-caption", max: 5, windowMs: 60_000 };
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY');
 
 Deno.serve(async (req) => {
     const preflight = handlePreflight(req);
@@ -55,9 +56,9 @@ Deno.serve(async (req) => {
             return badRequestResponse(req, 'imageUrl is required', {}, requestId);
         }
 
-        if (!ANTHROPIC_API_KEY) {
-            structuredLog("error", FN, "ANTHROPIC_API_KEY missing", {}, requestId);
-            throw new Error('ANTHROPIC_API_KEY not configured');
+        if (!OPENROUTER_API_KEY && !ANTHROPIC_API_KEY) {
+            structuredLog("error", FN, "Neither OPENROUTER_API_KEY nor ANTHROPIC_API_KEY is configured", {}, requestId);
+            throw new Error('AI service API keys not configured');
         }
 
         // Fetch image and convert to base64
@@ -76,34 +77,28 @@ Deno.serve(async (req) => {
 
         // Determine media type
         const contentType = imageResponse.headers.get('content-type') || 'image/jpeg'
+        let caption = '';
 
-        // Call Anthropic API
-        const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': ANTHROPIC_API_KEY,
-                'anthropic-version': '2023-06-01'
-            },
-            body: JSON.stringify({
-                model: 'claude-3-5-sonnet-20241022',
-                max_tokens: 200,
-                messages: [
-                    {
-                        role: 'user',
-                        content: [
-                            {
-                                type: 'image',
-                                source: {
-                                    type: 'base64',
-                                    media_type: contentType,
-                                    data: base64Image
-                                }
-                            },
-                            {
-                                type: 'text',
-                                text: `Generate a concise, SEO-friendly alt text for this interior design image. ${projectContext ? `Context: ${projectContext}.` : ''
-                                    } Requirements:
+        if (OPENROUTER_API_KEY) {
+            structuredLog("info", FN, "Using OpenRouter (Gemini-2.5-Flash) for caption generation", {}, requestId);
+            const openRouterResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                    'HTTP-Referer': 'https://crossangle.com',
+                    'X-Title': 'Cross Angle Interior'
+                },
+                body: JSON.stringify({
+                    model: 'google/gemini-2.5-flash',
+                    messages: [
+                        {
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'text',
+                                    text: `Generate a concise, SEO-friendly alt text for this interior design image. ${projectContext ? `Context: ${projectContext}.` : ''
+                                        } Requirements:
 - Maximum ${maxLength} characters
 - Describe the room type, style, and key features
 - Use professional interior design terminology
@@ -112,20 +107,79 @@ Deno.serve(async (req) => {
 - Do not use phrases like "image of" or "picture of"
 
 Respond with ONLY the alt text, nothing else.`
-                            }
-                        ]
-                    }
-                ]
-            })
-        })
+                                },
+                                {
+                                    type: 'image_url',
+                                    image_url: {
+                                        url: `data:${contentType};base64,${base64Image}`
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    temperature: 0.5,
+                    max_tokens: 150
+                })
+            });
 
-        if (!anthropicResponse.ok) {
-            const error = await anthropicResponse.text()
-            throw new Error(`Anthropic API error: ${error}`)
+            if (!openRouterResponse.ok) {
+                const error = await openRouterResponse.text();
+                throw new Error(`OpenRouter API error: ${error}`);
+            }
+
+            const data = await openRouterResponse.json();
+            caption = data.choices?.[0]?.message?.content?.trim() || '';
+        } else {
+            structuredLog("info", FN, "Using Anthropic for caption generation", {}, requestId);
+            const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': ANTHROPIC_API_KEY!,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                    model: 'claude-3-5-sonnet-20241022',
+                    max_tokens: 200,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: [
+                                {
+                                    type: 'image',
+                                    source: {
+                                        type: 'base64',
+                                        media_type: contentType,
+                                        data: base64Image
+                                    }
+                                },
+                                {
+                                    type: 'text',
+                                    text: `Generate a concise, SEO-friendly alt text for this interior design image. ${projectContext ? `Context: ${projectContext}.` : ''
+                                        } Requirements:
+- Maximum ${maxLength} characters
+- Describe the room type, style, and key features
+- Use professional interior design terminology
+- Focus on what makes this space unique
+- Start with the room type (e.g., "Modern minimalist bedroom...")
+- Do not use phrases like "image of" or "picture of"
+
+Respond with ONLY the alt text, nothing else.`
+                                }
+                            ]
+                        }
+                    ]
+                })
+            });
+
+            if (!anthropicResponse.ok) {
+                const error = await anthropicResponse.text();
+                throw new Error(`Anthropic API error: ${error}`);
+            }
+
+            const data = await anthropicResponse.json();
+            caption = data.content[0].text.trim();
         }
-
-        const data = await anthropicResponse.json()
-        const caption = data.content[0].text.trim()
 
         // Log successful generation
         structuredLog("info", FN, "Generated caption", { length: caption.length }, requestId);

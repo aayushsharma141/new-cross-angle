@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { FileText, Plus, Pencil, LayoutGrid } from "lucide-react";
-import { AdminPageHeader } from "@/components/admin/ui/AdminPageHeader";
-import { AdminTabSlider } from "@/components/admin/ui/AdminTabSlider";
+import { FileText, Plus, Pencil, LayoutGrid, Search } from "lucide-react";
+
+import { Input } from "@/components/ui/primitives/input";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { Button } from "@/components/ui/primitives/button";
 import { BlogList } from "@/components/admin/blogs/BlogList";
@@ -18,6 +18,7 @@ const AdminBlogs = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const handleDeepLink = async () => {
@@ -55,9 +56,14 @@ const AdminBlogs = () => {
   };
 
   return (
-    <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
-      <ModuleActions>
-        {activeTab === "all" ? (
+      <div className="flex flex-col space-y-4 animate-in fade-in duration-700">
+            <ModuleActions>
+        <div className="flex flex-col sm:flex-row gap-4 justify-between w-full">
+          {activeTab === "all" && (
+            <div className="flex-1" />
+          )}
+          <div className="flex gap-2 ml-auto">
+            {activeTab === "all" ? (
           <Button
             type="button"
             className="bg-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))/90] text-black font-semibold shadow-lg"
@@ -69,12 +75,14 @@ const AdminBlogs = () => {
         ) : (
           <Button type="button" variant="outline" onClick={handleCancel} className="bg-transparent border-[hsl(var(--admin-border))]">
             Cancel
-          </Button>
-        )}
+            </Button>
+          )}
+          </div>
+        </div>
       </ModuleActions>
 
       {activeTab === "all" ? (
-        <BlogList refreshTrigger={refreshTrigger} onEdit={handleEdit} onNew={handleNew} />
+        <BlogList refreshTrigger={refreshTrigger} onEdit={handleEdit} onNew={handleNew} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       ) : (
         <BlogEditorForm
           post={editingPost}

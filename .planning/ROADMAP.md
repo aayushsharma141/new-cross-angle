@@ -69,3 +69,45 @@ This document outlines the phased execution plan for the project.
 - [x] Implement advanced filtering on the Project Hub (filter by Residential, Commercial, Style, etc.).
 - [x] Launch localized landing pages targeting specific geographic service areas.
 - [x] Develop deep-dive blog content clustered around the high-margin services.
+
+### Phase 5: Content Hierarchy & Process Page Alignment
+
+**Status**: Pending
+
+**Goals**:
+- Unify the process methodology to a single 5-stage framework.
+- De-duplicate the Services page.
+- Secure schema injections.
+
+**Features**:
+
+- [ ] Standardise all process pages to the 5-Stage framework (Consult, Measure & Plan, Design, Execute, Handover).
+- [ ] Remove `<ServicesProcess />` and `<OurApproach />` from `ServicesPage.tsx`.
+- [ ] Implement safe JSON-LD schema escaping in `SchemaMarkup.tsx`.
+
+### Phase 7: Advanced Media Library Overhaul
+
+**Status**: Planning
+
+**Goals**:
+- Replace the flat-list media library with a fully hierarchical system.
+- Support nested folders with `ltree` database architecture.
+- Implement bulk move, copy, and delete for mixed file+folder selections.
+- Add ZIP import and export with folder structure preservation.
+- Introduce drag-and-drop between folders.
+
+**Features**:
+
+- [ ] **DB Migration** — `media_folders` (ltree) + `media_files` tables with full metadata.
+- [ ] **MediaService.ts Overhaul** — typed methods for all folder/file CRUD.
+- [ ] **Edge Function: `media-operations`** — bulk-move, bulk-copy, bulk-delete.
+- [ ] **Edge Function: `media-export`** — streaming ZIP download preserving folder structure.
+- [ ] **Edge Function: `media-import`** — unzip, recreate folder tree, upload files.
+- [ ] **Zustand Store: `useMediaStore`** — selection state, breadcrumbs, navigation.
+- [ ] **Component: `SidebarFolderTree`** — recursive collapsible tree with drag-and-drop.
+- [ ] **Component: `MediaBreadcrumb`** — path navigation with inline "New Folder".
+- [ ] **Component: `MediaGridMain`** — folders + files in one unified grid view.
+- [ ] **Context Menus** — right-click menus for file and folder actions.
+- [ ] **`AdminMedia.tsx` Overhaul** — wire everything together with Import/Export buttons.
+- [ ] **Deploy & Migrate** — SQL migration, Edge Function deploy, data seeding.
+

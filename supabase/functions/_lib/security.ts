@@ -104,8 +104,10 @@ function getTrustedOrigins(): string[] {
         "http://localhost:8080",
         "http://localhost:3000",
         "http://localhost:5173",
+        "http://localhost:4173",
         "http://127.0.0.1:8080",
         "http://127.0.0.1:5173",
+        "http://127.0.0.1:4173",
     ];
     for (const origin of localOrigins) {
         if (!base.includes(origin)) {
@@ -433,7 +435,7 @@ export async function verifyAdmin(
         .from("user_roles")
         .select("role")
         .eq("user_id", auth.user.id)
-        .eq("role", "admin")
+        .in("role", ["super_admin", "admin"])
         .maybeSingle();
 
     if (roleError || !roleData) {

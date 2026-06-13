@@ -2,12 +2,12 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
 
 export const useAdminAuth = () => {
-  const { user, loading, signOut, role, isAdmin, isEditor, isViewer, loggingOut } =
+  const { user, loading, roleLoading, roleError, signOut, role, isAdmin, isEditor, isViewer, loggingOut } =
     useAuth();
   const navigate = useNavigate();
 
   const isAuthenticated = !!user;
-  const isLoading = loading;
+  const isLoading = loading || roleLoading;
   const isSuperAdmin = role === 'super_admin';
 
   const logout = async () => {
@@ -24,6 +24,8 @@ export const useAdminAuth = () => {
     isLoading,
     logout,
     loggingOut,
+    roleLoading,
+    roleError,
     user,
     role,
     isAdmin,

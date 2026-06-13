@@ -19,9 +19,11 @@ interface BlogListProps {
   refreshTrigger: number;
   onEdit: (post: BlogPost) => void;
   onNew: () => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
-export function BlogList({ refreshTrigger, onEdit, onNew }: BlogListProps) {
+export function BlogList({ refreshTrigger, onEdit, onNew, searchQuery = "", onSearchChange }: BlogListProps) {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<BlogStatus | "All">("All");
@@ -42,18 +44,24 @@ export function BlogList({ refreshTrigger, onEdit, onNew }: BlogListProps) {
     if (error) {
       toast({ title: "Error fetching posts", description: error.message, variant: "destructive" });
     } else if (data) {
-      setPosts(data as BlogPost[]);
+      setPosts(data as unknown as BlogPost[]);
     }
     setIsLoading(false);
   };
 
   const filteredPosts = useMemo(() => {
     let filtered = [...posts];
+    if (searchQuery) {
+      filtered = filtered.filter(post => 
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (post.slug?.toLowerCase() || "").includes(searchQuery.toLowerCase())
+      );
+    }
     if (statusFilter !== "All") {
       filtered = filtered.filter(post => post.status.toLowerCase() === statusFilter.toLowerCase());
     }
     return filtered;
-  }, [posts, statusFilter]);
+  }, [posts, statusFilter, searchQuery]);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from('blog_posts').delete().eq('id', id);
@@ -103,6 +111,8 @@ export function BlogList({ refreshTrigger, onEdit, onNew }: BlogListProps) {
               filters={["All", "Published", "Draft", "Review"]}
               activeFilter={statusFilter}
               onFilterChange={(f) => setStatusFilter(f as BlogStatus | "All")}
+              searchQuery={searchQuery}
+              onSearchChange={onSearchChange}
           />
       </div>
 

@@ -2,14 +2,9 @@
  * ImageKit CDN Utility
  * --------------------
  * 
- * ─── RECOMMENDED: Web Folder Origin Configuration ────────────────────────────
- *  This is the most reliable setup for Supabase.
- * 
- *  Origin Type : Web Folder
- *  Base URL    : https://iuuivmwqodefdrrrewol.supabase.co/storage/v1/object/public/
- *  
- *  This avoids S3-compatibility issues with buckets, folders, and access keys.
- * ─────────────────────────────────────────────────────────────────────────────
+ * Unified image optimization layer. After migrating all media to ImageKit,
+ * this utility handles Direct ImageKit URLs, Supabase URLs (legacy), and
+ * local static assets.
  */
 
 const IMAGEKIT_URL_ENDPOINT =
@@ -28,9 +23,7 @@ interface OptimizationOptions {
 
 const stripLeadingSlash = (value: string) => value.replace(/^\/+/, '');
 
-const buildTransform = ({ width, height, quality = 80, blur, format = 'auto' }: OptimizationOptions) => {
-  // 'auto' lets ImageKit pick the best format (AVIF > WebP > original).
-  // Explicitly passing 'avif' forces AVIF for maximum compression.
+const buildTransform = ({ width, height, quality = 80, blur, format = 'webp' }: OptimizationOptions) => {
   let t = `tr:q-${quality},f-${format},pr-true`;
   if (width)  t += `,w-${width}`;
   if (height) t += `,h-${height}`;
@@ -39,35 +32,38 @@ const buildTransform = ({ width, height, quality = 80, blur, format = 'auto' }: 
 };
 
 /**
- * Transforms a Supabase Storage public URL into an ImageKit delivery URL.
+ * Transforms any URL into an optimized ImageKit delivery URL.
+ * Works with:
+ * - Direct ImageKit URLs (ik.imagekit.io)
+ * - Legacy Supabase Storage URLs
+ * - Local /images/ assets
  */
 export const getOptimizedUrl = (url: string | undefined, options: OptimizationOptions = {}): string => {
-  if (!url) return '';
+  if (!url || typeof url !== 'string') return '';
 
-  // Pass-through: data URIs, blob URLs, and already optimized URLs with different patterns
   const isDataOrBlob = url.startsWith('data:') || url.startsWith('blob:');
   if (isDataOrBlob) return url;
 
-  const isSupabase = url.includes(SUPABASE_URL);
   const isImageKit = url.includes('ik.imagekit.io');
-  // Local static assets under /images/
-  const isLocalImage = url.startsWith('/images/') || url.startsWith('/images');
+  const isSupabase = url.includes(SUPABASE_URL);
+  const isLocalImage = url.startsWith('/images/');
 
-  // BYPASS ImageKit for local images in development mode or if explicitly disabled
   const shouldBypass = isLocalImage && (import.meta.env.DEV || import.meta.env.VITE_BYPASS_IMAGEKIT === 'true');
 
-  if ((!isSupabase && !isImageKit && !isLocalImage) || shouldBypass) return url;
+  if ((!isImageKit && !isSupabase && !isLocalImage) || shouldBypass) return url;
 
   const endpoint = IMAGEKIT_URL_ENDPOINT.replace(/\/+$/, '');
-  
-  // 1. Identify account ID and sub-path from the endpoint
   const endpointMatch = endpoint.match(/^https?:\/\/ik\.imagekit\.io\/([^/]+)(.*)$/);
   const accountId = endpointMatch ? endpointMatch[1] : '';
   const endpointSubfolder = endpointMatch ? stripLeadingSlash(endpointMatch[2]) : '';
 
   let path = '';
 
-  if (isSupabase) {
+  if (isImageKit) {
+    const ikBasePattern = new RegExp(`^https?://ik\\.imagekit\\.io/${accountId}/`);
+    const withoutBase = url.replace(ikBasePattern, '');
+    path = withoutBase.replace(/^tr:[^/]+\//, '');
+  } else if (isSupabase) {
     const publicIdx = url.indexOf('/storage/v1/object/public/');
     if (publicIdx !== -1) {
       path = stripLeadingSlash(url.slice(publicIdx + '/storage/v1/object/public/'.length));
@@ -76,16 +72,8 @@ export const getOptimizedUrl = (url: string | undefined, options: OptimizationOp
     }
   } else if (isLocalImage) {
     path = stripLeadingSlash(url);
-  } else if (isImageKit) {
-    const ikBasePattern = new RegExp(`^https?://ik\\.imagekit\\.io/${accountId}/`);
-    const withoutBase = url.replace(ikBasePattern, '');
-    // Strip existing transformations if any
-    path = withoutBase.replace(/^tr:[^/]+\//, '');
   }
 
-  // 2. DE-DUPLICATE: If the path already contains the endpoint's subfolder at the start, remove it.
-  // This handles cases where VITE_IMAGEKIT_URL_ENDPOINT=".../cross-angle" 
-  // and Supabase path is "cross-angle/image.jpg"
   if (endpointSubfolder && path.startsWith(endpointSubfolder + '/')) {
     path = stripLeadingSlash(path.slice(endpointSubfolder.length));
   } else if (endpointSubfolder && path === endpointSubfolder) {
@@ -95,9 +83,6 @@ export const getOptimizedUrl = (url: string | undefined, options: OptimizationOp
   if (!path) return url;
 
   const transformations = buildTransform(options);
-  
-  // 3. CONSTRUCT: [endpoint] / [transformations] / [path]
-  // We use the cleaned endpoint and path to ensure no double slashes
   return `${endpoint}/${transformations}/${path}`.replace(/([^:]\/)\/+/g, '$1');
 };
 

@@ -47,6 +47,7 @@ interface QuestionDef {
   type: QuestionType;
   optionKeys: string[];
   images?: string[];
+  assetKeys?: string[];
   section: number;
 }
 
@@ -79,14 +80,14 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
   const sectionLabels = sectionKeys.map((k) => t(k));
 
   const questions: QuestionDef[] = useMemo(() => [
-    { key: "rq1", type: "image-cards", section: 0, optionKeys: ["rq1_o1", "rq1_o2", "rq1_o3", "rq1_o4", "rq1_o5"], images: [imgMorningSilence, imgMorningMovement, imgMorningCoffee, imgEnvFocused, imgEnvKitchen] },
-    { key: "rq2", type: "image-cards", section: 0, optionKeys: ["rq2_o1", "rq2_o2", "rq2_o3", "rq2_o4", "rq2_o5"], images: [imgEnvSunlight, imgEnvMinimal, imgEnvMusic, imgEnvKitchen, imgEnvFocused] },
+    { key: "rq1", type: "image-cards", section: 0, optionKeys: ["rq1_o1", "rq1_o2", "rq1_o3", "rq1_o4", "rq1_o5"], images: [imgMorningSilence, imgMorningMovement, imgMorningCoffee, imgEnvFocused, imgEnvKitchen], assetKeys: ["discovery_reflect-morning-silence", "discovery_reflect-morning-movement", "discovery_reflect-morning-coffee", "discovery_reflect-env-focused", "discovery_reflect-env-kitchen"] },
+    { key: "rq2", type: "image-cards", section: 0, optionKeys: ["rq2_o1", "rq2_o2", "rq2_o3", "rq2_o4", "rq2_o5"], images: [imgEnvSunlight, imgEnvMinimal, imgEnvMusic, imgEnvKitchen, imgEnvFocused], assetKeys: ["discovery_reflect-env-sunlight", "discovery_reflect-env-minimal", "discovery_reflect-env-music", "discovery_reflect-env-kitchen", "discovery_reflect-env-focused"] },
     { key: "rq3", type: "chips", section: 1, optionKeys: ["rq3_o1", "rq3_o2", "rq3_o3", "rq3_o4", "rq3_o5"] },
-    { key: "rq4", type: "image-cards", section: 1, optionKeys: ["rq4_o1", "rq4_o2", "rq4_o3", "rq4_o4", "rq4_o5"], images: [imgWorkspaceQuiet, imgWorkspaceOpen, imgWorkspaceStructured, imgWorkspaceInspiring, imgWorkspaceDynamic] },
-    { key: "rq5", type: "image-cards", section: 2, optionKeys: ["rq5_o1", "rq5_o2", "rq5_o3", "rq5_o4", "rq5_o5", "rq5_o6"], images: [imgEveningBook, imgEveningDinner, imgEveningCreative, imgEveningFilm, imgEveningQuiet, imgEveningConvo] },
-    { key: "rq6", type: "image-cards", section: 2, optionKeys: ["rq6_o1", "rq6_o2", "rq6_o3", "rq6_o4", "rq6_o5"], images: [imgNightWarm, imgNightCrisp, imgNightCandle, imgNightAmbient, imgNightMinimal] },
+    { key: "rq4", type: "image-cards", section: 1, optionKeys: ["rq4_o1", "rq4_o2", "rq4_o3", "rq4_o4", "rq4_o5"], images: [imgWorkspaceQuiet, imgWorkspaceOpen, imgWorkspaceStructured, imgWorkspaceInspiring, imgWorkspaceDynamic], assetKeys: ["discovery_reflect-workspace-quiet", "discovery_reflect-workspace-open", "discovery_reflect-workspace-structured", "discovery_reflect-workspace-inspiring", "discovery_reflect-workspace-dynamic"] },
+    { key: "rq5", type: "image-cards", section: 2, optionKeys: ["rq5_o1", "rq5_o2", "rq5_o3", "rq5_o4", "rq5_o5", "rq5_o6"], images: [imgEveningBook, imgEveningDinner, imgEveningCreative, imgEveningFilm, imgEveningQuiet, imgEveningConvo], assetKeys: ["discovery_reflect-evening-book", "discovery_reflect-evening-dinner", "discovery_reflect-evening-creative", "discovery_reflect-evening-film", "discovery_reflect-evening-quiet", "discovery_reflect-evening-convo"] },
+    { key: "rq6", type: "image-cards", section: 2, optionKeys: ["rq6_o1", "rq6_o2", "rq6_o3", "rq6_o4", "rq6_o5"], images: [imgNightWarm, imgNightCrisp, imgNightCandle, imgNightAmbient, imgNightMinimal], assetKeys: ["discovery_reflect-night-warm", "discovery_reflect-night-crisp", "discovery_reflect-night-candle", "discovery_reflect-night-ambient", "discovery_reflect-night-minimal"] },
     { key: "rq7", type: "chips", section: 3, optionKeys: ["rq7_o1", "rq7_o2", "rq7_o3", "rq7_o4", "rq7_o5"] },
-    { key: "rq8", type: "image-cards", section: 3, optionKeys: ["rq8_o1", "rq8_o2", "rq8_o3", "rq8_o4", "rq8_o5"], images: [imgBedroomSanctuary, imgBedroomRetreat, imgBedroomDesign, imgBedroomCocoon, imgBedroomMinimal] },
+    { key: "rq8", type: "image-cards", section: 3, optionKeys: ["rq8_o1", "rq8_o2", "rq8_o3", "rq8_o4", "rq8_o5"], images: [imgBedroomSanctuary, imgBedroomRetreat, imgBedroomDesign, imgBedroomCocoon, imgBedroomMinimal], assetKeys: ["discovery_reflect-bedroom-sanctuary", "discovery_reflect-bedroom-retreat", "discovery_reflect-bedroom-design", "discovery_reflect-bedroom-cocoon", "discovery_reflect-bedroom-minimal"] },
     { key: "rq9", type: "chips", section: 4, optionKeys: ["rq9_o1", "rq9_o2", "rq9_o3", "rq9_o4", "rq9_o5"] },
     { key: "rq10", type: "chips", section: 4, optionKeys: ["rq10_o1", "rq10_o2", "rq10_o3", "rq10_o4", "rq10_o5"] },
     { key: "rq11", type: "chips", section: 5, optionKeys: ["rq11_o1", "rq11_o2", "rq11_o3", "rq11_o4", "rq11_o5"] },
@@ -135,7 +136,7 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
     const optionLabels = q.optionKeys.map((k) => t(k));
     const hasImages = q.type === "image-cards" && q.images;
     const imageOptions = hasImages
-      ? q.optionKeys.map((k, i) => ({ key: k, label: optionLabels[i], img: q.images![i] })).filter((o) => o.img)
+      ? q.optionKeys.map((k, i) => ({ key: k, label: optionLabels[i], img: q.images![i], assetKey: q.assetKeys?.[i] })).filter((o) => o.img)
       : [];
     const chipOptions = !hasImages
       ? q.optionKeys.map((k, i) => ({ key: k, label: optionLabels[i] }))
@@ -167,6 +168,7 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
                   key={o.key}
                   label={o.label}
                   imageSrc={o.img!}
+                  assetKey={o.assetKey}
                   isActive={answers[q.key] === o.key}
                   onClick={() => selectAnswer(q.key, o.key)}
                 />

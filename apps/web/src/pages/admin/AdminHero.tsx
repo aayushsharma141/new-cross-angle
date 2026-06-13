@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { usePermissions } from "@/hooks/usePermissions";
+
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import {
     Loader2,
@@ -316,7 +317,8 @@ const AdminHero = () => {
     const hiddenCount = items.filter(i => !i.is_active).length;
 
     return (
-        <div className="space-y-8 max-w-5xl">
+        <div className="space-y-6 max-w-5xl">
+            
             {canEdit && (
                 <ModuleActions>
                     <Button

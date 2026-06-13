@@ -5,7 +5,7 @@ import { VISUAL_WEIGHTS } from "../core/weights";
 import { AestheticScores, UserSignals } from "@/types/discovery";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
 import { track } from "@/analytics/track";
-import { Image } from "@/components/ui/enhanced/image";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 
 interface Props {
   sessionId: string | null;
@@ -159,19 +159,15 @@ const VisualInstinct = ({ sessionId, signals, onComplete }: Props) => {
                   <div className="absolute inset-0 bg-[#1a1a1a]/[0.04] animate-pulse" />
                 )}
 
-                <Image
-                  src={img.url}
+                <MediaSlot
+                  assetKey={img.assetKey || `discovery_visual-${img.id}`}
+                  fallbackUrl={img.url}
                   alt=""
-                  className="h-full w-full"
-                  imageClassName={`
-                    transition-all duration-700
+                  className={`
+                    absolute inset-0 transition-all duration-700
                     ${isLoaded ? "opacity-100" : "opacity-0"}
-                    grayscale-0 opacity-100
                     ${isSelected ? "scale-[1.04]" : "scale-100"}
                   `}
-                  width={480}
-                  height={360}
-                  loading="eager"
                   onLoad={() => markLoaded(img.id)}
                 />
 

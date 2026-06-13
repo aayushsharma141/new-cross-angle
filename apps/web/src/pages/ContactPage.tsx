@@ -8,6 +8,7 @@ import CTAContact from "@/components/shared/CTAContact";
 import ContactFAQ from "@/components/contact/ContactFAQ";
 import SocialBar from "@/components/contact/SocialBar";
 import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
+import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
 import { SITE_CONSTANTS } from "@/lib/constants";
 
 // Lazy load the map component to save bundle size
@@ -51,9 +52,18 @@ const ContactPage = () => {
       <FixedSocialBar />
       <Navbar />
 
-      <main className="home-shell min-h-screen relative overflow-hidden bg-[var(--site-bg)]">
+      <main id="main-content" className="home-shell min-h-screen relative overflow-hidden bg-[var(--site-bg)]">
         <div className="home-noise pointer-events-none absolute inset-0 z-0" />
         <div className="home-content relative z-10">
+          
+          <div className="absolute top-24 md:top-32 left-0 right-0 z-30 pointer-events-none">
+            <div className="container mx-auto max-w-7xl px-4">
+              <SiteBreadcrumb 
+                items={[{ label: "Contact Us" }]} 
+                className="pointer-events-auto inline-block" 
+              />
+            </div>
+          </div>
 
           {/* Primary contact section — form + bypass + contact info */}
           <CTAContact />

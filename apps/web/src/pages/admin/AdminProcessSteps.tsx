@@ -1,12 +1,8 @@
+import React from 'react';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { 
-  AdminPageHeader,
-  AdminSafeAction,
-  AdminEmptyState,
-  AdminSkeletonCard
-} from "@/components/admin/shared";
+import { AdminSafeAction, AdminEmptyState, AdminSkeletonCard } from "@/components/admin/shared";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
@@ -21,7 +17,7 @@ import {
 } from "@/components/ui/primitives/dialog";
 import { ListOrdered, Image as ImageIcon, Pencil, Trash2, Edit2 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
-import MediaPickerModal from "@/components/admin/MediaPickerModal";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { Image } from "@/components/ui/enhanced/image";
 import * as LucideIcons from "lucide-react";
 
@@ -42,7 +38,6 @@ interface ProcessStep {
 export default function AdminProcessSteps() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingStep, setEditingStep] = useState<ProcessStep | null>(null);
-    const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const { toast } = useToast();
     const queryClient = useQueryClient();
@@ -215,8 +210,7 @@ export default function AdminProcessSteps() {
                 .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
             `}</style>
             
-            <AdminPageHeader moduleName="CMS" tabName="Process Steps" />
-
+            
             <div className="flex flex-col gap-[10px] mt-6">
                 {isLoading ? (
                     <>
@@ -412,35 +406,10 @@ export default function AdminProcessSteps() {
                             <div className="space-y-4">
                                 <div className="space-y-2">
                                     <Label className="text-[hsl(var(--admin-text))]">Step Image</Label>
-                                    <div className="border-2 border-dashed border-[hsl(var(--admin-border))] rounded-lg p-4 flex flex-col items-center justify-center gap-3 bg-[hsl(var(--admin-surface))]">
-                                        {selectedImage ? (
-                                            <div className="relative w-full aspect-video rounded overflow-hidden">
-                                                <Image src={selectedImage} alt="Selected" className="w-full h-full object-cover" />
-                                                <Button 
-                                                    type="button" 
-                                                    variant="destructive" 
-                                                    size="sm" 
-                                                    className="absolute top-2 right-2 admin-btn-danger border-none h-8"
-                                                    onClick={() => setSelectedImage(null)}
-                                                >
-                                                    Remove
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            <div className="py-8 text-center flex flex-col items-center text-[hsl(var(--admin-text-muted))]">
-                                                <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
-                                                <p className="text-sm">No image selected</p>
-                                            </div>
-                                        )}
-                                        <Button 
-                                            type="button" 
-                                            variant="outline" 
-                                            onClick={() => setIsMediaPickerOpen(true)}
-                                            className="w-full admin-btn-secondary"
-                                        >
-                                            {selectedImage ? "Change Image" : "Select Image"}
-                                        </Button>
-                                    </div>
+                                    <MediaPickerField
+                                        value={selectedImage || ""}
+                                        onChange={(url) => setSelectedImage(url)}
+                                    />
                                 </div>
 
                                 <div className="space-y-2">
@@ -505,14 +474,7 @@ export default function AdminProcessSteps() {
                 </DialogContent>
             </Dialog>
 
-            <MediaPickerModal
-                open={isMediaPickerOpen}
-                onOpenChange={setIsMediaPickerOpen}
-                onSelect={(url) => {
-                    setSelectedImage(url);
-                    setIsMediaPickerOpen(false);
-                }}
-            />
+
         </div>
     );
 }

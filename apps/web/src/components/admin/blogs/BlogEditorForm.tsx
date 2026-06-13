@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from "react";
 import { Loader2, RotateCcw, Trash2, Star, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";

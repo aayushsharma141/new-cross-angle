@@ -6,6 +6,7 @@ import FixedSocialBar from "@/components/layout/FixedSocialBar";
 import { Button } from "@/components/ui/primitives/button";
 import { Skeleton } from "@/components/ui/primitives/skeleton";
 import ScrollToTop from "@/components/layout/ScrollToTop";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { api, Blog } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
@@ -68,6 +69,7 @@ const BlogPage = () => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSubmitting, setNewsletterSubmitting] = useState(false);
   const [newsletterDone, setNewsletterDone] = useState(false);
+  const [newsletterHoneypot, setNewsletterHoneypot] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
@@ -128,12 +130,21 @@ const BlogPage = () => {
         p.excerpt?.toLowerCase().includes(q)
       );
     }
+    if (sortBy === "trending") {
+      posts.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+    } else {
+      posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }
     return posts;
-  }, [blogPosts, activeCategory, searchQuery]);
+  }, [blogPosts, activeCategory, searchQuery, sortBy]);
 
-  const paginatedPosts = filtered.slice(0, visibleCount);
   const featuredPost = blogPosts[0];
-  const trendingPosts = blogPosts.slice(0, 6);
+  const paginatedPosts = filtered
+    .filter(p => !featuredPost || p.id !== featuredPost.id)
+    .slice(0, visibleCount);
+  const trendingPosts = [...blogPosts]
+    .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
+    .slice(0, 6);
 
   const categoryCounts = useMemo(() => {
     const map: Record<string, number> = {};
@@ -148,9 +159,18 @@ const BlogPage = () => {
   const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterEmail.trim()) return;
+    if (newsletterHoneypot) return;
+    const lastSubmit = sessionStorage.getItem("newsletter_last_submit");
+    if (lastSubmit && Date.now() - Number(lastSubmit) < 30000) return;
     setNewsletterSubmitting(true);
     try {
-      await supabase.from("leads").insert({ email: newsletterEmail, lead_source: "newsletter" });
+      sessionStorage.setItem("newsletter_last_submit", String(Date.now()));
+      await supabase.from("leads").insert({
+        email: newsletterEmail,
+        lead_source: "other",
+        name: "Newsletter Subscriber",
+        message: "Signed up for 'Design Decoded' newsletter.",
+      });
       trackNewsletterSignup();
       setNewsletterDone(true);
       setNewsletterEmail("");
@@ -272,7 +292,7 @@ const BlogPage = () => {
                   <button
                     key={cat}
                     role="tab"
-                    aria-selected={activeCategory === cat}
+                    {...({ "aria-selected": activeCategory === cat } as React.HTMLAttributes<HTMLButtonElement>)}
                     aria-label={`Filter by ${cat}`}
                     onClick={() => { setActiveCategory(cat); setVisibleCount(5); }}
                     className="flex-shrink-0 px-4 py-2 text-[12px] font-semibold rounded-full transition-all duration-200 border whitespace-nowrap"
@@ -432,6 +452,9 @@ const BlogPage = () => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
+                      role="tabpanel"
+                      id="blog-posts-panel"
+                      aria-label="Blog posts list"
                       className="grid grid-cols-1 md:grid-cols-2 gap-6"
                     >
                       {paginatedPosts.map((post, i) => (
@@ -536,7 +559,7 @@ const BlogPage = () => {
                           onClick={() => { setActiveCategory(cat); setVisibleCount(5); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                           className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-[13px] transition-all hover:bg-white/[0.04]"
                           style={{ color: activeCategory === cat ? CRIMSON : "#888" }}
-                          aria-pressed={activeCategory === cat}
+                          {...({ "aria-pressed": activeCategory === cat } as React.HTMLAttributes<HTMLButtonElement>)}
                         >
                           <span>{cat}</span>
                           <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "#1c1c1c", color: "#555" }}>{count}</span>
@@ -650,6 +673,10 @@ const BlogPage = () => {
                 ) : (
                   <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-3">
                     <label className="sr-only" htmlFor="newsletter-email">Email address</label>
+                    <div aria-hidden="true" className="absolute left-[-9999px]">
+                      <label htmlFor="newsletter-website">Website</label>
+                      <input id="newsletter-website" tabIndex={-1} autoComplete="off" value={newsletterHoneypot} onChange={e => setNewsletterHoneypot(e.target.value)} />
+                    </div>
                     <input
                       id="newsletter-email"
                       type="email"
@@ -670,9 +697,9 @@ const BlogPage = () => {
                     </Button>
                   </form>
                 )}
-                <p className="text-[10px] mt-4 text-white/25 flex items-center justify-center lg:justify-start gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#333]" /> We respect your privacy. Unsubscribe anytime.
-                </p>
+                <div className="text-[10px] mt-4 text-white/25 flex items-center justify-center lg:justify-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#333] inline-block" /> We respect your privacy. Unsubscribe anytime.
+                </div>
               </div>
 
               {/* Right Column: Free-Floating Design Intelligence Hub */}
@@ -767,7 +794,7 @@ const BlogPage = () => {
                   animate={{ y: [0, -10, 0], rotate: [-6, -3, -6], scale: [0.9, 0.95, 0.9] }}
                   transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 2 }}
                 >
-                  <div className="w-full h-full rounded-lg bg-cover bg-center border border-white/10" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80')` }} />
+                  <MediaSlot assetKey="blog_newsletter_bg" fallbackUrl="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80" alt="" className="w-full h-full rounded-lg object-cover" />
                 </motion.div>
 
                 {/* Floating Particles in 3D Space */}

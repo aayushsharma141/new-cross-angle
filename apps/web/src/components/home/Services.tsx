@@ -2,7 +2,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { serviceCategories } from "@/config/site-content";
 import { Squares } from "@/components/ReactBits/index";
 import useScrollReveal from "@/hooks/useScrollReveal";
 import { Button } from "@/components/ui/primitives/button";
@@ -21,21 +20,38 @@ const Services = () => {
 
   useScrollReveal(containerRef, ".reveal-elem");
 
-  const categoriesWithMedia = serviceCategories.map((category) => ({
-    ...category,
-    heroImage:
-      services.find((service) => service.category_id === category.id && service.hero_image)?.hero_image || "",
-  }));
+  const highIntentServices = [
+    {
+      title: "Complete Home Interiors",
+      href: "/services/residential",
+      heroImage: services.find(s => s.slug === "living-room" || s.category_id === "residential")?.hero_image || "/reality_render.jpg"
+    },
+    {
+      title: "Modular Kitchens",
+      href: "/services/specialized/modular-kitchens",
+      heroImage: services.find(s => s.slug === "modular-kitchens")?.hero_image || "/images/projects/discovery/visual-12.jpg"
+    },
+    {
+      title: "Luxury Renovations",
+      href: "/services/residential",
+      heroImage: services.find(s => s.slug === "bedroom" || s.category_id === "residential")?.hero_image || "/images/projects/discovery/visual-3.jpg"
+    },
+    {
+      title: "Commercial Spaces",
+      href: "/services/commercial",
+      heroImage: services.find(s => s.category_id === "commercial")?.hero_image || "/images/projects/discovery/visual-16.jpg"
+    }
+  ];
 
-  const activeCategory = categoriesWithMedia[hoveredIndex];
+  const activeCategory = highIntentServices[hoveredIndex];
 
   return (
-    <section id="services" ref={containerRef} className="py-20 md:py-32 relative bg-black overflow-hidden flex flex-col justify-center">
+    <section id="services" ref={containerRef} className="py-section-y relative bg-black overflow-hidden flex flex-col justify-center">
       {/* Dark overlay & Squares pattern */}
       <Squares speed={0.06} opacity={0.04} />
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-site-crimson/20 to-transparent z-[1]" />
       
-      <div className="container mx-auto px-4 md:px-12 relative z-10 flex flex-col md:flex-row gap-12 lg:gap-24 items-center min-h-[70vh]">
+      <div className="container mx-auto relative z-10 flex flex-col md:flex-row gap-12 lg:gap-24 items-center min-h-[70vh]">
         
         {/* Left Column: Interactive List */}
         <div className="w-full md:w-1/2 flex flex-col justify-center">
@@ -44,8 +60,8 @@ const Services = () => {
             <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Services</span>
           </div>
           <h2 className="reveal-elem font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-bold text-white mb-6 leading-[1.1] tracking-tight">
-            Design Is Emotional. <br />
-            <em className="text-white/50 not-italic font-light">Investment Is Strategic.</em>
+            Engineered Interiors. <br />
+            <em className="text-white/50 not-italic font-light">Predictable Outcomes.</em>
           </h2>
 
           {/* Neighborhood / area served callout */}
@@ -55,12 +71,12 @@ const Services = () => {
           </p>
 
           <div className="flex flex-col mb-10 w-full relative">
-            {categoriesWithMedia.map((category, index) => {
+            {highIntentServices.map((serviceItem, index) => {
               const isHovered = hoveredIndex === index;
               return (
                 <Link
-                  key={category.id}
-                  to={`/services/${category.slug}`}
+                  key={serviceItem.title}
+                  to={serviceItem.href}
                   onMouseEnter={() => setHoveredIndex(index)}
                   className="reveal-elem group relative block py-6 border-b border-white/10 last:border-0"
                 >
@@ -70,7 +86,7 @@ const Services = () => {
                         0{index + 1}
                       </span>
                       <h3 className={cn("font-display text-[clamp(1.5rem,3vw,2.5rem)] transition-all duration-500 transform", isHovered ? "text-white translate-x-4" : "text-white/40")}>
-                        {category.title}
+                        {serviceItem.title}
                       </h3>
                     </div>
                     <ArrowRight className={cn("w-6 h-6 transition-all duration-500 transform", isHovered ? "text-site-crimson -translate-x-2 opacity-100" : "text-white/20 -translate-x-8 opacity-0")} />

@@ -34,7 +34,7 @@ import { MediaDetailsSheet } from "@/components/admin/media/MediaDetailsSheet";
 import { icons } from "@/design-system/tokens/icons";
 import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
-import { AdminPageHeader, AdminMetricsPanel, AdminSkeletonCard } from "@/components/admin/shared";
+import { AdminMetricsPanel, AdminSkeletonCard } from "@/components/admin/shared";
 import { queryKeys } from "@/lib/queryKeys";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -425,8 +425,7 @@ const AdminMedia = () => {
     if (isLoading) {
         return (
             <div className="w-full font-mono">
-                <AdminPageHeader moduleName="CMS" tabName="Media Library" />
-                <div className="space-y-4 mt-6">
+                                <div className="space-y-4 mt-6">
                     <AdminSkeletonCard size="lg" />
                     <AdminSkeletonCard size="lg" />
                     <AdminSkeletonCard size="lg" />
@@ -449,8 +448,7 @@ const AdminMedia = () => {
                 .fade-up-4 { animation: fadeUp var(--anim-duration) var(--anim-stagger-4) var(--anim-ease) both; }
             `}</style>
             
-            <AdminPageHeader moduleName="CMS" tabName="Media Library" />
-
+            
             <div className="fade-up-1">
                 <AdminMetricsPanel 
                     metrics={[

@@ -19,7 +19,7 @@ const ProjectStats = ({ location, area, duration, style, year, budget }: Project
     { icon: Palette, label: "Style", value: style || "N/A" },
     { icon: Calendar, label: "Year", value: year?.toString() || "2024" },
     { icon: Banknote, label: "Budget", value: budget || "Premium" },
-  ];
+  ].filter(stat => stat.value && stat.value !== "-" && stat.value !== "N/A");
 
   return (
     <motion.div
@@ -27,7 +27,7 @@ const ProjectStats = ({ location, area, duration, style, year, budget }: Project
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4"
+      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-5"
     >
       {stats.map((stat, index) => (
         <motion.div

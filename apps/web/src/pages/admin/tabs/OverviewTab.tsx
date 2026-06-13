@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { InsightCard } from "@/components/admin/dashboard/InsightCard";
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
 import { ProjectPipelineChart } from "@/components/admin/analytics/ProjectPipelineChart";
+import { PosthogFunnelChart } from "@/components/admin/analytics/PosthogFunnelChart";
 import { Users, TrendingUp, Eye, Target, BarChart3 } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { endOfDay, differenceInDays, subDays, format, startOfDay } from "date-fns";
@@ -55,17 +56,14 @@ const OverviewTab = ({ date, changeTab }: OverviewTabProps) => {
 
       let leadsQuery = supabase.from("leads").select("id, status", { count: "exact" });
       let estimateQuery = supabase.from("leads").select("id, estimated_min", { count: "exact" }).eq("lead_source", "estimator");
-      let viewsQuery = supabase.from("analytics_events").select("id", { count: "exact" }).eq("event_type", "page_view");
 
       if (fromIso) {
         leadsQuery = leadsQuery.gte("created_at", fromIso);
         estimateQuery = estimateQuery.gte("created_at", fromIso);
-        viewsQuery = viewsQuery.gte("occurred_at", fromIso);
       }
       if (toIso) {
         leadsQuery = leadsQuery.lte("created_at", toIso);
         estimateQuery = estimateQuery.lte("created_at", toIso);
-        viewsQuery = viewsQuery.lte("occurred_at", toIso);
       }
 
       let prevLeadsQuery = supabase.from("leads").select("id", { count: "exact" });
@@ -73,11 +71,18 @@ const OverviewTab = ({ date, changeTab }: OverviewTabProps) => {
         prevLeadsQuery = prevLeadsQuery.gte("created_at", previousFromIso).lte("created_at", previousToIso);
       }
 
-      const [leadsRes, estimateRes, prevLeadsRes, viewsRes] = await Promise.all([
+      const trafficRes = await supabase.functions.invoke("posthog-query", {
+        body: {
+          action: "traffic-stats",
+          from: fromIso || subDays(new Date(), 30).toISOString(),
+          to: toIso || new Date().toISOString()
+        }
+      });
+
+      const [leadsRes, estimateRes, prevLeadsRes] = await Promise.all([
         leadsQuery,
         estimateQuery,
         previousFromIso ? prevLeadsQuery : Promise.resolve({ count: 0, error: null }),
-        viewsQuery,
       ]);
 
       const leads = leadsRes.data || [];
@@ -96,7 +101,7 @@ const OverviewTab = ({ date, changeTab }: OverviewTabProps) => {
         leadsTrend,
         conversionRate,
         pipelineValue,
-        pageViews: viewsRes.count || 0,
+        pageViews: trafficRes.data?.views || 0,
       };
     },
   });
@@ -261,6 +266,25 @@ const OverviewTab = ({ date, changeTab }: OverviewTabProps) => {
           ) : (
             <p className="text-xs text-[hsl(var(--admin-text-muted))] text-center py-10">No leads in period</p>
           )}
+        </div>
+      </div>
+
+      {/* PostHog Engine Funnels */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6">
+          <h3 className="text-sm font-bold text-[hsl(var(--admin-text))] mb-1 flex items-center gap-2"><Target className="w-4 h-4 text-emerald-400" /> Discovery Engine Funnel</h3>
+          <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-4">PostHog conversion metrics (Last 30 Days)</p>
+          <div className="h-[200px]">
+            <PosthogFunnelChart action="funnel-discovery" color="emerald" fromIso={fromIso} toIso={toIso} />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6">
+          <h3 className="text-sm font-bold text-[hsl(var(--admin-text))] mb-1 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-blue-400" /> Estimator Engine Funnel</h3>
+          <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-4">PostHog conversion metrics (Last 30 Days)</p>
+          <div className="h-[200px]">
+            <PosthogFunnelChart action="funnel-estimator" color="blue" fromIso={fromIso} toIso={toIso} />
+          </div>
         </div>
       </div>
     </div>

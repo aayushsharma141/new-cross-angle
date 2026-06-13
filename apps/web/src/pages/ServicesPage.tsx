@@ -6,17 +6,17 @@ import ScrollToTop from "@/components/layout/ScrollToTop";
 import { LogoAnimation } from "@/components/shared/LogoAnimation";
 import ServicesHero from "@/components/services/ServicesHero";
 import ServicesMarquee from "@/components/services/ServicesMarquee";
-import ServicesProcess from "@/components/services/ServicesProcess";
 import ServicesWhyUs from "@/components/services/ServicesWhyUs";
 import ServicesCTA from "@/components/services/ServicesCTA";
-import OurApproach from "@/components/services/OurApproach";
 import ServicesEngines from "@/components/services/ServicesEngines";
+import ProcessTeaser from "@/components/services/ProcessTeaser";
 import { Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed, LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Image } from "@/components/ui/enhanced/image";
+import { Button } from "@/components/ui/primitives/button";
 
 // Icon mapping helper
 const IconMap: Record<string, LucideIcon> = {
@@ -25,16 +25,35 @@ const IconMap: Record<string, LucideIcon> = {
 
 const EmptyCategoryState = ({ label }: { label: string }) => (
   <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-sm text-[#EDEDED]/55">
-    No {label.toLowerCase()} services with published Supabase images are available yet.
+    No {label.toLowerCase()} services are currently listed. Check back soon for updates.
   </div>
 );
 
 
 const ServicesPage = () => {
-  const { data: services, isLoading } = useQuery({
+  const { data: services, isLoading, isError, refetch } = useQuery({
     queryKey: ["services"],
     queryFn: api.getServices,
   });
+
+  if (isError) {
+    return (
+      <>
+        <FixedSocialBar />
+        <Navbar />
+        <main id="main-content" className="min-h-screen flex flex-col items-center justify-center bg-[#000000] text-[#EDEDED] p-6">
+          <div className="max-w-md text-center space-y-6">
+            <h2 className="font-serif text-3xl text-site-crimson">Failed to load services</h2>
+            <p className="text-white/60 font-light">There was a network error loading our design domains. Please check your connection and try again.</p>
+            <Button onClick={() => refetch()} className="bg-site-crimson text-white hover:bg-site-crimson/90 px-8 py-4 rounded-full text-xs uppercase tracking-widest font-semibold">
+              Retry Connection
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
 
 
@@ -54,11 +73,16 @@ const ServicesPage = () => {
           name="description"
           content="Ultra-luxury turnkey interior solutions. Design intelligence paired with hospitality-grade precision."
         />
+        <meta property="og:title" content="Services | CrossAngle Interior" />
+        <meta property="og:description" content="Ultra-luxury turnkey interior solutions. Design intelligence paired with hospitality-grade precision." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://crossangleinterior.com/services" />
+        <link rel="canonical" href="https://crossangleinterior.com/services" />
       </Helmet>
 
       <FixedSocialBar />
       <Navbar />
-      <main className="min-h-screen relative z-10 bg-[#000000] overflow-hidden text-[#EDEDED] font-sans">
+      <main id="main-content" className="min-h-screen relative z-10 bg-[#000000] overflow-hidden text-[#EDEDED] font-sans">
 
         <ServicesHero />
         <ServicesMarquee />
@@ -266,12 +290,9 @@ const ServicesPage = () => {
           </div>
         </section>
 
-        <OurApproach />
-
         <ServicesEngines />
-
         <ServicesWhyUs />
-        <ServicesProcess />
+        <ProcessTeaser />
         <ServicesCTA />
       </main>
       <Footer />

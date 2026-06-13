@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, ArrowUp, ArrowDown, ImageIcon, Upload, X, Check } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, ArrowUp, ArrowDown, ImageIcon, Upload, X, Check, Search } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Image } from "@/components/ui/enhanced/image";
 import { Input } from "@/components/ui/primitives/input";
@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/primitives/badge";
 import { Compare } from "@/components/ui/enhanced/compare";
 import { MediaPicker as CanonicalMediaPicker } from "@/components/admin/media/MediaPicker";
+import { AdminSafeAction } from "@/components/admin/shared";
+import { AdminFilterBar } from "@/components/admin/shared/AdminFilterBar";
 
 const BUCKET = "media";
 
@@ -99,6 +101,7 @@ const defaultForm: FormData = {
 
 export default function AdminTransformations() {
   const [stories, setStories] = useState<TransformationStory[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -156,8 +159,7 @@ export default function AdminTransformations() {
     setSaving(false);
   };
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Delete "${title}"?`)) return;
+  const handleDelete = async (id: string) => {
     await supabase.from("transformation_stories").delete().eq("id", id);
     toast({ title: "Deleted" }); fetchStories();
   };
@@ -178,14 +180,32 @@ export default function AdminTransformations() {
     fetchStories();
   };
 
+  const filteredStories = stories.filter(story => 
+    story.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    story.location.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="space-y-6">
+      <div className="space-y-4 fade-up-1">
+      
       <ModuleActions>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground">{stories.filter(s => s.active).length} active / {stories.length} total</span>
-          <Button onClick={openCreate} size="sm"><Plus className="w-4 h-4 mr-2" /> Add Transformation</Button>
+        <div className="flex justify-end w-full">
+          <Button onClick={openCreate} className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90">
+            <Plus className="w-4 h-4 mr-2" /> Add Transformation
+          </Button>
         </div>
       </ModuleActions>
+
+      <AdminFilterBar
+        title="Transformations"
+        icon={ImageIcon}
+        badgeCount={stories.length > 0 ? `${stories.length} stories` : undefined}
+        filters={[]}
+        activeFilter=""
+        onFilterChange={() => {}}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
@@ -195,9 +215,14 @@ export default function AdminTransformations() {
           <p className="text-muted-foreground text-sm">No transformation stories yet.</p>
           <Button onClick={openCreate} size="sm" className="mt-4"><Plus className="w-4 h-4 mr-2" /> Add First Story</Button>
         </div>
+      ) : filteredStories.length === 0 ? (
+        <div className="text-center py-16 border border-dashed border-admin-border rounded-xl">
+          <ImageIcon className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
+          <p className="text-muted-foreground text-sm">No stories found matching your search.</p>
+        </div>
       ) : (
         <div className="space-y-3">
-          {stories.map((story, idx) => (
+          {filteredStories.map((story, idx) => (
             <div key={story.id} className={cn("grid grid-cols-[auto_1fr_auto] items-center gap-4 p-4 rounded-xl border", story.active ? "bg-admin-card border-admin-border" : "bg-admin-card/50 border-admin-border/50 opacity-60")}>
               <div className="flex gap-1 shrink-0">
                 <div className="w-20 h-14 rounded-lg overflow-hidden bg-muted border border-admin-border">
@@ -235,7 +260,12 @@ export default function AdminTransformations() {
                 <Button variant="ghost" size="icon" aria-label="Move down" className="h-8 w-8" onClick={() => moveOrder(story.id, "down")} disabled={idx === stories.length - 1}><ArrowDown className="w-3.5 h-3.5" /></Button>
                 <Button variant="ghost" size="icon" aria-label={story.active ? "Hide story" : "Show story"} className="h-8 w-8" onClick={() => toggleActive(story.id, story.active)}>{story.active ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}</Button>
                 <Button variant="ghost" size="icon" aria-label="Edit story" className="h-8 w-8" onClick={() => openEdit(story)}><Pencil className="w-3.5 h-3.5" /></Button>
-                <Button variant="ghost" size="icon" aria-label="Delete story" className="h-8 w-8" onClick={() => handleDelete(story.id, story.title)}><Trash2 className="w-3.5 h-3.5 text-destructive" /></Button>
+                <AdminSafeAction
+                    icon={Trash2}
+                    label=""
+                    confirmLabel="Delete?"
+                    onConfirm={() => handleDelete(story.id)}
+                />
               </div>
             </div>
           ))}

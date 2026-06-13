@@ -216,8 +216,9 @@ export type SiteContentFormData = z.infer<typeof siteContentSchema>;
 // SETTINGS VALIDATION
 // ==========================================
 export const siteSettingsSchema = z.object({
-    site_name: z.string().min(1, "Site name is required"),
-    site_description: z.string().optional(),
+    company_name: z.string().min(1, "Company name is required"),
+    company_description: z.string().optional(),
+    company_logo_url: z.string().url("Invalid URL").optional().or(z.literal("")),
     contact_email: z.string().email("Invalid email").optional().or(z.literal("")),
     contact_phone: z.string().optional(),
     contact_whatsapp: z.string().optional(),

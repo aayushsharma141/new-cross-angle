@@ -35,7 +35,7 @@ export function HeroMediaPickerModal({ open, onClose, onSelect }: HeroMediaPicke
             setLoading(true);
             try {
                 const { data, error } = await supabase
-                    .from("media")
+                    .from("media_files")
                     .select("id, file_name, url")
                     .order("created_at", { ascending: false });
                 if (error) throw error;

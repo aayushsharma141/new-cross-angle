@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 interface AnimatedLogoProps {
   className?: string;
   isScrolled?: boolean;
+  textSize?: string;
 }
 
 const word1Variants = {
@@ -51,6 +52,7 @@ const interiorLetterVariants: Variants = {
 export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
   className,
   isScrolled,
+  textSize,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const logoRef = useRef<HTMLDivElement>(null);
@@ -114,7 +116,10 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         variants={word1Variants}
         initial="hidden"
         animate="visible"
-        className="flex mr-1.5 sm:mr-2 text-[clamp(0.9rem,3vw,1.4rem)] logo-metallic-text relative z-10"
+        className={cn(
+          "flex mr-1.5 sm:mr-2 logo-metallic-text relative z-10",
+          textSize || "text-[clamp(0.9rem,3vw,1.4rem)]"
+        )}
       >
         {word1.split("").map((letter, i) => (
           <motion.span
@@ -131,7 +136,10 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         variants={word2Variants}
         initial="hidden"
         animate="visible"
-        className="flex text-[clamp(0.9rem,3vw,1.4rem)] logo-metallic-text relative z-10"
+        className={cn(
+          "flex logo-metallic-text relative z-10",
+          textSize || "text-[clamp(0.9rem,3vw,1.4rem)]"
+        )}
       >
         {word2.split("").map((letter, i) => (
           <motion.span

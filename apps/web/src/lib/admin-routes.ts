@@ -36,8 +36,11 @@ export const ADMIN_ROUTES = {
     /* ─── Dashboard ────────────────────────────────────────────────────── */
     dashboard: { path: "/admin/dashboard", label: "Dashboard", parent: "hub" },
 
-    /* ─── Access / User management ────────────────────────────────────── */
-    access: { path: "/admin/access", label: "User Access", parent: "hub" },
+    /* ─── User Access module ──────────────────────────────────────────── */
+    userAccess: { path: "/admin/user-access", label: "User Access", parent: "hub" },
+    userAccessUsers: { path: "/admin/user-access/users", label: "Users", parent: "userAccess" },
+    userAccessRoles: { path: "/admin/user-access/roles", label: "Roles & Permissions", parent: "userAccess" },
+    userAccessSecurity: { path: "/admin/user-access/security", label: "Security", parent: "userAccess" },
 
     /* ─── CMS module ──────────────────────────────────────────────────── */
     cms: { path: "/admin/cms", label: "Content", parent: "hub" },
@@ -50,9 +53,9 @@ export const ADMIN_ROUTES = {
     cmsHero: { path: "/admin/cms/hero-carousel", label: "Hero Carousel", parent: "cms" },
     cmsGallery: { path: "/admin/cms/gallery", label: "Gallery", parent: "cms" },
     cmsTransformations: { path: "/admin/cms/before-and-after", label: "Before & After", parent: "cms" },
-    cmsStats: { path: "/admin/cms/studio-statistics", label: "Studio Statistics", parent: "cms" },
     cmsMilestones: { path: "/admin/cms/milestones", label: "Milestones", parent: "cms" },
     cmsProcessSteps: { path: "/admin/cms/process-steps", label: "Process Steps", parent: "cms" },
+    cmsSiteAssets: { path: "/admin/cms/site-assets", label: "Site Assets", parent: "cms" },
 
     /* ─── CRM module ──────────────────────────────────────────────────── */
     crm: { path: "/admin/crm", label: "Client CRM", parent: "hub" },
@@ -76,10 +79,9 @@ export const ADMIN_ROUTES = {
 
     /* ─── System settings ─────────────────────────────────────────────── */
     system: { path: "/admin/system", label: "System Settings", parent: "hub" },
-    systemSettings: { path: "/admin/system/settings", label: "General Settings", parent: "system" },
-    systemTeamMembers: { path: "/admin/system/team-members", label: "Team Members", parent: "system" },
+    systemSettings: { path: "/admin/system/settings", label: "Company Settings", parent: "system" },
     systemAudit: { path: "/admin/system/audit-logs", label: "Audit Logs", parent: "system" },
-    systemAccess: { path: "/admin/system/access-control", label: "Access Control", parent: "system" },
+
 } satisfies Record<string, { path: string; label: string; parent?: string }>;
 
 export type AdminRouteKey = keyof typeof ADMIN_ROUTES;

@@ -8,11 +8,12 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { serviceCategories, services } from "@/config/site-content";
 import NotFound from "./NotFound";
 import { motion } from "framer-motion";
-import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
+import { SchemaMarkup, serializeJsonLd } from "@/components/shared/SchemaMarkup";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import ReactMarkdown from 'react-markdown';
 import { Image } from "@/components/ui/enhanced/image";
+import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
 
 const ServiceDetailPage = () => {
     const { category: categorySlug, service: serviceSlug } = useParams();
@@ -52,9 +53,13 @@ const ServiceDetailPage = () => {
             <Helmet>
                 <title>{`${service.title} - ${category.title} | Cross Angle Interior`}</title>
                 <meta name="description" content={service.description} />
+                <meta property="og:title" content={`${service.title} - ${category.title} | Cross Angle Interior`} />
+                <meta property="og:description" content={service.description} />
+                <meta property="og:type" content="website" />
+                <link rel="canonical" href={`https://crossangleinterior.com/services/${categorySlug}/${serviceSlug}`} />
                 {service.faq && service.faq.length > 0 && (
-                    <script type="application/ld+json">
-                        {JSON.stringify({
+                    <script type="application/ld+json" dangerouslySetInnerHTML={{
+                        __html: serializeJsonLd({
                             "@context": "https://schema.org",
                             "@type": "FAQPage",
                             "mainEntity": service.faq.map((item: { question: string; answer: string }) => ({
@@ -65,8 +70,8 @@ const ServiceDetailPage = () => {
                                     "text": item.answer
                                 }
                             }))
-                        })}
-                    </script>
+                        })
+                    }} />
                 )}
             </Helmet>
             <SchemaMarkup
@@ -97,19 +102,17 @@ const ServiceDetailPage = () => {
             <div className="min-h-screen bg-background flex flex-col">
                 <Navbar />
 
-                <main className="flex-grow">
+                <main id="main-content" className="flex-grow">
                     {/* Breadcrumb */}
-                    <nav aria-label="Breadcrumb" className="bg-accent/5 py-3 border-b border-border/50 mt-16">
-                        <div className="container px-4 flex items-center text-sm text-muted-foreground overflow-x-auto whitespace-nowrap">
-                            <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
-                            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0" />
-                            <Link to="/services" className="hover:text-foreground transition-colors">Services</Link>
-                            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0" />
-                            <Link to={`/services/${category.slug}`} className="hover:text-foreground transition-colors">{category.title}</Link>
-                            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0" />
-                            <span className="text-primary font-medium">{service.title}</span>
-                        </div>
-                    </nav>
+                    <div className="pt-24 pb-4">
+                        <SiteBreadcrumb 
+                            items={[
+                                { label: "Services", href: "/services" },
+                                { label: category.title, href: `/services/${category.slug}` },
+                                { label: service.title }
+                            ]} 
+                        />
+                    </div>
 
                     {/* Hero Section */}
                     <section className="relative py-16 md:py-24 overflow-hidden">
@@ -245,6 +248,7 @@ const ServiceDetailPage = () => {
                     )}
 
                     {/* FAQ Section */}
+                    {service.faq && service.faq.length > 0 && (
                     <section className="py-20 bg-background">
                         <div className="container px-4 max-w-3xl mx-auto">
                             <div className="text-center mb-12">
@@ -264,6 +268,7 @@ const ServiceDetailPage = () => {
                             </Accordion>
                         </div>
                     </section>
+                    )}
 
                 </main>
                 <Footer />

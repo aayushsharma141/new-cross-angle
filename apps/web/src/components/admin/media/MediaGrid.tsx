@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion } from "framer-motion";
 import {
     MoreVertical,
@@ -11,16 +12,9 @@ import { Card, CardContent } from "@/components/ui/primitives/card";
 import { Button } from "@/components/ui/primitives/button";
 import { Checkbox } from "@/components/ui/primitives/checkbox";
 import { getOptimizedUrl } from "@/lib/cdn";
+import { useDraggable } from "@dnd-kit/core";
 
-interface MediaFile {
-    id: string;
-    name: string;
-    url: string;
-    folder: string;
-    size: number;
-    created_at: string;
-}
-
+import { MediaFile } from "@/services/MediaService";
 interface MediaGridProps {
     files: MediaFile[];
     viewMode: "grid" | "list";
@@ -31,6 +25,8 @@ interface MediaGridProps {
     onCopyUrl: (url: string) => void;
     copiedUrl: string | null;
     isReadOnly?: boolean;
+    uploadZone?: React.ReactNode;
+    hideEmptyState?: boolean;
 }
 
 export const MediaGrid = ({
@@ -42,7 +38,9 @@ export const MediaGrid = ({
     onDelete,
     onCopyUrl,
     copiedUrl,
-    isReadOnly = false
+    isReadOnly = false,
+    uploadZone,
+    hideEmptyState = false
 }: MediaGridProps) => {
 
     const formatFileSize = (bytes: number) => {
@@ -53,7 +51,7 @@ export const MediaGrid = ({
         return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
     };
 
-    if (files.length === 0) {
+    if (files.length === 0 && !uploadZone && !hideEmptyState) {
         return (
             <div className="text-center py-16 text-muted-foreground bg-muted/20 rounded-xl border-2 border-dashed border-muted">
                 <div className="bg-muted p-4 rounded-full inline-block mb-3">
@@ -65,66 +63,81 @@ export const MediaGrid = ({
         );
     }
 
+    const DraggableFileItem = ({ file, index, formatFileSize }: { file: MediaFile, index: number, formatFileSize: (bytes: number) => string }) => {
+        const { attributes, listeners, setNodeRef, transform } = useDraggable({
+            id: file.id,
+            data: { type: "file", file }
+        });
+        const style = transform ? {
+            transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+            zIndex: 50,
+        } : undefined;
+
+        return (
+            <motion.div
+                ref={setNodeRef}
+                style={style}
+                {...listeners}
+                {...attributes}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.02 }}
+                className="cursor-grab active:cursor-grabbing"
+            >
+                <Card
+                    className={`group overflow-hidden relative transition-all duration-300 hover:shadow-[0_20px_50px_rgba(124,58,237,0.1)] border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md ${selectedFiles.has(file.id)
+                        ? 'ring-2 ring-[hsl(var(--admin-primary))] border-[hsl(var(--admin-primary)/0.5)] shadow-[0_0_20px_rgba(124,58,237,0.2)]'
+                        : 'hover:border-[hsl(var(--admin-primary)/0.3)]'
+                        }`}
+                >
+                    {!isReadOnly && (
+                        <div className="absolute top-2 left-2 z-20" onPointerDown={(e) => e.stopPropagation()}>
+                            <Checkbox
+                                checked={selectedFiles.has(file.id)}
+                                onCheckedChange={() => onToggleSelection(file.id)}
+                                className="bg-black/40 border-zinc-700 data-[state=checked]:bg-[hsl(var(--admin-primary))] data-[state=checked]:border-[hsl(var(--admin-primary))] shadow-sm"
+                            />
+                        </div>
+                    )}
+
+                    <div className="aspect-square relative bg-secondary/50 overflow-hidden" onPointerDown={(e) => e.stopPropagation()} onClick={() => onPreview(file)}>
+                        <img
+                            src={getOptimizedUrl(file.url, { width: 420, quality: 72 })}
+                            alt={file.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-3 pointer-events-none">
+                            <div className="flex items-center justify-center gap-2 mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-300 pointer-events-auto">
+                                <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-zinc-900/90 hover:bg-[hsl(var(--admin-primary))] hover:text-white text-zinc-300 border border-zinc-800 shadow-xl transition-all" onClick={(e) => { e.stopPropagation(); onPreview(file); }} title="Preview" aria-label={`Preview ${file.name}`}>
+                                    <Maximize2 className="w-3.5 h-3.5" />
+                                </Button>
+                                <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-zinc-900/90 hover:bg-[hsl(var(--admin-primary))] hover:text-white text-zinc-300 border border-zinc-800 shadow-xl transition-all" onClick={(e) => { e.stopPropagation(); onCopyUrl(file.url); }} title="Copy URL" aria-label={`Copy URL for ${file.name}`}>
+                                    {copiedUrl === file.url ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                </Button>
+                                {!isReadOnly && (
+                                    <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full shadow-xl bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all" onClick={(e) => { e.stopPropagation(); onDelete(file); }} title="Delete" aria-label={`Delete ${file.name}`}>
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                    </Button>
+                                )}
+                            </div>
+                            <p className="text-zinc-400 text-[10px] font-medium truncate opacity-0 group-hover:opacity-100 transition-opacity delay-100 pointer-events-auto">{formatFileSize(file.size)}</p>
+                        </div>
+                    </div>
+                    <CardContent className="p-3 pointer-events-none">
+                        <p className="text-xs font-medium truncate mb-1" title={file.name}>{file.name}</p>
+                    </CardContent>
+                </Card>
+            </motion.div>
+        );
+    };
+
     if (viewMode === "grid") {
         return (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                {uploadZone}
                 {files.map((file, index) => (
-                    <motion.div
-                        key={file.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.02 }}
-                    >
-                        <Card
-                            className={`group overflow-hidden relative transition-all duration-300 hover:shadow-[0_20px_50px_rgba(124,58,237,0.1)] border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md ${selectedFiles.has(file.id)
-                                ? 'ring-2 ring-[hsl(var(--admin-primary))] border-[hsl(var(--admin-primary)/0.5)] shadow-[0_0_20px_rgba(124,58,237,0.2)]'
-                                : 'hover:border-[hsl(var(--admin-primary)/0.3)]'
-                                }`}
-                        >
-                            {!isReadOnly && (
-                                <div className="absolute top-2 left-2 z-20">
-                                    <Checkbox
-                                        checked={selectedFiles.has(file.id)}
-                                        onCheckedChange={() => onToggleSelection(file.id)}
-                                        className="bg-black/40 border-zinc-700 data-[state=checked]:bg-[hsl(var(--admin-primary))] data-[state=checked]:border-[hsl(var(--admin-primary))] shadow-sm"
-                                    />
-                                </div>
-                            )}
-
-                            <div className="aspect-square relative bg-secondary/50 cursor-pointer overflow-hidden" onClick={() => onPreview(file)}>
-                                <img
-                                    src={getOptimizedUrl(file.url, { width: 420, quality: 72 })}
-                                    alt={file.name}
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                    loading="lazy"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-3">
-                                    <div className="flex items-center justify-center gap-2 mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-zinc-900/90 hover:bg-[hsl(var(--admin-primary))] hover:text-white text-zinc-300 border border-zinc-800 shadow-xl transition-all" onClick={(e) => { e.stopPropagation(); onPreview(file); }} title="Preview" aria-label={`Preview ${file.name}`}>
-                                            <Maximize2 className="w-3.5 h-3.5" />
-                                        </Button>
-                                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-zinc-900/90 hover:bg-[hsl(var(--admin-primary))] hover:text-white text-zinc-300 border border-zinc-800 shadow-xl transition-all" onClick={(e) => { e.stopPropagation(); onCopyUrl(file.url); }} title="Copy URL" aria-label={`Copy URL for ${file.name}`}>
-                                            {copiedUrl === file.url ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                                        </Button>
-                                        {!isReadOnly && (
-                                            <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full shadow-xl bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 transition-all" onClick={(e) => { e.stopPropagation(); onDelete(file); }} title="Delete" aria-label={`Delete ${file.name}`}>
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                    <p className="text-zinc-400 text-[10px] font-medium truncate opacity-0 group-hover:opacity-100 transition-opacity delay-100">{formatFileSize(file.size)}</p>
-                                </div>
-                            </div>
-                            <CardContent className="p-3">
-                                <p className="text-xs font-medium truncate mb-1" title={file.name}>{file.name}</p>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-secondary-foreground capitalize">
-                                        {file.folder}
-                                    </span>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
+                    <DraggableFileItem key={file.id} file={file} index={index} formatFileSize={formatFileSize} />
                 ))}
             </div>
         );
@@ -132,6 +145,7 @@ export const MediaGrid = ({
 
     return (
         <div className="space-y-2">
+            {uploadZone && <div className="mb-4">{uploadZone}</div>}
             {files.map((file) => (
                 <div
                     key={file.id}
@@ -155,7 +169,6 @@ export const MediaGrid = ({
                         <p className="font-medium text-sm truncate">{file.name}</p>
                         <div className="flex items-center gap-2 mt-1">
                             <span className="text-xs text-muted-foreground capitalize flex items-center gap-1">
-                                {file.folder}
                             </span>
                             <span className="text-[10px] text-muted-foreground">•</span>
                             <span className="text-xs text-muted-foreground">{formatFileSize(file.size)}</span>

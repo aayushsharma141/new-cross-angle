@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
 
 interface AboutHeroProps {
   onPlayVideo?: () => void;
@@ -281,6 +282,9 @@ const AboutHero = ({
         <div className="w-full lg:w-[52%] xl:w-[54%] 2xl:w-[50%] flex flex-col justify-center gap-6
                         px-6 sm:px-10 lg:pl-16 xl:pl-24 lg:pr-12
                         py-10 lg:py-0 min-h-[50vh] lg:min-h-[calc(100vh-6rem)] mt-12 lg:mt-0">
+          
+          <SiteBreadcrumb items={[{ label: "About Us" }]} className="mb-[-0.5rem] mt-4" />
+
           {/* Label */}
           <motion.div
             initial={{ opacity: 0, y: 18 }}

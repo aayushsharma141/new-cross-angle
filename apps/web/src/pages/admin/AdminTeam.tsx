@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,12 +15,14 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/primitives/dialog";
-import { Plus, Loader2, Pencil, Trash2, Instagram, Linkedin, Mail, Users } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2, Instagram, Linkedin, Mail, Users, Search } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { auditService } from "@/services/AuditService";
 import { Image } from "@/components/ui/enhanced/image";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
-import MediaPickerModal from "@/components/admin/MediaPickerModal";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
+import { AdminSafeAction } from "@/components/admin/shared";
+import { AdminFilterBar } from "@/components/admin/shared/AdminFilterBar";
 
 interface TeamMember {
     id: string;
@@ -30,25 +33,30 @@ interface TeamMember {
     instagram_url: string | null;
     linkedin_url: string | null;
     email: string | null;
-    display_order: number;
-    created_at: string;
+    display_order: number | null;
+    created_at: string | null;
 }
 
 export default function AdminTeam() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+    const [searchQuery, setSearchQuery] = useState("");
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
     const { data: members = [], isLoading, error } = useQuery<TeamMember[]>({
-        queryKey: ["team-members"],
+        queryKey: ["team-members", searchQuery],
         queryFn: async (): Promise<TeamMember[]> => {
-            const { data, error } = await supabase
+            let query = supabase
                 .from("team_members")
                 .select("*")
                 .order("display_order", { ascending: true });
+
+            if (searchQuery) {
+                query = query.ilike('name', `%${searchQuery}%`);
+            }
+
+            const { data, error } = await query;
 
             if (error) {
                 if (error.code === "PGRST116" || error.message.includes("does not exist")) {
@@ -207,35 +215,36 @@ export default function AdminTeam() {
                     }}>
                         <Pencil className="w-4 h-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => {
-                        if (confirm("Are you sure you want to remove this member?")) {
-                            deleteMutation.mutate(member.id);
-                        }
-                    }}>
-                        <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <AdminSafeAction
+                        icon={Trash2}
+                        label=""
+                        confirmLabel="Delete?"
+                        onConfirm={async () => deleteMutation.mutateAsync(member.id)}
+                    />
                 </div>
             )
         }
     ];
 
     return (
-        <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
+        <div className="flex flex-col space-y-4 animate-in fade-in duration-700">
+            
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
                 setIsDialogOpen(open);
                 if (!open) {
                     setEditingMember(null);
-                    setSelectedImage(null);
                 }
             }}>
                 <ModuleActions>
-                    <DialogTrigger asChild>
-                        <Button className="gap-2">
-                            <Plus className="w-4 h-4" /> Add Member
-                        </Button>
-                    </DialogTrigger>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-between w-full">
+                        <DialogTrigger asChild>
+                            <Button className="w-full sm:w-auto ml-auto" onClick={() => setEditingMember(null)}>
+                                <Plus className="w-4 h-4 mr-2" /> Add Member
+                            </Button>
+                        </DialogTrigger>
+                    </div>
                 </ModuleActions>
-                <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl bg-admin-card border-admin-border text-admin-text">
+                <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col overflow-hidden sm:rounded-xl bg-admin-card border-admin-border text-admin-text p-0">
                     <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
                         <DialogTitle>{editingMember ? "Edit Team Member" : "Add Team Member"}</DialogTitle>
                         <DialogDescription>
@@ -260,60 +269,11 @@ export default function AdminTeam() {
                             </div>
                             <div className="space-y-2">
                                 <Label>Profile Image</Label>
-                                <div className="flex items-center gap-4">
-                                    <div className="relative w-20 h-20 rounded-full overflow-hidden border bg-muted flex-shrink-0">
-                                        {(editingMember?.image_url || selectedImage) ? (
-                                            <Image
-                                                src={selectedImage || editingMember?.image_url || ""}
-                                                alt="Profile"
-                                                width={160}
-                                                quality={78}
-                                                imageClassName="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                                                <Users className="w-8 h-8 opacity-20" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex-1 space-y-2">
-                                        <div className="flex gap-2">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => setIsMediaPickerOpen(true)}
-                                            >
-                                                Select from Library
-                                            </Button>
-                                            {(selectedImage || editingMember?.image_url) && (
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="text-destructive hover:text-destructive"
-                                                    onClick={() => {
-                                                        setSelectedImage("");
-                                                        if (editingMember) setEditingMember({ ...editingMember, image_url: null });
-                                                    }}
-                                                >
-                                                    Remove
-                                                </Button>
-                                            )}
-                                        </div>
-                                        <Input
-                                            id="image_url"
-                                            name="image_url"
-                                            value={selectedImage || editingMember?.image_url || ""}
-                                            onChange={(e) => {
-                                                setSelectedImage(e.target.value);
-                                                if (editingMember) setEditingMember({ ...editingMember, image_url: e.target.value });
-                                            }}
-                                            placeholder="https://..."
-                                            className="text-xs font-mono"
-                                        />
-                                    </div>
-                                </div>
+                                <MediaPickerField
+                                    name="image_url"
+                                    value={editingMember?.image_url || ""}
+                                    onChange={(url) => setEditingMember(prev => prev ? { ...prev, image_url: url } : { id: "", name: "", role: "", bio: "", image_url: url, instagram_url: "", linkedin_url: "", email: "", display_order: 0, created_at: "" })}
+                                />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
@@ -346,15 +306,14 @@ export default function AdminTeam() {
                 </DialogContent>
             </Dialog>
 
-            <MediaPickerModal
-                open={isMediaPickerOpen}
-                onOpenChange={setIsMediaPickerOpen}
-                onSelect={(url) => {
-                    setSelectedImage(url);
-                    if (editingMember) {
-                        setEditingMember({ ...editingMember, image_url: url });
-                    }
-                }}
+            <AdminFilterBar
+                title="Team Directory"
+                icon={Users}
+                filters={[]}
+                activeFilter=""
+                onFilterChange={() => {}}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
             />
 
             <DataTable

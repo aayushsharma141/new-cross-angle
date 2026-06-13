@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from "react";
 import { Outlet, Navigate, useLocation, Link, useNavigate, useSearchParams } from "react-router-dom";
+import { ModuleLayout } from "@/components/admin/layout/ModuleLayout";
 import { PageSkeleton } from "@/components/ui/enhanced/PageSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { leadRepo } from "@/repositories";
@@ -65,7 +66,7 @@ export const CrmModule = () => {
   // ── Navigation handlers ──────────────────────────────────────────────────
   const handleStageClick = (stageId: string) => {
     const newParams = new URLSearchParams(isLeadsPage ? searchParams : undefined);
-    newParams.delete("view"); // clear view filter when switching stages
+    newParams.delete("view");
     
     if (!isLeadsPage) {
       newParams.set("stage", stageId);
@@ -82,7 +83,7 @@ export const CrmModule = () => {
 
   const handleViewClick = (viewId: string) => {
     const newParams = new URLSearchParams(isLeadsPage ? searchParams : undefined);
-    newParams.delete("stage"); // clear stage filter when switching views
+    newParams.delete("stage");
     if (viewId === "all" || viewParam === viewId) {
       newParams.delete("view");
     } else {
@@ -107,7 +108,6 @@ export const CrmModule = () => {
 
     if (isCrmNavLink(item)) {
       let isActive = item.isActive(location.pathname);
-      // If we're on a specific workspace view (Today, Tasks, etc.), don't highlight the general "Leads" tab
       if (item.id === "leads" && isLeadsPage && viewParam !== "all") {
         isActive = false;
       }
@@ -152,7 +152,7 @@ export const CrmModule = () => {
   };
 
   const sidebarContent = (
-    <>
+    <div className="flex flex-col gap-1 h-full">
       <div className="px-3 pb-2 text-[10px] uppercase tracking-[0.16em] text-admin-text-subtle font-semibold">Workspace Views</div>
 
       {CRM_WORKSPACE_NAV.map(renderNavItem)}
@@ -181,11 +181,11 @@ export const CrmModule = () => {
           </button>
         );
       })}
-    </>
+    </div>
   );
 
   return (
-    <div className="flex-1 flex h-full min-h-0 bg-admin-bg text-admin-text">
+    <>
       {/* Mobile CRM Nav Toggle */}
       <button
         type="button"
@@ -203,13 +203,12 @@ export const CrmModule = () => {
         </SheetContent>
       </Sheet>
 
-      {/* Desktop CRM Sidebar */}
-      <aside aria-label="CRM navigation" className="w-[220px] shrink-0 border-r border-admin-border py-3 px-2 hidden lg:flex flex-col gap-1 overflow-y-auto custom-scrollbar">
-        {sidebarContent}
-      </aside>
-
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      {/* Main Layout — reuses ModuleLayout with custom sidebar */}
+      <ModuleLayout
+        title="Client CRM"
+        description="Manage leads, track pipeline stages, and review client interactions across the sales lifecycle."
+        sidebar={sidebarContent}
+      >
         {isAnalyticsPage ? (
           <Suspense fallback={<div className="p-8"><PageSkeleton /></div>}>
             <CrmAnalytics />
@@ -221,7 +220,7 @@ export const CrmModule = () => {
         ) : (
           <Outlet />
         )}
-      </main>
-    </div>
+      </ModuleLayout>
+    </>
   );
 };

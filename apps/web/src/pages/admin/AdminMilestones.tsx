@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +18,8 @@ import {
 import { Plus, Loader2, ListOrdered, Pencil, Trash2, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
+import { AdminSafeAction } from "@/components/admin/shared";
+import { AdminFilterBar } from "@/components/admin/shared";
 
 interface Milestone {
     id: string;
@@ -156,10 +159,8 @@ export default function AdminMilestones() {
         setIsDialogOpen(true);
     };
 
-    const handleDelete = (milestone: Milestone) => {
-        if (window.confirm("Are you sure you want to delete this milestone?")) {
-            deleteMutation.mutate(milestone.id);
-        }
+    const handleDelete = async (milestone: Milestone) => {
+        await deleteMutation.mutateAsync(milestone.id);
     };
 
     const columns = [
@@ -189,9 +190,12 @@ export default function AdminMilestones() {
                     <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => handleEdit(item)}>
                         <Pencil className="w-4 h-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(item)}>
-                        <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <AdminSafeAction
+                        icon={Trash2}
+                        label=""
+                        confirmLabel="Delete?"
+                        onConfirm={() => handleDelete(item)}
+                    />
                 </div>
             )
         }
@@ -213,21 +217,23 @@ export default function AdminMilestones() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 fade-up-1">
+            
             <ModuleActions>
-                <Dialog 
-                    open={isDialogOpen} 
-                    onOpenChange={(open) => {
-                        setIsDialogOpen(open);
-                        if (!open) setEditingMilestone(null);
-                    }}
-                >
-                    <DialogTrigger asChild>
-                        <Button className="gap-2">
-                            <Plus className="w-4 h-4" />
-                            Add Milestone
-                        </Button>
-                    </DialogTrigger>
+                <div className="flex justify-end w-full">
+                    <Dialog 
+                        open={isDialogOpen} 
+                        onOpenChange={(open) => {
+                            setIsDialogOpen(open);
+                            if (!open) setEditingMilestone(null);
+                        }}
+                    >
+                        <DialogTrigger asChild>
+                            <Button className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90">
+                                <Plus className="w-4 h-4 mr-2" />
+                                Add Milestone
+                            </Button>
+                        </DialogTrigger>
                     <DialogContent className="sm:max-w-[500px] bg-admin-card border-admin-border text-admin-text">
                         <DialogHeader>
                             <DialogTitle>{editingMilestone ? "Edit Milestone" : "Add Milestone"}</DialogTitle>
@@ -303,6 +309,7 @@ export default function AdminMilestones() {
                         </form>
                     </DialogContent>
                 </Dialog>
+                </div>
             </ModuleActions>
 
             <DataTable

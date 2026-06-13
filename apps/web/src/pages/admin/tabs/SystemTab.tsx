@@ -34,7 +34,7 @@ const SystemTab = ({ date }: SystemTabProps) => {
         supabase.from("leads").select("id", { count: "exact" }),
         supabase.from("projects").select("id", { count: "exact" }),
         supabase.from("blog_posts").select("id", { count: "exact" }),
-        supabase.from("analytics_events").select("id", { count: "exact" }),
+        supabase.from("analytics_reporting_daily").select("metric_value").eq("metric_name", "page_views"),
       ]);
 
       return {
@@ -42,7 +42,7 @@ const SystemTab = ({ date }: SystemTabProps) => {
         totalLeads: leadsRes.count || 0,
         totalProjects: projectsRes.count || 0,
         totalBlogs: blogsRes.count || 0,
-        totalEvents: eventsRes.count || 0,
+        totalEvents: (eventsRes.data || []).reduce((acc: number, row: { metric_value: number }) => acc + row.metric_value, 0),
       };
     },
   });
@@ -127,7 +127,7 @@ const SystemTab = ({ date }: SystemTabProps) => {
               { name: "Supabase (DB & Auth)", ok: true },
               { name: "Resend (Email)", ok: true },
               { name: "Vercel (Hosting)", ok: true },
-              { name: "PostHog (Analytics)", ok: false, status: "Pending" },
+              { name: "PostHog (Analytics)", ok: true, status: "Active" },
             ].map((item) => (
               <div key={item.name} className="flex justify-between items-center text-[13px]">
                 <span className="text-[hsl(var(--admin-text-muted))]">{item.name}</span>

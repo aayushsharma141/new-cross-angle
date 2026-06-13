@@ -1,21 +1,18 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import portfolioBedroom from "@/assets/portfolio-bedroom.jpg";
-import portfolioKitchen from "@/assets/portfolio-kitchen.jpg";
-import portfolioOffice from "@/assets/portfolio-office.jpg";
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
+import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
 
-const HERO_IMAGES = [portfolioBedroom, portfolioKitchen, portfolioOffice];
+const HERO_ASSETS = [
+  { assetKey: "portfolio_hub_hero_1", url: "@/assets/portfolio-bedroom.jpg", caption: "Bedroom Suite · Noida Residence" },
+  { assetKey: "portfolio_hub_hero_2", url: "@/assets/portfolio-kitchen.jpg", caption: "Kitchen · Commercial Project · Gurugram" },
+  { assetKey: "portfolio_hub_hero_3", url: "@/assets/portfolio-office.jpg", caption: "Office Suite · Corporate HQ · Delhi NCR" },
+];
 
 const wordCycles = [
   { top: "Executed",  bottom: "Experienced" },
   { top: "Delivered", bottom: "Remembered"  },
   { top: "Refined",   bottom: "Lived In"    },
-];
-
-const captions = [
-  "Bedroom Suite · Noida Residence",
-  "Kitchen · Commercial Project · Gurugram",
-  "Office Suite · Corporate HQ · Delhi NCR",
 ];
 
 const stats = [
@@ -29,7 +26,7 @@ const HubHero = () => {
   const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => setImgIndex((p) => (p + 1) % HERO_IMAGES.length), 6000);
+    const t = setInterval(() => setImgIndex((p) => (p + 1) % HERO_ASSETS.length), 6000);
     return () => clearInterval(t);
   }, []);
 
@@ -50,6 +47,8 @@ const HubHero = () => {
         <div className="w-full lg:w-[54%] xl:w-[56%] flex flex-col justify-center gap-6
                         px-6 sm:px-10 lg:pl-14 xl:pl-20 2xl:pl-28 lg:pr-12
                         py-10 lg:py-0 min-h-[60vh] lg:min-h-[calc(100vh-6rem)]">
+
+          <SiteBreadcrumb items={[{ label: "Portfolio" }]} className="mb-[-0.5rem] mt-4" />
 
           {/* Label */}
           <motion.div
@@ -189,9 +188,11 @@ const HubHero = () => {
               transition={{ duration: 1.6, ease: [0.43, 0.13, 0.23, 0.96] }}
               className="absolute inset-0"
             >
-              <div
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                style={{ backgroundImage: `url(${HERO_IMAGES[imgIndex]})` }}
+              <MediaSlot
+                assetKey={HERO_ASSETS[imgIndex].assetKey}
+                fallbackUrl={HERO_ASSETS[imgIndex].url}
+                alt={HERO_ASSETS[imgIndex].caption}
+                className="absolute inset-0 h-full w-full object-cover"
               />
               {/* Lighten overlay — let the photo breathe */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/55 pointer-events-none" />
@@ -208,7 +209,7 @@ const HubHero = () => {
           {/* Slide dots — top right */}
           <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 p-1.5
                           bg-black/40 backdrop-blur-sm border border-white/[0.07]">
-            {HERO_IMAGES.map((_, i) => (
+            {HERO_ASSETS.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setImgIndex(i)}
@@ -234,7 +235,7 @@ const HubHero = () => {
                                border border-white/[0.07] px-3 py-1.5">
                 <span className="w-[5px] h-[5px] rounded-full bg-[#FF2A2A] shrink-0" />
                 <span className="text-[9px] uppercase tracking-[0.22em] text-white/55 whitespace-nowrap">
-                  {captions[imgIndex]}
+                  {HERO_ASSETS[imgIndex].caption}
                 </span>
               </span>
             </motion.div>

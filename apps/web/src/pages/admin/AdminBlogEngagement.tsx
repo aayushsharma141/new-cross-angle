@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
-import { AdminPageHeader, AdminMetricsPanel } from "@/components/admin/shared";
+import { AdminMetricsPanel } from "@/components/admin/shared";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import {
     BarChart,
@@ -134,8 +134,7 @@ export default function AdminBlogEngagement() {
                 .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
             `}</style>
             
-            <AdminPageHeader moduleName="Blog" tabName="Engagement" />
-            
+                        
             <ModuleActions>
                 <Button variant="outline" size="sm" onClick={loadData} disabled={refreshing} className="gap-2 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))]">
                     <RefreshCw className={cn("w-3.5 h-3.5", refreshing && "animate-spin")} />

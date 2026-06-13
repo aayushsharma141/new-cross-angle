@@ -69,11 +69,15 @@ const TermsPage = () => {
           name="description"
           content="Crossangle Interior's Terms and Conditions of Service — covering the 45-day delivery guarantee, 10-year modular warranty, payment schedule, and intellectual property rights."
         />
+        <meta property="og:title" content="Terms & Conditions | Cross Angle Interior" />
+        <meta property="og:description" content="Crossangle Interior's Terms and Conditions of Service — 45-day delivery guarantee, 10-year modular warranty, payment schedule, and IP rights." />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://crossangleinterior.com/terms" />
       </Helmet>
 
       <Navbar />
 
-      <main className="pt-32 pb-24 relative z-10 overflow-hidden">
+      <main id="main-content" className="pt-32 pb-24 relative z-10 overflow-hidden">
         {/* Decorative background */}
         <div className="pointer-events-none absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-[#d1af6e]/6 to-transparent -z-10" />
         <div className="pointer-events-none absolute top-24 left-0 w-[600px] h-[600px] bg-[#d1af6e]/3 rounded-full blur-[140px] -z-10" />

@@ -10,54 +10,32 @@
  */
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  handlePreflight,
+  verifyAdmin,
+  okResponse,
+  unauthorizedResponse,
+  serverErrorResponse,
+  getRequestId,
+} from "../_lib/security.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const FN = "sync-imagekit";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+  const preflight = handlePreflight(req);
+  if (preflight) return preflight;
+
+  const requestId = getRequestId(req);
+
+  const auth = await verifyAdmin(req);
+  if (!auth.user) {
+    return unauthorizedResponse(req, auth.error ?? "Unauthorized", {}, requestId);
   }
 
   try {
-    // ── Auth: only admins can trigger this ──────────────────────────────────
     const supabaseUrl  = Deno.env.get("SUPABASE_URL")!;
     const serviceKey   = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey      = Deno.env.get("SUPABASE_ANON_KEY")!;
-
-    // Verify the caller is an admin using their JWT
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const callerClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: { user }, error: authErr } = await callerClient.auth.getUser();
-    if (authErr || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Check role
     const adminClient = createClient(supabaseUrl, serviceKey);
-    const { data: roleRow } = await adminClient
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (!roleRow || !["super_admin", "admin"].includes(roleRow.role)) {
-      return new Response(JSON.stringify({ error: "Forbidden — admin role required" }), {
-        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
 
     // ── ImageKit API ─────────────────────────────────────────────────────────
     const ikPrivateKey   = Deno.env.get("IMAGEKIT_PRIVATE_KEY");
@@ -65,11 +43,13 @@ Deno.serve(async (req) => {
                            || "https://ik.imagekit.io/wdrs8y61o/cross-angle";
 
     if (!ikPrivateKey) {
-      return new Response(
-        JSON.stringify({ 
-          error: "IMAGEKIT_PRIVATE_KEY secret not set. Run: supabase secrets set IMAGEKIT_PRIVATE_KEY=your_private_key" 
-        }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      return serverErrorResponse(
+        req,
+        "IMAGEKIT_PRIVATE_KEY secret not set. Run: supabase secrets set IMAGEKIT_PRIVATE_KEY=your_private_key",
+        {},
+        FN,
+        null,
+        requestId,
       );
     }
 
@@ -97,10 +77,7 @@ Deno.serve(async (req) => {
 
     if (!ikRes.ok) {
       const errText = await ikRes.text();
-      return new Response(
-        JSON.stringify({ error: `ImageKit API error ${ikRes.status}: ${errText}` }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return serverErrorResponse(req, `ImageKit API error ${ikRes.status}: ${errText}`, {}, FN, null, requestId);
     }
 
     const ikFiles: Array<{
@@ -119,10 +96,7 @@ Deno.serve(async (req) => {
     }> = await ikRes.json();
 
     if (!Array.isArray(ikFiles)) {
-      return new Response(
-        JSON.stringify({ error: "Unexpected ImageKit response", raw: ikFiles }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return serverErrorResponse(req, "Unexpected ImageKit response", {}, FN, null, requestId);
     }
 
     // ── Upsert into media table ──────────────────────────────────────────────
@@ -132,7 +106,8 @@ Deno.serve(async (req) => {
 
     for (const f of ikFiles) {
       // file_name is our unique key — use ImageKit filePath (starts with /)
-      const fileName = `imagekit:${f.filePath}`.slice(0, 500); // prefix to distinguish from Supabase storage
+      const providerPath = f.filePath.replace(/^\/+/, "");
+      const fileName = `imagekit:${providerPath}`.slice(0, 500); // prefix to distinguish from Supabase storage
 
       const { error: dbErr } = await adminClient
         .from("media")
@@ -144,7 +119,10 @@ Deno.serve(async (req) => {
             size_bytes: f.size || 0,
             alt: f.name,
             title: f.name,
-            uploaded_by: user.id,
+            uploaded_by: auth.user.id,
+            storage_provider: "imagekit",
+            provider_file_id: f.fileId,
+            provider_path: providerPath,
           },
           { onConflict: "file_name" }
         );
@@ -156,22 +134,16 @@ Deno.serve(async (req) => {
       }
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        total: ikFiles.length,
-        upserted,
-        skipped,
-        errors: errors.length > 0 ? errors : undefined,
-        ikUrlEndpoint,
-      }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return okResponse(req, {
+      success: true,
+      total: ikFiles.length,
+      upserted,
+      skipped,
+      errors: errors.length > 0 ? errors : undefined,
+      ikUrlEndpoint,
+    }, {}, undefined, undefined, requestId);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    return new Response(
-      JSON.stringify({ error: message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return serverErrorResponse(req, message, {}, FN, err, requestId);
   }
 });

@@ -42,47 +42,27 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
         previousToIso = subDays(currentTo, daysDiff).toISOString();
       }
 
-      let viewsQuery = supabase.from("analytics_events").select("id", { count: "exact" }).eq("event_type", "page_view");
-      if (fromIso) viewsQuery = viewsQuery.gte("occurred_at", fromIso);
-      if (toIso) viewsQuery = viewsQuery.lte("occurred_at", toIso);
+      const { data, error } = await supabase.functions.invoke("posthog-query", {
+        body: {
+          action: "traffic-stats",
+          from: fromIso || subDays(new Date(), 30).toISOString(),
+          to: toIso || new Date().toISOString(),
+          previousFrom: previousFromIso,
+          previousTo: previousToIso
+        }
+      });
 
-      let prevViewsQuery = supabase.from("analytics_events").select("id", { count: "exact" }).eq("event_type", "page_view");
-      if (previousFromIso && previousToIso) {
-        prevViewsQuery = prevViewsQuery.gte("occurred_at", previousFromIso).lte("occurred_at", previousToIso);
+      if (error || !data) {
+        return {
+          views: 0,
+          viewsTrend: 0,
+          uniqueVisitors: 0,
+          engagementEvents: 0,
+          avgPagesPerVisitor: "0",
+        };
       }
 
-      // Unique visitors (distinct user_id)
-      let uniqueQuery = supabase.from("analytics_events").select("user_id").eq("event_type", "page_view");
-      if (fromIso) uniqueQuery = uniqueQuery.gte("occurred_at", fromIso);
-      if (toIso) uniqueQuery = uniqueQuery.lte("occurred_at", toIso);
-
-      // Blog engagement events
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let engagementQuery = (supabase as any).from("blog_user_events").select("id", { count: "exact" });
-      if (fromIso) engagementQuery = engagementQuery.gte("created_at", fromIso);
-      if (toIso) engagementQuery = engagementQuery.lte("created_at", toIso);
-
-      const [viewsRes, prevViewsRes, uniqueRes, engagementRes] = await Promise.all([
-        viewsQuery,
-        previousFromIso ? prevViewsQuery : Promise.resolve({ count: 0, error: null }),
-        uniqueQuery,
-        engagementQuery,
-      ]);
-
-      const views = viewsRes.count || 0;
-      const prevViews = prevViewsRes.count || 0;
-      const viewsTrend = prevViews > 0 ? Math.round(((views - prevViews) / prevViews) * 100) : views > 0 ? 100 : 0;
-
-      // Count unique user_ids
-      const uniqueVisitors = new Set((uniqueRes.data || []).map((r) => r.user_id).filter(Boolean)).size;
-
-      return {
-        views,
-        viewsTrend,
-        uniqueVisitors,
-        engagementEvents: engagementRes.count || 0,
-        avgPagesPerVisitor: uniqueVisitors > 0 ? (views / uniqueVisitors).toFixed(1) : "0",
-      };
+      return data;
     },
   });
 
@@ -90,23 +70,20 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
   const { data: trafficTimeline = [] } = useQuery({
     queryKey: ["traffic-timeline", date],
     queryFn: async () => {
-      const days = differenceInDays(currentTo || new Date(), currentFrom || subDays(new Date(), 30)) + 1;
-      const numDays = Math.min(days, 30);
-      const dateList = Array.from({ length: numDays }, (_, i) => subDays(currentTo || new Date(), numDays - 1 - i));
-      const from = startOfDay(dateList[0]).toISOString();
+      const from = currentFrom ? startOfDay(currentFrom).toISOString() : subDays(new Date(), 30).toISOString();
+      const to = (currentTo || new Date()).toISOString();
 
-      const { data } = await supabase
-        .from("analytics_events")
-        .select("occurred_at")
-        .eq("event_type", "page_view")
-        .gte("occurred_at", from)
-        .lte("occurred_at", (currentTo || new Date()).toISOString());
-
-      return dateList.map((d) => {
-        const dayStr = format(d, "yyyy-MM-dd");
-        const count = (data || []).filter((e) => format(new Date(e.occurred_at), "yyyy-MM-dd") === dayStr).length;
-        return { name: format(d, "MMM d"), views: count };
+      const { data, error } = await supabase.functions.invoke("posthog-query", {
+        body: { action: "traffic-timeline", from, to }
       });
+      
+      if (error || !data) return [];
+      
+      // PostHog returns dates as "YYYY-MM-DD", let's map to "MMM d"
+      return (data as { name: string, views: number }[]).map((d) => ({
+        name: format(new Date(d.name), "MMM d"),
+        views: d.views
+      }));
     },
   });
 
@@ -114,20 +91,15 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
   const { data: topPages = [] } = useQuery({
     queryKey: ["top-pages", date],
     queryFn: async () => {
-      let query = supabase.from("analytics_events").select("payload").eq("event_type", "page_view");
-      if (fromIso) query = query.gte("occurred_at", fromIso);
-      if (toIso) query = query.lte("occurred_at", toIso);
+      const from = fromIso || subDays(new Date(), 30).toISOString();
+      const to = toIso || new Date().toISOString();
 
-      const { data } = await query;
-      const pageCounts: Record<string, number> = {};
-      for (const row of data || []) {
-        const path = (row.payload as Record<string, unknown>)?.path as string || "/unknown";
-        pageCounts[path] = (pageCounts[path] || 0) + 1;
-      }
-      return Object.entries(pageCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 8)
-        .map(([path, count]) => ({ path, count }));
+      const { data, error } = await supabase.functions.invoke("posthog-query", {
+        body: { action: "top-pages", from, to }
+      });
+      
+      if (error || !data) return [];
+      return data;
     },
   });
 
@@ -135,17 +107,15 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
   const { data: hourlyData = [] } = useQuery({
     queryKey: ["traffic-hourly", date],
     queryFn: async () => {
-      let query = supabase.from("analytics_events").select("occurred_at").eq("event_type", "page_view");
-      if (fromIso) query = query.gte("occurred_at", fromIso);
-      if (toIso) query = query.lte("occurred_at", toIso);
+      const from = fromIso || subDays(new Date(), 30).toISOString();
+      const to = toIso || new Date().toISOString();
 
-      const { data } = await query;
-      const hours = Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
-      for (const row of data || []) {
-        const h = new Date(row.occurred_at).getHours();
-        hours[h].count++;
-      }
-      return hours.map((h) => ({ name: `${h.hour}:00`, views: h.count }));
+      const { data, error } = await supabase.functions.invoke("posthog-query", {
+        body: { action: "traffic-hourly", from, to }
+      });
+      
+      if (error || !data) return [];
+      return data;
     },
   });
 
@@ -153,20 +123,15 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
   const { data: sourceBreakdown = [] } = useQuery({
     queryKey: ["traffic-sources", date],
     queryFn: async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let query = (supabase as any).from("blog_user_events").select("referrer, device");
-      if (fromIso) query = query.gte("created_at", fromIso);
-      if (toIso) query = query.lte("created_at", toIso);
+      const from = fromIso || subDays(new Date(), 30).toISOString();
+      const to = toIso || new Date().toISOString();
 
-      const { data } = await query;
-      const devices: Record<string, number> = {};
-      for (const row of data || []) {
-        const device = (row as { device?: string }).device || "unknown";
-        const label = device === "mobile" ? "Mobile" : device === "tablet" ? "Tablet" : "Desktop";
-        devices[label] = (devices[label] || 0) + 1;
-      }
-      const colors: Record<string, string> = { Desktop: "hsl(43, 74%, 49%)", Mobile: "hsl(200, 70%, 50%)", Tablet: "hsl(150, 60%, 45%)", unknown: "hsl(0, 0%, 50%)" };
-      return Object.entries(devices).map(([name, value]) => ({ name, value, color: colors[name] || "hsl(0, 0%, 50%)" }));
+      const { data, error } = await supabase.functions.invoke("posthog-query", {
+        body: { action: "traffic-sources", from, to }
+      });
+      
+      if (error || !data) return [];
+      return data;
     },
   });
 
@@ -250,7 +215,7 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
               <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--admin-text-muted))", fontSize: 10 }} allowDecimals={false} />
               <Tooltip contentStyle={{ background: "hsl(var(--admin-card))", border: "1px solid hsl(var(--admin-border))", borderRadius: 12, fontSize: 12 }} />
               <Bar dataKey="views" radius={[3, 3, 0, 0]}>
-                {hourlyData.map((entry, i) => (
+                {hourlyData.map((entry: { views: number }, i: number) => (
                   <Cell key={i} fill={entry.views > 0 ? "hsl(43, 74%, 49%)" : "hsl(var(--admin-border))"} opacity={entry.views > 0 ? 0.8 : 0.3} />
                 ))}
               </Bar>
@@ -267,16 +232,16 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
               <ResponsiveContainer width="100%" height={120}>
                 <PieChart>
                   <Pie data={sourceBreakdown} dataKey="value" cx="50%" cy="50%" innerRadius={35} outerRadius={55} strokeWidth={0}>
-                    {sourceBreakdown.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} />
+                    {sourceBreakdown.map((entry: { color: string }, i: number) => (
+                      <Cell key={`cell-${i}`} fill={entry.color} />
                     ))}
                   </Pie>
                   <Tooltip contentStyle={{ background: "hsl(var(--admin-card))", border: "1px solid hsl(var(--admin-border))", borderRadius: 8, fontSize: 11 }} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="space-y-2 mt-3">
-                {sourceBreakdown.map((item) => (
-                  <div key={item.name} className="flex items-center justify-between text-xs">
+                {sourceBreakdown.map((item: { name: string; value: number; color: string }, i: number) => (
+                  <div key={i} className="flex items-center justify-between text-xs">
                     <span className="flex items-center gap-2 text-[hsl(var(--admin-text-muted))]">
                       <div className="w-2 h-2 rounded-full shrink-0" style={{ background: item.color }} />
                       {item.name}
@@ -298,7 +263,7 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
         <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-5">Most visited pages in the selected period</p>
         {topPages.length > 0 ? (
           <div className="space-y-2">
-            {topPages.map((page, i) => {
+            {topPages.map((page: { path: string; count: number }, i: number) => {
               const maxCount = topPages[0]?.count || 1;
               const pct = (page.count / maxCount) * 100;
               return (

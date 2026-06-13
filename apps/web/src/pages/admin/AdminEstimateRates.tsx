@@ -13,7 +13,7 @@ import type { PricingConfig } from "@/addons/calculators/components/data/types";
 import { DEFAULT_PRICING_CONFIG } from "@/addons/calculators/components/data/pricing-config";
 import { calculateEstimate } from "@/addons/calculators/components/data/calculation-engine";
 import type { CalculatorFormData } from "@/addons/calculators/components/data/types";
-import { AdminPageHeader, AdminFormCard, AdminSafeAction } from "@/components/admin/shared";
+import { AdminFormCard, AdminSafeAction } from "@/components/admin/shared";
 
 const formatLabel = (key: string) =>
     key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -175,8 +175,7 @@ export default function AdminEstimateRates() {
                 .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
             `}</style>
 
-            <AdminPageHeader moduleName="Estimator" tabName="Rates & Logic" />
-
+            
             <div className="fade-up-1">
                 <ModuleActions>
                     <div className="flex items-center gap-2">

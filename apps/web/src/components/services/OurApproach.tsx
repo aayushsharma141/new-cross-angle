@@ -49,7 +49,7 @@ const OurApproach = () => {
               viewport={{ once: true }}
               className="text-[1.1rem] font-light text-white/60 leading-relaxed max-w-[48ch] mb-16"
             >
-              End-to-end project handling from the first concept sketch to the final furniture arrangement. A single point of accountability for every decision, supplier, and deadline.
+              End-to-end project handling guided by our strict 5-Stage Turnkey Methodology. From the first concept sketch to the final furniture arrangement, we serve as a single point of accountability for every decision, supplier, and deadline.
             </motion.p>
 
             <div className="flex flex-col space-y-0">

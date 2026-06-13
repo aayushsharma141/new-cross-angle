@@ -13,15 +13,13 @@ export const SystemModule = () => {
     return (
         <ModuleLayout
             title="System & Administration"
-            description="Manage global settings, security controls, API integrations, team access, and system health."
+            description="Manage global settings, API integrations, system maintenance, and audit logs."
             tabs={[
-                { label: "General Settings", path: "/admin/system/settings?tab=general" },
+                { label: "Company Settings", path: "/admin/system/settings?tab=general" },
                 { label: "Email Recipients", path: "/admin/system/settings?tab=reports" },
-                { label: "Access & Security", path: "/admin/system/settings?tab=access" },
+                { label: "Email Templates", path: "/admin/system/email-templates" },
                 { label: "API & Integrations", path: "/admin/system/settings?tab=credentials" },
                 { label: "Updates & Maintenance", path: "/admin/system/settings?tab=updates" },
-                { label: "Access Control", path: "/admin/system/access-control" },
-                { label: "Team Members", path: "/admin/system/team-members" },
                 { label: "Audit Logs", path: "/admin/system/audit-logs" },
             ]}
         >
