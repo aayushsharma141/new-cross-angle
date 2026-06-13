@@ -14,17 +14,14 @@ import { SITE_CONSTANTS } from "@/lib/constants";
 import Hero from "@/components/home/Hero";
 
 // ── Below-fold: code-split + IntersectionObserver-triggered ─────────────────
-const ClientProblems = lazy(() => import("@/components/home/ClientProblems"));
 const Services         = lazy(() => import("@/components/home/Services"));
 const Portfolio        = lazy(() => import("@/components/home/Portfolio"));
 const BeforeAfterShowcase = lazy(() => import("@/components/home/BeforeAfterShowcase").then(m => ({ default: m.BeforeAfterShowcase })));
 const ProjectFailurePrevention = lazy(() => import("@/components/home/ProjectFailurePrevention"));
 const Testimonials     = lazy(() => import("@/components/home/Testimonials"));
-const TrustSection     = lazy(() => import("@/components/home/TrustSection"));
 const Process          = lazy(() => import("@/components/home/Process"));
 const EstimatorPromo   = lazy(() => import("@/components/home/EstimatorPromo"));
 const About            = lazy(() => import("@/components/home/About"));
-const ServiceLocations = lazy(() => import("@/components/home/ServiceLocations"));
 
 const Index = () => {
   return (
@@ -67,17 +64,7 @@ const Index = () => {
         {/* Content slides OVER the hero as you scroll (curtain effect) */}
         <div className="relative z-10">
 
-          {/* 2. Client Problems / Reality Check (Empathy Layer) */}
-          <LazySection
-            id="reality-check"
-            className="bg-[#050505] border-t border-white/[0.05]"
-            minHeight={700}
-            rootMargin="400px 0px"
-          >
-            <ClientProblems />
-          </LazySection>
-
-          {/* 3. Services Offered */}
+          {/* 2. Services Offered */}
           <LazySection
             id="services"
             className="bg-black border-t border-white/[0.05]"
@@ -87,7 +74,7 @@ const Index = () => {
             <Services />
           </LazySection>
 
-          {/* 4. Portfolio Showcase */}
+          {/* 3. Portfolio Showcase */}
           <LazySection
             id="portfolio"
             className="bg-neutral-950 border-t border-white/[0.05]"
@@ -97,7 +84,7 @@ const Index = () => {
             <Portfolio />
           </LazySection>
 
-          {/* 5. Before & After Slides */}
+          {/* 4. Before & After Slides */}
           <LazySection
             id="before-after"
             className="bg-[#060504] border-t border-white/[0.05]"
@@ -107,17 +94,17 @@ const Index = () => {
             <BeforeAfterShowcase />
           </LazySection>
 
-          {/* 6. Project Failure Prevention (Differentiation) */}
+          {/* 5. Project Failure Prevention (Differentiation, Empathy, Trust & Brands) */}
           <LazySection
             id="prevention"
-            className="bg-[#060504] border-t border-white/[0.05]"
+            className="bg-[#050505] border-t border-white/[0.05]"
             minHeight={800}
             rootMargin="300px 0px"
           >
             <ProjectFailurePrevention />
           </LazySection>
 
-          {/* 7. Testimonials */}
+          {/* 6. Testimonials */}
           <LazySection
             id="testimonials"
             className="bg-[#080807] border-t border-white/[0.05]"
@@ -127,17 +114,7 @@ const Index = () => {
             <Testimonials />
           </LazySection>
 
-          {/* 8. Trust & Guarantees */}
-          <LazySection
-            id="trust"
-            className="bg-[#0c0a09] border-t border-white/[0.05]"
-            minHeight={600}
-            rootMargin="300px 0px"
-          >
-            <TrustSection />
-          </LazySection>
-
-          {/* 9. Methodology Process */}
+          {/* 7. Methodology Process */}
           <LazySection
             id="process"
             className="bg-site-bg border-t border-white/[0.05]"
@@ -147,7 +124,7 @@ const Index = () => {
             <Process />
           </LazySection>
 
-          {/* 10. Cost Estimator Teaser */}
+          {/* 8. Cost Estimator Teaser */}
           <LazySection
             id="estimator"
             className="bg-black border-t border-white/[0.05]"
@@ -157,7 +134,7 @@ const Index = () => {
             <EstimatorPromo />
           </LazySection>
 
-          {/* 11. Founder Note + Studio Stats */}
+          {/* 9. Founder Note + Studio Stats */}
           <LazySection
             id="about"
             className="bg-site-bg-section border-t border-white/[0.05]"
@@ -165,16 +142,6 @@ const Index = () => {
             rootMargin="300px 0px"
           >
             <About />
-          </LazySection>
-
-          {/* 12. Service Locations */}
-          <LazySection
-            id="locations"
-            className="bg-[#020202] border-t border-white/[0.05]"
-            minHeight={600}
-            rootMargin="300px 0px"
-          >
-            <ServiceLocations />
           </LazySection>
 
         </div>
