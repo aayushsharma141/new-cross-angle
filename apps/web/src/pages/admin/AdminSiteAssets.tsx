@@ -65,8 +65,8 @@ export default function AdminSiteAssets() {
             });
             setGroupedAssets(groups);
 
-        } catch (err: any) {
-            toast.error(err.message);
+        } catch (err: unknown) {
+            toast.error(err instanceof Error ? err.message : String(err));
         } finally {
             setIsLoading(false);
         }
@@ -89,8 +89,8 @@ export default function AdminSiteAssets() {
             toast.success("Asset updated successfully");
             setPickerOpen(false);
             fetchAssets();
-        } catch (err: any) {
-            toast.error("Update failed: " + err.message);
+        } catch (err: unknown) {
+            toast.error("Update failed: " + (err instanceof Error ? err.message : String(err)));
         }
     };
 

@@ -9,7 +9,7 @@ export const DiscoveryModule = () => {
 
     return (
         <ModuleLayout
-            title="Style Discovery"
+            title="Discovery Engine"
             description="Monitor style quiz submissions, drop-off rates, and configure quiz logic and scoring."
             tabs={[
                 { label: "Quiz Analytics", path: "/admin/discovery/quiz-analytics" },

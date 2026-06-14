@@ -18,15 +18,14 @@ export function MediaSlot({ assetKey, className, fallbackUrl, alt, onLoad }: Med
     async function loadMedia() {
       try {
         const result = await supabase
-          .from("site_media_assets" as any)
+          .from("site_media_assets" as never)
           .select("media_files(url, mime_type)")
           .eq("asset_key", assetKey)
           .maybeSingle();
           
-        const data = result.data as any;
+        const data = result.data as unknown as { media_files: { url: string; mime_type: string } };
         if (data?.media_files) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          setMedia(data.media_files as any);
+          setMedia(data.media_files);
         }
       } catch (err) {
         console.error(`Error loading media slot for ${assetKey}:`, err);

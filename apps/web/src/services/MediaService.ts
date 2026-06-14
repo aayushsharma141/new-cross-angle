@@ -42,7 +42,7 @@ function toMediaFolder(folder: MediaFolderRow): MediaFolder {
     id: folder.id,
     name: folder.name,
     parentId: folder.parent_id,
-    path: folder.path,
+    path: folder.path as string,
     createdAt: folder.created_at ?? new Date().toISOString(),
   };
 }
@@ -59,8 +59,8 @@ function toMediaFile(file: MediaFileRow): MediaFile {
     mimeType: file.mime_type || "application/octet-stream",
     width: file.width || undefined,
     height: file.height || undefined,
-    altText: (file as any).alt_text || undefined,
-    caption: (file as any).caption || undefined,
+    altText: (file as Record<string, unknown>).alt_text as string | undefined,
+    caption: (file as Record<string, unknown>).caption as string | undefined,
   };
 }
 
@@ -284,7 +284,7 @@ export const MediaService = {
         display_name: metadata.displayName,
         alt_text: metadata.altText,
         caption: metadata.caption,
-      } as any)
+      } as never)
       .eq("id", id);
     if (error) throw error;
   },
@@ -311,7 +311,7 @@ export const MediaService = {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error("Not authenticated");
 
-    const supabaseUrl = (supabase as any).supabaseUrl as string;
+    const supabaseUrl = (supabase as unknown as { supabaseUrl: string }).supabaseUrl;
     const fnUrl = `${supabaseUrl}/functions/v1/media-export`;
 
     const resp = await fetch(fnUrl, {
@@ -353,7 +353,7 @@ export const MediaService = {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error("Not authenticated");
 
-    const supabaseUrl = (supabase as any).supabaseUrl as string;
+    const supabaseUrl = (supabase as unknown as { supabaseUrl: string }).supabaseUrl;
     const fnUrl = `${supabaseUrl}/functions/v1/media-import`;
 
     const form = new FormData();

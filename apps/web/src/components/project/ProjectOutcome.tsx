@@ -88,7 +88,8 @@ const ProjectOutcome = ({ area, duration }: ProjectOutcomeProps) => {
     <section
       ref={sectionRef}
       aria-label="Project results and metrics"
-      className="py-24 md:py-32 bg-neutral-950 border-t border-white/5 relative overflow-hidden"
+      className="py-24 md:py-32 bg-neutral-950 relative overflow-hidden"
+      data-chapter="outcome"
     >
       {/* Background */}
       <div

@@ -75,8 +75,8 @@ const CostEstimatorPage = () => {
     return (
       <main id="main-content" className="h-screen w-full bg-[#faf8f5] overflow-hidden relative">
         <Helmet>
-          <title>Interior Cost Estimator | Cross Angle Interior</title>
-          <meta property="og:title" content="Interior Cost Estimator | Cross Angle Interior" />
+          <title>Cost Estimator | Cross Angle Interior</title>
+          <meta property="og:title" content="Cost Estimator | Cross Angle Interior" />
           <meta property="og:description" content="Estimate your interior design project cost — personalized for your style and scope." />
           <meta property="og:type" content="website" />
           <meta property="og:url" content="https://crossangleinterior.com/estimate" />
@@ -94,12 +94,12 @@ const CostEstimatorPage = () => {
   return (
     <>
       <Helmet>
-        <title>Interior Cost Estimator | Cross Angle Interior</title>
+        <title>Cost Estimator | Cross Angle Interior</title>
         <meta
           name="description"
           content="Turn your Discovery Blueprint into a personalized interior estimate, or start with a direct scope-based estimate."
         />
-        <meta property="og:title" content="Interior Cost Estimator | Cross Angle Interior" />
+        <meta property="og:title" content="Cost Estimator | Cross Angle Interior" />
         <meta property="og:description" content="Turn your Discovery Blueprint into a personalized interior estimate, or start with a direct scope-based estimate." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://crossangleinterior.com/estimate" />

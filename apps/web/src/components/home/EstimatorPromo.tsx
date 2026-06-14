@@ -4,7 +4,7 @@ import { ScrollReveal } from "../ui/enhanced/scroll-reveal";
 
 export const EstimatorPromo = () => {
   return (
-    <section className="py-20 md:py-24 relative overflow-hidden bg-black text-white border-t border-white/5">
+    <section className="py-section-y relative overflow-hidden bg-black text-white border-t border-white/5">
       {/* Background gradients */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-site-gold/5 rounded-full blur-[100px]" />
@@ -50,7 +50,7 @@ export const EstimatorPromo = () => {
                   to="/estimate"
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap home-button-sweep group rounded-none h-14 px-8 md:px-10 uppercase tracking-[0.2em] text-[11px] font-bold transition-all duration-300 bg-site-crimson text-white hover:bg-site-crimson/90 hover:scale-[1.02] shadow-[0_4px_14px_rgba(196,18,48,0.3)] hover:shadow-[0_6px_20px_rgba(196,18,48,0.4)]"
                 >
-                  <span>Launch Cost Estimator</span>
+                  <span>Get Your Interior Investment Blueprint</span>
                   <ArrowRight className="ml-3 h-4 w-4 transition-transform group-hover:translate-x-1.5" />
                 </Link>
               </div>

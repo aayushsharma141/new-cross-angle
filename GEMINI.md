@@ -16,3 +16,8 @@ Rules:
   3. Ask the user if they want to build on top of the current layout, toggle features from previous design checkpoints, or perform a custom overhaul.
   4. Never overwrite previous design features without verifying the design history log and creating a new git checkpoint tag (e.g. `checkpoint/v5-...`).
 
+## Automatic Skill Routing Rules
+
+- At the start of ANY conversation or when given a new task, check the Available Skills list to identify if any skills are relevant.
+- Proactively read the matched `SKILL.md` files (and their referenced guides) using the `view_file` tool to apply their rules to your planning and coding.
+- You can call multiple skills in parallel or sequentially if a task covers multiple domains (e.g. applying both `ux-writing` and `accessibility` for UI modifications).

@@ -49,13 +49,32 @@ const ProjectCard = ({
         </div>
       </div>
 
-      <div className="mt-8 flex flex-col space-y-3 px-2">
+      <div className="mt-8 flex flex-col space-y-4 px-2">
         <div className="flex justify-between items-start">
           <h3 className="text-2xl font-serif text-white group-hover:text-stone-300 transition-colors">
             {project.title}
           </h3>
           <ArrowUpRight className="w-5 h-5 text-stone-500 group-hover:text-white transition-colors mt-1" />
         </div>
+        
+        {/* Micro-storytelling */}
+        {(project.challengeShort || project.resultShort) && (
+          <div className="space-y-3 pt-2 pb-1 border-y border-white/[0.05] my-2">
+            {project.challengeShort && (
+              <div>
+                <span className="text-[10px] uppercase tracking-[0.2em] text-site-crimson block mb-1">Challenge</span>
+                <p className="text-sm text-white/60 leading-relaxed font-light">{project.challengeShort}</p>
+              </div>
+            )}
+            {project.resultShort && (
+              <div>
+                <span className="text-[10px] uppercase tracking-[0.2em] text-site-gold block mb-1">Result</span>
+                <p className="text-sm text-white/90 leading-relaxed">{project.resultShort}</p>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center gap-4 text-[10px] font-medium tracking-[0.2em] uppercase text-stone-500">
           <span>{project.category}</span>
           <span className="w-1 h-1 rounded-full bg-stone-700" />
@@ -238,6 +257,22 @@ const Portfolio = () => {
               <div>
                 <h3 className="text-3xl font-display text-white mb-2">{filteredProjects[currentImageIndex]?.title}</h3>
                 <p className="text-sm font-mono tracking-widest uppercase text-white/50">{filteredProjects[currentImageIndex]?.category}</p>
+              </div>
+
+              {/* Problem / Solution / Outcome Storytelling */}
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto text-left border-t border-white/10 pt-8 px-4">
+                <div>
+                  <h4 className="text-site-crimson font-mono text-[10px] uppercase tracking-[0.2em] mb-3">The Problem</h4>
+                  <p className="text-white/70 text-xs leading-relaxed line-clamp-4">{filteredProjects[currentImageIndex]?.brief}</p>
+                </div>
+                <div>
+                  <h4 className="text-site-crimson font-mono text-[10px] uppercase tracking-[0.2em] mb-3">The Solution</h4>
+                  <p className="text-white/70 text-xs leading-relaxed line-clamp-4">{filteredProjects[currentImageIndex]?.approach}</p>
+                </div>
+                <div>
+                  <h4 className="text-site-crimson font-mono text-[10px] uppercase tracking-[0.2em] mb-3">The Outcome</h4>
+                  <p className="text-white/70 text-xs leading-relaxed italic border-l-2 border-white/20 pl-3">"{filteredProjects[currentImageIndex]?.testimonial?.quote || 'A flawlessly executed space delivered on time and within budget.'}"</p>
+                </div>
               </div>
               
               <Link

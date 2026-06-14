@@ -19,6 +19,8 @@ export interface Project {
   gallery: { room: string; images: string[] }[];
   brief: string;
   approach: string;
+  challengeShort?: string;
+  resultShort?: string;
   materials: { name: string; details: string }[];
   testimonial?: { quote: string; author: string; role: string };
 }
@@ -41,6 +43,8 @@ export const projects: Project[] = [
     gallery: [
       { room: "Bedroom", images: [portfolioBedroom] },
     ],
+    challengeShort: "Needed maximum storage without making the 450 sq.ft room feel cramped.",
+    resultShort: "Hidden floor-to-ceiling cabinetry delivered 30% more storage with zero visual noise.",
     brief: "The clients envisioned a complete overhaul of their 450 sq.ft primary bedroom, seeking to transform a previously dated and cluttered space into a serene, luxury retreat. The core requirement was to create a calming environment that actively promotes relaxation and restful sleep, while maintaining a sleek, contemporary modern aesthetic. They specifically requested enhanced spatial flow, maximized concealed storage to eliminate visual noise, and a sophisticated lighting scheme that could transition seamlessly from bright morning energy to moody evening relaxation.",
     approach: "Our design methodology focused on a highly curated, minimalist aesthetic anchored by a sophisticated neutral color palette and premium natural materials. We introduced custom-built, floor-to-ceiling wardrobes with handleless profiles to maximize storage without compromising the room's visual tranquility. A bespoke upholstered headboard featuring integrated ambient LED lighting serves as the room's focal point. By layering soft, tactile textures like brushed cotton, Italian marble, and warm walnut wood accents, we successfully crafted a peaceful, resort-like sanctuary that perfectly aligns with the clients' lifestyle.",
     materials: [
@@ -72,6 +76,8 @@ export const projects: Project[] = [
     gallery: [
       { room: "Kitchen", images: [portfolioKitchen] },
     ],
+    challengeShort: "Client wanted a high-traffic family kitchen that stayed spotless and organized.",
+    resultShort: "Zoned work triangles with scratch-resistant acrylic and deep utility drawers.",
     brief: "The Desai family approached us for a comprehensive renovation of their 300 sq.ft kitchen, which suffered from an outdated layout, poor lighting, and insufficient storage. Their vision was to create a modern, culinary-focused space that balances high-performance functionality with an elegant, clean aesthetic. The new design needed to serve as both a serious cooking environment for a passionate home chef and an inviting social hub for family gatherings, all while seamlessly integrating with the home's existing modern minimalist architecture.",
     approach: "We completely reimagined the spatial layout by implementing an optimized work triangle, significantly improving movement and workflow. The custom modular kitchen features high-end German soft-close mechanisms, ceiling-height cabinetry for maximum storage efficiency, and deep pull-out pantries. We selected a pristine Arctic White Italian Quartz countertop paired with a subtle gold-accented subway tile backsplash to inject a touch of understated luxury. Integrated, high-performance Bosch appliances and layered task lighting were meticulously installed to ensure a superior, professional-grade cooking experience in a stunning residential setting.",
     materials: [
@@ -103,6 +109,8 @@ export const projects: Project[] = [
     gallery: [
       { room: "Office", images: [portfolioOffice] },
     ],
+    challengeShort: "Needed an executive cabin that projected authority without feeling corporate-cold.",
+    resultShort: "Blended raw acoustic paneling with rich mahogany for a commanding yet warm aesthetic.",
     brief: "TechStart Solutions required a complete transformation of their 2000 sq.ft bare-shell commercial unit into a dynamic, modern corporate hub. The primary objective was to design a professional office environment that promotes creativity, maximizes team productivity, and reflects the innovative, fast-paced spirit of their tech startup. They needed a strategic layout that could accommodate focused individual work, high-energy collaborative brainstorming sessions, and formal client presentations without feeling cramped or disjointed.",
     approach: "We developed a comprehensive spatial strategy centered around an open-plan architecture, intentionally moving away from traditional cubicle farms. The workspace was divided into dedicated acoustic zones: a high-energy collaborative hub, whisper-quiet focus pods, and a premium executive boardroom. We integrated extensive biophilic design elements, including living moss walls and natural timber accents, to reduce stress and improve air quality. Smart lighting systems with daylight simulation were installed to maintain team energy levels throughout the workday. The final execution perfectly balanced corporate professionalism with start-up agility, delivered precisely within the 45-day window.",
     materials: [

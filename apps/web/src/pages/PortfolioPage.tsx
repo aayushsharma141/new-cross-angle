@@ -16,16 +16,16 @@ const TrustSection = lazy(() => import("@/components/portfolio/TrustSection"));
 const HubFinalCTA = lazy(() => import("@/components/portfolio/HubFinalCTA"));
 const ProjectGrid = lazy(() => import("@/components/portfolio/ProjectGrid"));
 
-const ProjectHubPage = () => {
+const PortfolioPage = () => {
   return (
     <>
       <Helmet>
-        <title>Project Experience Hub | Cross Angle Interior - Immersive Portfolio</title>
+        <title>Portfolio | Cross Angle Interior - Immersive Portfolio</title>
         <meta
           name="description"
           content="Explore our cinematic portfolio of luxury interiors. From modular kitchens to peaceful bedrooms, experience spaces designed for real lifestyles."
         />
-        <meta property="og:title" content="Project Portfolio | Cross Angle Interior" />
+        <meta property="og:title" content="Portfolio | Cross Angle Interior" />
         <meta property="og:description" content="Explore our cinematic portfolio of luxury interiors — spaces designed for real lifestyles." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://crossangleinterior.com/portfolio" />
@@ -113,4 +113,4 @@ const ProjectHubPage = () => {
   );
 };
 
-export default ProjectHubPage;
+export default PortfolioPage;

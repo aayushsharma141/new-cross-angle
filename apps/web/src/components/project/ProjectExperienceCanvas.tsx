@@ -227,7 +227,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
   return (
     <section
       aria-label="Explore this project — video walkthrough, virtual tour and photo gallery"
-      className="bg-neutral-950 text-white relative py-20 px-4 md:px-12 max-w-7xl mx-auto"
+      className="bg-neutral-950 text-white relative pt-8 pb-16 px-4 md:px-12 max-w-7xl mx-auto"
     >
       {/* ── Chapter label (plain language) ── */}
       <div className="flex flex-col items-center text-center mb-10 select-none" aria-hidden="true">
@@ -237,34 +237,51 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
         <div className="w-8 h-px bg-white/10" />
       </div>
 
-      {/* ── Mode switcher ── */}
+      {/* ── Mode switcher with morphing active pill ── */}
       <div className="flex justify-center mb-8" role="tablist" aria-label="View mode">
-        {(
-          [
-            { mode: "video" as ActiveMode, icon: Video, label: "Walkthrough Video" },
-            { mode: "360"   as ActiveMode, icon: Eye,   label: "360° Virtual Tour" },
-            { mode: "photos"as ActiveMode, icon: ImageIcon, label: "Photo Gallery" },
-          ] as const
-        ).map(({ mode, icon: Icon, label }) => (
-          <button
-            key={mode}
-            type="button"
-            role="tab"
-            aria-selected={activeMode === mode}
-            aria-controls={`panel-${mode}`}
-            id={`tab-${mode}`}
-            onClick={() => { setActiveMode(mode); setActiveSpot(null); setVideoPlaying(false); }}
-            className={[
-              "flex items-center gap-2 px-4 md:px-5 py-2 text-[9px] font-semibold tracking-[0.2em] uppercase transition-all duration-300 first:rounded-l-full last:rounded-r-full border border-white/5",
-              activeMode === mode
-                ? "bg-white text-black shadow-lg border-white"
-                : "bg-neutral-900/90 text-stone-400 hover:text-white hover:bg-white/5",
-            ].join(" ")}
-          >
-            <Icon className="w-3 h-3 shrink-0" aria-hidden="true" />
-            <span className="hidden sm:inline">{label}</span>
-          </button>
-        ))}
+        <div className="relative flex bg-neutral-900/60 border border-white/5 rounded-full p-1 backdrop-blur-sm">
+          {(
+            [
+              { mode: "video" as ActiveMode, icon: Video, label: "Walkthrough Video" },
+              { mode: "360"   as ActiveMode, icon: Eye,   label: "360° Virtual Tour" },
+              { mode: "photos"as ActiveMode, icon: ImageIcon, label: "Photo Gallery" },
+            ] as const
+          ).map(({ mode, icon: Icon, label }) => (
+            <button
+              key={mode}
+              type="button"
+              role="tab"
+              aria-selected={activeMode === mode}
+              aria-controls={`panel-${mode}`}
+              id={`tab-${mode}`}
+              onClick={() => { setActiveMode(mode); setActiveSpot(null); setVideoPlaying(false); }}
+              className="relative flex items-center gap-2 px-4 md:px-5 py-2 text-[9px] font-semibold tracking-[0.2em] uppercase transition-colors duration-300 rounded-full z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
+            >
+              {/* Morphing background pill */}
+              {activeMode === mode && (
+                <motion.span
+                  layoutId="canvasSwitcherPill"
+                  className="absolute inset-0 bg-white rounded-full shadow-lg"
+                  transition={{ type: "spring", stiffness: 380, damping: 35 }}
+                  aria-hidden="true"
+                />
+              )}
+              <Icon
+                className={`w-3 h-3 shrink-0 relative z-10 transition-colors duration-200 ${
+                  activeMode === mode ? "text-black" : "text-stone-400 group-hover:text-white"
+                }`}
+                aria-hidden="true"
+              />
+              <span
+                className={`hidden sm:inline relative z-10 transition-colors duration-200 ${
+                  activeMode === mode ? "text-black" : "text-stone-400"
+                }`}
+              >
+                {label}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── Main canvas ── */}

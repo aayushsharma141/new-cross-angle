@@ -286,7 +286,7 @@ const Process = () => {
                 className="flex items-center gap-4 mb-6"
               >
                 <div className="w-12 h-px bg-site-crimson" />
-                <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">How We Work</span>
+                <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Signature Methodology</span>
               </motion.div>
               <motion.h2
                 initial={{ opacity: 0, y: 16 }}
@@ -294,8 +294,8 @@ const Process = () => {
                 transition={{ duration: 0.7, delay: 0.08 }}
                 className="mt-3 font-serif text-[clamp(2.8rem,5.5vw,5.2rem)] font-bold leading-[1.1] tracking-tight text-white"
               >
-                The <br />
-                <em className="text-site-crimson italic font-light serif">Methodology.</em>
+                The Predictable <br />
+                <em className="text-site-crimson italic font-light serif">Interior System™</em>
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 12 }}

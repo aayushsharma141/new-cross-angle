@@ -8,7 +8,7 @@ const ServicesPage = lazy(() => import("@/pages/ServicesPage"));
 const ServiceCategoryPage = lazy(() => import("@/pages/ServiceCategoryPage"));
 const ServiceDetailPage = lazy(() => import("@/pages/ServiceDetailPage"));
 const GalleryPage = lazy(() => import("@/pages/GalleryPage"));
-const ProjectHubPage = lazy(() => import("@/pages/ProjectHubPage"));
+const PortfolioPage = lazy(() => import("@/pages/PortfolioPage"));
 const BlogPage = lazy(() => import("@/pages/BlogPage"));
 const BlogDetailPage = lazy(() => import("@/pages/BlogDetailPage"));
 const ContactPage = lazy(() => import("@/pages/ContactPage"));
@@ -30,7 +30,7 @@ export const publicRoutes = (
     <Route path="/services" element={<PageTransition><ServicesPage /></PageTransition>} />
     <Route path="/services/:category" element={<PageTransition><ServiceCategoryPage /></PageTransition>} />
     <Route path="/services/:category/:service" element={<PageTransition><ServiceDetailPage /></PageTransition>} />
-    <Route path="/portfolio" element={<PageTransition><ProjectHubPage /></PageTransition>} />
+    <Route path="/portfolio" element={<PageTransition><PortfolioPage /></PageTransition>} />
     <Route path="/gallery" element={<PageTransition><GalleryPage /></PageTransition>} />
     <Route path="/blog" element={<PageTransition><BlogPage /></PageTransition>} />
     <Route path="/blog/:slug" element={<PageTransition><BlogDetailPage /></PageTransition>} />

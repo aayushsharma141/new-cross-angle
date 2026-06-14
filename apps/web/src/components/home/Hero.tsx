@@ -289,10 +289,10 @@ const Hero = () => {
             <div className="mb-6">
               <motion.div variants={itemUp}>
                 <h1
-                  className="hero-title font-display text-fluid-h1 font-semibold text-white max-w-full sm:max-w-[12ch]"
-                  style={{ textShadow: "0 10px 38px rgba(0,0,0,0.42), 0 2px 10px rgba(0,0,0,0.24)" }}
+                  className="hero-title font-display text-[clamp(2.5rem,5.5vw,4.8rem)] leading-[1.05] font-semibold text-white max-w-full sm:max-w-[20ch]"
+                  style={{ textShadow: "0 10px 38px rgba(0,0,0,0.42), 0 2px 10px rgba(0,0,0,0.24)", letterSpacing: "-0.02em" }}
                 >
-                  <span className="text-[#F9F6F0]">Engineered</span>
+                  <span className="text-[#F9F6F0]">Homes Designed For Living.</span>
                   <br />
                   <span
                     className="hero-title-accent text-transparent bg-clip-text drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
@@ -302,7 +302,7 @@ const Hero = () => {
                       WebkitTextFillColor: "transparent",
                     }}
                   >
-                    Interiors.
+                    Engineered For Predictability.
                   </span>
                 </h1>
               </motion.div>
@@ -310,10 +310,10 @@ const Hero = () => {
 
             <motion.p
               variants={itemUp}
-              className="hero-body-text home-body text-base md:text-lg lg:text-xl mb-10 max-w-[35rem]"
+              className="hero-body-text home-body text-base md:text-lg lg:text-xl mb-10 max-w-[38rem]"
               style={{ textShadow: "0 1px 10px rgba(0,0,0,0.45)" }}
             >
-              We treat interior design as an engineering challenge, not just decoration. Enjoy predictable outcomes and zero guesswork, backed by our 45-day completion guarantee.
+              We treat interior design as an engineering challenge, not just decoration. Enjoy beautiful, highly functional spaces for daily living, delivered through our CrossAngle Predictable Interior System™.
             </motion.p>
 
             <motion.div variants={itemUp} className="flex flex-col sm:flex-row gap-4 mb-8">
@@ -337,68 +337,6 @@ const Hero = () => {
               </div>
             </motion.div>
 
-            <motion.div variants={itemUp} className="flex flex-wrap gap-3">
-              <motion.span variants={popIn} className="hero-trust-chip home-chip bg-black/40 backdrop-blur-md border-white/10">
-                <Sparkles className="h-3.5 w-3.5 text-[#D1AF6E]" />
-                <span>15+ Years of Design Experience</span>
-              </motion.span>
-              {/* Google Rating chip */}
-              <motion.span
-                variants={popIn}
-                className="hero-trust-chip home-chip bg-black/40 backdrop-blur-md border-white/10 flex items-center gap-1.5"
-              >
-                <Star className="h-3.5 w-3.5 fill-[#D1AF6E] text-[#D1AF6E]" />
-                <span className="text-[#D1AF6E] font-bold">4.9</span>
-                <span className="text-white/70">· 200+ Google Reviews</span>
-              </motion.span>
-              {/* 45-Day Guarantee chip */}
-              <motion.span
-                variants={popIn}
-                className="hero-trust-chip home-chip bg-site-crimson/15 backdrop-blur-md border-site-crimson/30 flex items-center gap-1.5"
-              >
-                <ShieldCheck className="h-3.5 w-3.5 text-site-crimson" />
-                <span className="text-white font-semibold">45-Day</span>
-                <span className="text-white/80">Delivery Guarantee</span>
-              </motion.span>
-            </motion.div>
-          </motion.div>
-
-          {/* ── Right column: info card (desktop only) ── */}
-          <motion.div
-            variants={slideLeft}
-            initial="hidden"
-            animate="show"
-            className="hero-side-panel hidden lg:flex self-end justify-end lg:-translate-x-16"
-          >
-            <div className="home-panel w-full max-w-[320px] p-6 rounded-none relative overflow-hidden">
-              <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#D1AF6E]/40" />
-              <span className="home-kicker mb-4">
-                <span>Why Clients Choose Us</span>
-              </span>
-              <div className="space-y-5">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/38 mb-2">Studio Presence</p>
-                  <div className="flex items-center gap-2 text-white/90">
-                    <MapPin className="h-4 w-4 text-[#D1AF6E]" />
-                    <span className="text-sm">Jamshedpur and Kolkata</span>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4 border-t border-white/10 pt-4">
-                  <div>
-                    <p className="text-3xl font-display text-white">500+</p>
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/60 mt-1">Projects</p>
-                  </div>
-                  <div>
-                    <p className="text-3xl font-display text-white">45</p>
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/60 mt-1">Day Delivery Promise</p>
-                  </div>
-                </div>
-                <p className="text-sm text-white/62 leading-relaxed">
-                  Complete design management, transparent pricing, and master-level
-                  execution from day one.
-                </p>
-              </div>
-            </div>
           </motion.div>
         </div>
       </div>

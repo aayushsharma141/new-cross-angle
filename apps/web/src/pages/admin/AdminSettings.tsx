@@ -81,9 +81,9 @@ const AdminSettings = () => {
       if (item.id === "vercel") key = settings.vercel_api_key || "";
       if (item.id === "posthog") key = settings.posthog_api_key || import.meta.env.VITE_POSTHOG_KEY || "";
       if (item.id === "ga") key = settings.ga_measurement_id || "";
-      if (item.id === "whisper") key = (settings.integrations as any)?.whisper_api_key || "";
-      if (item.id === "checkly") key = (settings.integrations as any)?.checkly_api_key || "";
-      if (item.id === "telegram") key = (settings.integrations as any)?.telegram_bot_token || "";
+      if (item.id === "whisper") key = (settings.integrations as Record<string, string>)?.whisper_api_key || "";
+      if (item.id === "checkly") key = (settings.integrations as Record<string, string>)?.checkly_api_key || "";
+      if (item.id === "telegram") key = (settings.integrations as Record<string, string>)?.telegram_bot_token || "";
 
       if (key) {
         return {
@@ -136,7 +136,7 @@ const AdminSettings = () => {
       setIntegrationApiKey(settings?.ga_measurement_id || "");
       setIntegrationApiHost("");
     } else if (integration.id === "whisper" || integration.id === "checkly" || integration.id === "telegram") {
-      const integrationsJson = (settings?.integrations as Record<string, any>) || {};
+      const integrationsJson = (settings?.integrations as Record<string, string>) || {};
       if (integration.id === "whisper") setIntegrationApiKey(integrationsJson.whisper_api_key || "");
       if (integration.id === "checkly") setIntegrationApiKey(integrationsJson.checkly_api_key || "");
       if (integration.id === "telegram") setIntegrationApiKey(integrationsJson.telegram_bot_token || "");
@@ -157,7 +157,7 @@ const AdminSettings = () => {
     try {
       let dbError;
       
-      const payload: Record<string, string | null> = {};
+      const payload: Record<string, unknown> = {};
       if (selectedIntegration.id === "posthog") {
         payload.posthog_api_key = integrationApiKey || null;
         payload.posthog_host = integrationApiHost || null;
@@ -170,10 +170,10 @@ const AdminSettings = () => {
       } else if (selectedIntegration.id === "ga") {
         payload.ga_measurement_id = integrationApiKey || null;
       } else if (["whisper", "checkly", "telegram"].includes(selectedIntegration.id)) {
-        const currentIntegrations = (settings?.integrations as Record<string, any>) || {};
-        if (selectedIntegration.id === "whisper") currentIntegrations.whisper_api_key = integrationApiKey || null;
-        if (selectedIntegration.id === "checkly") currentIntegrations.checkly_api_key = integrationApiKey || null;
-        if (selectedIntegration.id === "telegram") currentIntegrations.telegram_bot_token = integrationApiKey || null;
+        const currentIntegrations = (settings?.integrations as Record<string, string>) || {};
+        if (selectedIntegration.id === "whisper") currentIntegrations.whisper_api_key = integrationApiKey || "";
+        if (selectedIntegration.id === "checkly") currentIntegrations.checkly_api_key = integrationApiKey || "";
+        if (selectedIntegration.id === "telegram") currentIntegrations.telegram_bot_token = integrationApiKey || "";
         payload.integrations = currentIntegrations;
       }
 
@@ -219,7 +219,7 @@ const AdminSettings = () => {
     if (!selectedIntegration || !settings?.id) return;
 
     try {
-      const payload: Record<string, string | null> = {};
+      const payload: Record<string, unknown> = {};
       if (selectedIntegration.id === "posthog") {
         payload.posthog_api_key = null;
         payload.posthog_host = null;
@@ -232,10 +232,10 @@ const AdminSettings = () => {
       } else if (selectedIntegration.id === "ga") {
         payload.ga_measurement_id = null;
       } else if (["whisper", "checkly", "telegram"].includes(selectedIntegration.id)) {
-        const currentIntegrations = (settings?.integrations as Record<string, any>) || {};
-        if (selectedIntegration.id === "whisper") currentIntegrations.whisper_api_key = null;
-        if (selectedIntegration.id === "checkly") currentIntegrations.checkly_api_key = null;
-        if (selectedIntegration.id === "telegram") currentIntegrations.telegram_bot_token = null;
+        const currentIntegrations = (settings?.integrations as Record<string, string>) || {};
+        if (selectedIntegration.id === "whisper") currentIntegrations.whisper_api_key = "";
+        if (selectedIntegration.id === "checkly") currentIntegrations.checkly_api_key = "";
+        if (selectedIntegration.id === "telegram") currentIntegrations.telegram_bot_token = "";
         payload.integrations = currentIntegrations;
       }
 

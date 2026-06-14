@@ -14,7 +14,7 @@ export const ProjectVideo = () => {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <section className="border-t border-white/5">
+    <section id="walkthrough" className="border-t border-white/5">
       <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}

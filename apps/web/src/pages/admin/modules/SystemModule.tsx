@@ -12,7 +12,7 @@ export const SystemModule = () => {
 
     return (
         <ModuleLayout
-            title="System & Administration"
+            title="System Settings"
             description="Manage global settings, API integrations, system maintenance, and audit logs."
             tabs={[
                 { label: "Company Settings", path: "/admin/system/settings?tab=general" },

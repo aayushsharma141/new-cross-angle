@@ -20,7 +20,7 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-export default function AdminEstimateFlow() {
+export default function AdminPricingConfig() {
   const [tab, setTab] = useState<TabId>("pricing");
 
   return (

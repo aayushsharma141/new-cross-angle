@@ -34,7 +34,7 @@ export const ADMIN_ROUTES = {
     auth: { path: "/admin/auth", label: "Login" },
 
     /* ─── Dashboard ────────────────────────────────────────────────────── */
-    dashboard: { path: "/admin/dashboard", label: "Dashboard", parent: "hub" },
+    dashboard: { path: "/admin/dashboard", label: "Intelligence Hub", parent: "hub" },
 
     /* ─── User Access module ──────────────────────────────────────────── */
     userAccess: { path: "/admin/user-access", label: "User Access", parent: "hub" },
@@ -43,7 +43,7 @@ export const ADMIN_ROUTES = {
     userAccessSecurity: { path: "/admin/user-access/security", label: "Security", parent: "userAccess" },
 
     /* ─── CMS module ──────────────────────────────────────────────────── */
-    cms: { path: "/admin/cms", label: "Content", parent: "hub" },
+    cms: { path: "/admin/cms", label: "Content Management", parent: "hub" },
     cmsPortfolio: { path: "/admin/cms/portfolio", label: "Portfolio", parent: "cms" },
     cmsServices: { path: "/admin/cms/services", label: "Services", parent: "cms" },
     cmsTestimonials: { path: "/admin/cms/testimonials", label: "Testimonials", parent: "cms" },
@@ -60,6 +60,8 @@ export const ADMIN_ROUTES = {
     /* ─── CRM module ──────────────────────────────────────────────────── */
     crm: { path: "/admin/crm", label: "Client CRM", parent: "hub" },
     crmLeads: { path: "/admin/crm/leads", label: "Leads", parent: "crm" },
+    crmAnalytics: { path: "/admin/crm/analytics", label: "CRM Analytics", parent: "crm" },
+    crmSettings: { path: "/admin/crm/settings", label: "CRM Settings", parent: "crm" },
 
     /* ─── Discovery engine ────────────────────────────────────────────── */
     discovery: { path: "/admin/discovery", label: "Discovery Engine", parent: "hub" },
@@ -67,12 +69,12 @@ export const ADMIN_ROUTES = {
     discoveryConfig: { path: "/admin/discovery/quiz-configuration", label: "Quiz Configuration", parent: "discovery" },
 
     /* ─── Cost estimator ──────────────────────────────────────────────── */
-    estimator: { path: "/admin/estimator", label: "Estimator", parent: "hub" },
+    estimator: { path: "/admin/estimator", label: "Estimator Engine", parent: "hub" },
     estimatorLeads: { path: "/admin/estimator/estimate-leads", label: "Estimate Leads", parent: "estimator" },
     estimatorRates: { path: "/admin/estimator/pricing-configuration", label: "Pricing Configuration", parent: "estimator" },
 
     /* ─── Blog analytics ──────────────────────────────────────────────── */
-    blog: { path: "/admin/blog", label: "Blog Engine", parent: "hub" },
+    blog: { path: "/admin/blog", label: "Blog Analytics", parent: "hub" },
     blogOverview: { path: "/admin/blog/overview", label: "Overview", parent: "blog" },
     blogPerformance: { path: "/admin/blog/article-performance", label: "Article Performance", parent: "blog" },
     blogEngagement: { path: "/admin/blog/reader-engagement", label: "Reader Engagement", parent: "blog" },
@@ -81,6 +83,7 @@ export const ADMIN_ROUTES = {
     system: { path: "/admin/system", label: "System Settings", parent: "hub" },
     systemSettings: { path: "/admin/system/settings", label: "Company Settings", parent: "system" },
     systemAudit: { path: "/admin/system/audit-logs", label: "Audit Logs", parent: "system" },
+    systemEmailTemplates: { path: "/admin/system/email-templates", label: "Email Templates", parent: "system" },
 
 } satisfies Record<string, { path: string; label: string; parent?: string }>;
 

@@ -1,132 +1,131 @@
 import { motion } from "framer-motion";
+import { useParams } from "react-router-dom";
 
 interface ProjectStoryProps {
   brief: string;
   approach: string;
   title: string;
-  image?: string;
 }
 
+// Curated emotional human-focused narratives for each project type
+const humanNarratives: Record<string, {
+  quote: string;
+  conflict: string;
+  resolution: string;
+  thesis: string;
+  img: string;
+}> = {
+  "serene-master-suite": {
+    thesis: "Noise filter.",
+    quote: "A refuge designed to dial Jamshedpur's heavy industrial pace down to absolute quiet.",
+    conflict: "Our clients live in high-stakes environments. They returned home daily to an outdated bedroom where storage was overflowing, wardrobes generated visual noise, and builder-grade lighting prevented twilight unwinding.",
+    resolution: "We stripped the room back to its raw perimeter, designing flush handleless wardrobes that sit flat against the walls. By recessing warm indirect light channels and layering Belgian flax linens, we engineered a sensory noise-filter where rest is immediate.",
+    img: "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1000&auto=format&fit=crop"
+  },
+  "modern-culinary-space": {
+    thesis: "Dissolving barriers.",
+    quote: "Shattering the boundary between cooking and entertaining.",
+    conflict: "The family loved to host, but the original kitchen layout isolated the cook inside a closed-door utility box. Preparing a meal was treated as a chore behind walls, leaving guests separated in the lounge.",
+    resolution: "We dissolved the walls, transforming the space into a social culinary theatre. A central 3-meter white quartz island was inserted, integrating the cooktop and prep surfaces directly into the lounge conversation stream.",
+    img: "https://images.unsplash.com/photo-1565538810844-1e119412e707?q=80&w=1000&auto=format&fit=crop"
+  },
+  "executive-workspace": {
+    thesis: "Warm authority.",
+    quote: "A biophilic hub that projects corporate command without the cold steel clinic.",
+    conflict: "The tech startup needed to impress visiting investors with absolute operational authority, but the team felt isolated inside typical builder-grade cubicles that drained visual energy and broke collaboration.",
+    resolution: "We built an open-plan matrix structured around acoustic focus zones. Smoked timber slats and living biophilic moss walls were introduced to control echo, maintaining workspace health and natural sound dampening.",
+    img: "https://images.unsplash.com/photo-1504307651254-35680f356fce?q=80&w=1000&auto=format&fit=crop"
+  }
+};
+
 const ProjectStory = ({ brief, approach }: ProjectStoryProps) => {
+  const { slug } = useParams<{ slug: string }>();
+  
+  const activeSlug = slug || "serene-master-suite";
+  const story = humanNarratives[activeSlug] || humanNarratives["serene-master-suite"];
+
   return (
-    <section id="challenge" className="py-28 md:py-40 border-t border-white/5">
-      <div className="max-w-6xl mx-auto px-6 md:px-12">
+    <section className="py-24 md:py-36 bg-neutral-950 text-white border-t border-white/5 relative overflow-hidden">
+      {/* Background radial gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_left,_var(--tw-gradient-stops))] from-neutral-900/20 via-neutral-950 to-neutral-950 pointer-events-none" />
 
-        {/* Section label */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="flex items-center gap-4 mb-28 md:mb-36"
-        >
-          <span className="text-xs font-medium tracking-[0.3em] uppercase text-primary">Project Narrative</span>
-          <span className="flex-1 h-px bg-white/10 max-w-xs" />
-        </motion.div>
+      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+        
+        {/* Chapter Header */}
+        <div className="mb-20">
+          <span className="text-xs font-semibold tracking-[0.35em] uppercase text-site-gold block mb-4">— CHAPTER 02</span>
+          <h2 className="text-3xl md:text-5xl font-serif font-normal text-white">
+            The <span className="italic text-site-crimson font-light">Challenge & Narrative</span>
+          </h2>
+        </div>
 
-        {/* Three-column editorial layout */}
-        <div className="grid md:grid-cols-3 gap-16 md:gap-20 lg:gap-24">
+        {/* Editorial Layout Grid */}
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+          
+          {/* Left: Dramatic quote/thesis (BIG) */}
+          <div className="lg:col-span-5 space-y-6">
+            <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-site-gold block">
+              {story.thesis}
+            </span>
+            <motion.blockquote 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1 }}
+              className="text-3xl md:text-4xl lg:text-[2.75rem] font-serif font-light leading-[1.15] text-white tracking-tight"
+            >
+              &ldquo;{story.quote}&rdquo;
+            </motion.blockquote>
+          </div>
 
-          {/* 01 Reality */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-            className="flex flex-col"
-          >
-            <div className="mb-10">
-              <span className="block text-[6rem] md:text-[8rem] font-serif font-light leading-none tracking-tight select-none mb-4 bg-gradient-to-b from-white/[0.15] to-transparent bg-clip-text text-transparent">
-                01
+          {/* Right: Detailed Conflict & Resolution Prose (SMALL columns) */}
+          <div className="lg:col-span-7 grid md:grid-cols-2 gap-8 text-stone-300 font-light text-sm md:text-base leading-relaxed">
+            
+            {/* Conflict Column */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="space-y-4"
+            >
+              <span className="text-[10px] font-mono tracking-widest text-site-crimson uppercase block">
+                The Friction
               </span>
-              <span className="text-xs font-medium tracking-[0.3em] uppercase text-primary block">
-                Reality
-              </span>
-            </div>
-            <div className="w-12 h-px bg-primary/30 mb-10" />
-            <p className="text-stone-500 font-light mb-6 text-xs uppercase tracking-[0.15em]">The client came to us with:</p>
-            <ul className="flex flex-col gap-5">
-              {[
-                "Visual clutter with no breathing room",
-                "Inadequate concealed storage for Indian lifestyle needs",
-                "No acoustic separation between shared zones",
-                "Generic builder-grade finishes",
-              ].map((item, i) => (
-                <li key={i} className="group flex items-start gap-4 text-stone-300 font-light text-base leading-relaxed hover:text-white transition-colors duration-300">
-                  <span className="mt-2 w-1 h-1 rounded-full bg-stone-600 flex-shrink-0 group-hover:bg-primary transition-colors duration-300" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+              <p className="text-stone-300">
+                {story.conflict || brief}
+              </p>
+            </motion.div>
 
-          {/* 02 Insight */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.9, ease: "easeOut", delay: 0.12 }}
-            className="flex flex-col"
-          >
-            <div className="mb-10">
-              <span className="block text-[6rem] md:text-[8rem] font-serif font-light leading-none tracking-tight select-none mb-4 bg-gradient-to-b from-white/[0.15] to-transparent bg-clip-text text-transparent">
-                02
+            {/* Resolution Column */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="space-y-4"
+            >
+              <span className="text-[10px] font-mono tracking-widest text-site-gold uppercase block">
+                The Breakthrough
               </span>
-              <span className="text-xs font-medium tracking-[0.3em] uppercase text-primary block">
-                Insight
-              </span>
-            </div>
-            <div className="w-12 h-px bg-primary/30 mb-10" />
-            <p className="text-stone-500 font-light mb-6 text-xs uppercase tracking-[0.15em]">Discovery phase revealed:</p>
-            <ul className="flex flex-col gap-5">
-              {[
-                "Calm environments measurably improve executive performance",
-                "Warm wood tones consistently preferred over cool tones in Indian climates",
-                "Minimal visual noise is non-negotiable for focus work",
-                "Layered lighting critical for 12+ hour occupancy patterns",
-              ].map((point, i) => (
-                <li key={i} className="group flex items-start gap-4 text-stone-300 font-light text-base leading-relaxed hover:text-white transition-colors duration-300">
-                  <span className="text-primary/60 group-hover:text-primary transition-colors duration-300 text-[10px] mt-1.5 flex-shrink-0">✓</span>
-                  {point}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+              <p className="text-stone-300">
+                {story.resolution || approach}
+              </p>
+            </motion.div>
 
-          {/* 03 Response */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.9, ease: "easeOut", delay: 0.24 }}
-            className="flex flex-col"
-          >
-            <div className="mb-10">
-              <span className="block text-[6rem] md:text-[8rem] font-serif font-light leading-none tracking-tight select-none mb-4 bg-gradient-to-b from-white/[0.15] to-transparent bg-clip-text text-transparent">
-                03
-              </span>
-              <span className="text-xs font-medium tracking-[0.3em] uppercase text-primary block">
-                Response
-              </span>
-            </div>
-            <div className="w-12 h-px bg-primary/30 mb-10" />
-            <p className="text-stone-500 font-light mb-6 text-xs uppercase tracking-[0.15em]">What we built:</p>
-            <ul className="flex flex-col gap-5">
-              {[
-                "Full-height integrated storage wall — seasonal + daily rotation",
-                "Warm smoked oak palette for tactile warmth",
-                "3-layer ambient + task + accent lighting scheme",
-                "Zoned spatial flow for collaboration and focus",
-              ].map((item, i) => (
-                <li key={i} className="group flex items-start gap-4 text-stone-300 font-light text-base leading-relaxed hover:text-white transition-colors duration-300">
-                  <span className="text-primary/60 group-hover:text-primary transition-colors duration-300 text-[10px] mt-1.5 flex-shrink-0">✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+          </div>
 
         </div>
+
+        {/* Offset Layered Image showcasing the original constraint */}
+        <div className="mt-20 relative w-full aspect-[21/9] rounded-xl overflow-hidden border border-white/10 group shadow-2xl">
+          <img src={story.img} alt="Structural challenge detail" className="w-full h-full object-cover filter grayscale opacity-40 group-hover:opacity-65 transition-opacity duration-[2s] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/20 to-transparent pointer-events-none" />
+          <div className="absolute bottom-6 left-6 px-4 py-2 bg-black/60 backdrop-blur-md border border-white/10 rounded-full">
+            <span className="text-[9px] font-mono text-stone-400 tracking-widest uppercase">Visual survey log</span>
+          </div>
+        </div>
+
       </div>
     </section>
   );

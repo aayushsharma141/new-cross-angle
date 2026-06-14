@@ -99,7 +99,7 @@ const defaultForm: FormData = {
   testimonial_quote: "", testimonial_client_name: "", active: true,
 };
 
-export default function AdminTransformations() {
+export default function AdminBeforeAndAfter() {
   const [stories, setStories] = useState<TransformationStory[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);

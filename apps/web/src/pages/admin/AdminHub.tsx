@@ -376,7 +376,7 @@ export const getModules = (
                 : { label: "View Pipeline", href: "/admin/crm/leads" },
     },
     {
-        title: "CMS",
+        title: "Content Management",
         description: "Portfolio, services, media assets, and testimonials management.",
         icon: FileText,
         href: "/admin/cms/portfolio",
@@ -392,7 +392,7 @@ export const getModules = (
         primaryAction: { label: "Media Library", href: "/admin/cms/media-library" },
     },
     {
-        title: "Blog Engine",
+        title: "Blog Analytics",
         description: "Publish articles, manage drafts, and track content performance.",
         icon: BookOpen,
         href: "/admin/blog/overview",
@@ -406,7 +406,7 @@ export const getModules = (
         primaryAction: { label: "Overview", href: "/admin/blog/overview" },
     },
     {
-        title: "Discovery",
+        title: "Discovery Engine",
         description: "Analytics and style funnel breakdown for the interactive quiz.",
         icon: Sparkles,
         href: "/admin/discovery/quiz-analytics",
@@ -419,7 +419,7 @@ export const getModules = (
         primaryAction: { label: "View Funnel", href: "/admin/discovery/quiz-analytics" },
     },
     {
-        title: "Estimator",
+        title: "Estimator Engine",
         description: "Pricing configuration, stage builder, and project scope logic.",
         icon: Calculator,
         href: "/admin/estimator/estimate-leads",
@@ -445,7 +445,7 @@ export const getModules = (
         primaryAction: { label: "Manage Users", href: "/admin/user-access/users" },
     },
     {
-        title: "Settings",
+        title: "System Settings",
         description: "Global site config, integrations, audit logs, and diagnostics.",
         icon: Settings,
         href: "/admin/system/settings",

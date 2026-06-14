@@ -64,8 +64,8 @@ if (fs.existsSync(mediaPickerModalPath)) {
   }
 }
 
-// Fix AdminTransformations.tsx
-const transformationsPath = path.join(__dirname, "src/pages/admin/AdminTransformations.tsx");
+// Fix AdminBeforeAndAfter.tsx
+const transformationsPath = path.join(__dirname, "src/pages/admin/AdminBeforeAndAfter.tsx");
 if (fs.existsSync(transformationsPath)) {
   let content = fs.readFileSync(transformationsPath, 'utf-8');
   if (!content.includes("AdminFilterBar")) {

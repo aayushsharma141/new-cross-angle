@@ -1,5 +1,5 @@
 const fs = require('fs');
-const files = ['AdminBlogOverview.tsx', 'AdminBlogPerformance.tsx', 'AdminBlogEngagement.tsx', 'CrmAnalytics.tsx', 'AdminAnalytics.tsx'];
+const files = ['AdminBlogOverview.tsx', 'AdminBlogPerformance.tsx', 'AdminBlogEngagement.tsx', 'CrmAnalytics.tsx', 'AdminQuizAnalytics.tsx'];
 for (const f of files) {
   const content = fs.readFileSync('src/pages/admin/'+f, 'utf8');
   const dbCalls = (content.match(/\.from\(['"](\w+)['"]\)/g) || []);

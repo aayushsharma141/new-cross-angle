@@ -82,14 +82,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     },
     {
       id: 'leads',
-      label: 'Lead Management',
+      label: ADMIN_ROUTES.crmLeads.label,
       icon: <Users className="h-4 w-4" />,
       href: ADMIN_ROUTES.crmLeads.path,
       category: 'CRM',
     },
     {
       id: 'estimate-leads',
-      label: 'Estimate Requests',
+      label: ADMIN_ROUTES.estimatorLeads.label,
       icon: <Calculator className="h-4 w-4" />,
       href: ADMIN_ROUTES.estimatorLeads.path,
       category: 'Estimator',

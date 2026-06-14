@@ -16,45 +16,7 @@ interface ProjectHeroProps {
   type?: string;
 }
 
-const ProfileStrip = ({ location, area, year, type }: {
-  location: string;
-  area?: string;
-  year?: number;
-  type?: string;
-}) => {
-  const isCommercial = type === "commercial";
-  const items = [
-    { label: "Client Type", value: isCommercial ? "Corporate" : "Young Professional" },
-    { label: "Lifestyle", value: isCommercial ? "Fast-paced / Collaborative" : "Modern Urban" },
-    { label: "Priority", value: isCommercial ? "Focus + Presence" : "Calm + Storage" },
-    { label: "Investment", value: "Premium" },
-    ...(area ? [{ label: "Area", value: area }] : []),
-    ...(location ? [{ label: "Location", value: location }] : []),
-    ...(year ? [{ label: "Year", value: String(year) }] : []),
-  ];
-
-  return (
-    <div className="absolute bottom-0 left-0 right-0 z-20 border-t border-white/20">
-      <div className="backdrop-blur-xl bg-black/60">
-        <div className="max-w-7xl mx-auto px-6 py-5 flex items-center gap-0 overflow-x-auto no-scrollbar">
-          {items.map((item, idx) => (
-            <div
-              key={item.label}
-              className="flex-shrink-0 flex flex-col gap-1 px-6 border-r border-white/10 last:border-r-0 first:pl-0"
-            >
-              <span className="text-[9px] font-medium tracking-[0.25em] uppercase text-stone-500">
-                {item.label}
-              </span>
-              <span className="text-xs font-light text-stone-200 whitespace-nowrap">
-                {item.value}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
+// Removed ProfileStrip in favor of ProjectSnapshot
 
 const ProjectHero = ({ heroImage, title, category, location, area, year, tagline, brief, type }: ProjectHeroProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -133,26 +95,18 @@ const ProjectHero = ({ heroImage, title, category, location, area, year, tagline
           transition={{ duration: 1, ease: "easeOut", delay: 0.9 }}
         >
           <a
-            href="#challenge"
+            href="#walkthrough"
             className="group flex items-center gap-4 border border-white/20 rounded-full px-6 py-3 hover:bg-white/10 transition-colors w-fit"
           >
             <span className="text-[10px] font-medium tracking-[0.25em] uppercase text-white">
-              Explore Journey
+              Watch Walkthrough
             </span>
             <ArrowDown className="w-4 h-4 text-white group-hover:translate-y-1 transition-transform duration-500" />
           </a>
         </motion.div>
       </motion.div>
 
-      {/* Architectural client profile strip at bottom edge */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, delay: 1.1 }}
-        style={{ opacity: textOpacity }}
-      >
-        <ProfileStrip location={location} area={area} year={year} type={type} />
-      </motion.div>
+      {/* Removed Architectural client profile strip */}
     </div>
   );
 };

@@ -24,6 +24,8 @@ Select a component segment below to view its full visual history, design variati
   Tracks About page components (Luxury Cursor Hero, dynamic glass panels, cascades, custom gradients, floating ambient glowing orbs, and timeline adjustments).
 * 🛠️ **[Services Page Layouts](file:///c:/Users/aayus/Desktop/main/design-history/services_page.md)**
   Tracks Services page components (Office & Commercial heading whitespace-nowrap, Turnkey Process header container width, and Quality & Durability aligned headlines).
+* 🖼️ **[Project Page Layouts](file:///c:/Users/aayus/Desktop/main/design-history/project_page.md)**
+  Tracks the Portfolio Project details page layout, theme transitions, visual showcases, and custom sub-galleries.
 * 🗺️ **[Blueprint Page Timeline](file:///c:/Users/aayus/Desktop/main/design-history/blueprint_page.md)**
   Tracks the System Blueprint page iterations (V1 Tech Stack, V2 Bento Grid, and V3 Active Interactive Chronological Timeline showcasing database schemas, staggering layouts, and CRM realtime syncing).
 

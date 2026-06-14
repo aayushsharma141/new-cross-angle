@@ -1,84 +1,164 @@
-import { motion } from "framer-motion";
-import { Image } from "@/components/ui/enhanced/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import { X, Sparkles, ChevronRight } from "lucide-react";
+import { useParams } from "react-router-dom";
 
 interface Hotspot {
-  x: number; // Percentage from left
-  y: number; // Percentage from top
+  id: string;
+  x: number; // percentage from left
+  y: number; // percentage from top
   title: string;
   description: string;
+  tag: string;
+  img: string;
 }
 
-interface ProjectHotspotsProps {
+const mockHotspotsData: Record<string, {
   image: string;
-  title?: string;
-  subtitle?: string;
-  hotspots?: Hotspot[];
-}
+  spots: Hotspot[];
+}> = {
+  "serene-master-suite": {
+    image: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1600&auto=format&fit=crop",
+    spots: [
+      { id: "1", x: 50, y: 55, tag: "Headboard", title: "Bespoke Upholstered Headboard", description: "Custom suede-paneled headboard with built-in walnut ledges, integrated charging stations, and soft cushioning for ultimate comfort.", img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=600&auto=format&fit=crop" },
+      { id: "2", x: 48, y: 28, tag: "Lighting", title: "Concealed LED Cove", description: "Warm 2700K indirect lighting recessed within the ceiling margins. Delivers a soft, anti-glare reading halo that mimics organic twilight.", img: "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?q=80&w=600&auto=format&fit=crop" },
+      { id: "3", x: 20, y: 40, tag: "Storage", title: "Handleless Wardrobes", description: "Floor-to-ceiling closets finished in anti-fingerprint matte lacquer. Doors feature push-to-open latch arrays and internal motion sensors.", img: "https://images.unsplash.com/photo-1617806118233-18e1db207f62?q=80&w=600&auto=format&fit=crop" }
+    ]
+  },
+  "modern-culinary-space": {
+    image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1600&auto=format&fit=crop",
+    spots: [
+      { id: "1", x: 50, y: 65, tag: "Island", title: "Calacatta Quartz Island", description: "A 3-meter long seamless Italian quartz slab. Serves as a dual-purpose prep counter and social dining hub with under-base LED lighting.", img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600&auto=format&fit=crop" },
+      { id: "2", x: 82, y: 45, tag: "Cabinetry", title: "Concealed Pocket Pantry", description: "Flush timber cabinets featuring high-performance pivot hinges that slide inside side pocket grooves to expose appliances without cluttering paths.", img: "https://images.unsplash.com/photo-1539924428412-70997f2d23e5?q=80&w=600&auto=format&fit=crop" },
+      { id: "3", x: 35, y: 25, tag: "Focus Light", title: "Integrated Counter Spots", description: "Anti-glare ceiling-embedded task spotlights focused precisely on primary prep stations and mixing boards.", img: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=600&auto=format&fit=crop" }
+    ]
+  },
+  "executive-workspace": {
+    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1600&auto=format&fit=crop",
+    spots: [
+      { id: "1", x: 45, y: 60, tag: "Desk", title: "Cantilevered Oak Desk", description: "Bespoke executive work slab made of solid white oak, cantilevered from custom cabinetry with integrated cabling ducts.", img: "https://images.unsplash.com/photo-1517502884422-41eaaced0168?q=80&w=600&auto=format&fit=crop" },
+      { id: "2", x: 25, y: 40, tag: "Acoustics", title: "Grooved Felt paneling", description: "Wall-cladding grooved acoustic panel sheets designed to isolate room frequencies and prevent reverberation during conference streams.", img: "https://images.unsplash.com/photo-1531973576160-7125cd663d86?q=80&w=600&auto=format&fit=crop" },
+      { id: "3", x: 50, y: 20, tag: "Fixture", title: "Ring Chandelier", description: "A minimalist direct/indirect ceiling circular light ring that provides standard architectural diffuse lux levels.", img: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?q=80&w=600&auto=format&fit=crop" }
+    ]
+  }
+};
 
-const ProjectHotspots = ({ 
-  image, 
-  title = "Spatial Details", 
-  subtitle = "Explore the design reasoning",
-  hotspots = []
-}: ProjectHotspotsProps) => {
+const ProjectHotspots = () => {
+  const { slug } = useParams<{ slug: string }>();
+  const [activeSpot, setActiveSpot] = useState<Hotspot | null>(null);
 
-  const defaultHotspots: Hotspot[] = [
-    {
-      x: 25,
-      y: 35,
-      title: "Ambient Concealed Light",
-      description: "Eliminates harsh overhead glare, replacing it with a soft glow that accentuates the wall's texture."
-    },
-    {
-      x: 70,
-      y: 60,
-      title: "Low-Profile Base",
-      description: "Grounds the bed visually, increasing the perceived ceiling height and fostering a grounded emotional state."
-    }
-  ];
-
-  const activeHotspots = hotspots.length > 0 ? hotspots : defaultHotspots;
+  const activeSlug = slug || "serene-master-suite";
+  const data = mockHotspotsData[activeSlug] || mockHotspotsData["serene-master-suite"];
 
   return (
-    <section className="px-6 max-w-[90rem] mx-auto w-full py-24 md:py-32">
-      <div className="relative w-full aspect-[4/3] md:aspect-[16/9] rounded-[2rem] overflow-hidden bg-neutral-900 border border-white/5">
-        <Image
-          src={image} 
-          alt="Room Detail" 
-          className="h-full w-full"
-          imageClassName="opacity-80"
-          width={1440}
-          height={810}
-        />
+    <section className="py-24 md:py-32 bg-neutral-950 text-stone-100 border-t border-white/5 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_var(--tw-gradient-stops))] from-neutral-900/30 via-neutral-950 to-neutral-950 pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
         
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent pointer-events-none" />
-        
-        <div className="absolute bottom-10 left-10 pointer-events-none">
-          <h3 className="text-2xl font-serif text-white mb-2">{title}</h3>
-          <p className="text-xs text-stone-400 uppercase tracking-widest">{subtitle}</p>
+        {/* Title */}
+        <div className="mb-16">
+          <span className="text-xs font-semibold tracking-[0.35em] uppercase text-site-gold block mb-4">— INTERACTION</span>
+          <h2 className="text-3xl md:text-5xl font-serif font-normal text-white">
+            Design <span className="italic text-site-crimson font-light">Canvas Details</span>
+          </h2>
         </div>
 
-        {activeHotspots.map((hotspot, idx) => (
-          <div 
-            key={idx}
-            className="absolute group z-10"
-            style={{ top: `${hotspot.y}%`, left: `${hotspot.x}%` }}
-          >
-            <button 
-              className="relative w-8 h-8 flex items-center justify-center cursor-pointer"
-              aria-label={`View detail: ${hotspot.title}`}
-              title={hotspot.title}
+        {/* Hotspots Interactive Canvas */}
+        <div className="relative aspect-[16/10] md:aspect-video w-full bg-neutral-900 border border-white/10 rounded-xl overflow-hidden shadow-2xl group">
+          <img 
+            src={data.image} 
+            alt="Interactive Design Canvas" 
+            className="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-105" 
+            loading="lazy" 
+          />
+          <div className="absolute inset-0 bg-black/25 pointer-events-none" />
+
+          {/* Render pulse buttons */}
+          {data.spots.map((spot, idx) => (
+            <button
+              key={spot.id}
+              onClick={() => setActiveSpot(activeSpot?.id === spot.id ? null : spot)}
+              className="absolute z-10 transition-transform duration-300 hover:scale-110"
+              style={{ left: `${spot.x}%`, top: `${spot.y}%`, transform: 'translate(-50%, -50%)' }}
+              aria-label={`Show detail for ${spot.tag}`}
+              title={`View ${spot.tag}`}
             >
-              <span className="absolute inset-0 rounded-full bg-white/20 animate-ping" style={{ animationDelay: `${idx * 0.5}s` }} />
-              <span className="relative w-2 h-2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+              <div className="relative flex items-center justify-center w-8 h-8">
+                {/* Outer ring */}
+                <div className={`absolute inset-0 rounded-full animate-ping transition-colors duration-500 ${
+                  activeSpot?.id === spot.id ? "bg-site-gold/40" : "bg-white/20"
+                }`} />
+                {/* Center dot */}
+                <div className={`absolute inset-1.5 rounded-full flex items-center justify-center shadow-lg transition-colors duration-500 ${
+                  activeSpot?.id === spot.id ? "bg-site-gold text-black" : "bg-white text-black"
+                }`}>
+                  <span className="text-[10px] font-bold">{idx + 1}</span>
+                </div>
+              </div>
             </button>
-            {/* Floating Card */}
-            <div className="absolute bottom-full mb-4 left-1/2 -translate-x-1/2 w-56 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 bg-neutral-950/90 backdrop-blur-xl border border-white/10 p-5 rounded-2xl pointer-events-none shadow-2xl">
-              <h4 className="text-sm text-white font-medium mb-1.5 tracking-tight">{hotspot.title}</h4>
-              <p className="text-[10px] text-stone-400 leading-relaxed font-light">{hotspot.description}</p>
-            </div>
-          </div>
-        ))}
+          ))}
+
+          {/* Interactive Slide-over details pane */}
+          <AnimatePresence>
+            {activeSpot && (
+              <motion.div
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 100 }}
+                transition={{ type: "spring", damping: 25, stiffness: 150 }}
+                className="absolute right-0 top-0 bottom-0 w-full md:w-[420px] bg-neutral-950/95 backdrop-blur-xl border-l border-white/10 p-8 flex flex-col justify-between z-20 shadow-2xl"
+              >
+                {/* Header */}
+                <div>
+                  <div className="flex justify-between items-center mb-8">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] font-mono tracking-widest text-site-gold uppercase">
+                      <Sparkles className="w-3 h-3" />
+                      Detail {activeSpot.id}
+                    </span>
+                    <button 
+                      onClick={() => setActiveSpot(null)}
+                      className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+                      aria-label="Close details panel"
+                      title="Close"
+                    >
+                      <X className="w-4 h-4 text-white" />
+                    </button>
+                  </div>
+
+                  {/* Swatch detail image zoom */}
+                  <div className="aspect-[16/10] w-full rounded-lg overflow-hidden border border-white/10 mb-6 bg-neutral-900">
+                    <img src={activeSpot.img} alt={activeSpot.title} className="w-full h-full object-cover" />
+                  </div>
+
+                  {/* Title & Tag */}
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-site-crimson font-medium block mb-2">{activeSpot.tag}</span>
+                  <h4 className="text-xl font-serif text-white mb-4 leading-snug">{activeSpot.title}</h4>
+                  
+                  {/* Detailed Description */}
+                  <p className="text-stone-300 font-light text-sm leading-relaxed">
+                    {activeSpot.description}
+                  </p>
+                </div>
+
+                {/* Footer Action */}
+                <div className="pt-6 border-t border-white/5">
+                  <div className="flex items-center gap-2 text-stone-400 text-xs font-light">
+                    <span>Explore details of the materials board below</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Mobile Swipe Instructions */}
+        <div className="md:hidden mt-6 flex justify-center text-stone-400 text-xs gap-2">
+          <span>Tap on numbers above to review architectural details</span>
+        </div>
+
       </div>
     </section>
   );

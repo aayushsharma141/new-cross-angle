@@ -3,7 +3,7 @@ import { Image } from "@/components/ui/enhanced/image";
 
 export const About = () => {
   return (
-    <section id="about" className="py-20 bg-site-bg-section border-t border-white/5 relative overflow-hidden">
+    <section id="about" className="py-section-y bg-site-bg-section border-t border-white/5 relative overflow-hidden">
       <div className="container mx-auto relative z-10 px-4 max-w-5xl">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-center">
           
@@ -32,11 +32,11 @@ export const About = () => {
               </span>
               
               <h3 className="font-serif text-2xl md:text-3xl font-bold text-white mb-6 leading-snug tracking-tight">
-                Design is an <span className="text-site-crimson italic font-light serif">engineering challenge</span>, not decoration.
+                Homes are <span className="text-site-crimson italic font-light serif">emotional</span>. Execution must be <span className="text-site-gold italic font-light serif">engineered</span>.
               </h3>
 
               <p className="text-white/70 text-sm md:text-base leading-relaxed font-light mb-8">
-                &ldquo;We believe interior design is more than selecting colors—it is an engineering and execution challenge. I started CrossAngle to bring structured processes, on-time delivery, and absolute price predictability to Jamshedpur home interiors. Our team handles every measurement, factory calibration, and on-site handover to ensure flawless outcomes.&rdquo;
+                &ldquo;Your home should be designed around your life. I started CrossAngle because I saw too many families suffering through delayed, over-budget decoration projects. By treating interior execution as a precise engineering challenge, we guarantee flawless outcomes, on time—so you can focus entirely on enjoying your new space.&rdquo;
               </p>
 
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 font-mono">

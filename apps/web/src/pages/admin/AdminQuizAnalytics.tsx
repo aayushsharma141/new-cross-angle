@@ -30,7 +30,7 @@ import {
 } from "@/components/admin/analytics/analytics-utils";
 
 
-export default function AdminAnalytics() {
+export default function AdminQuizAnalytics() {
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,12 +43,9 @@ export default function AdminAnalytics() {
   const [selectedLead, setSelectedLead] = useState<LeadRow | null>(null);
   const [activeTab, setActiveTab] = useState<"analytics" | "leads">("analytics");
   const [viewingType, setViewingType] = useState<"all" | "completed">("all");
-  // eslint-disable-line @typescript-eslint/no-explicit-any
-  const [posthogFunnel, setPosthogFunnel] = useState<any[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [posthogRetention, setPosthogRetention] = useState<any[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [posthogEstimator, setPosthogEstimator] = useState<any[]>([]);
+  const [posthogFunnel, setPosthogFunnel] = useState<Record<string, unknown>[]>([]);
+  const [posthogRetention, setPosthogRetention] = useState<Record<string, unknown>[]>([]);
+  const [posthogEstimator, setPosthogEstimator] = useState<Record<string, unknown>[]>([]);
 
   const loadData = useCallback(async () => {
     setRefreshing(true);
