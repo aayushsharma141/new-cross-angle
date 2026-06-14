@@ -28,7 +28,7 @@ const ProjectSystemInAction = ({ project }: ProjectSystemInActionProps) => {
   ];
 
   return (
-    <section className="py-24 md:py-32 bg-neutral-950 border-t border-white/5 relative" ref={containerRef}>
+    <section className="py-24 md:py-32 bg-neutral-950 relative" ref={containerRef}>
       <div className="max-w-4xl mx-auto px-6 md:px-12">
         <div className="text-center mb-24">
           <span className="text-xs font-medium tracking-[0.3em] uppercase text-site-gold block mb-4">Methodology</span>
@@ -54,8 +54,9 @@ const ProjectSystemInAction = ({ project }: ProjectSystemInActionProps) => {
                 <div key={step.name} className={`flex flex-col md:flex-row items-start md:items-center w-full ${isEven ? 'md:flex-row-reverse' : ''}`}>
                   
                   {/* Text Content */}
-                  <div className={`pl-12 md:pl-0 w-full md:w-1/2 ${isEven ? 'md:pl-16 text-left' : 'md:pr-16 md:text-right'}`}>
+                  <div className={`pl-8 md:pl-0 w-full md:w-1/2 ${isEven ? 'md:pl-16 text-left' : 'md:pr-16 md:text-right'}`}>
                     <motion.div
+                      data-reveal="card"
                       initial={{ opacity: 0, x: isEven ? 20 : -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true, margin: "-100px" }}

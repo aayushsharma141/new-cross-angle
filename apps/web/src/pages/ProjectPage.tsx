@@ -205,7 +205,7 @@ const ProjectPage = () => {
   // ── Loading / 404 states ──────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-px h-16 bg-white/10 relative overflow-hidden">
             <motion.div
@@ -422,10 +422,7 @@ const ProjectPage = () => {
         {project.testimonial && (
           <div data-chapter="testimonial">
             <ProjectClientExperience
-              question1="What was your biggest fear before starting the project?"
-              answer1="Honestly, the timeline and budget. We had heard horror stories of contractors disappearing and budgets doubling. Cross Angle's system was the only reason we felt comfortable moving forward."
-              question2="What surprised you the most about the process?"
-              answer2={project.testimonial.quote}
+              quote={project.testimonial.quote}
               clientName={project.testimonial.author}
               clientRole={project.testimonial.role}
             />
@@ -464,7 +461,7 @@ const ProjectPage = () => {
 
               <Link
                 to="/portfolio"
-                className="hidden sm:block text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors font-light"
+                className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors font-light"
               >
                 All Projects
               </Link>

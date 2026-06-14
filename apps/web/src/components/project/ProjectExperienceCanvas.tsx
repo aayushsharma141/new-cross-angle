@@ -132,7 +132,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
   const { slug } = useParams<{ slug: string }>();
 
   const activeSlug = slug || "serene-master-suite";
-  const assets = PROJECT_ASSETS[activeSlug] ?? PROJECT_ASSETS["serene-master-suite"];
+  const assets = PROJECT_ASSETS[activeSlug];
 
   // ── Mode state ──
   const [activeMode, setActiveMode] = useState<ActiveMode>("video");
@@ -216,9 +216,19 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
   };
   const endDrag = () => setIsDragging(false);
 
-  // ── 360 safe modulo (guard against offsetWidth = 0) ──
-  const panoWidth = Math.max(1, panoRef.current?.offsetWidth ?? 1);
-  const panOffset = dragX % panoWidth;
+  // ── 360 clamp drag (prevent wrapping jumps) ──
+  const containerWidth = panoRef.current?.parentElement?.offsetWidth ?? 1000;
+  const panoWidth = Math.max(1, panoRef.current?.offsetWidth ?? 3000);
+  const minDrag = containerWidth - panoWidth;
+  const panOffset = Math.max(minDrag, Math.min(0, dragX));
+
+  if (!assets) {
+    return (
+      <section className="bg-neutral-950 text-white/50 text-center py-32 text-sm font-light">
+        <p>Interactive media is being prepared for this project.</p>
+      </section>
+    );
+  }
 
   // ── WhatsApp CTA link ──
   const quoteLink = `https://wa.me/${whatsapp.replace(/\D/g, "")}?text=I%20saw%20a%20material%20on%20your%20project%20page%20and%20would%20like%20a%20quote.`;
@@ -232,7 +242,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
       {/* ── Chapter label (plain language) ── */}
       <div className="flex flex-col items-center text-center mb-10 select-none" aria-hidden="true">
         <span className="text-[10px] font-mono tracking-[0.4em] text-site-gold uppercase mb-2">
-          Explore the Space
+          Immerse / Explore the Space
         </span>
         <div className="w-8 h-px bg-white/10" />
       </div>
@@ -321,6 +331,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                 {!videoPlaying && (
                   <motion.div
                     key="poster"
+                    layoutId="hero-to-canvas"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -415,37 +426,41 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                 onTouchStart={e => startDrag(e.touches[0].clientX)}
                 onTouchMove={e => moveDrag(e.touches[0].clientX)}
                 onTouchEnd={endDrag}
-                role="img"
+                role="region"
+                aria-roledescription="panorama"
                 aria-label="Panoramic view of the interior space"
               >
                 {/* Dark overlay for hotspot readability */}
                 <div className="absolute inset-0 bg-black/20 pointer-events-none" />
-              </div>
 
-              {/* Hotspots — OUTSIDE the pointer-events-none layer, positioned absolutely relative to canvas */}
-              {assets.hotspots.map((spot, idx) => (
-                <button
-                  key={spot.id}
-                  type="button"
-                  onClick={() => setActiveSpot(activeSpot?.id === spot.id ? null : spot)}
-                  aria-label={`View ${spot.tag} detail: ${spot.title}`}
-                  aria-pressed={activeSpot?.id === spot.id}
-                  style={{ left: `${spot.x / 3}%`, top: `${spot.y}%` }}
-                  className="absolute z-20 -translate-x-1/2 -translate-y-1/2 focus:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-                >
-                  <div className="relative flex items-center justify-center w-9 h-9 hover:scale-110 active:scale-95 transition-transform duration-200">
-                    {/* Ping ring — only if reduced motion is not preferred */}
-                    {!prefersReducedMotion && (
-                      <div className={`absolute inset-0 rounded-full animate-ping ${activeSpot?.id === spot.id ? "bg-site-gold/40" : "bg-white/20"}`} />
-                    )}
-                    <div className={`absolute inset-1.5 rounded-full flex items-center justify-center shadow-lg font-bold text-[10px] transition-colors duration-300 ${
-                      activeSpot?.id === spot.id ? "bg-site-gold text-black" : "bg-white text-black"
-                    }`}>
-                      {idx + 1}
+                {/* Hotspots — INSIDE the pan container so they drag synchronously */}
+                {assets.hotspots.map((spot, idx) => (
+                  <button
+                    key={spot.id}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent drag from stealing click
+                      setActiveSpot(activeSpot?.id === spot.id ? null : spot);
+                    }}
+                    aria-label={`View ${spot.tag} detail: ${spot.title}`}
+                    aria-pressed={activeSpot?.id === spot.id}
+                    style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
+                    className="absolute z-20 -translate-x-1/2 -translate-y-1/2 focus:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                  >
+                    <div className="relative flex items-center justify-center w-9 h-9 hover:scale-110 active:scale-95 transition-transform duration-200">
+                      {/* Ping ring — only if reduced motion is not preferred */}
+                      {!prefersReducedMotion && (
+                        <div className={`absolute inset-0 rounded-full animate-ping ${activeSpot?.id === spot.id ? "bg-site-gold/40" : "bg-white/20"}`} />
+                      )}
+                      <div className={`absolute inset-1.5 rounded-full flex items-center justify-center shadow-lg font-bold text-[10px] transition-colors duration-300 ${
+                        activeSpot?.id === spot.id ? "bg-site-gold text-black" : "bg-white text-black"
+                      }`}>
+                        {idx + 1}
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                ))}
+              </div>
 
               {/* Persistent tour hint — visible 3s then fades */}
               <AnimatePresence>

@@ -34,7 +34,7 @@ const ProjectHero = ({ heroImage, title, category, location, area, year, tagline
   return (
     <div ref={containerRef} className="relative h-[100dvh] w-full overflow-hidden bg-neutral-950 text-stone-100">
       {/* Parallax image */}
-      <motion.div className="absolute inset-0" style={{ y }}>
+      <motion.div className="absolute inset-0" style={{ y }} layoutId="hero-to-canvas">
         <Image
           src={heroImage}
           alt={title}
@@ -94,15 +94,15 @@ const ProjectHero = ({ heroImage, title, category, location, area, year, tagline
           animate={{ opacity: 1 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.9 }}
         >
-          <a
-            href="#walkthrough"
-            className="group flex items-center gap-4 border border-white/20 rounded-full px-6 py-3 hover:bg-white/10 transition-colors w-fit"
+          <button
+            onClick={() => document.getElementById("walkthrough")?.scrollIntoView({ behavior: "smooth" })}
+            className="group flex items-center gap-4 border border-white/20 rounded-full px-6 py-3 hover:bg-white/10 transition-colors w-fit cursor-pointer"
           >
             <span className="text-[10px] font-medium tracking-[0.25em] uppercase text-white">
               Watch Walkthrough
             </span>
             <ArrowDown className="w-4 h-4 text-white group-hover:translate-y-1 transition-transform duration-500" />
-          </a>
+          </button>
         </motion.div>
       </motion.div>
 

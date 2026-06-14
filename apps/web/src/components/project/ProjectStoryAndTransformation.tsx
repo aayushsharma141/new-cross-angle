@@ -81,18 +81,20 @@ export const ProjectStoryAndTransformation = ({ project }: ProjectStoryAndTransf
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Sliding Quote — GSAP-targeted */}
           <div className="lg:col-span-5 relative">
-            <motion.div 
+            <div 
               data-reveal="quote"
-              style={{ x: quoteX, opacity: quoteOpacity }} 
               className="space-y-4"
             >
               <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-site-gold block">
-                {data.thesis}
+                03 / TRANSFORM
               </span>
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
+                The <span className="italic text-stone-400 font-light">Narrative</span>
+              </h2>
               <blockquote className="text-2xl md:text-3xl lg:text-4xl font-serif font-light leading-[1.25] text-white tracking-tight">
                 &ldquo;{data.quote}&rdquo;
               </blockquote>
-            </motion.div>
+            </div>
           </div>
 
           {/* Right Column: Pre-transformation context */}
@@ -126,14 +128,14 @@ export const ProjectStoryAndTransformation = ({ project }: ProjectStoryAndTransf
             firstImage={data.beforeImg}
             secondImage={data.afterImg}
             className="w-full h-full object-cover"
-            slideMode="hover"
+            slideMode="drag"
           />
           {/* Slider tags */}
           <div className="absolute top-6 left-6 z-20 px-4 py-2 bg-black/60 backdrop-blur-md rounded-full border border-white/5 pointer-events-none">
-            <span className="text-[9px] uppercase tracking-widest text-white">Before</span>
+            <span className="text-[10px] uppercase tracking-widest text-white">Before</span>
           </div>
           <div className="absolute top-6 right-6 z-20 px-4 py-2 bg-black/60 backdrop-blur-md rounded-full border border-white/5 pointer-events-none">
-            <span className="text-[9px] uppercase tracking-widest text-white">After</span>
+            <span className="text-[10px] uppercase tracking-widest text-white">After</span>
           </div>
         </motion.div>
 

@@ -1,24 +1,18 @@
 import { motion } from "framer-motion";
 
 interface ProjectClientExperienceProps {
-  question1: string;
-  answer1: string;
-  question2: string;
-  answer2: string;
+  quote: string;
   clientName: string;
   clientRole: string;
 }
 
 const ProjectClientExperience = ({ 
-  question1, 
-  answer1, 
-  question2, 
-  answer2, 
+  quote,
   clientName, 
   clientRole 
 }: ProjectClientExperienceProps) => {
   return (
-    <section className="py-24 md:py-32 bg-neutral-950 text-white border-t border-white/5">
+    <section className="py-24 md:py-32 bg-neutral-950 text-white">
       <div className="max-w-4xl mx-auto px-6 md:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -33,25 +27,15 @@ const ProjectClientExperience = ({
           </h2>
         </motion.div>
 
-        <div className="flex flex-col gap-12 md:gap-16">
+        <div className="flex flex-col gap-12 md:gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.1 }}
+            className="text-center max-w-3xl"
           >
-            <h3 className="text-lg md:text-xl font-medium mb-4 text-stone-200">{question1}</h3>
-            <p className="text-stone-400 font-light leading-relaxed text-base md:text-lg">&ldquo;{answer1}&rdquo;</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <h3 className="text-lg md:text-xl font-medium mb-4 text-stone-200">{question2}</h3>
-            <p className="text-stone-400 font-light leading-relaxed text-base md:text-lg">&ldquo;{answer2}&rdquo;</p>
+            <p className="text-stone-300 font-light leading-relaxed text-xl md:text-3xl">&ldquo;{quote}&rdquo;</p>
           </motion.div>
         </div>
 

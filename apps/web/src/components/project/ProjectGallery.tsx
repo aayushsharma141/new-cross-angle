@@ -148,7 +148,7 @@ const ProjectGallery = ({ gallery, title }: ProjectGalleryProps) => {
     <div ref={sectionRef} className="bg-neutral-950 text-white relative">
       
       {/* 1. RHYTHM PEAK 01: Massive Parallax Cover (BIG) */}
-      <div className="relative h-[85vh] w-full overflow-hidden border-b border-white/5">
+      <div className="relative h-[85vh] w-full overflow-hidden">
         <motion.div 
           className="absolute inset-0 w-full h-[120%]"
           style={{ y: parallaxY }}
@@ -218,7 +218,7 @@ const ProjectGallery = ({ gallery, title }: ProjectGalleryProps) => {
       <div className="h-16" />
 
       {/* 3. RHYTHM PEAK 03: The Interactive Media Reel (BIG/SLIDER) */}
-      <div className="py-24 border-t border-white/5 bg-neutral-950">
+      <div className="py-24 bg-neutral-950">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           
           <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -270,7 +270,15 @@ const ProjectGallery = ({ gallery, title }: ProjectGalleryProps) => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="w-full h-full relative"
+                  className="w-full h-full relative cursor-grab active:cursor-grabbing"
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, { offset, velocity }) => {
+                    const swipe = Math.abs(offset.x) * velocity.x;
+                    if (swipe < -10000 || offset.x < -50) handleNext();
+                    else if (swipe > 10000 || offset.x > 50) handlePrev();
+                  }}
                 >
                   <img src={imagesList[currentIdx]} alt="Carousel slide" className="w-full h-full object-cover select-none" />
 
@@ -393,20 +401,28 @@ const ProjectGallery = ({ gallery, title }: ProjectGalleryProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setLightboxOpen(false)}
-            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-6 cursor-zoom-out"
+            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center"
           >
-            <button className="absolute top-8 right-8 text-white/60 hover:text-white text-xs uppercase tracking-widest font-mono">
-              Close [ESC]
-            </button>
-            <motion.img 
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.95 }}
-              src={imagesList[currentIdx]} 
-              alt="Expanded view" 
-              className="max-w-full max-h-[85vh] object-contain border border-white/10 shadow-2xl rounded-lg"
-            />
+            <div 
+              className="absolute inset-0 overflow-auto flex items-center justify-center p-6 cursor-zoom-out" 
+              onClick={() => setLightboxOpen(false)}
+            >
+              <button className="absolute top-8 right-8 text-white/60 hover:text-white text-xs uppercase tracking-widest font-mono z-50">
+                Close [ESC]
+              </button>
+              <motion.img 
+                initial={{ scale: 0.95 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.95 }}
+                src={imagesList[currentIdx]} 
+                alt="Expanded view" 
+                className="w-auto max-w-full md:max-w-none max-h-none md:max-h-[85vh] object-contain border border-white/10 shadow-2xl rounded-lg"
+                onClick={(e) => {
+                  // allow pinch zoom to work without closing on mobile if they tap the image
+                  e.stopPropagation();
+                }}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

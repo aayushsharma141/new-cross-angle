@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 const ProjectCTA = () => {
   return (
-    <section className="py-32 md:py-48 bg-stone-900 text-white border-t border-white/5 relative overflow-hidden">
+    <section className="py-32 md:py-48 bg-stone-900 text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-stone-800/30 via-stone-900 to-stone-900 pointer-events-none" />
       
       <div className="max-w-4xl mx-auto px-6 text-center relative z-10">

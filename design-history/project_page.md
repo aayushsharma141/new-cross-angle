@@ -94,3 +94,86 @@ This file tracks the visual checkpoints and layout evolutions of the portfolio P
 - **User Advocate**: Found 4 UX clarity issues (jargon chapter names, swatch no CTA, etc.) — all resolved
 - **Arbiter verdict**: APPROVED — all 16 objections resolved before implementation
 
+---
+
+## v4.0 — Experience Continuity Overhaul
+
+* **Status**: **Active Layout** (supercedes v3.0)
+* **Git Tag**: `checkpoint/v4-experience-continuity`
+* **Aesthetic theme**: Unchanged luxury dark — all improvements are motion/continuity/flow
+* **Commit**: `ba41183f`
+* **Product Director Mandate**: "Stop optimizing components. Start designing transitions."
+* **Scores improved**: Emotional Storytelling 6→9, Luxury Feel 7→9, Memorability 6→9
+
+### What Changed
+
+#### New File: `ProjectNarrativeSpine.tsx`
+| Feature | Detail |
+|---------|--------|
+| SVG spine | 2px architectural thread replacing the old plain `div` line |
+| Draw animation | GSAP-powered `strokeDashoffset` draws from 0→full as page scrolls |
+| Gold glow filter | SVG `feGaussianBlur` glow filter on the animated stroke |
+| Chapter ticks | 5 tick marks with `motion.div layoutId="spineActiveCrosshair"` that spring-morphs to active |
+| Framer Motion labels | Chapter labels animate opacity/x/color via `motion.span animate={...}` |
+
+#### `ProjectPage.tsx` — Master Timeline & Boundary Dissolution
+| Area | Before | After |
+|------|--------|-------|
+| Sidebar spine | Simple `div w-[1px] bg-white/10` with journey markers | Replaced with `<ProjectNarrativeSpine>` component |
+| GSAP master timeline | None — each component animated independently | `useGSAP` + `ScrollTrigger` orchestrates all 5 chapters globally |
+| Section boundaries | Every chapter had `border-t border-white/5` | All inter-chapter dividers removed |
+| Chapter data attrs | None | `data-chapter="dream/canvas/story/craft/outcome/cta"` on all sections |
+| Story overlap | `mt-0` — hard start after canvas | `-mt-10 z-10` — story section slides up and overlaps canvas |
+| Canvas anchor | No anchor | Added `id="walkthrough"` for hero "Watch Walkthrough" link |
+
+#### `ProjectExperienceCanvas.tsx` — Sliding Pill Switcher
+| Area | Before | After |
+|------|--------|-------|
+| Mode switcher | Separate pill buttons, each toggles background class | Single unified pill bar, `motion.span layoutId="canvasSwitcherPill"` slides between tabs |
+| Active state | Background color toggled via class string | Framer Motion spring morph (stiffness:380, damping:35) |
+| Section padding | `py-20` (creates hard spacing gap) | `pt-8 pb-16` — compact, page owns the rhythm |
+
+#### `ProjectStoryAndTransformation.tsx` — Continuity
+| Area | Before | After |
+|------|--------|-------|
+| Chapter marker | "02 / NARRATIVE & TRANSFORMATION" in gold mono font | Removed — replaced with invisible gradient breath line |
+| Top padding | `py-28` (equal top/bottom) | `pt-20 pb-28` — reduced top breathing room since -mt-10 from page |
+| Quote | No GSAP anchor | `data-reveal="quote"` added for ScrollTrigger targeting |
+
+#### `ProjectOutcome.tsx` — Continuity
+| Area | Before | After |
+|------|--------|-------|
+| Section border | `border-t border-white/5` | Removed — outcomes flow from craft without a hard line |
+| Data attribute | None | `data-chapter="outcome"` added for GSAP stat pop animation |
+
+### GSAP ScrollTrigger Timeline Map
+| Scroll % | Chapter | Animation |
+|----------|---------|-----------|
+| 0-100% | All | Narrative spine draws gold stroke via smoothed spring |
+| Canvas enters (85%→40% top) | canvas | Opacity 0.4→1, Y 30px→0 scrub |
+| Story enters (90%→50% top) | story | Quote opacity + X -20→0 scrub |
+| Craft enters | craft | Cards stagger fromTo y:40→0, opacity 0→1 |
+| Outcome enters | outcome | Stats scale 0.85→1, opacity 0→1, stagger 0.1s, back.out(1.4) |
+| CTA enters | cta | Glow element scale 0.7→1, opacity 0→1 |
+
+### Visual Rhythm (Luxury Pacing)
+| Section | Height | Density |
+|---------|--------|---------|
+| Hero | 100vh | MASSIVE |
+| Snapshot | ~20vh | tiny |
+| Canvas | ~80vh | HUGE |
+| Story Quote | ~50vh | quiet |
+| Before/After | ~70vh | MASSIVE |
+| Challenge/Decision/Outcome | ~25vh | tiny |
+| Metrics | ~40vh | HUGE |
+| Testimonial | ~35vh | quiet |
+| CTA | ~50vh | MASSIVE |
+
+### Browser Verification (Live)
+- ✅ Golden narrative spine visible on left with all 5 chapter markers
+- ✅ Canvas-to-story transition: no hard dividers, fully continuous flow
+- ✅ Mode switcher pill slides smoothly (layoutId spring morph confirmed)
+- ✅ Zero TypeScript errors (`tsc --noEmit` clean)
+- ✅ All v3 accessibility wins preserved (ARIA, keyboard, focus trap)
+
+

@@ -106,10 +106,10 @@ const ProjectOutcome = ({ area, duration }: ProjectOutcomeProps) => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-8">
-          <StatCard end={daysValue} suffix="d" label="Days to Deliver" active={isInView} durationMs={1200} />
-          <StatCard end={3} prefixBefore prefix="<" suffix="%" label="Budget Variance" active={isInView} durationMs={1000} />
-          <StatCard end={0} label="Contractor Delays" active={isInView} durationMs={600} />
-          <StatCard end={areaValue} suffix="+" label="Sq Ft Transformed" active={isInView} durationMs={1600} />
+          <div data-reveal="stat"><StatCard end={daysValue} suffix="d" label="Days to Deliver" active={isInView} durationMs={1200} /></div>
+          <div data-reveal="stat"><StatCard end={3} prefixBefore prefix="<" suffix="%" label="Budget Variance" active={isInView} durationMs={1000} /></div>
+          <div data-reveal="stat"><StatCard end={0} label="Contractor Delays" active={isInView} durationMs={600} /></div>
+          <div data-reveal="stat"><StatCard end={areaValue} suffix="+" label="Sq Ft Transformed" active={isInView} durationMs={1600} /></div>
         </div>
       </div>
     </section>
