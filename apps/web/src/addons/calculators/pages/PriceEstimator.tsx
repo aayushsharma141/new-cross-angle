@@ -135,18 +135,18 @@ const CostEstimatorPage = () => {
         </div>
 
         {/* Magic Rings Luxury Background */}
-        <div className="absolute inset-0 z-0 overflow-hidden w-full h-full pointer-events-none opacity-20">
+        <div className="absolute inset-0 z-0 overflow-hidden w-full h-full pointer-events-none opacity-45">
           <MagicRings
-            color="#d1af6e" // brand gold
-            colorTwo="#233526" // brand green
+            color="#e2ba6e" // vibrant gold
+            colorTwo="#2b4b32" // richer green
             ringCount={8}
             speed={0.4}
             attenuation={14}
-            lineThickness={1.5}
+            lineThickness={2.2}
             baseRadius={0.25}
             radiusStep={0.08}
             scaleRate={0.05}
-            opacity={0.8}
+            opacity={0.9}
             blur={0}
             noiseAmount={0.03}
             rotation={15}
