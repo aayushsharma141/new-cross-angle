@@ -1,6 +1,6 @@
 /* Results — Final Estimate Display */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CalculatorFormData, EstimateResult } from "../data/types";
 import { formatCurrency, formatRange } from "../data/format-utils";
 import { SERVICES as DEFAULT_SERVICES, TIERS as DEFAULT_TIERS, THEME } from "../data/pricing-config";
@@ -30,8 +30,11 @@ function AnimatedNumber({ value }: { value: number }) {
     const count = useMotionValue(0);
     const rounded = useTransform(count, Math.round);
     const [displayValue, setDisplayValue] = useState("0");
+    const prevValueRef = useRef(value);
 
     useEffect(() => {
+        const startValue = prevValueRef.current === value ? count.get() : 0;
+        count.set(startValue);
         const controls = animate(count, value, {
             duration: 1.8,
             ease: [0.22, 1, 0.36, 1],
@@ -40,6 +43,7 @@ function AnimatedNumber({ value }: { value: number }) {
         const unsubscribe = rounded.on("change", (latest) => {
             setDisplayValue(latest.toLocaleString("en-IN"));
         });
+        prevValueRef.current = value;
 
         return () => {
             controls.stop();
@@ -124,13 +128,28 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
                 <p className="text-[#5a5a5a] text-center max-w-xs mb-8">
                     It looks like we're missing some details to calculate your investment range.
                 </p>
-                <button
-                    type="button"
-                    onClick={onBack}
-                    className="px-8 py-3 rounded-[8px] font-black text-xs uppercase tracking-widest bg-[#8b6f47] text-white hover:bg-[#705939] transition-all active:scale-[0.98] shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
-                >
-                    ← Go Back
-                </button>
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={onBack}
+                        className="px-8 py-3 rounded-[8px] font-black text-xs uppercase tracking-widest bg-[#8b6f47] text-white hover:bg-[#705939] transition-all active:scale-[0.98] shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                    >
+                        ← Go Back
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onReset}
+                        className="px-8 py-3 rounded-[8px] font-black text-xs uppercase tracking-widest border border-[#e8e4dd] bg-white text-[#1a1a1a] hover:bg-[#faf8f5] transition-all active:scale-[0.98] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                    >
+                        Start Over
+                    </button>
+                    <Link
+                        to={ECOSYSTEM_ROUTES.contact}
+                        className="px-8 py-3 rounded-[8px] font-black text-xs uppercase tracking-widest border border-[#e8e4dd] bg-white text-[#5a5a5a] hover:bg-[#faf8f5] transition-all active:scale-[0.98] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                    >
+                        Contact Us
+                    </Link>
+                </div>
             </div>
         );
     }

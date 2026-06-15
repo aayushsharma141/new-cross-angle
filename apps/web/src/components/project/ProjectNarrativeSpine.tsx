@@ -54,11 +54,11 @@ export const ProjectNarrativeSpine = ({
           strokeDasharray={TOTAL_LEN}
           style={{ strokeDashoffset: strokeDash }}
           strokeLinecap="round"
-          filter="url(#glow)"
+          filter="url(#narrative-spine-glow)"
         />
         {/* Glow filter */}
         <defs>
-          <filter id="glow" x="-200%" y="-10%" width="500%" height="120%">
+          <filter id="narrative-spine-glow" x="-200%" y="-10%" width="500%" height="120%">
             <feGaussianBlur stdDeviation="2" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />

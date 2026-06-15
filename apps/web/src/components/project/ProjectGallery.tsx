@@ -2,6 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { ChevronLeft, ChevronRight, Play, Maximize2, RotateCw, Image as ImageIcon, Video, Eye, ArrowDown } from "lucide-react";
 import { useParams } from "react-router-dom";
+import { getOptimizedUrl } from "@/lib/cdn";
+import portfolioBedroom from "@/assets/portfolio-bedroom.jpg";
+import portfolioKitchen from "@/assets/portfolio-kitchen.jpg";
+import portfolioOffice from "@/assets/portfolio-office.jpg";
+
+const img = (src: string, width = 1200) => getOptimizedUrl(src, { width, quality: 80 });
 
 interface ProjectGalleryProps {
   gallery: { room: string; images: string[] }[];
@@ -17,75 +23,69 @@ const projectAssets: Record<string, {
 }> = {
   "serene-master-suite": {
     photos: [
-      "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1617806118233-18e1db207f62?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1595428774223-ef52624120d2?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?q=80&w=1200&auto=format&fit=crop"
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
     ],
     details: [
-      { label: "01 / TEXTURE", desc: "Premium Belgian linens providing deep sensory warmth.", img: "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?q=80&w=600&auto=format&fit=crop" },
-      { label: "02 / JUNCTION", desc: "Flush shadowline junctions between oak and natural plaster.", img: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?q=80&w=600&auto=format&fit=crop" }
+      { label: "01 / TEXTURE", desc: "Premium Belgian linens providing deep sensory warmth.", img: img(portfolioBedroom, 600) },
+      { label: "02 / JUNCTION", desc: "Flush shadowline junctions between oak and natural plaster.", img: img(portfolioBedroom, 600) }
     ],
     videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-modern-apartment-interior-design-walkthrough-44342-large.mp4",
-    panoramics: [
-      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1920&auto=format&fit=crop"
-    ]
+    panoramics: [img(portfolioBedroom, 1920)]
   },
   "modern-culinary-space": {
     photos: [
-      "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1556912173-3bb406ef7e77?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1539924428412-70997f2d23e5?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1565538810844-1e119412e707?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop"
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
     ],
     details: [
-      { label: "01 / FLUTED PANEL", desc: "Diffusing glass panels allowing sunlight pathways through zones.", img: "https://images.unsplash.com/photo-1606170033648-5d55a3edf314?q=80&w=600&auto=format&fit=crop" },
-      { label: "02 / HARDWARE", desc: "German soft-close drawer tracks demonstrating structural alignment.", img: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=600&auto=format&fit=crop" }
+      { label: "01 / FLUTED PANEL", desc: "Diffusing glass panels allowing sunlight pathways through zones.", img: img(portfolioKitchen, 600) },
+      { label: "02 / HARDWARE", desc: "German soft-close drawer tracks demonstrating structural alignment.", img: img(portfolioKitchen, 600) }
     ],
     videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-modern-apartment-interior-design-walkthrough-44342-large.mp4",
-    panoramics: [
-      "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1920&auto=format&fit=crop"
-    ]
+    panoramics: [img(portfolioKitchen, 1920)]
   },
   "executive-workspace": {
     photos: [
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1497366811353-6870744d04b2?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1572435551855-9084883441a2?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1531973576160-7125cd663d86?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1517502884422-41eaaced0168?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1504307651254-35680f356fce?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=1200&auto=format&fit=crop"
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
     ],
     details: [
-      { label: "01 / TIMBER SLATS", desc: "White oak slats controlling sound frequencies.", img: "https://images.unsplash.com/photo-1572435551855-9084883441a2?q=80&w=600&auto=format&fit=crop" },
-      { label: "02 / ACOUSTIC PANEL", desc: "Deep grey felt absorbers positioned to deaden room noise.", img: "https://images.unsplash.com/photo-1531973576160-7125cd663d86?q=80&w=600&auto=format&fit=crop" }
+      { label: "01 / TIMBER SLATS", desc: "White oak slats controlling sound frequencies.", img: img(portfolioOffice, 600) },
+      { label: "02 / ACOUSTIC PANEL", desc: "Deep grey felt absorbers positioned to deaden room noise.", img: img(portfolioOffice, 600) }
     ],
     videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-modern-apartment-interior-design-walkthrough-44342-large.mp4",
-    panoramics: [
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1920&auto=format&fit=crop"
-    ]
+    panoramics: [img(portfolioOffice, 1920)]
   }
 };
 

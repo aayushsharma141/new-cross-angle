@@ -7,6 +7,7 @@ import { ArrowRight, MapPin, Building, Home, Users } from "lucide-react";
 import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
 import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 
 const cityRegions: Record<string, string> = {
   jamshedpur: "Jharkhand",
@@ -318,6 +319,7 @@ const LocationPage = () => {
       </main>
 
       <Footer />
+      <ScrollToTop />
     </>
   );
 };

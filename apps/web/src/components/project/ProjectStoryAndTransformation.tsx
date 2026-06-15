@@ -49,9 +49,8 @@ interface ProjectStoryAndTransformationProps {
 
 export const ProjectStoryAndTransformation = ({ project }: ProjectStoryAndTransformationProps) => {
   const { slug } = useParams<{ slug: string }>();
-  const activeSlug = slug || "serene-master-suite";
-  
-  const data = storyTransformationData[activeSlug] || storyTransformationData["serene-master-suite"];
+  const activeSlug = slug as keyof typeof storyTransformationData | undefined;
+  const data = activeSlug ? storyTransformationData[activeSlug] : undefined;
 
   const sectionRef = useRef<HTMLDivElement>(null);
   

@@ -99,17 +99,17 @@ const ProjectOutcome = ({ area, duration }: ProjectOutcomeProps) => {
 
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <div className="text-center mb-20">
-          <span className="text-xs font-medium tracking-[0.3em] uppercase text-site-gold block mb-4">Results</span>
+          <span className="text-[10px] font-mono tracking-[0.4em] uppercase text-site-gold block mb-4">05 / OUTCOME</span>
           <h2 className="text-3xl md:text-5xl text-white tracking-tight font-serif font-normal leading-[1.1]">
-            By the <em className="italic text-site-crimson font-light not-italic">Numbers</em>
+            By the <em className="italic text-site-crimson font-light">Numbers</em>
           </h2>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-8">
-          <div data-reveal="stat"><StatCard end={daysValue} suffix="d" label="Days to Deliver" active={isInView} durationMs={1200} /></div>
-          <div data-reveal="stat"><StatCard end={3} prefixBefore prefix="<" suffix="%" label="Budget Variance" active={isInView} durationMs={1000} /></div>
-          <div data-reveal="stat"><StatCard end={0} label="Contractor Delays" active={isInView} durationMs={600} /></div>
-          <div data-reveal="stat"><StatCard end={areaValue} suffix="+" label="Sq Ft Transformed" active={isInView} durationMs={1600} /></div>
+          <div><StatCard end={daysValue} suffix="d" label="Days to Deliver" active={isInView} durationMs={1200} /></div>
+          <div><StatCard end={3} prefixBefore prefix="<" suffix="%" label="Budget Variance" active={isInView} durationMs={1000} /></div>
+          <div><StatCard end={100} suffix="%" label="On-Time Completion" active={isInView} durationMs={800} /></div>
+          <div><StatCard end={areaValue} suffix="+" label="Sq Ft Transformed" active={isInView} durationMs={1600} /></div>
         </div>
       </div>
     </section>

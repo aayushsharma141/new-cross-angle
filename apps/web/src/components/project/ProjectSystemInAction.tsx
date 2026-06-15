@@ -51,25 +51,24 @@ const ProjectSystemInAction = ({ project }: ProjectSystemInActionProps) => {
             {steps.map((step, idx) => {
               const isEven = idx % 2 === 0;
               return (
-                <div key={step.name} className={`flex flex-col md:flex-row items-start md:items-center w-full ${isEven ? 'md:flex-row-reverse' : ''}`}>
+                <div key={step.name} className={`relative flex flex-col md:flex-row items-start md:items-center w-full ${isEven ? 'md:flex-row-reverse' : ''}`}>
                   
                   {/* Text Content */}
                   <div className={`pl-8 md:pl-0 w-full md:w-1/2 ${isEven ? 'md:pl-16 text-left' : 'md:pr-16 md:text-right'}`}>
                     <motion.div
-                      data-reveal="card"
                       initial={{ opacity: 0, x: isEven ? 20 : -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true, margin: "-100px" }}
                       transition={{ duration: 0.8 }}
                     >
                       <span className="text-xs uppercase tracking-[0.2em] text-site-gold block mb-2">{step.week}</span>
-                      <h4 className="text-xl md:text-2xl font-serif text-white mb-3">{step.name}</h4>
+                      <h3 className="text-xl md:text-2xl font-serif text-white mb-3">{step.name}</h3>
                       <p className="text-stone-400 font-light text-sm leading-relaxed">{step.desc}</p>
                     </motion.div>
                   </div>
 
                   {/* Node Dot */}
-                  <div className="absolute left-4 md:left-1/2 w-3 h-3 rounded-full bg-neutral-950 border-2 border-site-gold transform -translate-x-[5px] md:-translate-x-1/2 mt-2 md:mt-0" />
+                  <div className="absolute left-4 md:left-1/2 top-0 md:top-1/2 w-3 h-3 rounded-full bg-neutral-950 border-2 border-site-gold transform -translate-x-[5px] md:-translate-x-1/2 mt-1 md:mt-0 md:-translate-y-1/2" />
                 </div>
               );
             })}

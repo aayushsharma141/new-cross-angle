@@ -47,6 +47,8 @@ export const ADMIN_STATIC_PATHS = [
   // CRM module
   '/admin/crm',
   '/admin/crm/leads',
+  '/admin/crm/analytics',
+  '/admin/crm/settings',
 
   // Discovery module
   '/admin/discovery',
@@ -70,6 +72,7 @@ export const ADMIN_STATIC_PATHS = [
   '/admin/system/team-members',
   '/admin/system/audit-logs',
   '/admin/system/access-control',
+  '/admin/system/email-templates',
 
   // User Access module
   '/admin/user-access',

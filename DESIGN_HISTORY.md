@@ -26,6 +26,8 @@ Select a component segment below to view its full visual history, design variati
   Tracks Services page components (Office & Commercial heading whitespace-nowrap, Turnkey Process header container width, and Quality & Durability aligned headlines).
 * 🖼️ **[Project Page Layouts](file:///c:/Users/aayus/Desktop/main/design-history/project_page.md)**
   Tracks the Portfolio Project details page layout, theme transitions, visual showcases, and custom sub-galleries.
+* 🏛️ **[Portfolio Hub Layouts](file:///c:/Users/aayus/Desktop/main/design-history/portfolio_page.md)**
+  Tracks the main Portfolio publication page, editorial flow sections, and visual systems.
 * 🗺️ **[Blueprint Page Timeline](file:///c:/Users/aayus/Desktop/main/design-history/blueprint_page.md)**
   Tracks the System Blueprint page iterations (V1 Tech Stack, V2 Bento Grid, and V3 Active Interactive Chronological Timeline showcasing database schemas, staggering layouts, and CRM realtime syncing).
 

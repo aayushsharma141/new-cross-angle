@@ -176,4 +176,58 @@ This file tracks the visual checkpoints and layout evolutions of the portfolio P
 - ✅ Zero TypeScript errors (`tsc --noEmit` clean)
 - ✅ All v3 accessibility wins preserved (ARIA, keyboard, focus trap)
 
+---
 
+## v4.1 — UI/UX Audit Remediation
+
+* **Status**: **Active Layout** (supercedes v4.0)
+* **Git Tag**: `checkpoint/v4.1-ui-ux-audit`
+* **Process**: Executed via UI/UX mobile audit loop
+
+### What Changed
+
+#### Mobile & Touch Remediation
+| Area | Before | After |
+|------|--------|-------|
+| Hero CTA | `#walkthrough` href failed on smooth layout | Implemented `scrollIntoView` for reliable programmatic scroll |
+| Before/After Slider | `slideMode="hover"` broken on mobile touch | Switched to `slideMode="drag"` for native mobile swiping |
+| Snapshot Stats | Horizonally overflowed screen causing bugs | Re-implemented flex-wrap and justified centering for mobile |
+| Project Gallery | No photo swipe gestures on mobile | Added framer-motion `drag="x"` gestures with left/right navigation |
+| Lightbox Zoom | Hard-constrained 85vh, no zoom | Re-implemented with native `overflow-auto` allowing mobile pinch zoom |
+
+#### Continuity & Typography Remediation
+| Area | Before | After |
+|------|--------|-------|
+| Client Experience | Static Q&A text | Refactored to accept dynamic `quote` props directly from data source |
+| Chapter Indicators| Mismatched labels in sticky nav | Standardized labels (e.g. `04 / THE CRAFT`) for total consistency |
+| Component Skeleton| White fallback background in Dark mode | Applied `bg-neutral-950` to maintain luxury dark mood pre-load |
+| Layout Padding | System Timeline text squished on small devices | Optimized responsive padding from `pl-12` to `pl-8` |
+| Navigation | Hidden "All Projects" link | Enabled visibility globally |
+
+### Final Audit Status
+- All Critical, High, and Medium severity bugs resolved.
+- Full experience parity achieved between Desktop and Mobile touch interaction models.
+
+---
+
+## v4.2 — Experience Continuity & Final Polish
+
+* **Status**: **Active Layout** (supercedes v4.1)
+* **Git Tag**: `checkpoint/v4.2-experience-continuity`
+* **Process**: Addressed remaining medium/low UI audit items and enforced absolute narrative continuity.
+
+### What Changed
+
+#### Scroll Orchestration & Spine Accuracy
+| Area | Before | After |
+|------|--------|-------|
+| Chapter Detection | Scroll progress split into 5 equal 20% chunks, ignoring actual content height | Replaced with `IntersectionObserver` targeting `[data-chapter]` elements with custom rootMargins to accurately highlight the active chapter based on exact viewport presence |
+| Timeline Interactive | Documentation steps were static labels | Converted timeline items to interactive buttons that programmatically scroll the container to the chosen step |
+
+#### Typography & Component Polish
+| Area | Before | After |
+|------|--------|-------|
+| Chapter Headers | Labels were slightly out of sync across chapters (e.g. `Results` instead of `05 / OUTCOME`) | Enforced absolute string matching across all 5 chapters to exactly echo the `ProjectNarrativeSpine.tsx` |
+| Related Projects | 3-column forced grid made single related projects look squished and unbalanced | Implemented dynamic column counts and max-widths based on the array length (1=max-w-xl, 2=max-w-4xl, 3=cols-3) |
+| React Lints | Unused `supabase` client and missing TS types in ProjectPage.tsx | Removed unused imports and strongly typed the `unknown` error parameter in the view tracking RPC call |
+| Hero LCP | Hero image had `loading="eager"` but no fetch priority | Added `fetchPriority="high"` to maximize LCP performance |

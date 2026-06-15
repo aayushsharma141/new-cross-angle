@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/primitives/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/primitives/accordion";
 import { serviceCategories, services } from "@/config/site-content";
 import NotFound from "./NotFound";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 import { motion } from "framer-motion";
 import { SchemaMarkup, serializeJsonLd } from "@/components/shared/SchemaMarkup";
 import { useQuery } from "@tanstack/react-query";
@@ -272,6 +273,7 @@ const ServiceDetailPage = () => {
 
                 </main>
                 <Footer />
+                <ScrollToTop />
                 
                 {/* Sticky CTA */}
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-md border-t border-border z-50 flex justify-center items-center gap-4 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">

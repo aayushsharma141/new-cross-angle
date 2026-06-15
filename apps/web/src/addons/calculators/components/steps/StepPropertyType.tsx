@@ -44,6 +44,16 @@ export function StepPropertyType({ formData, updateField }: Props) {
         }
     };
 
+    if (propertyTypes.length === 0) {
+        return (
+            <div className="text-center py-12 px-6 border border-dashed border-[#e8e4dd] rounded-[8px] bg-white/40">
+                <div className="text-4xl mb-3 opacity-40">🏗️</div>
+                <p className="text-sm text-[#5a5a5a] font-medium mb-1">Property types unavailable</p>
+                <p className="text-xs text-[#5a5a5a]/70">Please refresh the page or try again later.</p>
+            </div>
+        );
+    }
+
     return (
         <div>
 

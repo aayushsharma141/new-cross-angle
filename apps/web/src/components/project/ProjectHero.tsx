@@ -29,7 +29,7 @@ const ProjectHero = ({ heroImage, title, category, location, area, year, tagline
   const textOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const textY = useTransform(scrollYProgress, [0, 0.5], [0, -40]);
 
-  const subline = tagline || brief?.split(".")[0]?.trim() || "A space designed for excellence.";
+  const subline = tagline || (brief ? brief.split(/\.\s+(?=[A-Z])/)[0].trim() + "." : "A space designed for excellence.");
 
   return (
     <div ref={containerRef} className="relative h-[100dvh] w-full overflow-hidden bg-neutral-950 text-stone-100">
@@ -43,6 +43,7 @@ const ProjectHero = ({ heroImage, title, category, location, area, year, tagline
           width={1920}
           height={1080}
           loading="eager"
+          fetchPriority="high"
         />
       </motion.div>
 

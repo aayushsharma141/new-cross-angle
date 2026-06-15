@@ -88,14 +88,14 @@ const HubLightExperience = () => {
         />
 
         {/* Mode Pill Controls */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-neutral-950/80 backdrop-blur-xl border border-white/10 rounded-full p-1.5 flex gap-1 z-20">
+        <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 bg-neutral-950/80 backdrop-blur-xl border border-white/10 rounded-full p-1 md:p-1.5 flex gap-0.5 md:gap-1 z-20 w-[95%] sm:w-auto overflow-x-auto no-scrollbar justify-center">
           {LIGHT_BUTTONS.map((m) => (
             <button
               key={m}
               onClick={() => setActiveMode(m)}
-              className={`px-5 py-2 rounded-full text-[10px] font-medium tracking-widest uppercase transition-all duration-300
+              className={`px-3 sm:px-4 md:px-5 py-1.5 md:py-2 rounded-full text-[8px] sm:text-[9px] md:text-[10px] font-medium tracking-wider md:tracking-widest uppercase transition-all duration-300 whitespace-nowrap
                 ${activeMode === m
-                  ? "bg-white text-black"
+                  ? "bg-white text-black shadow-md"
                   : "text-stone-400 hover:text-white"
                 }`}
             >

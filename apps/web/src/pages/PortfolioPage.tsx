@@ -3,20 +3,51 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FixedSocialBar from "@/components/layout/FixedSocialBar";
 import ScrollProgress from "@/components/layout/ScrollProgress";
-import { Suspense, lazy } from "react";
-
-// Lazy load components for the Hub
-const HubHero = lazy(() => import("@/components/portfolio/HubHero"));
-const SpaceNavigator = lazy(() => import("@/components/portfolio/SpaceNavigator"));
-const FeaturedJourneys = lazy(() => import("@/components/portfolio/FeaturedJourneys"));
-const StyleSelector = lazy(() => import("@/components/portfolio/StyleSelector"));
-const InspirationGallery = lazy(() => import("@/components/portfolio/InspirationGallery"));
-const HubLightExperience = lazy(() => import("@/components/portfolio/HubLightExperience"));
-const TrustSection = lazy(() => import("@/components/portfolio/TrustSection"));
-const HubFinalCTA = lazy(() => import("@/components/portfolio/HubFinalCTA"));
-const ProjectGrid = lazy(() => import("@/components/portfolio/ProjectGrid"));
+import { GrainOverlay } from "@/components/portfolio/GrainOverlay";
+import { MeshGradientBg } from "@/components/portfolio/MeshGradientBg";
+import { CursorGlow } from "@/components/portfolio/CursorGlow";
+import HubHero from "@/components/portfolio/HubHero";
+import Philosophy from "@/components/portfolio/Philosophy";
+import { FeaturedProjectStory } from "@/components/portfolio/FeaturedProjectStory";
+import { TrustLayer } from "@/components/portfolio/TrustLayer";
+import { ProjectArchive } from "@/components/portfolio/ProjectArchive";
+import { DesignPerspective } from "@/components/portfolio/DesignPerspective";
+import { ClientPerspective } from "@/components/portfolio/ClientPerspective";
+import ScrollToTop from "@/components/layout/ScrollToTop";
+import { projects } from "@/data/projects";
 
 const PortfolioPage = () => {
+  // Extract narrative lines for featured stories
+  const storiesData = [
+    {
+      title: projects[0].title,
+      category: projects[0].category,
+      location: projects[0].location,
+      area: projects[0].area,
+      narrative: "A quiet residential sanctuary crafted to dial down the heavy pace of Jamshedpur into silent, tactile master suite comfort.",
+      coverImage: projects[0].heroImage,
+      slug: projects[0].slug,
+    },
+    {
+      title: projects[1].title,
+      category: projects[1].category,
+      location: projects[1].location,
+      area: projects[1].area,
+      narrative: "Shattering closed-door isolation by dissolving walls and integrating a central social island for seamless culinary flow.",
+      coverImage: projects[1].heroImage,
+      slug: projects[1].slug,
+    },
+    {
+      title: projects[2].title,
+      category: projects[2].category,
+      location: projects[2].location,
+      area: projects[2].area,
+      narrative: "Constructing an open-plan biophilic headquarters that projects command authority without corporate steel coldness.",
+      coverImage: projects[2].heroImage,
+      slug: projects[2].slug,
+    },
+  ];
+
   return (
     <>
       <Helmet>
@@ -32,83 +63,55 @@ const PortfolioPage = () => {
         <link rel="canonical" href="https://crossangleinterior.com/portfolio" />
       </Helmet>
 
+      {/* Global Interactive and Texture Layers */}
+      <GrainOverlay />
+      <CursorGlow />
       <ScrollProgress />
       <Navbar />
       <FixedSocialBar />
 
-      <main id="main-content" className="bg-[#050505] text-white overflow-x-hidden">
-        <section id="hero">
-          <Suspense fallback={<div className="h-screen flex items-center justify-center bg-black text-white/50 text-sm tracking-widest uppercase">Loading Hero...</div>}>
-            <HubHero />
-          </Suspense>
-        </section>
+      <main id="main-content" className="relative bg-[#0B0B0B] text-white overflow-hidden w-full min-h-screen">
+        {/* Subtle global mesh gradients in the background */}
+        <MeshGradientBg />
 
-        <section id="explore" className="py-24 text-center">
-          <div className="max-w-7xl mx-auto flex flex-col items-center">
-            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Explorer...</div>}>
-              <SpaceNavigator />
-            </Suspense>
-          </div>
-        </section>
+        {/* 1. Hero Section */}
+        <HubHero />
 
-        <section id="featured" className="bg-[#0a0a0a]">
-          <div className="max-w-7xl mx-auto">
-            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Journeys...</div>}>
-              <FeaturedJourneys />
-            </Suspense>
-          </div>
-        </section>
+        {/* 2. Philosophy Section */}
+        <Philosophy />
 
-        <section id="all-projects" className="bg-[#050505]">
-          <div className="max-w-7xl mx-auto">
-            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Archives...</div>}>
-              <ProjectGrid />
-            </Suspense>
-          </div>
-        </section>
+        {/* 3. Featured Project Stories (Alternating Views) */}
+        <div className="relative space-y-12 bg-[#0B0B0B] z-10">
+          {storiesData.map((story, idx) => (
+            <FeaturedProjectStory
+              key={story.slug}
+              title={story.title}
+              category={story.category}
+              location={story.location}
+              area={story.area}
+              narrative={story.narrative}
+              coverImage={story.coverImage}
+              slug={story.slug}
+              index={idx}
+            />
+          ))}
+        </div>
 
-        <section id="styles" className="py-24 bg-black text-center">
-          <div className="max-w-7xl mx-auto flex flex-col items-center">
-            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Styles...</div>}>
-              <StyleSelector />
-            </Suspense>
-          </div>
-        </section>
+        {/* 4. Trust Layer Marquee */}
+        <TrustLayer />
 
-        <section id="inspiration" className="py-24 bg-[#050505] text-center">
-          <div className="max-w-7xl mx-auto flex flex-col items-center">
-            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Inspiration...</div>}>
-              <InspirationGallery />
-            </Suspense>
-          </div>
-        </section>
+        {/* 5. Bento Project Archive */}
+        <ProjectArchive />
 
-        <section id="light-experience" className="bg-[#0a0a0a]">
-          <div className="max-w-7xl mx-auto">
-            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Experience...</div>}>
-              <HubLightExperience />
-            </Suspense>
-          </div>
-        </section>
+        {/* 6. Design Perspective Horizontal Scroll */}
+        <DesignPerspective />
 
-        <section id="trust" className="py-24">
-          <div className="max-w-7xl mx-auto">
-            <Suspense fallback={<div className="min-h-[40vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading Trust metrics...</div>}>
-              <TrustSection />
-            </Suspense>
-          </div>
-        </section>
-
-        <section id="cta">
-          <div className="max-w-7xl mx-auto">
-            <Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center text-white/60 text-xs tracking-widest uppercase">Loading CTA...</div>}>
-              <HubFinalCTA />
-            </Suspense>
-          </div>
-        </section>
+        {/* 7. Client Perspective Testimonial */}
+        <ClientPerspective />
       </main>
 
       <Footer />
+      <ScrollToTop />
     </>
   );
 };

@@ -82,10 +82,6 @@ const CostEstimatorPage = () => {
           <meta property="og:url" content="https://crossangleinterior.com/estimate" />
           <link rel="canonical" href="https://crossangleinterior.com/estimate" />
         </Helmet>
-        <a href="/" aria-label="Return to CrossAngle Home" className="fixed top-4 left-4 z-[60] text-xs text-[#8b6f47] hover:text-[#6b5537] transition-colors bg-white/80 backdrop-blur-sm px-3 py-2 rounded-full shadow-sm border border-[#e8dcc8] flex items-center gap-1.5">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
-          Home
-        </a>
         <CostEstimator onBack={() => setSelectedPath(null)} />
       </main>
     );
@@ -111,7 +107,7 @@ const CostEstimatorPage = () => {
         data={{
           items: [
             { name: "Home", url: "/" },
-            { name: "Cost Estimator", url: "/estimator" }
+            { name: "Cost Estimator", url: "/estimate" }
           ]
         }}
       />

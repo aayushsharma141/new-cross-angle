@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/primitives/button";
 import { serviceCategories } from "@/config/site-content";
 import NotFound from "./NotFound";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -158,6 +159,7 @@ const ServiceCategoryPage = () => {
                 </main>
 
                 <Footer />
+                <ScrollToTop />
             </div>
         </>
     );

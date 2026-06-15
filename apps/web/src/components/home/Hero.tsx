@@ -1,4 +1,4 @@
-import { ArrowRight, Sparkles, MapPin, Star, ShieldCheck } from "lucide-react";
+import { ArrowRight, Compass, PhoneCall } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
@@ -316,24 +316,47 @@ const Hero = () => {
               We treat interior design as an engineering challenge, not just decoration. Enjoy beautiful, highly functional spaces for daily living, delivered through our CrossAngle Predictable Interior System™.
             </motion.p>
 
-            <motion.div variants={itemUp} className="flex flex-col sm:flex-row gap-4 mb-8">
+            <motion.div variants={itemUp} className="flex flex-col sm:flex-row gap-4">
               <div className="hero-cta-btn">
                 <Link
-                  to="/gallery"
+                  to="/aesthetic-discovery-engine"
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap home-button-sweep group rounded-none h-14 px-8 md:px-10 uppercase tracking-[0.2em] text-[11px] font-bold transition-all duration-300 bg-site-crimson text-white hover:bg-site-crimson/90 hover:scale-[1.02] shadow-[0_4px_14px_rgba(196,18,48,0.3)] hover:shadow-[0_6px_20px_rgba(196,18,48,0.4)]"
                 >
-                  <span>See Our Works</span>
-                  <ArrowRight className="ml-3 h-4 w-4 transition-transform group-hover:translate-x-1.5" />
+                  <Compass className="w-4 h-4" />
+                  <span>Take Style Quiz</span>
+                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1.5" />
                 </Link>
               </div>
               <div className="hero-cta-btn">
                 <Link
-                  to="/about-us"
+                  to="/contact-us"
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap home-button-sweep group rounded-none h-14 px-8 md:px-10 uppercase tracking-[0.2em] text-[11px] font-medium transition-all duration-300 bg-black/40 backdrop-blur-md text-white border border-white/20 hover:bg-white/10 hover:border-white/30 hover:scale-[1.02]"
                 >
-                  <span>More About Us</span>
-                  <ArrowRight className="ml-3 h-4 w-4 opacity-60" />
+                  <PhoneCall className="w-4 h-4" />
+                  <span>Book a Consultation</span>
+                  <ArrowRight className="ml-1 h-4 w-4 opacity-60" />
                 </Link>
+              </div>
+            </motion.div>
+
+            {/* Stats strip */}
+            <motion.div
+              variants={slideLeft}
+              className="flex flex-wrap gap-x-8 gap-y-3 mt-10 pt-8 border-t border-white/[0.07]"
+            >
+              <div>
+                <span className="block text-2xl md:text-3xl font-serif text-white font-medium">150+</span>
+                <span className="text-[11px] tracking-[0.15em] uppercase text-stone-400 font-medium">Projects Completed</span>
+              </div>
+              <div className="hidden sm:block w-px bg-white/[0.07] self-stretch" />
+              <div>
+                <span className="block text-2xl md:text-3xl font-serif text-white font-medium">12+</span>
+                <span className="text-[11px] tracking-[0.15em] uppercase text-stone-400 font-medium">Years Experience</span>
+              </div>
+              <div className="hidden sm:block w-px bg-white/[0.07] self-stretch" />
+              <div>
+                <span className="block text-2xl md:text-3xl font-serif text-white font-medium">98%</span>
+                <span className="text-[11px] tracking-[0.15em] uppercase text-stone-400 font-medium">On-Time Delivery</span>
               </div>
             </motion.div>
 

@@ -8,21 +8,20 @@ import ScrollProgress from "@/components/layout/ScrollProgress";
 import WelcomePrompt from "@/components/shared/WelcomePrompt";
 import { LazySection } from "@/components/performance/LazySection";
 import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 import { SITE_CONSTANTS } from "@/lib/constants";
 
 // ── Above-fold: eager (loaded with initial bundle) ──────────────────────────
 import Hero from "@/components/home/Hero";
 
 // ── Below-fold: code-split + IntersectionObserver-triggered ─────────────────
-const CredibilityStrip = lazy(() => import("@/components/home/CredibilityStrip"));
-const Philosophy       = lazy(() => import("@/components/home/Philosophy"));
-const Portfolio        = lazy(() => import("@/components/home/Portfolio"));
-const BeforeAfterShowcase = lazy(() => import("@/components/home/BeforeAfterShowcase").then(m => ({ default: m.BeforeAfterShowcase })));
-const Process          = lazy(() => import("@/components/home/Process"));
-const ProjectFailurePrevention = lazy(() => import("@/components/home/ProjectFailurePrevention"));
-const Testimonials     = lazy(() => import("@/components/home/Testimonials"));
-const EstimatorPromo   = lazy(() => import("@/components/home/EstimatorPromo"));
-const About            = lazy(() => import("@/components/home/About"));
+const StyleDiscoveryTeaser = lazy(() => import("@/components/home/StyleDiscoveryTeaser"));
+const Portfolio            = lazy(() => import("@/components/home/Portfolio"));
+const BeforeAfterShowcase  = lazy(() => import("@/components/home/BeforeAfterShowcase").then(m => ({ default: m.BeforeAfterShowcase })));
+const Process              = lazy(() => import("@/components/home/Process"));
+const Testimonials         = lazy(() => import("@/components/home/Testimonials"));
+const EstimatorPromo       = lazy(() => import("@/components/home/EstimatorPromo"));
+const HomeFinalCTA         = lazy(() => import("@/components/home/HomeFinalCTA"));
 
 const Index = () => {
   return (
@@ -58,56 +57,46 @@ const Index = () => {
         <SectionNavDots />
 
         {/* Hero — eager, sticky behind everything, curtain scroll effect */}
-        <div className="h-screen">
+        <div id="home" className="h-screen">
           <Hero />
         </div>
 
         {/* Content slides OVER the hero as you scroll (curtain effect) */}
         <div className="relative z-10">
-          
-          {/* 1. Credibility Strip */}
-          <LazySection key="credibility" id="credibility" className="bg-neutral-950" minHeight={150} rootMargin="300px 0px">
-            <CredibilityStrip />
+
+          {/* 1. Style Discovery Teaser */}
+          <LazySection key="discovery" id="discovery" className="bg-neutral-950" minHeight={600} rootMargin="300px 0px">
+            <StyleDiscoveryTeaser />
           </LazySection>
 
-          {/* 2. Philosophy */}
-          <LazySection key="philosophy" id="philosophy" className="bg-neutral-950 border-t border-white/[0.05]" minHeight={600} rootMargin="300px 0px">
-            <Philosophy />
-          </LazySection>
-
-          {/* 3. Portfolio Showcase */}
+          {/* 2. Portfolio Showcase */}
           <LazySection key="portfolio" id="portfolio" className="bg-neutral-950 border-t border-white/[0.05]" minHeight={1000} rootMargin="300px 0px">
             <Portfolio />
           </LazySection>
 
-          {/* 4. Before & After Slides (Transformation) */}
+          {/* 3. Before & After Slides (Transformation) */}
           <LazySection key="before-after" id="before-after" className="bg-[#060504] border-t border-white/[0.05]" minHeight={750} rootMargin="300px 0px">
             <BeforeAfterShowcase />
           </LazySection>
 
-          {/* 5. Methodology Process (Predictable Interior System) */}
+          {/* 4. Methodology Process (Predictable Interior System) */}
           <LazySection key="process" id="process" className="bg-site-bg border-t border-white/[0.05]" minHeight={800} rootMargin="300px 0px">
             <Process />
           </LazySection>
 
-          {/* 6. Why Projects Fail (ProjectFailurePrevention) */}
-          <LazySection key="prevention" id="prevention" className="bg-[#050505] border-t border-white/[0.05]" minHeight={500} rootMargin="300px 0px">
-            <ProjectFailurePrevention />
-          </LazySection>
-
-          {/* 7. Testimonials */}
+          {/* 5. Testimonials */}
           <LazySection key="testimonials" id="testimonials" className="bg-[#080807] border-t border-white/[0.05]" minHeight={700} rootMargin="300px 0px">
             <Testimonials />
           </LazySection>
 
-          {/* 8. Cost Estimator Teaser */}
+          {/* 6. Cost Estimator Teaser */}
           <LazySection key="estimator" id="estimator" className="bg-black border-t border-white/[0.05]" minHeight={600} rootMargin="300px 0px">
             <EstimatorPromo />
           </LazySection>
 
-          {/* 9. Founder Note */}
-          <LazySection key="about" id="about" className="bg-site-bg-section border-t border-white/[0.05]" minHeight={800} rootMargin="300px 0px">
-            <About />
+          {/* 7. Final CTA */}
+          <LazySection key="final-cta" id="final-cta" className="bg-neutral-950 border-t border-white/[0.05]" minHeight={600} rootMargin="300px 0px">
+            <HomeFinalCTA />
           </LazySection>
 
         </div>
@@ -199,6 +188,7 @@ const Index = () => {
           ]
         }}
       />
+      <ScrollToTop />
     </>
   );
 };

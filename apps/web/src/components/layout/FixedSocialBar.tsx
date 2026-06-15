@@ -129,7 +129,6 @@ const FixedSocialBar: React.FC = () => {
                       : 'none',
                   }}
                 >
-                  <span className="sr-only">{link.label}</span>
                   {link.icon}
 
                   {/* Tooltip label – appears to the right */}

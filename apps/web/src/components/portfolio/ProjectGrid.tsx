@@ -1,120 +1,236 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
-import { ArrowUpRight, Building2 } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { ArrowUpRight, Building2, AlertCircle, RotateCcw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Image } from "@/components/ui/enhanced/image";
 import { cn } from "@/lib/utils";
 
+const STYLES = [
+  { id: "Modern", label: "Modern Minimal", description: "Clean lines, neutral tones, and functional elegance." },
+  { id: "Luxury", label: "Luxury Classic", description: "Rich textures, gold accents, and timeless grandeur." },
+  { id: "Contemporary", label: "Warm Contemporary", description: "Modern comfort with organic materials and soft lighting." },
+  { id: "Industrial", label: "Modular Smart", description: "Highly functional, industrial-inspired efficiency." },
+];
+
+const SPACES = [
+  { id: "", label: "All Spaces" },
+  { id: "Bedroom Interior", label: "Bedrooms" },
+  { id: "Living Room Interior", label: "Living Rooms" },
+  { id: "Modular Kitchen", label: "Kitchens" },
+  { id: "Commercial", label: "Commercial" },
+  { id: "Wardrobe", label: "Wardrobes" },
+];
+
+const SPACE_KEYWORDS: Record<string, string[]> = {
+  "Bedroom Interior": ["bedroom", "suite", "master"],
+  "Living Room Interior": ["living", "lounge", "family room"],
+  "Modular Kitchen": ["kitchen", "culinary"],
+  "Commercial": ["commercial", "corporate", "office", "executive", "workspace"],
+  "Wardrobe": ["wardrobe", "closet", "dressing"],
+};
+
 const ProjectGrid = () => {
-  const { data: projects = [], isLoading } = useQuery({
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const { data: projects = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['all-projects'],
     queryFn: api.getProjects,
   });
 
-  const [activeType, setActiveType] = useState<string>("All");
-  const [activeStyle, setActiveStyle] = useState<string>("All");
+  const urlStyle = searchParams.get("style") || "";
+  const urlSpace = searchParams.get("space") || "";
 
-  const types = ["All", "Residential", "Commercial"];
-  
-  // Extract unique styles
-  const styles = useMemo(() => {
-    const styleSet = new Set<string>();
-    projects.forEach(p => {
-      if (p.style) {
-        p.style.split(',').forEach(s => styleSet.add(s.trim()));
-      }
-    });
-    return ["All", ...Array.from(styleSet).filter(Boolean)];
-  }, [projects]);
+  const [activeType, setActiveType] = useState<string>("All");
+  const [activeStyle, setActiveStyle] = useState<string>(urlStyle);
+  const [activeSpace, setActiveSpace] = useState<string>(urlSpace);
 
   const filteredProjects = useMemo(() => {
     return projects.filter(p => {
       const matchType = activeType === "All" || p.type?.toLowerCase() === activeType.toLowerCase();
-      const matchStyle = activeStyle === "All" || (p.style && p.style.includes(activeStyle));
-      return matchType && matchStyle;
+      const matchStyle = !activeStyle || (p.style && p.style.toLowerCase().includes(activeStyle.toLowerCase()));
+      let matchSpace = true;
+      if (activeSpace && SPACE_KEYWORDS[activeSpace]) {
+        const keywords = SPACE_KEYWORDS[activeSpace];
+        const searchText = `${p.title} ${p.brief} ${p.gallery?.map(g => g.room).join(" ") || ""}`.toLowerCase();
+        matchSpace = keywords.some(kw => searchText.includes(kw));
+      }
+      return matchType && matchStyle && matchSpace;
     });
-  }, [projects, activeType, activeStyle]);
+  }, [projects, activeType, activeStyle, activeSpace]);
+
+  const handleStyleSelect = useCallback((styleId: string) => {
+    const next = activeStyle === styleId ? "" : styleId;
+    setActiveStyle(next);
+    const params = new URLSearchParams(searchParams);
+    if (next) params.set("style", next);
+    else params.delete("style");
+    setSearchParams(params, { replace: true });
+  }, [activeStyle, searchParams, setSearchParams]);
+
+  const handleSpaceSelect = useCallback((spaceId: string) => {
+    setActiveSpace(spaceId);
+    const params = new URLSearchParams(searchParams);
+    if (spaceId) params.set("space", spaceId);
+    else params.delete("space");
+    setSearchParams(params, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+  const handleReset = useCallback(() => {
+    setActiveType("All");
+    setActiveStyle("");
+    setActiveSpace("");
+    setSearchParams({}, { replace: true });
+  }, [setSearchParams]);
 
   if (isLoading) {
     return (
       <div className="container mx-auto py-24 flex justify-center">
-        <div className="w-8 h-8 rounded-full border-t-2 border-site-gold animate-spin"></div>
+        <div className="w-8 h-8 rounded-full border-t-2 border-site-gold animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="container mx-auto py-24 px-6">
+        <div className="flex flex-col items-center justify-center py-20 text-center border border-white/5 bg-white/[0.02]">
+          <div className="relative mb-6">
+            <div className="absolute inset-0 rounded-3xl bg-site-crimson/10 blur-2xl scale-150" />
+            <div className="relative w-16 h-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-site-crimson/70" />
+            </div>
+          </div>
+          <h3 className="text-xl font-light text-white mb-3">Could not load projects</h3>
+          <p className="text-sm text-white/45 font-light max-w-sm leading-relaxed mb-8">
+            Something went wrong while loading our portfolio. Please try again.
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-[10px] uppercase tracking-[0.2em] font-medium border border-white/15 text-white/60 rounded-full hover:border-white/30 hover:text-white transition-all duration-300"
+          >
+            <RotateCcw className="w-3 h-3" />
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-24 px-6">
+    <div className="container mx-auto py-24 px-6" id="all-projects">
       <div className="mb-16 text-center">
         <div className="flex items-center justify-center gap-4 mb-6">
           <div className="w-12 h-px bg-site-crimson" />
           <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">The Archives</span>
         </div>
-        <h2 className="text-4xl font-extralight tracking-tight text-white md:text-5xl italic mb-12">
-          Explore All Journeys
+        <h2 className="text-4xl font-extralight tracking-tight text-white md:text-5xl italic mb-4">
+          Featured Projects
         </h2>
+        <p className="text-sm text-white/40 font-light">
+          Showing {filteredProjects.length} of {projects.length} projects
+        </p>
+      </div>
 
-        {/* Filters */}
-        <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12">
-          <div className="flex flex-wrap justify-center gap-2">
-            {types.map(type => (
-              <button
-                key={type}
-                onClick={() => setActiveType(type)}
-                className={cn(
-                  "px-5 py-2 text-[10px] uppercase tracking-[0.2em] font-medium rounded-full transition-all duration-300",
-                  activeType === type 
-                    ? "bg-site-crimson text-white" 
-                    : "border border-white/10 text-white/60 hover:text-white hover:border-white/30"
-                )}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
+      {/* Style Discovery Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-12">
+        {STYLES.map((style, index) => (
+          <motion.button
+            key={style.id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: index * 0.08 }}
+            onClick={() => handleStyleSelect(style.id)}
+            className={cn(
+              "group relative flex flex-col items-start text-left p-6 overflow-hidden transition-all duration-500",
+              "border min-h-[160px]",
+              activeStyle === style.id
+                ? "border-site-gold bg-white/5"
+                : "border-white/5 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
+            )}
+          >
+            {activeStyle === style.id && (
+              <motion.div
+                layoutId="styleActive"
+                className="absolute left-0 top-0 bottom-0 w-0.5 bg-site-gold"
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              />
+            )}
+            <span className="text-xs font-medium text-site-gold uppercase tracking-[0.2em] mb-2">
+              Style
+            </span>
+            <h3 className={cn(
+              "text-lg font-light transition-colors duration-300 mb-2",
+              activeStyle === style.id ? "text-white" : "text-white/70 group-hover:text-white"
+            )}>
+              {style.label}
+            </h3>
+            <p className="text-xs font-light text-white/40 leading-relaxed">
+              {style.description}
+            </p>
+          </motion.button>
+        ))}
+      </div>
 
-          <div className="h-px w-12 bg-white/10 hidden md:block" />
+      {/* Secondary filters: Space + Type */}
+      <div className="flex flex-col items-center gap-6 mb-12">
+        {/* Space filter */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {SPACES.map((space) => (
+            <button
+              key={space.id || "all"}
+              onClick={() => handleSpaceSelect(space.id)}
+              className={cn(
+                "px-5 py-2.5 text-[10px] uppercase tracking-[0.2em] font-medium rounded-full transition-all duration-300",
+                activeSpace === space.id
+                  ? "bg-white text-black"
+                  : "border border-white/10 text-white/50 hover:text-white hover:border-white/30"
+              )}
+            >
+              {space.label}
+            </button>
+          ))}
+        </div>
 
-          <div className="flex flex-wrap justify-center gap-2">
-            {styles.map(style => (
-              <button
-                key={style}
-                onClick={() => setActiveStyle(style)}
-                className={cn(
-                  "px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] transition-all duration-300",
-                  activeStyle === style 
-                    ? "text-site-gold border-b border-site-gold" 
-                    : "text-white/40 hover:text-white/80 border-b border-transparent"
-                )}
-              >
-                {style}
-              </button>
-            ))}
-          </div>
+        {/* Type filter */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {["All", "Residential", "Commercial"].map(type => (
+            <button
+              key={type}
+              onClick={() => setActiveType(type)}
+              className={cn(
+                "px-5 py-2 text-[10px] uppercase tracking-[0.2em] font-medium rounded-full transition-all duration-300",
+                activeType === type
+                  ? "bg-site-crimson text-white"
+                  : "border border-white/10 text-white/60 hover:text-white hover:border-white/30"
+              )}
+            >
+              {type}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Grid */}
       <AnimatePresence mode="wait">
-        <motion.div 
-          key={`${activeType}-${activeStyle}`}
+        <motion.div
+          key={`${activeType}-${activeStyle}-${activeSpace}`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto"
         >
-          {filteredProjects.map((project, idx) => (
-            <Link 
-              key={project.id} 
+          {filteredProjects.map((project) => (
+            <Link
+              key={project.id}
               to={`/portfolio/${project.slug || project.id}`}
               className="group block relative overflow-hidden bg-neutral-900 border border-white/5 rounded-2xl"
             >
               <div className="aspect-[4/3] overflow-hidden relative">
-                <Image 
-                  src={project.heroImage || project.gallery?.[0]?.images?.[0] || ""} 
+                <Image
+                  src={project.heroImage || project.gallery?.[0]?.images?.[0] || ""}
                   alt={project.title}
                   className="w-full h-full object-cover"
                   imageClassName="transition-transform duration-700 group-hover:scale-105"
@@ -157,7 +273,6 @@ const ProjectGrid = () => {
           transition={{ duration: 0.5 }}
           className="flex flex-col items-center justify-center py-28 text-center"
         >
-          {/* Glowing icon pod */}
           <div className="relative mb-8">
             <div className="absolute inset-0 rounded-3xl bg-site-gold/10 blur-2xl scale-150" />
             <div className="relative w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center">
@@ -172,7 +287,9 @@ const ProjectGrid = () => {
           </h3>
 
           <p className="text-sm text-white/45 font-light max-w-sm leading-relaxed mb-8">
-            {activeType === "Commercial"
+            {activeSpace
+              ? "We don't have projects in this category published yet. Try a different filter."
+              : activeType === "Commercial"
               ? "We're curating our latest commercial projects. In the meantime, explore our residential portfolio or discuss your commercial vision with us."
               : activeType !== "All"
               ? `We haven't published any ${activeType.toLowerCase()} projects yet — check back soon or reset your filters.`
@@ -181,13 +298,13 @@ const ProjectGrid = () => {
 
           <div className="flex items-center gap-4">
             <button
-              onClick={() => { setActiveType("All"); setActiveStyle("All"); }}
+              onClick={handleReset}
               className="px-5 py-2.5 text-[10px] uppercase tracking-[0.2em] font-medium border border-white/15 text-white/60 rounded-full hover:border-white/30 hover:text-white transition-all duration-300"
             >
               Reset Filters
             </button>
             <Link
-              to="/contact"
+              to="/contact-us"
               className="px-5 py-2.5 text-[10px] uppercase tracking-[0.2em] font-medium bg-site-crimson text-white rounded-full hover:bg-site-crimson/90 transition-all duration-300 flex items-center gap-2"
             >
               Discuss Your Project

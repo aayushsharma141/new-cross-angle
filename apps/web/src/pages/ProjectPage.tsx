@@ -15,6 +15,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import ProjectHero from "@/components/project/ProjectHero";
 import ProjectSnapshot from "@/components/project/ProjectSnapshot";
 import ProjectExperienceCanvas from "@/components/project/ProjectExperienceCanvas";
@@ -23,15 +24,15 @@ import ProjectDocumentation from "@/components/project/ProjectDocumentation";
 import ProjectSystemInAction from "@/components/project/ProjectSystemInAction";
 import ProjectOutcome from "@/components/project/ProjectOutcome";
 import ProjectClientExperience from "@/components/project/ProjectClientExperience";
-import ProjectCTA from "@/components/project/ProjectCTA";
 import ProjectNarrativeSpine from "@/components/project/ProjectNarrativeSpine";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 import { SITE_CONSTANTS } from "@/lib/constants";
 
 // Register GSAP plugins once at module level
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger);
 
 const ProjectPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -70,17 +71,29 @@ const ProjectPage = () => {
   });
   const journeyHeight = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
 
-  // Stage detection via scroll
+  // Stage detection via IntersectionObserver to respect actual section heights
   useEffect(() => {
-    const unsubscribe = scrollYProgress.on("change", (v) => {
-      if (v < 0.2)        setActiveStage(0);
-      else if (v < 0.4)   setActiveStage(1);
-      else if (v < 0.6)   setActiveStage(2);
-      else if (v < 0.8)   setActiveStage(3);
-      else                setActiveStage(4);
-    });
-    return () => unsubscribe();
-  }, [scrollYProgress]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = (entry.target as HTMLElement).dataset.chapter;
+            if (id === "dream" || id === "snapshot") setActiveStage(0);
+            else if (id === "canvas") setActiveStage(1);
+            else if (id === "story") setActiveStage(2);
+            else if (id === "craft") setActiveStage(3);
+            else if (id === "outcome" || id === "testimonial" || id === "cta") setActiveStage(4);
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -60% 0px" }
+    );
+
+    const chapters = document.querySelectorAll("[data-chapter]");
+    chapters.forEach((c) => observer.observe(c));
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setShowMicroBar(window.scrollY > 600);
@@ -195,7 +208,7 @@ const ProjectPage = () => {
       if (!sessionStorage.getItem(key)) {
         supabase
           .rpc("increment_project_view", { project_id: project.id })
-          .then(({ error }) => {
+          .then(({ error }: { error: unknown }) => {
             if (!error) sessionStorage.setItem(key, "true");
           });
       }
@@ -312,7 +325,7 @@ const ProjectPage = () => {
       {/* ── MAIN PAGE JOURNEY ───────────────────────────────────────────── */}
       <main
         ref={containerRef}
-        className="bg-background relative"
+        className="bg-background relative overflow-x-hidden"
         id="main-content"
       >
         {/* Blueprint thread overlay — subtle ghost behind spine */}
@@ -339,11 +352,7 @@ const ProjectPage = () => {
             location={project.location || ""}
             area={project.area !== "-" ? project.area : undefined}
             year={project.year}
-            tagline={
-              project.brief
-                ? project.brief.split(".")[0]?.trim()
-                : undefined
-            }
+
             brief={project.brief}
             type={project.type}
           />
@@ -360,11 +369,11 @@ const ProjectPage = () => {
                 : "Create a calm, highly functional family home"
             }
             type={project.style || "Luxury Turnkey"}
-            timeline={project.duration || "45 Days"}
+            timeline={project.duration && project.duration !== "-" ? project.duration : "4 Months"}
             investment={
               project.budget && project.budget !== "-"
                 ? project.budget
-                : undefined
+                : "Premium"
             }
             challenge={
               project.approach
@@ -380,7 +389,9 @@ const ProjectPage = () => {
           id="walkthrough"
           className="will-change-[opacity,transform]"
         >
-          <ProjectExperienceCanvas whatsapp={whatsapp} />
+          <ErrorBoundary>
+            <ProjectExperienceCanvas whatsapp={whatsapp} />
+          </ErrorBoundary>
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════
@@ -428,10 +439,6 @@ const ProjectPage = () => {
             />
           </div>
         )}
-
-        <div data-chapter="cta">
-          <ProjectCTA />
-        </div>
 
         {/* Project navigation */}
         <div className="border-t border-white/5">
@@ -508,7 +515,11 @@ const ProjectPage = () => {
                   Related Projects
                 </h2>
               </motion.div>
-              <div className="grid md:grid-cols-3 gap-5">
+              <div className={`grid gap-5 ${
+                relatedProjects.length === 1 ? "md:grid-cols-1 max-w-xl" :
+                relatedProjects.length === 2 ? "md:grid-cols-2 max-w-4xl" :
+                "md:grid-cols-3"
+              }`}>
                 {relatedProjects.map((rp, index) => (
                   <motion.div
                     key={rp.id}
@@ -549,6 +560,7 @@ const ProjectPage = () => {
       </main>
 
       <Footer />
+      <ScrollToTop />
     </>
   );
 };

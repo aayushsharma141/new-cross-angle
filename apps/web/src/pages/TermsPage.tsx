@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import LegalFooter from "@/components/layout/LegalFooter";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 import { Helmet } from "react-helmet-async";
 
 const fadeUp: Variants = {
@@ -260,6 +261,7 @@ const TermsPage = () => {
       </main>
 
       <LegalFooter />
+      <ScrollToTop />
     </div>
   );
 };

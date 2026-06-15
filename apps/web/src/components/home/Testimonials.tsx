@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Quote } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { motion, AnimatePresence } from "framer-motion";
-import { getOptimizedUrl } from "@/lib/cdn";
+import { motion } from "framer-motion";
 import { Image } from "@/components/ui/enhanced/image";
 import { serializeJsonLd } from "@/components/shared/SchemaMarkup";
 
@@ -68,7 +67,7 @@ const TestimonialCard = ({
       transition={{ duration: 0.5, delay: Math.min(index * 0.1, 0.5), ease: [0.22, 1, 0.36, 1] }}
       className={cn(
         "relative p-6 md:p-8 rounded-2xl border flex flex-col group overflow-hidden transition-all duration-500",
-        "w-[300px] md:w-[380px] snap-center shrink-0",
+        "w-[300px] md:w-[380px] shrink-0 select-none",
         "h-auto min-h-[280px] md:min-h-[320px]",
         "bg-[#0d0d0c] border-white/[0.06] hover:border-site-gold/20 hover:shadow-[0_12px_40px_rgba(209,175,110,0.06)]"
       )}
@@ -93,7 +92,10 @@ const TestimonialCard = ({
         </p>
         {needsTruncation && (
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
             className="text-site-gold/80 hover:text-site-gold text-[0.75rem] md:text-[0.8rem] font-medium tracking-widest uppercase mt-3 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-site-gold rounded px-1 -mx-1"
           >
             {isExpanded ? "Read less" : "Read more..."}
@@ -133,6 +135,11 @@ const TestimonialCard = ({
 const Testimonials = () => {
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  const [isDragging, setIsDragging] = useState(false);
+  const startXRef = useRef(0);
+  const scrollLeftStartRef = useRef(0);
+  const isDraggingRef = useRef(false);
 
   const { data: testimonials = [], isLoading } = useQuery({
     queryKey: ["public-testimonials"],
@@ -155,37 +162,72 @@ const Testimonials = () => {
     gcTime: 30 * 60 * 1000,
   });
 
-  const getScrollAmount = () => {
-    if (typeof window === "undefined") return 404;
-    return window.innerWidth < 768 ? 320 : 404; // Card width + gap
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    setIsDragging(true);
+    isDraggingRef.current = true;
+    startXRef.current = e.pageX - containerRef.current.offsetLeft;
+    scrollLeftStartRef.current = containerRef.current.scrollLeft;
   };
 
-  const scrollLeft = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollBy({ left: -getScrollAmount(), behavior: "smooth" });
-    }
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+    isDraggingRef.current = false;
   };
 
-  const scrollRight = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollBy({ left: getScrollAmount(), behavior: "smooth" });
-    }
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    isDraggingRef.current = false;
   };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingRef.current || !containerRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - containerRef.current.offsetLeft;
+    const walk = (x - startXRef.current) * 1.5; // Drag sensitivity
+    containerRef.current.scrollLeft = scrollLeftStartRef.current - walk;
+  };
+
+  // Duplicate items for continuous looping
+  const repeatedTestimonials = [];
+  if (testimonials.length > 0) {
+    let list = [...testimonials];
+    while (list.length < 10) {
+      list = [...list, ...testimonials];
+    }
+    repeatedTestimonials.push(...list, ...list);
+  }
 
   useEffect(() => {
-    if (isPaused || testimonials.length <= 1) return;
-    const interval = setInterval(() => {
-      if (containerRef.current) {
-        const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
-        if (scrollLeft + clientWidth >= scrollWidth - 20) {
-          containerRef.current.scrollTo({ left: 0, behavior: "smooth" });
-        } else {
-          containerRef.current.scrollBy({ left: getScrollAmount(), behavior: "smooth" });
+    const container = containerRef.current;
+    if (!container || testimonials.length === 0) return;
+
+    let animationFrameId: number;
+    const speed = 0.55; // Marquee slide speed (px per frame)
+
+    const scroll = () => {
+      if (container) {
+        if (!isDraggingRef.current && !isPaused) {
+          container.scrollLeft += speed;
+        }
+
+        const targetChild = container.children[testimonials.length] as HTMLElement;
+        if (targetChild) {
+          const loopThreshold = targetChild.getBoundingClientRect().left - container.getBoundingClientRect().left + container.scrollLeft;
+          
+          if (container.scrollLeft >= loopThreshold) {
+            container.scrollLeft -= loopThreshold;
+          } else if (container.scrollLeft < 0) {
+            container.scrollLeft += loopThreshold;
+          }
         }
       }
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [isPaused, testimonials.length]);
+      animationFrameId = requestAnimationFrame(scroll);
+    };
+
+    animationFrameId = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [testimonials, isPaused]);
 
   if (!isLoading && testimonials.length === 0) return null;
 
@@ -214,7 +256,7 @@ const Testimonials = () => {
             </span>
           </div>
 
-          {/* Heading — using site-gold color directly, no gradient clip */}
+          {/* Heading */}
           <h2 className="font-display text-[clamp(2.4rem,6vw,4.5rem)] leading-[0.95] tracking-[-0.02em] text-white mb-6">
             What Our{" "}
             <em className="not-italic text-site-gold">Clients</em>{" "}
@@ -284,37 +326,23 @@ const Testimonials = () => {
           ) : (
             <div 
               ref={containerRef}
-              className="flex overflow-x-auto snap-x snap-mandatory gap-5 md:gap-6 pb-12 hide-scrollbar px-4 md:px-12 -mx-4 md:-mx-12 scroll-smooth"
+              onMouseDown={handleMouseDown}
+              onMouseLeave={handleMouseLeave}
+              onMouseUp={handleMouseUp}
+              onMouseMove={handleMouseMove}
+              className={cn(
+                "flex overflow-x-auto gap-5 md:gap-6 pb-12 hide-scrollbar px-4 md:px-12 -mx-4 md:-mx-12 select-none",
+                isDragging ? "cursor-grabbing" : "cursor-grab"
+              )}
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
-              {testimonials.map((item, i) => (
+              {repeatedTestimonials.map((item, i) => (
                 <TestimonialCard
-                  key={item.id}
+                  key={`${item.id}-${i}`}
                   item={item}
                   index={i}
                 />
               ))}
-            </div>
-          )}
-
-          {/* Slider Navigation */}
-          {!isLoading && testimonials.length > 1 && (
-            <div className="flex items-center justify-center gap-4 mt-2">
-              <button
-                onClick={scrollLeft}
-                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:border-site-gold/50 hover:text-site-gold hover:bg-site-gold/10 transition-all duration-300"
-                aria-label="Previous review"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              
-              <button
-                onClick={scrollRight}
-                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:border-site-gold/50 hover:text-site-gold hover:bg-site-gold/10 transition-all duration-300"
-                aria-label="Next review"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
             </div>
           )}
         </div>

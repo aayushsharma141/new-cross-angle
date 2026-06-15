@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Shield, Database, Lock, Eye, Mail, Trash2, ArrowLeft, Users, AlertTriangle, FileText } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import LegalFooter from "@/components/layout/LegalFooter";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 import { Helmet } from "react-helmet-async";
 
 const fadeUp = {
@@ -267,6 +268,7 @@ const PrivacyPage = () => {
       </main>
 
       <LegalFooter />
+      <ScrollToTop />
     </div>
   );
 };

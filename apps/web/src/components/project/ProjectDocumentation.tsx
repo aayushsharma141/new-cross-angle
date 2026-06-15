@@ -14,18 +14,34 @@ const ProjectDocumentation = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(0);
 
+  const getCardWidth = () => {
+    if (window.innerWidth >= 768) return 600;
+    if (window.innerWidth >= 640) return 400;
+    return 300;
+  };
+
   const scroll = (dir: 'left' | 'right') => {
     if (scrollRef.current) {
-      const scrollAmount = window.innerWidth > 768 ? 600 : 300;
+      const scrollAmount = getCardWidth();
       scrollRef.current.scrollBy({ left: dir === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
     }
   };
 
+  const scrollToStep = (idx: number) => {
+    if (scrollRef.current) {
+      const cardWidth = getCardWidth();
+      scrollRef.current.scrollTo({ left: idx * (cardWidth + getGap()), behavior: 'smooth' });
+    }
+  };
+
+  const getGap = () => window.innerWidth >= 768 ? 48 : 24;
+
   const handleScroll = () => {
     if (scrollRef.current) {
       const scrollPos = scrollRef.current.scrollLeft;
-      const cardWidth = window.innerWidth > 768 ? 600 : 300;
-      const newStep = Math.round(scrollPos / cardWidth);
+      const cardWidth = getCardWidth();
+      const gap = getGap();
+      const newStep = Math.round(scrollPos / (cardWidth + gap));
       if (newStep >= 0 && newStep < documentationSteps.length) {
         setActiveStep(newStep);
       }
@@ -46,11 +62,13 @@ const ProjectDocumentation = () => {
         <div className="flex items-center gap-2 md:gap-4 overflow-x-auto no-scrollbar w-full md:w-auto bg-neutral-900 border border-white/5 px-6 py-3.5 rounded-full backdrop-blur-md">
           {documentationSteps.map((step, idx) => (
             <div key={idx} className="flex items-center gap-2 shrink-0">
-              <span className={`text-[10px] font-mono tracking-wider transition-colors duration-500 ${
+              <button 
+                onClick={() => scrollToStep(idx)}
+                className={`text-[10px] font-mono tracking-wider transition-colors duration-500 hover:text-site-gold focus:outline-none focus-visible:ring-1 focus-visible:ring-site-gold rounded ${
                 activeStep === idx ? "text-site-gold font-bold" : "text-stone-500"
               }`}>
                 {step.phase.split('.')[1].trim()}
-              </span>
+              </button>
               {idx < documentationSteps.length - 1 && (
                 <span className="w-4 h-px bg-white/10 shrink-0" />
               )}
@@ -85,7 +103,7 @@ const ProjectDocumentation = () => {
           <div
             key={idx}
             data-reveal="card"
-            className="flex-shrink-0 w-[85vw] md:w-[600px] snap-center"
+            className="flex-shrink-0 w-[300px] sm:w-[400px] md:w-[600px] snap-center"
           >
             {/* Visual Swatch Image */}
             <div className="aspect-[16/9] overflow-hidden bg-neutral-900 mb-6 relative border border-white/5 rounded-lg group shadow-lg">
@@ -97,7 +115,7 @@ const ProjectDocumentation = () => {
             </div>
             
             {/* Details */}
-            <h4 className="font-serif text-xl text-stone-200 mb-2">{step.name}</h4>
+            <h3 className="font-serif text-xl text-stone-200 mb-2">{step.name}</h3>
             <p className="text-xs text-stone-400 font-light leading-relaxed max-w-lg">{step.desc}</p>
           </div>
         ))}

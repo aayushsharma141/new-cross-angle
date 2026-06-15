@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, LayoutGrid } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
@@ -34,7 +34,7 @@ const FeaturedJourneys = () => {
         </h2>
       </div>
 
-      <div className="mx-auto max-w-6xl space-y-48">
+      <div className="mx-auto max-w-6xl space-y-32">
         {featuredProjects.map((project, index) => (
           <motion.div
             key={project.id}
@@ -96,11 +96,30 @@ const FeaturedJourneys = () => {
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
               </Link>
             </div>
+            </motion.div>
+          ))}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="flex justify-center pt-8"
+          >
+            <Link
+              to="/portfolio?style="
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById("all-projects")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="group inline-flex items-center gap-3 px-8 py-4 border border-white/10 text-[10px] uppercase tracking-[0.3em] text-white/60 hover:text-white hover:border-white/30 transition-all duration-300"
+            >
+              <LayoutGrid className="w-4 h-4" />
+              View All Projects
+            </Link>
           </motion.div>
-        ))}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 export default FeaturedJourneys;

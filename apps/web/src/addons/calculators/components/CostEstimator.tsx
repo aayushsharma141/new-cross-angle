@@ -123,12 +123,12 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
 
             {/* Sidebar */}
             <aside aria-label="Estimator progress" className="hidden md:flex flex-col bg-[#ffffff] border-r border-[#e8e4dd] p-8 sticky top-0 h-[100dvh] overflow-y-auto z-20 shadow-[4px_0_16px_rgba(0,0,0,0.02)]">
-                <div className="flex items-center gap-2 mb-8">
+                <a href="/" className="flex items-center gap-2 mb-8 group hover:opacity-75 transition-opacity focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 rounded-lg" aria-label="Return to CrossAngle Home">
                     <img src={logoUrl} alt="CrossAngle Logo" className="h-5 w-auto shrink-0 animate-in fade-in duration-300" />
                     <h1 className="text-[14px] tracking-[0.08em] uppercase text-[#8b6f47] font-semibold font-label m-0">
                         Cost Estimator
                     </h1>
-                </div>
+                </a>
                 
                 {discoveryApplied && (
                     <div role="status" aria-live="polite" className="mb-8 p-4 bg-site-gold-light rounded-[8px] border-l-[3px] border-[#8b6f47] text-[13px] relative bg-[#ffffff]/80 border border-[#1a1a1a]/[0.05]">
@@ -243,6 +243,17 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                             {currentStep + 1}
                         </div>
                         <span className="text-[#1a1a1a] font-semibold text-[14px]">{STEP_LABELS[currentStep]}</span>
+                    </div>
+                    {/* Mobile step dots */}
+                    <div className="flex items-center gap-1.5 mt-2" aria-hidden="true">
+                        {STEP_LABELS.map((_, i) => (
+                            <div
+                                key={i}
+                                className={`h-1.5 rounded-full transition-all duration-300 ${
+                                    i <= currentStep ? "bg-[#8b6f47]" : "bg-[#e8e4dd]"
+                                } ${i === currentStep ? "w-4" : "w-1.5"}`}
+                            />
+                        ))}
                     </div>
                 </div>
 

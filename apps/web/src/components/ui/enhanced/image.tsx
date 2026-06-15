@@ -1,6 +1,6 @@
 import React, { useState, useEffect, forwardRef, ImgHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
-import { getOptimizedUrl } from "@/lib/cdn";
+import { getOptimizedUrl, getOptimizedSrcSet } from "@/lib/cdn";
 
 interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc?: string;
@@ -8,11 +8,16 @@ interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   width?: number;
   height?: number;
   quality?: number;
+  fetchPriority?: "high" | "low" | "auto";
+  widths?: number[];
+  sizes?: string;
+  srcSet?: string;
 }
 
 export const Image = forwardRef<HTMLImageElement, ImageProps>(
-  ({ className, imageClassName, src, alt, fallbackSrc, width, height, quality, onLoad, onError, ...props }, ref) => {
+  ({ className, imageClassName, src, alt, fallbackSrc, width, height, quality, onLoad, onError, fetchPriority, widths, sizes, srcSet: explicitSrcSet, ...props }, ref) => {
     const optimizedSrc = getOptimizedUrl(src, { width, height, quality });
+    const autoSrcSet = explicitSrcSet || (src ? getOptimizedSrcSet(src, widths, { quality }) : "");
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(false);
     const displaySrc = error ? (fallbackSrc || src || optimizedSrc) : optimizedSrc;
@@ -40,9 +45,12 @@ export const Image = forwardRef<HTMLImageElement, ImageProps>(
         <img
           ref={ref}
           src={displaySrc}
+          srcSet={autoSrcSet || undefined}
+          sizes={sizes}
           alt={alt}
           loading="lazy"
           decoding="async"
+          fetchPriority={fetchPriority}
           onLoad={(event) => {
             setIsLoading(false);
             onLoad?.(event);

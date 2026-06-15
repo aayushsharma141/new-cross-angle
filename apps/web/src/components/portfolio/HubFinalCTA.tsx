@@ -9,7 +9,7 @@ const HubFinalCTA = () => {
   const { settings } = useSiteSettings();
   const whatsapp = settings?.whatsapp || "917909041132";
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-black">
+    <div className="relative h-[80vh] md:h-[70vh] w-full overflow-hidden bg-black">
       {/* Background Stage */}
       <motion.div 
         initial={{ scale: 1.1 }}

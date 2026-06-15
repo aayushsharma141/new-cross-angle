@@ -23,7 +23,7 @@ export function StepTimeline({ formData, updateField }: Props) {
     const showDuration = formData.selectedService === "C4" || formData.selectedService === "C5";
     const showVisits = formData.selectedService === "C4";
 
-    const labelStyle = "block text-sm font-medium mb-2 text-gray-400";
+    const labelStyle = "block text-sm font-medium mb-2 text-gray-500";
     const inputStyle = "w-full bg-[#ffffff] !bg-[#ffffff] border border-[#1a1a1a]/[0.08] focus:border-[#8b6f47] rounded-[8px] px-4 py-2.5 text-[#1a1a1a] !text-[#1a1a1a] text-sm outline-none transition-all shadow-inner placeholder:text-[#1a1a1a]/30";
 
     return (

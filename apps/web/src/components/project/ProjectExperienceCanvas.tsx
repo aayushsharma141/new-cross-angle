@@ -5,6 +5,12 @@ import {
   ChevronLeft, ChevronRight, Maximize2, MessageCircle
 } from "lucide-react";
 import { useParams } from "react-router-dom";
+import { getOptimizedUrl } from "@/lib/cdn";
+import portfolioBedroom from "@/assets/portfolio-bedroom.jpg";
+import portfolioKitchen from "@/assets/portfolio-kitchen.jpg";
+import portfolioOffice from "@/assets/portfolio-office.jpg";
+
+const img = (src: string, width = 1200) => getOptimizedUrl(src, { width, quality: 80 });
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -35,53 +41,53 @@ type ProjectAsset = {
 const PROJECT_ASSETS: Record<string, ProjectAsset> = {
   "serene-master-suite": {
     photos: [
-      "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1617806118233-18e1db207f62?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1200&auto=format&fit=crop",
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
+      img(portfolioBedroom, 1200),
     ],
     videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-modern-apartment-interior-design-walkthrough-44342-large.mp4",
-    panoramic: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1920&auto=format&fit=crop",
+    panoramic: img(portfolioBedroom, 1920),
     hotspots: [
-      { id: "h1", x: 35, y: 55, tag: "Furniture", title: "Bespoke Suede Headboard", description: "Custom-upholstered headboard with built-in walnut ledges and integrated charging slots.", img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=600&auto=format&fit=crop", swatch: { name: "Belgian Suede-Velvet", type: "Furniture Fabric", whyChosen: "Sourced for acoustic dampening and rich tactile response.", durability: "100,000 double rubs, stain-resistance treated.", maintenance: "Gentle dry vacuuming with a soft brush." } },
-      { id: "h2", x: 50, y: 28, tag: "Lighting", title: "Concealed 2700K LED Cove", description: "Indirect ceiling track lighting casting a soft reading halo.", img: "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?q=80&w=600&auto=format&fit=crop", swatch: { name: "Warm Plaster Plinth", type: "Wall Coating", whyChosen: "Clay-based plaster catches indirect cove light without glare.", durability: "High-hardness polymer-infused mineral binder.", maintenance: "Water-based micro-cloth wipe." } },
-      { id: "h3", x: 65, y: 40, tag: "Storage", title: "Handleless Walnut Closets", description: "Floor-to-ceiling wardrobes flush with perimeter walls.", img: "https://images.unsplash.com/photo-1617806118233-18e1db207f62?q=80&w=600&auto=format&fit=crop", swatch: { name: "Walnut Veneer Panel", type: "Cabinetry Veneer", whyChosen: "Vertical grain creates visual height extension.", durability: "Multi-ply core resists structural expansion.", maintenance: "Dry dusting, periodic timber oil." } },
+      { id: "h1", x: 35, y: 55, tag: "Furniture", title: "Bespoke Suede Headboard", description: "Custom-upholstered headboard with built-in walnut ledges and integrated charging slots.", img: img(portfolioBedroom, 600), swatch: { name: "Belgian Suede-Velvet", type: "Furniture Fabric", whyChosen: "Sourced for acoustic dampening and rich tactile response.", durability: "100,000 double rubs, stain-resistance treated.", maintenance: "Gentle dry vacuuming with a soft brush." } },
+      { id: "h2", x: 50, y: 28, tag: "Lighting", title: "Concealed 2700K LED Cove", description: "Indirect ceiling track lighting casting a soft reading halo.", img: img(portfolioBedroom, 600), swatch: { name: "Warm Plaster Plinth", type: "Wall Coating", whyChosen: "Clay-based plaster catches indirect cove light without glare.", durability: "High-hardness polymer-infused mineral binder.", maintenance: "Water-based micro-cloth wipe." } },
+      { id: "h3", x: 65, y: 40, tag: "Storage", title: "Handleless Walnut Closets", description: "Floor-to-ceiling wardrobes flush with perimeter walls.", img: img(portfolioBedroom, 600), swatch: { name: "Walnut Veneer Panel", type: "Cabinetry Veneer", whyChosen: "Vertical grain creates visual height extension.", durability: "Multi-ply core resists structural expansion.", maintenance: "Dry dusting, periodic timber oil." } },
     ],
   },
   "modern-culinary-space": {
     photos: [
-      "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1556912173-3bb406ef7e77?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1539924428412-70997f2d23e5?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1565538810844-1e119412e707?q=80&w=1200&auto=format&fit=crop",
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
+      img(portfolioKitchen, 1200),
     ],
     videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-modern-apartment-interior-design-walkthrough-44342-large.mp4",
-    panoramic: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1920&auto=format&fit=crop",
+    panoramic: img(portfolioKitchen, 1920),
     hotspots: [
-      { id: "h1", x: 35, y: 65, tag: "Island", title: "Calacatta Quartz Island", description: "A 3-meter seamless slab serving as the social cooking hub.", img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600&auto=format&fit=crop", swatch: { name: "Arctic White Quartz", type: "Countertop Stone", whyChosen: "Non-porous, food-safe, crisp visual anchor.", durability: "Engineered mineral, scratch-proof, zero heat damage.", maintenance: "Neutral soapy sponge wipe-down." } },
-      { id: "h2", x: 50, y: 45, tag: "Cabinetry", title: "Flush Acrylic Fronts", description: "High-gloss panels that reflect light and visually expand the zone.", img: "https://images.unsplash.com/photo-1539924428412-70997f2d23e5?q=80&w=600&auto=format&fit=crop", swatch: { name: "German Acrylic Fronts", type: "Cabinet Finish", whyChosen: "Ultra-glossy surface expands spatial scale with light.", durability: "Anti-scratch film shield, humidity-resistant.", maintenance: "Soft microfiber wipe only." } },
-      { id: "h3", x: 65, y: 30, tag: "Fixtures", title: "PVD Brushed Brass Mixers", description: "Premium fixtures breaking the monochrome with warm contrast.", img: "https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?q=80&w=600&auto=format&fit=crop", swatch: { name: "Brushed Brass (PVD)", type: "Metallic Fixtures", whyChosen: "Anti-oxidation finish matching custom joinery warmth.", durability: "Zero oxidation, scratch-hardened PVD coat.", maintenance: "Gentle soap wipe, no acid cleaners." } },
+      { id: "h1", x: 35, y: 65, tag: "Island", title: "Calacatta Quartz Island", description: "A 3-meter seamless slab serving as the social cooking hub.", img: img(portfolioKitchen, 600), swatch: { name: "Arctic White Quartz", type: "Countertop Stone", whyChosen: "Non-porous, food-safe, crisp visual anchor.", durability: "Engineered mineral, scratch-proof, zero heat damage.", maintenance: "Neutral soapy sponge wipe-down." } },
+      { id: "h2", x: 50, y: 45, tag: "Cabinetry", title: "Flush Acrylic Fronts", description: "High-gloss panels that reflect light and visually expand the zone.", img: img(portfolioKitchen, 600), swatch: { name: "German Acrylic Fronts", type: "Cabinet Finish", whyChosen: "Ultra-glossy surface expands spatial scale with light.", durability: "Anti-scratch film shield, humidity-resistant.", maintenance: "Soft microfiber wipe only." } },
+      { id: "h3", x: 65, y: 30, tag: "Fixtures", title: "PVD Brushed Brass Mixers", description: "Premium fixtures breaking the monochrome with warm contrast.", img: img(portfolioKitchen, 600), swatch: { name: "Brushed Brass (PVD)", type: "Metallic Fixtures", whyChosen: "Anti-oxidation finish matching custom joinery warmth.", durability: "Zero oxidation, scratch-hardened PVD coat.", maintenance: "Gentle soap wipe, no acid cleaners." } },
     ],
   },
   "executive-workspace": {
     photos: [
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1497366811353-6870744d04b2?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200&auto=format&fit=crop",
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
+      img(portfolioOffice, 1200),
     ],
     videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-modern-apartment-interior-design-walkthrough-44342-large.mp4",
-    panoramic: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1920&auto=format&fit=crop",
+    panoramic: img(portfolioOffice, 1920),
     hotspots: [
-      { id: "h1", x: 35, y: 60, tag: "Furniture", title: "Cantilevered Oak Desk", description: "Solid oak slab cantilevered from structural columns with hidden cable routing.", img: "https://images.unsplash.com/photo-1517502884422-41eaaced0168?q=80&w=600&auto=format&fit=crop", swatch: { name: "Solid White Oak", type: "Desk Timber", whyChosen: "Grain structure projects authority and organic warmth.", durability: "Kiln-dried with matte sealant coatings.", maintenance: "Wipe dry, absorb spills immediately." } },
-      { id: "h2", x: 50, y: 40, tag: "Acoustics", title: "Grooved Felt Cladding", description: "Acoustic absorber lining bays to minimize conference echo.", img: "https://images.unsplash.com/photo-1531973576160-7125cd663d86?q=80&w=600&auto=format&fit=crop", swatch: { name: "Acoustic PET Felt", type: "Wall Acoustic Panel", whyChosen: "Reduces frequency bounce in virtual board meetings.", durability: "Fire-rated recycled PET, fray-resistant.", maintenance: "Surface vacuuming with brush head." } },
-      { id: "h3", x: 65, y: 20, tag: "Framework", title: "Anodized Aluminum Trim", description: "Thin metal geometries outlining spatial boundary panes.", img: "https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=600&auto=format&fit=crop", swatch: { name: "Matte Black Aluminum", type: "Structural Trim", whyChosen: "Enforces strict visual geometries for professional margins.", durability: "Anodized, corrosion-proof, scratch-proof.", maintenance: "Dry microfiber dusting." } },
+      { id: "h1", x: 35, y: 60, tag: "Furniture", title: "Cantilevered Oak Desk", description: "Solid oak slab cantilevered from structural columns with hidden cable routing.", img: img(portfolioOffice, 600), swatch: { name: "Solid White Oak", type: "Desk Timber", whyChosen: "Grain structure projects authority and organic warmth.", durability: "Kiln-dried with matte sealant coatings.", maintenance: "Wipe dry, absorb spills immediately." } },
+      { id: "h2", x: 50, y: 40, tag: "Acoustics", title: "Grooved Felt Cladding", description: "Acoustic absorber lining bays to minimize conference echo.", img: img(portfolioOffice, 600), swatch: { name: "Acoustic PET Felt", type: "Wall Acoustic Panel", whyChosen: "Reduces frequency bounce in virtual board meetings.", durability: "Fire-rated recycled PET, fray-resistant.", maintenance: "Surface vacuuming with brush head." } },
+      { id: "h3", x: 65, y: 20, tag: "Framework", title: "Anodized Aluminum Trim", description: "Thin metal geometries outlining spatial boundary panes.", img: img(portfolioOffice, 600), swatch: { name: "Matte Black Aluminum", type: "Structural Trim", whyChosen: "Enforces strict visual geometries for professional margins.", durability: "Anodized, corrosion-proof, scratch-proof.", maintenance: "Dry microfiber dusting." } },
     ],
   },
 };
@@ -131,8 +137,8 @@ interface ProjectExperienceCanvasProps {
 export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectExperienceCanvasProps) => {
   const { slug } = useParams<{ slug: string }>();
 
-  const activeSlug = slug || "serene-master-suite";
-  const assets = PROJECT_ASSETS[activeSlug];
+  const activeSlug = slug as keyof typeof PROJECT_ASSETS | undefined;
+  const assets = activeSlug ? PROJECT_ASSETS[activeSlug] : undefined;
 
   // ── Mode state ──
   const [activeMode, setActiveMode] = useState<ActiveMode>("video");
@@ -172,14 +178,15 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
     return () => clearTimeout(t);
   }, [activeMode]);
 
-  // ── Gallery navigation (declared before keyboard useEffect) ──
   const handleNext = useCallback(() => {
+    if (!assets) return;
     setCurrentIdx(prev => (prev + 1) % assets.photos.length);
-  }, [assets.photos.length]);
+  }, [assets]);
 
   const handlePrev = useCallback(() => {
+    if (!assets) return;
     setCurrentIdx(prev => (prev - 1 + assets.photos.length) % assets.photos.length);
-  }, [assets.photos.length]);
+  }, [assets]);
 
   // ── Video play/pause ──
   const toggleVideo = useCallback(() => {
@@ -200,6 +207,10 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
         if (e.key === "ArrowLeft") handlePrev();
         if (e.key === "ArrowRight") handleNext();
       }
+      if (activeMode === "360") {
+        if (e.key === "ArrowLeft") setDragX(prev => prev + 100);
+        if (e.key === "ArrowRight") setDragX(prev => prev - 100);
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -214,7 +225,10 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
     if (!isDragging) return;
     setDragX(clientX - startXRef.current);
   };
-  const endDrag = () => setIsDragging(false);
+  const endDrag = () => {
+    setIsDragging(false);
+    setDragX(Math.max(containerWidth - Math.max(1, panoRef.current?.offsetWidth ?? 3000), Math.min(0, dragX)));
+  };
 
   // ── 360 clamp drag (prevent wrapping jumps) ──
   const containerWidth = panoRef.current?.parentElement?.offsetWidth ?? 1000;
@@ -224,8 +238,18 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
 
   if (!assets) {
     return (
-      <section className="bg-neutral-950 text-white/50 text-center py-32 text-sm font-light">
+      <section className="bg-neutral-950 text-white/50 text-center py-32 text-sm font-light flex flex-col items-center gap-4">
+        <Eye className="w-8 h-8 text-stone-600" />
         <p>Interactive media is being prepared for this project.</p>
+        <a
+          href={`https://wa.me/${whatsapp.replace(/\D/g, "")}?text=I%20want%20to%20see%20more%20details%20about%20this%20project.`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 inline-flex items-center gap-2 text-site-gold text-xs uppercase tracking-widest hover:underline"
+        >
+          <MessageCircle className="w-3.5 h-3.5" />
+          Request media gallery
+        </a>
       </section>
     );
   }
@@ -236,13 +260,14 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <section
+      id="walkthrough"
       aria-label="Explore this project — video walkthrough, virtual tour and photo gallery"
       className="bg-neutral-950 text-white relative pt-8 pb-16 px-4 md:px-12 max-w-7xl mx-auto"
     >
       {/* ── Chapter label (plain language) ── */}
       <div className="flex flex-col items-center text-center mb-10 select-none" aria-hidden="true">
         <span className="text-[10px] font-mono tracking-[0.4em] text-site-gold uppercase mb-2">
-          Immerse / Explore the Space
+          02 / IMMERSE
         </span>
         <div className="w-8 h-px bg-white/10" />
       </div>
@@ -313,10 +338,10 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
               transition={{ duration: prefersReducedMotion ? 0 : 0.4 }}
               className="w-full h-full relative"
             >
-              {/* Native video element — hidden until play, so poster covers it */}
               <video
                 ref={videoRef}
                 src={assets.videoUrl}
+                controls
                 className={`w-full h-full object-cover absolute inset-0 ${videoPlaying ? "block" : "hidden"}`}
                 preload="none"
                 playsInline
@@ -359,14 +384,10 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                       <p className="text-xl font-serif text-white tracking-tight text-center px-4">
                         Play Transformation Story
                       </p>
-                      <p className="text-[10px] uppercase text-site-gold tracking-widest font-mono">
-                        1 min 30 sec
-                      </p>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-
               {/* Pause overlay (when playing) */}
               {videoPlaying && (
                 <button
@@ -382,14 +403,29 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
               {/* Chapter markers — hidden when playing */}
               {!videoPlaying && (
                 <div
-                  className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent pt-10 pb-5 px-6 pointer-events-none"
-                  aria-hidden="true"
+                  className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent pt-10 pb-5 px-6"
                 >
                   <ol className="flex items-center gap-5 overflow-x-auto no-scrollbar" aria-label="Video chapters">
                     {VIDEO_CHAPTERS.map((ch, i) => (
                       <li key={i} className="flex items-center gap-2.5 shrink-0">
-                        <span className="text-[10px] font-mono text-site-gold">{ch.time}</span>
-                        <span className="text-[10px] uppercase tracking-[0.12em] text-stone-300 font-light">{ch.label}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (videoRef.current) {
+                              // We parse mm:ss from ch.time
+                              const parts = ch.time.split(":");
+                              const timeInSeconds = parts.length === 2 ? parseInt(parts[0]) * 60 + parseInt(parts[1]) : 0;
+                              videoRef.current.currentTime = timeInSeconds;
+                              videoRef.current.play();
+                              setVideoPlaying(true);
+                            }
+                          }}
+                          className="flex items-center gap-2.5 group focus:outline-none"
+                          aria-label={`Skip to chapter ${ch.label} at ${ch.time}`}
+                        >
+                          <span className="text-[10px] font-mono text-site-gold group-hover:text-white transition-colors">{ch.time}</span>
+                          <span className="text-[10px] uppercase tracking-[0.12em] text-stone-300 font-light group-hover:text-white transition-colors">{ch.label}</span>
+                        </button>
                         {i < VIDEO_CHAPTERS.length - 1 && <span className="w-5 h-px bg-white/10" />}
                       </li>
                     ))}
@@ -410,7 +446,6 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
               className="w-full h-full relative overflow-hidden"
               aria-label="360 degree virtual tour — drag to pan, tap numbered markers for material details"
             >
-              {/* Panorama backdrop — draggable layer */}
               <div
                 ref={panoRef}
                 className={`w-[300%] h-full absolute top-0 left-0 bg-cover bg-center select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
@@ -428,18 +463,17 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                 onTouchEnd={endDrag}
                 role="region"
                 aria-roledescription="panorama"
-                aria-label="Panoramic view of the interior space"
+                aria-label="Panoramic view of the interior space. Use arrow keys to pan left and right."
+                tabIndex={0}
               >
-                {/* Dark overlay for hotspot readability */}
                 <div className="absolute inset-0 bg-black/20 pointer-events-none" />
 
-                {/* Hotspots — INSIDE the pan container so they drag synchronously */}
                 {assets.hotspots.map((spot, idx) => (
                   <button
                     key={spot.id}
                     type="button"
                     onClick={(e) => {
-                      e.stopPropagation(); // prevent drag from stealing click
+                      e.stopPropagation();
                       setActiveSpot(activeSpot?.id === spot.id ? null : spot);
                     }}
                     aria-label={`View ${spot.tag} detail: ${spot.title}`}
@@ -448,7 +482,6 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                     className="absolute z-20 -translate-x-1/2 -translate-y-1/2 focus:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                   >
                     <div className="relative flex items-center justify-center w-9 h-9 hover:scale-110 active:scale-95 transition-transform duration-200">
-                      {/* Ping ring — only if reduced motion is not preferred */}
                       {!prefersReducedMotion && (
                         <div className={`absolute inset-0 rounded-full animate-ping ${activeSpot?.id === spot.id ? "bg-site-gold/40" : "bg-white/20"}`} />
                       )}
@@ -462,7 +495,6 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                 ))}
               </div>
 
-              {/* Persistent tour hint — visible 3s then fades */}
               <AnimatePresence>
                 {showTourHint && (
                   <motion.div

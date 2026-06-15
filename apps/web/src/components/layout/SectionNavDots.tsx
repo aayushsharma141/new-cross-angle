@@ -6,14 +6,16 @@ interface Section {
   label: string;
 }
 
+// Must match section IDs present on the Index page
 const sections: Section[] = [
   { id: "home", label: "Home" },
-  { id: "about", label: "About" },
-  { id: "services", label: "Services" },
-  { id: "process", label: "Process" },
+  { id: "discovery", label: "Discover" },
   { id: "portfolio", label: "Portfolio" },
-  { id: "trust", label: "Why Us" },
+  { id: "before-after", label: "Before/After" },
+  { id: "process", label: "Process" },
   { id: "testimonials", label: "Testimonials" },
+  { id: "estimator", label: "Estimate" },
+  { id: "final-cta", label: "CTA" },
 ];
 
 const SectionNavDots = () => {

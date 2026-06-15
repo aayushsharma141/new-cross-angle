@@ -118,7 +118,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
         updateField("renovationRooms", rooms);
     };
 
-    const labelStyle = "block text-sm font-medium mb-2 text-gray-400";
+    const labelStyle = "block text-sm font-medium mb-2 text-gray-500";
 
     return (
         <div>
@@ -246,7 +246,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                         <Counter label="Total Floors" value={formData.floors} min={1} onChange={v => updateField("floors", v)} />
                     </div>
                     <div className="mt-4">
-                        <label className="block text-xs font-medium mb-2 text-gray-400">Which Floor?</label>
+                        <label className="block text-xs font-medium mb-2 text-gray-500">Which Floor?</label>
                         <div className="flex flex-wrap gap-1.5">
                             {["Ground", "1st", "2nd", "3rd", "4th+"].map(f => {
                                 const active = formData.floorNumber === f;
@@ -298,7 +298,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                     </div>
                     {formData.renovationScope === "room" && (
                         <div className="mt-4">
-                            <label className="block text-xs font-medium mb-2 text-gray-400">Select Rooms to Renovate</label>
+                            <label className="block text-xs font-medium mb-2 text-gray-500">Select Rooms to Renovate</label>
                             <div className="flex flex-wrap gap-2">
                                 {renovationRooms.map(r => (
                                     <ToggleChip

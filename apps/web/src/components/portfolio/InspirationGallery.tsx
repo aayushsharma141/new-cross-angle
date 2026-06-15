@@ -71,7 +71,6 @@ const InspirationGallery = () => {
         dragElastic={0.2}
         dragTransition={{ power: 0.2, timeConstant: 200 }}
         dragMomentum={true}
-        style={{ touchAction: "pan-y" }}
         className="flex gap-4 w-max px-4 pb-12 cursor-grab active:cursor-grabbing"
       >
         {MOODS.map((mood, index) => (
@@ -81,7 +80,7 @@ const InspirationGallery = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 1, delay: index * 0.1 }}
-            className="group relative h-[60vh] w-[80vw] flex-shrink-0 cursor-pointer overflow-hidden md:w-[40vw]"
+            className="group relative h-[60vh] w-[80vw] flex-shrink-0 cursor-pointer overflow-hidden md:w-[40vw] bg-neutral-900"
           >
             {/* Background Image */}
             <motion.img 
@@ -91,6 +90,7 @@ const InspirationGallery = () => {
               onDragStart={(e) => e.preventDefault()}
               className="h-full w-full object-cover transition-transform group-hover:scale-110 pointer-events-none"
               style={{ transitionDuration: "3000ms" }}
+              loading="lazy"
             />
             
             {/* Dark Overlay */}

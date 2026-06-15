@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion, useSpring, useMotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useDynamicCTA } from "@/hooks/useDynamicCTA";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -22,7 +22,7 @@ const Particles = () => {
   const [particles, setParticles] = useState<Particle[]>([]);
   useEffect(() => {
     const arr = [];
-    for (let i = 0; i < 250; i++) {
+    for (let i = 0; i < 100; i++) {
       arr.push({
         id: i,
         x: Math.random() * 100,
@@ -41,7 +41,7 @@ const Particles = () => {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full border border-white/30 bg-white/20"
+          className="absolute rounded-full border border-[#C41230]/30 bg-[#C41230]/20"
           style={{ 
             left: `${p.x}vw`, 
             top: `100%`, 
@@ -62,37 +62,6 @@ const Particles = () => {
   );
 };
 
-// Magnetic Wrap
-const Magnetic = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 150, damping: 15, mass: 0.1 });
-  const sy = useSpring(y, { stiffness: 150, damping: 15, mass: 0.1 });
-
-  function onMove(e: React.MouseEvent) {
-    if (!ref.current) return;
-    const r = ref.current.getBoundingClientRect();
-    x.set((e.clientX - (r.left + r.width / 2)) * 0.3);
-    y.set((e.clientY - (r.top + r.height / 2)) * 0.3);
-  }
-  function onLeave() {
-    x.set(0);
-    y.set(0);
-  }
-
-  return (
-    <motion.div
-      ref={ref}
-      style={{ x: sx, y: sy, display: "inline-block" }}
-      className={className}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-    >
-      {children}
-    </motion.div>
-  );
-};
 
 // Clock
 function LiveClock() {
@@ -108,7 +77,7 @@ function LiveClock() {
   }, []);
 
   return (
-    <div className="mt-2.5 text-[12px] font-['Space_Mono']">
+    <div className="mt-2.5 text-[12px] font-['Space_Mono'] text-white/50">
       {time}
     </div>
   );
@@ -152,6 +121,8 @@ const getFooterCopy = (pathname: string, cta: ReturnType<typeof useDynamicCTA>["
       headlineStart: "Seen the work?",
       headlineHighlight: "Now shape yours.",
       sub: "Use our past work as a starting point. We'll help bring that same luxury to your own space.",
+      btn1: "Book 15-Min Discovery Call",
+      btn1Link: "/contact-us",
     },
     "/gallery": {
       headlineStart: "Save the inspiration.",
@@ -208,6 +179,8 @@ interface FooterSectionProps {
 // MAIN COMPONENT
 const FooterSection = ({ title, id, openSection, toggleSection, children, delay, className = "" }: FooterSectionProps) => {
   const isOpen = openSection === id;
+  const contentId = `footer-${id}-content`;
+  const buttonId = `footer-${id}-btn`;
   return (
     <motion.div
       className={`flex-1 min-w-[150px] p-0 ${className}`}
@@ -216,16 +189,27 @@ const FooterSection = ({ title, id, openSection, toggleSection, children, delay,
       viewport={{ once: true }}
       transition={{ duration: 1, delay, ease: "easeOut" }}
     >
-      <div 
-        className="font-sans text-[10px] tracking-[0.3em] text-white/50 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default"
+      <div
+        id={buttonId}
+        role="button"
+        tabIndex={0}
+        aria-expanded={isOpen}
+        aria-controls={contentId}
+        className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0"
         onClick={() => toggleSection(id)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleSection(id); } }}
       >
         <span>// {title}</span>
         <span className="md:hidden">
           {isOpen ? <Minus className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
         </span>
       </div>
-      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[500px] mt-5 opacity-100' : 'max-h-0 opacity-0 md:max-h-[1000px] md:opacity-100 md:mt-0'}`}>
+      <div
+        id={contentId}
+        role="region"
+        aria-labelledby={buttonId}
+        className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[500px] mt-5 opacity-100' : 'max-h-0 opacity-0 md:max-h-[1000px] md:opacity-100 md:mt-0'}`}
+      >
         {children}
       </div>
     </motion.div>
@@ -251,6 +235,24 @@ export default function Footer() {
 
   const colStyle = "p-[clamp(16px,2vw,32px)] md:border-r border-white/5 border-b md:border-b-0 last:border-b-0";
   const labelStyle = "font-sans text-[10px] tracking-[0.3em] text-white/50 mb-5";
+  const renderSocialLink = (key: string, name: string, Icon: React.ElementType): React.ReactNode | null => {
+    const url = settings?.social_links?.[key];
+    if (!url || typeof url !== 'string' || url.trim().length === 0) return null;
+    return (
+      <a
+        key={key}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans group"
+      >
+        <span className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#C41230]/10 group-hover:border-[#C41230]/20 transition-all duration-200">
+          <Icon className="w-3.5 h-3.5" />
+        </span>
+        {name}
+      </a>
+    );
+  };
 
   return (
     <footer
@@ -325,34 +327,15 @@ export default function Footer() {
         </div>
 
         <motion.div
-          className="flex flex-col items-center gap-6 w-full relative z-10"
+          className="flex flex-col items-center gap-6 w-full relative z-10 mt-2"
           initial={{ y: 40, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1.2, delay: 0.15, ease: [0.25, 1, 0.5, 1] }}
         >
-          <div className="flex flex-wrap justify-center gap-4 w-full">
-            <Magnetic>
-              <Link
-                to={footerCopy.btn1Link}
-                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#C41230] text-white rounded-full font-sans text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 w-full sm:w-auto text-center font-semibold border border-transparent shadow-[0_4px_20px_rgba(196,18,48,0.25)] hover:shadow-none"
-              >
-                <span>{footerCopy.btn1}</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Magnetic>
-
-            {footerCopy.btn2 && (
-              <Magnetic>
-                <Link
-                  to={footerCopy.btn2Link}
-                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-transparent border border-white/15 text-white rounded-full font-sans text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-black transition-all duration-300 w-full sm:w-auto text-center font-semibold"
-                >
-                  <span>{footerCopy.btn2}</span>
-                </Link>
-              </Magnetic>
-            )}
-          </div>
+          <p className="text-white/60 max-w-lg mx-auto text-[14px] md:text-[15px] font-sans tracking-wide leading-relaxed">
+            {footerCopy.sub}
+          </p>
         </motion.div>
       </div>
 
@@ -362,7 +345,7 @@ export default function Footer() {
 
           {/* Col 1 — Studio Contact */}
           <FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="pr-0 md:pr-10 pb-8 md:pb-0">
-            <p className="text-white/40 text-[11px] leading-relaxed font-sans mb-5 max-w-[220px]">
+            <p className="text-white/50 text-[12px] leading-relaxed font-sans mb-5 max-w-[220px]">
               Premium turnkey interior design studio headquartered in Jamshedpur, India.
             </p>
             <a
@@ -400,7 +383,7 @@ export default function Footer() {
               </div>
               
               <div>
-                <p className="font-sans text-[10px] tracking-[0.3em] text-white/30 mb-3">SERVICING REGIONS</p>
+                <p className="font-sans text-[11px] tracking-[0.3em] text-white/50 mb-3">SERVICING REGIONS</p>
                 <div className="flex flex-col gap-2.5">
                   {(() => {
                     const cities = [
@@ -434,7 +417,7 @@ export default function Footer() {
                               {city.name}
                             </Link>
                             {cIndex < arr.length - 1 && (
-                              <span className="text-white/20 text-[12px] select-none">|</span>
+                              <span className="text-white/40 text-[12px] select-none">|</span>
                             )}
                           </React.Fragment>
                         ))}
@@ -474,7 +457,7 @@ export default function Footer() {
 
           {/* Col 4 — Socials as labelled icon pills */}
           <FooterSection title="CONNECT" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.3} className="pl-0 md:pl-10 pt-8 md:pt-0">
-            <p className="text-white/40 text-[11px] font-sans mb-5">Follow us on social media</p>
+            <p className="text-white/50 text-[12px] font-sans mb-5">Follow us on social media</p>
             <div className="flex flex-col gap-2.5">
               {([
                 { key: 'instagram', name: 'Instagram', Icon: Instagram },
@@ -482,24 +465,9 @@ export default function Footer() {
                 { key: 'youtube', name: 'YouTube', Icon: Youtube },
                 { key: 'linkedin', name: 'LinkedIn', Icon: Linkedin },
                 { key: 'twitter', name: 'Twitter / X', Icon: Twitter },
-              ] as { key: string; name: string; Icon: React.ElementType }[]).map(({ key, name, Icon }) => {
-                const url = settings?.social_links?.[key];
-                const href = (url && typeof url === 'string' && url.trim().length > 0) ? url : "#";
-                return (
-                  <a
-                    key={key}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans group"
-                  >
-                    <span className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#C41230]/10 group-hover:border-[#C41230]/20 transition-all duration-200">
-                      <Icon className="w-3.5 h-3.5" />
-                    </span>
-                    {name}
-                  </a>
-                );
-              })}
+              ] as { key: string; name: string; Icon: React.ElementType }[]).map(({ key, name, Icon }) =>
+                renderSocialLink(key, name, Icon)
+              )}
             </div>
           </FooterSection>
         </div>
@@ -508,7 +476,7 @@ export default function Footer() {
       {/* --- BOTTOM --- */}
       <div className="border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-10 w-full">
         <div className="flex flex-col md:flex-row items-center justify-between py-5 gap-3 text-[10px] md:text-[11px] text-white/40 uppercase tracking-[0.2em] font-sans">
-          <span className="text-white/60 font-medium tracking-[0.2em]">© {new Date().getFullYear()} Crossangle Studio. All Rights Reserved.</span>
+          <span className="text-white/60 font-medium tracking-[0.2em]">© {new Date().getFullYear()} Cross Angle Interior. All Rights Reserved.</span>
           <div className="flex items-center gap-6">
             <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors duration-200">Privacy Policy</Link>
             <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors duration-200">Terms</Link>

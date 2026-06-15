@@ -4,8 +4,8 @@ import { ArrowRight } from "lucide-react";
 
 const ProjectCTA = () => {
   return (
-    <section className="py-32 md:py-48 bg-stone-900 text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-stone-800/30 via-stone-900 to-stone-900 pointer-events-none" />
+    <section className="py-32 md:py-48 bg-neutral-950 text-white relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-neutral-800/30 via-neutral-950 to-neutral-950 pointer-events-none" />
       
       <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
         <motion.div
@@ -25,7 +25,7 @@ const ProjectCTA = () => {
           </p>
           
           <Link 
-            to="/contact"
+            to="/contact-us"
             className="inline-flex items-center gap-4 bg-white text-black px-8 py-4 rounded-full font-medium tracking-wide hover:bg-stone-200 hover:scale-105 transition-all group"
           >
             Get Your Interior Investment Blueprint

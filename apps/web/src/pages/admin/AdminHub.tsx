@@ -28,7 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/primitives/button";
 import { CountUp } from "@/components/ReactBits/index";
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 /* ───────────────────────────────────────────────
    Live Hub Stats
