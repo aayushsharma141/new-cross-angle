@@ -7,6 +7,8 @@ interface Props {
     speed?: number;
     /** Grid line color as rgba string */
     color?: string;
+    /** Thickness of grid lines */
+    lineWidth?: number;
     className?: string;
 }
 
@@ -15,7 +17,7 @@ interface Props {
  * Desktop only (hidden on < 768 px) and respects prefers-reduced-motion.
  * GPU-friendly: only uses transform (translate) on canvas 2d paths – no layout triggers.
  */
-const GridDistortion = ({ amplitude = 0.10, speed = 0.08, color = "rgba(180, 120, 100, 0.08)", className = "" }: Props) => {
+const GridDistortion = ({ amplitude = 0.10, speed = 0.08, color = "rgba(180, 120, 100, 0.08)", lineWidth = 0.8, className = "" }: Props) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const rafRef = useRef<number>(0);
     const mouseRef = useRef({ x: 0.5, y: 0.5 });
@@ -65,7 +67,7 @@ const GridDistortion = ({ amplitude = 0.10, speed = 0.08, color = "rgba(180, 120
             const cellH = H / ROWS;
 
             ctx.strokeStyle = color;
-            ctx.lineWidth = 0.8;
+            ctx.lineWidth = lineWidth;
 
             // Draw distorted grid lines
             for (let c = 0; c <= COLS; c++) {
@@ -125,7 +127,7 @@ const GridDistortion = ({ amplitude = 0.10, speed = 0.08, color = "rgba(180, 120
             window.removeEventListener("mousemove", handleMouse);
             ro.disconnect();
         };
-    }, [amplitude, speed, color]);
+    }, [amplitude, speed, color, lineWidth]);
 
     return (
         <canvas
