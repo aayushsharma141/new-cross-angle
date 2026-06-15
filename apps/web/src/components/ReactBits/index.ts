@@ -8,3 +8,5 @@ export { default as ShinyText } from "./ShinyText";
 export { default as SpotlightCard } from "./SpotlightCard";
 export { default as TiltedCard } from "./TiltedCard";
 export { default as SplitText } from "./SplitText";
+export { default as MagicRings } from "./MagicRings";
+

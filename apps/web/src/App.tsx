@@ -21,7 +21,20 @@ const DeferredScrollManager = lazy(() =>
 );
 
 const AdminPageLoader = () => <PageSkeleton variant="admin" />;
-const PublicPageLoader = () => <PageSkeleton variant="public" />;
+
+function getSkeletonVariant(pathname: string): string {
+  if (pathname.startsWith("/blog/")) return "public.blog-detail";
+  if (pathname === "/blog") return "public.blog";
+  if (pathname === "/gallery") return "public.gallery";
+  if (pathname === "/services") return "public.services";
+  if (pathname.startsWith("/services/")) {
+    const segments = pathname.split("/").filter(Boolean);
+    return segments.length >= 3 ? "public.service-detail" : "public.service-category";
+  }
+  if (pathname === "/contact-us") return "public.contact";
+  if (pathname === "/estimate") return "public.estimate";
+  return "public";
+}
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -100,10 +113,10 @@ const AnimatedRoutes = () => {
           </div>
         </div>
       ) : (
-        <Suspense fallback={null}>
+        <Suspense fallback={<PageSkeleton variant={getSkeletonVariant(location.pathname) as any} />}>
           <SmoothScroll>
             <ErrorBoundary>
-              <Suspense fallback={<PublicPageLoader />}>
+              <Suspense fallback={<PageSkeleton variant={getSkeletonVariant(location.pathname) as any} />}>
                 <AnimatePresence mode="wait">
                   <Routes location={location} key={location.pathname}>
                     {publicRoutes}

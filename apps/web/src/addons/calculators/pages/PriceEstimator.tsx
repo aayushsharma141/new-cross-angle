@@ -18,6 +18,7 @@ import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
 import EstimatorCard from "@/components/estimator/EstimatorCard";
 import { CostEstimator } from "@/addons/calculators/components/CostEstimator";
 import { EstimatorBackground } from "@/addons/_shared/components/backgrounds/EstimatorBackground";
+import { MagicRings } from "@/components/ReactBits";
 import { loadDiscoveryResult } from "@/addons/discovery/core/persistence";
 import { ECOSYSTEM_COPY, ECOSYSTEM_ROUTES } from "@/addons/_shared/ecosystemCopy";
 import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
@@ -133,8 +134,32 @@ const CostEstimatorPage = () => {
           </a>
         </div>
 
-        {/* Premium Light Travertine Background */}
-        <EstimatorBackground />
+        {/* Magic Rings Luxury Background */}
+        <div className="absolute inset-0 z-0 overflow-hidden w-full h-full pointer-events-none opacity-20">
+          <MagicRings
+            color="#d1af6e" // brand gold
+            colorTwo="#233526" // brand green
+            ringCount={8}
+            speed={0.4}
+            attenuation={14}
+            lineThickness={1.5}
+            baseRadius={0.25}
+            radiusStep={0.08}
+            scaleRate={0.05}
+            opacity={0.8}
+            blur={0}
+            noiseAmount={0.03}
+            rotation={15}
+            ringGap={1.4}
+            fadeIn={0.6}
+            fadeOut={0.7}
+            followMouse={true}
+            mouseInfluence={0.12}
+            hoverScale={1.1}
+            parallax={0.03}
+            clickBurst={true}
+          />
+        </div>
 
         <div className="container flex-1 flex flex-col justify-center mx-auto px-6 relative z-10 pt-28 pb-16">
           

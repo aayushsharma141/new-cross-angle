@@ -10,7 +10,7 @@ export function AdminSkeletonCard({ size = "md" }: AdminSkeletonCardProps) {
 
   if (size === "sm") {
     return (
-      <div className={`${baseCard} h-[60px] flex-row items-center justify-between`}>
+      <div className={`${baseCard} h-[80px] flex-row items-center justify-between`}>
         <div className="flex items-center gap-4 w-full">
           <div className="skeleton-shimmer-admin w-[32px] h-[32px] rounded-full flex-shrink-0" style={{ animationDelay: "0ms" }} />
           <div className="flex flex-col gap-2 w-1/3">
