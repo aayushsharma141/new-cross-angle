@@ -26,7 +26,7 @@ export function StepServices({ formData, updateField }: Props) {
     const toggle = (id: string) => setExpandedId(prev => prev === id ? null : id);
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto overflow-y-auto max-h-[65vh] pr-1 scroll-smooth">
 
             <motion.div
                 variants={cardListContainer}
