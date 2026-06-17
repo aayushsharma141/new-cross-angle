@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import type { CalculatorFormData, ServiceId, ExecutionTierId } from "../data/types";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { SERVICES as DEFAULT_SERVICES } from "../data/pricing-config";
@@ -25,7 +26,7 @@ export function StepServices({ formData, updateField }: Props) {
     const toggle = (id: string) => setExpandedId(prev => prev === id ? null : id);
 
     return (
-        <div>
+        <div className="max-w-4xl mx-auto">
 
             <motion.div
                 variants={cardListContainer}
@@ -99,7 +100,11 @@ export function StepServices({ formData, updateField }: Props) {
                                     aria-controls={`svc-details-${svc.id}`}
                                     className="text-[#5a5a5a] text-[11px] font-semibold hover:text-[#8b6f47] transition-colors uppercase tracking-widest flex items-center gap-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] rounded-sm"
                                     >
-                                    {expanded ? "Less Info ▲" : "Full Scope ▼"}
+                                    {expanded ? (
+                                        <>Hide Details <ChevronUp size={14} /></>
+                                    ) : (
+                                        <>Full Scope <ChevronDown size={14} /></>
+                                    )}
                                 </button>
                             </div>
 

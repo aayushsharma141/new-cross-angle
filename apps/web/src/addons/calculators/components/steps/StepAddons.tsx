@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { motion } from "framer-motion";
+import { Utensils, Shirt, Sparkles, Smartphone, Sofa, Lightbulb } from "lucide-react";
 import type { CalculatorFormData } from "../data/types";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { ADDONS as DEFAULT_ADDONS, DEFAULT_PRICING_CONFIG } from "../data/pricing-config";
@@ -22,6 +23,15 @@ interface Props {
 
 export function StepAddons({ formData, updateField }: Props) {
     const { data: addons = DEFAULT_ADDONS } = useFlowConfig<typeof DEFAULT_ADDONS>("addons");
+
+    const AddonIconMap: Record<string, React.ReactNode> = {
+        modularKitchen: <Utensils size={32} strokeWidth={1.5} />,
+        wardrobes: <Shirt size={32} strokeWidth={1.5} />,
+        falseCeiling: <Sparkles size={32} strokeWidth={1.5} />,
+        smartHome: <Smartphone size={32} strokeWidth={1.5} />,
+        customFurniture: <Sofa size={32} strokeWidth={1.5} />,
+        premiumLighting: <Lightbulb size={32} strokeWidth={1.5} />,
+    };
 
     const addonTotal = useMemo(() => {
         let total = 0;
@@ -68,7 +78,7 @@ export function StepAddons({ formData, updateField }: Props) {
     };
 
     return (
-        <div>
+        <div className="max-w-4xl mx-auto">
             <motion.div
                 variants={cardListContainer}
                 initial="hidden"
@@ -98,7 +108,7 @@ export function StepAddons({ formData, updateField }: Props) {
                             )}
                             
                             <div className="flex justify-between items-start mb-3 relative z-10">
-                                <span className="text-3xl filter drop-shadow-sm">{addon.icon}</span>
+                                <span className="text-[#8b6f47] drop-shadow-sm">{AddonIconMap[addon.id] || addon.icon}</span>
                                 <span className={`text-[9px] font-bold px-2 py-0.5 uppercase tracking-wider transition-colors ${active ? "bg-[#8b6f47] text-white" : "bg-[#1a1a1a]/10 text-[#5a5a5a]"
                                     }`}>
                                     {active ? "SELECTED" : "ADD"}
@@ -122,16 +132,12 @@ export function StepAddons({ formData, updateField }: Props) {
                 })}
             </motion.div>
 
-            {addonTotal > 0 && (
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-6 p-4 bg-[#8b6f47]/5 border border-[#8b6f47]/20 rounded-[8px] flex justify-between items-center"
-                >
-                    <span className="text-[#1a1a1a] font-bold text-sm">Add-ons Subtotal</span>
-                    <span className="text-[#8b6f47] font-black text-lg">{formatCurrency(addonTotal)}</span>
-                </motion.div>
-            )}
+            <div className="mt-6 p-4 bg-[#8b6f47]/5 border border-[#8b6f47]/20 rounded-[8px] flex justify-between items-center">
+                <span className="text-[#1a1a1a] font-bold text-sm">Add-ons Subtotal</span>
+                <span className={`font-black text-lg ${addonTotal > 0 ? "text-[#8b6f47]" : "text-[#5a5a5a] text-sm"}`}>
+                    {addonTotal > 0 ? formatCurrency(addonTotal) : "None selected"}
+                </span>
+            </div>
         </div>
     );
 }

@@ -48,7 +48,7 @@ export function StepBudget({ formData, updateField }: Props) {
 
 
     return (
-        <div>
+        <div className="max-w-2xl mx-auto">
             {/* Big budget display */}
             <div className="text-center py-7 mb-5 rounded-none border border-[#1a1a1a]/[0.06] bg-gradient-to-br from-site-bg-card to-site-bg">
                 <div className="text-[#5a5a5a] text-xs mb-1 uppercase tracking-widest">Total Allocation</div>
@@ -87,7 +87,7 @@ export function StepBudget({ formData, updateField }: Props) {
                 variants={cardListContainer}
                 initial="hidden"
                 animate="show"
-                className="grid grid-cols-2 gap-3 mb-6"
+                className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"
             >
                 {investmentPresets.map(bp => {
                     const active = formData.budgetPreset === bp.label;
