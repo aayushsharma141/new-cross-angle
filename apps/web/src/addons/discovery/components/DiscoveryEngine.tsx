@@ -15,16 +15,14 @@ import { useAnalytics } from "@/analytics/AnalyticsProvider";
 import { synthesizeConsultationIntelligence, detectInterpretationConflict } from "../alcs/intelligence";
 import WelcomeScreen from "./WelcomeScreen";
 import PropertyReality from "./PropertyReality";
-import ReflectionPrompt from "./ReflectionPrompt";
 import LifestyleReflection from "./LifestyleReflection";
 import VisualInstinct from "./VisualInstinct";
 import RoomPriority from "./RoomPriority";
 import ReinterpretationGate from "./ReinterpretationGate";
 import AdjectiveSelection from "./AdjectiveSelection";
-import EmotionalMapping from "./EmotionalMapping";
+import PivotQuestion from "./PivotQuestion";
 import MaterialResonance from "./MaterialResonance";
 import LightCalibration from "./LightCalibration";
-import PatternPreview from "./PatternPreview";
 import BudgetAlignment from "./BudgetAlignment";
 import AnalysisPhase from "./AnalysisPhase";
 import MiniResultPreview from "./MiniResultPreview";
@@ -168,11 +166,11 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
         transitionToStage(getNextStage(Stage.Welcome, m));
     }, [transitionToStage, analyticsTrack]);
 
-    const handleReflectionComplete = useCallback(
-        (answers: { question: string; answer: string }[]) => {
-            if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "Reflection");
-            setSignals((prev) => ({ ...prev, reflectionAnswers: answers }));
-            transitionToStage(getNextStage(Stage.Reflection, mode));
+    const handlePivotComplete = useCallback(
+        (data: { primaryValue: 'beauty' | 'practicality' | 'impression' | 'longevity' | 'identity' }) => {
+            if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "PivotQuestion");
+            setSignals((prev) => ({ ...prev, primaryValue: data.primaryValue }));
+            transitionToStage(getNextStage(Stage.PivotQuestion, mode));
         }, [mode, transitionToStage, sessionId, analyticsTrack]
     );
 
@@ -266,15 +264,6 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
         }, [mode, transitionToStage, sessionId, updateScores, analyticsTrack]
     );
 
-    const handleEmotionalComplete = useCallback(
-        (partial: Partial<AestheticScores>, sliderValues?: { label: string; value: number }[]) => {
-            if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "EmotionalMapping");
-            updateScores(partial);
-            if (sliderValues) setSignals((prev) => ({ ...prev, sliderValues }));
-            transitionToStage(getNextStage(Stage.EmotionalMapping, mode));
-        }, [mode, transitionToStage, sessionId, updateScores, analyticsTrack]
-    );
-
     const handleMaterialComplete = useCallback(
         (partial: Partial<AestheticScores>, materialName?: string) => {
             if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "MaterialResonance");
@@ -292,11 +281,6 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
             transitionToStage(getNextStage(Stage.LightCalibration, mode));
         }, [mode, transitionToStage, sessionId, updateScores, analyticsTrack]
     );
-
-    const handlePatternComplete = useCallback(() => {
-        if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "PatternPreview");
-        transitionToStage(getNextStage(Stage.PatternPreview, mode));
-    }, [mode, transitionToStage, sessionId, analyticsTrack]);
 
     const handleBudgetComplete = useCallback(
         (data: { budgetBracket: string; luxuryResolution?: string }) => {
@@ -426,9 +410,6 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                         {stage === Stage.PropertyReality && (
                             <PropertyReality key="property" onComplete={handlePropertyRealityComplete} intent={currentSignals.intent} />
                         )}
-                        {stage === Stage.Reflection && (
-                            <ReflectionPrompt key="reflection" onComplete={handleReflectionComplete} />
-                        )}
                         {stage === Stage.Lifestyle && (
                             <LifestyleReflection key="lifestyle" onComplete={handleLifestyleComplete} />
                         )}
@@ -449,22 +430,14 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                         {stage === Stage.AdjectiveSelection && (
                             <AdjectiveSelection key="adjectives" sessionId={sessionId} onComplete={handleAdjectiveComplete} />
                         )}
-                        {stage === Stage.EmotionalMapping && (
-                            <EmotionalMapping key="emotional" onComplete={handleEmotionalComplete} />
+                        {stage === Stage.PivotQuestion && (
+                            <PivotQuestion key="pivot" onComplete={handlePivotComplete} />
                         )}
                         {stage === Stage.MaterialResonance && (
                             <MaterialResonance key="material" onComplete={handleMaterialComplete} />
                         )}
                         {stage === Stage.LightCalibration && (
                             <LightCalibration key="light" onComplete={handleLightComplete} />
-                        )}
-                        {stage === Stage.PatternPreview && (
-                            <PatternPreview
-                                key="pattern"
-                                scores={normalizedScores}
-                                signals={currentSignals}
-                                onComplete={handlePatternComplete}
-                            />
                         )}
                         {stage === Stage.BudgetAlignment && (
                             <BudgetAlignment

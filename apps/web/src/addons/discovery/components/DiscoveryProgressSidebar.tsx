@@ -6,18 +6,16 @@ import logoIcon from "@/assets/logo-icon.png";
 
 const SIDEBAR_STAGES: { stage: Stage; label: string; eyebrow: string }[] = [
     { stage: Stage.PropertyReality, label: "Reality", eyebrow: "01" },
-    { stage: Stage.Reflection, label: "Essence", eyebrow: "02" },
-    { stage: Stage.Lifestyle, label: "Rituals", eyebrow: "03" },
-    { stage: Stage.RoomPriority, label: "Space", eyebrow: "04" },
-    { stage: Stage.VisualInstinct, label: "Instinct", eyebrow: "05" },
-    { stage: Stage.AdjectiveSelection, label: "Language", eyebrow: "06" },
-    { stage: Stage.EmotionalMapping, label: "Feeling", eyebrow: "07" },
-    { stage: Stage.MaterialResonance, label: "Touch", eyebrow: "08" },
-    { stage: Stage.LightCalibration, label: "Atmosphere", eyebrow: "09" },
-    { stage: Stage.PatternPreview, label: "Synthesis", eyebrow: "10" },
-    { stage: Stage.BudgetAlignment, label: "Budget", eyebrow: "11" },
-    { stage: Stage.Analysis, label: "Analysis", eyebrow: "12" },
-    { stage: Stage.MiniResult, label: "Preview", eyebrow: "13" },
+    { stage: Stage.Lifestyle, label: "Rituals", eyebrow: "02" },
+    { stage: Stage.RoomPriority, label: "Space", eyebrow: "03" },
+    { stage: Stage.VisualInstinct, label: "Instinct", eyebrow: "04" },
+    { stage: Stage.AdjectiveSelection, label: "Language", eyebrow: "05" },
+    { stage: Stage.PivotQuestion, label: "What Matters", eyebrow: "06" },
+    { stage: Stage.MaterialResonance, label: "Touch", eyebrow: "07" },
+    { stage: Stage.LightCalibration, label: "Atmosphere", eyebrow: "08" },
+    { stage: Stage.BudgetAlignment, label: "Investment", eyebrow: "09" },
+    { stage: Stage.Analysis, label: "Analysis", eyebrow: "10" },
+    { stage: Stage.MiniResult, label: "Preview", eyebrow: "11" },
 ];
 
 interface DiscoveryProgressSidebarProps {

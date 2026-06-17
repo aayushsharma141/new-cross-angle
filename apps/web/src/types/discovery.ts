@@ -1,21 +1,19 @@
 export enum Stage {
   Welcome = 0,
   PropertyReality = 1,
-  Reflection = 2,
-  Lifestyle = 3,
-  RoomPriority = 4,
-  VisualInstinct = 5,
-  ReinterpretationGate = 6,
-  AdjectiveSelection = 7,
-  EmotionalMapping = 8,
-  MaterialResonance = 9,
-  LightCalibration = 10,
-  PatternPreview = 11,
-  BudgetAlignment = 12,
-  Analysis = 13,
-  MiniResult = 14,
-  LeadCapture = 15,
-  Results = 16,
+  Lifestyle = 2,
+  RoomPriority = 3,
+  VisualInstinct = 4,
+  ReinterpretationGate = 5,
+  AdjectiveSelection = 6,
+  PivotQuestion = 7,
+  MaterialResonance = 8,
+  LightCalibration = 9,
+  BudgetAlignment = 10,
+  Analysis = 11,
+  MiniResult = 12,
+  LeadCapture = 13,
+  Results = 14,
 }
 
 export interface LifestyleOption {
@@ -90,6 +88,7 @@ export interface UserSignals {
   householdEvolution?: 'Stable' | 'Growing' | 'Downsizing' | 'Uncertain';
   // Consultation intelligence (computed post-visual)
   consultationIntelligence?: ConsultationIntelligence;
+  primaryValue?: 'beauty' | 'practicality' | 'impression' | 'longevity' | 'identity';
   reflectionAnswers: { question: string; answer: string }[];
   lifestyleChoices: string[];
   selectedImageIds: number[];
