@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { motion, useInView, useSpring, useMotionValue, AnimatePresence } from "framer-motion";
 import { ArrowRight, Compass, Calculator, Sparkles, Fingerprint, Palette, Layers, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DiscoveryBackground } from "@/addons/_shared/components/backgrounds/DiscoveryBackground";
+import { EstimatorBackground } from "@/addons/_shared/components/backgrounds/EstimatorBackground";
 
 /* ─── Types ─────────────────────────────────────────────── */
 interface Engine {
@@ -290,23 +292,17 @@ function EngineBlock({ engine }: { engine: Engine }) {
       className="relative overflow-hidden border border-white/[0.05] bg-[#050505] rounded-3xl flex flex-col group hover:border-white/[0.08] transition-colors duration-500"
     >
       {/* ── Faded Background Art & Grid ───────────────── */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 select-none flex items-center justify-center">
-        {/* Subtle grid pattern with Parallax */}
-        <motion.div
-          style={{ 
-            x: springX, 
-            y: springY,
-            backgroundImage: `
-              linear-gradient(to right, rgba(255,255,255,1) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(255,255,255,1) 1px, transparent 1px)
-            `,
-            backgroundSize: "80px 80px",
-            backgroundPosition: "center center",
-            maskImage: "radial-gradient(circle at center, black, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(circle at center, black, transparent 80%)"
-          }}
-          className="absolute inset-[-10%] opacity-[0.03]"
-        />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 select-none flex items-center justify-center overflow-hidden rounded-3xl">
+        {/* Intelligent Engine Background */}
+        {engine.system === "System 01" ? (
+          <div className="absolute inset-0 z-0">
+            <DiscoveryBackground isDark={true} />
+          </div>
+        ) : (
+          <div className="absolute inset-0 z-0 opacity-80 mix-blend-screen">
+            <EstimatorBackground isDark={true} />
+          </div>
+        )}
 
         {/* Ambient Glow */}
         <motion.div
@@ -315,7 +311,7 @@ function EngineBlock({ engine }: { engine: Engine }) {
             opacity: [0.3, 0.5, 0.3]
           }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute w-[400px] h-[300px] rounded-[100%] blur-[80px] opacity-50 transition-opacity duration-1000"
+          className="absolute w-[400px] h-[300px] rounded-[100%] blur-[80px] opacity-40 transition-opacity duration-1000 z-10"
           style={{
             background: `radial-gradient(ellipse at center, ${engine.glowColor} 0%, transparent 70%)`,
           }}

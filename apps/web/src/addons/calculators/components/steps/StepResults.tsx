@@ -7,11 +7,12 @@ import { SERVICES as DEFAULT_SERVICES, TIERS as DEFAULT_TIERS, THEME } from "../
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Link } from "react-router-dom";
 import { Home, Calendar, Check, AlertTriangle, PhoneCall, Info, Compass } from "lucide-react";
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ECOSYSTEM_COPY, ECOSYSTEM_ROUTES } from "@/addons/_shared/ecosystemCopy";
 import { EstimatorIntelligencePanel } from "../EstimatorIntelligencePanel";
 import type { EstimatorResponse } from "../data/discovery-handoff";
+import { CountUp, FallingText, StarBorder, Magnet } from "@/components/ReactBits";
 
 interface Props {
     formData: CalculatorFormData;
@@ -22,74 +23,6 @@ interface Props {
     alcsEstimatorResponse?: EstimatorResponse | null;
     onReset: () => void;
     onBack: () => void;
-}
-
-// ─── Framer Motion Dynamic Count-Up Components ───
-
-function AnimatedNumber({ value }: { value: number }) {
-    const count = useMotionValue(0);
-    const rounded = useTransform(count, Math.round);
-    const [displayValue, setDisplayValue] = useState("0");
-    const prevValueRef = useRef(value);
-
-    useEffect(() => {
-        const startValue = prevValueRef.current === value ? count.get() : 0;
-        count.set(startValue);
-        const controls = animate(count, value, {
-            duration: 1.8,
-            ease: [0.22, 1, 0.36, 1],
-        });
-
-        const unsubscribe = rounded.on("change", (latest) => {
-            setDisplayValue(latest.toLocaleString("en-IN"));
-        });
-        prevValueRef.current = value;
-
-        return () => {
-            controls.stop();
-            unsubscribe();
-        };
-    }, [value, count, rounded]);
-
-    return <span>{displayValue}</span>;
-}
-
-function AnimatedPriceRange({ min, max }: { min: number; max: number }) {
-    return (
-        <span className="tabular-nums">
-            ₹<AnimatedNumber value={min} /> – ₹<AnimatedNumber value={max} />
-        </span>
-    );
-}
-
-// ─── Sparkle particles for price reveal ───
-
-function SparkleParticles() {
-    return (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-            {[...Array(6)].map((_, i) => (
-                <motion.div
-                    key={i}
-                    className="absolute w-1 h-1 rounded-full bg-[#8b6f47]"
-                    style={{
-                        left: `${20 + Math.random() * 60}%`,
-                        top: `${20 + Math.random() * 60}%`,
-                    }}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{
-                        opacity: [0, 1, 0],
-                        scale: [0, 1.5, 0],
-                        y: [0, -20 - Math.random() * 30],
-                    }}
-                    transition={{
-                        duration: 1.5,
-                        delay: 0.5 + i * 0.15,
-                        ease: "easeOut",
-                    }}
-                />
-            ))}
-        </div>
-    );
 }
 
 // ─── Item Explanations for Drawers ───
@@ -220,26 +153,35 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
             className="space-y-8 pb-20"
         >
             {/* ═══ Immersive Header Card ═══ */}
-            <div className="relative overflow-hidden rounded-[8px] p-10 lg:p-14 border border-[#e8e4dd] bg-white/90 backdrop-blur-xl shadow-[0_8px_40px_rgba(139,111,71,0.08)]">
+            <StarBorder
+              color="#8b6f47"
+              backgroundColor="rgba(255, 255, 255, 0.9)"
+              className="relative shadow-[0_8px_40px_rgba(139,111,71,0.08)]"
+            >
+              <div className="relative overflow-hidden p-10 lg:p-14 border border-[#e8e4dd]/10">
                 {/* Warm Aura Effects */}
                 <div className="absolute top-0 right-0 w-96 h-96 bg-[#8b6f47]/[0.06] blur-[120px] rounded-full -mr-32 -mt-32" aria-hidden="true" />
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#8b6f47]/[0.04] blur-[100px] rounded-full -ml-20 -mb-20" aria-hidden="true" />
 
-                <SparkleParticles />
-
                 <div className="relative z-10 flex flex-col items-center text-center">
-                    <motion.span
+                    <motion.div
                         variants={itemVariants}
-                        className="text-[#8b6f47] font-mono text-[10px] uppercase tracking-[0.5em] mb-4 block"
+                        className="mb-4 block"
                     >
-                        {hasBlueprint ? "Personalized Investment Outlook" : "Baseline Investment Outlook"}
-                    </motion.span>
+                      <FallingText
+                        text={hasBlueprint ? "Personalized Investment Outlook" : "Baseline Investment Outlook"}
+                        className="text-[#8b6f47] font-mono text-[10px] uppercase tracking-[0.5em] font-bold justify-center"
+                        delay={15}
+                      />
+                    </motion.div>
 
                     <motion.h2
                         variants={itemVariants}
                         className="text-4xl md:text-6xl font-bold text-[#1a1a1a] tracking-tighter mb-3 font-serif"
                     >
-                        <AnimatedPriceRange min={finalMin} max={finalMax} />
+                        <span className="tabular-nums">
+                            <CountUp to={finalMin} duration={1.8} separator="," locale="en-IN" currency="INR" /> – <CountUp to={finalMax} duration={1.8} separator="," locale="en-IN" currency="INR" />
+                        </span>
                     </motion.h2>
                     <motion.p variants={itemVariants} className="text-sm md:text-base text-[#5a5a5a] max-w-xl leading-relaxed mb-6">
                         {hasBlueprint
@@ -256,14 +198,10 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
                     />
 
                     <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-3">
-                        <Badge label={formData.propertyType?.replace("_", " ") || ""} variant="glass" />
-                        <Badge label={`${formData.area.toLocaleString()} sq ft`} variant="glass" />
-                        {cityLabel && <Badge label={cityLabel} variant="gold" />}
-                        {svc && <Badge label={svc.label} variant="primary" />}
-                        {hasBlueprint && <Badge label="Discovery Blueprint" variant="gold" />}
                     </motion.div>
                 </div>
-            </div>
+              </div>
+            </StarBorder>
 
             {/* ═══ Content Split ═══ */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -498,31 +436,46 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
                     </div>
 
                     {/* CTA Navigation */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <button
-                            type="button"
-                            onClick={onReset}
-                            className="p-6 rounded-[8px] border border-[#e8e4dd] bg-white hover:bg-[#8b6f47]/[0.04] hover:border-[#8b6f47]/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
-                        >
-                            <Home className="w-6 h-6 text-[#5a5a5a] group-hover:text-[#8b6f47] transition-all group-hover:rotate-12" />
-                            <span className="text-[10px] uppercase font-black tracking-widest text-[#5a5a5a] transition-colors group-hover:text-[#8b6f47]">Restart Estimate</span>
-                        </button>
-                        <Link
-                            to={ECOSYSTEM_ROUTES.discovery}
-                            className="p-6 rounded-[8px] border border-[#e8e4dd] bg-white hover:bg-[#8b6f47]/[0.04] hover:border-[#8b6f47]/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
-                        >
-                            <Compass className="w-6 h-6 text-[#5a5a5a] group-hover:text-[#8b6f47] transition-colors" />
-                            <span className="text-[10px] uppercase font-black tracking-widest text-[#5a5a5a] transition-colors group-hover:text-[#8b6f47]">
-                                {hasBlueprint ? "Refine Blueprint" : "Create Blueprint"}
-                            </span>
-                        </Link>
-                        <Link
-                            to={ECOSYSTEM_ROUTES.contact}
-                            className="p-6 rounded-[8px] bg-[#8b6f47] hover:bg-[#705939] transition-all group flex flex-col items-center gap-3 shadow-[0_4px_16px_rgba(139,111,71,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
-                        >
-                            <PhoneCall className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-                            <span className="text-[10px] uppercase font-black tracking-widest text-white">Review With Designer</span>
-                        </Link>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <Magnet range={40} className="w-full">
+                            <button
+                                type="button"
+                                onClick={onReset}
+                                className="w-full p-6 rounded-[8px] border border-[#e8e4dd] bg-white hover:bg-[#8b6f47]/[0.04] hover:border-[#8b6f47]/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                            >
+                                <Home className="w-6 h-6 text-[#5a5a5a] group-hover:text-[#8b6f47] transition-all group-hover:rotate-12" />
+                                <span className="text-[10px] uppercase font-black tracking-widest text-[#5a5a5a] transition-colors group-hover:text-[#8b6f47]">Restart Estimate</span>
+                            </button>
+                        </Magnet>
+                        <Magnet range={40} className="w-full">
+                            <Link
+                                to={ECOSYSTEM_ROUTES.discovery}
+                                className="w-full p-6 rounded-[8px] border border-[#e8e4dd] bg-white hover:bg-[#8b6f47]/[0.04] hover:border-[#8b6f47]/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                            >
+                                <Compass className="w-6 h-6 text-[#5a5a5a] group-hover:text-[#8b6f47] transition-colors" />
+                                <span className="text-[10px] uppercase font-black tracking-widest text-[#5a5a5a] transition-colors group-hover:text-[#8b6f47]">
+                                    {hasBlueprint ? "Refine Blueprint" : "Create Blueprint"}
+                                </span>
+                            </Link>
+                        </Magnet>
+                        <Magnet range={40} className="w-full">
+                            <Link
+                                to="/system-blueprint"
+                                className="w-full p-6 rounded-[8px] border border-[#e8e4dd] bg-white hover:bg-[#8b6f47]/[0.04] hover:border-[#8b6f47]/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                            >
+                                <Info className="w-6 h-6 text-[#5a5a5a] group-hover:text-[#8b6f47] transition-all group-hover:rotate-12" />
+                                <span className="text-[10px] uppercase font-black tracking-widest text-[#5a5a5a] transition-colors group-hover:text-[#8b6f47]">System Blueprint</span>
+                            </Link>
+                        </Magnet>
+                        <Magnet range={40} className="w-full">
+                            <Link
+                                to={ECOSYSTEM_ROUTES.contact}
+                                className="w-full p-6 rounded-[8px] bg-[#8b6f47] hover:bg-[#705939] transition-all group flex flex-col items-center gap-3 shadow-[0_4px_16px_rgba(139,111,71,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                            >
+                                <PhoneCall className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
+                                <span className="text-[10px] uppercase font-black tracking-widest text-white">Review With Designer</span>
+                            </Link>
+                        </Magnet>
                     </div>
                 </motion.div>
             </div>

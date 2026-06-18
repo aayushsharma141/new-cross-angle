@@ -19,7 +19,7 @@ import { ECOSYSTEM_COPY } from "@/addons/_shared/ecosystemCopy";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import logoIcon from "@/assets/logo-icon.png";
 import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
-
+import { SplitText, BlurText } from "@/components/ReactBits";
 const STEP_LABELS = ["Type", "Details", "Location", "Investment", "Services", "Bespoke", "Timeline"];
 
 const STEP_DESCRIPTIONS: Record<number, { title: string; subtitle: string }> = {
@@ -259,8 +259,22 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
 
                 <div className="flex-1 min-h-0">
                     <div className="text-[12px] tracking-[0.1em] uppercase text-[#8b6f47] font-bold mb-2 font-mono" aria-hidden="true">Step {currentStep + 1} of {STEP_LABELS.length}</div>
-                    <h2 className="text-[28px] sm:text-[32px] md:text-[36px] font-semibold m-0 mb-2 tracking-tight font-serif text-[#1a1a1a]">{stepInfo.title}</h2>
-                    <p className="text-[15px] sm:text-[16px] md:text-[18px] text-[#1a1a1a]/70 font-medium mb-8 sm:mb-10">{stepInfo.subtitle}</p>
+                    <div className="mb-2">
+                        <SplitText
+                            key={stepInfo.title}
+                            text={stepInfo.title}
+                            className="text-[28px] sm:text-[32px] md:text-[36px] font-semibold tracking-tight font-serif text-[#1a1a1a]"
+                            delay={30}
+                        />
+                    </div>
+                    <div className="mb-8 sm:mb-10">
+                        <BlurText
+                            key={stepInfo.subtitle}
+                            text={stepInfo.subtitle}
+                            className="text-[15px] sm:text-[16px] md:text-[18px] text-[#1a1a1a]/70 font-medium"
+                            delay={10}
+                        />
+                    </div>
                     {currentStep === 0 && (
                         <div className="mb-8 rounded-[8px] border border-[#e8e4dd] bg-white/80 p-4 text-sm text-[#5a5a5a] shadow-[0_4px_18px_rgba(0,0,0,0.03)]">
                             <span className="text-[#8b6f47] font-semibold">

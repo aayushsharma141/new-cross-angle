@@ -18,7 +18,7 @@ import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
 import EstimatorCard from "@/components/estimator/EstimatorCard";
 import { CostEstimator } from "@/addons/calculators/components/CostEstimator";
 import { EstimatorBackground } from "@/addons/_shared/components/backgrounds/EstimatorBackground";
-import { MagicRings } from "@/components/ReactBits";
+import { MagicRings, SoftAurora, FallingText, Magnet } from "@/components/ReactBits";
 import { loadDiscoveryResult } from "@/addons/discovery/core/persistence";
 import { ECOSYSTEM_COPY, ECOSYSTEM_ROUTES } from "@/addons/_shared/ecosystemCopy";
 import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
@@ -134,6 +134,19 @@ const CostEstimatorPage = () => {
           </a>
         </div>
 
+        {/* SoftAurora Ambient Background Light Rays */}
+        <div className="absolute inset-0 z-0 overflow-hidden w-full h-full pointer-events-none opacity-[0.35]">
+          <SoftAurora
+            speed={0.45}
+            brightness={1.0}
+            color1="#c4a882" // gold
+            color2="#5a705e" // sage
+            color3="#faf8f5" // cream
+            enableMouseInteraction={true}
+            mouseInfluence={0.15}
+          />
+        </div>
+
         {/* Magic Rings Luxury Background */}
         <div className="absolute inset-0 z-0 overflow-hidden w-full h-full pointer-events-none opacity-45">
           <MagicRings
@@ -193,9 +206,11 @@ const CostEstimatorPage = () => {
                   Interior Personalization Ecosystem
                 </h2>
 
-                <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-serif italic leading-[1.05] mb-5 text-[#1a1a1a] tracking-tight">
-                  Estimate with your<br />
-                  <span className="text-[#233526]">Discovery Blueprint.</span>
+                <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-serif italic leading-[1.05] mb-5 text-[#1a1a1a] tracking-tight flex flex-col items-center">
+                  <FallingText text="Estimate with your" className="justify-center" delay={20} />
+                  <span className="text-[#233526] mt-2">
+                    <FallingText text="Discovery Blueprint." className="justify-center text-[#233526]" delay={20} />
+                  </span>
                 </h1>
 
                 <p className="text-lg md:text-xl text-[#5a5a5a] font-light max-w-2xl mb-8 leading-relaxed">
@@ -216,33 +231,39 @@ const CostEstimatorPage = () => {
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
                   {hasBlueprint ? (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedPath("personalized")}
-                      className="group w-full sm:w-auto px-10 py-4 md:px-14 md:py-5 bg-gradient-to-r from-[#233526] to-[#2c3d2f] text-white text-xs md:text-sm font-semibold tracking-[0.2em] uppercase rounded-full hover:shadow-[0_12px_30px_rgba(35,53,38,0.25)] hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#8b6f47]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-                      {ECOSYSTEM_COPY.ctas.startPersonalizedEstimator}
-                      <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
-                    </button>
+                    <Magnet range={60} className="w-full sm:w-auto">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPath("personalized")}
+                        className="group w-full sm:w-auto px-10 py-4 md:px-14 md:py-5 bg-gradient-to-r from-[#233526] to-[#2c3d2f] text-white text-xs md:text-sm font-semibold tracking-[0.2em] uppercase rounded-full hover:shadow-[0_12px_30px_rgba(35,53,38,0.25)] hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#8b6f47]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                        {ECOSYSTEM_COPY.ctas.startPersonalizedEstimator}
+                        <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
+                      </button>
+                    </Magnet>
                   ) : (
-                    <Link
-                      to={ECOSYSTEM_ROUTES.discovery}
-                      className="group w-full sm:w-auto px-10 py-4 md:px-14 md:py-5 bg-gradient-to-r from-[#233526] to-[#2c3d2f] text-white text-xs md:text-sm font-semibold tracking-[0.2em] uppercase rounded-full hover:shadow-[0_12px_30px_rgba(35,53,38,0.25)] hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#8b6f47]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-                      {ECOSYSTEM_COPY.ctas.startDiscovery}
-                      <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
-                    </Link>
+                    <Magnet range={60} className="w-full sm:w-auto">
+                      <Link
+                        to={ECOSYSTEM_ROUTES.discovery}
+                        className="group w-full sm:w-auto px-10 py-4 md:px-14 md:py-5 bg-gradient-to-r from-[#233526] to-[#2c3d2f] text-white text-xs md:text-sm font-semibold tracking-[0.2em] uppercase rounded-full hover:shadow-[0_12px_30px_rgba(35,53,38,0.25)] hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#8b6f47]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                        {ECOSYSTEM_COPY.ctas.startDiscovery}
+                        <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
+                      </Link>
+                    </Magnet>
                   )}
                   
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPath("direct")}
-                    className="group w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 border border-[#1a1a1a]/20 bg-white/95 backdrop-blur-md text-[#1a1a1a] text-xs md:text-sm font-bold tracking-[0.15em] uppercase rounded-full hover:border-[#1a1a1a]/60 hover:bg-white hover:shadow-xl hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-2"
-                  >
-                    {hasBlueprint ? "Adjust Scope Manually" : ECOSYSTEM_COPY.ctas.startEstimator}
-                  </button>
+                  <Magnet range={50} className="w-full sm:w-auto">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPath("direct")}
+                      className="group w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 border border-[#1a1a1a]/20 bg-white/95 backdrop-blur-md text-[#1a1a1a] text-xs md:text-sm font-bold tracking-[0.15em] uppercase rounded-full hover:border-[#1a1a1a]/60 hover:bg-white hover:shadow-xl hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      {hasBlueprint ? "Adjust Scope Manually" : ECOSYSTEM_COPY.ctas.startEstimator}
+                    </button>
+                  </Magnet>
                 </div>
               </section>
 

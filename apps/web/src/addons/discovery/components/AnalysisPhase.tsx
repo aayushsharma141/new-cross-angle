@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { UserSignals, AIAestheticResult, Archetype } from "@/types/discovery";
+import { DecryptedText, GradualBlur, Squares } from "@/components/ReactBits";
 
 interface Props {
   userSignals: UserSignals;
@@ -92,7 +93,10 @@ const AnalysisPhase = ({ userSignals, fallbackArchetype, onComplete }: Props) =>
       exit={{ opacity: 0 }}
       className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden bg-transparent"
     >
-      <div className="max-w-2xl w-full flex flex-col items-center justify-center p-8">
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
+        <Squares speed={0.2} squareSize={40} strokeColor="26, 26, 26" opacity={0.1} />
+      </div>
+      <div className="max-w-2xl w-full flex flex-col items-center justify-center p-8 relative z-10">
         
         {/* Clean, Elegant Progress Ring */}
         <div className="relative w-24 h-24 mb-12">
@@ -132,23 +136,29 @@ const AnalysisPhase = ({ userSignals, fallbackArchetype, onComplete }: Props) =>
         {/* Minimalist Phase Text */}
         <div className="h-16 flex items-center justify-center">
           <AnimatePresence mode="wait">
-            <motion.p
+            <motion.div
               key={phase}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="text-[#1a1a1a] font-serif italic text-2xl md:text-3xl text-center"
+              className="text-center"
             >
-              {phases[phase]}
-            </motion.p>
+              <DecryptedText
+                text={phases[phase]}
+                speed={25}
+                className="text-[#1a1a1a] font-serif italic text-2xl md:text-3xl"
+              />
+            </motion.div>
           </AnimatePresence>
         </div>
         
         {/* Subtitle */}
-        <p className="mt-6 text-[10px] uppercase tracking-[0.2em] text-[#8c8c8c]">
-          Curating your spatial identity
-        </p>
+        <GradualBlur
+          text="Curating your spatial identity"
+          className="mt-6 text-[10px] uppercase tracking-[0.2em] text-[#8c8c8c] justify-center"
+          delay={40}
+        />
 
         {/* Elegant Linear Progress Bar */}
         <div className="w-48 h-[2px] bg-[#e8e4dd] mt-16 rounded-full overflow-hidden">

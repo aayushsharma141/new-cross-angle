@@ -15,6 +15,7 @@ interface TiltedCardProps {
     showTooltip?: boolean;
     overlayContent?: React.ReactNode;
     displayOverlayContent?: boolean;
+    onClick?: React.MouseEventHandler<HTMLElement>;
 }
 
 const springValues: SpringOptions = {
@@ -36,7 +37,8 @@ export default function TiltedCard({
     showMobileWarning = true,
     showTooltip = true,
     overlayContent = null,
-    displayOverlayContent = false
+    displayOverlayContent = false,
+    onClick
 }: TiltedCardProps) {
     const ref = useRef<HTMLElement>(null);
     const x = useMotionValue(0);
@@ -90,7 +92,7 @@ export default function TiltedCard({
     return (
         <figure
             ref={ref}
-            className="relative w-full h-full [perspective:800px] flex flex-col items-center justify-center"
+            className={`relative w-full h-full [perspective:800px] flex flex-col items-center justify-center ${onClick ? 'cursor-pointer' : ''}`}
             style={{
                 height: containerHeight,
                 width: containerWidth
@@ -98,6 +100,7 @@ export default function TiltedCard({
             onMouseMove={handleMouse}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            onClick={onClick}
         >
             {showMobileWarning && (
                 <div className="absolute top-4 text-center text-sm block sm:hidden">

@@ -2,6 +2,7 @@ export const ECOSYSTEM_ROUTES = {
   discovery: "/aesthetic-discovery-engine",
   estimator: "/estimate",
   contact: "/contact-us",
+  blueprint: "/system-blueprint",
 } as const;
 
 export const ECOSYSTEM_COPY = {

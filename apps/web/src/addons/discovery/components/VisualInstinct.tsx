@@ -5,7 +5,7 @@ import { VISUAL_WEIGHTS } from "../core/weights";
 import { AestheticScores, UserSignals } from "@/types/discovery";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
 import { track } from "@/analytics/track";
-import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
+import { TiltedCard } from "@/components/ReactBits";
 
 interface Props {
   sessionId: string | null;
@@ -45,6 +45,15 @@ const VisualInstinct = ({ sessionId, signals, onComplete }: Props) => {
   const markLoaded = (id: number) => {
     setLoaded((prev) => new Set([...prev, id]));
   };
+  
+  // Auto-mark as loaded to skip skeleton if we don't use MediaSlot's onLoad
+  useState(() => {
+    visualImages.forEach(img => {
+      const image = new Image();
+      image.src = img.url;
+      image.onload = () => markLoaded(img.id);
+    });
+  });
 
   const confirm = () => {
     const scores: Partial<AestheticScores> = {};
@@ -139,7 +148,6 @@ const VisualInstinct = ({ sessionId, signals, onComplete }: Props) => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: idx * 0.025 }}
-                whileHover={!isMaxed ? { scale: 1.02 } : {}}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => toggle(img.id)}
                 aria-pressed={isSelected ? "true" : "false"}
@@ -159,17 +167,20 @@ const VisualInstinct = ({ sessionId, signals, onComplete }: Props) => {
                   <div className="absolute inset-0 bg-[#1a1a1a]/[0.04] animate-pulse" />
                 )}
 
-                <MediaSlot
-                  assetKey={img.assetKey || `discovery_visual-${img.id}`}
-                  fallbackUrl={img.url}
-                  alt=""
-                  className={`
-                    absolute inset-0 transition-all duration-700
-                    ${isLoaded ? "opacity-100" : "opacity-0"}
-                    ${isSelected ? "scale-[1.04]" : "scale-100"}
-                  `}
-                  onLoad={() => markLoaded(img.id)}
-                />
+                <div className="absolute inset-0">
+                  <TiltedCard
+                    imageSrc={img.url}
+                    altText={`Visual option ${idx + 1}`}
+                    containerHeight="100%"
+                    containerWidth="100%"
+                    imageHeight="100%"
+                    imageWidth="100%"
+                    scaleOnHover={isMaxed ? 1 : 1.04}
+                    rotateAmplitude={isMaxed ? 0 : 12}
+                    showMobileWarning={false}
+                    showTooltip={false}
+                  />
+                </div>
 
                 {/* Subtle gold tint on selected */}
                 {isSelected && (

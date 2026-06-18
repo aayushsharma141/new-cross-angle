@@ -4,9 +4,11 @@ interface SquaresProps {
   speed?: number;
   opacity?: number;
   className?: string;
+  strokeColor?: string;
+  squareSize?: number;
 }
 
-const Squares = ({ speed = 0.05, opacity = 0.1, className = "" }: SquaresProps) => {
+const Squares = ({ speed = 0.05, opacity = 0.1, className = "", strokeColor = "255, 255, 255", squareSize = 40 }: SquaresProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -18,7 +20,6 @@ const Squares = ({ speed = 0.05, opacity = 0.1, className = "" }: SquaresProps) 
 
     let animationId: number;
     let offset = 0;
-    const squareSize = 40;
 
     const resize = () => {
       canvas.width = canvas.offsetWidth;
@@ -29,7 +30,7 @@ const Squares = ({ speed = 0.05, opacity = 0.1, className = "" }: SquaresProps) 
       if (!ctx || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+      ctx.strokeStyle = `rgba(${strokeColor}, ${opacity})`;
       ctx.lineWidth = 0.5;
 
       const cols = Math.ceil(canvas.width / squareSize) + 2;
@@ -60,7 +61,7 @@ const Squares = ({ speed = 0.05, opacity = 0.1, className = "" }: SquaresProps) 
       window.removeEventListener("resize", resize);
       cancelAnimationFrame(animationId);
     };
-  }, [speed, opacity]);
+  }, [speed, opacity, strokeColor, squareSize]);
 
   return (
     <canvas

@@ -10,6 +10,10 @@ import ServicesWhyUs from "@/components/services/ServicesWhyUs";
 import ServicesCTA from "@/components/services/ServicesCTA";
 import ServicesEngines from "@/components/services/ServicesEngines";
 import ProcessTeaser from "@/components/services/ProcessTeaser";
+import ServiceArchetypes from "@/components/services/ServiceArchetypes";
+import ServicesDeliverables from "@/components/services/ServicesDeliverables";
+import ServicesInvestmentTiers from "@/components/services/ServicesInvestmentTiers";
+import ServicesTransformations from "@/components/services/ServicesTransformations";
 import { Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed, LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -86,6 +90,7 @@ const ServicesPage = () => {
 
         <ServicesHero />
         <ServicesMarquee />
+        <ServiceArchetypes />
 
         {/* RESIDENTIAL */}
         <section id="residential" className="relative overflow-hidden py-24 lg:py-40 px-6">
@@ -289,6 +294,10 @@ const ServicesPage = () => {
             )}
           </div>
         </section>
+
+        <ServicesDeliverables />
+        <ServicesTransformations />
+        <ServicesInvestmentTiers />
 
         <ServicesEngines />
         <ServicesWhyUs />

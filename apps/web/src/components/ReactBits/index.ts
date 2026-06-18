@@ -9,4 +9,12 @@ export { default as SpotlightCard } from "./SpotlightCard";
 export { default as TiltedCard } from "./TiltedCard";
 export { default as SplitText } from "./SplitText";
 export { default as MagicRings } from "./MagicRings";
-
+export { default as SoftAurora } from "./SoftAurora";
+export { default as LiquidEther } from "./LiquidEther";
+export { default as AnimatedContent } from "./AnimatedContent";
+export { default as FadeContent } from "./FadeContent";
+export { default as GradualBlur } from "./GradualBlur";
+export { default as DecryptedText } from "./DecryptedText";
+export { default as FallingText } from "./FallingText";
+export { default as Magnet } from "./Magnet";
+export { default as StarBorder } from "./StarBorder";

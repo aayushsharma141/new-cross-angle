@@ -4,20 +4,35 @@ import { cn } from "@/lib/utils";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import logoIcon from "@/assets/logo-icon.png";
 
-const SIDEBAR_STAGES: { stage: Stage; label: string; eyebrow: string }[] = [
-    { stage: Stage.PropertyReality, label: "Reality", eyebrow: "01" },
-    { stage: Stage.Lifestyle, label: "Rituals", eyebrow: "02" },
-    { stage: Stage.RoomPriority, label: "Space", eyebrow: "03" },
-    { stage: Stage.VisualInstinct, label: "Instinct", eyebrow: "04" },
-    { stage: Stage.AdjectiveSelection, label: "Language", eyebrow: "05" },
-    { stage: Stage.PivotQuestion, label: "What Matters", eyebrow: "06" },
-    { stage: Stage.MaterialResonance, label: "Touch", eyebrow: "07" },
-    { stage: Stage.LightCalibration, label: "Atmosphere", eyebrow: "08" },
-    { stage: Stage.BudgetAlignment, label: "Investment", eyebrow: "09" },
-    { stage: Stage.Analysis, label: "Analysis", eyebrow: "10" },
-    { stage: Stage.MiniResult, label: "Preview", eyebrow: "11" },
+const PHASES = [
+    {
+        id: "foundation",
+        label: "Foundation",
+        eyebrow: "01",
+        stages: [Stage.PropertyReality, Stage.Lifestyle, Stage.RoomPriority],
+    },
+    {
+        id: "vision",
+        label: "Vision",
+        eyebrow: "02",
+        stages: [Stage.VisualInstinct, Stage.ReinterpretationGate, Stage.AdjectiveSelection],
+    },
+    {
+        id: "senses",
+        label: "Sensory & Priorities",
+        eyebrow: "03",
+        stages: [Stage.PivotQuestion, Stage.MaterialResonance, Stage.LightCalibration],
+    },
+    {
+        id: "alignment",
+        label: "Alignment",
+        eyebrow: "04",
+        stages: [Stage.BudgetAlignment, Stage.Analysis, Stage.MiniResult],
+    }
 ];
 
+// Flat list of tracked stages for progress calculation
+const TRACKED_STAGES = PHASES.flatMap(p => p.stages);
 interface DiscoveryProgressSidebarProps {
     currentStage: Stage;
     archetype?: string;
@@ -32,9 +47,12 @@ interface DiscoveryProgressSidebarProps {
 }
 
 const getProgress = (currentStage: Stage): number => {
-    const idx = SIDEBAR_STAGES.findIndex((s) => s.stage === currentStage);
-    if (idx < 0) return 0;
-    return Math.round(((idx) / SIDEBAR_STAGES.length) * 100);
+    const idx = TRACKED_STAGES.findIndex((s) => s === currentStage);
+    if (idx < 0) {
+        if (currentStage > Stage.MiniResult) return 100;
+        return 0;
+    }
+    return Math.round(((idx) / TRACKED_STAGES.length) * 100);
 };
 
 export const DiscoveryProgressSidebar = ({
@@ -77,7 +95,7 @@ export const DiscoveryProgressSidebar = ({
                 </div>
             </div>
 
-            <nav aria-label="Quiz steps">
+            <nav aria-label="Quiz phases">
             <div className="relative">
                 {/* Base vertical line */}
                 <div className="absolute left-[10px] top-[21px] bottom-[21px] w-[2px] bg-[#e8e4dd] -z-10" aria-hidden="true" />
@@ -87,51 +105,88 @@ export const DiscoveryProgressSidebar = ({
                     initial={{ scaleY: 0 }}
                     animate={{ 
                         scaleY: (() => {
-                            const idx = SIDEBAR_STAGES.findIndex((s) => s.stage === currentStage);
-                            return idx >= 0 ? idx / (SIDEBAR_STAGES.length - 1) : 0;
+                            const phaseIdx = PHASES.findIndex(p => p.stages.includes(currentStage));
+                            if (phaseIdx < 0 && currentStage > Stage.MiniResult) return 1;
+                            if (phaseIdx < 0) return 0;
+                            return phaseIdx / (PHASES.length - 1);
                         })()
                     }}
                     style={{ bottom: "21px" }}
                     transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                     aria-hidden="true"
                 />
-                <ol className="space-y-1 relative z-10 m-0 p-0 list-none flex-1">
-                {SIDEBAR_STAGES.map(({ stage, label, eyebrow }) => {
-                    const isActive = currentStage === stage;
-                    const isCompleted = currentStage > stage;
-                    const isClickable = isCompleted && !!onNavigate;
+                <ol className="space-y-4 relative z-10 m-0 p-0 list-none flex-1">
+                {PHASES.map(({ id, label, eyebrow, stages }, phaseIndex) => {
+                    const isActive = stages.includes(currentStage);
+                    const isCompleted = currentStage > Math.max(...stages);
+                    // We only allow navigation back to the START of a phase for simplicity, or we can just disable jumping.
+                    // For now, let's navigate to the first stage of the phase if clickable.
+                    const firstStage = stages[0];
+                    const isClickable = (isCompleted || isActive) && !!onNavigate;
 
                     return (
                         <li 
-                            key={stage}
+                            key={id}
                             {...(isClickable ? { role: "button" } : {})}
                             tabIndex={isClickable ? 0 : undefined}
                             aria-current={isActive ? "step" : undefined}
-                            aria-label={`Step ${parseInt(eyebrow, 10)}: ${label}${isCompleted ? " (completed)" : isActive ? " (current)" : ""}`}
-                            onClick={() => isClickable && onNavigate(stage)}
+                            aria-label={`Phase ${parseInt(eyebrow, 10)}: ${label}${isCompleted ? " (completed)" : isActive ? " (current)" : ""}`}
+                            onClick={() => isClickable && onNavigate(firstStage)}
                             onKeyDown={(e) => {
                                 if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
                                     e.preventDefault();
-                                    onNavigate(stage);
+                                    onNavigate(firstStage);
                                 }
                             }}
                             className={cn(
-                                "flex items-center gap-3 py-2.5 text-[14px] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2 rounded-md px-2 -mx-2",
-                                isActive ? "text-[#1a1a1a] font-semibold" : isCompleted ? "text-[#8b6f47]" : "text-[#5a5a5a]/40",
-                                isClickable ? "cursor-pointer hover:text-[#8b6f47] hover:bg-[#8b6f47]/[0.04]" : "cursor-default"
+                                "flex flex-col gap-2 py-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2 rounded-md px-2 -mx-2",
+                                isClickable ? "cursor-pointer group" : "cursor-default"
                             )}
                         >
-                            <div className={cn(
-                                "w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center text-[11px] font-semibold shrink-0 transition-all duration-300 bg-white",
-                                isActive 
-                                    ? "border-[#8b6f47] bg-[#8b6f47] text-white shadow-[0_0_8px_rgba(209,175,110,0.4)]" 
-                                    : isCompleted 
-                                        ? "border-[#8b6f47] text-[#8b6f47]" 
-                                        : "border-[#e8e4dd] text-[#5a5a5a]/40"
-                            )} aria-hidden="true">
-                                {isCompleted ? "✓" : parseInt(eyebrow, 10)}
+                            <div className="flex items-center gap-3">
+                                <div className={cn(
+                                    "w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center text-[11px] font-semibold shrink-0 transition-all duration-300 bg-white",
+                                    isActive 
+                                        ? "border-[#8b6f47] bg-[#8b6f47] text-white shadow-[0_0_8px_rgba(209,175,110,0.4)]" 
+                                        : isCompleted 
+                                            ? "border-[#8b6f47] text-[#8b6f47]" 
+                                            : "border-[#e8e4dd] text-[#5a5a5a]/40",
+                                    isClickable && !isActive && "group-hover:border-[#8b6f47] group-hover:text-[#8b6f47]"
+                                )} aria-hidden="true">
+                                    {isCompleted ? "✓" : parseInt(eyebrow, 10)}
+                                </div>
+                                <span className={cn(
+                                    "text-[14px] transition-colors",
+                                    isActive ? "text-[#1a1a1a] font-semibold" : isCompleted ? "text-[#8b6f47]" : "text-[#5a5a5a]/40",
+                                    isClickable && !isActive && "group-hover:text-[#8b6f47]"
+                                )}>{label}</span>
                             </div>
-                            <span>{label}</span>
+
+                            {/* Optional: sub-steps indicator when active */}
+                            <AnimatePresence>
+                                {isActive && (
+                                    <motion.div 
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="pl-[34px] flex gap-1 overflow-hidden"
+                                    >
+                                        {stages.map((stage) => {
+                                            const isSubCompleted = currentStage > stage;
+                                            const isSubActive = currentStage === stage;
+                                            return (
+                                                <div 
+                                                    key={stage}
+                                                    className={cn(
+                                                        "h-1 rounded-full flex-1 transition-colors duration-300",
+                                                        isSubActive || isSubCompleted ? "bg-[#8b6f47]" : "bg-[#e8e4dd]"
+                                                    )}
+                                                />
+                                            );
+                                        })}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </li>
                     );
                 })}

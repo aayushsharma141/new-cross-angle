@@ -22,38 +22,7 @@ import { visualImages } from '@/constants/discovery';
 import { trackResultLoaded } from '../infrastructure/analytics/tracker';
 import { MediaSlot } from '@/components/ui/enhanced/MediaSlot';
 import { useAnalytics } from '@/analytics/AnalyticsProvider';
-
-const StaggeredText: React.FC<{ text: string; className?: string }> = ({ text, className }) => {
-  const charArray = text.split("");
-  return (
-    <motion.span
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      variants={{
-        hidden: { opacity: 0 },
-        visible: {
-          opacity: 1,
-          transition: { staggerChildren: 0.05, delayChildren: 0.5 },
-        },
-      }}
-      className={className}
-    >
-      {charArray.map((char, i) => (
-        <motion.span
-          key={i}
-          variants={{
-            hidden: { opacity: 0, y: 30, filter: 'blur(8px)' },
-            visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } },
-          }}
-          style={{ display: 'inline-block', whiteSpace: 'pre' }}
-        >
-          {char}
-        </motion.span>
-      ))}
-    </motion.span>
-  );
-};
+import { SplitText, FallingText, FadeContent, BlurText, ScrollVelocity } from '@/components/ReactBits';
 
 interface Props {
   scores: AestheticScores;
@@ -554,44 +523,29 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
           </motion.div>
 
           {/* Archetype Name */}
-          <h1 className="text-5xl md:text-7xl lg:text-[7rem] font-light italic mb-8 leading-[0.95] text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 w-full" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-            <StaggeredText text={displayName} />
+          <h1 className="text-5xl md:text-7xl lg:text-[7rem] font-light italic mb-8 leading-[0.95] text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 w-full flex justify-center" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <FallingText text={displayName} className="inline-flex justify-center w-full justify-center" delay={20} />
           </h1>
 
           {/* Tagline */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, delay: 1.5, ease: "easeOut" }}
-          >
-            <p className="text-lg md:text-2xl text-white/50 font-light leading-relaxed max-w-2xl mx-auto mb-12 tracking-wide">
-              "{displayTagline}"
-            </p>
-          </motion.div>
+          <BlurText
+            text={`"${displayTagline}"`}
+            delay={25}
+            className="text-lg md:text-2xl text-white/50 font-light leading-relaxed max-w-2xl mx-auto mb-12 tracking-wide justify-center"
+            animateBy="words"
+            direction="bottom"
+          />
 
-          {/* Traits */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, delay: 1.8 }}
-            className="flex flex-wrap justify-center gap-3 mb-16"
-          >
-            {displayTraits.slice(0, 5).map((trait, i) => (
-              <motion.span
-                key={trait}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 2 + i * 0.1 }}
-                className="px-4 py-1.5 text-[10px] tracking-[0.2em] uppercase font-medium border rounded-full backdrop-blur-sm"
-                style={{ borderColor: `${GOLD}20`, color: '#F0EDE8', background: 'rgba(255,255,255,0.03)' }}
-              >
-                {trait}
-              </motion.span>
-            ))}
-          </motion.div>
+          {/* Traits Ticker */}
+          <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mb-16 overflow-hidden">
+            <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-site-bg to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-site-bg to-transparent z-10 pointer-events-none" />
+            <ScrollVelocity
+              texts={[`${displayTraits.join('  ✦  ')}  ✦  `]}
+              velocity={20}
+              scrollerClassName="text-sm tracking-[0.2em] uppercase font-mono text-[#F0EDE8]/60"
+            />
+          </div>
 
           {/* Free Text Reflection Hook (if provided) */}
           <AnimatePresence>
@@ -725,9 +679,12 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
               Your Spatial<br />
               <em>Signature</em>
             </h2>
-            <p className="text-white/40 leading-relaxed text-sm mb-8">
-              {displayNarrative}
-            </p>
+            <BlurText
+              text={displayNarrative}
+              delay={15}
+              animateBy="words"
+              className="text-white/40 leading-relaxed text-sm mb-8"
+            />
 
             {/* Score Bars */}
             <div className="space-y-4">
@@ -959,10 +916,10 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
               Book Final Design Review
             </motion.a>
             <a
-              href="/portfolio"
+              href="/system-blueprint"
               className="px-12 py-5 border border-white/10 text-white/60 text-xs font-semibold tracking-[0.3em] uppercase rounded-sm hover:border-white/30 hover:text-white transition-all"
             >
-              View Past Masterpieces
+              Explore System Blueprint
             </a>
           </div>
 

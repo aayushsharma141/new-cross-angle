@@ -34,6 +34,12 @@ import {
   Zap,
   CheckCircle
 } from 'lucide-react';
+import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+import Squares from '@/components/ReactBits/Squares';
+import FadeContent from '@/components/ReactBits/FadeContent';
+import FallingText from '@/components/ReactBits/FallingText';
+import SplitText from '@/components/ReactBits/SplitText';
+import Magnet from '@/components/ReactBits/Magnet';
 
 export default function BlueprintPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -68,16 +74,11 @@ export default function BlueprintPage() {
     window.scrollTo(0, 0);
   }, [activeTab]);
 
-  // Scroll progress bar
-  useEffect(() => {
-    const onScroll = () => {
-      const el = document.documentElement;
-      const progress = el.scrollTop / (el.scrollHeight - el.clientHeight);
-      setScrollProgress(isNaN(progress) ? 0 : progress * 100);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  // Scroll progress bar via Framer Motion
+  const { scrollYProgress } = useScroll();
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    setScrollProgress(latest * 100);
+  });
 
   // Cmd/Ctrl+K focuses search bar in docs tab
   useEffect(() => {
@@ -135,88 +136,7 @@ export default function BlueprintPage() {
 
     window.addEventListener('navigate-doc', handleDocNavigation);
 
-    // Ensure DOM is ready, then run scripts for cursors & particles
-    const timer = setTimeout(() => {
-      try {
-        // ── CURSOR ────────────────────────────────────────────
-        const cursor = document.getElementById('cursor') as HTMLElement;
-        const ring = document.getElementById('cursor-ring') as HTMLElement;
-        let mx = 0, my = 0, rx = 0, ry = 0;
-
-        document.addEventListener('mousemove', e => {
-          mx = e.clientX; my = e.clientY;
-          if (cursor) {
-            cursor.style.left = mx + 'px';
-            cursor.style.top = my + 'px';
-          }
-        });
-
-        function animRing() {
-          rx += (mx - rx) * 0.12;
-          ry += (my - ry) * 0.12;
-          if (ring) {
-            ring.style.left = rx + 'px';
-            ring.style.top = ry + 'px';
-          }
-          requestAnimationFrame(animRing);
-        }
-        animRing();
-
-        // ── REVEAL ON SCROLL ──────────────────────────────────
-        const reveals = document.querySelectorAll('.reveal');
-        const obs = new IntersectionObserver(entries => {
-          entries.forEach(e => {
-            if (e.isIntersecting) e.target.classList.add('visible');
-          });
-        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-        reveals.forEach(r => obs.observe(r));
-
-        // ── PARTICLES ─────────────────────────────────────────
-        const pc = document.getElementById('particles');
-        if (pc) {
-          pc.innerHTML = '';
-          for (let i = 0; i < 20; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            const x = Math.random() * 100;
-            const dur = 6 + Math.random() * 12;
-            const delay = Math.random() * 8;
-            const drift = (Math.random() - 0.5) * 80;
-            p.style.cssText = `left:${x}%;bottom:${Math.random() * 20}%;width:${1 + Math.random() * 2}px;height:${1 + Math.random() * 2}px;animation-duration:${dur}s;animation-delay:${delay}s;--drift:${drift}px`;
-            pc.appendChild(p);
-          }
-        }
-
-        // Add interactive hover scaling for custom cursor
-        document.querySelectorAll('a, button, .pillar, .bento, .stack-cell, .comp-preview, .doc-row, .folder-header')
-          .forEach(el => {
-            el.addEventListener('mouseenter', () => {
-              if (cursor && ring) {
-                cursor.style.width = '6px';
-                cursor.style.height = '6px';
-                ring.style.width = '56px';
-                ring.style.height = '56px';
-                ring.style.borderColor = 'rgba(196, 18, 48, 0.8)';
-              }
-            });
-            el.addEventListener('mouseleave', () => {
-              if (cursor && ring) {
-                cursor.style.width = '10px';
-                cursor.style.height = '10px';
-                ring.style.width = '36px';
-                ring.style.height = '36px';
-                ring.style.borderColor = 'rgba(196, 18, 48, 0.4)';
-              }
-            });
-          });
-
-      } catch (e) {
-        console.error("Error executing blueprint scripts", e);
-      }
-    }, 200);
-
     return () => {
-      clearTimeout(timer);
       window.removeEventListener('navigate-doc', handleDocNavigation);
     };
   }, [activeTab]);
@@ -274,9 +194,6 @@ export default function BlueprintPage() {
 
   return (
     <div className="blueprint-page-wrapper bg-[#040404] text-[#E0E0E0] min-h-screen" ref={containerRef}>
-      {/*  CURSOR  */}
-      <div id="cursor"></div>
-      <div id="cursor-ring"></div>
       {/* Live scroll progress bar — replaces the JS-driven #progress div */}
       <div
         style={{ position: 'fixed', top: 0, left: 0, height: 2, width: `${scrollProgress}%`, background: 'linear-gradient(90deg,#C41230,#D1AF6E)', zIndex: 9997, transition: 'width 0.1s linear', boxShadow: '0 0 12px #C41230' }}
@@ -289,27 +206,33 @@ export default function BlueprintPage() {
           <div className="logo-text">CrossAngle <span style={{ color: '#D1AF6E' }}>Archival</span></div>
         </div>
         <nav className="flex items-center gap-6">
-          <button 
-            type="button"
-            onClick={() => { setActiveTab('blueprint'); setSelectedDocId(null); }}
-            className={`text-xs tracking-widest uppercase py-2 border-b-2 transition-all cursor-pointer font-mono ${activeTab === 'blueprint' ? 'text-white border-[#C41230]' : 'text-neutral-500 border-transparent hover:text-neutral-200'}`}
-          >
-            System Blueprint
-          </button>
-          <button 
-            type="button"
-            onClick={() => setActiveTab('docs')}
-            className={`text-xs tracking-widest uppercase py-2 border-b-2 transition-all cursor-pointer font-mono ${activeTab === 'docs' ? 'text-white border-[#C41230]' : 'text-neutral-500 border-transparent hover:text-neutral-200'}`}
-          >
-            Documentation Workspace
-          </button>
-          <button 
-            type="button"
-            onClick={() => { setActiveTab('proposal'); setSelectedDocId(null); }}
-            className={`text-xs tracking-widest uppercase py-2 border-b-2 transition-all cursor-pointer font-mono ${activeTab === 'proposal' ? 'text-white border-[#C41230]' : 'text-neutral-500 border-transparent hover:text-neutral-200'}`}
-          >
-            Design Proposal
-          </button>
+          <Magnet>
+            <button 
+              type="button"
+              onClick={() => { setActiveTab('blueprint'); setSelectedDocId(null); }}
+              className={`text-xs tracking-widest uppercase py-2 border-b-2 transition-all cursor-pointer font-mono ${activeTab === 'blueprint' ? 'text-white border-[#C41230]' : 'text-neutral-500 border-transparent hover:text-neutral-200'}`}
+            >
+              System Blueprint
+            </button>
+          </Magnet>
+          <Magnet>
+            <button 
+              type="button"
+              onClick={() => setActiveTab('docs')}
+              className={`text-xs tracking-widest uppercase py-2 border-b-2 transition-all cursor-pointer font-mono ${activeTab === 'docs' ? 'text-white border-[#C41230]' : 'text-neutral-500 border-transparent hover:text-neutral-200'}`}
+            >
+              Documentation Workspace
+            </button>
+          </Magnet>
+          <Magnet>
+            <button 
+              type="button"
+              onClick={() => { setActiveTab('proposal'); setSelectedDocId(null); }}
+              className={`text-xs tracking-widest uppercase py-2 border-b-2 transition-all cursor-pointer font-mono ${activeTab === 'proposal' ? 'text-white border-[#C41230]' : 'text-neutral-500 border-transparent hover:text-neutral-200'}`}
+            >
+              Design Proposal
+            </button>
+          </Magnet>
           <Link to="/" className="text-xs tracking-widest uppercase text-neutral-400 hover:text-white transition-colors font-mono">Back to Site</Link>
         </nav>
       </header>
@@ -317,16 +240,16 @@ export default function BlueprintPage() {
       {activeTab === 'blueprint' ? (
         <>
           {/*  ═══════════ COVER ═══════════  */}
-          <section id="cover" className="relative border-b border-neutral-900">
-            <div className="particles" id="particles"></div>
-            <div className="cover-inner">
+          <section id="cover" className="relative border-b border-neutral-900 overflow-hidden">
+            <Squares strokeColor="rgba(196, 18, 48, 0.08)" squareSize={12} className="absolute inset-0 pointer-events-none opacity-40" />
+            <div className="cover-inner relative z-10">
               <div className="cover-left">
                 <div className="doc-meta">Interactive Architecture Dashboard — 2026</div>
-                <div className="cover-subtitle">CrossAngle Luxury Design</div>
+                <div className="cover-subtitle">
+                  <SplitText text="CrossAngle Luxury Design" />
+                </div>
                 <h1 className="cover-title">
-                  System<br />
-                  <em style={{ color: '#C41230' }}>Architectures</em><br />
-                  & Specs
+                  <FallingText text="System Architectures & Specs" />
                 </h1>
                 <p className="cover-desc text-neutral-400">
                   A high-fidelity developer workspace detailing the implementation logs, 
@@ -427,17 +350,17 @@ export default function BlueprintPage() {
           <section id="journey-timeline" className="py-24 md:py-32 pt-32 md:pt-40 px-[4vw] max-w-[1600px] mx-auto border-b border-neutral-900">
             {/* Section header */}
             <div className="text-center mb-20">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C41230]/30 bg-[#C41230]/10 text-[#C41230] text-[10px] tracking-[0.2em] uppercase mb-8 font-mono shadow-[0_0_20px_rgba(196,18,48,0.15)] reveal">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C41230]/30 bg-[#C41230]/10 text-[#C41230] text-[10px] tracking-[0.2em] uppercase mb-8 font-mono shadow-[0_0_20px_rgba(196,18,48,0.15)]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#C41230] animate-pulse"></span>
                 Scratch to Live · Full Architecture
               </div>
-              <h2 className="font-serif text-5xl md:text-7xl text-white tracking-tight leading-[1.1] mb-6 reveal">
+              <h2 className="font-serif text-5xl md:text-7xl text-white tracking-tight leading-[1.1] mb-6">
                 The ₹10 Lakh<br/>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-400 to-[#C41230] italic font-light">
                   Architectural Timeline
                 </span>
               </h2>
-              <p className="text-neutral-400 text-sm md:text-base max-w-2xl mx-auto font-light leading-relaxed reveal">
+              <p className="text-neutral-400 text-sm md:text-base max-w-2xl mx-auto font-light leading-relaxed">
                 All five phases expanded — from database blueprinting to edge deployment and design system.
               </p>
             </div>
@@ -467,7 +390,7 @@ export default function BlueprintPage() {
                     </span>
                   </div>
 
-                  <h3 className="font-serif text-2xl md:text-3xl text-white mb-1">Scratch Core</h3>
+                  <FadeContent blur={true} duration={800} distance={20}><h3 className="font-serif text-2xl md:text-3xl text-white mb-1">Scratch Core</h3></FadeContent>
                   <p className="text-[11px] font-mono text-neutral-500 uppercase tracking-[0.15em] mb-3">Database Schema & Security System</p>
                   <p className="text-neutral-400 text-sm font-light leading-relaxed mb-6 max-w-2xl">
                     Data security and access controls designed from scratch. Supabase Postgres Row-Level Security (RLS) policies protect all client lead details.
@@ -537,7 +460,7 @@ export default function BlueprintPage() {
                     </span>
                   </div>
 
-                  <h3 className="font-serif text-2xl md:text-3xl text-white mb-1">Public Face Portal</h3>
+                  <FadeContent blur={true} duration={800} distance={20}><h3 className="font-serif text-2xl md:text-3xl text-white mb-1">Public Face Portal</h3></FadeContent>
                   <p className="text-[11px] font-mono text-neutral-500 uppercase tracking-[0.15em] mb-3">Luxury UI Motion Engine</p>
                   <p className="text-neutral-400 text-sm font-light leading-relaxed mb-6 max-w-2xl">
                     Framer Motion stagger-reveal layout guides the customer's eye. Spring transitions match human cognitive latency for premium micro-reveal animations.
@@ -611,7 +534,7 @@ const item = {
                     </span>
                   </div>
 
-                  <h3 className="font-serif text-2xl md:text-3xl text-white mb-1">Admin CRM System</h3>
+                  <FadeContent blur={true} duration={800} distance={20}><h3 className="font-serif text-2xl md:text-3xl text-white mb-1">Admin CRM System</h3></FadeContent>
                   <p className="text-[11px] font-mono text-neutral-500 uppercase tracking-[0.15em] mb-3">Decoupled Data Pipelines</p>
                   <p className="text-neutral-400 text-sm font-light leading-relaxed mb-6 max-w-2xl">
                     Decoupled sync architecture. When an estimate is generated on the public site, real-time WebSocket triggers instantly sync the lead card to the Admin CRM Kanban board.
@@ -678,7 +601,7 @@ const item = {
                     </span>
                   </div>
 
-                  <h3 className="font-serif text-2xl md:text-3xl text-white mb-1">Live Infrastructure</h3>
+                  <FadeContent blur={true} duration={800} distance={20}><h3 className="font-serif text-2xl md:text-3xl text-white mb-1">Live Infrastructure</h3></FadeContent>
                   <p className="text-[11px] font-mono text-neutral-500 uppercase tracking-[0.15em] mb-3">Edge Deploy & Audit Loop</p>
                   <p className="text-neutral-400 text-sm font-light leading-relaxed mb-6 max-w-2xl">
                     Code splitting, LCP asset preloading, and structured JSON-LD SEO schemas ensure instant global edge loading. Zero CLS for high Google rankings.
@@ -738,7 +661,7 @@ const item = {
                     </span>
                   </div>
 
-                  <h3 className="font-serif text-2xl md:text-3xl text-white mb-1">Design System</h3>
+                  <FadeContent blur={true} duration={800} distance={20}><h3 className="font-serif text-2xl md:text-3xl text-white mb-1">Design System</h3></FadeContent>
                   <p className="text-[11px] font-mono text-neutral-500 uppercase tracking-[0.15em] mb-3">Typography, Color Tokens & Components</p>
                   <p className="text-neutral-400 text-sm font-light leading-relaxed mb-6 max-w-2xl">
                     A cohesive design system ensures every pixel speaks the same visual language — from CSS custom properties to font scales and component tokens.
@@ -807,27 +730,28 @@ const item = {
 
           {/* ── CONCEPT ── */}
           <section id="p-concept" className="px-[5vw] py-28 md:py-36 border-b border-neutral-900">
+            <FadeContent blur={true} duration={800} distance={20}>
             <div className="max-w-[1400px] mx-auto">
-              <div className="section-eyebrow reveal">01 — Overall Concept</div>
-              <h2 className="section-title reveal reveal-delay-1">The <em>Immersive</em><br /><strong>Design Philosophy</strong></h2>
-              <p className="section-intro reveal reveal-delay-2">Transforming the current flat, image-heavy layout into a living, breathing spatial experience. Every scroll triggers a new chapter of the brand story.</p>
+              <div className="section-eyebrow">01 — Overall Concept</div>
+              <h2 className="section-title"><FallingText text="The Immersive Design Philosophy" /></h2>
+              <p className="section-intro">Transforming the current flat, image-heavy layout into a living, breathing spatial experience. Every scroll triggers a new chapter of the brand story.</p>
               <div className="concept-grid mt-16">
                 <div className="pillar-list">
                   {[
-                    { n: '01', t: 'Cinematic Scroll Narrative', d: 'The page unfolds like a cinematic reel. GSAP ScrollTrigger paired with Lenis smooth scrolling makes each section reveal with precision-timed entrance effects. Scroll scrubbing drives 3D camera movements in Three.js scenes.' },
+                    { n: '01', t: 'Cinematic Scroll Narrative', d: 'The page unfolds like a cinematic reel. GSAP ScrollTrigger paired with Lenis smooth scrolling makes each section with precision-timed entrance effects. Scroll scrubbing drives 3D camera movements in Three.js scenes.' },
                     { n: '02', t: 'Living Typography System', d: 'Kinetic typography breathes life into headlines. Service titles morph between states via MorphSVG letter animations. Cormorant Garamond anchors luxury while Syne handles structural callouts.' },
                     { n: '03', t: 'Spatial 3D Environments', d: 'A React Three Fiber scene greets users in the hero — a real-time rendered interior room built with ambient lighting and soft shadows. Spline-authored 3D furniture pieces orbit the service cards.' },
                     { n: '04', t: 'Micro-Interaction Fabric', d: 'Every surface responds. Buttons ripple with Framer Motion spring physics. Form inputs animate floating labels via Popmotion. Hover states trigger Lottie icon morphs.' },
                     { n: '05', t: 'Material & Morphism Layers', d: 'Glassmorphism overlays float above photography for service cards. Claymorphism adds tactile warmth to process steps. Bento grid layouts organize the portfolio into asymmetric compositions.' },
                   ].map(p => (
-                    <div key={p.n} className="pillar reveal">
+                    <div key={p.n} className="pillar">
                       <div className="pillar-num">{p.n}</div>
                       <div><div className="pillar-title">{p.t}</div><p className="pillar-desc">{p.d}</p></div>
                     </div>
                   ))}
                 </div>
                 <div className="concept-aside">
-                  <div className="mood-card reveal">
+                  <div className="mood-card">
                     <div className="mood-card-title">Color Palette</div>
                     <div className="palette-row">
                       {['#080808','#0F0F0F','#C41230','#D1AF6E','#BFA27A','#F0EDE8'].map(hex => (
@@ -840,7 +764,7 @@ const item = {
                       <div className="typo-sample-mono">CC — DM Mono 0123</div>
                     </div>
                   </div>
-                  <div className="mood-card reveal reveal-delay-2">
+                  <div className="mood-card">
                     <div className="mood-card-title">Target Metrics</div>
                     <div className="flex flex-col gap-2.5 mt-2">
                       {[['Bounce Rate','<35%'],['Avg. Session','4+ min'],['Inquiry Rate','+220%'],['LCP Score','<1.8s']].map(([k,v]) => (
@@ -856,15 +780,17 @@ const item = {
                 </div>
               </div>
             </div>
+            </FadeContent>
           </section>
 
           {/* ── TECH STACK ── */}
           <section id="p-techstack" className="px-[5vw] py-28 md:py-36 border-b border-neutral-900">
+            <FadeContent blur={true} duration={800} distance={20}>
             <div className="max-w-[1400px] mx-auto">
-              <div className="section-eyebrow reveal">02 — Technology Stack</div>
-              <h2 className="section-title reveal reveal-delay-1">Chosen <em>Technologies</em><br /><strong>& Rationale</strong></h2>
-              <p className="section-intro reveal reveal-delay-2">Each library selected for a specific responsibility. The stack is layered to avoid conflicts, optimize bundle size, and deliver 60fps across all devices.</p>
-              <div className="stack-grid reveal mt-16">
+              <div className="section-eyebrow">02 — Technology Stack</div>
+              <h2 className="section-title">Chosen <em>Technologies</em><br /><strong>& Rationale</strong></h2>
+              <p className="section-intro">Each library selected for a specific responsibility. The stack is layered to avoid conflicts, optimize bundle size, and deliver 60fps across all devices.</p>
+              <div className="stack-grid mt-16">
                 {[
                   ['Animation Core','GSAP + ScrollTrigger','The orchestration engine. Timeline-based sequences for all major entrance/exit animations. ScrollTrigger pins sections for immersive scroll-scrubbed scenes.','Primary Engine'],
                   ['Animation Core','Framer Motion','React component animations with spring physics. Handles layout animations, shared element transitions, and gesture-driven interactions.','React Layer'],
@@ -887,7 +813,7 @@ const item = {
               <div className="divider"></div>
               <div className="perf-row">
                 {[['90','Lighthouse Score','163','16','var(--accent)'],['60','Target FPS','163','32','var(--gold)'],['1.8','LCP (seconds)','163','41','var(--accent2)'],['95','CLS Prevention','163','8','var(--accent)']].map(([val,label,,offset,stroke]) => (
-                  <div key={label} className="perf-card reveal">
+                  <div key={label} className="perf-card">
                     <div className="perf-meter">
                       <svg width="60" height="60" viewBox="0 0 60 60">
                         <circle className="perf-bg" cx="30" cy="30" r="26" />
@@ -900,15 +826,16 @@ const item = {
                 ))}
               </div>
             </div>
+            </FadeContent>
           </section>
 
           {/* ── ANIMATIONS BENTO ── */}
           <section id="p-animations" className="px-[5vw] py-28 md:py-36 border-b border-neutral-900">
             <div className="max-w-[1400px] mx-auto">
-              <div className="section-eyebrow reveal">03 — Animation & Interactivity Catalog</div>
-              <h2 className="section-title reveal reveal-delay-1"><em>Motion</em> Design<br /><strong>Reference System</strong></h2>
-              <p className="section-intro reveal reveal-delay-2">A living catalog of every animation pattern deployed across the interface, with interactive previews and implementation notes.</p>
-              <div className="anim-bento reveal mt-16">
+              <div className="section-eyebrow">03 — Animation & Interactivity Catalog</div>
+              <h2 className="section-title"><em>Motion</em> Design<br /><strong>Reference System</strong></h2>
+              <p className="section-intro">A living catalog of every animation pattern deployed across the interface, with interactive previews and implementation notes.</p>
+              <div className="anim-bento mt-16">
                 <div className="bento b1"><div className="bento-title">Kinetic Typography</div><p className="bento-desc">Characters animate individually using GSAP SplitText. Each word becomes an independent timeline unit.</p><div className="bento-preview"><div className="kinetic-text">Design</div></div></div>
                 <div className="bento b2"><div className="bento-title">MorphSVG Liquid Blob</div><p className="bento-desc">Border-radius keyframe morphing; production uses MorphSVG path data for organic transitions.</p><div className="bento-preview"><div className="morph-blob"></div></div></div>
                 <div className="bento b3"><div className="bento-title">Liquid Ring Pulse</div><p className="bento-desc">Concentric ring pulse used as loading state and CTA emphasis. Popmotion drives amplitude.</p><div className="bento-preview"><div className="liquid-ring"></div></div></div>
@@ -916,7 +843,7 @@ const item = {
                 <div className="bento b5"><div className="bento-title">Claymorphism Process Step</div><p className="bento-desc">Tactile, puffy card for process steps. Multi-layer box-shadow creates depth. Hover triggers scale + shadow shift via Framer Motion spring.</p><div className="bento-preview"><div className="clay-card"><div className="clay-title">Step 01 — Discovery</div><div className="clay-sub">Understanding your vision and lifestyle needs</div></div></div></div>
                 <div className="bento b6"><div className="bento-title">Parallax Depth Layers</div><p className="bento-desc">Three independent layers float at different scroll velocities using GSAP ScrollTrigger scrub values of 0.5, 1, and 2.</p><div className="bento-preview"><div className="parallax-layers"><div className="layer l1"></div><div className="layer l2"></div><div className="layer l3"></div></div></div></div>
                 <div className="bento b7"><div className="bento-title">Scroll Scrub</div><p className="bento-desc">Scroll-linked progress bars and 3D camera paths timed to Lenis velocity.</p><div className="bento-preview" style={{flexDirection:'column',gap:'12px',padding:'16px',alignItems:'flex-start'}}><div className="scroll-scrub"><div className="scrub-label">Section Progress</div><div className="scrub-bar"><div className="scrub-fill"></div></div><div className="scrub-label">Camera Path</div><div className="scrub-bar"><div className="scrub-fill" style={{animationDelay:'0.5s'}}></div></div></div></div></div>
-                <div className="bento b8"><div className="bento-title">Micro-interactions</div><p className="bento-desc">Hover fill reveal on buttons. Popmotion spring physics on cursor proximity.</p><div className="bento-preview" style={{padding:'16px'}}><div className="micro-btns"><button className="micro-btn"><span>Hover Me →</span></button><button className="micro-btn"><span>Explore Space</span></button></div></div></div>
+                <div className="bento b8"><div className="bento-title">Micro-interactions</div><p className="bento-desc">Hover fill on buttons. Popmotion spring physics on cursor proximity.</p><div className="bento-preview" style={{padding:'16px'}}><div className="micro-btns"><button className="micro-btn"><span>Hover Me →</span></button><button className="micro-btn"><span>Explore Space</span></button></div></div></div>
                 <div className="bento b9"><div className="bento-title">Three.js Cube</div><p className="bento-desc">Wireframe 3D geometry. Production uses PBR furniture models with ambient occlusion.</p><div className="bento-preview"><div className="three-demo">{[...Array(6)].map((_,i)=><div key={i} className="cube-face"/>)}</div></div></div>
                 <div className="bento b10"><div className="bento-title">Spline / R3F Orb</div><p className="bento-desc">Physically-shaded orb. Cursor-reactive environment mapping via Spline.</p><div className="bento-preview" style={{background:'#050505',padding:'0',overflow:'hidden'}}><div className="spline-sim"><div className="spline-orb"></div></div></div></div>
               </div>
@@ -926,19 +853,19 @@ const item = {
           {/* ── SCROLL JOURNEY ── */}
           <section id="p-journey" className="px-[5vw] py-28 md:py-36 border-b border-neutral-900">
             <div className="max-w-[1400px] mx-auto">
-              <div className="section-eyebrow reveal">04 — Scroll Journey Map</div>
-              <h2 className="section-title reveal reveal-delay-1">Page-by-Page<br /><em>Animation</em> <strong>Choreography</strong></h2>
-              <p className="section-intro reveal reveal-delay-2">A precise breakdown of every scroll-triggered event, entrance effect, and interactive moment from top to bottom.</p>
+              <div className="section-eyebrow">04 — Scroll Journey Map</div>
+              <h2 className="section-title">Page-by-Page<br /><em>Animation</em> <strong>Choreography</strong></h2>
+              <p className="section-intro">A precise breakdown of every scroll-triggered event, entrance effect, and interactive moment from top to bottom.</p>
               <div className="journey-steps mt-16">
                 {[
-                  ['Zone 01 — 0–100vh','Hero: Spatial Entry','Page loads with a black screen. R3F scene bootstraps with fade-in. The brand tagline performs a SplitText reveal stagger. Lenis scroll begins and the hero text parallaxes at 0.4x speed.',['R3F Scene Mount','GSAP SplitText','Framer AnimatePresence','Lenis Init','Anime.js Particles']],
+                  ['Zone 01 — 0–100vh','Hero: Spatial Entry','Page loads with a black screen. R3F scene bootstraps with fade-in. The brand tagline performs a SplitText stagger. Lenis scroll begins and the hero text parallaxes at 0.4x speed.',['R3F Scene Mount','GSAP SplitText','Framer AnimatePresence','Lenis Init','Anime.js Particles']],
                   ['Zone 02 — 100–220vh','Services: Bento Cascade','ScrollTrigger fires at 80% viewport. Bento cards cascade in with staggered Y-translation. Each card\'s Spline 3D preview lazy-loads as it enters. GSAP Flip expands card to modal state.',['ScrollTrigger','Framer Stagger','GSAP Flip','Spline Lazy Load','MorphSVG Divider']],
                   ['Zone 03 — 220–380vh (Pinned)','Process: Scroll-Scrubbed Storytelling','Section pinned for 160vh. GSAP timeline scrubs progress — each step activates at 33%, 66%, and 100%. Lottie animation plays frame-by-frame synced to scroll position.',['GSAP ScrollTrigger Pin','Scroll Scrubbing','Lottie Frame Sync','SVGator Draw-On','R3F Isometric']],
                   ['Zone 04 — 380–500vh','Portfolio: 3D Gallery Walk','Project cards float in Three.js depth-parallax. Mouse movement triggers Popmotion spring perspective shifts. Card click triggers shared element transition via Framer Motion layout ID.',['Three.js Parallax','Popmotion Spring','PlayCanvas GLTF','Aceternity Tracing Beam','Framer Layout ID']],
                   ['Zone 05 — 500–560vh','Excellence Stats: Counter Emphasis','Statistics animate with GSAP countUp on ScrollTrigger enter. Framer Motion whileInView with spring easing for scale emphasis. Magic UI Shimmer on tagline.',['GSAP CountUp','Framer whileInView','Magic UI Shimmer','GSAP Stagger']],
                   ['Zone 06 — 560vh+','CTA + Footer: Liquid Close','CTA section with full-screen MorphSVG liquid blob background in crimson. Headline uses Kinetic Typography scramble. Consultation form floats with Claymorphism treatment.',['MorphSVG Background','Anime.js Scramble','Claymorphism Form','GSAP Curtain']],
                 ].map(([num,title,desc,techs]) => (
-                  <div key={num as string} className="j-step reveal">
+                  <div key={num as string} className="j-step">
                     <div className="j-step-num">{num}</div>
                     <div className="j-step-title">{title}</div>
                     <p className="j-step-desc">{desc}</p>
@@ -952,10 +879,10 @@ const item = {
           {/* ── RESPONSIVE ── */}
           <section id="p-responsive" className="px-[5vw] py-28 md:py-36 border-b border-neutral-900">
             <div className="max-w-[1400px] mx-auto">
-              <div className="section-eyebrow reveal">05 — Responsive Design</div>
-              <h2 className="section-title reveal reveal-delay-1"><strong>Adaptive</strong> Layout<br /><em>Strategy</em></h2>
-              <p className="section-intro reveal reveal-delay-2">All animation systems degrade gracefully. Mobile devices receive optimized 2D fallbacks. Reduced Motion preferences are fully respected.</p>
-              <div className="resp-devices reveal mt-16">
+              <div className="section-eyebrow">05 — Responsive Design</div>
+              <h2 className="section-title"><strong>Adaptive</strong> Layout<br /><em>Strategy</em></h2>
+              <p className="section-intro">All animation systems degrade gracefully. Mobile devices receive optimized 2D fallbacks. Reduced Motion preferences are fully respected.</p>
+              <div className="resp-devices mt-16">
                 {[
                   ['Desktop — 1440px','Full Experience','3D + All Animations','4px'],
                   ['Tablet — 768px','Adaptive','CSS 3D + Reduced GSAP','12px'],
@@ -977,7 +904,7 @@ const item = {
                 ))}
               </div>
               <div className="divider"></div>
-              <div className="stack-grid reveal" style={{gridTemplateColumns:'repeat(3,1fr)'}}>
+              <div className="stack-grid" style={{gridTemplateColumns:'repeat(3,1fr)'}}>
                 {[
                   ['prefers-reduced-motion','Motion Accessibility','All GSAP and Framer Motion animations check the OS reduce-motion media query. 3D scenes fall back to static renders.','WCAG 2.1 AA'],
                   ['GPU Detection','Tier-Based 3D','Three.js uses performance tier detection to adjust shadow quality and geometry complexity. Low-tier devices skip WebGL.','Three.js Detect'],
@@ -998,13 +925,12 @@ const item = {
           <section id="footer" style={{padding:'80px 5vw',borderTop:'1px solid var(--border)'}}>
             <div className="footer-inner max-w-[1400px] mx-auto">
               <div>
-                <h2 className="footer-cta reveal">Ready to Build<br /><em>Something Remarkable?</em></h2>
-                <div className="footer-btns reveal reveal-delay-2">
-                  <button className="btn-primary" onClick={() => setActiveTab('blueprint')}>View Architecture</button>
+                <h2 className="footer-cta">Ready to Build<br /><em>Something Remarkable?</em></h2>
+                <div className="footer-btns">
                   <button className="btn-secondary" onClick={() => setActiveTab('docs')}>Open Docs Workspace</button>
                 </div>
               </div>
-              <div className="footer-meta reveal">
+              <div className="footer-meta">
                 <div style={{textAlign:'right'}}>
                   <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'24px',fontWeight:300,marginBottom:'8px'}}>CrossAngle <span style={{color:'var(--accent)'}}>Interior</span></div>
                   <div className="footer-credit">Design Proposal — V1</div>

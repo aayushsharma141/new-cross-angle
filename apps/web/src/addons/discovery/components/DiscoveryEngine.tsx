@@ -32,7 +32,7 @@ import ProgressBar from "./ProgressBar";
 import DotPattern from "@/components/magicui/dot-pattern";
 import AnimatedShinyText from "@/components/magicui/animated-shiny-text";
 import DiscoveryProgressSidebar from "./DiscoveryProgressSidebar";
-import { DiscoveryBackground } from "@/addons/_shared/components/backgrounds/DiscoveryBackground";
+import LiquidEther from "@/components/ReactBits/LiquidEther";
 
 
 
@@ -363,7 +363,20 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
             </AnimatePresence>
 
             {/* Morphic Premium Background */}
-            <DiscoveryBackground scores={scores} isDark={stage === Stage.Results || stage === Stage.LeadCapture} />
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-100">
+                <LiquidEther 
+                    colors={
+                        stage === Stage.Results || stage === Stage.LeadCapture
+                            ? ['#1a1a1a', '#3a3a3a', '#5a5a5a'] // Dark mode colors for results
+                            : ['#c9a96e', '#8b6f47', '#5a705e', '#faf8f5'] // Light luxury palette
+                    }
+                    mouseForce={25}
+                    viscous={25}
+                    isBounce={false}
+                    autoDemo={true}
+                    className="w-full h-full"
+                />
+            </div>
 
             {/* ── LUXURY PROGRESS SIDEBAR (260px) ── */}
             {isQuizStage && (

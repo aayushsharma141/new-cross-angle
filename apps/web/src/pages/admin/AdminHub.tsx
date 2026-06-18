@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/primitives/button";
-import { CountUp } from "@/components/ReactBits/index";
+import { CountUp, SpotlightCard } from "@/components/ReactBits/index";
 const MotionLink = motion.create(Link);
 
 /* ───────────────────────────────────────────────
@@ -177,6 +177,10 @@ const ModuleTile = ({
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-primary))]/50",
             )}
         >
+            <SpotlightCard 
+                className="flex flex-col flex-1 h-full w-full"
+                spotlightColor={urgent ? "rgba(150,0,0,0.15)" : featured ? "rgba(212,175,55,0.15)" : "rgba(255,255,255,0.05)"}
+            >
             {/* Ambient Background Glow */}
             <div
                 className={cn(
@@ -324,6 +328,7 @@ const ModuleTile = ({
                     )}
                 </div>
             </div>
+            </SpotlightCard>
         </MotionLink>
     );
 };

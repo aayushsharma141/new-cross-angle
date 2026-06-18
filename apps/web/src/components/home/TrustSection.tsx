@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Award, Users, ShieldCheck, Wrench, Package, HeadphonesIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CountUp } from "@/components/ReactBits";
+import { CountUp, FallingText, FadeContent } from "@/components/ReactBits";
 import { motion } from "framer-motion";
 import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 
@@ -123,8 +123,11 @@ const TrustSection = () => {
             </span>
           </div>
 
-          <h2 className="font-display text-[clamp(2.4rem,6vw,4.5rem)] leading-[0.95] tracking-[-0.02em] text-white mb-6">
-            Trust & <em className="not-italic text-site-gold">Credibility</em>
+          <h2 className="font-display text-[clamp(2.4rem,6vw,4.5rem)] leading-[0.95] tracking-[-0.02em] text-white mb-6 flex flex-wrap justify-center gap-x-2">
+            <FallingText text="Trust &" delay={30} duration={0.6} />
+            <em className="not-italic text-site-gold">
+              <FallingText text="Credibility" delay={30} duration={0.6} />
+            </em>
           </h2>
 
           <p className="text-white/40 text-sm leading-relaxed mt-4 max-w-xl mx-auto">
@@ -137,34 +140,28 @@ const TrustSection = () => {
           {trustItems.map((item, index) => {
             const Icon = item.icon;
             return (
-              <div
+              <FadeContent
                 key={index}
+                delay={index * 0.1}
+                distance={20}
                 className={cn(
                   "p-5 md:p-6 rounded-xl bg-site-bg-card border border-site-border",
                   "hover:border-site-crimson/30 hover:bg-site-bg-card-hover",
-                  "transition-all duration-500 group",
-                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                  "transition-all duration-500 group h-full"
                 )}
-                style={{ transitionDelay: `${index * 80}ms` }}
               >
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-site-crimson/10 border border-site-crimson/20 flex items-center justify-center mb-3 md:mb-4 group-hover:bg-site-crimson/20 transition-colors">
                   <Icon className="w-5 h-5 md:w-6 md:h-6 text-site-crimson" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-1 md:mb-2 text-sm md:text-base">{item.title}</h3>
                 <p className="text-xs md:text-sm text-muted-foreground">{item.description}</p>
-              </div>
+              </FadeContent>
             );
           })}
         </div>
 
         {/* Brand Partners - Slow Marquee */}
-        <div
-          className={cn(
-            "transition-all duration-700",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          )}
-          style={{ transitionDelay: "500ms" }}
-        >
+        <FadeContent delay={0.3} distance={20}>
           <div className="flex items-center justify-center gap-4 mb-6">
             <div className="w-12 h-px bg-site-crimson" />
             <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Trusted Brand Partners</span>
@@ -199,7 +196,7 @@ const TrustSection = () => {
               ))}
             </div>
           </div>
-        </div>
+        </FadeContent>
       </div>
     </section>
   );

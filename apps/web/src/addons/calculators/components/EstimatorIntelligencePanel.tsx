@@ -8,6 +8,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { EstimatorResponse, NegotiationOption } from "./data/discovery-handoff";
+import { Squares } from "@/components/ReactBits";
 
 interface EstimatorIntelligencePanelProps {
   response: EstimatorResponse;
@@ -206,10 +207,14 @@ export function EstimatorIntelligencePanel({ response, onSelectOption }: Estimat
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
-      className="space-y-6"
+      className="space-y-6 relative"
     >
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 overflow-hidden rounded-2xl" style={{ mixBlendMode: 'multiply' }}>
+        <Squares speed={0.2} squareSize={40} strokeColor="26, 26, 26" opacity={0.1} />
+      </div>
+
       {/* Property Suitability */}
-      <div className="bg-white border border-[#e8e4dd] rounded-2xl p-6">
+      <div className="bg-white/90 backdrop-blur-sm border border-[#e8e4dd] rounded-2xl p-6 relative z-10">
         <div className="flex items-center gap-2 mb-5">
           <div className="w-6 h-px bg-[#c9a96e]" />
           <p className="text-[9px] uppercase tracking-[0.25em] text-[#5a5a5a] font-bold">Property Intelligence</p>
@@ -225,14 +230,14 @@ export function EstimatorIntelligencePanel({ response, onSelectOption }: Estimat
       </div>
 
       {/* Budget Conflict */}
-      <div className="bg-white border border-[#e8e4dd] rounded-2xl p-6">
+      <div className="bg-white/90 backdrop-blur-sm border border-[#e8e4dd] rounded-2xl p-6 relative z-10">
         <BudgetConflictBar conflict={response.budgetConflict} />
       </div>
 
       {/* Strategy Recommendation */}
       <div
-        className={`border rounded-2xl p-5 ${
-          hasConflict ? "border-[#c9a96e]/30 bg-[#fdf9f2]" : "border-[#233526]/15 bg-[#233526]/3"
+        className={`border rounded-2xl p-5 relative z-10 backdrop-blur-sm ${
+          hasConflict ? "border-[#c9a96e]/30 bg-[#fdf9f2]/90" : "border-[#233526]/15 bg-[#233526]/5"
         }`}
       >
         <div className="flex items-center gap-2 mb-2">
@@ -249,7 +254,7 @@ export function EstimatorIntelligencePanel({ response, onSelectOption }: Estimat
 
       {/* Negotiation Options */}
       {hasNegotiationOptions && (
-        <div className="space-y-3">
+        <div className="space-y-3 relative z-10">
           <div className="flex items-center gap-2">
             <div className="w-6 h-px bg-[#c9a96e]" />
             <p className="text-[9px] uppercase tracking-[0.25em] text-[#5a5a5a] font-bold">
@@ -286,7 +291,7 @@ export function EstimatorIntelligencePanel({ response, onSelectOption }: Estimat
 
       {/* Phasing Plan */}
       {response.phases && response.phases.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-3 relative z-10 bg-white/60 p-4 rounded-2xl border border-white/40">
           <div className="flex items-center gap-2">
             <div className="w-6 h-px bg-[#c9a96e]" />
             <p className="text-[9px] uppercase tracking-[0.25em] text-[#5a5a5a] font-bold">Phasing Roadmap</p>

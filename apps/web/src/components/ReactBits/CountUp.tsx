@@ -10,6 +10,10 @@ interface CountUpProps {
     className?: string;
     startWhen?: boolean;
     separator?: string;
+    locale?: string;
+    currency?: string;
+    notation?: "standard" | "scientific" | "engineering" | "compact";
+    compactDisplay?: "short" | "long";
     onStart?: () => void;
     onEnd?: () => void;
 }
@@ -23,6 +27,10 @@ export default function CountUp({
     className = '',
     startWhen = true,
     separator = '',
+    locale = 'en-US',
+    currency,
+    notation,
+    compactDisplay,
     onStart,
     onEnd
 }: CountUpProps) {
@@ -34,6 +42,7 @@ export default function CountUp({
 
     const springValue = useSpring(motionValue, { damping, stiffness });
     const isInView = useInView(ref, { once: true, margin: '0px' });
+    const hasAnimatedRef = useRef(false);
 
     const getDecimalPlaces = (num: number): number => {
         const str = num.toString();
@@ -52,12 +61,15 @@ export default function CountUp({
             const options: Intl.NumberFormatOptions = {
                 useGrouping: !!separator,
                 minimumFractionDigits: hasDecimals ? maxDecimals : 0,
-                maximumFractionDigits: hasDecimals ? maxDecimals : 0
+                maximumFractionDigits: hasDecimals ? maxDecimals : 0,
+                ...(currency && { style: 'currency', currency }),
+                ...(notation && { notation }),
+                ...(compactDisplay && { compactDisplay })
             };
-            const formattedNumber = Intl.NumberFormat('en-US', options).format(latest);
-            return separator ? formattedNumber.replace(/,/g, separator) : formattedNumber;
+            const formattedNumber = Intl.NumberFormat(locale, options).format(latest);
+            return separator && !currency ? formattedNumber.replace(/,/g, separator) : formattedNumber;
         },
-        [maxDecimals, separator]
+        [maxDecimals, separator, locale, currency, notation, compactDisplay]
     );
 
     useEffect(() => {
@@ -66,17 +78,22 @@ export default function CountUp({
 
     useEffect(() => {
         if (isInView && startWhen) {
-            if (typeof onStart === 'function') onStart();
-            const timeoutId = setTimeout(() => {
+            if (!hasAnimatedRef.current) {
+                hasAnimatedRef.current = true;
+                if (typeof onStart === 'function') onStart();
+                const timeoutId = setTimeout(() => {
+                    motionValue.set(direction === 'down' ? from : to);
+                }, delay * 1000);
+                const durationTimeoutId = setTimeout(() => {
+                    if (typeof onEnd === 'function') onEnd();
+                }, delay * 1000 + duration * 1000);
+                return () => {
+                    clearTimeout(timeoutId);
+                    clearTimeout(durationTimeoutId);
+                };
+            } else {
                 motionValue.set(direction === 'down' ? from : to);
-            }, delay * 1000);
-            const durationTimeoutId = setTimeout(() => {
-                if (typeof onEnd === 'function') onEnd();
-            }, delay * 1000 + duration * 1000);
-            return () => {
-                clearTimeout(timeoutId);
-                clearTimeout(durationTimeoutId);
-            };
+            }
         }
     }, [isInView, startWhen, motionValue, direction, from, to, delay, onStart, onEnd, duration]);
 

@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Squares } from "@/components/ReactBits/index";
+import { Squares, FallingText } from "@/components/ReactBits/index";
 import useScrollReveal from "@/hooks/useScrollReveal";
 import { Button } from "@/components/ui/primitives/button";
 import { Image } from "@/components/ui/enhanced/image";
@@ -59,9 +59,11 @@ const Services = () => {
             <div className="w-12 h-px bg-site-crimson" />
             <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Services</span>
           </div>
-          <h2 className="reveal-elem font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-bold text-white mb-6 leading-[1.1] tracking-tight">
-            Engineered Interiors. <br />
-            <em className="text-white/50 not-italic font-light">Predictable Outcomes.</em>
+          <h2 className="reveal-elem font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-bold text-white mb-6 leading-[1.1] tracking-tight flex flex-col">
+            <FallingText text="Engineered Interiors." delay={30} duration={0.6} />
+            <em className="text-white/50 not-italic font-light">
+              <FallingText text="Predictable Outcomes." delay={30} duration={0.6} />
+            </em>
           </h2>
 
           {/* Neighborhood / area served callout */}

@@ -36,6 +36,8 @@ export const AnimatedBeam = ({
     const gradientId = `beam-gradient-${Math.random().toString(36).slice(2)}`;
     const [pathData, setPathData] = useState("");
     const [svgDimensions, setSvgDimensions] = useState({ width: 0, height: 0 });
+    const pathRef = useRef<SVGPathElement>(null);
+    const [pathLen, setPathLen] = useState(0);
 
     useEffect(() => {
         const updatePath = () => {
@@ -55,7 +57,8 @@ export const AnimatedBeam = ({
             const endY = toRect.top - containerRect.top + toRect.height / 2;
 
             const controlY = startY + curvature;
-            setPathData(`M ${startX},${startY} Q ${(startX + endX) / 2},${controlY} ${endX},${endY}`);
+            const d = `M ${startX},${startY} Q ${(startX + endX) / 2},${controlY} ${endX},${endY}`;
+            setPathData(d);
         };
 
         updatePath();
@@ -63,6 +66,12 @@ export const AnimatedBeam = ({
         if (containerRef.current) observer.observe(containerRef.current);
         return () => observer.disconnect();
     }, [containerRef, fromRef, toRef, curvature]);
+
+    useEffect(() => {
+        if (pathRef.current) {
+            setPathLen(pathRef.current.getTotalLength());
+        }
+    }, [pathData]);
 
     return (
         <svg
@@ -94,28 +103,43 @@ export const AnimatedBeam = ({
                 strokeOpacity={pathOpacity}
                 fill="none"
             />
-            {/* Animated gradient beam */}
+            {/* Animated gradient beam — grows from start to end */}
             <motion.path
+                ref={pathRef}
                 d={pathData}
                 stroke={`url(#${gradientId})`}
                 strokeWidth={pathWidth + 1}
                 fill="none"
                 strokeLinecap="round"
-                initial={{
-                    strokeDasharray: "12 200",
-                    strokeDashoffset: 0,
-                }}
-                animate={{
-                    strokeDashoffset: reverse ? 212 : -212,
-                }}
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
                 transition={{
                     duration,
                     delay,
                     repeat: Infinity,
                     ease: "linear",
+                    repeatDelay: 1.5,
                 }}
             />
+            {/* Traveling dot — slides along the path */}
+            {pathLen > 0 && (
+                <motion.path
+                    d={pathData}
+                    stroke={gradientStartColor}
+                    strokeWidth={pathWidth + 2}
+                    fill="none"
+                    strokeLinecap="round"
+                    initial={{ strokeDasharray: `4 ${pathLen}`, strokeDashoffset: 0 }}
+                    animate={{ strokeDashoffset: reverse ? pathLen : -pathLen }}
+                    transition={{
+                        duration,
+                        delay,
+                        repeat: Infinity,
+                        ease: "linear",
+                        repeatDelay: 1.5,
+                    }}
+                />
+            )}
         </svg>
     );
 };
-

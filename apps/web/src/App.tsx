@@ -14,6 +14,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { adminRoutes } from "./routes/adminRoutes";
 import { publicRoutes } from "./routes/publicRoutes";
 import { AdminDeviceGate } from "./components/admin/AdminDeviceGate";
+import { AnimatedContent } from "./components/ReactBits/index";
 
 const SmoothScroll = lazy(() => import("./components/layout/SmoothScroll").then(m => ({ default: m.SmoothScroll })));
 const DeferredScrollManager = lazy(() =>
@@ -113,14 +114,16 @@ const AnimatedRoutes = () => {
           </div>
         </div>
       ) : (
-        <Suspense fallback={<PageSkeleton variant={getSkeletonVariant(location.pathname) as any} />}>
+        <Suspense fallback={<PageSkeleton variant={getSkeletonVariant(location.pathname) as React.ComponentProps<typeof PageSkeleton>["variant"]} />}>
           <SmoothScroll>
             <ErrorBoundary>
-              <Suspense fallback={<PageSkeleton variant={getSkeletonVariant(location.pathname) as any} />}>
+              <Suspense fallback={<PageSkeleton variant={getSkeletonVariant(location.pathname) as React.ComponentProps<typeof PageSkeleton>["variant"]} />}>
                 <AnimatePresence mode="wait">
-                  <Routes location={location} key={location.pathname}>
-                    {publicRoutes}
-                  </Routes>
+                  <AnimatedContent key={location.pathname} distance={15} duration={0.5} className="flex-1 w-full flex flex-col h-full">
+                    <Routes location={location}>
+                      {publicRoutes}
+                    </Routes>
+                  </AnimatedContent>
                 </AnimatePresence>
                 <WhatsAppButton />
               </Suspense>

@@ -1,11 +1,13 @@
 import type { CSSProperties } from "react";
 import { cn } from "@/lib/utils";
+import { DecryptedText, GradualBlur } from "@/components/ReactBits";
 
 type PublicVariant = "public" | "public.blog" | "public.blog-detail" | "public.gallery" | "public.services" | "public.service-category" | "public.service-detail" | "public.contact" | "public.estimate";
 
 interface PageSkeletonProps {
   variant?: PublicVariant | "admin" | "admin-content";
   className?: string;
+  loadingMessage?: string;
 }
 
 const SkeletonBlock = ({
@@ -24,18 +26,32 @@ const SkeletonBlock = ({
   />
 );
 
-function PublicShell({ children, className, ariaLabel }: { children: React.ReactNode; className?: string; ariaLabel: string }) {
+function PublicShell({ children, className, ariaLabel, loadingMessage = "INITIALIZING EXPERIENCE..." }: { children: React.ReactNode; className?: string; ariaLabel: string; loadingMessage?: string }) {
   return (
-    <div role="status" aria-busy className={cn("relative min-h-screen bg-[#050505] text-white", className)} aria-label={ariaLabel}>
+    <div role="status" aria-busy className={cn("relative min-h-screen bg-[#050505] text-white overflow-hidden", className)} aria-label={ariaLabel}>
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(196,18,48,0.16),transparent_34%),radial-gradient(circle_at_82%_24%,rgba(209,175,110,0.08),transparent_30%)]" />
-      <div className="relative mx-auto max-w-7xl px-5 pt-28 md:px-10 md:pt-36">
+      
+      {/* Premium Data-fetching boundary text */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center z-50 pointer-events-none opacity-60">
+         <DecryptedText 
+           text={loadingMessage}
+           speed={60}
+           animateOn="view"
+           className="text-2xl md:text-4xl font-serif tracking-widest text-white/80"
+         />
+         <div className="mt-4">
+           <GradualBlur text="Please wait while we prepare your content" className="text-sm md:text-base text-site-gray tracking-widest uppercase font-sans" delay={50} duration={1.5} />
+         </div>
+      </div>
+
+      <div className="relative mx-auto max-w-7xl px-5 pt-28 md:px-10 md:pt-36 opacity-20 blur-[2px] transition-all duration-1000">
         {children}
       </div>
     </div>
   );
 }
 
-export function PageSkeleton({ variant = "public", className }: PageSkeletonProps) {
+export function PageSkeleton({ variant = "public", className, loadingMessage }: PageSkeletonProps) {
   if (variant === "admin") {
     return (
       <div role="status" aria-busy className={cn("admin-theme min-h-screen bg-[hsl(var(--admin-bg))] p-6", className)} aria-label="Loading admin dashboard">
@@ -90,7 +106,7 @@ export function PageSkeleton({ variant = "public", className }: PageSkeletonProp
 
   if (variant === "public.blog") {
     return (
-      <PublicShell ariaLabel="Loading blog posts" className={className}>
+      <PublicShell ariaLabel="Loading blog posts" className={className} loadingMessage={loadingMessage}>
         <SkeletonBlock className="h-12 w-44 rounded-full" delay={0} />
         <div className="mt-12 flex gap-3 overflow-hidden">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -115,7 +131,7 @@ export function PageSkeleton({ variant = "public", className }: PageSkeletonProp
 
   if (variant === "public.blog-detail") {
     return (
-      <PublicShell ariaLabel="Loading article" className={className}>
+      <PublicShell ariaLabel="Loading article" className={className} loadingMessage={loadingMessage}>
         <SkeletonBlock className="h-6 w-48 rounded-full" delay={0} />
         <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_300px]">
           <div className="space-y-6">
@@ -143,7 +159,7 @@ export function PageSkeleton({ variant = "public", className }: PageSkeletonProp
 
   if (variant === "public.gallery") {
     return (
-      <PublicShell ariaLabel="Loading gallery" className={className}>
+      <PublicShell ariaLabel="Loading gallery" className={className} loadingMessage={loadingMessage}>
         <div className="flex gap-3 overflow-hidden">
           {Array.from({ length: 6 }).map((_, i) => (
             <SkeletonBlock key={i} className="h-10 rounded-full flex-shrink-0" delay={i * 60} style={{ width: `${70 + i * 15}px` }} />
@@ -160,7 +176,7 @@ export function PageSkeleton({ variant = "public", className }: PageSkeletonProp
 
   if (variant === "public.services") {
     return (
-      <PublicShell ariaLabel="Loading services" className={className}>
+      <PublicShell ariaLabel="Loading services" className={className} loadingMessage={loadingMessage}>
         <SkeletonBlock className="h-12 w-44 rounded-full" delay={0} />
         <div className="mt-12 flex gap-4 overflow-hidden">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -183,7 +199,7 @@ export function PageSkeleton({ variant = "public", className }: PageSkeletonProp
 
   if (variant === "public.service-category") {
     return (
-      <PublicShell ariaLabel="Loading service category" className={className}>
+      <PublicShell ariaLabel="Loading service category" className={className} loadingMessage={loadingMessage}>
         <SkeletonBlock className="h-6 w-48 rounded-full" delay={0} />
         <SkeletonBlock className="mt-6 h-48 w-full rounded-xl" delay={80} />
         <div className="mt-10 space-y-12">
@@ -205,7 +221,7 @@ export function PageSkeleton({ variant = "public", className }: PageSkeletonProp
 
   if (variant === "public.service-detail") {
     return (
-      <PublicShell ariaLabel="Loading service details" className={className}>
+      <PublicShell ariaLabel="Loading service details" className={className} loadingMessage={loadingMessage}>
         <SkeletonBlock className="h-5 w-64 rounded-full" delay={0} />
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
           <div className="space-y-4">
@@ -244,7 +260,7 @@ export function PageSkeleton({ variant = "public", className }: PageSkeletonProp
 
   if (variant === "public.contact") {
     return (
-      <PublicShell ariaLabel="Loading contact page" className={className}>
+      <PublicShell ariaLabel="Loading contact page" className={className} loadingMessage={loadingMessage}>
         <SkeletonBlock className="h-6 w-48 rounded-full" delay={0} />
         <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_400px]">
           <div className="space-y-6">
@@ -269,7 +285,7 @@ export function PageSkeleton({ variant = "public", className }: PageSkeletonProp
 
   if (variant === "public.estimate") {
     return (
-      <PublicShell ariaLabel="Loading estimate" className={className}>
+      <PublicShell ariaLabel="Loading estimate" className={className} loadingMessage={loadingMessage}>
         <SkeletonBlock className="h-12 w-44 rounded-full" delay={0} />
         <SkeletonBlock className="mt-12 h-64 w-full rounded-xl" delay={80} />
         <div className="mt-8 grid gap-6 md:grid-cols-4">
@@ -282,7 +298,7 @@ export function PageSkeleton({ variant = "public", className }: PageSkeletonProp
   }
 
   return (
-    <PublicShell ariaLabel="Loading page" className={className}>
+    <PublicShell ariaLabel="Loading page" className={className} loadingMessage={loadingMessage}>
       <div className="flex items-center justify-between gap-5">
         <SkeletonBlock className="h-12 w-44 rounded-full" delay={0} />
         <SkeletonBlock className="hidden h-12 w-[28rem] rounded-full lg:block" delay={80} />

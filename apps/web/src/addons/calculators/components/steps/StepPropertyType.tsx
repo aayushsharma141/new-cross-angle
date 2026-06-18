@@ -13,6 +13,8 @@ import {
     breathingTransitionLight,
 } from "@/addons/_shared/card-styles";
 
+import { SpotlightCard, AnimatedContent } from "@/components/ReactBits";
+
 interface Props {
     formData: CalculatorFormData;
     updateField: <K extends keyof CalculatorFormData>(field: K, value: CalculatorFormData[K]) => void;
@@ -55,8 +57,7 @@ export function StepPropertyType({ formData, updateField }: Props) {
     }
 
     return (
-        <div>
-
+        <AnimatedContent distance={20} delay={0.05} duration={0.6}>
             <motion.div
                 variants={cardListContainer}
                 initial="hidden"
@@ -82,38 +83,43 @@ export function StepPropertyType({ formData, updateField }: Props) {
                             variants={cardListItem}
                             whileHover={CARD_INTERACTIONS.whileHover}
                             whileTap={CARD_INTERACTIONS.whileTap}
-                            className={selectableCardClassLight(selected, "group p-5 text-center")}
+                            className={selectableCardClassLight(selected, "group p-0 text-center")}
                         >
-                            {/* Breathing glow overlay — only on selected */}
-                            {selected && (
-                                <motion.span
-                                    aria-hidden="true"
-                                    className="absolute inset-0 pointer-events-none"
-                                    animate={breathingAnimationLight}
-                                    transition={breathingTransitionLight}
-                                />
-                            )}
+                            <SpotlightCard
+                                className="p-5 w-full h-full flex flex-col items-center justify-center relative overflow-hidden rounded-[8px]"
+                                spotlightColor={selected ? "rgba(139, 111, 71, 0.2)" : "rgba(139, 111, 71, 0.1)"}
+                            >
+                                {/* Breathing glow overlay — only on selected */}
+                                {selected && (
+                                    <motion.span
+                                        aria-hidden="true"
+                                        className="absolute inset-0 pointer-events-none"
+                                        animate={breathingAnimationLight}
+                                        transition={breathingTransitionLight}
+                                    />
+                                )}
 
-                            <div className="text-4xl mb-3 filter drop-shadow-md group-hover:scale-110 transition-transform duration-300">
-                                {pt.icon}
-                            </div>
-
-                            <div className="mb-1">
-                                <div className={`font-bold text-sm tracking-tight ${selected ? "text-[#8b6f47] drop-shadow-sm" : "text-[#1a1a1a]"}`}>
-                                    {pt.label}
+                                <div className="text-4xl mb-3 filter drop-shadow-md group-hover:scale-110 transition-transform duration-300">
+                                    {pt.icon}
                                 </div>
-                                <div className={`text-[10px] leading-relaxed mt-1 uppercase tracking-tighter ${selected ? "text-[#1a1a1a]/70" : "text-[#5a5a5a]"}`}>
-                                    {pt.desc}
-                                </div>
-                            </div>
 
-                            {selected && (
-                                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-[#8b6f47] to-transparent opacity-60" />
-                            )}
+                                <div className="mb-1">
+                                    <div className={`font-bold text-sm tracking-tight ${selected ? "text-[#8b6f47] drop-shadow-sm" : "text-[#1a1a1a]"}`}>
+                                        {pt.label}
+                                    </div>
+                                    <div className={`text-[10px] leading-relaxed mt-1 uppercase tracking-tighter ${selected ? "text-[#1a1a1a]/70" : "text-[#5a5a5a]"}`}>
+                                        {pt.desc}
+                                    </div>
+                                </div>
+
+                                {selected && (
+                                    <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-[#8b6f47] to-transparent opacity-60" />
+                                )}
+                            </SpotlightCard>
                         </motion.button>
                     );
                 })}
             </motion.div>
-        </div>
+        </AnimatedContent>
     );
 }
