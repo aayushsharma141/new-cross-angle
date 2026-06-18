@@ -7,6 +7,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { auditService } from "@/services/AuditService";
 import { AdminMetricsPanel, AdminFilterBar, AdminEmptyState, AdminSafeAction, AdminSkeletonCard } from "@/components/admin/shared";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
+import { DataLoadingBoundary } from "@/components/ui/enhanced/DataLoadingBoundary";
 import { TestimonialFormDialog, type TestimonialFormData } from "@/components/admin/testimonials/TestimonialFormDialog";
 import type { Testimonial } from "@/components/admin/testimonials/TestimonialsTable";
 
@@ -183,14 +184,20 @@ const AdminTestimonials = () => {
         />
       </div>
 
-      <div className="flex flex-col gap-[10px]">
-        {isLoading ? (
+      <DataLoadingBoundary 
+        isLoading={isLoading} 
+        loadingMessage="FETCHING TESTIMONIALS..."
+        subMessage="Decrypting and loading client feedback"
+        skeleton={
           <>
             <AdminSkeletonCard size="md" />
             <AdminSkeletonCard size="md" />
             <AdminSkeletonCard size="md" />
           </>
-        ) : filteredTestimonials.length === 0 ? (
+        }
+      >
+        <div className="flex flex-col gap-[10px]">
+          {filteredTestimonials.length === 0 ? (
           <div className="fade-up-3 mt-4">
             <AdminEmptyState 
               icon={MessageSquare}
@@ -276,7 +283,8 @@ const AdminTestimonials = () => {
             );
           })
         )}
-      </div>
+        </div>
+      </DataLoadingBoundary>
 
       {canWrite && !isLoading && (
         <div className="fade-up-4 mt-[10px]">

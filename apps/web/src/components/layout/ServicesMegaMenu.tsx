@@ -31,7 +31,7 @@ export function ServicesMegaMenu({ isHovered }: { isHovered: boolean }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10, transition: { duration: 0.2 } }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="absolute top-full left-1/2 -translate-x-1/2 pt-6 w-[800px] z-50 cursor-default"
+          className="absolute top-full left-0 pt-6 w-[800px] z-50 cursor-default"
         >
           <div className="bg-[#050505]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 overflow-hidden">
             {/* Background decorative elements */}

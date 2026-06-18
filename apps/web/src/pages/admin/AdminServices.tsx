@@ -23,6 +23,7 @@ import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { AdminFilterBar, AdminSafeAction, AdminEmptyState, AdminSkeletonCard } from "@/components/admin/shared";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
+import { DataLoadingBoundary } from "@/components/ui/enhanced/DataLoadingBoundary";
 import * as LucideIcons from "lucide-react";
 
 const ICONS = ["Home", "Building2", "Palette", "Lightbulb", "Sofa", "PenTool", "Lamp", "UtensilsCrossed", "Bed"];
@@ -314,14 +315,20 @@ const AdminServices = () => {
                 />
             </div>
 
-            <div className="flex flex-col gap-[10px] mt-[10px]">
-                {isLoading ? (
-                    <>
-                        <AdminSkeletonCard size="md" />
-                        <AdminSkeletonCard size="md" />
-                        <AdminSkeletonCard size="md" />
-                    </>
-                ) : filteredServices.length === 0 ? (
+            <DataLoadingBoundary 
+              isLoading={isLoading} 
+              loadingMessage="FETCHING SERVICES..."
+              subMessage="Decrypting and loading category data"
+              skeleton={
+                <>
+                  <AdminSkeletonCard size="md" />
+                  <AdminSkeletonCard size="md" />
+                  <AdminSkeletonCard size="md" />
+                </>
+              }
+            >
+              <div className="flex flex-col gap-3 relative min-h-[200px]">
+                {filteredServices.length === 0 ? (
                     <div className="fade-up-2 mt-4">
                         <AdminEmptyState
                             icon={Briefcase}
@@ -417,7 +424,8 @@ const AdminServices = () => {
                         );
                     })
                 )}
-            </div>
+              </div>
+            </DataLoadingBoundary>
 
             {!isLoading && (
                 <div className="fade-up-3 mt-[10px]">

@@ -8,6 +8,7 @@ import { PortfolioFormDialog } from "@/components/admin/portfolio/PortfolioFormD
 import { AdminMetricsPanel, AdminFilterBar, AdminSafeAction, AdminEmptyState, AdminSkeletonCard } from "@/components/admin/shared";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
+import { DataLoadingBoundary } from "@/components/ui/enhanced/DataLoadingBoundary";
 import { Pencil, Trash2, Image as ImageIcon, Star, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import type { ProjectWithCategory } from "@/repositories";
@@ -121,14 +122,20 @@ export default function AdminPortfolio(): JSX.Element {
           />
       </div>
 
-      <div className="flex flex-col gap-[10px]">
-        {isLoading ? (
+      <DataLoadingBoundary 
+        isLoading={isLoading} 
+        loadingMessage="FETCHING PORTFOLIO..."
+        subMessage="Decrypting and loading project data"
+        skeleton={
           <>
             <AdminSkeletonCard size="lg" />
             <AdminSkeletonCard size="lg" />
             <AdminSkeletonCard size="lg" />
           </>
-        ) : filteredProjects.length === 0 ? (
+        }
+      >
+        <div className="flex flex-col gap-[10px]">
+          {filteredProjects.length === 0 ? (
           <div className="fade-up-3 mt-4">
               <AdminEmptyState 
                   icon={ImageIcon}
@@ -227,7 +234,8 @@ export default function AdminPortfolio(): JSX.Element {
             );
           })
         )}
-      </div>
+        </div>
+      </DataLoadingBoundary>
 
       {!isLoading && (
           <div className="fade-up-4 mt-[10px]">
