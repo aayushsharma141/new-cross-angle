@@ -108,7 +108,10 @@ export const Navbar = () => {
 
           {/* Centered Pill Menu (Desktop) */}
           <div className="hidden lg:flex justify-center items-center h-full">
-            <div className="pointer-events-auto">
+            <div
+              className="pointer-events-auto relative"
+              onMouseLeave={() => setServicesHovered(false)}
+            >
               <SpotlightNavContainer
                 activeIndex={navLinks.findIndex((l) => location.pathname === l.href)}
                 className="px-1"
@@ -117,12 +120,14 @@ export const Navbar = () => {
                   <div
                     key={link.name}
                     data-index={index}
-                    className={cn(
-                      "flex items-center px-4",
-                      !link.hasMegaMenu && "relative"
-                    )}
-                    onMouseEnter={() => link.hasMegaMenu && setServicesHovered(true)}
-                    onMouseLeave={() => link.hasMegaMenu && setServicesHovered(false)}
+                    className="flex items-center px-4"
+                    onMouseEnter={() => {
+                      if (link.hasMegaMenu) {
+                        setServicesHovered(true);
+                      } else {
+                        setServicesHovered(false);
+                      }
+                    }}
                   >
                     <Link
                       to={link.href}
@@ -141,12 +146,10 @@ export const Navbar = () => {
                         )} />
                       )}
                     </Link>
-                    {link.hasMegaMenu && (
-                      <ServicesMegaMenu isHovered={servicesHovered} />
-                    )}
                   </div>
                 ))}
               </SpotlightNavContainer>
+              <ServicesMegaMenu isHovered={servicesHovered} />
             </div>
           </div>
 
