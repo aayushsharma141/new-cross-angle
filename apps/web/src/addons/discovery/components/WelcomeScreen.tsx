@@ -8,7 +8,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import logoIcon from "@/assets/logo-icon.png";
 import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
-import SoftAurora from "@/components/ReactBits/SoftAurora";
+import { ParticleNetworkBackground } from "@/addons/_shared/components/backgrounds/ParticleNetworkBackground";
 import { AnimatedBeam } from "@/components/magicui/animated-beam";
 import ShimmerButton from "@/components/magicui/shimmer-button";
 
@@ -186,17 +186,12 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
       exit={{ opacity: 0 }}
       className="relative flex flex-col w-full min-h-screen overflow-x-hidden bg-[#faf8f5] text-[#1a1a1a] selection:bg-[#c9a96e]/20"
     >
-      {/* ── SoftAurora Living Background ── */}
+      {/* ── Connecting Dots Background ── */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <SoftAurora
-          speed={0.12}
-          scale={1.3}
-          brightness={1.1}
-          color1="#c8a96e" // Gold
-          color2="#5a705e" // Sage green
-          color3="#faf8f5" // Cream base
-          enableMouseInteraction={true}
-          className="absolute inset-0 w-full h-full opacity-[0.25]"
+        <ParticleNetworkBackground
+          color="rgba(139, 111, 71, 0.8)"
+          particleCount={150}
+          maxDistance={150}
         />
         {/* Subtle procedural paper noise overlay */}
         <div 
@@ -438,6 +433,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
                       duration={2.5 + i * 0.3}
                       gradientStartColor="#70593a"
                       gradientStopColor="#c9a96e"
+                      pathColor="rgba(112, 89, 58, 0.15)"
                     />
                   ))}
                   <AnimatedBeam
@@ -448,6 +444,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
                     duration={2}
                     gradientStartColor="#c9a96e"
                     gradientStopColor="#70593a"
+                    pathColor="rgba(112, 89, 58, 0.15)"
                   />
 
                   {/* Left: Input Nodes */}

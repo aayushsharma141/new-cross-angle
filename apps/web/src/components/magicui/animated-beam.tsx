@@ -101,8 +101,13 @@ export const AnimatedBeam = ({
                 strokeWidth={pathWidth + 1}
                 fill="none"
                 strokeLinecap="round"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
+                initial={{
+                    strokeDasharray: "12 200",
+                    strokeDashoffset: 0,
+                }}
+                animate={{
+                    strokeDashoffset: reverse ? 212 : -212,
+                }}
                 transition={{
                     duration,
                     delay,
