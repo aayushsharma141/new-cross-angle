@@ -62,7 +62,7 @@ function ToggleChip({ label, active, onClick }: { label: string; active: boolean
     return (
         <button
             onClick={onClick}
-            aria-pressed={active ? "true" : "false"}
+            aria-pressed={active}
             className={`
                 flex-1 min-w-[120px] px-4 py-4 rounded-[8px] border text-center transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2
                 ${active

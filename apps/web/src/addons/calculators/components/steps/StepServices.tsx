@@ -96,7 +96,7 @@ export function StepServices({ formData, updateField }: Props) {
                             {/* Expand toggle */}
                             <div className="px-5 pb-3 flex justify-between items-center border-t border-[#1a1a1a]/[0.06]">
                                 <button type="button" onClick={() => toggle(svc.id)}
-                                    aria-expanded={expanded ? "true" : "false"}
+                                    aria-expanded={expanded}
                                     aria-controls={`svc-details-${svc.id}`}
                                     className="text-[#5a5a5a] text-[11px] font-semibold hover:text-[#8b6f47] transition-colors uppercase tracking-widest flex items-center gap-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] rounded-sm"
                                     >

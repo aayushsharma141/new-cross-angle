@@ -69,7 +69,7 @@ const MaterialResonance = ({ onComplete }: Props) => {
                 type="button"
                 key={mat}
                 onClick={() => toggleMaterial(mat)}
-                aria-pressed={selectedMaterials.includes(mat) ? "true" : "false"}
+                aria-pressed={selectedMaterials.includes(mat)}
                 className={`px-5 py-2.5 rounded-full border focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none transition-all duration-200 text-sm font-medium active:scale-[0.95] ${
                   selectedMaterials.includes(mat)
                     ? "bg-[#70593a]/5 border-[#70593a] text-[#1a1a1a] shadow-sm"
@@ -97,7 +97,7 @@ const MaterialResonance = ({ onComplete }: Props) => {
                 type="button"
                 key={item}
                 onClick={() => toggleStorage(item)}
-                aria-pressed={selectedStorage.includes(item) ? "true" : "false"}
+                aria-pressed={selectedStorage.includes(item)}
                 className={`px-5 py-2.5 rounded-full border focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none transition-all duration-200 text-sm font-medium active:scale-[0.95] ${
                   selectedStorage.includes(item)
                     ? "bg-[#70593a]/5 border-[#70593a] text-[#1a1a1a] shadow-sm"
