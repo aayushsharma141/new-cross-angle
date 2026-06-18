@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { navLinks } from "@/config/navigation";
 import { SpotlightNavContainer } from "@/components/ui/enhanced/spotlight-navbar";
 import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
+import { ServicesMegaMenu } from "@/components/layout/ServicesMegaMenu";
 
 const GOLD = "text-[#D1AF6E]";
 const GOLD_BG = "bg-[#D1AF6E]/10";
@@ -15,6 +16,7 @@ const GOLD_BG = "bg-[#D1AF6E]/10";
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [servicesHovered, setServicesHovered] = useState(false);
   const { settings } = useSiteSettings();
   const logoUrl = settings?.company_logo_url || settings?.logo_light_url || '/logo-icon.png';
   const location = useLocation();
@@ -112,7 +114,13 @@ export const Navbar = () => {
                 className="px-1"
               >
                 {navLinks.map((link, index) => (
-                  <div key={link.name} data-index={index} className="relative flex items-center px-4">
+                  <div
+                    key={link.name}
+                    data-index={index}
+                    className="relative flex items-center px-4"
+                    onMouseEnter={() => link.hasMegaMenu && setServicesHovered(true)}
+                    onMouseLeave={() => link.hasMegaMenu && setServicesHovered(false)}
+                  >
                     <Link
                       to={link.href}
                       className={cn(
@@ -124,9 +132,15 @@ export const Navbar = () => {
                     >
                       {link.name}
                       {link.hasMegaMenu && (
-                        <ChevronDown className="w-4 h-4 transition-transform duration-300 opacity-60 group-hover:opacity-100" />
+                        <ChevronDown className={cn(
+                          "w-4 h-4 transition-transform duration-300 opacity-60 group-hover:opacity-100",
+                          servicesHovered && "rotate-180 opacity-100"
+                        )} />
                       )}
                     </Link>
+                    {link.hasMegaMenu && (
+                      <ServicesMegaMenu isHovered={servicesHovered} />
+                    )}
                   </div>
                 ))}
               </SpotlightNavContainer>

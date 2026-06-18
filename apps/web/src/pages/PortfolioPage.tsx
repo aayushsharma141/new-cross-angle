@@ -13,6 +13,8 @@ import { TrustLayer } from "@/components/portfolio/TrustLayer";
 import { ProjectArchive } from "@/components/portfolio/ProjectArchive";
 import { DesignPerspective } from "@/components/portfolio/DesignPerspective";
 import { ClientPerspective } from "@/components/portfolio/ClientPerspective";
+import { BehindTheWork } from "@/components/portfolio/BehindTheWork";
+import HowWeWork from "@/components/portfolio/HowWeWork";
 import PortfolioFinalCTA from "@/components/portfolio/PortfolioFinalCTA";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { projects } from "@/data/projects";
@@ -107,10 +109,16 @@ const PortfolioPage = () => {
         {/* 6. Design Perspective Horizontal Scroll */}
         <DesignPerspective />
 
-        {/* 7. Client Perspective Testimonial */}
+        {/* 7. Behind The Work — 4-pillar editorial cards */}
+        <BehindTheWork />
+
+        {/* 8. How We Work — 3-step process */}
+        <HowWeWork />
+
+        {/* 9. Client Perspective Testimonial */}
         <ClientPerspective />
-        
-        {/* 8. Final CTA */}
+
+        {/* 10. Final CTA */}
         <PortfolioFinalCTA />
       </main>
 

@@ -111,45 +111,12 @@ const ServicesHero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           >
-            <motion.h1 
-              initial="initial"
-              animate="animate"
-              variants={{
-                animate: {
-                  transition: {
-                    staggerChildren: 0.1,
-                    delayChildren: 0.2,
-                  },
-                },
-              }}
-              className="font-serif text-[clamp(2.8rem,5.5vw,6rem)] font-normal text-white leading-[1.05] tracking-tight"
-            >
-              {["One", "Team.", "One", "Contract."].map((word, i) => (
-                <motion.span
-                  key={i}
-                  variants={{
-                    initial: { opacity: 0, y: 30 },
-                    animate: { opacity: 1, y: 0, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } }
-                  }}
-                  className="inline-block mr-[0.25em]"
-                >
-                  {word}
-                </motion.span>
-              ))}
+            <h1 className="font-sans text-[clamp(2.4rem,4.8vw,5.2rem)] font-normal text-[#FFFFFF] leading-[1.08] tracking-tight">
+              One Team. One Contract.
               <br />
-              {["Complete", "Turnkey", "Interiors."].map((word, i) => (
-                <motion.span
-                  key={`bot-${i}`}
-                  variants={{
-                    initial: { opacity: 0, y: 30 },
-                    animate: { opacity: 1, y: 0, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } }
-                  }}
-                  className={`inline-block mr-[0.25em] ${word === "Interiors." ? "text-site-gold font-medium italic" : ""}`}
-                >
-                  {word}
-                </motion.span>
-              ))}
-            </motion.h1>
+              Complete Turnkey{" "}
+              <span className="text-[#FF2A2A] font-semibold">Interiors.</span>
+            </h1>
           </motion.div>
 
           {/* Word-Swap inline — no box */}

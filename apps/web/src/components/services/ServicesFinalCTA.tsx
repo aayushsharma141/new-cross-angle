@@ -32,7 +32,7 @@ const PATHS = [
   },
 ];
 
-const ServicesFinalCTA = () => {
+const PortfolioFinalCTA = () => {
   return (
     <section className="bg-neutral-950 py-32 relative overflow-hidden border-t border-white/5">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-900/50 via-neutral-950 to-neutral-950 pointer-events-none" aria-hidden="true" />
@@ -49,10 +49,10 @@ const ServicesFinalCTA = () => {
             Next Steps
           </span>
           <h2 className="text-4xl md:text-6xl font-serif font-normal text-white tracking-tight mb-4">
-            Ready to Begin Your Project?
+            Ready to Transform Your Space?
           </h2>
           <p className="text-stone-400 text-base font-light max-w-xl mx-auto">
-            Choose the path that feels right — whether you're browsing, planning, or ready to start.
+            Choose the path that feels right â€” whether you're browsing, planning, or ready to start.
           </p>
         </motion.div>
 
@@ -94,4 +94,4 @@ const ServicesFinalCTA = () => {
   );
 };
 
-export default ServicesFinalCTA;
+export default PortfolioFinalCTA;

@@ -7,13 +7,16 @@ import { LogoAnimation } from "@/components/shared/LogoAnimation";
 import ServicesHero from "@/components/services/ServicesHero";
 import ServicesMarquee from "@/components/services/ServicesMarquee";
 import ServicesWhyUs from "@/components/services/ServicesWhyUs";
-import ServicesFinalCTA from "@/components/services/ServicesFinalCTA";
+import ServicesCTA from "@/components/services/ServicesCTA";
 import ServicesEngines from "@/components/services/ServicesEngines";
 import ProcessTeaser from "@/components/services/ProcessTeaser";
 import ServiceArchetypes from "@/components/services/ServiceArchetypes";
 import ServicesDeliverables from "@/components/services/ServicesDeliverables";
 import ServicesInvestmentTiers from "@/components/services/ServicesInvestmentTiers";
 import ServicesTransformations from "@/components/services/ServicesTransformations";
+import ServicesProcess from "@/components/services/ServicesProcess";
+import ServicesFAQ from "@/components/services/ServicesFAQ";
+import ServicesFinalCTA from "@/components/services/ServicesFinalCTA";
 import { Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed, LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -298,11 +301,14 @@ const ServicesPage = () => {
         <ServicesDeliverables />
         <ServicesTransformations />
         <ServicesInvestmentTiers />
+        <ServicesProcess />
 
         <ServicesEngines />
         <ServicesWhyUs />
         <ProcessTeaser />
+        <ServicesFAQ />
         <ServicesFinalCTA />
+        <ServicesCTA />
       </main>
       <Footer />
       <ScrollToTop />
