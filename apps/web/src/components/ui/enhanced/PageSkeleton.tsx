@@ -54,8 +54,22 @@ function PublicShell({ children, className, ariaLabel, loadingMessage = "INITIAL
 export function PageSkeleton({ variant = "public", className, loadingMessage }: PageSkeletonProps) {
   if (variant === "admin") {
     return (
-      <div role="status" aria-busy className={cn("admin-theme min-h-screen bg-[hsl(var(--admin-bg))] p-6", className)} aria-label="Loading admin dashboard">
-        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
+      <div role="status" aria-busy className={cn("relative admin-theme min-h-screen bg-[hsl(var(--admin-bg))] p-6 overflow-hidden", className)} aria-label="Loading admin dashboard">
+        
+        {/* Premium Data-fetching boundary text */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center z-50 pointer-events-none">
+           <DecryptedText 
+             text={loadingMessage || "INITIALIZING DASHBOARD..."}
+             speed={60}
+             animateOn="view"
+             className="text-2xl md:text-4xl font-serif tracking-widest text-[hsl(var(--admin-primary))]"
+           />
+           <div className="mt-4">
+             <GradualBlur text="Please wait while we sync your administrative modules" className="text-sm md:text-base text-[hsl(var(--admin-text-subtle))] tracking-widest uppercase font-sans" delay={50} duration={1.5} />
+           </div>
+        </div>
+
+        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[280px_minmax(0,1fr)] opacity-30 blur-[2px] transition-all duration-1000">
           <div className="hidden min-h-[calc(100vh-3rem)] rounded-2xl border border-white/10 bg-white/[0.03] p-5 lg:block">
             <SkeletonBlock className="h-10 w-32 rounded-xl skeleton-shimmer-admin" delay={0} />
             <div className="mt-10 space-y-3">
@@ -88,9 +102,24 @@ export function PageSkeleton({ variant = "public", className, loadingMessage }: 
 
   if (variant === "admin-content") {
     return (
-      <div role="status" aria-busy className={cn("w-full space-y-6", className)} aria-label="Loading content">
-        <SkeletonBlock className="h-24 w-full rounded-2xl skeleton-shimmer-admin" delay={0} />
-        <div className="grid gap-4 md:grid-cols-4">
+      <div role="status" aria-busy className={cn("relative w-full space-y-6 min-h-[60vh] overflow-hidden", className)} aria-label="Loading content">
+        
+        {/* Premium Data-fetching boundary text */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-50 pointer-events-none">
+           <DecryptedText 
+             text={loadingMessage || "FETCHING DATA..."}
+             speed={60}
+             animateOn="view"
+             className="text-xl md:text-2xl font-serif tracking-widest text-[hsl(var(--admin-primary))]"
+           />
+           <div className="mt-4">
+             <GradualBlur text="Synchronizing administrative modules" className="text-xs md:text-sm text-[hsl(var(--admin-text-subtle))] tracking-widest uppercase font-sans" delay={50} duration={1.5} />
+           </div>
+        </div>
+
+        <div className="opacity-30 blur-[2px] transition-all duration-1000 space-y-6">
+          <SkeletonBlock className="h-24 w-full rounded-2xl skeleton-shimmer-admin" delay={0} />
+          <div className="grid gap-4 md:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <SkeletonBlock
               key={index}
@@ -98,8 +127,9 @@ export function PageSkeleton({ variant = "public", className, loadingMessage }: 
               delay={index * 80}
             />
           ))}
+          </div>
+          <SkeletonBlock className="h-[60vh] rounded-2xl skeleton-shimmer-admin" delay={320} />
         </div>
-        <SkeletonBlock className="h-[60vh] rounded-2xl skeleton-shimmer-admin" delay={320} />
       </div>
     );
   }

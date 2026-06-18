@@ -95,7 +95,7 @@ export function ServicesMegaMenu({ isHovered }: { isHovered: boolean }) {
                 <p className="text-sm text-white/50">Take our interactive style quiz.</p>
               </div>
               <Link 
-                to="/discovery" 
+                to="/aesthetic-discovery-engine" 
                 className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/10"
               >
                 Start Discovery Engine
