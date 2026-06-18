@@ -17,6 +17,25 @@ export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [servicesHovered, setServicesHovered] = useState(false);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMouseEnter = useCallback(() => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setServicesHovered(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setServicesHovered(false);
+    }, 150);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+  }, []);
+
   const { settings } = useSiteSettings();
   const logoUrl = settings?.company_logo_url || settings?.logo_light_url || '/logo-icon.png';
   const location = useLocation();
@@ -118,8 +137,8 @@ export const Navbar = () => {
                     key={link.name}
                     data-index={index}
                     className="relative flex items-center px-4"
-                    onMouseEnter={() => link.hasMegaMenu && setServicesHovered(true)}
-                    onMouseLeave={() => link.hasMegaMenu && setServicesHovered(false)}
+                    onMouseEnter={() => link.hasMegaMenu && handleMouseEnter()}
+                    onMouseLeave={() => link.hasMegaMenu && handleMouseLeave()}
                   >
                     <Link
                       to={link.href}
@@ -138,9 +157,6 @@ export const Navbar = () => {
                         )} />
                       )}
                     </Link>
-                    {link.hasMegaMenu && (
-                      <ServicesMegaMenu isHovered={servicesHovered} />
-                    )}
                   </div>
                 ))}
               </SpotlightNavContainer>
@@ -191,6 +207,12 @@ export const Navbar = () => {
               {isOpen ? <X size={26} /> : <Menu size={26} />}
             </button>
           </div>
+
+          <ServicesMegaMenu
+            isHovered={servicesHovered}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          />
         </div>
 
         <AnimatePresence>

@@ -10,7 +10,15 @@ const IconMap: Record<string, LucideIcon> = {
   Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed
 };
 
-export function ServicesMegaMenu({ isHovered }: { isHovered: boolean }) {
+export function ServicesMegaMenu({ 
+  isHovered,
+  onMouseEnter,
+  onMouseLeave
+}: { 
+  isHovered: boolean;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+}) {
   const { data: services } = useQuery({
     queryKey: ["services"],
     queryFn: api.getServices,
@@ -27,6 +35,8 @@ export function ServicesMegaMenu({ isHovered }: { isHovered: boolean }) {
     <AnimatePresence>
       {isHovered && (
         <motion.div
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10, transition: { duration: 0.2 } }}
