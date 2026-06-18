@@ -117,7 +117,10 @@ export const Navbar = () => {
                   <div
                     key={link.name}
                     data-index={index}
-                    className="relative flex items-center px-4"
+                    className={cn(
+                      "flex items-center px-4",
+                      !link.hasMegaMenu && "relative"
+                    )}
                     onMouseEnter={() => link.hasMegaMenu && setServicesHovered(true)}
                     onMouseLeave={() => link.hasMegaMenu && setServicesHovered(false)}
                   >
@@ -139,7 +142,7 @@ export const Navbar = () => {
                       )}
                     </Link>
                     {link.hasMegaMenu && (
-                      <ServicesMegaMenu isHovered={servicesHovered} isScrolled={isScrolled} />
+                      <ServicesMegaMenu isHovered={servicesHovered} />
                     )}
                   </div>
                 ))}
