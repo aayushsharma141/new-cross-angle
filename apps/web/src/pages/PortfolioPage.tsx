@@ -13,6 +13,7 @@ import { TrustLayer } from "@/components/portfolio/TrustLayer";
 import { ProjectArchive } from "@/components/portfolio/ProjectArchive";
 import { DesignPerspective } from "@/components/portfolio/DesignPerspective";
 import { ClientPerspective } from "@/components/portfolio/ClientPerspective";
+import PortfolioFinalCTA from "@/components/portfolio/PortfolioFinalCTA";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { projects } from "@/data/projects";
 
@@ -108,6 +109,9 @@ const PortfolioPage = () => {
 
         {/* 7. Client Perspective Testimonial */}
         <ClientPerspective />
+        
+        {/* 8. Final CTA */}
+        <PortfolioFinalCTA />
       </main>
 
       <Footer />

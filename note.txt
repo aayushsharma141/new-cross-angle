@@ -1,0 +1,4 @@
+Best Practices moving forward:
+
+Prompt the AI to Commit: At the end of a heavy coding session, simply tell the AI: "Please commit all these changes before we wrap up with a descriptive commit message."
+Push Your Work: Don't forget to run git push to upload your committed changes to your remote repository (like GitHub/GitLab). That ensures your live site gets the updates and you have a remote backup.

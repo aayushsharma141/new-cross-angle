@@ -7,7 +7,7 @@ import { LogoAnimation } from "@/components/shared/LogoAnimation";
 import ServicesHero from "@/components/services/ServicesHero";
 import ServicesMarquee from "@/components/services/ServicesMarquee";
 import ServicesWhyUs from "@/components/services/ServicesWhyUs";
-import ServicesCTA from "@/components/services/ServicesCTA";
+import ServicesFinalCTA from "@/components/services/ServicesFinalCTA";
 import ServicesEngines from "@/components/services/ServicesEngines";
 import ProcessTeaser from "@/components/services/ProcessTeaser";
 import ServiceArchetypes from "@/components/services/ServiceArchetypes";
@@ -302,7 +302,7 @@ const ServicesPage = () => {
         <ServicesEngines />
         <ServicesWhyUs />
         <ProcessTeaser />
-        <ServicesCTA />
+        <ServicesFinalCTA />
       </main>
       <Footer />
       <ScrollToTop />
