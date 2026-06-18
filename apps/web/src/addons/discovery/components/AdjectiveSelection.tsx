@@ -85,7 +85,7 @@ const AdjectiveSelection = ({ onComplete }: AdjectiveSelectionProps) => {
                 type="button"
                 key={style.name}
                 onClick={() => toggleStyle(style.name)}
-                aria-pressed={selectedStyles.includes(style.name)}
+                {...{"aria-pressed": selectedStyles.includes(style.name)}}
                 className={`flex flex-col items-center justify-center text-center p-4 rounded-3xl border focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none transition-all duration-200 active:scale-[0.97] ${
                   selectedStyles.includes(style.name)
                     ? "bg-[#faf8f5] border-[#1a1a1a] shadow-sm"

@@ -66,9 +66,13 @@ export function StepBudget({ formData, updateField }: Props) {
                 <input
                     id="budget-slider"
                     type="range"
-                    aria-label={`Investment amount: ${formatCurrency(formData.budgetAmount)}`}
-                    aria-valuemin={1500000} aria-valuemax={150000000} aria-valuenow={formData.budgetAmount}
-                    aria-valuetext={formatCurrency(formData.budgetAmount)}
+                    {...{
+                        "aria-label": `Investment amount: ${formatCurrency(formData.budgetAmount)}`,
+                        "aria-valuemin": 1500000,
+                        "aria-valuemax": 150000000,
+                        "aria-valuenow": formData.budgetAmount,
+                        "aria-valuetext": formatCurrency(formData.budgetAmount),
+                    }}
                     min={1500000} max={150000000} step={500000}
                     value={formData.budgetAmount}
                     onChange={e => {

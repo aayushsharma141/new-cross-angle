@@ -193,7 +193,7 @@ const FooterSection = ({ title, id, openSection, toggleSection, children, delay,
         id={buttonId}
         role="button"
         tabIndex={0}
-        aria-expanded={isOpen}
+        {...{"aria-expanded": isOpen}}
         aria-controls={contentId}
         className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0"
         onClick={() => toggleSection(id)}
