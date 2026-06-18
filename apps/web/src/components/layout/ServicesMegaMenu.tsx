@@ -10,15 +10,7 @@ const IconMap: Record<string, LucideIcon> = {
   Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed
 };
 
-export function ServicesMegaMenu({ 
-  isHovered,
-  onMouseEnter,
-  onMouseLeave
-}: { 
-  isHovered: boolean;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-}) {
+export function ServicesMegaMenu({ isHovered, isScrolled }: { isHovered: boolean; isScrolled?: boolean }) {
   const { data: services } = useQuery({
     queryKey: ["services"],
     queryFn: api.getServices,
@@ -35,13 +27,11 @@ export function ServicesMegaMenu({
     <AnimatePresence>
       {isHovered && (
         <motion.div
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10, transition: { duration: 0.2 } }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="absolute top-full left-1/2 -translate-x-1/2 pt-6 w-[800px] z-50 cursor-default"
+          className={`fixed left-1/2 -translate-x-1/2 w-[860px] max-w-[95vw] z-50 cursor-default transition-all duration-300 ${isScrolled ? 'top-[68px]' : 'top-[84px]'}`}
         >
           <div className="bg-[#050505]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 overflow-hidden">
             {/* Background decorative elements */}
