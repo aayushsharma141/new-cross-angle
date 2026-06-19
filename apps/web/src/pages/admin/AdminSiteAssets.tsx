@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/primitives/button";
 import { Loader2, Image as ImageIcon, Check, ImagePlus, MonitorPlay } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/useToast";
 import {
     Dialog,
     DialogContent,
@@ -28,6 +28,7 @@ export default function AdminSiteAssets() {
     const [assets, setAssets] = useState<SiteAsset[]>([]);
     const [groupedAssets, setGroupedAssets] = useState<Record<string, SiteAsset[]>>({});
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
 
     const [pickerOpen, setPickerOpen] = useState(false);
     const [currentEditingAsset, setCurrentEditingAsset] = useState<SiteAsset | null>(null);
@@ -66,7 +67,7 @@ export default function AdminSiteAssets() {
             setGroupedAssets(groups);
 
         } catch (err: unknown) {
-            toast.error(err instanceof Error ? err.message : String(err));
+            toast({ variant: "destructive", title: "Error", description: err instanceof Error ? err.message : String(err) });
         } finally {
             setIsLoading(false);
         }
@@ -86,11 +87,11 @@ export default function AdminSiteAssets() {
                 .eq('id', currentEditingAsset.id);
             
             if (error) throw error;
-            toast.success("Asset updated successfully");
+            toast({ title: "Success", description: "Asset updated successfully" });
             setPickerOpen(false);
             fetchAssets();
         } catch (err: unknown) {
-            toast.error("Update failed: " + (err instanceof Error ? err.message : String(err)));
+            toast({ variant: "destructive", title: "Error", description: "Update failed: " + (err instanceof Error ? err.message : String(err)) });
         }
     };
 

@@ -101,7 +101,7 @@ const ServicesHero = () => {
             transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
             className="flex items-center gap-4 text-[11px] font-bold tracking-[0.3em] uppercase text-[#FFFFFF]"
           >
-            <div className="w-8 h-[2px] bg-[#FF2A2A] shrink-0 shadow-[0_0_8px_rgba(255,42,42,0.6)]" />
+            <div className="w-8 h-[2px] bg-[#C41230] shrink-0 shadow-[0_0_8px_rgba(196,18,48,0.6)]" />
             OUR SERVICES
           </motion.div>
 
@@ -115,7 +115,7 @@ const ServicesHero = () => {
               One Team. One Contract.
               <br />
               Complete Turnkey{" "}
-              <span className="text-[#FF2A2A] font-semibold">Interiors.</span>
+              <span className="text-[#C41230] font-semibold">Interiors.</span>
             </h1>
           </motion.div>
 
@@ -128,7 +128,7 @@ const ServicesHero = () => {
           >
             Architecture Without{" "}
             <span
-              className="relative inline-flex overflow-hidden text-[#FF2A2A] font-semibold align-bottom"
+              className="relative inline-flex overflow-hidden text-[#C41230] font-semibold align-bottom"
               style={{ minWidth: "4.5ch" }}
             >
               <AnimatePresence mode="popLayout">
@@ -147,8 +147,8 @@ const ServicesHero = () => {
             <br />
             Is{" "}
             <span
-              className="relative inline-flex overflow-hidden text-[#FF2A2A] font-semibold align-bottom"
-              style={{ minWidth: "6ch" }}
+              className="relative inline-flex overflow-hidden text-[#C41230] font-semibold align-bottom"
+              style={{ minWidth: "11.5ch" }}
             >
               <AnimatePresence mode="popLayout">
                 <motion.span
@@ -185,7 +185,7 @@ const ServicesHero = () => {
             {["End-to-End Execution", "Material Engineering", "Time-Bound Delivery"].map(
               (point, i) => (
                 <div key={i} className="flex items-center gap-3.5">
-                  <div className="w-1 h-1 rounded-full bg-[#FF2A2A] shadow-[0_0_6px_rgba(255,42,42,0.9)] shrink-0" />
+                  <div className="w-1 h-1 rounded-full bg-[#C41230] shadow-[0_0_6px_rgba(196,18,48,0.9)] shrink-0" />
                   {point}
                 </div>
               )
@@ -246,7 +246,7 @@ const ServicesHero = () => {
             ref={handleRef}
             className={cn(
               "absolute top-0 bottom-0 w-[3px] z-30 cursor-ew-resize transition-colors duration-200",
-              isDragging ? "bg-[#FF2A2A] shadow-[0_0_12px_rgba(255,42,42,0.6)]" : "bg-white/70"
+              isDragging ? "bg-[#C41230] shadow-[0_0_12px_rgba(196,18,48,0.6)]" : "bg-white/70"
             )}
             style={{ touchAction: "none", left: 0 }}
           >
@@ -259,14 +259,14 @@ const ServicesHero = () => {
                 className={cn(
                   "w-12 h-12 bg-black border flex items-center justify-center transition-colors duration-200",
                   isDragging
-                    ? "border-[#FF2A2A] shadow-[0_0_16px_rgba(255,42,42,0.5)]"
+                    ? "border-[#C41230] shadow-[0_0_16px_rgba(196,18,48,0.5)]"
                     : "border-white/40"
                 )}
               >
                 <div
                   className={cn(
                     "flex items-center transition-colors duration-200",
-                    isDragging ? "text-[#FF2A2A]" : "text-white"
+                    isDragging ? "text-[#C41230]" : "text-white"
                   )}
                 >
                   <ChevronLeft className="w-4 h-4 -mr-0.5" />
@@ -288,7 +288,7 @@ const ServicesHero = () => {
           <div className="absolute top-5 left-5 z-40 text-[9px] font-bold text-white/70 tracking-[0.2em] uppercase bg-black/60 backdrop-blur-sm px-2.5 py-1 border border-white/10">
             STRUCTURAL
           </div>
-          <div className="absolute top-5 right-5 z-40 text-[9px] font-bold text-[#FF2A2A] tracking-[0.2em] uppercase bg-black/60 backdrop-blur-sm px-2.5 py-1 border border-[#FF2A2A]/40">
+          <div className="absolute top-5 right-5 z-40 text-[9px] font-bold text-[#C41230] tracking-[0.2em] uppercase bg-black/60 backdrop-blur-sm px-2.5 py-1 border border-[#C41230]/40">
             FURNISHED
           </div>
         </div>

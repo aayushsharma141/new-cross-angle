@@ -117,7 +117,7 @@ const TimelineGantt = () => {
                 className="text-center"
               >
                 <div className="w-2 h-2 rounded-full bg-site-gold mx-auto mb-2 shadow-[0_0_8px_rgba(197,168,128,0.5)]" />
-                <div className="text-[8px] font-mono text-site-gold tracking-wider mb-1">{weeks[m.week]}</div>
+                <div className="text-[8px] font-mono text-site-gold tracking-wider mb-1">{weeks[m.week - 1]}</div>
                 <div className="text-[9px] text-stone-400 font-light leading-snug">{m.label}</div>
               </motion.div>
             ))}

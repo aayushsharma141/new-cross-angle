@@ -24,10 +24,6 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary caught an error:", error, errorInfo);
-    // Report to Sentry if available (loaded async)
-    import('@sentry/react').then((Sentry) => {
-      Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
-    }).catch(() => { /* Sentry not loaded yet */ });
   }
 
   handleReload = () => {

@@ -26,3 +26,14 @@
 7. EstimatorPromo (existing)
 8. HomeFinalCTA (NEW)
 9. Footer
+
+# UI/UX Audit Remediation Plan (Phase 8)
+
+**Goal:** Execute the prioritized remediation phases derived from `mentor_crosscheck_report.md` starting with Phase 0.
+
+## Phase 0: Quick Confidence Restorers
+- [x] Fix `ServicesHero.tsx` (#FF2A2A -> brand crimson, width fix)
+- [x] Fix `TimelineGantt.tsx` (Week 8 out of bounds)
+- [x] Fix `AdminSiteAssets.tsx` (sonner -> useToast)
+- [x] Fix `ErrorBoundary.tsx` (Phantom @sentry/react dependency)
+- [x] Update `index.css` (Add prefers-reduced-motion global support)

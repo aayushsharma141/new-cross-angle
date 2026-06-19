@@ -111,3 +111,19 @@ This document outlines the phased execution plan for the project.
 - [ ] **`AdminMedia.tsx` Overhaul** — wire everything together with Import/Export buttons.
 - [ ] **Deploy & Migrate** — SQL migration, Edge Function deploy, data seeding.
 
+### Phase 8: UI/UX Audit Remediation
+
+**Status**: Planning
+
+**Goals**:
+- Address the critical and major findings from the 10-dimensional Elite UI/UX audit.
+- Unify Admin CMS data fetching patterns (React Query).
+- Restore immediate trust with quick visual bug fixes.
+
+**Features**:
+- [ ] Execute Phase 0: Quick Confidence Restorers (Phantom Sentry, Gantt chart, ServicesHero `#FF2A2A`, prefers-reduced-motion).
+- [ ] Execute Phase 1: Frontend Trust & Credibility.
+- [ ] Execute Phase 2: Keyboard & Screen Reader Gate (Focus traps, SkipNav).
+- [ ] Execute Phase 3: Admin Consistency (React Query, etc.).
+- [ ] Execute Phase 4: Instant UI Feedback Loop.
+- [ ] Execute Phase 5 & 6: Long-Tail Bugs & Quality Gates.
