@@ -11,7 +11,13 @@
     "build": "node apps/web/scripts/optimize-images.js && node -e \"require('fs').rmSync('apps/web/dist',{recursive:true,force:true})\" && vite build && node apps/web/scripts/generate-sitemap.js && node apps/web/scripts/copy-indexes.js",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
-    "dev:web": "npm run dev --workspace=web"
+    "dev:web": "npm run dev --workspace=web",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit && npm run typecheck --workspace=web",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": "eslint"
   },
   "dependencies": {
     "@dnd-kit/core": "6.3.1",
@@ -92,6 +98,8 @@
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-react-refresh": "0.4.20",
     "globals": "15.15.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
     "playwright": "1.59.1",
     "postcss": "8.5.6",
     "shadcn": "4.0.2",
