@@ -23,6 +23,7 @@ import { HeroMediaItem, AnimationEffect } from "@/components/admin/hero/types";
 import { HeroItemFormFields } from "@/components/admin/hero/HeroItemFormFields";
 import { HeroItemDisplay } from "@/components/admin/hero/HeroItemDisplay";
 import { HeroMediaPickerModal } from "@/components/admin/hero/HeroMediaPickerModal";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 /* ─── Helpers ─── */
 const isValidUrl = (str: string) => {
@@ -41,9 +42,9 @@ const AdminHero = () => {
     const { toast } = useToast();
     const { can } = usePermissions();
     const canEdit = can('content', 'edit');
+    const queryClient = useQueryClient();
 
     const [items, setItems] = useState<HeroMediaItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<HeroMediaItem | null>(null);
@@ -79,30 +80,48 @@ const AdminHero = () => {
     const addUrlRef = useRef<HTMLInputElement>(null);
 
     /* ─── Fetch ─── */
-    const fetchItems = useCallback(async () => {
-        try {
-            setIsLoading(true);
+    const { data: fetchedItems = [], isLoading } = useQuery({
+        queryKey: ['hero-items'],
+        queryFn: async () => {
             const { data, error } = await supabase
                 .from("hero_media")
                 .select("*")
                 .order("display_order", { ascending: true });
 
             if (error) throw error;
-            setItems((data as HeroMediaItem[]) || []);
-        } catch (error) {
-            const err = error as Error;
-            toast({ title: "Error", description: err.message, variant: "destructive" });
-        } finally {
-            setIsLoading(false);
+            return (data as HeroMediaItem[]) || [];
         }
-    }, [toast]);
+    });
 
     useEffect(() => {
-        fetchItems();
-    }, [fetchItems]);
+        setItems(fetchedItems);
+    }, [fetchedItems]);
 
     /* ─── Add ─── */
-    const handleAdd = async () => {
+    const addMutation = useMutation({
+        mutationFn: async (payload: any) => {
+            const { error } = await supabase.from("hero_media").insert(payload);
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            toast({ title: "✓ Added", description: `"${newTitle.trim() || "New item"}" added to hero rotation.` });
+            setNewUrl("");
+            setNewTitle("");
+            setNewType("video");
+            setNewDuration(4000);
+            setNewEffect("none");
+            setNewHeadline("");
+            setNewCtaText("");
+            setNewCtaLink("");
+            setShowAddForm(false);
+            queryClient.invalidateQueries({ queryKey: ['hero-items'] });
+        },
+        onError: (error: Error) => {
+            toast({ title: "Error", description: error.message, variant: "destructive" });
+        }
+    });
+
+    const handleAdd = () => {
         const url = newUrl.trim();
         if (!url) {
             setUrlError("Media URL is required");
@@ -116,44 +135,22 @@ const AdminHero = () => {
         }
         setUrlError("");
 
-        try {
-            setIsSaving(true);
-            const nextOrder = items.length > 0
-                ? Math.max(...items.map(i => i.display_order)) + 1
-                : 0;
+        const nextOrder = items.length > 0
+            ? Math.max(...items.map(i => i.display_order)) + 1
+            : 0;
 
-            const { error } = await supabase.from("hero_media").insert({
-                media_url: url,
-                media_type: newType,
-                title: newTitle.trim() || null,
-                headline: newHeadline.trim() || null,
-                cta_text: newCtaText.trim() || null,
-                cta_link: newCtaLink.trim() || null,
-                display_order: nextOrder,
-                is_active: true,
-                duration_ms: newDuration,
-                animation_effect: newEffect,
-            });
-
-            if (error) throw error;
-
-            toast({ title: "✓ Added", description: `"${newTitle.trim() || "New item"}" added to hero rotation.` });
-            setNewUrl("");
-            setNewTitle("");
-            setNewType("video");
-            setNewDuration(4000);
-            setNewEffect("none");
-            setNewHeadline("");
-            setNewCtaText("");
-            setNewCtaLink("");
-            setShowAddForm(false);
-            fetchItems();
-        } catch (error) {
-            const err = error as Error;
-            toast({ title: "Error", description: err.message, variant: "destructive" });
-        } finally {
-            setIsSaving(false);
-        }
+        addMutation.mutate({
+            media_url: url,
+            media_type: newType,
+            title: newTitle.trim() || null,
+            headline: newHeadline.trim() || null,
+            cta_text: newCtaText.trim() || null,
+            cta_link: newCtaLink.trim() || null,
+            display_order: nextOrder,
+            is_active: true,
+            duration_ms: newDuration,
+            animation_effect: newEffect,
+        });
     };
 
     /* ─── Inline Edit ─── */
@@ -173,68 +170,64 @@ const AdminHero = () => {
         setEditingId(null);
     };
 
-    const saveEditing = async (item: HeroMediaItem) => {
-        if (isSaving) return;
-        const url = editUrl.trim();
-        if (!url || !isValidUrl(url)) {
-            toast({ title: "Invalid URL", description: "Please enter a valid URL", variant: "destructive" });
-            return;
-        }
-
-        setIsSaving(true);
-        try {
-            const updatePayload = {
-                title: editTitle.trim() || null,
-                headline: editHeadline.trim() || null,
-                cta_text: editCtaText.trim() || null,
-                cta_link: editCtaLink.trim() || null,
-                media_url: url,
-                media_type: editType,
-                duration_ms: editDuration,
-                animation_effect: editEffect,
-            };
-
+    const updateMutation = useMutation({
+        mutationFn: async ({ id, updatePayload }: { id: string, updatePayload: any }) => {
             const { error } = await supabase
                 .from("hero_media")
                 .update(updatePayload)
-                .eq("id", item.id);
-
+                .eq("id", id);
             if (error) throw error;
-
-            // Optimistically update local state to avoid full re-render flash
+            return { id, updatePayload };
+        },
+        onSuccess: ({ id, updatePayload }) => {
             setItems((prev) =>
                 prev.map((i) =>
-                    i.id === item.id
+                    i.id === id
                         ? { ...i, ...updatePayload } as HeroMediaItem
                         : i
                 )
             );
             setEditingId(null);
             toast({ title: "✓ Updated", description: `Changes saved for "${editTitle.trim() || "Untitled"}"` });
-
-            // Quiet background refresh (no isLoading flicker)
-            const { data } = await supabase
-                .from("hero_media")
-                .select("*")
-                .order("display_order", { ascending: true });
-            if (data) setItems(data as HeroMediaItem[]);
-        } catch (error) {
-            const err = error as Error;
-            if (err.name === "AbortError") return; // Ignore abort errors
-            toast({ title: "Error", description: err.message, variant: "destructive" });
-        } finally {
-            setIsSaving(false);
+            queryClient.invalidateQueries({ queryKey: ['hero-items'] });
+        },
+        onError: (error: Error) => {
+            toast({ title: "Error", description: error.message, variant: "destructive" });
         }
+    });
+
+    const saveEditing = (item: HeroMediaItem) => {
+        const url = editUrl.trim();
+        if (!url || !isValidUrl(url)) {
+            toast({ title: "Invalid URL", description: "Please enter a valid URL", variant: "destructive" });
+            return;
+        }
+
+        const updatePayload = {
+            title: editTitle.trim() || null,
+            headline: editHeadline.trim() || null,
+            cta_text: editCtaText.trim() || null,
+            cta_link: editCtaLink.trim() || null,
+            media_url: url,
+            media_type: editType,
+            duration_ms: editDuration,
+            animation_effect: editEffect,
+        };
+
+        updateMutation.mutate({ id: item.id, updatePayload });
     };
 
     /* ─── Toggle Active ─── */
-    const handleToggleActive = async (item: HeroMediaItem) => {
-        try {
+    const toggleMutation = useMutation({
+        mutationFn: async (item: HeroMediaItem) => {
             const { error } = await supabase
                 .from("hero_media")
                 .update({ is_active: !item.is_active })
                 .eq("id", item.id);
             if (error) throw error;
+            return item;
+        },
+        onSuccess: (item) => {
             setItems(prev =>
                 prev.map(i => (i.id === item.id ? { ...i, is_active: !i.is_active } : i))
             );
@@ -242,30 +235,42 @@ const AdminHero = () => {
                 title: item.is_active ? "Hidden" : "Visible",
                 description: `"${item.title || "Item"}" is now ${item.is_active ? "hidden" : "visible"} on the homepage.`,
             });
-        } catch (error) {
-            const err = error as Error;
-            toast({ title: "Error", description: err.message, variant: "destructive" });
+            queryClient.invalidateQueries({ queryKey: ['hero-items'] });
+        },
+        onError: (error: Error) => {
+            toast({ title: "Error", description: error.message, variant: "destructive" });
         }
+    });
+
+    const handleToggleActive = (item: HeroMediaItem) => {
+        toggleMutation.mutate(item);
     };
 
     /* ─── Delete ─── */
-    const handleDelete = async () => {
-        if (!itemToDelete) return;
-        try {
+    const deleteMutation = useMutation({
+        mutationFn: async (id: string) => {
             const { error } = await supabase
                 .from("hero_media")
                 .delete()
-                .eq("id", itemToDelete.id);
+                .eq("id", id);
             if (error) throw error;
-            toast({ title: "✓ Deleted", description: `"${itemToDelete.title || "Item"}" has been removed.` });
-            fetchItems();
-        } catch (error) {
-            const err = error as Error;
-            toast({ title: "Error", description: err.message, variant: "destructive" });
-        } finally {
+        },
+        onSuccess: () => {
+            toast({ title: "✓ Deleted", description: `"${itemToDelete?.title || "Item"}" has been removed.` });
+            setDeleteDialogOpen(false);
+            setItemToDelete(null);
+            queryClient.invalidateQueries({ queryKey: ['hero-items'] });
+        },
+        onError: (error: Error) => {
+            toast({ title: "Error", description: error.message, variant: "destructive" });
             setDeleteDialogOpen(false);
             setItemToDelete(null);
         }
+    });
+
+    const handleDelete = () => {
+        if (!itemToDelete) return;
+        deleteMutation.mutate(itemToDelete.id);
     };
 
     /* ─── Reorder (debounced) ─── */
@@ -406,8 +411,8 @@ const AdminHero = () => {
                             )}
 
                             <div className="flex gap-3 pt-1">
-                                <Button onClick={handleAdd} disabled={isSaving} className="bg-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary-hover))] text-black">
-                                    {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                                <Button onClick={handleAdd} disabled={addMutation.isPending} className="bg-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary-hover))] text-black">
+                                    {addMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                                     Add to Hero
                                 </Button>
                                 <Button variant="ghost" className="text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] hover:bg-[hsl(var(--admin-surface-hover))]" onClick={() => setShowAddForm(false)}>
@@ -462,7 +467,7 @@ const AdminHero = () => {
                                     index={index}
                                     isEditing={isEditing}
                                     canEdit={canEdit}
-                                    isSaving={isSaving}
+                                    isSaving={updateMutation.isPending && editingId === item.id}
                                     itemsLength={items.length}
                                     onStartEdit={startEditing}
                                     onCancelEdit={cancelEditing}

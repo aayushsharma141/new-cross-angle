@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { MessageSquare, ShieldCheck, EyeOff, StarHalf, Edit2, Trash2, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { DataLoadingBoundary } from "@/components/ui/enhanced/DataLoadingBoundary";
 import { TestimonialFormDialog, type TestimonialFormData } from "@/components/admin/testimonials/TestimonialFormDialog";
 import type { Testimonial } from "@/components/admin/testimonials/TestimonialsTable";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 type TestimonialStatus = "All" | "Active" | "Hidden";
 
@@ -23,9 +24,8 @@ const AdminTestimonials = () => {
   const { toast } = useToast();
   const { can } = usePermissions();
   const canWrite = can("content", "edit");
+  const queryClient = useQueryClient();
 
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<TestimonialStatus>("All");
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -35,23 +35,21 @@ const AdminTestimonials = () => {
   const [formData, setFormData] = useState<TestimonialFormData>(defaultFormData);
   const [isSaving, setIsSaving] = useState(false);
 
-  const fetchTestimonials = useCallback(async () => {
-    setIsLoading(true);
-    const { data, error } = await supabase
-      .from('testimonials')
-      .select('*')
-      .is('project_id', null)
-      .order('display_order', { ascending: true });
-      
-    if (error) {
-      toast({ title: "Error fetching testimonials", description: error.message, variant: "destructive" });
-    } else if (data) {
-      setTestimonials(data);
+  const { data: testimonials = [], isLoading } = useQuery({
+    queryKey: ['admin-testimonials'],
+    queryFn: async (): Promise<Testimonial[]> => {
+      const { data, error } = await supabase
+        .from('testimonials')
+        .select('*')
+        .is('project_id', null)
+        .order('display_order', { ascending: true });
+        
+      if (error) {
+        throw error;
+      }
+      return data || [];
     }
-    setIsLoading(false);
-  }, [toast]);
-
-  useEffect(() => { void fetchTestimonials(); }, [fetchTestimonials]);
+  });
 
   const handleEdit = useCallback((t: Testimonial) => {
     setEditingTestimonial(t);
@@ -73,10 +71,38 @@ const AdminTestimonials = () => {
     setFormData(defaultFormData); 
   };
 
-  const handleSave = async (): Promise<void> => {
+  const saveMutation = useMutation({
+    mutationFn: async (payload: any) => {
+      let error;
+      if (editingTestimonial) { 
+        const { error: e } = await supabase.from('testimonials').update(payload).eq('id', editingTestimonial.id); 
+        error = e; 
+      } else { 
+        const { error: e } = await supabase.from('testimonials').insert({ ...payload, display_order: testimonials.length }); 
+        error = e; 
+      }
+      if (error) throw error;
+      return payload;
+    },
+    onSuccess: (payload) => {
+      void auditService.writeAudit(
+        editingTestimonial ? 'UPDATE' : 'CREATE',
+        'testimonial',
+        editingTestimonial?.id || null,
+        { author_name: payload.author_name }
+      );
+      toast({ title: editingTestimonial ? "Testimonial updated" : "Testimonial created", description: `Successfully ${editingTestimonial ? 'updated' : 'created'} testimonial.` }); 
+      queryClient.invalidateQueries({ queryKey: ['admin-testimonials'] });
+      closeDialog(); 
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" }); 
+    }
+  });
+
+  const handleSave = (): void => {
     if (!formData.author_name.trim()) { toast({ title: "Validation Error", description: "Author name is required.", variant: "destructive" }); return; }
     if (!formData.content.trim()) { toast({ title: "Validation Error", description: "Content is required.", variant: "destructive" }); return; }
-    setIsSaving(true);
     
     const payload = { 
       author_name: formData.author_name.trim(), 
@@ -88,40 +114,27 @@ const AdminTestimonials = () => {
       city: formData.city.trim() || null 
     };
     
-    let error;
-    if (editingTestimonial) { 
-      const { error: e } = await supabase.from('testimonials').update(payload).eq('id', editingTestimonial.id); 
-      error = e; 
-    } else { 
-      const { error: e } = await supabase.from('testimonials').insert({ ...payload, display_order: testimonials.length }); 
-      error = e; 
-    }
-    
-    if (error) { 
-      toast({ title: "Error", description: error.message, variant: "destructive" }); 
-    } else { 
-      void auditService.writeAudit(
-        editingTestimonial ? 'UPDATE' : 'CREATE',
-        'testimonial',
-        editingTestimonial?.id || null,
-        { author_name: formData.author_name }
-      );
-      toast({ title: editingTestimonial ? "Testimonial updated" : "Testimonial created", description: `Successfully ${editingTestimonial ? 'updated' : 'created'} testimonial.` }); 
-      await fetchTestimonials(); 
-      closeDialog(); 
-    }
-    setIsSaving(false);
+    saveMutation.mutate(payload);
   };
 
-  const handleDelete = async (id: string): Promise<void> => {
-    const { error } = await supabase.from('testimonials').delete().eq('id', id);
-    if (error) { 
-      throw error; 
-    } else { 
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('testimonials').delete().eq('id', id);
+      if (error) throw error;
+      return id;
+    },
+    onSuccess: (id) => {
       toast({ title: "Deleted", description: "Testimonial deleted successfully." }); 
       void auditService.writeAudit('DELETE', 'testimonial', id, {});
-      await fetchTestimonials(); 
+      queryClient.invalidateQueries({ queryKey: ['admin-testimonials'] });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" }); 
     }
+  });
+
+  const handleDelete = (id: string): void => {
+    deleteMutation.mutate(id);
   };
 
   // Derived state
@@ -301,7 +314,7 @@ const AdminTestimonials = () => {
         formData={formData} 
         onChange={setFormData} 
         onSave={handleSave} 
-        isSaving={isSaving} 
+        isSaving={saveMutation.isPending} 
         isEditing={!!editingTestimonial} 
       />
     </div>

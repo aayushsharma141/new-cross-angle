@@ -26,3 +26,31 @@ This file logs the state of specific pages before executing Phase 0 of the UI/UX
 **Target Modification:** Removing the unused import to clear the codebase pre-push error.
 
 *Changes committed to git on 2026-06-19.*
+
+## Date: 2026-06-19
+**Checkpoint:** Phase 1 - High-Friction Form Overhauls & Component Hoisting
+
+This file logs the state of specific pages after executing Phase 1 of the UI/UX Audit Remediation.
+
+### 1. App.tsx
+**Issue:** `FixedSocialBar` was duplicated across all pages leading to layout bugs.
+**Modification:** Hoisted `FixedSocialBar` into `App.tsx` and removed it from individual pages. Verified `SkipNav` implementation.
+
+### 2. Layout Hooks & Contexts
+**Issue:** Scattered metrics stats in `Hero`, `About`, `CredibilityStrip` and `AboutPage`.
+**Modification:** Replaced duplicate static objects with global variables from `useSiteSettings`.
+
+### 3. BlogDetailPage.tsx
+**Issue:** Hardcoded style mappings instead of Tailwind classes.
+**Modification:** Converted inline text color constants to `text-site-crimson` Tailwind class.
+
+## Date: 2026-06-19
+**Checkpoint:** Phase 2 - Keyboard & Screen Reader Gate
+
+This file logs the state of specific pages after executing Phase 2 of the UI/UX Audit Remediation.
+
+### 1. FocusLock implementation across Modals
+**Issue:** No focus traps on modals/dialogs (GalleryLightbox, AdminLeads, ConfirmDialog, PortfolioFormDialog, HeroMediaPickerModal) breaking WCAG 2.1 AA accessibility guidelines.
+**Modification:** Installed `react-focus-lock` and explicitly wrapped the contents of `GalleryLightbox`, `ConfirmDialog`, `PortfolioFormDialog`, `HeroMediaPickerModal`, and `LeadDetailSheet` (in AdminLeads) inside `<FocusLock returnFocus>` components to guarantee focus is trapped within the dialog context while open.
+
+*Checkpoint tag created: `checkpoint/v5-phase2-remediation` on 2026-06-19.*

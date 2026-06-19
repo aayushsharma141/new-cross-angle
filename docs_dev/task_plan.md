@@ -51,3 +51,8 @@
 - [x] Add `<FocusLock>` to `PortfolioFormDialog.tsx`
 - [x] Add `<FocusLock>` to `HeroMediaPickerModal.tsx`
 - [x] Verify `SkipNav` implementation in `App.tsx`
+
+## Phase 3: Admin Consistency & Data Fetching Unification [IN PROGRESS]
+- [ ] 3a: Migrate remaining pages to React Query (`AdminServices`, `AdminHero`, `AdminTestimonials`, `AdminBeforeAndAfter`, `AdminSiteAssets`)
+- [ ] 3b: Standardize confirmation dialogs (`window.confirm()` → `ConfirmDialog`)
+- [ ] 3c: Unify button/input imports across all admin pages (`@/design-system` vs `@/components/ui/primitives`)

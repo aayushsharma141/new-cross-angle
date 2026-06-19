@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/primitives/button";
 import { Loader2, Image as ImageIcon, Check, ImagePlus, MonitorPlay } from "lucide-react";
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/primitives/dialog";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
 import type { MediaFile } from "@/services/MediaService";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface SiteAsset {
     id: string;
@@ -25,21 +26,15 @@ interface SiteAsset {
 }
 
 export default function AdminSiteAssets() {
-    const [assets, setAssets] = useState<SiteAsset[]>([]);
-    const [groupedAssets, setGroupedAssets] = useState<Record<string, SiteAsset[]>>({});
-    const [isLoading, setIsLoading] = useState(true);
+    const queryClient = useQueryClient();
     const { toast } = useToast();
 
     const [pickerOpen, setPickerOpen] = useState(false);
     const [currentEditingAsset, setCurrentEditingAsset] = useState<SiteAsset | null>(null);
 
-    useEffect(() => {
-        fetchAssets();
-    }, []);
-
-    const fetchAssets = async () => {
-        setIsLoading(true);
-        try {
+    const { data: typedData = [], isLoading } = useQuery({
+        queryKey: ['admin-site-assets'],
+        queryFn: async (): Promise<SiteAsset[]> => {
             const { data, error } = await supabase
                 .from('site_media_assets')
                 .select(`
@@ -52,47 +47,47 @@ export default function AdminSiteAssets() {
                 .order('asset_key');
             
             if (error) throw error;
-
-            const typedData = data as unknown as SiteAsset[];
-            setAssets(typedData);
-
-            // Group by prefix (e.g. discovery_visual-1 -> Discovery)
-            const groups: Record<string, SiteAsset[]> = {};
-            typedData.forEach(asset => {
-                const prefix = asset.asset_key.split('_')[0] || 'general';
-                const formattedPrefix = prefix.charAt(0).toUpperCase() + prefix.slice(1);
-                if (!groups[formattedPrefix]) groups[formattedPrefix] = [];
-                groups[formattedPrefix].push(asset);
-            });
-            setGroupedAssets(groups);
-
-        } catch (err: unknown) {
-            toast({ variant: "destructive", title: "Error", description: err instanceof Error ? err.message : String(err) });
-        } finally {
-            setIsLoading(false);
+            return data as unknown as SiteAsset[];
         }
-    };
+    });
+
+    const groupedAssets = useMemo(() => {
+        const groups: Record<string, SiteAsset[]> = {};
+        typedData.forEach(asset => {
+            const prefix = asset.asset_key.split('_')[0] || 'general';
+            const formattedPrefix = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+            if (!groups[formattedPrefix]) groups[formattedPrefix] = [];
+            groups[formattedPrefix].push(asset);
+        });
+        return groups;
+    }, [typedData]);
 
     const handleOpenPicker = (asset: SiteAsset) => {
         setCurrentEditingAsset(asset);
         setPickerOpen(true);
     };
 
-    const handleSelectMedia = async (file: MediaFile) => {
-        if (!currentEditingAsset) return;
-        try {
+    const updateMutation = useMutation({
+        mutationFn: async ({ id, fileId }: { id: string, fileId: string }) => {
             const { error } = await supabase
                 .from('site_media_assets')
-                .update({ media_file_id: file.id })
-                .eq('id', currentEditingAsset.id);
-            
+                .update({ media_file_id: fileId })
+                .eq('id', id);
             if (error) throw error;
+        },
+        onSuccess: () => {
             toast({ title: "Success", description: "Asset updated successfully" });
             setPickerOpen(false);
-            fetchAssets();
-        } catch (err: unknown) {
-            toast({ variant: "destructive", title: "Error", description: "Update failed: " + (err instanceof Error ? err.message : String(err)) });
+            queryClient.invalidateQueries({ queryKey: ['admin-site-assets'] });
+        },
+        onError: (error: Error) => {
+            toast({ variant: "destructive", title: "Error", description: "Update failed: " + error.message });
         }
+    });
+
+    const handleSelectMedia = (file: MediaFile) => {
+        if (!currentEditingAsset) return;
+        updateMutation.mutate({ id: currentEditingAsset.id, fileId: file.id });
     };
 
     return (

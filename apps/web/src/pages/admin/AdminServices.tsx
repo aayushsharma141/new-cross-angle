@@ -1,8 +1,8 @@
 import React from 'react';
 import { useState, useEffect, useMemo } from "react";
 import { Plus, Pencil, Trash2, Loader2, ImagePlus, Briefcase, FileText, Search } from "lucide-react";
-import { Button } from "@/design-system/components/Button";
-import { Input } from "@/design-system/components/Input";
+import { Button } from "@/components/ui/primitives/button";
+import { Input } from "@/components/ui/primitives/input";
 import { Textarea } from "@/components/ui/primitives/textarea";
 import { Label } from "@/components/ui/primitives/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/primitives/select";
@@ -25,6 +25,7 @@ import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { DataLoadingBoundary } from "@/components/ui/enhanced/DataLoadingBoundary";
 import * as LucideIcons from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const ICONS = ["Home", "Building2", "Palette", "Lightbulb", "Sofa", "PenTool", "Lamp", "UtensilsCrossed", "Bed"];
 const CATEGORIES = [
@@ -50,8 +51,6 @@ interface ServiceRecord {
 }
 
 const AdminServices = () => {
-    const [services, setServices] = useState<ServiceDetail[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingService, setEditingService] = useState<ServiceDetail | null>(null);
     const [categoryFilter, setCategoryFilter] = useState<ServiceFilter>("All");
@@ -71,39 +70,29 @@ const AdminServices = () => {
         faq: []
     });
 
-    const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        fetchServices();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const { data: services = [], isLoading } = useQuery({
+        queryKey: ['admin-services'],
+        queryFn: async (): Promise<ServiceDetail[]> => {
+            const { data, error } = await supabase
+                .from('services')
+                .select(`
+                    *,
+                    service_steps (*),
+                    service_faqs (*)
+                `)
+                .order('display_order', { ascending: true });
 
-    const fetchServices = async (): Promise<void> => {
-        setIsLoading(true);
-        // Fetch services with their related steps and faqs
-        const { data, error } = await supabase
-            .from('services')
-            .select(`
-                *,
-                service_steps (*),
-                service_faqs (*)
-            `)
-            .order('display_order', { ascending: true });
+            if (error) {
+                console.error("Error fetching services:", error);
+                throw error;
+            }
 
-        if (error) {
-            console.error("Error fetching services:", error);
-            toast({
-                title: "Error fetching services",
-                description: error.message,
-                variant: "destructive",
-            });
-            setIsLoading(false);
-            return;
-        }
+            if (!data) return [];
 
-        if (data) {
-            const mappedServices: ServiceDetail[] = (data as ServiceRecord[]).map((item: ServiceRecord) => {
+            return (data as ServiceRecord[]).map((item: ServiceRecord) => {
                 const descJson = typeof item.description === 'string'
                     ? JSON.parse(item.description)
                     : (item.description as Record<string, unknown>) || {};
@@ -111,11 +100,10 @@ const AdminServices = () => {
                 return {
                     id: item.id,
                     created_at: item.created_at,
-                    title: item.name, // Mapping 'name' to 'title'
+                    title: item.name, 
                     slug: item.slug,
                     active: item.active ?? true,
                     category_id: descJson.category_id || "residential",
-                    // Start: Schema mapping
                     description: descJson.content || item.short_description || "",
                     hero_image: item.icon_url || "",
                     icon: descJson.icon || "Home",
@@ -131,10 +119,8 @@ const AdminServices = () => {
                     })) || []
                 };
             });
-            setServices(mappedServices);
         }
-        setIsLoading(false);
-    };
+    });
 
     const handleEdit = (service: ServiceDetail): void => {
         setEditingService(service);
@@ -153,29 +139,56 @@ const AdminServices = () => {
         setIsDialogOpen(true);
     };
 
-    const handleDelete = async (id: string): Promise<void> => {
-        const { error } = await supabase
-            .from('services')
-            .delete()
-            .eq('id', id);
-
-        if (error) {
-            throw error;
-        } else {
+    const deleteMutation = useMutation({
+        mutationFn: async (id: string) => {
+            const { error } = await supabase.from('services').delete().eq('id', id);
+            if (error) throw error;
+            return id;
+        },
+        onSuccess: (id) => {
             toast({ title: "Service deleted successfully" });
             void auditService.writeAudit('DELETE', 'service', id, {});
-            void fetchServices();
+            queryClient.invalidateQueries({ queryKey: ['admin-services'] });
+        },
+        onError: (error: Error) => {
+            toast({ title: "Delete failed", description: error.message, variant: "destructive" });
         }
+    });
+
+    const handleDelete = (id: string): void => {
+        deleteMutation.mutate(id);
     };
 
     const generateSlug = (title: string): string => {
         return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     };
 
-    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    const upsertMutation = useMutation({
+        mutationFn: async (payload: any) => {
+            const { error: rpcError } = await supabase.rpc('upsert_service', payload);
+            if (rpcError) throw rpcError;
+            return payload;
+        },
+        onSuccess: (payload) => {
+            toast({ title: payload.p_service_id ? "Service updated!" : "Service created!" });
+            void auditService.writeAudit(
+                payload.p_service_id ? 'UPDATE' : 'CREATE',
+                'service',
+                payload.p_service_id || null,
+                { title: payload.p_name }
+            );
+            setIsDialogOpen(false);
+            setEditingService(null);
+            queryClient.invalidateQueries({ queryKey: ['admin-services'] });
+        },
+        onError: (error: Error) => {
+            toast({ title: "Error saving service", description: error.message, variant: "destructive" });
+        }
+    });
+
+    const handleSubmit = (e: React.FormEvent): void => {
         e.preventDefault();
 
-        // Validate with Zod before saving
         const validation = serviceSchema.safeParse(formData);
         if (!validation.success) {
             toast({
@@ -186,72 +199,39 @@ const AdminServices = () => {
             return;
         }
 
-        setIsSaving(true);
+        const descriptionData = {
+            content: formData.description,
+            features: formData.features,
+            icon: formData.icon,
+            category_id: formData.category_id
+        };
 
-        try {
-            // Prepare the JSONB description object
-            const descriptionData = {
-                content: formData.description,
-                features: formData.features,
-                icon: formData.icon,
-                category_id: formData.category_id
-            };
+        const stepsPayload = formData.process_steps?.map((step, index) => ({
+            step_number: index + 1,
+            title: step.title,
+            description: step.description
+        })) || [];
 
-            const stepsPayload = formData.process_steps?.map((step, index) => ({
-                step_number: index + 1,
-                title: step.title,
-                description: step.description
-            })) || [];
+        const faqPayload = formData.faq?.map((f, index) => ({
+            display_order: index + 1,
+            question: f.question,
+            answer: f.answer
+        })) || [];
 
-            const faqPayload = formData.faq?.map((f, index) => ({
-                display_order: index + 1,
-                question: f.question,
-                answer: f.answer
-            })) || [];
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { error: rpcError } = await (supabase.rpc as any)('upsert_service', {
-                p_service_id: editingService?.id || null,
-                p_name: formData.title,
-                p_slug: formData.slug || generateSlug(formData.title || ""),
-                p_description: descriptionData,
-                p_icon_url: formData.hero_image || null,
-                p_short_tag: formData.tag || null,
-                p_display_order: editingService
-                    ? (services.findIndex(s => s.id === editingService.id) + 1) || 1
-                    : services.length + 1,
-                p_active: true,
-                p_steps: stepsPayload,
-                p_faqs: faqPayload
-            });
-
-            if (rpcError) throw rpcError;
-
-            void auditService.writeAudit(
-                editingService ? 'UPDATE' : 'CREATE',
-                'service',
-                editingService?.id || null,
-                { title: formData.title }
-            );
-
-            toast({
-                title: editingService ? "Service updated!" : "Service created!",
-            });
-
-            setIsDialogOpen(false);
-            setEditingService(null);
-            void fetchServices();
-        } catch (error) {
-            const err = error as Error;
-            console.error(err);
-            toast({
-                title: "Error saving service",
-                description: err.message,
-                variant: "destructive",
-            });
-        } finally {
-            setIsSaving(false);
-        }
+        upsertMutation.mutate({
+            p_service_id: editingService?.id || null,
+            p_name: formData.title,
+            p_slug: formData.slug || generateSlug(formData.title || ""),
+            p_description: descriptionData,
+            p_icon_url: formData.hero_image || null,
+            p_short_tag: formData.tag || null,
+            p_display_order: editingService
+                ? (services.findIndex(s => s.id === editingService.id) + 1) || 1
+                : services.length + 1,
+            p_active: true,
+            p_steps: stepsPayload,
+            p_faqs: faqPayload
+        });
     };
 
     const handleNewService = (): void => {
@@ -577,8 +557,8 @@ const AdminServices = () => {
                         </div>
                         <div className="shrink-0 px-6 py-4 border-t border-[hsl(var(--admin-border))] flex justify-end gap-2 bg-[hsl(var(--admin-surface))] rounded-b-xl">
                             <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="admin-btn-secondary">Cancel</Button>
-                            <Button type="submit" disabled={isSaving} className="admin-btn-primary">
-                                {isSaving ? "Saving..." : editingService ? "Update" : "Create"}
+                            <Button type="submit" disabled={upsertMutation.isPending} className="admin-btn-primary">
+                                {upsertMutation.isPending ? "Saving..." : editingService ? "Update" : "Create"}
                             </Button>
                         </div>
                     </form>

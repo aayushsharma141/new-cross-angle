@@ -18,6 +18,7 @@ import { Compare } from "@/components/ui/enhanced/compare";
 import { MediaPicker as CanonicalMediaPicker } from "@/components/admin/media/MediaPicker";
 import { AdminSafeAction } from "@/components/admin/shared";
 import { AdminFilterBar } from "@/components/admin/shared/AdminFilterBar";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const BUCKET = "media";
 
@@ -100,23 +101,23 @@ const defaultForm: FormData = {
 };
 
 export default function AdminBeforeAndAfter() {
-  const [stories, setStories] = useState<TransformationStory[]>([]);
+  const queryClient = useQueryClient();
+  
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(defaultForm);
   const { toast } = useToast();
 
-  const fetchStories = async () => {
-    setLoading(true);
-    const { data } = await supabase.from("transformation_stories").select("*").order("display_order", { ascending: true });
-    if (data) setStories(data as TransformationStory[]);
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchStories(); }, []);
+  const { data: stories = [], isLoading: loading } = useQuery({
+    queryKey: ['admin-before-after'],
+    queryFn: async (): Promise<TransformationStory[]> => {
+      const { data, error } = await supabase.from("transformation_stories").select("*").order("display_order", { ascending: true });
+      if (error) throw error;
+      return (data || []) as TransformationStory[];
+    }
+  });
 
   const openCreate = () => { setEditingId(null); setForm(defaultForm); setDialogOpen(true); };
 
@@ -134,9 +135,31 @@ export default function AdminBeforeAndAfter() {
     setDialogOpen(true);
   };
 
-  const handleSave = async () => {
+  const saveMutation = useMutation({
+    mutationFn: async (payload: any) => {
+      let error;
+      if (editingId) {
+        ({ error } = await supabase.from("transformation_stories").update(payload).eq("id", editingId));
+      } else {
+        const maxOrder = stories.length > 0 ? Math.max(...stories.map(s => s.display_order)) + 1 : 0;
+        ({ error } = await supabase.from("transformation_stories").insert({ ...payload, display_order: maxOrder }));
+      }
+      if (error) throw error;
+      return payload;
+    },
+    onSuccess: () => {
+      toast({ title: "Saved!" }); 
+      setDialogOpen(false); 
+      queryClient.invalidateQueries({ queryKey: ['admin-before-after'] });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const handleSave = () => {
     if (!form.title.trim()) { toast({ title: "Title required", variant: "destructive" }); return; }
-    setSaving(true);
+    
     const payload = {
       title: form.title.trim(), location: form.location.trim(),
       before_media: form.before_media.trim(), after_media: form.after_media.trim(),
@@ -147,37 +170,57 @@ export default function AdminBeforeAndAfter() {
       testimonial_client_name: form.testimonial_client_name.trim() || null,
       active: form.active,
     };
-    let error;
-    if (editingId) {
-      ({ error } = await supabase.from("transformation_stories").update(payload).eq("id", editingId));
-    } else {
-      const maxOrder = stories.length > 0 ? Math.max(...stories.map(s => s.display_order)) + 1 : 0;
-      ({ error } = await supabase.from("transformation_stories").insert({ ...payload, display_order: maxOrder }));
+    
+    saveMutation.mutate(payload);
+  };
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("transformation_stories").delete().eq("id", id);
+      if (error) throw error;
+      return id;
+    },
+    onSuccess: () => {
+      toast({ title: "Deleted" }); 
+      queryClient.invalidateQueries({ queryKey: ['admin-before-after'] });
     }
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Saved!" }); setDialogOpen(false); fetchStories(); }
-    setSaving(false);
+  });
+
+  const handleDelete = (id: string) => {
+    deleteMutation.mutate(id);
   };
 
-  const handleDelete = async (id: string) => {
-    await supabase.from("transformation_stories").delete().eq("id", id);
-    toast({ title: "Deleted" }); fetchStories();
+  const toggleMutation = useMutation({
+    mutationFn: async ({ id, active }: { id: string, active: boolean }) => {
+      const { error } = await supabase.from("transformation_stories").update({ active: !active }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-before-after'] });
+    }
+  });
+
+  const toggleActive = (id: string, active: boolean) => {
+    toggleMutation.mutate({ id, active });
   };
 
-  const toggleActive = async (id: string, active: boolean) => {
-    await supabase.from("transformation_stories").update({ active: !active }).eq("id", id);
-    fetchStories();
-  };
+  const moveMutation = useMutation({
+    mutationFn: async ({ id, dir }: { id: string, dir: "up" | "down" }) => {
+      const idx = stories.findIndex(s => s.id === id);
+      const swapIdx = dir === "up" ? idx - 1 : idx + 1;
+      if (swapIdx < 0 || swapIdx >= stories.length) return;
+      const { error: err1 } = await supabase.from("transformation_stories").update({ display_order: stories[swapIdx].display_order }).eq("id", stories[idx].id);
+      if (err1) throw err1;
+      const { error: err2 } = await supabase.from("transformation_stories").update({ display_order: stories[idx].display_order }).eq("id", stories[swapIdx].id);
+      if (err2) throw err2;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-before-after'] });
+    }
+  });
 
-  const moveOrder = async (id: string, dir: "up" | "down") => {
-    const idx = stories.findIndex(s => s.id === id);
-    const swapIdx = dir === "up" ? idx - 1 : idx + 1;
-    if (swapIdx < 0 || swapIdx >= stories.length) return;
-    await Promise.all([
-      supabase.from("transformation_stories").update({ display_order: stories[swapIdx].display_order }).eq("id", stories[idx].id),
-      supabase.from("transformation_stories").update({ display_order: stories[idx].display_order }).eq("id", stories[swapIdx].id),
-    ]);
-    fetchStories();
+  const moveOrder = (id: string, dir: "up" | "down") => {
+    moveMutation.mutate({ id, dir });
   };
 
   const filteredStories = stories.filter(story => 
@@ -365,8 +408,8 @@ export default function AdminBeforeAndAfter() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            <Button onClick={handleSave} disabled={saveMutation.isPending}>
+              {saveMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {editingId ? "Save Changes" : "Create Story"}
             </Button>
           </DialogFooter>
