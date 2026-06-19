@@ -11,6 +11,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/primitives/alert-dialog";
 import { Loader2 } from "lucide-react";
+import FocusLock from "react-focus-lock";
 
 interface ConfirmDialogProps {
     open: boolean;
@@ -50,6 +51,7 @@ export const ConfirmDialog = ({
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
             <AlertDialogContent className="admin-theme bg-admin-card border-admin-border text-admin-text">
+                <FocusLock returnFocus>
                 <AlertDialogHeader>
                     <AlertDialogTitle>{title}</AlertDialogTitle>
                     <AlertDialogDescription>{description}</AlertDialogDescription>
@@ -69,6 +71,7 @@ export const ConfirmDialog = ({
                         {confirmText}
                     </AlertDialogAction>
                 </AlertDialogFooter>
+                </FocusLock>
             </AlertDialogContent>
         </AlertDialog>
     );

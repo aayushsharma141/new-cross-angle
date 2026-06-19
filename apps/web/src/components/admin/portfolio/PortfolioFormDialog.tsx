@@ -25,6 +25,7 @@ import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { portfolioSchema, formatZodErrors } from "@/lib/validation/validations";
 import { Switch } from "@/components/ui/primitives/switch";
 import { getOptimizedUrl } from "@/lib/cdn";
+import FocusLock from "react-focus-lock";
 
 interface Category {
     id: string;
@@ -264,6 +265,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="admin-theme max-w-4xl max-h-[90vh] overflow-y-auto bg-admin-card border-admin-border text-admin-text">
+                <FocusLock returnFocus>
                 <DialogHeader>
                     <DialogTitle>
                         {initialData ? "Edit Project" : "New Project"}
@@ -454,6 +456,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                         </Button>
                     </div>
                 </form>
+                </FocusLock>
             </DialogContent>
         </Dialog>
     );

@@ -5,6 +5,7 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Image } from "@/components/ui/enhanced/image";
 import { getOptimizedUrl } from "@/lib/cdn";
+import FocusLock from "react-focus-lock";
 
 interface LightboxItem {
   image: string;
@@ -79,6 +80,7 @@ const GalleryLightbox = ({
           className="fixed inset-0 z-[100] flex"
           onClick={onClose}
         >
+          <FocusLock returnFocus className="w-full h-full flex absolute inset-0">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-[#050505]/96 backdrop-blur-xl"
@@ -293,6 +295,7 @@ const GalleryLightbox = ({
               </div>
             )}
           </div>
+          </FocusLock>
         </motion.div>
       )}
     </AnimatePresence>

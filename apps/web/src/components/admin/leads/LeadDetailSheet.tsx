@@ -1,4 +1,4 @@
-﻿import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/primitives/input";
 import { Textarea } from "@/components/ui/primitives/textarea";
 import { leadSchema, formatZodErrors } from "@/lib/validation/validations";
 import { useState, useEffect, useRef, useCallback } from "react";
+import FocusLock from "react-focus-lock";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/primitives/tabs";
 import { LeadTimeline } from "@/components/admin/leads/LeadTimeline";
 import {
@@ -202,8 +203,9 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
     ];
 
     return (
-                <Sheet open={open} onOpenChange={onOpenChange}>
+        <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent className="admin-theme w-[95vw] sm:max-w-[880px] p-0 flex flex-col h-full bg-admin-bg border-l border-admin-border gap-0 z-[100] shadow-2xl text-admin-text">
+                <FocusLock returnFocus className="flex flex-col h-full overflow-hidden">
                 {/* Stage progress */}
                 <div className="px-5 pt-4 pb-3 border-b border-admin-border">
                     <div className="flex items-center justify-between mb-3">
@@ -628,6 +630,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                         )}
                     </div>
                 </div>
+                </FocusLock>
             </SheetContent>
         </Sheet>
     );

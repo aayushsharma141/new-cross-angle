@@ -42,3 +42,12 @@
 - [x] Fix metrics drift — unify stats across Hero, CredibilityStrip, Home About, and AboutPage to use `useSiteSettings`
 - [x] Move `FixedSocialBar` to PublicLayout/App instead of rendering separately on every page
 - [x] Fix `BlogDetailPage` — replace inline style constants with Tailwind `text-site-crimson`
+
+## Phase 2: Keyboard & Screen Reader Gate [COMPLETED]
+- [x] Install `react-focus-lock`
+- [x] Add `<FocusLock>` to `GalleryLightbox.tsx`
+- [x] Add `<FocusLock>` to `AdminLeads.tsx` (via `LeadDetailSheet.tsx`)
+- [x] Add `<FocusLock>` to `ConfirmDialog.tsx`
+- [x] Add `<FocusLock>` to `PortfolioFormDialog.tsx`
+- [x] Add `<FocusLock>` to `HeroMediaPickerModal.tsx`
+- [x] Verify `SkipNav` implementation in `App.tsx`

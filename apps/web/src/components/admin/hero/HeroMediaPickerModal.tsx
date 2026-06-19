@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/primitives/button";
 import { Image } from "@/components/ui/enhanced/image";
 import { Input } from "@/components/ui/primitives/input";
 import { supabase } from "@/integrations/supabase/client";
+import FocusLock from "react-focus-lock";
 
 interface MediaLibraryFile {
     id: string;
@@ -67,6 +68,7 @@ export function HeroMediaPickerModal({ open, onClose, onSelect }: HeroMediaPicke
             className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-6"
             onClick={onClose}
         >
+            <FocusLock returnFocus className="w-full max-w-4xl flex items-center justify-center">
             <div
                 className="bg-zinc-900 border border-zinc-700/50 rounded-xl max-w-4xl w-full max-h-[80vh] flex flex-col shadow-2xl"
                 onClick={e => e.stopPropagation()}
@@ -148,6 +150,7 @@ export function HeroMediaPickerModal({ open, onClose, onSelect }: HeroMediaPicke
                     )}
                 </div>
             </div>
+            </FocusLock>
         </motion.div>
     );
 }
