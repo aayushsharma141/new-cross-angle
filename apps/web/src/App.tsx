@@ -9,6 +9,7 @@ import { PageSkeleton } from "./components/ui/enhanced/PageSkeleton";
 import { CoreProviders } from "./providers/CoreProviders";
 import { PageTracker } from "./analytics/page-tracking";
 import WhatsAppButton from "./components/layout/WhatsAppButton";
+import FixedSocialBar from "./components/layout/FixedSocialBar";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
 import { adminRoutes } from "./routes/adminRoutes";
@@ -126,6 +127,7 @@ const AnimatedRoutes = () => {
                   </AnimatedContent>
                 </AnimatePresence>
                 <WhatsAppButton />
+                <FixedSocialBar />
               </Suspense>
             </ErrorBoundary>
           </SmoothScroll>

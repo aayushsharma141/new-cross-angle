@@ -2,7 +2,7 @@ import { lazy } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import FixedSocialBar from "@/components/layout/FixedSocialBar";
+
 import SectionNavDots from "@/components/layout/SectionNavDots";
 import ScrollProgress from "@/components/layout/ScrollProgress";
 import WelcomePrompt from "@/components/shared/WelcomePrompt";
@@ -51,7 +51,7 @@ const Index = () => {
 
       <ScrollProgress />
       <WelcomePrompt />
-      <FixedSocialBar />
+      
       <Navbar />
       <main id="main-content" className="min-h-screen relative w-full">
         <SectionNavDots />

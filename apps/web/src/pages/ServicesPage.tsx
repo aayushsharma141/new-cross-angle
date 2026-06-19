@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import FixedSocialBar from "@/components/layout/FixedSocialBar";
+
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { LogoAnimation } from "@/components/shared/LogoAnimation";
 import ServicesHero from "@/components/services/ServicesHero";
@@ -46,7 +46,7 @@ const ServicesPage = () => {
   if (isError) {
     return (
       <>
-        <FixedSocialBar />
+        
         <Navbar />
         <main id="main-content" className="min-h-screen flex flex-col items-center justify-center bg-[#000000] text-[#EDEDED] p-6">
           <div className="max-w-md text-center space-y-6">
@@ -87,7 +87,7 @@ const ServicesPage = () => {
         <link rel="canonical" href="https://crossangleinterior.com/services" />
       </Helmet>
 
-      <FixedSocialBar />
+      
       <Navbar />
       <main id="main-content" className="min-h-screen relative z-10 bg-[#000000] overflow-hidden text-[#EDEDED] font-sans">
 

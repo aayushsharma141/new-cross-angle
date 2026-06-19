@@ -2,7 +2,6 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import FixedSocialBar from "@/components/layout/FixedSocialBar";
 import { Button } from "@/components/ui/primitives/button";
 import { Skeleton } from "@/components/ui/primitives/skeleton";
 import ScrollToTop from "@/components/layout/ScrollToTop";
@@ -192,8 +191,7 @@ const BlogPage = () => {
         <link rel="canonical" href="https://crossangleinterior.com/blog" />
       </Helmet>
 
-      <FixedSocialBar />
-      <Navbar />
+            <Navbar />
       <main id="main-content" className="min-h-screen relative z-10" style={{ background: "#000" }}>
 
         {/* ═══════════════ 1. HERO FEATURED ARTICLE ═══════════════ */}

@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import FixedSocialBar from "@/components/layout/FixedSocialBar";
+
 import ScrollProgress from "@/components/layout/ScrollProgress";
 import { GrainOverlay } from "@/components/portfolio/GrainOverlay";
 import { MeshGradientBg } from "@/components/portfolio/MeshGradientBg";
@@ -71,7 +71,7 @@ const PortfolioPage = () => {
       <CursorGlow />
       <ScrollProgress />
       <Navbar />
-      <FixedSocialBar />
+      
 
       <main id="main-content" className="relative bg-[#0B0B0B] text-white overflow-hidden w-full min-h-screen">
         {/* Subtle global mesh gradients in the background */}

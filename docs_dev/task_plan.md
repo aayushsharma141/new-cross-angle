@@ -37,3 +37,8 @@
 - [x] Fix `AdminSiteAssets.tsx` (sonner -> useToast)
 - [x] Fix `ErrorBoundary.tsx` (Phantom @sentry/react dependency)
 - [x] Update `index.css` (Add prefers-reduced-motion global support)
+
+## Phase 1: Frontend Trust & Credibility
+- [x] Fix metrics drift — unify stats across Hero, CredibilityStrip, Home About, and AboutPage to use `useSiteSettings`
+- [x] Move `FixedSocialBar` to PublicLayout/App instead of rendering separately on every page
+- [x] Fix `BlogDetailPage` — replace inline style constants with Tailwind `text-site-crimson`

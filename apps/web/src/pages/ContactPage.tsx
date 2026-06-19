@@ -2,7 +2,6 @@ import { Helmet } from "react-helmet-async";
 import { lazy, Suspense } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import FixedSocialBar from "@/components/layout/FixedSocialBar";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import CTAContact from "@/components/shared/CTAContact";
 import ContactFAQ from "@/components/contact/ContactFAQ";
@@ -49,8 +48,7 @@ const ContactPage = () => {
         }}
       />
 
-      <FixedSocialBar />
-      <Navbar />
+            <Navbar />
 
       <main id="main-content" className="home-shell min-h-screen relative overflow-hidden bg-[var(--site-bg)]">
         <div className="home-noise pointer-events-none absolute inset-0 z-0" />

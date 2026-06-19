@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 /* ─── Types ─── */
 type AnimationEffect = "none" | "ken-burns-in" | "ken-burns-out" | "pan-left" | "pan-right" | "pan-up" | "pan-down" | "zoom-pan";
@@ -61,6 +62,7 @@ function getTranslateX(pos: SlidePos): string {
 }
 
 const Hero = () => {
+  const { settings } = useSiteSettings();
   const [mediaItems, setMediaItems] = useState<HeroMediaItem[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
@@ -345,12 +347,12 @@ const Hero = () => {
               className="flex flex-wrap gap-x-8 gap-y-3 mt-10 pt-8 border-t border-white/[0.07]"
             >
               <div>
-                <span className="block text-2xl md:text-3xl font-serif text-white font-medium">150+</span>
+                <span className="block text-2xl md:text-3xl font-serif text-white font-medium">{settings?.studio_stats?.projectsCompleted || 750}+</span>
                 <span className="text-[11px] tracking-[0.15em] uppercase text-stone-400 font-medium">Projects Completed</span>
               </div>
               <div className="hidden sm:block w-px bg-white/[0.07] self-stretch" />
               <div>
-                <span className="block text-2xl md:text-3xl font-serif text-white font-medium">12+</span>
+                <span className="block text-2xl md:text-3xl font-serif text-white font-medium">{settings?.studio_stats?.yearsExperience || 15}+</span>
                 <span className="text-[11px] tracking-[0.15em] uppercase text-stone-400 font-medium">Years Experience</span>
               </div>
               <div className="hidden sm:block w-px bg-white/[0.07] self-stretch" />

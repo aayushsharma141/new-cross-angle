@@ -5,7 +5,6 @@ import { Heart, Share2 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import FixedSocialBar from "@/components/layout/FixedSocialBar";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { Image } from "@/components/ui/enhanced/image";
 import { useGallery, useGalleryCategories } from "@/hooks/useGallery";
@@ -200,8 +199,7 @@ const GalleryPage = () => {
         <link rel="canonical" href="https://crossangleinterior.com/gallery" />
       </Helmet>
 
-      <FixedSocialBar />
-      <Navbar />
+            <Navbar />
 
       <main id="main-content" className="min-h-screen bg-[#060606] text-white">
         {/* ═══ HERO — Full-bleed featured image ═══ */}

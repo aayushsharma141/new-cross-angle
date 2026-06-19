@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import FixedSocialBar from "@/components/layout/FixedSocialBar";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import AboutHero from "@/components/about/AboutHero";
 import AboutValues from "@/components/about/AboutValues";
@@ -131,8 +130,7 @@ const AboutPage = () => {
         }}
       />
 
-      <FixedSocialBar />
-      <Navbar />
+            <Navbar />
       <main id="main-content" className="min-h-screen relative z-10">
 
         {/* Immersive Hero with Video */}

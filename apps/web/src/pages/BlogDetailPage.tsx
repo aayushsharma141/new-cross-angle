@@ -33,8 +33,6 @@ import {
 } from "@/hooks/useBlogTracking";
 
 /* ─── Style constants ─── */
-const CRIMSON = "#C41230";
-const GOLD = "#C6A15B";
 
 const cleanTitle = (title: string) => {
     if (!title) return "";
@@ -105,9 +103,8 @@ const ReadingProgressBar = ({ totalMinutes }: { totalMinutes: number }) => {
                 style={{ background: "rgba(255,255,255,0.04)" }}
             >
                 <motion.div
-                    className="h-full origin-left"
+                    className="h-full origin-left bg-gradient-to-r from-site-crimson to-site-gold"
                     style={{
-                        background: `linear-gradient(90deg, ${CRIMSON} 0%, ${GOLD} 100%)`,
                         width: `${progress}%`
                     }}
                     transition={{ duration: 0.08 }}
@@ -212,7 +209,7 @@ const TableOfContents = ({ items, activeId }: { items: TocItem[]; activeId: stri
                                 item.level === 3 ? "pl-5" : "pl-3.5"
                             } ${
                                 activeId === item.id
-                                    ? "text-white/90 border-[#C41230] font-medium"
+                                    ? "text-white/90 border-site-crimson font-medium"
                                     : "text-white/35 border-transparent hover:text-white/60 hover:border-white/10"
                             }`}
                         >
@@ -265,8 +262,8 @@ const InArticleLeadCTA = () => {
                     ✕
                 </button>
                 <div className="flex items-center gap-2.5 mb-3">
-                    <Calculator className="w-5 h-5" style={{ color: CRIMSON }} />
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: CRIMSON }}>
+                    <Calculator className="w-5 h-5 text-site-crimson" />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-site-crimson">
                         Free Tool
                     </span>
                 </div>
@@ -279,8 +276,7 @@ const InArticleLeadCTA = () => {
                 <Link
                     to="/estimate"
                     onClick={() => trackCtaClick("", "in_article_estimator")}
-                    className="block w-full text-center py-2.5 rounded-full text-[12px] font-semibold transition-all duration-200 hover:opacity-90"
-                    style={{ background: CRIMSON, color: "#fff" }}
+                    className="block w-full text-center py-2.5 rounded-full text-[12px] font-semibold transition-all duration-200 hover:opacity-90 bg-site-crimson text-white"
                 >
                     Get Free Estimate →
                 </Link>
@@ -474,8 +470,7 @@ const BlogDetailPage = () => {
                     <p className="mb-8 text-white/40">The article you're looking for doesn't exist or may have been moved.</p>
                     <Link
                         to="/blog"
-                        className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-[13px] font-semibold"
-                        style={{ background: CRIMSON, color: "#fff" }}
+                        className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-[13px] font-semibold bg-site-crimson text-white"
                     >
                         <ArrowLeft className="w-4 h-4" /> Back to Articles
                     </Link>
@@ -523,8 +518,7 @@ const BlogDetailPage = () => {
                             {/* Category badge */}
                             {post.category && (
                                 <span
-                                    className="inline-block text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-6"
-                                    style={{ background: `${CRIMSON}20`, color: CRIMSON, border: `1px solid ${CRIMSON}30` }}
+                                    className="inline-block text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-6 bg-site-crimson/20 text-site-crimson border border-site-crimson/30"
                                 >
                                     {post.category}
                                 </span>
@@ -543,8 +537,7 @@ const BlogDetailPage = () => {
                                 {/* Author avatar */}
                                 <div className="flex items-center gap-3">
                                     <div
-                                        className="w-9 h-9 rounded-full flex items-center justify-center font-serif font-bold text-sm text-white shrink-0"
-                                        style={{ background: `${CRIMSON}25`, border: `1.5px solid ${CRIMSON}35` }}
+                                        className="w-9 h-9 rounded-full flex items-center justify-center font-serif font-bold text-sm text-white shrink-0 bg-site-crimson/25 border-[1.5px] border-site-crimson/35"
                                     >
                                         {authorInitial}
                                     </div>
@@ -625,7 +618,7 @@ const BlogDetailPage = () => {
                                     <button
                                         onClick={() => handleShare()}
                                         title="Copy article link"
-                                        className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 border hover:border-[#C41230]/40 hover:bg-[#C41230]/10 hover:text-[#C41230]"
+                                        className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 border hover:border-site-crimson/40 hover:bg-site-crimson/10 hover:text-site-crimson"
                                         style={{ background: "#0c0c0c", borderColor: "#1e1e1e", color: "#666" }}
                                     >
                                         <LinkIcon className="w-4 h-4" />
@@ -692,8 +685,7 @@ const BlogDetailPage = () => {
                             style={{ background: "#0c0c0c", borderColor: "#1e1e1e" }}
                         >
                             <div
-                                className="w-14 h-14 rounded-full shrink-0 flex items-center justify-center font-serif font-bold text-xl text-white"
-                                style={{ background: `${CRIMSON}20`, border: `1.5px solid ${CRIMSON}40` }}
+                                className="w-14 h-14 rounded-full shrink-0 flex items-center justify-center font-serif font-bold text-xl text-white bg-site-crimson/20 border-[1.5px] border-site-crimson/40"
                             >
                                 {authorInitial}
                             </div>
@@ -727,7 +719,7 @@ const BlogDetailPage = () => {
                                 </button>
                                 <button
                                     onClick={() => handleShare()}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-medium transition-all duration-200 border hover:border-[#C41230]/40 hover:text-[#C41230] hover:bg-[#C41230]/5"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-medium transition-all duration-200 border hover:border-site-crimson/40 hover:text-site-crimson hover:bg-site-crimson/5"
                                     style={{ borderColor: "#2a2a2a", color: "#888" }}
                                 >
                                     <LinkIcon className="w-3.5 h-3.5" /> Copy Link
@@ -737,8 +729,7 @@ const BlogDetailPage = () => {
 
                         {/* ── Consultation CTA ── */}
                         <div
-                            className="mt-16 text-center py-12 px-8 rounded-2xl border"
-                            style={{ background: `linear-gradient(135deg, ${CRIMSON}10 0%, #0a0a0a 100%)`, borderColor: `${CRIMSON}25` }}
+                            className="mt-16 text-center py-12 px-8 rounded-2xl border border-site-crimson/25 bg-gradient-to-br from-site-crimson/10 to-[#0a0a0a]"
                         >
                             <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/30 font-sans mb-4 block">Ready to transform?</span>
                             <h3 className="font-serif text-2xl font-bold mb-3 text-white">Inspired by this article?</h3>
@@ -747,8 +738,7 @@ const BlogDetailPage = () => {
                             </p>
                             <Link to="/contact-us" onClick={handleCtaClick}>
                                 <button
-                                    className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-[13px] font-bold uppercase tracking-widest transition-all duration-300 hover:shadow-[0_8px_32px_rgba(196,18,48,0.3)]"
-                                    style={{ background: CRIMSON, color: "#fff" }}
+                                    className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-[13px] font-bold uppercase tracking-widest transition-all duration-300 hover:shadow-[0_8px_32px_rgba(196,18,48,0.3)] bg-site-crimson text-white"
                                 >
                                     Request Consultation
                                 </button>
