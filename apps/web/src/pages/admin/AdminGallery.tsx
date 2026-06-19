@@ -33,7 +33,7 @@ interface GalleryCategory {
     id: string;
     name: string;
     slug: string;
-    display_order: number;
+    display_order: number | null;
 }
 
 interface GalleryItem {
@@ -45,8 +45,8 @@ interface GalleryItem {
     location: string | null;
     year: number | null;
     description: string | null;
-    display_order: number;
-    category?: GalleryCategory;
+    display_order: number | null;
+    category?: GalleryCategory | null;
 }
 
 type GalleryFormData = {
@@ -176,12 +176,26 @@ const AdminGallery = () => {
             const { error } = await supabase.from('gallery_items').delete().eq('id', id);
             if (error) throw error;
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['gallery-items'] });
-            toast({ title: "Item deleted successfully" });
+        onMutate: async (id) => {
+            await queryClient.cancelQueries({ queryKey: ['gallery-items', selectedCategory] });
+            const previousItems = queryClient.getQueryData(['gallery-items', selectedCategory]);
+            queryClient.setQueryData(['gallery-items', selectedCategory], (old: GalleryItem[] | undefined) => {
+                if (!old) return old;
+                return old.filter(item => item.id !== id);
+            });
+            return { previousItems };
         },
-        onError: (error: Error) => {
-            toast({ title: "Error deleting item", description: error.message, variant: "destructive" });
+        onError: (err: Error, id, context) => {
+            if (context?.previousItems) {
+                queryClient.setQueryData(['gallery-items', selectedCategory], context.previousItems);
+            }
+            toast({ title: "Error deleting item", description: err.message, variant: "destructive" });
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ['gallery-items'] });
+        },
+        onSuccess: () => {
+            toast({ title: "Item deleted successfully" });
         },
     });
 
@@ -229,13 +243,27 @@ const AdminGallery = () => {
             const { error } = await supabase.from('gallery_categories').delete().eq('id', id);
             if (error) throw error;
         },
-        onSuccess: () => {
+        onMutate: async (id) => {
+            await queryClient.cancelQueries({ queryKey: ['gallery-categories'] });
+            const previousCategories = queryClient.getQueryData(['gallery-categories']);
+            queryClient.setQueryData(['gallery-categories'], (old: GalleryCategory[] | undefined) => {
+                if (!old) return old;
+                return old.filter(cat => cat.id !== id);
+            });
+            return { previousCategories };
+        },
+        onError: (err: Error, id, context) => {
+            if (context?.previousCategories) {
+                queryClient.setQueryData(['gallery-categories'], context.previousCategories);
+            }
+            toast({ title: "Error deleting category", description: err.message, variant: "destructive" });
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['gallery-categories'] });
             queryClient.invalidateQueries({ queryKey: ['gallery-items'] });
-            toast({ title: "Category deleted successfully" });
         },
-        onError: (error: Error) => {
-            toast({ title: "Error deleting category", description: error.message, variant: "destructive" });
+        onSuccess: () => {
+            toast({ title: "Category deleted successfully" });
         },
     });
 

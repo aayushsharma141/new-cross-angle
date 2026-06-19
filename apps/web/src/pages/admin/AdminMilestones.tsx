@@ -120,19 +120,33 @@ export default function AdminMilestones() {
             if (error) throw error;
             return id;
         },
-        onSuccess: () => {
+        onMutate: async (id) => {
+            await queryClient.cancelQueries({ queryKey: ["studio-milestones"] });
+            const previousMilestones = queryClient.getQueryData(["studio-milestones"]);
+            queryClient.setQueryData(["studio-milestones"], (old: Milestone[] | undefined) => {
+                if (!old) return old;
+                return old.filter(m => m.id !== id);
+            });
+            return { previousMilestones };
+        },
+        onError: (err: Error, id, context) => {
+            if (context?.previousMilestones) {
+                queryClient.setQueryData(["studio-milestones"], context.previousMilestones);
+            }
+            toast({
+                title: "Error",
+                description: err.message || "Failed to delete milestone.",
+                variant: "destructive",
+            });
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["studio-milestones"] });
             queryClient.invalidateQueries({ queryKey: ["studioMilestones"] });
+        },
+        onSuccess: () => {
             toast({
                 title: "Milestone Deleted",
                 description: "The milestone has been removed.",
-            });
-        },
-        onError: (error: Error) => {
-            toast({
-                title: "Error",
-                description: error.message || "Failed to delete milestone.",
-                variant: "destructive",
             });
         },
     });

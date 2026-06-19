@@ -732,11 +732,11 @@ const item = {
           <section id="p-concept" className="px-[5vw] py-28 md:py-36 border-b border-neutral-900">
             <FadeContent blur={true} duration={800} distance={20}>
             <div className="max-w-[1400px] mx-auto">
-              <div className="section-eyebrow">01 — Overall Concept</div>
-              <h2 className="section-title"><FallingText text="The Immersive Design Philosophy" /></h2>
-              <p className="section-intro">Transforming the current flat, image-heavy layout into a living, breathing spatial experience. Every scroll triggers a new chapter of the brand story.</p>
-              <div className="concept-grid mt-16">
-                <div className="pillar-list">
+              <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#D1AF6E] mb-5 flex items-center gap-4 before:content-[''] before:w-6 before:h-px before:bg-[#D1AF6E]">01 — Overall Concept</div>
+              <h2 className="font-serif text-[clamp(36px,4.5vw,72px)] font-light leading-[1.1] mb-4"><FallingText text="The Immersive Design Philosophy" /></h2>
+              <p className="font-serif text-[19px] text-[#7A7671] max-w-[640px] leading-[1.7] mb-16">Transforming the current flat, image-heavy layout into a living, breathing spatial experience. Every scroll triggers a new chapter of the brand story.</p>
+              <div className="grid grid-cols-1 lg:[grid-template-columns:5fr_3fr] gap-20 items-start mt-16">
+                <div className="flex flex-col gap-8">
                   {[
                     { n: '01', t: 'Cinematic Scroll Narrative', d: 'The page unfolds like a cinematic reel. GSAP ScrollTrigger paired with Lenis smooth scrolling makes each section with precision-timed entrance effects. Scroll scrubbing drives 3D camera movements in Three.js scenes.' },
                     { n: '02', t: 'Living Typography System', d: 'Kinetic typography breathes life into headlines. Service titles morph between states via MorphSVG letter animations. Cormorant Garamond anchors luxury while Syne handles structural callouts.' },
@@ -744,28 +744,28 @@ const item = {
                     { n: '04', t: 'Micro-Interaction Fabric', d: 'Every surface responds. Buttons ripple with Framer Motion spring physics. Form inputs animate floating labels via Popmotion. Hover states trigger Lottie icon morphs.' },
                     { n: '05', t: 'Material & Morphism Layers', d: 'Glassmorphism overlays float above photography for service cards. Claymorphism adds tactile warmth to process steps. Bento grid layouts organize the portfolio into asymmetric compositions.' },
                   ].map(p => (
-                    <div key={p.n} className="pillar">
-                      <div className="pillar-num">{p.n}</div>
-                      <div><div className="pillar-title">{p.t}</div><p className="pillar-desc">{p.d}</p></div>
+                    <div key={p.n} className="pillar grid gap-6 p-8 border border-white/[0.07] transition-all duration-300 hover:border-[#D1AF6E]/30 hover:-translate-y-0.5 cursor-default relative overflow-hidden" style={{gridTemplateColumns:'56px 1fr'}}>
+                      <div className="font-serif text-5xl font-light text-[#3A3733] leading-none">{p.n}</div>
+                      <div><div className="text-sm font-bold tracking-[0.08em] uppercase mb-2.5">{p.t}</div><p className="font-serif text-base text-[#7A7671] leading-[1.65]">{p.d}</p></div>
                     </div>
                   ))}
                 </div>
-                <div className="concept-aside">
-                  <div className="mood-card">
-                    <div className="mood-card-title">Color Palette</div>
-                    <div className="palette-row">
+                <div className="sticky top-[120px] flex flex-col gap-6">
+                  <div className="p-8 bg-[#0f0f0f] border border-white/[0.07] relative overflow-hidden">
+                    <div className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#7A7671] mb-5">Color Palette</div>
+                    <div className="flex gap-2 mb-4">
                       {['#080808','#0F0F0F','#C41230','#D1AF6E','#BFA27A','#F0EDE8'].map(hex => (
-                        <div key={hex} className="swatch" style={{ background: hex }} data-hex={hex} />
+                        <div key={hex} className="w-10 h-10 rounded-sm transition-transform hover:scale-110 cursor-default" style={{ background: hex }} />
                       ))}
                     </div>
-                    <div className="typo-preview">
-                      <div className="typo-sample-serif">Aa — Cormorant</div>
-                      <div className="typo-sample-sans">Bb — Syne Display</div>
-                      <div className="typo-sample-mono">CC — DM Mono 0123</div>
+                    <div className="border-t border-white/[0.07] pt-5 mt-2 space-y-1">
+                      <div className="font-serif text-[28px] leading-tight">Aa — Cormorant</div>
+                      <div className="font-sans font-extrabold text-base tracking-[0.2em] uppercase mt-2">Bb — Syne Display</div>
+                      <div className="font-mono text-[10px] tracking-[0.15em] text-[#7A7671] uppercase">CC — DM Mono 0123</div>
                     </div>
                   </div>
-                  <div className="mood-card">
-                    <div className="mood-card-title">Target Metrics</div>
+                  <div className="p-8 bg-[#0f0f0f] border border-white/[0.07] relative overflow-hidden">
+                    <div className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#7A7671] mb-5">Target Metrics</div>
                     <div className="flex flex-col gap-2.5 mt-2">
                       {[['Bounce Rate','<35%'],['Avg. Session','4+ min'],['Inquiry Rate','+220%'],['LCP Score','<1.8s']].map(([k,v]) => (
                         <div key={k}>
@@ -787,10 +787,10 @@ const item = {
           <section id="p-techstack" className="px-[5vw] py-28 md:py-36 border-b border-neutral-900">
             <FadeContent blur={true} duration={800} distance={20}>
             <div className="max-w-[1400px] mx-auto">
-              <div className="section-eyebrow">02 — Technology Stack</div>
-              <h2 className="section-title">Chosen <em>Technologies</em><br /><strong>& Rationale</strong></h2>
-              <p className="section-intro">Each library selected for a specific responsibility. The stack is layered to avoid conflicts, optimize bundle size, and deliver 60fps across all devices.</p>
-              <div className="stack-grid mt-16">
+              <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#D1AF6E] mb-5 flex items-center gap-4 before:content-[''] before:w-6 before:h-px before:bg-[#D1AF6E]">02 — Technology Stack</div>
+              <h2 className="font-serif text-[clamp(36px,4.5vw,72px)] font-light leading-[1.1] mb-4">Chosen <em className="italic text-[#D1AF6E]">Technologies</em><br /><strong className="font-bold">& Rationale</strong></h2>
+              <p className="font-serif text-[19px] text-[#7A7671] max-w-[640px] leading-[1.7] mb-16">Each library selected for a specific responsibility. The stack is layered to avoid conflicts, optimize bundle size, and deliver 60fps across all devices.</p>
+              <div className="grid gap-px bg-white/[0.07] border border-white/[0.07] mb-20" style={{gridTemplateColumns:'repeat(3,1fr)'}}>
                 {[
                   ['Animation Core','GSAP + ScrollTrigger','The orchestration engine. Timeline-based sequences for all major entrance/exit animations. ScrollTrigger pins sections for immersive scroll-scrubbed scenes.','Primary Engine'],
                   ['Animation Core','Framer Motion','React component animations with spring physics. Handles layout animations, shared element transitions, and gesture-driven interactions.','React Layer'],
@@ -802,26 +802,26 @@ const item = {
                   ['Physics & Utility','Anime.js + Popmotion','Anime.js powers staggered particle systems. Popmotion handles physics-based spring animations for cursor tracking and card tilt interactions.','Supplementary'],
                   ['Visual Patterns','Aceternity UI + Magic UI','Pre-built advanced components: spotlight effects, sparkles, beam animations, border gradients, and shimmer loaders.','Component Library'],
                 ].map(([layer,name,desc,badge]) => (
-                  <div key={name} className="stack-cell">
-                    <div className="stack-layer">{layer}</div>
-                    <div className="stack-name">{name}</div>
-                    <p className="stack-desc">{desc}</p>
-                    <span className="stack-badge">{badge}</span>
+                  <div key={name} className="stack-cell bg-[#0f0f0f] px-7 py-8 transition-colors hover:bg-[#161616] relative overflow-hidden">
+                    <div className="font-mono text-[8px] tracking-[0.2em] uppercase text-[#D1AF6E] mb-3">{layer}</div>
+                    <div className="text-base font-bold mb-2 text-[#F0EDE8]">{name}</div>
+                    <p className="font-serif text-sm text-[#7A7671] leading-[1.5]">{desc}</p>
+                    <span className="inline-block mt-3 px-2 py-0.5 border border-[#3A3733] font-mono text-[8px] tracking-[0.1em] uppercase text-[#7A7671]">{badge}</span>
                   </div>
                 ))}
               </div>
-              <div className="divider"></div>
-              <div className="perf-row">
-                {[['90','Lighthouse Score','163','16','var(--accent)'],['60','Target FPS','163','32','var(--gold)'],['1.8','LCP (seconds)','163','41','var(--accent2)'],['95','CLS Prevention','163','8','var(--accent)']].map(([val,label,,offset,stroke]) => (
-                  <div key={label} className="perf-card">
-                    <div className="perf-meter">
-                      <svg width="60" height="60" viewBox="0 0 60 60">
-                        <circle className="perf-bg" cx="30" cy="30" r="26" />
-                        <circle className="perf-fill" cx="30" cy="30" r="26" strokeDashoffset={offset} style={{ stroke }} />
+              <div className="w-full h-px my-20 bg-gradient-to-r from-[#D1AF6E] to-transparent" />
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                {[['90','Lighthouse Score','163','16','#D1AF6E'],['60','Target FPS','163','32','#BFA27A'],['1.8','LCP (seconds)','163','41','#D4C4A0'],['95','CLS Prevention','163','8','#D1AF6E']].map(([val,label,,offset,stroke]) => (
+                  <div key={label} className="py-7 px-6 bg-[#080808] border border-white/[0.07] text-center relative overflow-hidden transition-colors hover:border-[#D1AF6E]/40">
+                    <div className="relative w-[60px] h-[60px] mx-auto mb-4">
+                      <svg width="60" height="60" viewBox="0 0 60 60" className="-rotate-90">
+                        <circle fill="none" strokeWidth="4" strokeLinecap="round" cx="30" cy="30" r="26" stroke="#3A3733" />
+                        <circle fill="none" strokeWidth="4" strokeLinecap="round" cx="30" cy="30" r="26" strokeDasharray="163" strokeDashoffset={offset} style={{ stroke }} />
                       </svg>
-                      <div className="perf-val">{val}</div>
+                      <div className="absolute inset-0 flex items-center justify-center font-serif text-lg font-bold">{val}</div>
                     </div>
-                    <div className="perf-label">{label}</div>
+                    <div className="font-mono text-[9px] tracking-[0.15em] uppercase text-[#7A7671]">{label}</div>
                   </div>
                 ))}
               </div>
@@ -832,20 +832,21 @@ const item = {
           {/* ── ANIMATIONS BENTO ── */}
           <section id="p-animations" className="px-[5vw] py-28 md:py-36 border-b border-neutral-900">
             <div className="max-w-[1400px] mx-auto">
-              <div className="section-eyebrow">03 — Animation & Interactivity Catalog</div>
-              <h2 className="section-title"><em>Motion</em> Design<br /><strong>Reference System</strong></h2>
-              <p className="section-intro">A living catalog of every animation pattern deployed across the interface, with interactive previews and implementation notes.</p>
-              <div className="anim-bento mt-16">
-                <div className="bento b1"><div className="bento-title">Kinetic Typography</div><p className="bento-desc">Characters animate individually using GSAP SplitText. Each word becomes an independent timeline unit.</p><div className="bento-preview"><div className="kinetic-text">Design</div></div></div>
-                <div className="bento b2"><div className="bento-title">MorphSVG Liquid Blob</div><p className="bento-desc">Border-radius keyframe morphing; production uses MorphSVG path data for organic transitions.</p><div className="bento-preview"><div className="morph-blob"></div></div></div>
-                <div className="bento b3"><div className="bento-title">Liquid Ring Pulse</div><p className="bento-desc">Concentric ring pulse used as loading state and CTA emphasis. Popmotion drives amplitude.</p><div className="bento-preview"><div className="liquid-ring"></div></div></div>
-                <div className="bento b4"><div className="bento-title">Glassmorphism Service Card</div><p className="bento-desc">Frosted glass overlay with top gradient highlight. backdrop-filter: blur() layered over photography. Framer Motion handles card expansion.</p><div className="bento-preview" style={{background:'linear-gradient(135deg,#1a0f0a,#0f0f0f)'}}><div className="glass-card"><div className="glass-title">Living Room Design</div><div className="glass-sub">Residential — Premium Tier</div></div></div></div>
-                <div className="bento b5"><div className="bento-title">Claymorphism Process Step</div><p className="bento-desc">Tactile, puffy card for process steps. Multi-layer box-shadow creates depth. Hover triggers scale + shadow shift via Framer Motion spring.</p><div className="bento-preview"><div className="clay-card"><div className="clay-title">Step 01 — Discovery</div><div className="clay-sub">Understanding your vision and lifestyle needs</div></div></div></div>
-                <div className="bento b6"><div className="bento-title">Parallax Depth Layers</div><p className="bento-desc">Three independent layers float at different scroll velocities using GSAP ScrollTrigger scrub values of 0.5, 1, and 2.</p><div className="bento-preview"><div className="parallax-layers"><div className="layer l1"></div><div className="layer l2"></div><div className="layer l3"></div></div></div></div>
-                <div className="bento b7"><div className="bento-title">Scroll Scrub</div><p className="bento-desc">Scroll-linked progress bars and 3D camera paths timed to Lenis velocity.</p><div className="bento-preview" style={{flexDirection:'column',gap:'12px',padding:'16px',alignItems:'flex-start'}}><div className="scroll-scrub"><div className="scrub-label">Section Progress</div><div className="scrub-bar"><div className="scrub-fill"></div></div><div className="scrub-label">Camera Path</div><div className="scrub-bar"><div className="scrub-fill" style={{animationDelay:'0.5s'}}></div></div></div></div></div>
-                <div className="bento b8"><div className="bento-title">Micro-interactions</div><p className="bento-desc">Hover fill on buttons. Popmotion spring physics on cursor proximity.</p><div className="bento-preview" style={{padding:'16px'}}><div className="micro-btns"><button className="micro-btn"><span>Hover Me →</span></button><button className="micro-btn"><span>Explore Space</span></button></div></div></div>
-                <div className="bento b9"><div className="bento-title">Three.js Cube</div><p className="bento-desc">Wireframe 3D geometry. Production uses PBR furniture models with ambient occlusion.</p><div className="bento-preview"><div className="three-demo">{[...Array(6)].map((_,i)=><div key={i} className="cube-face"/>)}</div></div></div>
-                <div className="bento b10"><div className="bento-title">Spline / R3F Orb</div><p className="bento-desc">Physically-shaded orb. Cursor-reactive environment mapping via Spline.</p><div className="bento-preview" style={{background:'#050505',padding:'0',overflow:'hidden'}}><div className="spline-sim"><div className="spline-orb"></div></div></div></div>
+              <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#D1AF6E] mb-5 flex items-center gap-4 before:content-[''] before:w-6 before:h-px before:bg-[#D1AF6E]">03 — Animation & Interactivity Catalog</div>
+              <h2 className="font-serif text-[clamp(36px,4.5vw,72px)] font-light leading-[1.1] mb-4"><em className="italic text-[#D1AF6E]">Motion</em> Design<br /><strong className="font-bold">Reference System</strong></h2>
+              <p className="font-serif text-[19px] text-[#7A7671] max-w-[640px] leading-[1.7] mb-16">A living catalog of every animation pattern deployed across the interface, with interactive previews and implementation notes.</p>
+              <div className="grid gap-4 mt-16" style={{gridTemplateColumns:'repeat(12,1fr)'}}>
+                {/* bento b1 — span 4 cols, 2 rows */}
+                <div className="bento bg-[#080808] border border-white/[0.07] p-8 relative overflow-hidden transition-all duration-300 hover:border-[#D1AF6E]/30 hover:-translate-y-0.5 cursor-default" style={{gridColumn:'span 4',gridRow:'span 2'}}><div className="text-[13px] font-bold tracking-[0.06em] uppercase mb-2">Kinetic Typography</div><p className="font-serif text-sm text-[#7A7671] leading-[1.5]">Characters animate individually using GSAP SplitText. Each word becomes an independent timeline unit.</p><div className="mt-6 h-[100px] flex items-center justify-center bg-[#0f0f0f] border border-white/[0.07] transition-transform hover:scale-[1.02]"><div className="kinetic-text">Design</div></div></div>
+                <div className="bento bg-[#080808] border border-white/[0.07] p-8 relative overflow-hidden transition-all duration-300 hover:border-[#D1AF6E]/30 hover:-translate-y-0.5 cursor-default" style={{gridColumn:'span 4'}}><div className="text-[13px] font-bold tracking-[0.06em] uppercase mb-2">MorphSVG Liquid Blob</div><p className="font-serif text-sm text-[#7A7671] leading-[1.5]">Border-radius keyframe morphing; production uses MorphSVG path data for organic transitions.</p><div className="mt-6 h-[100px] flex items-center justify-center bg-[#0f0f0f] border border-white/[0.07]"><div className="morph-blob"></div></div></div>
+                <div className="bento bg-[#080808] border border-white/[0.07] p-8 relative overflow-hidden transition-all duration-300 hover:border-[#D1AF6E]/30 hover:-translate-y-0.5 cursor-default" style={{gridColumn:'span 4'}}><div className="text-[13px] font-bold tracking-[0.06em] uppercase mb-2">Liquid Ring Pulse</div><p className="font-serif text-sm text-[#7A7671] leading-[1.5]">Concentric ring pulse used as loading state and CTA emphasis. Popmotion drives amplitude.</p><div className="mt-6 h-[100px] flex items-center justify-center bg-[#0f0f0f] border border-white/[0.07]"><div className="liquid-ring"></div></div></div>
+                <div className="bento bg-[#080808] border border-white/[0.07] p-8 relative overflow-hidden transition-all duration-300 hover:border-[#D1AF6E]/30 hover:-translate-y-0.5 cursor-default" style={{gridColumn:'span 8'}}><div className="text-[13px] font-bold tracking-[0.06em] uppercase mb-2">Glassmorphism Service Card</div><p className="font-serif text-sm text-[#7A7671] leading-[1.5]">Frosted glass overlay with top gradient highlight. backdrop-filter: blur() layered over photography. Framer Motion handles card expansion.</p><div className="mt-6 h-[100px] flex items-center justify-center bg-gradient-to-br from-[#1a0f0a] to-[#0f0f0f] border border-white/[0.07]"><div className="glass-card px-6 py-5 bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-sm w-[80%] relative"><div className="text-[13px] font-semibold mb-1">Living Room Design</div><div className="font-mono text-[8px] text-[#7A7671]">Residential — Premium Tier</div></div></div></div>
+                <div className="bento bg-[#080808] border border-white/[0.07] p-8 relative overflow-hidden transition-all duration-300 hover:border-[#D1AF6E]/30 hover:-translate-y-0.5 cursor-default" style={{gridColumn:'span 6'}}><div className="text-[13px] font-bold tracking-[0.06em] uppercase mb-2">Claymorphism Process Step</div><p className="font-serif text-sm text-[#7A7671] leading-[1.5]">Tactile, puffy card for process steps. Multi-layer box-shadow creates depth. Hover triggers scale + shadow shift via Framer Motion spring.</p><div className="mt-6 h-[100px] flex items-center justify-center bg-[#0f0f0f] border border-white/[0.07]"><div className="px-6 py-5 w-[75%] rounded-[20px]" style={{background:'linear-gradient(145deg,#2a1810,#1a0f0a)',boxShadow:'8px 8px 20px rgba(0,0,0,0.5),-4px -4px 12px rgba(209,175,110,0.08),inset 0 1px 0 rgba(255,255,255,0.05)'}}><div className="text-sm font-bold mb-1">Step 01 — Discovery</div><div className="font-serif text-sm text-[#7A7671]">Understanding your vision and lifestyle needs</div></div></div></div>
+                <div className="bento bg-[#080808] border border-white/[0.07] p-8 relative overflow-hidden transition-all duration-300 hover:border-[#D1AF6E]/30 hover:-translate-y-0.5 cursor-default" style={{gridColumn:'span 6'}}><div className="text-[13px] font-bold tracking-[0.06em] uppercase mb-2">Parallax Depth Layers</div><p className="font-serif text-sm text-[#7A7671] leading-[1.5]">Three independent layers float at different scroll velocities using GSAP ScrollTrigger scrub values of 0.5, 1, and 2.</p><div className="mt-6 h-[100px] flex items-center justify-center bg-[#0f0f0f] border border-white/[0.07]"><div className="relative w-[90%] h-20"><div className="layer l1"></div><div className="layer l2"></div><div className="layer l3"></div></div></div></div>
+                <div className="bento bg-[#080808] border border-white/[0.07] p-8 relative overflow-hidden transition-all duration-300 hover:border-[#D1AF6E]/30 hover:-translate-y-0.5 cursor-default" style={{gridColumn:'span 3'}}><div className="text-[13px] font-bold tracking-[0.06em] uppercase mb-2">Scroll Scrub</div><p className="font-serif text-sm text-[#7A7671] leading-[1.5]">Scroll-linked progress bars and 3D camera paths timed to Lenis velocity.</p><div className="mt-6 h-[100px] flex flex-col gap-3 p-4 items-start justify-center bg-[#0f0f0f] border border-white/[0.07]"><div className="w-[90%] flex flex-col gap-2"><div className="font-mono text-[8px] text-[#7A7671]">Section Progress</div><div className="h-[3px] bg-[#3A3733] relative overflow-hidden"><div className="scrub-fill"></div></div><div className="font-mono text-[8px] text-[#7A7671]">Camera Path</div><div className="h-[3px] bg-[#3A3733] relative overflow-hidden"><div className="scrub-fill" style={{animationDelay:'0.5s'}}></div></div></div></div></div>
+                <div className="bento bg-[#080808] border border-white/[0.07] p-8 relative overflow-hidden transition-all duration-300 hover:border-[#D1AF6E]/30 hover:-translate-y-0.5 cursor-default" style={{gridColumn:'span 3'}}><div className="text-[13px] font-bold tracking-[0.06em] uppercase mb-2">Micro-interactions</div><p className="font-serif text-sm text-[#7A7671] leading-[1.5]">Hover fill on buttons. Popmotion spring physics on cursor proximity.</p><div className="mt-6 h-[100px] flex items-center justify-center bg-[#0f0f0f] border border-white/[0.07] p-4"><div className="flex flex-col gap-2.5 w-[80%]"><button className="micro-btn px-5 py-2.5 bg-transparent border border-white/[0.07] text-[#F0EDE8] font-sans text-[11px] font-semibold tracking-[0.1em] uppercase cursor-pointer transition-all duration-300 relative overflow-hidden"><span>Hover Me →</span></button><button className="micro-btn px-5 py-2.5 bg-transparent border border-white/[0.07] text-[#F0EDE8] font-sans text-[11px] font-semibold tracking-[0.1em] uppercase cursor-pointer transition-all duration-300 relative overflow-hidden"><span>Explore Space</span></button></div></div></div>
+                <div className="bento bg-[#080808] border border-white/[0.07] p-8 relative overflow-hidden transition-all duration-300 hover:border-[#D1AF6E]/30 hover:-translate-y-0.5 cursor-default" style={{gridColumn:'span 3'}}><div className="text-[13px] font-bold tracking-[0.06em] uppercase mb-2">Three.js Cube</div><p className="font-serif text-sm text-[#7A7671] leading-[1.5]">Wireframe 3D geometry. Production uses PBR furniture models with ambient occlusion.</p><div className="mt-6 h-[100px] flex items-center justify-center bg-[#0f0f0f] border border-white/[0.07]"><div className="three-demo">{[...Array(6)].map((_,i)=><div key={i} className="cube-face"/>)}</div></div></div>
+                <div className="bento bg-[#080808] border border-white/[0.07] p-8 relative overflow-hidden transition-all duration-300 hover:border-[#D1AF6E]/30 hover:-translate-y-0.5 cursor-default" style={{gridColumn:'span 3'}}><div className="text-[13px] font-bold tracking-[0.06em] uppercase mb-2">Spline / R3F Orb</div><p className="font-serif text-sm text-[#7A7671] leading-[1.5]">Physically-shaded orb. Cursor-reactive environment mapping via Spline.</p><div className="mt-6 h-[100px] overflow-hidden bg-[#050505] border border-white/[0.07]"><div className="spline-sim w-full h-full flex items-center justify-center" style={{background:'radial-gradient(circle at 50% 50%, rgba(209,175,110,0.1), transparent 70%)'}}><div className="spline-orb"></div></div></div></div>
               </div>
             </div>
           </section>
@@ -853,10 +854,10 @@ const item = {
           {/* ── SCROLL JOURNEY ── */}
           <section id="p-journey" className="px-[5vw] py-28 md:py-36 border-b border-neutral-900">
             <div className="max-w-[1400px] mx-auto">
-              <div className="section-eyebrow">04 — Scroll Journey Map</div>
-              <h2 className="section-title">Page-by-Page<br /><em>Animation</em> <strong>Choreography</strong></h2>
-              <p className="section-intro">A precise breakdown of every scroll-triggered event, entrance effect, and interactive moment from top to bottom.</p>
-              <div className="journey-steps mt-16">
+              <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#D1AF6E] mb-5 flex items-center gap-4 before:content-[''] before:w-6 before:h-px before:bg-[#D1AF6E]">04 — Scroll Journey Map</div>
+              <h2 className="font-serif text-[clamp(36px,4.5vw,72px)] font-light leading-[1.1] mb-4">Page-by-Page<br /><em className="italic text-[#D1AF6E]">Animation</em> <strong className="font-bold">Choreography</strong></h2>
+              <p className="font-serif text-[19px] text-[#7A7671] max-w-[640px] leading-[1.7] mb-16">A precise breakdown of every scroll-triggered event, entrance effect, and interactive moment from top to bottom.</p>
+              <div className="flex flex-col border-l border-white/[0.07] ml-10 mt-16">
                 {[
                   ['Zone 01 — 0–100vh','Hero: Spatial Entry','Page loads with a black screen. R3F scene bootstraps with fade-in. The brand tagline performs a SplitText stagger. Lenis scroll begins and the hero text parallaxes at 0.4x speed.',['R3F Scene Mount','GSAP SplitText','Framer AnimatePresence','Lenis Init','Anime.js Particles']],
                   ['Zone 02 — 100–220vh','Services: Bento Cascade','ScrollTrigger fires at 80% viewport. Bento cards cascade in with staggered Y-translation. Each card\'s Spline 3D preview lazy-loads as it enters. GSAP Flip expands card to modal state.',['ScrollTrigger','Framer Stagger','GSAP Flip','Spline Lazy Load','MorphSVG Divider']],
@@ -865,11 +866,12 @@ const item = {
                   ['Zone 05 — 500–560vh','Excellence Stats: Counter Emphasis','Statistics animate with GSAP countUp on ScrollTrigger enter. Framer Motion whileInView with spring easing for scale emphasis. Magic UI Shimmer on tagline.',['GSAP CountUp','Framer whileInView','Magic UI Shimmer','GSAP Stagger']],
                   ['Zone 06 — 560vh+','CTA + Footer: Liquid Close','CTA section with full-screen MorphSVG liquid blob background in crimson. Headline uses Kinetic Typography scramble. Consultation form floats with Claymorphism treatment.',['MorphSVG Background','Anime.js Scramble','Claymorphism Form','GSAP Curtain']],
                 ].map(([num,title,desc,techs]) => (
-                  <div key={num as string} className="j-step">
-                    <div className="j-step-num">{num}</div>
-                    <div className="j-step-title">{title}</div>
-                    <p className="j-step-desc">{desc}</p>
-                    <div className="j-tech-list">{(techs as string[]).map(t=><span key={t} className="j-tech">{t}</span>)}</div>
+                  <div key={num as string} className="j-step py-12 pl-15 relative border-b border-white/[0.07] group" style={{paddingLeft:'60px'}}>
+                    <div className="absolute -left-[5px] top-14 w-[9px] h-[9px] rounded-full bg-[#3A3733] border-2 border-[#080808] transition-all group-hover:bg-[#D1AF6E] group-hover:shadow-[0_0_12px_#D1AF6E]" />
+                    <div className="font-mono text-[9px] tracking-[0.2em] text-[#D1AF6E] uppercase mb-3">{num}</div>
+                    <div className="font-serif text-[28px] font-bold mb-3">{title}</div>
+                    <p className="font-serif text-base text-[#7A7671] leading-[1.65] max-w-[600px] mb-5">{desc}</p>
+                    <div className="flex flex-wrap gap-2">{(techs as string[]).map(t=><span key={t} className="px-3 py-1 border border-[#3A3733] font-mono text-[9px] tracking-[0.1em] uppercase text-[#7A7671] transition-all hover:border-[#D1AF6E] hover:text-[#D1AF6E]">{t}</span>)}</div>
                   </div>
                 ))}
               </div>
@@ -879,42 +881,42 @@ const item = {
           {/* ── RESPONSIVE ── */}
           <section id="p-responsive" className="px-[5vw] py-28 md:py-36 border-b border-neutral-900">
             <div className="max-w-[1400px] mx-auto">
-              <div className="section-eyebrow">05 — Responsive Design</div>
-              <h2 className="section-title"><strong>Adaptive</strong> Layout<br /><em>Strategy</em></h2>
-              <p className="section-intro">All animation systems degrade gracefully. Mobile devices receive optimized 2D fallbacks. Reduced Motion preferences are fully respected.</p>
-              <div className="resp-devices mt-16">
+              <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#D1AF6E] mb-5 flex items-center gap-4 before:content-[''] before:w-6 before:h-px before:bg-[#D1AF6E]">05 — Responsive Design</div>
+              <h2 className="font-serif text-[clamp(36px,4.5vw,72px)] font-light leading-[1.1] mb-4"><strong className="font-bold">Adaptive</strong> Layout<br /><em className="italic text-[#D1AF6E]">Strategy</em></h2>
+              <p className="font-serif text-[19px] text-[#7A7671] max-w-[640px] leading-[1.7] mb-16">All animation systems degrade gracefully. Mobile devices receive optimized 2D fallbacks. Reduced Motion preferences are fully respected.</p>
+              <div className="grid gap-8 items-end mt-16" style={{gridTemplateColumns:'3fr 2fr 1fr'}}>
                 {[
                   ['Desktop — 1440px','Full Experience','3D + All Animations','4px'],
                   ['Tablet — 768px','Adaptive','CSS 3D + Reduced GSAP','12px'],
                   ['Mobile — 375px','Optimized','Framer Motion + Video','20px'],
                 ].map(([size,label,sub,radius]) => (
-                  <div key={size} className="device">
-                    <div className="device-frame" style={{borderRadius:radius,width:size.includes('Mobile')?'50%':size.includes('Tablet')?'65%':'100%',margin:'0 auto'}}>
-                      <div style={{background:'var(--surface2)',padding:'8px',borderBottom:'1px solid var(--border)',textAlign:'center'}}><div style={{fontFamily:"'DM Mono',monospace",fontSize:'7px',color:'var(--muted)'}}>{size}</div></div>
-                      <div className="device-screen">
-                        <div className="screen-bar accent"></div>
-                        <div className="screen-block"></div>
-                        <div className="screen-bar short"></div>
-                        <div className="screen-block" style={{height:'24px',background:'var(--accent)',opacity:0.6}}></div>
+                  <div key={size} className="flex flex-col items-center gap-4">
+                    <div className="bg-[#161616] border-2 border-white/[0.07] overflow-hidden relative w-full" style={{borderRadius:radius,width:size.includes('Mobile')?'50%':size.includes('Tablet')?'65%':'100%',margin:'0 auto'}}>
+                      <div className="bg-[#161616] p-2 border-b border-white/[0.07] text-center"><div className="font-mono text-[7px] text-[#7A7671]">{size}</div></div>
+                      <div className="bg-[#080808] p-5 flex flex-col gap-2">
+                        <div className="h-2 rounded-sm bg-[#D1AF6E] w-[60%]"></div>
+                        <div className="h-12 bg-[#0f0f0f] border border-white/[0.07] rounded-sm"></div>
+                        <div className="h-2 rounded-sm bg-[#3A3733] w-[40%]"></div>
+                        <div className="h-6 bg-[#D1AF6E] opacity-60 rounded-sm"></div>
                       </div>
                     </div>
-                    <div className="device-label">{label}</div>
-                    <div className="device-size">{sub}</div>
+                    <div className="font-mono text-[9px] tracking-[0.15em] uppercase text-[#7A7671]">{label}</div>
+                    <div className="font-serif text-sm text-[#3A3733]">{sub}</div>
                   </div>
                 ))}
               </div>
-              <div className="divider"></div>
-              <div className="stack-grid" style={{gridTemplateColumns:'repeat(3,1fr)'}}>
+              <div className="w-full h-px my-20 bg-gradient-to-r from-[#D1AF6E] to-transparent" />
+              <div className="grid gap-px bg-white/[0.07] border border-white/[0.07]" style={{gridTemplateColumns:'repeat(3,1fr)'}}>
                 {[
                   ['prefers-reduced-motion','Motion Accessibility','All GSAP and Framer Motion animations check the OS reduce-motion media query. 3D scenes fall back to static renders.','WCAG 2.1 AA'],
                   ['GPU Detection','Tier-Based 3D','Three.js uses performance tier detection to adjust shadow quality and geometry complexity. Low-tier devices skip WebGL.','Three.js Detect'],
                   ['Network & Bundle','Code Splitting','Animation libraries are dynamically imported only when their target section enters the viewport. 3D assets use Draco compression.','Dynamic Import'],
                 ].map(([layer,name,desc,badge]) => (
-                  <div key={name} className="stack-cell">
-                    <div className="stack-layer">{layer}</div>
-                    <div className="stack-name">{name}</div>
-                    <p className="stack-desc">{desc}</p>
-                    <span className="stack-badge">{badge}</span>
+                  <div key={name} className="stack-cell bg-[#0f0f0f] px-7 py-8 transition-colors hover:bg-[#161616] relative overflow-hidden">
+                    <div className="font-mono text-[8px] tracking-[0.2em] uppercase text-[#D1AF6E] mb-3">{layer}</div>
+                    <div className="text-base font-bold mb-2 text-[#F0EDE8]">{name}</div>
+                    <p className="font-serif text-sm text-[#7A7671] leading-[1.5]">{desc}</p>
+                    <span className="inline-block mt-3 px-2 py-0.5 border border-[#3A3733] font-mono text-[8px] tracking-[0.1em] uppercase text-[#7A7671]">{badge}</span>
                   </div>
                 ))}
               </div>
@@ -922,20 +924,20 @@ const item = {
           </section>
 
           {/* ── PROPOSAL FOOTER ── */}
-          <section id="footer" style={{padding:'80px 5vw',borderTop:'1px solid var(--border)'}}>
-            <div className="footer-inner max-w-[1400px] mx-auto">
+          <section id="footer" className="px-[5vw] py-20 border-t border-white/[0.07]">
+            <div className="grid gap-20 max-w-[1400px] mx-auto items-end" style={{gridTemplateColumns:'1fr 1fr'}}>
               <div>
-                <h2 className="footer-cta">Ready to Build<br /><em>Something Remarkable?</em></h2>
-                <div className="footer-btns">
-                  <button className="btn-secondary" onClick={() => setActiveTab('docs')}>Open Docs Workspace</button>
+                <h2 className="font-serif text-[clamp(36px,4vw,60px)] font-light leading-[1.1] mb-8">Ready to Build<br /><em className="italic text-[#D1AF6E]">Something Remarkable?</em></h2>
+                <div className="flex gap-4 flex-wrap">
+                  <button className="px-9 py-4 bg-transparent text-[#F0EDE8] font-sans text-[11px] font-bold tracking-[0.15em] uppercase border border-white/[0.07] transition-all hover:border-[#F0EDE8] cursor-pointer" onClick={() => setActiveTab('docs')}>Open Docs Workspace</button>
                 </div>
               </div>
-              <div className="footer-meta">
-                <div style={{textAlign:'right'}}>
-                  <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'24px',fontWeight:300,marginBottom:'8px'}}>CrossAngle <span style={{color:'var(--accent)'}}>Interior</span></div>
-                  <div className="footer-credit">Design Proposal — V1</div>
-                  <div className="footer-project">Prepared February 2026</div>
-                  <div style={{marginTop:'16px',fontFamily:"'Cormorant Garamond',serif",fontSize:'14px',color:'var(--dim)',fontStyle:'italic'}}>"Every space tells a story.<br />We write it with motion."</div>
+              <div className="flex flex-col gap-2 items-end">
+                <div className="text-right">
+                  <div className="font-serif text-2xl font-light mb-2">CrossAngle <span className="text-[#D1AF6E]">Interior</span></div>
+                  <div className="font-mono text-[9px] tracking-[0.15em] uppercase text-[#7A7671]">Design Proposal — V1</div>
+                  <div className="font-serif text-base text-[#3A3733]">Prepared February 2026</div>
+                  <div className="mt-4 font-serif text-sm text-[#3A3733] italic">"Every space tells a story.<br />We write it with motion."</div>
                 </div>
               </div>
             </div>

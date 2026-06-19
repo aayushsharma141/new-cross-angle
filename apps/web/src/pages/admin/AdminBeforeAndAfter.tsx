@@ -115,7 +115,7 @@ export default function AdminBeforeAndAfter() {
     queryFn: async (): Promise<TransformationStory[]> => {
       const { data, error } = await supabase.from("transformation_stories").select("*").order("display_order", { ascending: true });
       if (error) throw error;
-      return (data || []) as TransformationStory[];
+      return (data || []).map(d => ({ ...d, products_used: (d.products_used as { name: string; brand: string; spec: string }[]) ?? [] })) as TransformationStory[];
     }
   });
 
@@ -136,7 +136,7 @@ export default function AdminBeforeAndAfter() {
   };
 
   const saveMutation = useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Omit<TransformationStory, 'id' | 'display_order'>) => {
       let error;
       if (editingId) {
         ({ error } = await supabase.from("transformation_stories").update(payload).eq("id", editingId));
@@ -194,6 +194,7 @@ export default function AdminBeforeAndAfter() {
     mutationFn: async ({ id, active }: { id: string, active: boolean }) => {
       const { error } = await supabase.from("transformation_stories").update({ active: !active }).eq("id", id);
       if (error) throw error;
+      return;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-before-after'] });

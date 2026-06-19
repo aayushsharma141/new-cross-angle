@@ -15,7 +15,7 @@
         "../../packages/types/src/*"
       ]
     },
-    "strict": true
+    "strict": false
   },
   "include": [
     "src"

@@ -71,13 +71,51 @@ export default function AdminPortfolio(): JSX.Element {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => projectRepo.deleteProject(id),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["projects"] });
-      toast({ title: "Project Deleted", description: "Project has been removed." });
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["projects"] });
+      const previousProjects = queryClient.getQueryData(["projects"]);
+      queryClient.setQueryData(["projects"], (old: ProjectWithCategory[] | undefined) => {
+        if (!old) return old;
+        return old.filter(p => p.id !== id);
+      });
+      return { previousProjects };
     },
-    onError: (err: Error) => {
+    onError: (err: Error, id, context) => {
+      if (context?.previousProjects) {
+        queryClient.setQueryData(["projects"], context.previousProjects);
+      }
       toast({ variant: "destructive", title: "Error", description: err.message });
     },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["projects"] });
+    },
+    onSuccess: () => {
+      toast({ title: "Project Deleted", description: "Project has been removed." });
+    },
+  });
+
+  const toggleFeaturedMutation = useMutation({
+    mutationFn: async ({ id, featured }: { id: string, featured: boolean }) => {
+      await projectRepo.updateProject(id, { featured });
+    },
+    onMutate: async ({ id, featured }) => {
+      await queryClient.cancelQueries({ queryKey: ["projects"] });
+      const previousProjects = queryClient.getQueryData(["projects"]);
+      queryClient.setQueryData(["projects"], (old: ProjectWithCategory[] | undefined) => {
+        if (!old) return old;
+        return old.map(p => p.id === id ? { ...p, featured } : p);
+      });
+      return { previousProjects };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousProjects) {
+        queryClient.setQueryData(["projects"], context.previousProjects);
+      }
+      toast({ variant: "destructive", title: "Error", description: "Failed to update featured status." });
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ["projects"] });
+    }
   });
 
   const handleEdit = (item: ProjectWithCategory): void => {
@@ -173,12 +211,20 @@ export default function AdminPortfolio(): JSX.Element {
                         {item.title}
                       </span>
                       
-                      {item.featured && (
-                        <span className="bg-[hsl(var(--admin-accent)/0.1)] border border-[hsl(var(--admin-accent)/0.2)] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-accent))] tracking-wide uppercase flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-current" />
-                          Featured
-                        </span>
-                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFeaturedMutation.mutate({ id: item.id, featured: !item.featured });
+                        }}
+                        className={`border rounded-full px-[7px] py-[1px] text-[10px] font-semibold tracking-wide uppercase flex items-center gap-1 transition-colors cursor-pointer ${
+                          item.featured 
+                            ? "bg-[hsl(var(--admin-accent)/0.1)] border-[hsl(var(--admin-accent)/0.2)] text-[hsl(var(--admin-accent))]"
+                            : "bg-transparent border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] hover:bg-[hsl(var(--admin-surface-hover))]"
+                        }`}
+                      >
+                        <Star className={`w-3 h-3 ${item.featured ? "fill-current" : ""}`} />
+                        Featured
+                      </button>
 
                       {item.status === 'live' ? (
                         <span className="bg-[hsl(var(--admin-success)/0.12)] border border-[hsl(var(--admin-success)/0.25)] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-success))] tracking-wide uppercase flex items-center gap-1.5">

@@ -1,4 +1,6 @@
 import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
@@ -38,6 +40,20 @@ const EmptyCategoryState = ({ label }: { label: string }) => (
 
 
 const ServicesPage = () => {
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const category = searchParams.get("category");
+    if (category) {
+      setTimeout(() => {
+        const element = document.getElementById(category.toLowerCase());
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 500); // Wait for content to render
+    }
+  }, [searchParams]);
+
   const { data: services, isLoading, isError, refetch } = useQuery({
     queryKey: ["services"],
     queryFn: api.getServices,

@@ -52,7 +52,19 @@
 - [x] Add `<FocusLock>` to `HeroMediaPickerModal.tsx`
 - [x] Verify `SkipNav` implementation in `App.tsx`
 
-## Phase 3: Admin Consistency & Data Fetching Unification [IN PROGRESS]
-- [ ] 3a: Migrate remaining pages to React Query (`AdminServices`, `AdminHero`, `AdminTestimonials`, `AdminBeforeAndAfter`, `AdminSiteAssets`)
-- [ ] 3b: Standardize confirmation dialogs (`window.confirm()` → `ConfirmDialog`)
-- [ ] 3c: Unify button/input imports across all admin pages (`@/design-system` vs `@/components/ui/primitives`)
+## Phase 3: Admin Consistency & Data Fetching Unification [COMPLETED]
+- [x] 3a: Migrate remaining pages to React Query (`AdminServices`, `AdminHero`, `AdminTestimonials`, `AdminBeforeAndAfter`, `AdminSiteAssets`)
+- [x] 3b: Standardize confirmation dialogs (`window.confirm()` → `ConfirmDialog`)
+- [x] 3c: Unify button/input imports across all admin pages (`@/design-system` vs `@/components/ui/primitives`)
+
+## Phase 4: Instant UI Feedback Loop (Optimistic Updates) [COMPLETED]
+- [x] 4a: AdminLeads - Optimistic updates for stage changes
+- [x] 4b: AdminLeads - CRM Leads search debounce loading indicator & URL sync
+- [x] 4c: AdminPortfolio - Optimistic updates for featured toggles
+- [x] 4d: Other admin mutations (AdminGallery, AdminMilestones)
+
+## Phase 5: Long-Tail Bug Fixes [COMPLETED]
+- [x] 5a: URL parameter persistence for category filters (`ProjectArchive.tsx`, `ServicesPage.tsx`)
+- [x] 5b: Admin Layout breadcrumbs/TopBar (`AdminLayout.tsx`)
+- [x] 5c: Purge `BlueprintPage.css` to use Tailwind — CSS reduced from 2145 → 404 lines (81%), 42KB → 14KB (65%)
+- [x] 5d: Verify gallery toast feedback on save (`GalleryPage.tsx`)

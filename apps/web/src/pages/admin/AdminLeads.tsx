@@ -49,25 +49,43 @@ import {
   Filter,
   ArrowUpDown,
   TrendingUp,
+  Loader2,
 } from "lucide-react";
 
 const NEW_LEAD_ID = "__new__";
 
 export default function AdminLeads() {
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const qParam = searchParams.get("q") || "";
+  
+  const [search, setSearch] = useState(qParam);
+  const [debouncedSearch, setDebouncedSearch] = useState(qParam);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const setParam = useCallback((key: string, value: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (value === "all" || value === "") {
+      next.delete(key);
+    } else {
+      next.set(key, value);
+    }
+    setSearchParams(next);
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => setDebouncedSearch(search), 300);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(search);
+      setParam("q", search);
+    }, 300);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
-  }, [search]);
+  }, [search, setParam]);
+
+  const isSearching = search !== debouncedSearch;
 
   const [activeView, setActiveView] = useState<"card" | "list">("list");
   
   // Read status filter from URL Search Params so the CrmModule sidebar can control it
-  const [searchParams, setSearchParams] = useSearchParams();
   const stageParam = searchParams.get("stage");
   const statusFilter: CrmStageId | "all" = stageParam && isCrmStageId(stageParam) ? stageParam : "all";
   const viewParam = searchParams.get("view");
@@ -86,15 +104,7 @@ export default function AdminLeads() {
   const canCreate = can('leads', 'create');
   const canDelete = can('leads', 'delete');
 
-  const setParam = useCallback((key: string, value: string) => {
-    const next = new URLSearchParams(searchParams);
-    if (value === "all" || value === "") {
-      next.delete(key);
-    } else {
-      next.set(key, value);
-    }
-    setSearchParams(next);
-  }, [searchParams, setSearchParams]);
+
 
   const setViewFilter = useCallback((view: CrmSavedViewId) => {
     const next = new URLSearchParams(searchParams);
@@ -144,13 +154,29 @@ export default function AdminLeads() {
       const { score, created_at, updated_at, service, source_url, internal_notes, score_details, ...saveable } = patch;
       await leadRepo.updateLead(id, saveable);
     },
-    onSuccess: () => {
+    onMutate: async (newLead) => {
+      await queryClient.cancelQueries({ queryKey: ["leads"] });
+      const previousLeads = queryClient.getQueryData(["leads"]);
+      queryClient.setQueryData(["leads"], (old: Lead[] | undefined) => {
+        if (!old) return old;
+        return old.map((lead) => 
+          lead.id === newLead.id ? { ...lead, ...newLead } : lead
+        );
+      });
+      return { previousLeads };
+    },
+    onError: (err: Error, newLead, context) => {
+      if (context?.previousLeads) {
+        queryClient.setQueryData(["leads"], context.previousLeads);
+      }
+      toast({ variant: "destructive", title: "Save Failed", description: err.message });
+    },
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["leads"] });
+    },
+    onSuccess: () => {
       toast({ title: "Lead Updated", description: "All changes saved successfully." });
       setIsSheetOpen(false);
-    },
-    onError: (err: Error) => {
-      toast({ variant: "destructive", title: "Save Failed", description: err.message });
     },
   });
 
@@ -192,14 +218,28 @@ export default function AdminLeads() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string): Promise<void> => leadRepo.deleteLead(id),
-    onSuccess: () => {
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["leads"] });
+      const previousLeads = queryClient.getQueryData(["leads"]);
+      queryClient.setQueryData(["leads"], (old: Lead[] | undefined) => {
+        if (!old) return old;
+        return old.filter((lead) => lead.id !== id);
+      });
+      return { previousLeads };
+    },
+    onError: (err: Error, id, context) => {
+      if (context?.previousLeads) {
+        queryClient.setQueryData(["leads"], context.previousLeads);
+      }
+      toast({ variant: "destructive", title: "Delete Failed", description: err.message });
+    },
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["leads"] });
+    },
+    onSuccess: () => {
       toast({ title: "Lead Deleted", description: "Lead removed permanently." });
       setIsSheetOpen(false);
       setDeleteTargetId(null);
-    },
-    onError: (err: Error) => {
-      toast({ variant: "destructive", title: "Delete Failed", description: err.message });
     },
   });
 
@@ -369,8 +409,11 @@ export default function AdminLeads() {
               placeholder="Search by name, phone, or email..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-9 bg-admin-surface border border-admin-border rounded-lg pl-9 pr-4 text-[13px] text-admin-text placeholder:text-admin-text-subtle focus:outline-none focus:border-admin-border-subtle focus:ring-1 focus:ring-[hsl(var(--admin-primary)/0.3)] transition-all"
+              className="w-full h-9 bg-admin-surface border border-admin-border rounded-lg pl-9 pr-9 text-[13px] text-admin-text placeholder:text-admin-text-subtle focus:outline-none focus:border-admin-border-subtle focus:ring-1 focus:ring-[hsl(var(--admin-primary)/0.3)] transition-all"
             />
+            {isSearching && (
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-primary animate-spin" />
+            )}
           </div>
         </div>
         

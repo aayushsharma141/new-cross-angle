@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { ProjectArchiveCard } from "./ProjectArchiveCard";
 import { projects as realProjects, type Project } from "@/data/projects";
@@ -82,7 +83,28 @@ const archiveProjects: Project[] = [
 const categories = ["All", "Residential", "Commercial", "Hospitality", "Workspace", "Retail"];
 
 export const ProjectArchive = () => {
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryParam = searchParams.get("category");
+  const [activeCategory, setActiveCategory] = useState(categoryParam || "All");
+
+  useEffect(() => {
+    const cat = searchParams.get("category");
+    if (cat && categories.includes(cat) && cat !== activeCategory) {
+      setActiveCategory(cat);
+    } else if (!cat && activeCategory !== "All") {
+      setActiveCategory("All");
+    }
+  }, [searchParams, activeCategory]);
+
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
+    if (cat === "All") {
+      searchParams.delete("category");
+    } else {
+      searchParams.set("category", cat);
+    }
+    setSearchParams(searchParams, { replace: true });
+  };
 
   const filteredProjects = useMemo(() => {
     if (activeCategory === "All") return archiveProjects;
@@ -125,7 +147,7 @@ export const ProjectArchive = () => {
             {categories.map((cat) => (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => handleCategoryChange(cat)}
                 className={`relative px-4 py-2 text-[10px] font-semibold tracking-widest uppercase transition-colors duration-300 whitespace-nowrap
                   ${activeCategory === cat ? "text-[#FAFAFA]" : "text-white/40 hover:text-white"}`}
               >

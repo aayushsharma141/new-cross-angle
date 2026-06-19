@@ -130,7 +130,7 @@ const AdminLayout = (): JSX.Element | null => {
         <div className="h-screen max-h-screen flex flex-col bg-admin-bg admin-theme overflow-hidden">
             <SkipNav targetId="admin-main" />
             {/* Premium Top Navigation */}
-            {isHub && <TopBar />}
+            <TopBar />
 
             {/* Global Maintenance Mode Banner — persists on every admin page */}
             {maintenanceMode && (
