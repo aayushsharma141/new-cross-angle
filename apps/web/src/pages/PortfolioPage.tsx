@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-
+import FixedSocialBar from "@/components/layout/FixedSocialBar";
 import ScrollProgress from "@/components/layout/ScrollProgress";
 import { GrainOverlay } from "@/components/portfolio/GrainOverlay";
 import { MeshGradientBg } from "@/components/portfolio/MeshGradientBg";
@@ -12,9 +12,8 @@ import { FeaturedProjectStory } from "@/components/portfolio/FeaturedProjectStor
 import { TrustLayer } from "@/components/portfolio/TrustLayer";
 import { ProjectArchive } from "@/components/portfolio/ProjectArchive";
 import { DesignPerspective } from "@/components/portfolio/DesignPerspective";
+import { DesignSignatures } from "@/components/portfolio/DesignSignatures";
 import { ClientPerspective } from "@/components/portfolio/ClientPerspective";
-import { BehindTheWork } from "@/components/portfolio/BehindTheWork";
-import HowWeWork from "@/components/portfolio/HowWeWork";
 import PortfolioFinalCTA from "@/components/portfolio/PortfolioFinalCTA";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { projects } from "@/data/projects";
@@ -71,7 +70,7 @@ const PortfolioPage = () => {
       <CursorGlow />
       <ScrollProgress />
       <Navbar />
-      
+      <FixedSocialBar />
 
       <main id="main-content" className="relative bg-[#0B0B0B] text-white overflow-hidden w-full min-h-screen">
         {/* Subtle global mesh gradients in the background */}
@@ -109,16 +108,13 @@ const PortfolioPage = () => {
         {/* 6. Design Perspective Horizontal Scroll */}
         <DesignPerspective />
 
-        {/* 7. Behind The Work — 4-pillar editorial cards */}
-        <BehindTheWork />
+        {/* 7. Design Signatures — 4 full-height editorial quote panels (Light, Materiality, Spatial Flow, Craftsmanship) */}
+        <DesignSignatures />
 
-        {/* 8. How We Work — 3-step process */}
-        <HowWeWork />
-
-        {/* 9. Client Perspective Testimonial */}
+        {/* 8. Client Perspective Testimonial */}
         <ClientPerspective />
 
-        {/* 10. Final CTA */}
+        {/* 9. Final CTA */}
         <PortfolioFinalCTA />
       </main>
 

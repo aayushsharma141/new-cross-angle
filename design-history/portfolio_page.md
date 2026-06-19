@@ -13,7 +13,7 @@ This log tracks layout changes, visual directions, and checkpoints for the Portf
 
 ---
 
-### 2. `checkpoint/v2-luxury-editorial-portfolio` (Active HEAD)
+### 2. `checkpoint/v2-luxury-editorial-portfolio` (Previous HEAD)
 * **Visual Concept:** Luxury Design Publication / Architectural Digest.
 * **Primary Color Palette:** `#0B0B0B` pure dark luxury background, `#FAFAFA` primary text, muted gold accents.
 * **Scroll Engine:** Weighty, cinematic smooth scroll via Lenis.
@@ -24,6 +24,17 @@ This log tracks layout changes, visual directions, and checkpoints for the Portf
   4. **Trust Layer:** Seamless infinite editorial marquee strip with 35s speed loop, pausing on cursor hover.
   5. **Bento Project Archive:** Hierarchical Bento Grid (Large, Medium, Small blocks) with animated filter tabs (LayoutGroup transition with zero page reload).
   6. **Design Perspective:** Sticky horizontal-scroll scroll container showcasing the 4 pillars (Light, Materiality, Spatial Clarity, Execution Detail).
-  7. **Client Perspective:** Elegant Playfair Serif quote with slow word-by-word reveal transitions.
-  8. **Footer:** Holds all conversion lead capture fields. No additional CTAs on page.
+  7. **BehindTheWork + HowWeWork:** 4-pillar editorial cards and 3-step process sections.
+  8. **Client Perspective:** Elegant Playfair Serif quote with slow word-by-word reveal transitions.
+  9. **Footer:** Holds all conversion lead capture fields. No additional CTAs on page.
 * **Global Overlays:** Animated repeating noise grain overlay (3% opacity) and smooth desktop cursor light glow.
+
+---
+
+### 3. `checkpoint/v6-pre-portfolio-luxury-restore` → Active HEAD: **Luxury Reference Restore**
+* **Visual Concept:** Aligned with `portfolio-luxury.html` editorial reference mockup. Closer to an Architectural Digest / design publication aesthetic.
+* **Key Changes vs v2:**
+  - **DesignSignatures added:** 4 full-height vertical editorial quote panels (Light, Materiality, Spatial Flow, Craftsmanship) — matching the "Design Signatures" section in the luxury HTML reference. Each panel is ~75vh with centered blockquote typography, subtle gradient background, and scroll-triggered fade-in.
+  - **BehindTheWork + HowWeWork removed:** These process-heavy sections detracted from the pure editorial flow. Replaced by DesignSignatures.
+  - **FixedSocialBar restored:** The floating left-side social icon bar (Instagram, YouTube, WhatsApp, Facebook, Pinterest) returns to the portfolio page, matching the June 18 save state.
+* **Section Order (final):** Hero → Philosophy → Featured Stories → Trust Layer → Project Archive → Design Perspective (horizontal scroll) → Design Signatures (vertical panels) → Client Perspective → Final CTA → Footer.
