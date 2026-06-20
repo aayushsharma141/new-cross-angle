@@ -1,4 +1,4 @@
-import { Home, Building2, Sofa, UtensilsCrossed, Lamp, Calculator } from "lucide-react";
+import { Home, Building2, Sofa, UtensilsCrossed, Lamp } from "lucide-react";
 
 export const servicesMenu = {
   residential: [

@@ -7,7 +7,6 @@ interface SparklineChartProps {
   color?: "brand" | "emerald" | "amber" | "red" | "blue";
   height?: number;
   showTrend?: boolean;
-  label?: string;
   className?: string;
 }
 
@@ -33,7 +32,6 @@ export function SparklineChart({
   color = "brand",
   height = 40,
   showTrend = false,
-  label,
   className,
 }: SparklineChartProps) {
   const chartData = data.map((value, index) => ({ index, value }));

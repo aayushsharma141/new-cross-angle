@@ -10,7 +10,7 @@
 ### 1.1 Admin Pages — Loading State Audit
 
 | Page | Data Fetch Loading | Mutation Loading | Verdict |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `AdminPortfolio.tsx` | React Query `isLoading` | `deleteMutation.isPending` via button disabling | ✅ Good |
 | `AdminLeads.tsx` | React Query `isLoading` → `PageSkeleton` | `createMutation.isPending`, `updateMutation.isPending` | ✅ Good |
 | `AdminGallery.tsx` | React Query `isLoading` | `createItemMutation.isPending`, etc. | ✅ Good |
@@ -28,7 +28,7 @@
 ### 1.2 Skeleton/Spinner Inconsistency
 
 | Pattern | Used By | Verdict |
-|---|---|---|
+| --- | --- | --- |
 | `AdminSkeletonCard` (full page skeleton) | `AdminPortfolio`, `AdminServices`, `AdminTestimonials` | ✅ Good |
 | `AdminSkeletonCard` + `DataLoadingBoundary` | `AdminPortfolio`, `AdminServices`, `AdminTestimonials` | ✅ Good |
 | `PageSkeleton` (full page) | `AdminLeads`, `CrmAnalytics`, `CrmModule` | ✅ Good |
@@ -41,7 +41,7 @@
 ## 2. Optimistic Updates
 
 | Finding | Location | Severity |
-|---|---|---|
+| --- | --- | --- |
 | **Zero optimistic updates in codebase** | `grep -ri "useOptimistic\|setQueryData\|cancelQueries"` returned no results | **CRITICAL** — every mutation waits for server response + cache invalidation |
 | AdminGallery: delete item → invalidate query → refetch | ~500ms-2s delay before item disappears | MAJOR — should remove from cache immediately |
 | AdminLeads: stage change → update mutation → invalidate | Same delay pattern | MAJOR |
@@ -63,7 +63,7 @@ Every mutable action on the site has a perceived delay of **200ms–2s** before 
 ## 3. Error Rollback
 
 | Finding | Location | Severity |
-|---|---|---|
+| --- | --- | --- |
 | **No error rollback patterns exist** | All mutations | CRITICAL — if a mutation fails, UI remains in the "optimistic" state (if optimistic updates added) |
 | Current pattern: all mutations use passive `invalidateQueries` on error → refetching replaces broken state | Adequate for now since no optimistic updates exist | ✅ Acceptable at current state |
 | If optimistic updates are added (recommended), error rollback must also be added | All mutation sites | ⚠️ Future requirement |
@@ -73,7 +73,7 @@ Every mutable action on the site has a perceived delay of **200ms–2s** before 
 ## 4. Confirmation Dialog Consistency
 
 | Pattern | Used By | Count of Usages |
-|---|---|---|
+| --- | --- | --- |
 | `ConfirmDialog` component (custom) | `AdminPortfolio`, `AdminLeads`, `AdminTestimonials`, `AdminBeforeAndAfter`, `AdminTeam`, `AdminMilestones`, `AdminEstimateRates`, `AdminHero` | 8 pages ✅ |
 | `AlertDialog` (Radix primitive) | `AdminUserAccessUsers`, `AdminSettings`, `AdminUserAccessSecurity` | 3 pages ✅ |
 | `window.confirm()` (native) | `AdminGallery` (lines 323, 329), `AdminEstimateLeads` (lines 122, 365, 428) | 2 pages ❌ |
@@ -82,12 +82,13 @@ Every mutable action on the site has a perceived delay of **200ms–2s** before 
 ### Verdict: FAIL — 3 different confirmation patterns for the same action type
 
 | Issue | Severity |
-|---|---|
+| --- | --- |
 | `window.confirm()` is unstyled, non-branded, and provides no context about the item being deleted | MAJOR |
 | `ConfirmDialog` and `AlertDialog` have different visual appearance and API | MAJOR |
 | No standardized `confirmOrThrow` utility function | MAJOR |
 
 ### Fix
+
 Create a single `useConfirmDialog()` hook with both modal styles (destructive/warning) and use it uniformly.
 
 ---
@@ -95,7 +96,7 @@ Create a single `useConfirmDialog()` hook with both modal styles (destructive/wa
 ## 5. Idempotency & Double-Submit Protection
 
 | Pattern | Coverage | Verdict |
-|---|---|---|
+| --- | --- | --- |
 | `disabled={isSaving}` on submit buttons | All admin forms with mutations | ✅ Good |
 | `disabled={isPending}` on React Query mutations | Most React Query pages | ✅ Good |
 | **No debounce on submit handlers** | Any rapid double-click on non-button elements | ⚠️ Weak — if a card/dropdown triggers an action, no guard |
@@ -109,14 +110,14 @@ Create a single `useConfirmDialog()` hook with both modal styles (destructive/wa
 ### 6.1 System Fragmentation
 
 | System | Import | Used By | Count |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Custom `useToast` hook | `@/hooks/useToast` | 33+ admin pages | Primary system ✅ |
 | `sonner` library | `import { toast } from "sonner"` | `AdminSiteAssets.tsx` only | 1 page ❌ |
 
 ### 6.2 Toast Pattern Coverage
 
 | Action Type | Success Toast | Error Toast | Missing? |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Create | ✅ Yes | ✅ Yes | — |
 | Update | ✅ Yes | ✅ Yes | — |
 | Delete | ✅ Yes | ✅ Yes | — |
@@ -128,7 +129,7 @@ Create a single `useConfirmDialog()` hook with both modal styles (destructive/wa
 ### 6.3 Toast UX Issues
 
 | Issue | Severity |
-|---|---|
+| --- | --- |
 | Success toasts may not auto-dismiss — verify toast config | MINOR |
 | Error toasts stack — multiple errors shown simultaneously | MINOR — could be overwhelming |
 | No undo action in toasts (e.g., "Post deleted. Undo?") | MAJOR — no way to recover from accidental deletes |
@@ -139,7 +140,7 @@ Create a single `useConfirmDialog()` hook with both modal styles (destructive/wa
 ## 7. Network Resilience
 
 | Scenario | Current Behavior | Severity |
-|---|---|---|
+| --- | --- | --- |
 | **React Query pages (offline)** | React Query has built-in retry; stale data from cache is shown | ✅ Good |
 | **Manual fetch pages (offline)** (`AdminServices`, `AdminHero`, `AdminTestimonials`, `AdminBeforeAndAfter`, `AdminSiteAssets`) | `supabase.from(...)` call fails → error toast shown, data appears as empty | ❌ CRITICAL — no offline fallback |
 | **Mutation fails mid-flight** | Error toast shown, data may be inconsistent | ⚠️ Acceptable |
@@ -159,7 +160,7 @@ Create a single `useConfirmDialog()` hook with both modal styles (destructive/wa
 ## 8. Mutation Inventory (Complete)
 
 | Page | Create | Read | Update | Delete | Bulk | Export |
-|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- |
 | `AdminPortfolio` | ✅ Dialog form | ✅ React Query | ✅ Dialog form | ✅ ConfirmDialog | ❌ | ❌ |
 | `AdminLeads` | ✅ Sheet form | ✅ React Query | ✅ Sheet form | ✅ ConfirmDialog | ❌ | ✅ (Download) |
 | `AdminGallery` | ✅ Dialog form | ✅ React Query | ✅ Dialog form | ✅ `window.confirm()` | ❌ | ❌ |
@@ -183,7 +184,7 @@ Create a single `useConfirmDialog()` hook with both modal styles (destructive/wa
 ## Severity Summary
 
 | Severity | Count | Top Issues |
-|---|---|---|
+| --- | --- | --- |
 | CRITICAL | 3 | Zero optimistic updates; no focus traps on modals; 6 pages have no offline/retry |
 | MAJOR | 8 | 3 confirmation dialog patterns; `sonner`/`useToast` fragmentation; no undo actions; no mutation timeout; no session expiry handling; A-Gallery/A-EstimateLeads use `window.confirm()`; 5 pages lack React Query resilience |
 | MINOR | 5 | Auto-dismiss timing; toast stacking; Enter key double-submit; no mutation deduplication; some spinners instead of branded skeletons |

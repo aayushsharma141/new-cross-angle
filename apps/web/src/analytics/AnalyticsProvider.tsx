@@ -14,7 +14,6 @@
 import React, {
   createContext,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   type ReactNode,

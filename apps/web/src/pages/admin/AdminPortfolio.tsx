@@ -1,12 +1,9 @@
 import { useState, useMemo, useEffect, useRef, JSX } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/primitives/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { projectRepo } from "@/repositories";
 import { PortfolioFormDialog } from "@/components/admin/portfolio/PortfolioFormDialog";
 import { AdminMetricsPanel, AdminFilterBar, AdminSafeAction, AdminEmptyState, AdminSkeletonCard } from "@/components/admin/shared";
-import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { DataLoadingBoundary } from "@/components/ui/enhanced/DataLoadingBoundary";
 import { Pencil, Trash2, Image as ImageIcon, Star, Briefcase } from "lucide-react";

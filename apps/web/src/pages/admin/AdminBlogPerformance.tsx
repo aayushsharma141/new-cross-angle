@@ -18,7 +18,6 @@ import { AdminMetricsPanel } from "@/components/admin/shared";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
 import {
     Table,
     TableBody,

@@ -11,10 +11,9 @@ import { Button } from "@/components/ui/primitives/button";
 import { Calendar } from "@/components/ui/primitives/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/primitives/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/primitives/dialog";
-import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { ScrollArea } from "@/components/ui/primitives/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/design-system/components/Table";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, AreaChart, Area, CartesianGrid, XAxis, YAxis } from "recharts";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, AreaChart, Area, CartesianGrid, XAxis } from "recharts";
 import { icons } from "@/design-system/tokens/icons";
 
 import { StatCard } from "@/components/admin/analytics/StatCard";

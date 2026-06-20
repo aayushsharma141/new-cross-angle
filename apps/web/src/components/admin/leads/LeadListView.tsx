@@ -27,7 +27,6 @@ import {
   HOT_LEAD_THRESHOLD,
   getCrmLeadTypeLabel,
   getCrmSourceLabel,
-  applyCrmSavedView,
 } from "@/lib/crm";
 
 const EM_DASH = "\u2014";

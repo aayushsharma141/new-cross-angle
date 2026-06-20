@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import { useScroll } from "framer-motion";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 interface SocialLink {
@@ -74,19 +74,9 @@ const buildLinks = (settings: ReturnType<typeof useSiteSettings>["settings"]): S
 
 const FixedSocialBar: React.FC = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const { scrollY } = useScroll();
-  const [isHidden, setIsHidden] = useState(false);
+  useScroll();
   const { settings } = useSiteSettings();
   const links = buildLinks(settings);
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    const previous = scrollY.getPrevious() ?? 0;
-    if (latest > previous && latest > 150) {
-      setIsHidden(true);
-    } else {
-      setIsHidden(false);
-    }
-  });
 
   return (
     <>

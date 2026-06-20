@@ -32,7 +32,7 @@
 ### 1-A. Services Hub Page (`/services`) — Section Flow & Attention Map
 
 | Order | Component | Visual Weight | Type | Notes |
-|-------|-----------|---------------|------|-------|
+| ------- | ----------- | --------------- | ------ | ------- |
 | 1 | `ServicesHero` | **Full viewport** | H1 + interactive reveal | GSAP drag-to-reveal, animated word pairs. Crimson/gold CTAs. Auto-playing animations. |
 | 2 | `ServicesMarquee` | Full-width ticker | Scroll-linked | 8 category items, scroll-position dependent motion. |
 | 3 | **Residential Domain** | **Full viewport** | H2 section header | Hero-scale H2 (`clamp(2.5rem,6vw,5rem)`), divider, grid of 3 cards. |
@@ -71,6 +71,7 @@ The service detail page has a **content-to-chrome ratio problem**:
 - **Below-fold**: Related Services (conditional), FAQ (conditional), Sticky CTA
 
 **Missing content blocks (vs competitors and ideal hierarchy):**
+
 1. **No portfolio gallery** — No before/after images, no project photos showcasing this service
 2. **No testimonials** — No client quotes, video testimonials, or case study links filtered by service
 3. **No team attribution** — No "your designer for this service" block
@@ -108,8 +109,9 @@ The service detail page has a **content-to-chrome ratio problem**:
 ## 3. Content Hierarchy & Semantic HTML Audit
 
 ### H1 Coverage
+
 | Page | H1 Content | SEO Quality |
-|------|-----------|-------------|
+| ------ | ----------- | ------------- |
 | `/services` | "One Team. One Contract. Complete Turnkey Interiors." | Brand-focused, no "services" keyword, no geo modifier |
 | `/services/:category` | Category title (e.g., "Residential") | Good — clear, matches intent |
 | `/services/:category/:service` | Service title (e.g., "Living Room Design") | Good — matches search intent |
@@ -117,18 +119,21 @@ The service detail page has a **content-to-chrome ratio problem**:
 **Issue:** The hub page H1 does not contain "Services", "Interior Design Services", or any geo-location. For a page targeting "interior design services in Jamshedpur" or similar, this is a missed opportunity.
 
 ### Heading Depth & Skip Patterns
+
 | Page | H1→H2 Sequence | Skip Issues |
-|------|---------------|-------------|
+| ------ | --------------- | ------------- |
 | Hub | H1 → H2 (Residential, Commercial, Specialized, Engines x2, ...) | None — flat structure is fine |
 | Category | H1 → sr-only H2 → H3 items | **Loses H2 context** — the section heading is `sr-only` |
 | Detail | H1 → (no H2 on intro) → H2 (Why Choose) → H2 (Process) → H2 (Related) → H2 (FAQ) | **Skip**: no H2 wraps the intro description |
 
 ### ServiceCategoryPage — `sr-only` H2
+
 ```tsx
 <h2 id="services-list-heading" className="sr-only">
   Our {category.title} Services
 </h2>
 ```
+
 This hides the only section heading from visual users. The services are listed as `<h3>` inside each service card, but without a visible `<h2>`, the semantic tree is: `H1 → nothing → H3`. Screen reader users get a jump from page title directly to service cards with no sectional context. **Recommendation:** Make this H2 visible as a section label (e.g., "Our Residential Services" as a heading above the grid), or restructure to use a visible heading pattern.
 
 ---
@@ -138,7 +143,7 @@ This hides the only section heading from visual users. The services are listed a
 ### Trust Signals Audit
 
 | Signal | Hub Page | Category Page | Detail Page |
-|--------|----------|---------------|-------------|
+| -------- | ---------- | --------------- | ------------- |
 | Client logos / badges | ❌ | ❌ | ❌ |
 | Testimonials | ❌ (not in service scope) | ❌ | ❌ |
 | Case study links | ❌ | ❌ | ❌ |
@@ -162,7 +167,7 @@ Conversion path is clearer on the detail page category page.
 ## 5. Visual & Brand Consistency Score
 
 | Component | Dark Theme | Gold Accent | Crimson Accent | Custom Fonts | Border Glows | Animations |
-|-----------|-----------|-------------|----------------|--------------|--------------|------------|
+| ----------- | ----------- | ------------- | ---------------- | -------------- | -------------- | ------------ |
 | `ServicesHero` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ GSAP |
 | `ServicesMarquee` | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ Framer |
 | Hub Domain Sections | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -180,7 +185,7 @@ Conversion path is clearer on the detail page category page.
 ## 6. Prioritized Fix Roadmap
 
 | Priority | Issue | Location | Effort | Impact |
-|----------|-------|----------|--------|--------|
+| ---------- | ------- | ---------- | -------- | -------- |
 | **P0** | Port dark brand theme to Category + Detail pages | `ServiceCategoryPage.tsx`, `ServiceDetailPage.tsx` | M | High — fixes visual trust gap |
 | **P1** | Add visible H2 above service list on Category page | `ServiceCategoryPage.tsx:99` | S | Medium — fixes heading skip |
 | **P1** | Add H2 wrapper to intro paragraph on Detail page | `ServiceDetailPage.tsx:132` | S | Medium — semantic fix |

@@ -109,30 +109,33 @@ function SortableServiceItem({
         <div className="px-3 pb-3 space-y-3 border-t border-[hsl(var(--admin-border))]/30 pt-3">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
             <div>
-              <label className="text-[10px] text-[hsl(var(--admin-text-muted))]">
+              <label htmlFor={`svc-label-${svc.id}`} className="text-[10px] text-[hsl(var(--admin-text-muted))]">
                 Label
               </label>
               <Input
+                id={`svc-label-${svc.id}`}
                 value={svc.label}
                 onChange={(e) => updateSvc(svc.id, "label", e.target.value)}
                 className="h-7 text-xs bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]"
               />
             </div>
             <div>
-              <label className="text-[10px] text-[hsl(var(--admin-text-muted))]">
+              <label htmlFor={`svc-rateLabel-${svc.id}`} className="text-[10px] text-[hsl(var(--admin-text-muted))]">
                 Rate Label
               </label>
               <Input
+                id={`svc-rateLabel-${svc.id}`}
                 value={svc.rateLabel}
                 onChange={(e) => updateSvc(svc.id, "rateLabel", e.target.value)}
                 className="h-7 text-xs bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]"
               />
             </div>
             <div>
-              <label className="text-[10px] text-[hsl(var(--admin-text-muted))]">
+              <label htmlFor={`svc-rate-${svc.id}`} className="text-[10px] text-[hsl(var(--admin-text-muted))]">
                 Rate (₹/sqft)
               </label>
               <Input
+                id={`svc-rate-${svc.id}`}
                 type="number"
                 value={svc.rate ?? ""}
                 onChange={(e) =>
@@ -154,10 +157,11 @@ function SortableServiceItem({
             </div>
           </div>
           <div>
-            <label className="text-[10px] text-[hsl(var(--admin-text-muted))]">
+            <label htmlFor={`svc-desc-${svc.id}`} className="text-[10px] text-[hsl(var(--admin-text-muted))]">
               Description
             </label>
             <Input
+              id={`svc-desc-${svc.id}`}
               value={svc.desc}
               onChange={(e) => updateSvc(svc.id, "desc", e.target.value)}
               className="h-7 text-xs bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]"
@@ -165,9 +169,9 @@ function SortableServiceItem({
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[10px] text-[hsl(var(--admin-text-muted))]">
+              <span className="text-[10px] text-[hsl(var(--admin-text-muted))]">
                 Includes
-              </label>
+              </span>
               <Button
                 variant="ghost"
                 size="sm"

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Mail, Database, Cloud, Activity, Plus, Clock, Zap, Bolt, Unplug } from "lucide-react";
-import { Button } from "@/components/ui/primitives/button";
 
 const T = {
   bg: "#0D0F0E",
@@ -94,7 +93,7 @@ const HEALTH_METRICS = [
   { label: "Last Deploy", value: "4 hours ago", dot: T.greenDim },
 ];
 
-function StatusBadge({ status }: { status?: string }) {
+function StatusBadge() {
   return (
     <span style={{
       display: "inline-flex",

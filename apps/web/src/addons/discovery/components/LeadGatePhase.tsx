@@ -49,7 +49,7 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
         setIsSubmitting(true);
         try {
             // Strip large computed objects not needed in DB
-            const { consultationIntelligence: _ci, ...signalsForDB } = signals as UserSignals & { consultationIntelligence?: unknown };
+            const { ...signalsForDB } = signals as UserSignals & { consultationIntelligence?: unknown };
 
             const payload = {
                 name,

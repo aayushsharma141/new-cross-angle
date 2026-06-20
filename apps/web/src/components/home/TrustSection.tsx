@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Award, Users, ShieldCheck, Wrench, Package, HeadphonesIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CountUp, FallingText, FadeContent } from "@/components/ReactBits";
-import { motion } from "framer-motion";
 import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 
 const assetKeyForPartner = (name: string): string => {
@@ -84,23 +83,7 @@ const brandPartners = [
 ];
 
 const TrustSection = () => {
-  const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.2 }
-    );
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <section id="trust" ref={sectionRef} className="py-section-y relative overflow-hidden bg-muted/5">

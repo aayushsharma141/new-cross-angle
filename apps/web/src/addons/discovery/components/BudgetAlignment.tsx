@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AlertTriangle, ArrowRight, TrendingDown, Layers, Star } from 'lucide-react';
 import type { UserSignals } from '@/types/discovery';
 

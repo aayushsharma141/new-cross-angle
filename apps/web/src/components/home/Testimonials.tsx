@@ -326,10 +326,23 @@ const Testimonials = () => {
           ) : (
             <div 
               ref={containerRef}
+              role="button"
+              aria-label="Testimonials carousel"
+              tabIndex={0}
               onMouseDown={handleMouseDown}
               onMouseLeave={handleMouseLeave}
               onMouseUp={handleMouseUp}
               onMouseMove={handleMouseMove}
+              onKeyDown={(e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                  e.preventDefault();
+                  containerRef.current?.scrollBy({ left: -300, behavior: 'smooth' });
+                }
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  containerRef.current?.scrollBy({ left: 300, behavior: 'smooth' });
+                }
+              }}
               className={cn(
                 "flex overflow-x-auto gap-5 md:gap-6 pb-12 hide-scrollbar px-4 md:px-12 -mx-4 md:-mx-12 select-none",
                 isDragging ? "cursor-grabbing" : "cursor-grab"

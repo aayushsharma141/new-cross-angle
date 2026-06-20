@@ -6,7 +6,6 @@ import { transformationStories as fallbackStories } from "@/data/transformationS
 import { ArrowRight, Quote, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { getOptimizedUrl } from "@/lib/cdn";
 import { Image } from "@/components/ui/enhanced/image";
 
 export const BeforeAfterShowcase = () => {

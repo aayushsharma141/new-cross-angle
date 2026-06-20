@@ -6,7 +6,6 @@ import {
     Clock, 
     Sparkles, 
     MousePointerClick, 
-    Switch, 
     ArrowUp, 
     ArrowDown, 
     Pencil, 
@@ -159,8 +158,11 @@ export function HeroItemDisplay({
 
             {/* Thumbnail */}
             <div
+                role="button"
+                tabIndex={0}
                 className="w-28 h-18 rounded-lg overflow-hidden bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex-shrink-0 relative group cursor-pointer"
                 onClick={() => onPreviewClick(item)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPreviewClick(item); } }}
             >
                 {item.media_type === "video" ? (
                     <>

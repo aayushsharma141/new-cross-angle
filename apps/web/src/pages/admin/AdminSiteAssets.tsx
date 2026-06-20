@@ -1,14 +1,8 @@
 import { useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/primitives/button";
-import { Loader2, Image as ImageIcon, Check, ImagePlus, MonitorPlay } from "lucide-react";
+import { Loader2, Image as ImageIcon, ImagePlus, MonitorPlay } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/primitives/dialog";
 import MediaPickerModal from "@/components/admin/MediaPickerModal";
 import type { MediaFile } from "@/services/MediaService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";

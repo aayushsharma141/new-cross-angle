@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowRight, CheckCircle2, ChevronRight, Loader2, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, Sparkles } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/primitives/button";

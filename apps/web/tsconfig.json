@@ -9,6 +9,8 @@
     "noUnusedParameters": false,
     "skipLibCheck": true,
     "allowJs": true,
-    "noUnusedLocals": false
+    "noUnusedLocals": false,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
   }
 }

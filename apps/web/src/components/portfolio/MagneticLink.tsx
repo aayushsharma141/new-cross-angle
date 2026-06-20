@@ -1,5 +1,5 @@
-import React, { useRef, useState, useEffect } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import React, { useRef } from "react";
+import { motion, useSpring } from "framer-motion";
 import { Link } from "react-router-dom";
 
 interface MagneticLinkProps {

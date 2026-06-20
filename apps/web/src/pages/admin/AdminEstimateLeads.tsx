@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import {
-  Loader2, Users, Trash2, MoreVertical, Search, Download, Filter,
-  TrendingUp, Target, Calculator, Phone, Mail, Eye, X, ArrowUpDown,
+  Loader2, Trash2, MoreVertical, Search, Download,
+  Target, Phone, Mail, X, ArrowUpDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
 import {
@@ -16,7 +16,7 @@ import {
 import { useToast } from '@/hooks/useToast';
 import { BulkActionsToolbar } from '@/components/admin/BulkActionsToolbar';
 import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
-import { AdminPageHeader, AdminMetricsPanel, type AdminMetric } from '@/components/admin/shared';
+import { AdminPageHeader, AdminMetricsPanel } from '@/components/admin/shared';
 import { auditService } from '@/services/AuditService';
 import { cn } from '@/lib/utils';
 import { format, subDays } from 'date-fns';
@@ -375,9 +375,9 @@ export default function AdminEstimateLeads() {
 
       {/* Detail Panel */}
       {detailLead && (
-        <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setDetailLead(null)}>
+        <div className="fixed inset-0 z-50 flex justify-end" role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setDetailLead(null); }} onClick={() => setDetailLead(null)}>
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-          <div className="relative w-full max-w-md bg-[hsl(var(--admin-background))] border-l border-[hsl(var(--admin-border))] overflow-y-auto animate-in slide-in-from-right duration-300" onClick={(e) => e.stopPropagation()}>
+          <div className="relative w-full max-w-md bg-[hsl(var(--admin-background))] border-l border-[hsl(var(--admin-border))] overflow-y-auto animate-in slide-in-from-right duration-300" role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') e.stopPropagation(); }} onClick={(e) => e.stopPropagation()}>
             <div className="sticky top-0 bg-[hsl(var(--admin-background))] border-b border-[hsl(var(--admin-border))] p-4 flex items-center justify-between z-10">
               <h2 className="text-lg font-bold text-[hsl(var(--admin-text))]">Lead Details</h2>
               <Button variant="ghost" size="icon" onClick={() => setDetailLead(null)}><X className="w-4 h-4" /></Button>

@@ -45,7 +45,7 @@ graph TD
     L -->|Final Action| M[Footer CTA: Ready to contact us?]
 ```
 
-### Transition Analysis:
+### Transition Analysis
 
 1. **Hero ➔ About**
    * * Mindset:* Landing on site, impressed by hero video/image, needs background.

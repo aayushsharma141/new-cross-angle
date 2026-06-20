@@ -15,7 +15,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/primitives/dialog";
-import { ListOrdered, Image as ImageIcon, Pencil, Trash2, Edit2 } from "lucide-react";
+import { ListOrdered, Trash2, Edit2 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { Image } from "@/components/ui/enhanced/image";

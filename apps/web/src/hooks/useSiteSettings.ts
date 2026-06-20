@@ -33,6 +33,7 @@ export interface SiteSettings {
   social_links: Record<string, string> | null;
   studio_stats: Record<string, number> | null;
   integrations: Record<string, unknown> | null;
+  security_config?: Record<string, unknown> | null;
   updated_at: string | null;
 }
 

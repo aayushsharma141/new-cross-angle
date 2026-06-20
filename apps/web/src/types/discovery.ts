@@ -44,13 +44,6 @@ export interface MaterialOption {
   scores: Partial<AestheticScores>;
 }
 
-interface LightOption {
-  name: string;
-  description: string;
-  bgColor: string;
-  icons: string[];
-}
-
 export interface Archetype {
   name: string;
   tagline: string;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
@@ -24,22 +24,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { portfolioSchema, formatZodErrors } from "@/lib/validation/validations";
 import { Switch } from "@/components/ui/primitives/switch";
-import { getOptimizedUrl } from "@/lib/cdn";
 import FocusLock from "react-focus-lock";
 
 interface Category {
     id: string;
     name: string;
-}
-
-interface ProjectDescription {
-    area?: string;
-    budget?: string;
-    duration?: string;
-    brief?: string;
-    approach?: string;
-    video_url?: string;
-    hero_image_url?: string;
 }
 
 interface ProjectRow {
@@ -103,7 +92,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
     }, []);
 
     const fetchCategories = async () => {
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('project_categories')
             .select('id, name')
             .order('display_order');
@@ -250,11 +239,10 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
 
             onSuccess();
             onOpenChange(false);
-        } catch (error) {
-            console.error(error);
+        } catch {
             toast({
                 title: "Error saving project",
-                description: (error as Error).message,
+                description: "An unexpected error occurred",
                 variant: "destructive",
             });
         } finally {

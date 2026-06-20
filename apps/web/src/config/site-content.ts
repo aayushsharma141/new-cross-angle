@@ -1,4 +1,4 @@
-import { LucideIcon, Home, Building2, Lamp, Sofa, UtensilsCrossed, Bed } from "lucide-react";
+import { LucideIcon, Home, Building2, Lamp } from "lucide-react";
 
 type ServiceCategory = {
     id: string;

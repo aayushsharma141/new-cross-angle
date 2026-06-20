@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
-import { Users, Clock, Zap, Globe, MousePointerClick, TrendingUp } from "lucide-react";
+import { Users, Zap, Globe, MousePointerClick } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { endOfDay, differenceInDays, subDays, format, startOfDay } from "date-fns";
 import {

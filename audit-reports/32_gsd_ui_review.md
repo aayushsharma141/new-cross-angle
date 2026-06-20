@@ -22,7 +22,7 @@ Change stage dropdown → Click save → Toast confirms → Navigate back to lis
 ### 1.2 Friction Points
 
 | Step | Issue | Severity |
-|---|---|---|
+| --- | --- | --- |
 | Lead list → detail sheet | Sheet opens, but focus may not move into sheet — user must tab to first field | MAJOR — auto-focus first interactive element |
 | Stage change | Dropdown with 6+ options, no keyboard shortcut | MINOR — keybind (e.g., "2" for qualified) |
 | Save action | Requires reaching button at bottom of sheet | MINOR — consider Cmd+Enter |
@@ -56,7 +56,7 @@ tags, status) → Click "Publish" → Toast confirms → Redirects to all posts 
 ### 2.2 Friction Points
 
 | Step | Issue | Severity |
-|---|---|---|
+| --- | --- | --- |
 | List → Editor tab switch | `handleNew()` switches to "editor" tab — URL changes but no `?edit=` param set, making deep-link impossible | MAJOR — `window.history.replaceState` after new post creation |
 | Rich text editor (Tiptap) | Editor loads plugins — may have 1-2s delay before ready | MINOR — show loading skeleton for editor |
 | Content area | `dangerouslySetInnerHTML` — no live preview of rendered post | MAJOR — add preview pane or toggle |
@@ -89,7 +89,7 @@ client, content) → Submit → Toast confirms → Dialog closes → List refres
 ### 3.2 Friction Points
 
 | Step | Issue | Severity |
-|---|---|---|
+| --- | --- | --- |
 | Dialog form length | 12+ fields in one dialog — scroll fatigue on long forms | MAJOR — multi-step or collapsible sections |
 | Image upload | Requires separate MediaPicker modal integration | MAJOR — inline upload/select in dialog |
 | Slug auto-generation | Must be manually typed — no auto-slug from title | MAJOR — auto-generate on blur with editable override |
@@ -103,7 +103,7 @@ client, content) → Submit → Toast confirms → Dialog closes → List refres
 ### 4.1 AdminDashboard KPIs
 
 | Metric | Evaluation | Verdict |
-|---|---|---|
+| --- | --- | --- |
 | Total Projects | Raw count — no trend arrow | ⚠️ Add % change vs last period |
 | Published | Raw count — no comparison | ⚠️ Same |
 | Drafts | Raw count — actionable (click to view drafts) | ✅ Clickable is good |
@@ -114,7 +114,7 @@ client, content) → Submit → Toast confirms → Dialog closes → List refres
 ### 4.2 Information Gap
 
 | Missing | Why It Matters |
-|---|---|
+| --- | --- |
 | Tasks requiring attention (e.g., "3 leads in 'New' for >48h") | Drives action, not vanity |
 | Recent activity feed (e.g., "John updated Project X") | Team awareness |
 | Quick-action shortcuts (e.g., "Create Lead", "New Blog Post") | Reduces click depth |
@@ -129,7 +129,7 @@ client, content) → Submit → Toast confirms → Dialog closes → List refres
 `AdminHub.tsx` implements a command-palette style interface. Evaluation:
 
 | Aspect | Rating | Notes |
-|---|---|---|
+| --- | --- | --- |
 | Search relevance | ⚠️ Needs testing | Does search include recently accessed items? |
 | Result grouping | ✅ Good | Categories (Pages, Leads, Projects, etc.) |
 | Keyboard shortcuts | ❌ Not implemented | No `/` to open, no arrow navigation |
@@ -144,7 +144,7 @@ client, content) → Submit → Toast confirms → Dialog closes → List refres
 ### 6.1 Stage Transitions
 
 | Stage | Transition | UX | Verdict |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | New → Contacted | Dropdown in sheet | 3 clicks (open sheet, change, save) | ⚠️ Acceptable |
 | Contacted → Qualified | Same flow | Same | ⚠️ Acceptable |
 | Qualified → Proposal | Same flow | Same | ⚠️ Acceptable |
@@ -154,7 +154,7 @@ client, content) → Submit → Toast confirms → Dialog closes → List refres
 ### 6.2 Missing CRM Features
 
 | Feature | Impact | Severity |
-|---|---|---|
+| --- | --- | --- |
 | Inline stage change (dropdown on list row) | Save 2 clicks per lead update | MAJOR |
 | Activity logging per lead (call/email notes) | No record of interactions | CRITICAL |
 | Lead source analytics in CRM view | Cannot optimize acquisition channels | MAJOR |
@@ -168,7 +168,7 @@ client, content) → Submit → Toast confirms → Dialog closes → List refres
 ### 7.1 Current State: Zero Bulk Operations
 
 | Action | Portfolio | Blog | Gallery | Leads | Media |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | Multi-select | ❌ | ❌ | ❌ | ❌ | ✅ (Media only) |
 | Batch delete | ❌ | ❌ | ❌ | ❌ | ✅ (Media only) |
 | Batch publish/draft | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -187,7 +187,7 @@ Managing >10 items of any type is 10x more work than it should be. For example, 
 ### 8.1 Tab Order
 
 | Page | Tab Order Quality | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `AdminGallery.tsx` — item form | ✅ Good | Logical left-to-right, top-to-bottom |
 | `AdminTeam.tsx` — member form | ⚠️ Needs review | Social fields after name/role/bio — tab order follows display order |
 | `AdminServices.tsx` — service form | ⚠️ Needs review | Features/process/FAQ sub-editors have complex tab flow |
@@ -196,7 +196,7 @@ Managing >10 items of any type is 10x more work than it should be. For example, 
 ### 8.2 Auto-Save Status
 
 | Page | Auto-save? | Verdict |
-|---|---|---|
+| --- | --- | --- |
 | All admin CRUD forms | ❌ No — manual save only | Users must remember to save; loss on navigation |
 | Blog editor | ❌ No | Highest-risk due to long-form content |
 | AdminSettings | ❌ No | System settings can be complex |
@@ -204,7 +204,7 @@ Managing >10 items of any type is 10x more work than it should be. For example, 
 ### 8.3 Field Autofocus
 
 | Page | First Field Focused? |
-|---|---|
+| --- | --- |
 | Gallery dialog | ❌ Should auto-focus title |
 | Team dialog | ❌ Should auto-focus name |
 | Milestones dialog | ❌ Should auto-focus year |
@@ -216,7 +216,7 @@ Managing >10 items of any type is 10x more work than it should be. For example, 
 ## 9. Error Recovery Speed
 
 | Scenario | Recovery UX | Verdict |
-|---|---|---|
+| --- | --- | --- |
 | Accidental delete | No undo — item is permanently deleted | ❌ CRITICAL — soft-delete or undo toast needed |
 | Form data loss on navigation | No "unsaved changes" warning on most forms | ❌ CRITICAL |
 | Mistaken status change | Can re-change status (no audit trail visibility) | ⚠️ Acceptable but could improve |
@@ -228,7 +228,7 @@ Managing >10 items of any type is 10x more work than it should be. For example, 
 ## 10. Empty States
 
 | Page | Empty State? | Quality |
-|---|---|---|
+| --- | --- | --- |
 | `AdminPortfolio` | ✅ `AdminEmptyState` | ✅ Actionable: "Create your first project" |
 | `AdminServices` | ✅ `AdminEmptyState` | ✅ |
 | `AdminGallery` | ❌ No empty state | ❌ Shows blank grid |
@@ -244,7 +244,7 @@ Managing >10 items of any type is 10x more work than it should be. For example, 
 ## GSD Score Summary
 
 | Category | Score | Grade |
-|---|---|---|
+| --- | --- | --- |
 | Lead→Quote→Win flow | 40% | D |
 | Blog publish flow | 35% | D |
 | Project portfolio flow | 40% | D |

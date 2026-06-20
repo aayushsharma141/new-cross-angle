@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+﻿import { useState, useRef, useEffect, useCallback } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { leadRepo } from "@/repositories";
 import { supabase } from "@/integrations/supabase/client";
 import { LeadGridView } from "@/components/admin/leads/LeadGridView";
@@ -10,29 +10,25 @@ import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useToast } from "@/hooks/useToast";
 import { format } from "date-fns";
-import { calculateLeadScore, getLeadTemperature, buildForecast, formatINR, type Lead } from "@/lib/scoring/leadScoring";
-import { validateStageAdvance, type LeadStatus } from "@/lib/validation/validations";
-import { EmptyState } from "@/design-system/components/states";
+import { getLeadTemperature, type Lead } from "@/lib/scoring/leadScoring";
+
 import { useSearchParams } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/primitives/dropdown-menu";
 import {
-  CRM_STAGES,
   CRM_SOURCES,
-  CRM_SAVED_VIEWS,
   CRM_SORTS,
   CRM_SORT_LABELS,
   CRM_KPIS,
   isCrmStageId,
   isCrmSavedViewId,
   isCrmSortMode,
-  getCrmSort,
+
   getCrmSourceLabel,
   getCrmLeadTypeLabel,
   type CrmStageId,
@@ -45,7 +41,6 @@ import {
   List as ListIcon,
   Download,
   Plus,
-  Users,
   Filter,
   ArrowUpDown,
   TrendingUp,
@@ -106,52 +101,9 @@ export default function AdminLeads() {
 
 
 
-  const setViewFilter = useCallback((view: CrmSavedViewId) => {
-    const next = new URLSearchParams(searchParams);
-    next.delete("stage");
-    if (view === "all") {
-      next.delete("view");
-    } else {
-      next.set("view", view);
-    }
-    setSearchParams(next);
-  }, [searchParams, setSearchParams]);
-
-  const { data: leads = [], isLoading } = useQuery({
-    queryKey: ["leads"],
-    queryFn: async (): Promise<Lead[]> => {
-      const raw = await leadRepo.getLeads();
-      const leadsWithScore = (raw as unknown as Lead[]).map((lead) => ({
-        ...lead,
-        score: lead.score ?? calculateLeadScore(lead),
-      }));
-      return leadsWithScore.sort((a, b) => (b.score || 0) - (a.score || 0));
-    },
-  });
-
-  const now = new Date();
-  const activeSavedView = CRM_SAVED_VIEWS.find((v) => v.id === viewFilter);
-  const sortComparator = getCrmSort(sortMode).comparator;
-
-  const filteredLeads = leads
-    .filter((lead) => {
-      const leadSource = lead.source || lead.lead_source || "";
-
-      const matchesSearch =
-        lead.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        lead.email?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        lead.phone?.toLowerCase().includes(debouncedSearch.toLowerCase());
-      const matchesStatus = statusFilter === "all" || lead.status === statusFilter;
-      const matchesSource = sourceFilter === "all" || leadSource === sourceFilter;
-      const matchesView = !activeSavedView || activeSavedView.predicate(lead, now);
-
-      return matchesSearch && matchesStatus && matchesSource && matchesView;
-    })
-    .sort(sortComparator);
-
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...patch }: Partial<Lead> & { id: string }): Promise<void> => {
-      const { score, created_at, updated_at, service, source_url, internal_notes, score_details, ...saveable } = patch;
+      const { score, created_at, updated_at, service, source_url, internal_notes, score_details, ...saveable } = patch; // eslint-disable-line @typescript-eslint/no-unused-vars
       await leadRepo.updateLead(id, saveable);
     },
     onMutate: async (newLead) => {
@@ -243,23 +195,6 @@ export default function AdminLeads() {
     },
   });
 
-  const handleDragMove = (leadId: string, newStatus: string): void => {
-    if (!can('leads', 'edit')) {
-      toast({ variant: "destructive", title: "Access Denied", description: "You do not have permission to edit leads." });
-      return;
-    }
-    const lead = leads.find((l) => l.id === leadId);
-    if (!lead) return;
-
-    const errors = validateStageAdvance(lead as unknown as Record<string, unknown>, newStatus as LeadStatus);
-    if (errors.length > 0) {
-      toast({ variant: "destructive", title: `Cannot advance to "${newStatus}"`, description: errors.join(" Â· ") });
-      return;
-    }
-
-    updateMutation.mutate({ id: leadId, status: newStatus });
-  };
-
   const handleExport = (): void => {
     const csvContent = [
       ["Name", "Email", "Phone", "Status", "Source", "Type", "City", "Budget", "Score", "Temperature", "Date"],
@@ -304,15 +239,11 @@ export default function AdminLeads() {
     setIsSheetOpen(true);
   }, []);
 
-  const forecast = buildForecast(leads);
-
   const activeFilterCount = [
     statusFilter !== "all",
     viewFilter !== "all",
     sourceFilter !== "all",
   ].filter(Boolean).length;
-
-  const chipSavedViews = CRM_SAVED_VIEWS.filter((v) => v.showInChips);
 
   return (
     <>
@@ -571,3 +502,4 @@ export default function AdminLeads() {
 }
 
 // trigger HMR
+

@@ -1,7 +1,7 @@
-import React from 'react';
 import { Component, ReactNode } from "react";
 import { AlertTriangle, RefreshCw, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
+import { captureException } from "@/lib/sentry";
 
 interface Props {
   children: ReactNode;
@@ -25,6 +25,7 @@ export class AdminRouteErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error("[AdminRouteError]", error, info.componentStack);
+    captureException(error, { tags: { boundary: "admin-route" }, extra: { componentStack: info.componentStack } });
   }
 
   handleRetry = () => this.setState({ hasError: false, error: undefined });

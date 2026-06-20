@@ -47,7 +47,7 @@ interface ProjectStoryAndTransformationProps {
   project: Project;
 }
 
-export const ProjectStoryAndTransformation = ({ project }: ProjectStoryAndTransformationProps) => {
+export const ProjectStoryAndTransformation = (_props: ProjectStoryAndTransformationProps) => {
   const { slug } = useParams<{ slug: string }>();
   const activeSlug = slug as keyof typeof storyTransformationData | undefined;
   const data = activeSlug ? storyTransformationData[activeSlug] : undefined;
@@ -61,8 +61,6 @@ export const ProjectStoryAndTransformation = ({ project }: ProjectStoryAndTransf
   });
 
   // Calculate slide and fade properties
-  const quoteX = useTransform(scrollYProgress, [0, 0.45], [0, 180]);
-  const quoteOpacity = useTransform(scrollYProgress, [0, 0.45], [1, 0]);
   const sliderScale = useTransform(scrollYProgress, [0.15, 0.55], [0.93, 1]);
   const textFadeIn = useTransform(scrollYProgress, [0.35, 0.6], [0, 1]);
 

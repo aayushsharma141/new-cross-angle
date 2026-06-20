@@ -6,7 +6,6 @@ import { useFlowConfig } from "@/hooks/useFlowConfig";
 
 interface Props {
     formData: CalculatorFormData;
-    updateField: <K extends keyof CalculatorFormData>(field: K, value: CalculatorFormData[K]) => void;
     updateFields: (partial: Partial<CalculatorFormData>) => void;
 }
 
@@ -15,7 +14,7 @@ const inputStyle = "w-full bg-[#ffffff] !bg-[#ffffff] border border-[#1a1a1a]/[0
 const dropdownStyle = "bg-[#ffffff] border border-[#1a1a1a]/[0.08] rounded-[8px] mt-1.5 max-h-52 overflow-y-auto shadow-2xl z-50 relative pointer-events-auto";
 const dropdownItemStyle = "flex justify-between items-center w-full bg-transparent border-none text-[#1a1a1a] px-4 py-2.5 cursor-pointer text-sm text-left hover:bg-[#8b6f47]/10 transition-colors";
 
-export function StepLocation({ formData, updateField, updateFields }: Props) {
+export function StepLocation({ formData, updateFields }: Props) {
     const { data: LOCATION_DATA } = useFlowConfig<Record<string, Record<string, string>>>("location_data");
     const { data: TIERS } = useFlowConfig<Record<string, { label: string; multiplier: number }>>("city_tiers");
 
@@ -57,9 +56,10 @@ export function StepLocation({ formData, updateField, updateFields }: Props) {
 
             {/* State picker */}
             <div className="mb-5">
-                <label className={labelStyle}>State</label>
+                <label htmlFor="state-input" className={labelStyle}>State</label>
                 <div className="relative flex items-center">
                     <input
+                        id="state-input"
                         type="text"
                         title="Search for your state"
                         placeholder="Search state..."
@@ -112,9 +112,10 @@ export function StepLocation({ formData, updateField, updateFields }: Props) {
             {/* City picker */}
             {formData.state && (
                 <div className="mb-5 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <label className={labelStyle}>City</label>
+                    <label htmlFor="city-input" className={labelStyle}>City</label>
                     <div className="relative flex items-center">
                         <input
+                            id="city-input"
                             type="text"
                             title="Search for your city"
                             placeholder="Search city..."

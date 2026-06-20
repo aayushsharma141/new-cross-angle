@@ -181,8 +181,9 @@ export function LocationsEditor() {
                 </div>
                 <div className="space-y-1.5">
                   <div>
-                    <label className="text-[10px] text-[hsl(var(--admin-text-muted))]">Label</label>
+                    <label htmlFor={`tier-label-${tier}`} className="text-[10px] text-[hsl(var(--admin-text-muted))]">Label</label>
                     <Input
+                      id={`tier-label-${tier}`}
                       value={t.label}
                       onChange={(e) => updateTierField(tier, "label", e.target.value)}
                       className="h-7 text-xs bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]"
@@ -190,8 +191,9 @@ export function LocationsEditor() {
                   </div>
                   <div className="flex gap-2">
                     <div className="flex-1">
-                      <label className="text-[10px] text-[hsl(var(--admin-text-muted))]">Multiplier</label>
+                      <label htmlFor={`tier-mult-${tier}`} className="text-[10px] text-[hsl(var(--admin-text-muted))]">Multiplier</label>
                       <Input
+                        id={`tier-mult-${tier}`}
                         type="number"
                         step="0.05"
                         value={t.multiplier}
@@ -200,9 +202,10 @@ export function LocationsEditor() {
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="text-[10px] text-[hsl(var(--admin-text-muted))]">Color (hex)</label>
+                      <label htmlFor={`tier-color-${tier}`} className="text-[10px] text-[hsl(var(--admin-text-muted))]">Color (hex)</label>
                       <div className="flex items-center gap-1">
                         <input
+                          id={`tier-color-${tier}`}
                           type="color"
                           value={t.color}
                           onChange={(e) => updateTierField(tier, "color", e.target.value)}

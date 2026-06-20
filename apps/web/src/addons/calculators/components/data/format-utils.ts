@@ -15,10 +15,6 @@ export function formatRange(min: number, max: number): string {
     return `${formatCurrency(min)} – ${formatCurrency(max)}`;
 }
 
-/** Format area with sq ft suffix */
-function formatArea(area: number): string {
-    return `${area.toLocaleString("en-IN")} sq ft`;
-}
 
 /** Generate a short unique ID */
 export function generateId(): string {

@@ -53,14 +53,6 @@ function preloadImage(url: string): Promise<void> {
    On transition, the outgoing slide moves to "left" and the
    incoming slide moves in from "right" (or vice-versa).
 ──────────────────────────────────────────────────────────────*/
-type SlidePos = "left" | "center" | "right";
-
-function getTranslateX(pos: SlidePos): string {
-  if (pos === "left") return "translateX(-100%)";
-  if (pos === "right") return "translateX(100%)";
-  return "translateX(0)";
-}
-
 const Hero = () => {
   const { settings } = useSiteSettings();
   const [mediaItems, setMediaItems] = useState<HeroMediaItem[]>([]);
@@ -200,10 +192,6 @@ const Hero = () => {
   const itemUp = {
     hidden: { y: 30, opacity: 0 },
     show: { y: 0, opacity: 1, transition: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] as const } },
-  };
-  const popIn = {
-    hidden: { scale: 0.8, opacity: 0 },
-    show: { scale: 1, opacity: 1, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const } },
   };
   const slideLeft = {
     hidden: { x: 50, opacity: 0 },

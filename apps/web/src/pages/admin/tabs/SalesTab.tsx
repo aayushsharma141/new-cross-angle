@@ -3,17 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
 import { LeadFunnelChart } from "@/components/admin/analytics/LeadFunnelChart";
 import { LeadSourceChart } from "@/components/admin/analytics/LeadSourceChart";
-import { Layers, Zap, Target, TrendingUp, Users, Clock } from "lucide-react";
+import { Layers, Zap, Target, TrendingUp } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { endOfDay, differenceInDays, subDays, format, startOfDay } from "date-fns";
 import {
-  Bar,
-  BarChart,
   ResponsiveContainer,
   XAxis,
   YAxis,
   Tooltip,
-  Cell,
   Area,
   AreaChart,
   CartesianGrid,
@@ -29,7 +26,7 @@ const SalesTab = ({ date }: SalesTabProps) => {
   const fromIso = currentFrom?.toISOString();
   const toIso = currentTo?.toISOString();
 
-  const { data: stats, isLoading, error } = useQuery({
+  const { data: stats, isLoading } = useQuery({
     queryKey: ["admin-stats-sales", date],
     queryFn: async () => {
       let previousFromIso: string | undefined;

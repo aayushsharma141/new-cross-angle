@@ -49,10 +49,6 @@ const CITY_MULTIPLIERS: Record<"metro" | "tier1" | "tier2", number> = {
   tier2: 1.00,
 };
 
-/** Labor vs material split (NoBrokerHood survey: 65% labor, 35% material) */
-const LABOR_SHARE = 0.65;
-const MATERIAL_SHARE = 0.35;
-
 /** Mechanical (plumbing + electrical + HVAC) as % of interior cost */
 const MECHANICAL_PCT = 0.15;
 

@@ -1,7 +1,5 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
 
 interface AboutHeroProps {

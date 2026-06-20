@@ -21,11 +21,6 @@ export type ServiceId = "C1" | "C2" | "C3" | "C4" | "C5";
 /** Execution tier IDs for C5 */
 export type ExecutionTierId = "economy" | "standard" | "premium" | "luxury";
 
-/** Timeline urgency options */
-type TimelineOption = "Immediate" | "1-3 Months" | "3+ Months";
-
-/** Budget tier classification */
-type BudgetTier = "Budget" | "Standard" | "Premium" | "Luxury";
 
 /** Lead temperature classification */
 export type LeadCategory = "HOT" | "WARM" | "COLD";
@@ -169,11 +164,4 @@ export interface LeadScore {
     };
 }
 
-/** Stored lead record */
-interface LeadRecord {
-    id: string;
-    timestamp: string;
-    formData: CalculatorFormData;
-    estimate: EstimateResult;
-    score: LeadScore;
-}
+

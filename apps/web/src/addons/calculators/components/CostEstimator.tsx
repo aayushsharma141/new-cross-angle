@@ -9,7 +9,6 @@ import { StepServices } from "./steps/StepServices";
 import { StepAddons } from "./steps/StepAddons";
 import { StepTimeline } from "./steps/StepTimeline";
 import { StepResults } from "./steps/StepResults";
-import { formatCurrency } from "./data/format-utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
 import { track } from "@/analytics/track";
@@ -296,7 +295,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                         >
                             {currentStep === 0 && <StepPropertyType formData={formData} updateField={updateField} />}
                             {currentStep === 1 && <StepPropertyDetails formData={formData} updateField={updateField} updateFields={updateFields} />}
-                            {currentStep === 2 && <StepLocation formData={formData} updateField={updateField} updateFields={updateFields} />}
+                            {currentStep === 2 && <StepLocation formData={formData} updateFields={updateFields} />}
                             {currentStep === 3 && <StepBudget formData={formData} updateField={updateField} />}
                             {currentStep === 4 && <StepServices formData={formData} updateField={updateField} />}
                             {currentStep === 5 && <StepAddons formData={formData} updateField={updateField} />}

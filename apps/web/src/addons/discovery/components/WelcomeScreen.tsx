@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  ArrowRight, Brain, Home, Sparkles, Target, BarChart3, Users, ChevronLeft,
+  ArrowRight, Brain, Home, Target, BarChart3, Users, ChevronLeft,
   Sun, Layers, Leaf, Lamp, BookOpen
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -150,7 +150,7 @@ const InputNode = ({
 const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
   const { settings } = useSiteSettings();
   const logoUrl = settings?.company_logo_url || settings?.logo_light_url || logoIcon;
-  const { lang, setLang, t } = useLanguage();
+  const { lang, setLang } = useLanguage();
   const [step, setStep] = useState(0);
   const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
 

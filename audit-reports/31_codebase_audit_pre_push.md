@@ -10,7 +10,7 @@
 ### [CRITICAL] 1.1 No Hooks Infrastructure
 
 | Artifact | Found? | Location |
-|---|---|---|
+| --- | --- | --- |
 | `.husky/` directory | ❌ Not found | — |
 | `pre-commit` file | ❌ Not found | — |
 | `pre-push` file | ❌ Not found | — |
@@ -24,6 +24,7 @@
 ### 1.2 Impact
 
 Without pre-commit hooks:
+
 - Type errors accumulate across pushes
 - Dead code is never caught (`no-unused-vars: off` + no linting)
 - Formatting drifts between developers
@@ -37,6 +38,7 @@ Without pre-commit hooks:
 ### [CRITICAL] 2.1 App-Level Overrides Disable Strictness
 
 **Base config** (`tsconfig.base.json`):
+
 ```json
 {
   "strict": true,              // ← ON
@@ -46,6 +48,7 @@ Without pre-commit hooks:
 ```
 
 **App-level config** (`apps/web/tsconfig.json`):
+
 ```json
 {
   "compilerOptions": {
@@ -61,7 +64,7 @@ Without pre-commit hooks:
 **Critical Flags Disabled:**
 
 | Flag | Value | Risk |
-|---|---|---|
+| --- | --- | --- |
 | `strictNullChecks` | `false` | `null`/`undefined` values silently pass type checks → runtime errors |
 | `noImplicitAny` | `false` | Functions with untyped parameters default to `any` → no type safety |
 | `noUnusedLocals` | `false` | Dead variables/lambdas accumulate |
@@ -71,11 +74,13 @@ Without pre-commit hooks:
 ### 2.2 Estimated Surface Area
 
 With `strictNullChecks: false`:
+
 - Any `supabase.from(...).select()` result can be treated as non-null without narrowing
 - `?.` optional chaining is inconsistent (some places use it, some don't)
 - Potential for "Cannot read property of null" in production
 
 With `noImplicitAny: false`:
+
 - Function signatures may lack parameter types
 - Event handlers may use implicit `any` for event objects
 
@@ -86,6 +91,7 @@ With `noImplicitAny: false`:
 ### [CRITICAL] 3.1 Critical Rules Disabled
 
 `apps/web/eslint.config.js` (26 lines):
+
 ```javascript
 rules: {
   ...reactHooks.configs.recommended.rules,
@@ -95,7 +101,7 @@ rules: {
 ```
 
 | Rule | State | Impact |
-|---|---|---|
+| --- | --- | --- |
 | `@typescript-eslint/no-unused-vars` | OFF | Unused imports, variables, and parameters silently pass CI |
 | `react-refresh/only-export-components` | OFF | Named + default exports mixed |
 | `jsx-a11y/*` (any a11y rule) | NOT INSTALLED | No automated accessibility linting |
@@ -105,7 +111,7 @@ rules: {
 ### 3.2 Plugins Installed vs Needed
 
 | Plugin | Installed? | Needed? |
-|---|---|---|
+| --- | --- | --- |
 | `eslint-plugin-react-hooks` | ✅ Yes | ✅ Essential |
 | `eslint-plugin-react-refresh` | ✅ Yes | ✅ Essential |
 | `eslint-plugin-jsx-a11y` | ❌ No | ✅ Strongly recommended |
@@ -115,7 +121,7 @@ rules: {
 ### 3.3 No `lint` Script Available
 
 | Script | In package.json? |
-|---|---|
+| --- | --- |
 | `lint` | ❌ Not found |
 | `lint:fix` | ❌ Not found |
 | `typecheck` | ❌ Not found |
@@ -132,7 +138,7 @@ CLAUDE.md references `npm run lint` but the script does not exist.
 3 different error boundary implementations:
 
 | Boundary | File | Used In |
-|---|---|---|
+| --- | --- | --- |
 | `ErrorBoundary` | `components/shared/ErrorBoundary.tsx` (92 lines) | `App.tsx` (router-level), `AdminDashboard.tsx`, `ProjectPage.tsx` |
 | `AdminRouteErrorBoundary` | `components/admin/AdminRouteErrorBoundary.tsx` (65 lines) | `AdminLayout.tsx` |
 | `QuizErrorBoundary` | `addons/discovery/components/QuizErrorBoundary.tsx` | `DiscoveryAddon.tsx` |
@@ -140,7 +146,7 @@ CLAUDE.md references `npm run lint` but the script does not exist.
 ### 4.2 Coverage Map
 
 | Area | Covered? | Boundary | Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Public routes (router level) | ✅ Yes | `ErrorBoundary` in `App.tsx` | Wraps entire `<Routes>` |
 | Admin routes (layout level) | ✅ Yes | `AdminRouteErrorBoundary` in `AdminLayout.tsx` | Wraps `<Outlet>` |
 | Individual admin pages | ❌ No | None per-page | If AdminServices crashes, admin layout error shows but user can't retry just that module |
@@ -156,7 +162,7 @@ CLAUDE.md references `npm run lint` but the script does not exist.
 ### [MAJOR] 5.1 No GitHub Actions Workflows
 
 | Artifact | Found? |
-|---|---|
+| --- | --- |
 | `.github/workflows/` directory | Needs verification |
 | CI workflow (lint + typecheck + test) | Presumed missing |
 | CD workflow (deploy) | Presumed missing |
@@ -233,7 +239,7 @@ Already documented in `30_vibe_code_auditor.md`. The import fails silently.
 ## Score Summary
 
 | Category | Score | Grade |
-|---|---|---|
+| --- | --- | --- |
 | Pre-commit hooks | 0% | F (none exist) |
 | TypeScript strictness | 20% | F (overridden to permissive) |
 | ESLint coverage | 15% | F (critical rules off, missing plugins) |

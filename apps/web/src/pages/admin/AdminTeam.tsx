@@ -15,7 +15,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/primitives/dialog";
-import { Plus, Loader2, Pencil, Trash2, Instagram, Linkedin, Mail, Users, Search } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2, Instagram, Linkedin, Mail, Users } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { auditService } from "@/services/AuditService";
 import { Image } from "@/components/ui/enhanced/image";

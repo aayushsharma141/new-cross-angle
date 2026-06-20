@@ -1,9 +1,11 @@
 # Architecture Audit
 
 ## Overview
+
 This document evaluates the tech stack, modularity, and adherence to clean architecture principles for the Crossangle Interior codebase.
 
 ## Tech Stack
+
 - **Frontend Framework:** React 18+ (via Vite)
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS (v3/v4) with PostCSS
@@ -13,7 +15,9 @@ This document evaluates the tech stack, modularity, and adherence to clean archi
 - **Animation:** GSAP and Framer Motion
 
 ## Modularity & Folder Structure
+
 The `apps/web/src` directory is highly modular, displaying strong separation of concerns:
+
 - `components/`: UI layer
 - `hooks/`: Custom React hooks (DRY logic)
 - `pages/`: Route-level components
@@ -23,10 +27,12 @@ The `apps/web/src` directory is highly modular, displaying strong separation of 
 - `types/`: Global TypeScript interfaces
 
 ## SOLID & DRY Principles
+
 - **Single Responsibility Principle (SRP):** The separation of data access (`repositories/`, `services/`) from UI components (`components/`, `pages/`) indicates strong adherence to SRP.
 - **Don't Repeat Yourself (DRY):** Global configurations and constants are centralized in `config/` and `constants/`. Custom hooks abstract repetitive logic (e.g., tracking hooks in the blog).
 
 ## Verdict
+
 The architecture is exceptionally clean and aligns with modern enterprise React patterns.
 
 **Rating: Elite / FAANG-level**

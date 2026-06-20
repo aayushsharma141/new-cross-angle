@@ -1,10 +1,12 @@
 # Re-Verification Report — Full Audit Sweep
+
 **Date:** 2026-06-17  
 **Scope:** All findings from 07_ui_ux_service_page_audit.md, 08_ui_ux_homepage_navigation_audit.md, and the autonomous session summary.
 
 ---
 
 ## Status Legend
+
 - ✅ VERIFIED FIXED — Confirmed in source
 - ⚠️ STALE LINT — IDE cache not refreshed; code is correct
 - 🔲 N/A — Not applicable or by design
@@ -14,7 +16,7 @@
 ## Service Pages Audit (07_ui_ux_service_page_audit.md)
 
 | # | Finding | Fix Applied | Status |
-|---|---------|-------------|--------|
+| --- | --------- | ------------- | -------- |
 | P0 | Theme break on Category/Detail pages | Migrated to dark brand theme | ✅ |
 | P1 | Visual hierarchy — H1 vs H2 scale conflict | Reduced H2 sizes on ServicesPage.tsx | ✅ |
 | P1 | sr-only H2 on category list | Added visible heading | ✅ |
@@ -34,7 +36,7 @@
 ## Navigation / Footer / Homepage Audit (08_ui_ux_homepage_navigation_audit.md)
 
 | # | Finding | Fix Applied | Status |
-|---|---------|-------------|--------|
+| --- | --------- | ------------- | -------- |
 | P0 | Footer `<Particles>` — 100 infinite motion nodes, no reduced motion guard | `{!prefersReducedMotion && <Particles />}` | ✅ |
 | P0 | Footer raw `<style>` tag injection | Removed; styles moved to `index.css @layer components .footer-cta` | ✅ |
 | P1 | Navbar CTA pulse animation ignores prefers-reduced-motion | `cn(!prefersReducedMotion && "animate-pulse")` | ✅ |
@@ -49,8 +51,8 @@
 ## Components with `useReducedMotion` Coverage
 
 | Component | Guard | Coverage |
-|-----------|-------|----------|
-| `Hero.tsx` | `useReducedMotion` | Scroll hint, `h-[100dvh]` | 
+| ----------- | ------- | ---------- |
+| `Hero.tsx` | `useReducedMotion` | Scroll hint, `h-[100dvh]` |
 | `Navbar.tsx` | `useReducedMotion` | Pulse, hover scale |
 | `Footer.tsx` | `useReducedMotion` | Particles disabled |
 | `ServicesHero.tsx` | `useReducedMotion` | GSAP intro, scale animation |
@@ -64,7 +66,7 @@
 ## All Critical `h-screen` → `h-[100dvh]` Migrations
 
 | File | Type | Status |
-|------|------|--------|
+| ------ | ------ | -------- |
 | `Index.tsx:60` | Hero wrapper div | ✅ Fixed |
 | `Hero.tsx:214` | Hero sticky section | ✅ Fixed |
 | All other `h-screen` / `min-h-screen` | Layout containers (safe) | 🔲 N/A (these are min-h, not full-screen sticky) |
@@ -74,7 +76,7 @@
 ## SEO Schema Integrity
 
 | Schema | Page | Status |
-|--------|------|--------|
+| -------- | ------ | -------- |
 | LocalBusiness + Organization + WebSite + Service + FAQPage | Index.tsx | ✅ |
 | Service schema with `siteConfig.areaServed` | ServiceDetailPage | ✅ |
 | FAQPage schema (dynamic from CMS) | ServiceDetailPage | ✅ |

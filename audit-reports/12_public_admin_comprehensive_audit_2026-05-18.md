@@ -20,7 +20,7 @@ Critical themes:
 ## Verified Build And Routing Findings
 
 | ID | Severity | Area | Finding | Evidence | Recommendation | Timeline |
-|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- |
 | R-01 | Critical | Public routing / deployment | Live React routes `/style-quiz`, `/blueprint`, and `/privacy` are not emitted as static route folders by `copy-indexes.js`. | `App.tsx` defines `/blueprint` and `/privacy`; `dist` contains `quiz` and `discovery`, but no `style-quiz`, `blueprint`, or `privacy` folders. | Update `PUBLIC_ROUTES` in `apps/web/scripts/copy-indexes.js` to match `App.tsx`; add a route coverage test comparing React routes to generated paths. | 24-48h |
 | R-02 | High | Admin routing | `/admin/cms/transformations` is live in `App.tsx` and linked from `CmsModule`, but missing in `ADMIN_ROUTES` and `ADMIN_STATIC_PATHS`; no `dist/admin/cms/transformations/index.html` was generated. | `App.tsx` route exists; `CmsModule` tab exists; postbuild copied 30 admin routes excluding transformations. | Add `cmsTransformations` to `admin-routes.ts` and `admin-route-paths.js`; include it in admin E2E. | 24-48h |
 | R-03 | High | QA coverage | Playwright tests reference stale routes like `/discovery`, `/estimator`, `/admin/settings`, `/admin/users`, `/projects/...`, while current routes are `/style-quiz`, `/estimate`, `/admin/system/settings`, `/admin/access`, `/portfolio/:slug`. | `e2e/navigation-routing.spec.ts` and `e2e/admin-interactions.spec.ts` route comments/locators. | Update route tests from a single route manifest; fail CI if route constants and tests drift. | 2-4 days |
@@ -36,7 +36,7 @@ The public site is visually premium and feature rich, with homepage, services, p
 ### Issues
 
 | ID | Severity | Area | Issue | Recommendation | Timeline |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | P-01 | Critical | Deployment UX | Hard refreshes for `/style-quiz`, `/blueprint`, and `/privacy` may fail on static hosting paths despite the React routes existing. | Align static route copy list with live React routes. | 24-48h |
 | P-02 | High | Conversion UX | Primary conversion tools are fragmented: `/estimate` and `/style-quiz` are not consistently named across tests, docs, static output, and navigation. | Standardize route names and labels: "Estimate" and "Style Quiz" across nav, footer, sitemap, tests, and static routes. | 3-5 days |
 | P-03 | Medium | Accessibility | Several readable text blocks use `text-white/30` or `text-white/40`, which is weak for body or helper text on dark backgrounds. | Reserve low opacity for decorative/meta text only; use at least `text-white/60` for readable content. | 1 week |
@@ -53,7 +53,7 @@ The admin system is broad and modular: hub, dashboard, access, CMS pages, CRM, d
 ### Issues
 
 | ID | Severity | Area | Issue | Recommendation | Timeline |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | A-01 | High | Admin controls | Transformations is a functional CMS tab but missing from admin route constants, breadcrumbs, command palette/static path generation. | Add route constant and static path; add command palette/quick action if appropriate. | 24-48h |
 | A-02 | High | Admin QA | Existing admin tests cover only a subset of pages and assertions are often weak (`body` visible, `.catch(() => {})`). | Replace smoke-only checks with page-specific success, empty, error, permission, CRUD, and bulk-action assertions. | 1-2 weeks |
 | A-03 | Medium | Access control UX | System module is super-admin only, but hub security chip can point to settings; non-super-admin visibility must stay role-filtered everywhere. | Audit module tiles, quick actions, command palette, and breadcrumbs against RBAC rules. | 3-5 days |
@@ -70,7 +70,7 @@ The architecture is coherent: React Router, lazy routes, Supabase auth/database/
 ### Issues
 
 | ID | Severity | Area | Issue | Recommendation | Timeline |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | AR-01 | High | Bundle architecture | Vite warns that `supabase/client.ts`, `ResultsReveal.tsx`, and `AdminHub.tsx` are both statically and dynamically imported, preventing intended chunk isolation. | Normalize import strategy; avoid static imports from modules meant to be lazy. | 1 week |
 | AR-02 | High | Bundle size | Heavy chunks remain: discovery 596KB, Sentry 447KB, charts 427KB, editor 403KB, React vendor 310KB, CSS 313KB. | Lazy-load Sentry only in production after consent/idle, split editor/charts per admin page, review discovery imports. | 1-2 weeks |
 | AR-03 | Medium | Repository pattern | Some UI/admin files call Supabase or edge functions directly instead of using repositories/services. | Enforce `src/repositories` / service wrapper usage with ESLint boundaries or code review checklist. | 2 weeks |
@@ -80,7 +80,7 @@ The architecture is coherent: React Router, lazy routes, Supabase auth/database/
 ## Third-Party Integration Audit
 
 | Integration | Status From Audit | Risks | Recommendation |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Supabase | Core dependency, build-time client included broadly. Prior health docs show live project healthy. | Broad static imports increase bundle size; direct UI calls complicate error handling. | Service wrappers and chunk isolation. |
 | Resend | Edge functions reference Resend for lead/email/report workflows. | Needs synthetic business-flow monitors, not just provider uptime. | Add POST probes and alerting. |
 | Telegram | Notification functions exist; lead notification is fire-and-forget. | Silent lead alert failures if function/provider fails. | Persist notification status and retry failures. |
@@ -116,7 +116,7 @@ The architecture is coherent: React Router, lazy routes, Supabase auth/database/
 ## Suggested Timeline
 
 | Window | Work |
-|---|---|
+| --- | --- |
 | 0-2 days | Route/static path fixes, missing assets, stale test route updates. |
 | 3-7 days | Admin coverage for all modules, keyboard/form accessibility fixes, RBAC audit across hub/commands/quick actions. |
 | 1-2 weeks | Backend synthetic probes, integration status dashboard, repository-layer cleanup. |
@@ -125,4 +125,3 @@ The architecture is coherent: React Router, lazy routes, Supabase auth/database/
 ## Verification Gaps
 
 This run did not perform authenticated browser interaction against live admin data because admin credentials were not provided in the active environment. It also did not trigger third-party production side effects such as sending Resend emails, Telegram messages, ImageKit imports, or weekly reports. Those should be verified with safe test accounts and dry-run flags before production signoff.
-

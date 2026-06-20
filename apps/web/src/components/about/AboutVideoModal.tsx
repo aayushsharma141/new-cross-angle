@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import FocusLock from 'react-focus-lock';
 
 interface AboutVideoModalProps {
   isOpen: boolean;
@@ -15,14 +16,18 @@ const AboutVideoModal = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          onClick={onClose}
-        >
+        <FocusLock>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-label="About Cross Angle Interior Video"
+            onClick={onClose}
+          >
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -60,7 +65,8 @@ const AboutVideoModal = ({
           >
             <X className="w-5 h-5" />
           </motion.button>
-        </motion.div>
+          </motion.div>
+        </FocusLock>
       )}
     </AnimatePresence>
   );

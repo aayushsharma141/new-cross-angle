@@ -11,7 +11,7 @@ This is not another audit. This is a **blueprint** for what the service pages *s
 The current service pages have a **purpose vacuum**. Each page has content, but the content doesn't answer the questions a real prospect asks. Here's the gap:
 
 | User Question | Where It's Answered Today |
-|---|---|
+| --- | --- |
 | "What exactly do you do?" | Hero H1 + description (partial) |
 | "How much does it cost?" | ❌ Nowhere on service pages |
 | "Can I see examples?" | Static gallery (not linked to real projects) |
@@ -31,12 +31,13 @@ The current service pages have a **purpose vacuum**. Each page has content, but 
 Every service page must drive one of three outcomes:
 
 | Outcome | Target Page | Conversion Path |
-|---|---|---|
+| --- | --- | --- |
 | **Book a consultation** | All pages | `CTA → /contact-us` |
 | **Use the estimator** | Hub + Detail | `CTA → /estimate` |
 | **View portfolio proof** | Category + Detail | `CTA → /portfolio` or inline gallery |
 
 ### Secondary Outcomes
+
 - **SEO**: Rank for `<service> interior design <city>` (long-tail organic)
 - **Cross-sell**: Show related services to increase project scope value
 - **Trust**: Overcome "can I trust this studio with my ₹50L project?"
@@ -52,7 +53,7 @@ Every service page must drive one of three outcomes:
 **User expects:** "Here are your service categories. Which one matches my project?"
 
 | Section | Content | Why It Exists |
-|---|---|---|
+| --- | --- | --- |
 | **Hero (H1)** | "Interior Design Services in Jamshedpur & India" | SEO anchor + clear intent match |
 | **Category Navigation** | 3 domain cards: Residential | Commercial | Specialized — each with icon, tagline, brief scope description | Helps users self-select instantly |
 | **Category Sections** (Residential, Commercial, Specialized) | Section H2, short paragraph, 2–4 service cards showing: title, description, icon, hover-reveal features | Scannable overview per domain |
@@ -62,6 +63,7 @@ Every service page must drive one of three outcomes:
 | **Final CTA** | "Get Started" with 2 paths: Consult / Estimate | Clear next action |
 
 **What to remove:**
+
 - `ServicesMarquee` (pure decoration, zero utility, adds noise)
 - `Domain I/II/III` labels (jargon — users don't think in domains)
 - Hero word-swap animation (hurts readability, no SEO value)
@@ -75,7 +77,7 @@ Every service page must drive one of three outcomes:
 **User expects:** "Show me what you do for [residential/commercial] projects specifically. Why you? Show me examples."
 
 | Section | Content | Why It Exists |
-|---|---|---|
+| --- | --- | --- |
 | **Hero (H1)** | "Residential Interior Design Services" | Clear category intent |
 | **Category Value Prop** | 2–3 sentence block: "We've delivered 200+ residential projects across Jamshedpur. Here's what sets us apart." | Category-level trust |
 | **Services Grid** | Service cards with: title, description, features preview, CTA to detail | Entry points to individual services |
@@ -91,7 +93,7 @@ Every service page must drive one of three outcomes:
 **Purpose:** This is the **money page**. The user is asking: "Should I buy this service? What do I get? Why you? How much? Who else has done this?"
 
 | Section | Content | Why It Exists |
-|---|---|---|
+| --- | --- | --- |
 | **Hero (H1)** | "Living Room Design in Jamshedpur" | SEO + intent match |
 | **Service Overview (H2)** | 3–4 sentence value proposition | Present at the top (currently has no H2 wrapper) |
 | **What's Included (H2)** | Feature list with icons + CTA to estimator | **CORE** — answers "what do I get" |
@@ -177,7 +179,7 @@ To support the content strategy above, the `ServiceDetail` type needs additional
 ### Fields to Add to DB + Admin
 
 | Field | Type | Purpose | Priority |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `audience` | TEXT | e.g., "Perfect for luxury apartment owners in Jamshedpur" | P1 |
 | `service_tiers` | JSONB | Array of `{name, rate, description, includes[]}` for this service | **P0** — enables on-page pricing |
 | `testimonial_ids` | UUID[] | FK to testimonials table linked to this service | P1 |
@@ -190,7 +192,7 @@ To support the content strategy above, the `ServiceDetail` type needs additional
 ### Existing Fields That Are Wasted
 
 | Field | Issue | Fix |
-|---|---|---|
+| --- | --- | --- |
 | `seo_title` (DB) | Not exposed in admin form, not used in frontend | Add to admin form, use as `<title>` override |
 | `seo_description` (DB) | Same | Same |
 | `description` (JSONB) | Stores mixed content (`icon`, `category_id`, `content`, `features`) in one blob | Maintains backward compat but should be normalized over time |
@@ -199,7 +201,7 @@ To support the content strategy above, the `ServiceDetail` type needs additional
 ### Relationship Fixes
 
 | Current State | Problem | Fix |
-|---|---|---|
+| --- | --- | --- |
 | No FK between services and projects | Portfolio-to-service linking is string-matching | Add `projects.service_id` FK column |
 | No FK between services and testimonials | Testimonials on detail page are hardcoded generic text | Add `testimonials.service_id` FK column |
 | C1–C5 tiers separate from CMS services | User sees "Living Room Design" on service page but never sees the C1–C5 pricing tiers | Link each CMS service to one or more estimator tier(s) via `service_tiers` JSONB |
@@ -220,7 +222,8 @@ To support the content strategy above, the `ServiceDetail` type needs additional
 
 **Worth:** Qualification + portfolio trust. User decides "yes, I want residential design" and needs proof this firm can deliver for their project type.
 
-**Success metric:** 
+**Success metric:**
+
 - Scroll depth > 60% (are users seeing the portfolio and testimonials?)
 - CTR to service detail pages
 
@@ -230,7 +233,8 @@ To support the content strategy above, the `ServiceDetail` type needs additional
 
 **Worth:** Conversion. This is where the user decides to contact you. Everything else is preamble.
 
-**Success metric:** 
+**Success metric:**
+
 - CTA click rate (Get Quote / Use Estimator)
 - Time on page (should be 2–4 min for a real consideration)
 - Scroll depth > 80%
@@ -242,8 +246,9 @@ To support the content strategy above, the `ServiceDetail` type needs additional
 ## 7. Implementation Roadmap
 
 ### Phase 1 — Quick Wins (Fix what exists)
+
 | Task | Files | Effort |
-|---|---|---|
+| --- | --- | --- |
 | Fix H1 on hub to mention "Interior Design Services" | `apps/web/src/components/services/ServicesHero.tsx` | S |
 | Port dark theme to Category + Detail pages | `ServiceCategoryPage.tsx`, `ServiceDetailPage.tsx` | M |
 | Add visible H2 above service list on Category page | `ServiceCategoryPage.tsx` | S |
@@ -252,8 +257,9 @@ To support the content strategy above, the `ServiceDetail` type needs additional
 | Reduce Domain H2 scale from 5rem to 3rem | `ServicesPage.tsx` | S |
 
 ### Phase 2 — Portfolio & Testimonial Integration
+
 | Task | Files | Effort |
-|---|---|---|
+| --- | --- | --- |
 | Add `projects.service_id` FK column + migration | Supabase migration | M |
 | Add `testimonials.service_id` FK column + migration | Supabase migration | M |
 | Update admin portfolio form to include service selector | `PortfolioFormDialog.tsx` | M |
@@ -261,16 +267,18 @@ To support the content strategy above, the `ServiceDetail` type needs additional
 | Wire real testimonials into ServiceDetail | `ServiceDetailPage.tsx` | M |
 
 ### Phase 3 — On-Page Pricing
+
 | Task | Files | Effort |
-|---|---|---|
+| --- | --- | --- |
 | Add `service_tiers` JSONB to DB + admin | Migration + `ServiceFormFields.tsx` | L |
 | Build tier card component | New component | M |
 | Integrate tier cards into ServiceDetail page | `ServiceDetailPage.tsx` | M |
 | Link tier selection → pre-fill estimator | `pricing-config.ts` handoff | L |
 
 ### Phase 4 — Polish
+
 | Task | Files | Effort |
-|---|---|---|
+| --- | --- | --- |
 | Add `seo_title` / `seo_description` to admin form | `AdminServices.tsx` | S |
 | Wire SEO fields into Helmet on detail page | `ServiceDetailPage.tsx` | S |
 | Remove ServicesMarquee (or reduce) | `ServicesPage.tsx` | S |
@@ -359,12 +367,13 @@ Sections:
 After implementation, each service page type should meet these criteria:
 
 | Page Type | Load Time | `scrollDepth > 75%` | CTA Click Rate | Bounce Rate |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Hub | < 2s LCP | N/A (navigation page) | > 3% | < 50% |
 | Category | < 2s LCP | > 50% | > 5% | < 40% |
 | Detail | < 2.5s LCP | > 60% | > 10% | < 30% |
 
 **Content completeness check (Detail page):**
+
 - [ ] H1 contains service name + geo modifier
 - [ ] H2 wraps the intro paragraph
 - [ ] Features list is present (not empty)

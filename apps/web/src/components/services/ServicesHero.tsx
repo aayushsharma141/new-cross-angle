@@ -112,10 +112,10 @@ const ServicesHero = () => {
             transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           >
             <h1 className="font-sans text-[clamp(2.4rem,4.8vw,5.2rem)] font-normal text-[#FFFFFF] leading-[1.08] tracking-tight">
-              One Team. One Contract.
+              From Empty Shell To
               <br />
-              Complete Turnkey{" "}
-              <span className="text-[#C41230] font-semibold">Interiors.</span>
+              Move-In Ready{" "}
+              <span className="text-[#C41230] font-semibold">Home.</span>
             </h1>
           </motion.div>
 
@@ -129,7 +129,7 @@ const ServicesHero = () => {
             Architecture Without{" "}
             <span
               className="relative inline-flex overflow-hidden text-[#C41230] font-semibold align-bottom"
-              style={{ minWidth: "4.5ch" }}
+              style={{ minWidth: "12ch" }}
             >
               <AnimatePresence mode="popLayout">
                 <motion.span
@@ -172,7 +172,7 @@ const ServicesHero = () => {
             transition={{ duration: 0.8, delay: 0.26, ease: [0.22, 1, 0.36, 1] }}
             className="text-[clamp(0.9rem,1.1vw,1.05rem)] font-normal leading-[1.75] text-[#6B6B6B] max-w-[44ch]"
           >
-            From design and material selection to execution and handover, we manage your entire interior project under one roof.
+            Your home. Professionally designed. Completely delivered.
           </motion.p>
 
           {/* Value Points */}
@@ -286,10 +286,10 @@ const ServicesHero = () => {
 
           {/* Corner Labels */}
           <div className="absolute top-5 left-5 z-40 text-[9px] font-bold text-white/70 tracking-[0.2em] uppercase bg-black/60 backdrop-blur-sm px-2.5 py-1 border border-white/10">
-            STRUCTURAL
+            BEFORE
           </div>
           <div className="absolute top-5 right-5 z-40 text-[9px] font-bold text-[#C41230] tracking-[0.2em] uppercase bg-black/60 backdrop-blur-sm px-2.5 py-1 border border-[#C41230]/40">
-            FURNISHED
+            AFTER
           </div>
         </div>
 

@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { MapPin, Ruler, Clock, Palette, Calendar, Banknote } from "lucide-react";
-import { useEffect, useState } from "react";
 
 interface ProjectStatsProps {
   location: string;

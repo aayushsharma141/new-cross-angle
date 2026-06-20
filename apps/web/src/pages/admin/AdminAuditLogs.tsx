@@ -1,20 +1,14 @@
-import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Download, Filter, TrendingUp, Activity, BarChart3 } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/primitives/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/primitives/tabs';
 import { Badge } from '@/components/ui/primitives/badge';
-import { KPIGrid, MetricCard } from '@/components/admin/dashboard/KPICard';
 import { AuditLogTable, AuditLogFilters } from '@/components/admin/logs/AuditLogTable';
 import { auditService } from '@/services/AuditService';
-import type { AuditAction, AuditEntityType, AuditLogStats } from '@/types/audit';
+import type { AuditAction, AuditEntityType } from '@/types/audit';
 import { ACTION_COLORS, ENTITY_LABELS } from '@/types/audit';
 import { useToast } from '@/hooks/useToast';
-import { format } from 'date-fns';
 import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
-import { AdminMetricsPanel } from "@/components/admin/shared";
 
 export default function AdminAuditLogs() {
   const { toast } = useToast();
@@ -113,7 +107,7 @@ export default function AdminAuditLogs() {
         title: 'Export successful',
         description: `Downloaded ${logsData?.total || 0} log entries as ${format.toUpperCase()}`,
       });
-    } catch (error) {
+    } catch {
       toast({
         title: 'Export failed',
         description: 'Could not export logs. Please try again.',
@@ -241,8 +235,11 @@ export default function AdminAuditLogs() {
                   return (
                     <div
                       key={action}
+                      role="button"
+                      tabIndex={0}
                       className="rounded-xl border border-[hsl(var(--admin-border))] p-4 cursor-pointer hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200"
                       onClick={() => updateParams({ action: selectedAction === action ? null : action, tab: 'all' })}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') updateParams({ action: selectedAction === action ? null : action, tab: 'all' }); }}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <Badge
@@ -275,8 +272,11 @@ export default function AdminAuditLogs() {
                 {Object.entries(statsData?.byEntity || {}).map(([entity, count]) => (
                   <div
                     key={entity}
+                    role="button"
+                    tabIndex={0}
                     className="rounded-xl border border-[hsl(var(--admin-border))] p-4 cursor-pointer hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200"
                     onClick={() => updateParams({ entity: selectedEntity === entity ? null : entity, tab: 'all' })}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') updateParams({ entity: selectedEntity === entity ? null : entity, tab: 'all' }); }}
                   >
                     <p className="font-bold text-sm text-[hsl(var(--admin-text))] mb-1">{ENTITY_LABELS[entity as AuditEntityType] || entity}</p>
                     <p className="text-2xl font-bold text-[hsl(var(--admin-text))]">{count}</p>

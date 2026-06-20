@@ -11,8 +11,7 @@ import { api, Blog } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Clock, Eye, ArrowRight, ArrowDown,
-  TrendingUp, Mail, Sparkles, BookOpen, Tag, ChevronRight,
-  Armchair, Lamp
+  TrendingUp, Mail, Sparkles, BookOpen, Tag, ChevronRight
 } from "lucide-react";
 import { OptimizedImage as Image } from "@/components/ui/enhanced/OptimizedImage";
 import gsap from "gsap";
@@ -290,6 +289,8 @@ const BlogPage = () => {
                   <button
                     key={cat}
                     role="tab"
+                    aria-controls="blog-posts-panel"
+                    id={`tab-${cat.toLowerCase().replace(/\s+/g, '-')}`}
                     {...({ "aria-selected": activeCategory === cat } as React.HTMLAttributes<HTMLButtonElement>)}
                     aria-label={`Filter by ${cat}`}
                     onClick={() => { setActiveCategory(cat); setVisibleCount(5); }}
@@ -452,7 +453,7 @@ const BlogPage = () => {
                       exit={{ opacity: 0 }}
                       role="tabpanel"
                       id="blog-posts-panel"
-                      aria-label="Blog posts list"
+                      aria-labelledby={`tab-${activeCategory.toLowerCase().replace(/\s+/g, '-')}`}
                       className="grid grid-cols-1 md:grid-cols-2 gap-6"
                     >
                       {paginatedPosts.map((post, i) => (

@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { ChevronRight, ChevronLeft, Flag } from "lucide-react";
 import { useRef, useState } from "react";
 

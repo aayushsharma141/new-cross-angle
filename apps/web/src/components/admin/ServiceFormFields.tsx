@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import { Textarea } from "@/components/ui/primitives/textarea";
 import { Label } from "@/components/ui/primitives/label";
-import { Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
-import { Feature, ProcessStep, FAQItem } from "@repo/types";
+import { Plus, Trash2 } from "lucide-react";
+import { ProcessStep, FAQItem } from "@repo/types";
 
 interface FeaturesEditorProps {
     features: string[];

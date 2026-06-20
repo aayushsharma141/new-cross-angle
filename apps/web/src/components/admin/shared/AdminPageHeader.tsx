@@ -1,12 +1,6 @@
 import React, { ReactNode } from "react";
-import { useLocation } from "react-router-dom";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface BreadcrumbItem {
-  label: string;
-  href?: string;
-}
 
 interface AdminPageHeaderProps {
   moduleName: string;

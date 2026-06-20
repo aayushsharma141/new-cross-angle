@@ -6,12 +6,12 @@ const CLOSED_STATUSES = new Set(['won', 'lost']);
 
 export class SupabaseLeadRepo implements LeadRepository {
     async submitLead(payload: LeadPayload): Promise<void> {
-        const { error } = await supabase.from('leads').insert(payload);
+        const { error } = await supabase.from('leads').insert(payload as any);
         if (error) throw error;
     }
 
     async getLeads(filters?: FilterParams): Promise<Lead[]> {
-        let query = supabase
+        let query: any = supabase
             .from('leads')
             .select('*')
             .order('created_at', { ascending: false });
@@ -44,7 +44,7 @@ export class SupabaseLeadRepo implements LeadRepository {
             direction = 'desc'
         } = params;
 
-        let query = supabase
+        let query: any = supabase
             .from('leads')
             .select('*', { count: 'exact' });
 
@@ -52,7 +52,7 @@ export class SupabaseLeadRepo implements LeadRepository {
             query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
         }
         if (status) {
-            query = query.eq('status', status);
+            query = query.eq('status', status as any);
         }
         if (category) {
             query = query.eq('category', category);
@@ -98,7 +98,7 @@ export class SupabaseLeadRepo implements LeadRepository {
     async createLead(payload: LeadPayload): Promise<Lead> {
         const { data, error } = await supabase
             .from('leads')
-            .insert(payload)
+            .insert(payload as any)
             .select()
             .single();
 
@@ -115,7 +115,9 @@ export class SupabaseLeadRepo implements LeadRepository {
         }
 
         // Exclude fields that are read-only or shouldn't be patched directly
-        const { id: _, created_at: __, ...updatable } = updates;
+        const updatable = Object.fromEntries(
+            Object.entries(updates).filter(([key]) => key !== 'id' && key !== 'created_at')
+        );
 
         const sanitized = Object.fromEntries(
             Object.entries(updatable).filter(([, v]) => v !== undefined)
@@ -140,7 +142,7 @@ export class SupabaseLeadRepo implements LeadRepository {
 
         const { error } = await supabase
             .from('leads')
-            .update({ status, ...extra })
+            .update({ status: status as any, ...extra })
             .eq('id', id);
         if (error) throw error;
     }
@@ -159,7 +161,7 @@ export class SupabaseLeadRepo implements LeadRepository {
         );
         const { error } = await supabase
             .from('leads')
-            .update({ ...sanitized, ...extra })
+            .update({ ...sanitized, ...extra } as any)
             .eq('id', id);
         if (error) throw error;
     }
@@ -178,7 +180,7 @@ export class SupabaseLeadRepo implements LeadRepository {
 
         const { error, count } = await supabase
             .from('leads')
-            .update({ status, ...extra, updated_at: now })
+            .update({ status: status as any, ...extra, updated_at: now })
             .in('id', ids);
 
         if (error) throw error;

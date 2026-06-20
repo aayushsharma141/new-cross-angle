@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
-import fs from 'fs';
+
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 
 export default defineConfig(() => {
@@ -97,7 +97,7 @@ export default defineConfig(() => {
     },
     build: {
       target: 'es2020',
-      chunkSizeWarningLimit: 500, // Enforced budget: alert if any chunk exceeds 500KB — prevents accidental revert of dynamic imports
+      chunkSizeWarningLimit: 250, // Enforced budget: alert if any chunk exceeds 250KB
       cssCodeSplit: true,
       /**
        * Always generate sourcemaps in hidden mode.
@@ -122,6 +122,17 @@ export default defineConfig(() => {
               if (id.includes('@supabase')) return 'supabase';
               if (id.includes('recharts')) return 'charts';
               if (id.includes('@tiptap') || id.includes('lowlight')) return 'editor';
+              if (id.includes('lucide-react')) return 'icons';
+              if (id.includes('react-hook-form')) return 'forms';
+              if (id.includes('three') && /[\\/]node_modules[\\/]three[\\/]/.test(id)) return 'three';
+              if (id.includes('@dnd-kit')) return 'dnd';
+              if (id.includes('sonner')) return 'notifications';
+              if (id.includes('vaul')) return 'drawer';
+              if (id.includes('dompurify')) return 'sanitize';
+              if (id.includes('date-fns')) return 'dates';
+              if (id.includes('html2canvas')) return 'capture';
+              if (id.includes('react-markdown') || id.includes('rehype-') || id.includes('remark-')) return 'markdown';
+              if (id.includes('@radix-ui')) return 'radix';
               if (
                 id.includes('react-router') ||
                 id.includes('@tanstack/react-query') ||

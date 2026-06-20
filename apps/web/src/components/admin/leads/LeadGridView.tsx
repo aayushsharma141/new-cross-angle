@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/primitives/badge";
 import { Button } from "@/design-system/components/Button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/primitives/dropdown-menu";
 import { MoreHorizontal, Eye, Mail, Phone, Flame, Thermometer, Snowflake, Trash2, MapPin } from "lucide-react";
-import { getLeadTemperature, Lead } from "@/lib/scoring/leadScoring";
+import { Lead } from "@/lib/scoring/leadScoring";
 import { icons } from "@/design-system/tokens/icons";
 import {
   CRM_STAGE_LABELS,
@@ -31,7 +31,6 @@ export function LeadGridView({ leads, onLeadClick, onDeleteClick }: LeadGridView
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {leads.map((lead) => {
         const score = lead.score || 0;
-        const temp = getLeadTemperature(score);
         const leadType = lead.category || lead.lead_type;
         const leadSource = lead.source || lead.lead_source;
         const stageLabel = lead.status ? CRM_STAGE_LABELS[lead.status as keyof typeof CRM_STAGE_LABELS] || lead.status : "New Inquiry";
@@ -40,8 +39,11 @@ export function LeadGridView({ leads, onLeadClick, onDeleteClick }: LeadGridView
         return (
           <Card 
             key={lead.id} 
+            role="button"
+            tabIndex={0}
             className="group overflow-hidden shadow-sm hover:shadow-md border border-admin-border/60 bg-admin-card rounded-xl transition-all hover:border-[hsl(var(--admin-primary)/0.3)] cursor-pointer flex flex-col"
             onClick={() => onLeadClick(lead)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onLeadClick(lead); } }}
           >
             <div className="p-5 flex-1 flex flex-col">
               <div className="flex justify-between items-start mb-4">
@@ -49,7 +51,7 @@ export function LeadGridView({ leads, onLeadClick, onDeleteClick }: LeadGridView
                   {stageLabel}
                 </Badge>
                 
-                <div onClick={(e) => e.stopPropagation()}>
+                <div role="button" tabIndex={-1} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md text-admin-text-muted hover:text-admin-text hover:bg-admin-surface">

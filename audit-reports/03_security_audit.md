@@ -9,7 +9,7 @@
 ## Security Posture Summary
 
 | Category | Status | Notes |
-|----------|--------|-------|
+| ---------- | -------- | ------- |
 | Authentication (JWT/Session) | ✅ Strong | Server-validated, auto-refresh |
 | Authorization (RLS/RBAC) | ✅ Strong | DB-level enforcement, 3-tier roles |
 | Input Validation | ✅ Good | Zod + server-side checks |
@@ -27,9 +27,11 @@
 ## 🔴 Critical (Fix Today)
 
 ### 1. Security Headers on Frontend (✅ Resolved)
+
 `dist/_headers` and `public/_headers` have been fully configured with an enterprise-grade Content Security Policy (CSP), strict HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy.
 
 **Deployed Configuration (`apps/web/public/_headers` & `apps/web/dist/_headers`):**
+
 ```
 /*
   Content-Security-Policy: default-src 'self'; connect-src 'self' https://*.supabase.co https://*.posthog.com https://*.imagekit.io https://*.sentry.io; img-src 'self' data: https://*.imagekit.io https://*.supabase.co https://*.googleusercontent.com https://avatars.githubusercontent.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; media-src 'self' https://*.imagekit.io https://*.supabase.co; frame-src 'self' https://*.supabase.co https://*.posthog.com https://maps.google.com https://*.youtube.com https://www.youtube-nocookie.com;
@@ -41,6 +43,7 @@
 ```
 
 ### 2. Plaintext Test Credentials in `.env.local`
+
 Root `.env.local` contains admin email/password for Playwright tests. If this matches production credentials, it's a full compromise vector.
 
 **Fix:** Rotate password immediately. Move test creds to CI secrets only.
@@ -50,9 +53,11 @@ Root `.env.local` contains admin email/password for Playwright tests. If this ma
 ## 🟠 High Risk (Fix This Week)
 
 ### 3. AdminLayout Only Checks Auth, Not Role
+
 Any authenticated user (even without admin role) can access the admin layout shell.
 
 **Fix:**
+
 ```tsx
 const { isAuthenticated, role } = useAdminAuth();
 if (!isAuthenticated) return <Navigate to="/admin/auth" replace />;
@@ -60,6 +65,7 @@ if (!role) return <Navigate to="/" replace />;
 ```
 
 ### 4. Role Cached in localStorage for 30 Minutes
+
 Revoked users retain UI access for up to 30 min. Technically savvy users could edit localStorage.
 
 **Fix:** Reduce TTL to 5 minutes. Use `sessionStorage` instead. Backend RLS still enforces, so this is UI-only risk.
@@ -69,7 +75,7 @@ Revoked users retain UI access for up to 30 min. Technically savvy users could e
 ## 🟡 Medium Risk (Next Sprint)
 
 | # | Issue | Fix |
-|---|-------|-----|
+| --- | ------- | ----- |
 | 5 | Public endpoints accept arbitrary `raw_data` JSON | Add 10KB size limit |
 | 6 | No password complexity beyond length ≥ 8 | Add uppercase + number + special char requirement |
 | 7 | Token refresh never re-validates role | Re-fetch role on TOKEN_REFRESHED event |

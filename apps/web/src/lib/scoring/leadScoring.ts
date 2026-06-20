@@ -186,7 +186,6 @@ export function getLeadHealth(lead: Lead): LeadHealth {
   const completeness = Math.round((filledCount / COMPLETENESS_FIELDS.length) * 100);
 
   // Freshness
-  const lastActivity = lead.last_activity_at || lead.created_at;
   if (!lead.created_at) return { isStale: false, freshnessDays: 0, completeness: 0, riskLevel: 'low' };
   
   const createdDate = new Date(lead.created_at);

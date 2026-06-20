@@ -23,7 +23,9 @@ The Discovery Engine has been upgraded from a high-strategic concept with a brok
 ## 🛠 Detailed Code Improvements
 
 ### 1. Stage Consolidation (8 Steps)
+
 The wizard state machine has been pruned to maximize completion rate by removing redundant/similar slides (e.g. merging Adjectives + Emotional mapping, pruning duplicate Lifestyle prompts). The following legacy components were cleanly purged from the codebase:
+
 * [ReflectionPrompt.tsx](file:///c:/Users/aayus/Desktop/main/apps/web/src/addons/discovery/components/steps/ReflectionPrompt.tsx) (Deleted)
 * [EmotionalMapping.tsx](file:///c:/Users/aayus/Desktop/main/apps/web/src/addons/discovery/components/steps/EmotionalMapping.tsx) (Deleted)
 * [PatternPreview.tsx](file:///c:/Users/aayus/Desktop/main/apps/web/src/addons/discovery/components/steps/PatternPreview.tsx) (Deleted)
@@ -31,7 +33,9 @@ The wizard state machine has been pruned to maximize completion rate by removing
 All reference handlers in [DiscoveryEngine.tsx](file:///c:/Users/aayus/Desktop/main/apps/web/src/addons/discovery/components/DiscoveryEngine.tsx) have been removed, making the component lightweight, clean, and compile-safe.
 
 ### 2. Results Progress Rail Implementation
+
 Added fixed vertical section navigation on desktop and scrollable horizontal strip on mobile inside [ResultsReveal.tsx](file:///c:/Users/aayus/Desktop/main/apps/web/src/addons/discovery/components/ResultsReveal.tsx):
+
 * **Intersection Observer:** Listens to `identity-reveal`, `emotional-mirror`, `aesthetic-dna`, `cognitive-profile`, `readiness`, `sensory-config`, `core-strategy`, and `final-cta` sections. Tracks intersection ratios continuously to set the active state accurately during quick scrolling.
 * **Desktop Rail:** Anchored to the right margin (`right-8 top-1/2 -translate-y-1/2`) with hover reveals showing section names.
 * **Mobile Strip:** Sticky navigation anchored above the export actions bar (`bottom-[72px]`) featuring custom touch horizontal layout and hidden scroll bars.
@@ -41,10 +45,12 @@ Added fixed vertical section navigation on desktop and scrollable horizontal str
 ## 🎨 Premium Visual & Design System
 
 The visual signature of the Results page was audited and corrected:
+
 ```css
 /* Color Palette Mapping Changes */
 - site-crimson: #C41230 (Removed)
 + GOLD: #c9a96e (Added)
 + Muted Gold Accents: opacity-based gold strokes (e.g. border-amber-500/20)
 ```
+
 The color tones now match the luxury look and feel of the design guidelines, eliminating the feeling of being in an "error state."

@@ -93,7 +93,7 @@ const AdminMedia = () => {
     const deepLinkHandled = useRef(false);
 
     const [selectedFolder, setSelectedFolder] = useState<string>("all");
-    const [selectedType, setSelectedType] = useState<string>("all");
+    const [selectedType] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState(urlSearch ?? "");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
@@ -456,7 +456,7 @@ const AdminMedia = () => {
                         { label: "Storage Used", value: (files.reduce((a, f) => a + f.size, 0) / (1024 * 1024)).toFixed(1) + " MB", icon: HardDrive },
                         { label: "Images", value: String(files.filter(f => /\.(jpg|jpeg|png|gif|webp|svg|avif)$/i.test(f.name)).length), icon: FileImage },
                         { label: "Videos", value: String(files.filter(f => /\.(mp4|webm|ogg)$/i.test(f.name)).length), icon: FileVideo }
-                    ]} 
+                    ] as any} 
                 />
             </div>
 
@@ -570,20 +570,20 @@ const AdminMedia = () => {
                 <MediaUploadZone
                     onUpload={(fileList) => uploadMutation.mutate(fileList)}
                     isUploading={uploadMutation.isPending}
-                    selectedFolder={selectedFolder}
+                    folderName={selectedFolder}
                     errorMessage={uploadError}
                 />
             )}
 
             {/* Files grid/list */}
             <MediaGrid
-                files={filteredFiles}
+                files={filteredFiles as any}
                 viewMode={viewMode}
                 selectedFiles={selectedFiles}
                 onToggleSelection={toggleFileSelection}
-                onPreview={setPreviewFile}
+                onPreview={setPreviewFile as any}
                 onDelete={(file) => {
-                    setFileToDelete(file);
+                    setFileToDelete(file as any);
                     setDeleteDialogOpen(true);
                 }}
                 onCopyUrl={copyToClipboard}
@@ -593,11 +593,11 @@ const AdminMedia = () => {
 
             {/* File details sheet */}
             <MediaDetailsSheet
-                file={previewFile}
+                file={previewFile as any}
                 open={!!previewFile}
                 onClose={() => setPreviewFile(null)}
                 onDelete={(file) => {
-                    setFileToDelete(file);
+                    setFileToDelete(file as any);
                     setDeleteDialogOpen(true);
                 }}
                 onCopyUrl={copyToClipboard}

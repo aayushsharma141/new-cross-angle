@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
@@ -6,7 +6,6 @@ import {
   Save, Plus, Trash2, Pencil, ChevronDown, ChevronRight,
   Loader2, Users, X, Check
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { AdminFormCard } from "@/components/admin/shared";
 
 interface ArchetypeItem {
@@ -48,6 +47,13 @@ function ArchetypeCard({
   const [newTrait, setNewTrait] = useState("");
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(item.name);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingName) {
+      nameInputRef.current?.focus();
+    }
+  }, [editingName]);
 
   const addTrait = () => {
     const t = newTrait.trim();
@@ -87,7 +93,7 @@ function ArchetypeCard({
                 if (e.key === "Escape") { setNameDraft(item.name); setEditingName(false); }
               }}
               className="h-6 text-xs flex-1 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
-              autoFocus
+              ref={nameInputRef}
             />
             <Button variant="ghost" size="icon" className="h-6 w-6 text-emerald-400"
               onClick={() => { onUpdate("name", nameDraft); setEditingName(false); }}>
@@ -132,8 +138,9 @@ function ArchetypeCard({
         <div className="px-4 pb-4 pt-1 space-y-4 bg-[hsl(var(--admin-surface))]/40">
           {/* Tagline */}
           <div className="space-y-1">
-            <label className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">Tagline</label>
+            <label htmlFor={`tagline-${item._id}`} className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">Tagline</label>
             <Input
+              id={`tagline-${item._id}`}
               value={item.tagline}
               onChange={(e) => onUpdate("tagline", e.target.value)}
               className="h-7 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
@@ -143,8 +150,9 @@ function ArchetypeCard({
 
           {/* Material Bias */}
           <div className="space-y-1">
-            <label className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">Material Bias</label>
+            <label htmlFor={`material-${item._id}`} className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">Material Bias</label>
             <Input
+              id={`material-${item._id}`}
               value={item.materialBias}
               onChange={(e) => onUpdate("materialBias", e.target.value)}
               className="h-7 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
@@ -154,8 +162,9 @@ function ArchetypeCard({
 
           {/* Strategy */}
           <div className="space-y-1">
-            <label className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">Design Strategy</label>
+            <label htmlFor={`strategy-${item._id}`} className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">Design Strategy</label>
             <textarea
+              id={`strategy-${item._id}`}
               value={item.strategy}
               onChange={(e) => onUpdate("strategy", e.target.value)}
               rows={3}
@@ -195,12 +204,12 @@ function ArchetypeCard({
 
           {/* Score dimensions — read-only display hint */}
           <div className="space-y-1.5">
-            <label className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">
+            <span className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">
               Aesthetic Dimensions
               <span className="ml-1.5 font-normal normal-case tracking-normal text-[hsl(var(--admin-text-muted))]">
                 — used by the scoring engine
               </span>
-            </label>
+            </span>
             <div className="grid grid-cols-5 gap-2">
               {SCORE_DIMENSIONS.map((dim) => (
                 <div key={dim} className="text-center">
@@ -237,7 +246,9 @@ export function ArchetypesEditor() {
   }, [data, dirty, items.length]);
 
   const strip = (arr: ArchetypeItemWithId[]): ArchetypeItem[] =>
-    arr.map(({ _id: _, ...rest }) => rest);
+    arr.map(({ name, tagline, traits, materialBias, strategy }) => ({
+      name, tagline, traits, materialBias, strategy,
+    }));
 
   const updateItem = (id: string, field: keyof ArchetypeItem, value: unknown) => {
     setItems(items.map((a) => (a._id === id ? { ...a, [field]: value } : a)));

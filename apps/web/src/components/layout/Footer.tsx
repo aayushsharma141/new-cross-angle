@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useDynamicCTA } from "@/hooks/useDynamicCTA";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { MapPin, Mail, Phone, ArrowRight, Plus, Minus, Instagram, Youtube, Linkedin, Twitter, Facebook, ExternalLink } from "lucide-react";
+import { MapPin, Mail, Phone, Plus, Minus, Instagram, Youtube, Linkedin, Twitter, Facebook } from "lucide-react";
 
 
 
@@ -229,12 +229,6 @@ export default function Footer() {
   const footerCopy = getFooterCopy(location.pathname, cta);
   const { settings } = useSiteSettings();
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const colStyle = "p-[clamp(16px,2vw,32px)] md:border-r border-white/5 border-b md:border-b-0 last:border-b-0";
-  const labelStyle = "font-sans text-[10px] tracking-[0.3em] text-white/50 mb-5";
   const renderSocialLink = (key: string, name: string, Icon: React.ElementType): React.ReactNode | null => {
     const url = settings?.social_links?.[key];
     if (!url || typeof url !== 'string' || url.trim().length === 0) return null;

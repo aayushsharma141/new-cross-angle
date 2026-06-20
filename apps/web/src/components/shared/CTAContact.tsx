@@ -121,7 +121,6 @@ const CTAContact = () => {
   });
 
   const containerRef = useRef<HTMLElement>(null);
-  const bgRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const firstNameRef = useRef<HTMLInputElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);

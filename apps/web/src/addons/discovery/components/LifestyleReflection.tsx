@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Users, Dog, Home as HomeIcon, ChefHat, Timer, Wine, CalendarDays, CalendarHeart, CalendarClock } from 'lucide-react';
+import { Users, Dog, Home as HomeIcon, ChefHat, Timer, Wine, CalendarDays, CalendarHeart, CalendarClock } from 'lucide-react';
 import type { UserSignals } from '@/types/discovery';
 
 interface Props {

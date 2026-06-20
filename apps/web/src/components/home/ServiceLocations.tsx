@@ -85,7 +85,7 @@ export default function ServiceLocations() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {locations.map((loc, idx) => (
+          {locations.map((loc) => (
             <motion.div
               key={loc.slug}
               initial={{ opacity: 0, y: 30 }}

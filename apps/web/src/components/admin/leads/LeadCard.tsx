@@ -21,11 +21,10 @@ import { cn } from "@/lib/utils";
 interface LeadCardProps {
   lead: Lead;
   onClick?: (lead: Lead) => void;
-  onStageChange?: (leadId: string, newStatus: string) => void;
   isPreview?: boolean;
 }
 
-export function LeadCard({ lead, onClick, onStageChange, isPreview = false }: LeadCardProps) {
+export function LeadCard({ lead, onClick, isPreview = false }: LeadCardProps) {
   const {
     attributes,
     listeners,
@@ -80,12 +79,15 @@ export function LeadCard({ lead, onClick, onStageChange, isPreview = false }: Le
   const isUrgent = hasNextStep && tempLabel === "Hot";
 
   return (
-    <article 
+    <div 
       ref={setNodeRef} 
       style={style} 
       {...attributes} 
       {...listeners}
+      role="button"
+      tabIndex={0}
       onClick={isPreview ? undefined : () => onClick?.(lead)}
+      onKeyDown={isPreview ? undefined : (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(lead); } }}
       className={cn(
         "bg-admin-card border border-admin-border rounded-md p-3 cursor-pointer transition-all duration-150 ease-in outline-none",
         "hover:border-admin-border-subtle hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)]",
@@ -198,6 +200,6 @@ export function LeadCard({ lead, onClick, onStageChange, isPreview = false }: Le
           <Clock className="w-3 h-3 shrink-0" /> {timeAgo ?? "—"}
         </span>
       </div>
-    </article>
+    </div>
   );
 }

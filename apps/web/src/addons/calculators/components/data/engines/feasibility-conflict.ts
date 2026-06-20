@@ -9,7 +9,7 @@
  */
 
 import type { DiscoveryHandoff } from "../discovery-handoff";
-import type { FeasibilityConflictResult, FeasibilityConflict, ConflictCategory } from "./types";
+import type { FeasibilityConflictResult, FeasibilityConflict } from "./types";
 
 // ─── Conflict Detectors ──────────────────────────────────────────────────────
 

@@ -13,12 +13,7 @@ import {
     CheckSquare,
     Square,
     CloudDownload,
-    HardDrive,
-    FileImage,
-    FileVideo,
-    Files,
     Database,
-    Upload
 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
@@ -53,7 +48,7 @@ const AdminMedia = () => {
     const deepLinkHandled = useRef(false);
 
     const [selectedFolder, setSelectedFolder] = useState<string>("all");
-    const [selectedType, setSelectedType] = useState<string>("all");
+    const [selectedType] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState(urlSearch ?? "");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
@@ -427,6 +422,9 @@ const AdminMedia = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     <div
                         onClick={() => setSelectedFolder("all")}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedFolder("all"); }}
+                        role="button"
+                        tabIndex={0}
                         className={`p-4 rounded-xl border cursor-pointer flex flex-col items-center justify-center gap-2 transition-all ${
                             selectedFolder === "all" ? "bg-admin-primary/10 border-admin-primary ring-1 ring-admin-primary" : "bg-admin-card border-admin-border hover:bg-admin-surface hover:border-admin-primary/50"
                         }`}
@@ -438,6 +436,9 @@ const AdminMedia = () => {
                         <div
                             key={folder}
                             onClick={() => setSelectedFolder(folder)}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedFolder(folder); }}
+                            role="button"
+                            tabIndex={0}
                             className={`p-4 rounded-xl border cursor-pointer flex flex-col items-center justify-center gap-2 transition-all ${
                                 selectedFolder === folder ? "bg-admin-primary/10 border-admin-primary ring-1 ring-admin-primary" : "bg-admin-card border-admin-border hover:bg-admin-surface hover:border-admin-primary/50"
                             }`}
@@ -448,6 +449,9 @@ const AdminMedia = () => {
                     ))}
                     <div
                         onClick={() => setSelectedFolder("imagekit")}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedFolder("imagekit"); }}
+                        role="button"
+                        tabIndex={0}
                         className={`p-4 rounded-xl border cursor-pointer flex flex-col items-center justify-center gap-2 transition-all ${
                             selectedFolder === "imagekit" ? "bg-admin-primary/10 border-admin-primary ring-1 ring-admin-primary" : "bg-admin-card border-admin-border hover:bg-admin-surface hover:border-admin-primary/50"
                         }`}

@@ -3,7 +3,6 @@ import { api } from "@/lib/api";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed, LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 // Icon mapping helper
 const IconMap: Record<string, LucideIcon> = {

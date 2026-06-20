@@ -152,7 +152,6 @@ const StepNode = ({
   const backgroundColor = useTransform(nodeProgress, [0, 1], ["#0a0a0a", "#e81b39"]);
   const borderColor = useTransform(nodeProgress, [0, 1], ["rgba(255, 255, 255, 0.2)", "rgba(232, 27, 57, 1)"]);
   const textColor = useTransform(nodeProgress, [0, 1], ["rgba(255, 255, 255, 0.4)", "rgba(255, 255, 255, 1)"]);
-  const iconColor = useTransform(nodeProgress, [0, 1], ["rgba(255, 255, 255, 0.3)", "rgba(232, 27, 57, 1)"]);
   const titleColor = useTransform(nodeProgress, [0, 1], ["rgba(255, 255, 255, 0.45)", "rgba(255, 255, 255, 1)"]);
 
   return (

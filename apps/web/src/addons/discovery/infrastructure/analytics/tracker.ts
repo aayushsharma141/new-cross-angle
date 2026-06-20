@@ -32,20 +32,14 @@ export type TrackFn = <K extends keyof AnalyticsEventMap>(
  * No longer persists to `addon_sessions` — PostHog correlation
  * is done via the sessionId property on each event.
  */
-export const startSession = (_mode: "quick" | "deep"): string => uuidv4();
+export const startSession = (): string => uuidv4();
 
 /**
  * No-op: session completion is now captured via `trackQuizCompleted`.
  * Retained to avoid breaking existing call sites while Task 4 is in progress.
  * @deprecated Call trackQuizCompleted instead.
  */
-export const completeSession = (
-    _sessionId: string,
-    _archetype: string,
-    _totalSeconds: number
-): void => {
-    // Intentional noop — quiz_completed event carries all required data.
-};
+export const completeSession = (): void => {};
 
 // ── Named event helpers (PostHog contract) ────────────────────────────────────
 

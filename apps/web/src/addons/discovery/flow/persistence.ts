@@ -1,6 +1,4 @@
 import { Stage, AestheticScores, UserSignals } from "@/types/discovery";
-import { initialScores } from "../core/scoring";
-import { initialSignals } from "./session";
 
 const QUIZ_SESSION_KEY = "ca_quiz_session";
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours

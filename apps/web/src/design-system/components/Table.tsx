@@ -1,6 +1,5 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
-import { textClasses } from '../tokens/typography';
 
 export const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
     ({ className, ...props }, ref) => (

@@ -4,8 +4,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
     Sheet,
     SheetContent,
-    SheetTitle,
-    SheetDescription,
 } from "@/components/ui/primitives/sheet";
 import { Button } from "@/components/ui/primitives/button";
 import { Label } from "@/components/ui/primitives/label";
@@ -14,16 +12,15 @@ import { Textarea } from "@/components/ui/primitives/textarea";
 import { leadSchema, formatZodErrors } from "@/lib/validation/validations";
 import { useState, useEffect, useRef, useCallback } from "react";
 import FocusLock from "react-focus-lock";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/primitives/tabs";
 import { LeadTimeline } from "@/components/admin/leads/LeadTimeline";
 import {
-  Mail, Phone, FileText, Copy,
-  CheckCircle2, CircleDot,
-  Clock, ChevronRight, UserCircle, Zap,
+  Mail, Phone, Copy,
+  CheckCircle2,
+  Clock,
   Send, Loader2, CheckCheck, MessageCircle, Trash2,
   ChevronDown, Target, AlertTriangle, Lightbulb, Info,
 } from "lucide-react";
-import { format, differenceInDays } from "date-fns";
+import { format } from "date-fns";
 import { useToast } from "@/hooks/useToast";
 import type { Lead } from "@/lib/scoring/leadScoring";
 import { cn } from "@/lib/utils";
@@ -40,8 +37,6 @@ interface LeadDetailSheetProps {
     onSave: (lead: Lead) => void;
     onDelete?: (id: string) => void;
     isReadOnly?: boolean;
-    allLeads?: Lead[];
-    onViewLead?: (lead: Lead) => void;
 }
 
 type DetailTab = "activity" | "details" | "tasks" | "email";
@@ -77,7 +72,7 @@ const EMAIL_TEMPLATES = [
     }
 ];
 
-export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, isReadOnly = false, allLeads = [], onViewLead }: LeadDetailSheetProps) {
+export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, isReadOnly = false }: LeadDetailSheetProps) {
     const [formData, setFormData] = useState<Lead | null>(null);
     const [sentTemplates, setSentTemplates] = useState<Record<string, "sending" | "sent" | "error">>({});
     const [activeTab, setActiveTab] = useState<DetailTab>("activity");
@@ -168,23 +163,6 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
         logActivity("email_copied", `Copied email template: ${templateName}`, { template: templateName });
     };
 
-    const openMailClient = (template: typeof EMAIL_TEMPLATES[0]) => {
-        if (!formData?.email) {
-            toast({
-                variant: "destructive",
-                title: "No email address",
-                description: "This lead does not have an email address.",
-            });
-            return;
-        }
-
-        const { body, subject } = processTemplate(template.body, template.subject);
-        const mailtoLink = `mailto:${formData.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        window.open(mailtoLink, '_blank');
-
-        logActivity("email_opened", `Opened mail client for: ${template.name}`, { template: template.name, subject });
-    };
-
     // Log view activity when sheet opens for an existing lead
     useEffect(() => {
         if (open && formData?.id && formData.id !== "__new__" && !hasLoggedViewRef.current) {
@@ -194,13 +172,6 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
     }, [open, formData?.id, logActivity]);
 
     if (!formData) return null;
-
-    const TABS: Array<{ id: DetailTab; label: string }> = [
-        { id: "activity", label: "Activity Logs" },
-        { id: "details", label: "Lead Details" },
-        { id: "tasks", label: "Tasks" },
-        { id: "email", label: "Send Email" },
-    ];
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>

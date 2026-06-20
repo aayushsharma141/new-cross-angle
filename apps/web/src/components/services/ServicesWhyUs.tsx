@@ -1,130 +1,145 @@
 import { motion } from "framer-motion";
-import { Check, ShieldCheck, Zap, BarChart3 } from "lucide-react";
-import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
-import { cn } from "@/lib/utils";
+import { X, Check } from "lucide-react";
 
-const whyUsPoints = [
-  { 
-    title: "Single Point of Accountability",
-    desc: "We own the entire vertical. No vendor ping-pong, no shifting blame.",
-    icon: ShieldCheck 
+const comparisonRows = [
+  {
+    label: "Project Management",
+    others: "Fragmented / Multiple vendors",
+    us: "Single contract / One accountability",
   },
-  { 
-    title: "In-House Manufacturing",
-    desc: "Custom precision fabrication that third-party vendors simply cannot match.",
-    icon: Zap 
+  {
+    label: "Timeline",
+    others: "Uncertain / Delays common",
+    us: "Guaranteed / Weekly updates",
   },
-  { 
-    title: "Transparent Pricing Matrix",
-    desc: "Real-time cost calibration ensures your budget is never a guessing game.",
-    icon: BarChart3 
-  }
+  {
+    label: "Pricing",
+    others: "Hidden costs / Scope creep",
+    us: "Transparent pricing / Real-time calibration",
+  },
+  {
+    label: "Quality Control",
+    others: "Inconsistent / Third-party dependent",
+    us: "In-house manufacturing / Precision fabrication",
+  },
+  {
+    label: "Communication",
+    others: "Chase multiple contacts",
+    us: "Dedicated PM / Single point of contact",
+  },
+  {
+    label: "Handover",
+    others: "Unresolved punch list",
+    us: "Zero-deficit walkthrough / White-glove handover",
+  },
 ];
 
 const ServicesWhyUs = () => {
   return (
     <section className="relative bg-black py-24 lg:py-48 overflow-hidden px-6">
-      {/* Aesthetic Background Detail */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-site-crimson/[0.03] to-transparent pointer-events-none" />
-      
-      <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 items-center gap-20 lg:gap-32">
-        
-        {/* Left Content */}
-        <div className="relative z-10">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="flex items-center gap-4 mb-8"
-          >
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">The Distinction</span>
-          </motion.div>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
+      <div className="max-w-[1400px] mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          className="flex items-center gap-4 mb-8"
+        >
+          <div className="w-12 h-px bg-site-crimson" />
+          <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">The Distinction</span>
+        </motion.div>
+
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="font-display font-normal text-[clamp(2.2rem,3.8vw,3.8rem)] leading-[1.1] tracking-tight text-white mb-4"
+        >
+          Others promise.{" "}
+          <span className="italic text-site-crimson font-medium">We deliver.</span>
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="text-[1.15rem] text-white/60 font-light leading-relaxed max-w-[48ch] mb-16"
+        >
+          See how the CrossAngle interior experience compares to working with traditional firms.
+        </motion.p>
+
+        {/* Comparison Table */}
+        <div className="w-full overflow-x-auto">
+          <motion.table
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-display font-normal text-[clamp(2.2rem,3.8vw,3.8rem)] leading-[1.1] tracking-tight text-white mb-10"
+            className="w-full border-collapse"
           >
-            <span className="block lg:inline-block lg:whitespace-nowrap"><em className="italic text-site-crimson font-medium">Quality</em> You Can See.</span><br className="hidden lg:block" />
-            <span className="block lg:inline-block lg:whitespace-nowrap">Durability You Can Trust.</span>
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-[1.15rem] text-white/60 font-light leading-relaxed max-w-[48ch] mb-12"
-          >
-            We don’t just design spaces; we architect outcomes. Every material is vetted for multi-generational durability, and every delivery is backed by contract.
-          </motion.p>
-
-          <div className="space-y-8">
-            {whyUsPoints.map((point, index) => {
-              const Icon = point.icon;
-              return (
-                <motion.div 
-                  key={index}
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="text-left py-5 pr-6 text-[11px] font-bold uppercase tracking-[0.2em] text-white/40 w-[30%]">
+                  Aspect
+                </th>
+                <th className="text-left py-5 px-6 text-[11px] font-bold uppercase tracking-[0.2em] text-white/40 w-[35%]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                      <X className="w-3 h-3 text-red-400" />
+                    </div>
+                    Other Firms
+                  </div>
+                </th>
+                <th className="text-left py-5 px-6 text-[11px] font-bold uppercase tracking-[0.2em] text-site-crimson w-[35%]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-site-crimson/10 border border-site-crimson/30 flex items-center justify-center">
+                      <Check className="w-3 h-3 text-site-crimson" />
+                    </div>
+                    CrossAngle
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {comparisonRows.map((row, i) => (
+                <motion.tr
+                  key={row.label}
                   initial={{ opacity: 0, x: -10 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
-                  className="flex items-start gap-6 group"
+                  transition={{ delay: 0.1 * i }}
+                  className="border-b border-white/[0.04] group hover:bg-white/[0.02] transition-colors"
                 >
-                  <div className="mt-1 w-10 h-10 rounded-lg bg-site-crimson/10 border border-site-crimson/20 flex items-center justify-center text-site-crimson group-hover:bg-site-crimson group-hover:text-white transition-all duration-500">
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-bold text-[13px] tracking-wide uppercase mb-2 group-hover:text-site-crimson transition-colors">{point.title}</h3>
-                    <p className="text-white/60 text-[0.95rem] font-light leading-relaxed group-hover:text-white/60 transition-colors">{point.desc}</p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+                  <td className="py-5 pr-6 text-[0.95rem] text-white font-medium">
+                    {row.label}
+                  </td>
+                  <td className="py-5 px-6 text-[0.9rem] text-white/40 font-light">
+                    {row.others}
+                  </td>
+                  <td className="py-5 px-6 text-[0.9rem] text-white/90 font-light group-hover:text-site-gold transition-colors">
+                    {row.us}
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </motion.table>
         </div>
 
-        {/* Right Image: Magnetic Depth */}
+        {/* Bottom accent */}
         <motion.div
-           initial={{ opacity: 0, scale: 0.95 }}
-           whileInView={{ opacity: 1, scale: 1 }}
-           viewport={{ once: true }}
-           className="relative"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.8 }}
+          className="mt-12 pt-8 border-t border-white/5 flex items-center justify-between"
         >
-          {/* Decorative Ring */}
-          <div className="absolute -inset-10 border border-white/5 rounded-full pointer-events-none" />
-          <div className="absolute -inset-20 border border-white/[0.02] rounded-full pointer-events-none" />
-          
-          <div className="relative aspect-[4/5] overflow-hidden rounded-2xl shadow-[0_40px_100px_rgba(0,0,0,0.8)] border border-white/[0.08]">
-            <MediaSlot
-              assetKey="services_why_us"
-              fallbackUrl="/images/projects/discovery/visual-5.jpg"
-              alt="Why CrossAngle" 
-              className="h-full w-full object-cover grayscale-[0.4] brightness-[0.8] transition-all duration-1000 group-hover:scale-110"
-            />
-            {/* Dynamic Glow */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
-            <div className="absolute bottom-10 left-10 right-10 p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl">
-               <div className="font-display italic text-2xl text-white mb-2">Clear Scope. Clear Pricing. Clear Delivery.</div>
-               <div className="text-[10px] uppercase tracking-widest text-white/60">Our commitment since day one.</div>
-            </div>
-          </div>
-
-          {/* Floater Element */}
-          <motion.div 
-            animate={{ y: [0, -20, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-6 -right-6 w-24 h-24 bg-site-crimson rounded-full flex items-center justify-center text-white shadow-2xl z-20"
-          >
-            <div className="text-center">
-              <div className="font-bold text-lg leading-tight">500+</div>
-              <div className="text-[7px] uppercase tracking-tighter">Projects</div>
-            </div>
-          </motion.div>
+          <span className="text-[10px] uppercase tracking-[0.3em] text-white/30 font-mono">
+            Clear scope. Clear pricing. Clear delivery.
+          </span>
+          <div className="w-8 h-px bg-site-crimson/50" />
         </motion.div>
-
       </div>
     </section>
   );

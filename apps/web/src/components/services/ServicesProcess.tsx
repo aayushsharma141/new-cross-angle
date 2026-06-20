@@ -1,29 +1,29 @@
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { useRef } from "react";
 
 const steps = [
   {
     number: "01",
     label: "Stage One",
-    title: "Consult",
-    description: "Share your ideas, budget, and timeline with our design team. We start by understanding your daily routine, budget, and project goals to ensure we align with your needs from day one.",
+    title: "Discovery",
+    description: "We immerse ourselves in your lifestyle, preferences, and vision. Through deep consultation and spatial analysis, we uncover the design DNA that will guide every decision.",
   },
   {
     number: "02",
     label: "Stage Two",
-    title: "Measure & Plan",
-    description: "Laser-precise measurements and floor plan planning for optimal layout. We measure your space carefully to design floor plans that optimize movement and make the best use of every room.",
+    title: "Design",
+    description: "Our architects translate your discovery profile into precise floor plans, mood boards, and material palettes. Every inch is measured, every flow optimized for how you live.",
   },
   {
     number: "03",
     label: "Stage Three",
-    title: "Design",
-    description: "Review colors, furniture, and realistic 3D views before we begin. We choose materials, lighting, and colors, then show you realistic 3D drawings so you can decide with confidence.",
+    title: "Planning",
+    description: "Detailed technical drawings, engineering specifications, and procurement schedules are locked. We plan every detail before a single material is sourced.",
   },
   {
     number: "04",
     label: "Stage Four",
-    title: "Execute",
+    title: "Execution",
     description: "Our skilled installation team brings the designs to life. We manufacture the modular cabinets and coordinate all on-site work to ensure high-quality execution without delays.",
   },
   {

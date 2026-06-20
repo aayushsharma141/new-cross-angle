@@ -52,6 +52,7 @@ const PortfolioPage = () => {
 
   return (
     <>
+      <h1 className="sr-only">Portfolio | Cross Angle Interior</h1>
       <Helmet>
         <title>Portfolio | Cross Angle Interior - Immersive Portfolio</title>
         <meta

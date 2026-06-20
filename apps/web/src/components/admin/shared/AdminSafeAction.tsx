@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { captureException } from "@/lib/sentry";
 
 export interface AdminSafeActionProps {
   icon?: React.ElementType;
@@ -31,6 +32,7 @@ export function AdminSafeAction({
       setState("idle");
     } catch (error: unknown) {
       console.error("Action failed:", error);
+      captureException(error, { tags: { component: "AdminSafeAction" } });
       setState("idle");
       setErrorMsg(error instanceof Error ? error.message : "Action failed. Please try again.");
       

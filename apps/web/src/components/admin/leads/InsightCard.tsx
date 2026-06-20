@@ -6,7 +6,6 @@ import {
   Minus,
   AlertTriangle,
   Lightbulb,
-  Target,
   Bell,
   type LucideIcon,
 } from "lucide-react";

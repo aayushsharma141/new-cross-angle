@@ -26,7 +26,7 @@ export class AuditService {
         user_id: user?.id ?? null,
         details: details ?? null,
         ip_address: 'client',
-      });
+      } as any);
       if (error) {
         console.error('[AuditService] writeAudit failed:', error.message, { action, entityType, entityId });
       }
@@ -133,7 +133,7 @@ export class AuditService {
       throw error;
     }
 
-    return data as AuditLogEntry;
+    return data as unknown as AuditLogEntry;
   }
 
   async getLogsByEntity(
@@ -266,7 +266,7 @@ export class AuditService {
 
     const userMap = new Map<string, { id: string; name: string; email: string }>();
 
-    data?.forEach((log: { user_id: string; profiles?: { full_name?: string | null; email?: string | null } }) => {
+    data?.forEach((log: any) => {
       if (log.user_id && !userMap.has(log.user_id)) {
         userMap.set(log.user_id, {
           id: log.user_id,

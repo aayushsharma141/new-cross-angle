@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Sunrise, Sun, Sunset, Moon, Users, Leaf, Brain, Flame } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import ChipOption from "@/components/reflection/ChipOption";
 import ImageOption from "@/components/reflection/ImageOption";
@@ -50,8 +50,6 @@ interface QuestionDef {
   assetKeys?: string[];
   section: number;
 }
-
-const sectionIcons = [Sunrise, Sun, Sunset, Moon, Users, Leaf, Brain, Flame];
 
 const sectionGradients = [
   "radial-gradient(ellipse at top, hsl(40 60% 95% / 0.5) 0%, transparent 60%)",
@@ -129,8 +127,6 @@ const ReflectionPrompt = ({ onComplete }: ReflectionPromptProps) => {
       }, 200);
     }
   };
-
-  const SectionIcon = sectionIcons[currentSection] || Sun;
 
   const renderQuestion = (q: QuestionDef, idx: number) => {
     const optionLabels = q.optionKeys.map((k) => t(k));

@@ -1,19 +1,17 @@
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { format } from "date-fns";
 import {
     Clock, Linkedin, LinkIcon, ArrowLeft, ArrowRight, Eye, ChevronRight,
-    List, Calculator, ChevronUp
+    List, Calculator
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
-import { Button } from "@/components/ui/primitives/button";
 import { Skeleton } from "@/components/ui/primitives/skeleton";
 import { useToast } from "@/hooks/useToast";
-import React from "react";
 import { createPortal } from "react-dom";
 import DOMPurify from "dompurify";
 import { motion, AnimatePresence } from "framer-motion";
@@ -33,6 +31,7 @@ import {
 } from "@/hooks/useBlogTracking";
 
 /* ─── Style constants ─── */
+const CRIMSON = "#C41230";
 
 const cleanTitle = (title: string) => {
     if (!title) return "";
@@ -41,7 +40,17 @@ const cleanTitle = (title: string) => {
         .replace(/&#8212;/g, "—")
         .replace(/&amp;/g, "&")
         .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'");
+        .replace(/&#39;/g, "'")
+        .replace(/&nbsp;/g, "\u00A0")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&rsquo;/g, "'")
+        .replace(/&lsquo;/g, "'")
+        .replace(/&rdquo;/g, '"')
+        .replace(/&ldquo;/g, '"')
+        .replace(/&mdash;/g, "—")
+        .replace(/&ndash;/g, "–")
+        .replace(/&hellip;/g, "…");
     cleaned = cleaned.replace(/\s*[—\-–]\s*Cross Angle Interior\s*$/i, "");
     return cleaned;
 };

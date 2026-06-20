@@ -30,12 +30,15 @@ Input.displayName = "Input";
 export type LabelProps = React.LabelHTMLAttributes<HTMLLabelElement>;
 
 export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
-    ({ className, ...props }, ref) => (
+    ({ className, htmlFor, children, ...props }, ref) => (
         <label
             ref={ref}
+            htmlFor={htmlFor}
             className={cn(textClasses.label, "peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}
             {...props}
-        />
+        >
+            {children}
+        </label>
     )
 );
 Label.displayName = "Label";

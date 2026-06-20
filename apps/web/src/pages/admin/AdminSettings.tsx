@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/primitives/button";
 import { 
   Save, 
   RefreshCw, 
-  Settings, 
-  Mail, 
   Eye, 
   EyeOff, 
   Loader2, 
@@ -340,14 +338,6 @@ const AdminSettings = () => {
     } finally {
       setIsClearingCache(false);
     }
-  };
-
-  const tabNameMap: Record<string, string> = {
-    general: "Company Settings",
-    reports: "Email Recipients",
-    access: "Access & Security",
-    credentials: "API & Integrations",
-    updates: "Updates & Maintenance"
   };
 
   return (

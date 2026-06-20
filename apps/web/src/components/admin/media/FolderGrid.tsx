@@ -43,8 +43,11 @@ const FolderItem = ({ folder, onNavigate, onRename, onDelete, isReadOnly }: Fold
       className="h-full"
     >
       <Card
+        role="button"
+        tabIndex={0}
         className={`group overflow-hidden relative cursor-pointer hover:shadow-lg border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md transition-all h-full ${isOver ? 'border-admin-primary bg-admin-primary/20 ring-2 ring-admin-primary' : 'hover:border-admin-primary/50 hover:bg-admin-card'}`}
         onClick={() => onNavigate(folder)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNavigate(folder); } }}
       >
         <CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-3 h-full min-h-[140px]">
           <Folder 
@@ -55,7 +58,7 @@ const FolderItem = ({ folder, onNavigate, onRename, onDelete, isReadOnly }: Fold
           <span className="font-medium text-sm truncate w-full px-2">{folder.name}</span>
           
           {!isReadOnly && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+            <div role="button" tabIndex={-1} className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white rounded-full backdrop-blur-md">
@@ -92,7 +95,7 @@ export const FolderGrid = ({
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-8">
       {children}
-      {folders.map((folder, index) => (
+      {folders.map((folder) => (
         <FolderItem 
           key={folder.id} 
           folder={folder} 

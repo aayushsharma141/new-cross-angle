@@ -1,6 +1,7 @@
 # Improvement Roadmap
 
 ## Overview
+
 A prioritized list of executable tasks to elevate the application to Elite/FAANG-level, sorted by impact-to-effort ratio.
 
 ---

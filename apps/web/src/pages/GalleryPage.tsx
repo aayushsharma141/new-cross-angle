@@ -95,7 +95,7 @@ const GalleryPage = () => {
     }
   }, [urlCategory]);
 
-  const { data: dbItems, isLoading, isError, refetch } = useGallery();
+  const { data: dbItems, isLoading } = useGallery();
   const { data: categories } = useGalleryCategories();
 
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
@@ -189,6 +189,7 @@ const GalleryPage = () => {
 
   return (
     <>
+      <h1 className="sr-only">Gallery | Cross Angle Interior</h1>
       <Helmet>
         <title>Gallery | Cross Angle Interior — Spaces We've Crafted</title>
         <meta name="description" content="Explore our curated gallery of interior spaces — kitchens, bedrooms, living rooms, and commercial interiors crafted with precision." />

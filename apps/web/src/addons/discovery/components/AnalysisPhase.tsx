@@ -1,12 +1,11 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { UserSignals, AIAestheticResult, Archetype } from "@/types/discovery";
+import { UserSignals, AIAestheticResult } from "@/types/discovery";
 import { DecryptedText, GradualBlur, Squares } from "@/components/ReactBits";
 
 interface Props {
   userSignals: UserSignals;
-  fallbackArchetype: Archetype;
   onComplete: (result?: AIAestheticResult) => void;
 }
 
@@ -20,7 +19,7 @@ const phases = [
 
 const MIN_DURATION = 5000;
 
-const AnalysisPhase = ({ userSignals, fallbackArchetype, onComplete }: Props) => {
+const AnalysisPhase = ({ userSignals, onComplete }: Props) => {
   const [phase, setPhase] = useState(0);
   const [aiDone, setAiDone] = useState(false);
   const [animDone, setAnimDone] = useState(false);

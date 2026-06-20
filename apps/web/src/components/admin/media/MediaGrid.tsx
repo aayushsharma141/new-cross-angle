@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from "framer-motion";
 import {
-    MoreVertical,
     Check,
     Copy,
     Trash2,
@@ -100,7 +99,7 @@ export const MediaGrid = ({
                         </div>
                     )}
 
-                    <div className="aspect-square relative bg-secondary/50 overflow-hidden" onPointerDown={(e) => e.stopPropagation()} onClick={() => onPreview(file)}>
+                    <div role="button" tabIndex={0} className="aspect-square relative bg-secondary/50 overflow-hidden" onPointerDown={(e) => e.stopPropagation()} onClick={() => onPreview(file)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPreview(file); } }}>
                         <img
                             src={getOptimizedUrl(file.url, { width: 420, quality: 72 })}
                             alt={file.name}
@@ -160,8 +159,11 @@ export const MediaGrid = ({
                         />
                     )}
                     <div
+                        role="button"
+                        tabIndex={0}
                         className="w-12 h-12 rounded-md bg-secondary overflow-hidden flex-shrink-0 cursor-pointer border relative"
                         onClick={() => onPreview(file)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPreview(file); } }}
                     >
                         <img src={getOptimizedUrl(file.url, { width: 180, quality: 70 })} alt={file.name} className="w-full h-full object-cover" loading="lazy" />
                     </div>

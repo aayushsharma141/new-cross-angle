@@ -1,25 +1,19 @@
 import { motion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import { getOptimizedUrl } from "@/lib/cdn";
 
-const IK = "https://ik.imagekit.io/wdrs8y61o/cross-angle/tr:q-85,f-auto,w-1200";
+const IMAGE_PATHS = [
+  "images/projects/discovery/visual-11.jpg",
+  "images/projects/discovery/lifestyle-2.jpg",
+  "images/projects/discovery/lifestyle-5.jpg",
+  "images/projects/discovery/visual-2.jpg",
+];
 
 const MOODS = [
-  {
-    image: `${IK}/images/projects/discovery/visual-11.jpg`,
-    word: "Calm"
-  },
-  {
-    image: `${IK}/images/projects/discovery/lifestyle-2.jpg`,
-    word: "Warmth"
-  },
-  {
-    image: `${IK}/images/projects/discovery/lifestyle-5.jpg`,
-    word: "Silence"
-  },
-  {
-    image: `${IK}/images/projects/discovery/visual-2.jpg`,
-    word: "Luxury"
-  }
+  { word: "Calm" },
+  { word: "Warmth" },
+  { word: "Silence" },
+  { word: "Luxury" }
 ];
 
 const InspirationGallery = () => {
@@ -84,7 +78,7 @@ const InspirationGallery = () => {
           >
             {/* Background Image */}
             <motion.img 
-              src={mood.image} 
+              src={getOptimizedUrl(IMAGE_PATHS[index], { width: 1200, quality: 85 })} 
               alt={mood.word}
               draggable={false}
               onDragStart={(e) => e.preventDefault()}

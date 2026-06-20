@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Image } from "@/components/ui/enhanced/image";
-import { getOptimizedUrl } from "@/lib/cdn";
 import FocusLock from "react-focus-lock";
 
 interface LightboxItem {
@@ -226,6 +225,9 @@ const GalleryLightbox = ({
             <div
               className="flex items-center justify-between px-6 md:px-10 py-5 border-t border-white/5"
               onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              role="button"
+              tabIndex={-1}
             >
               {/* Prev Arrow */}
               <button

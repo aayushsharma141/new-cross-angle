@@ -8,7 +8,7 @@ import { Helmet } from "react-helmet-async";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
-  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.07, duration: 0.45, ease: "easeOut" } }),
+  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.07, duration: 0.45, ease: "easeOut" as const } }),
 };
 
 const Section = ({ icon: Icon, title, children, index }: { icon: React.ElementType; title: string; children: React.ReactNode; index: number }) => (

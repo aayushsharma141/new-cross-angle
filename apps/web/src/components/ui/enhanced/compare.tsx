@@ -37,8 +37,6 @@ export const Compare = ({
 
     const sliderRef = useRef<HTMLDivElement>(null);
 
-    const [isMouseOver, setIsMouseOver] = useState(false);
-
     const autoplayRef = useRef<NodeJS.Timeout | null>(null);
 
     const startAutoplay = useCallback(() => {
@@ -71,12 +69,10 @@ export const Compare = ({
     }, [startAutoplay, stopAutoplay]);
 
     function mouseEnterHandler() {
-        setIsMouseOver(true);
         stopAutoplay();
     }
 
     function mouseLeaveHandler() {
-        setIsMouseOver(false);
         if (slideMode === "hover") {
             setSliderXPercent(initialSliderPercentage);
         }
@@ -87,7 +83,7 @@ export const Compare = ({
     }
 
     const handleStart = useCallback(
-        (clientX: number) => {
+        () => {
             if (slideMode === "drag") {
                 setIsDragging(true);
             }
@@ -117,7 +113,7 @@ export const Compare = ({
     );
 
     const handleMouseDown = useCallback(
-        (e: React.MouseEvent) => handleStart(e.clientX),
+        () => handleStart(),
         [handleStart]
     );
     const handleMouseUp = useCallback(() => handleEnd(), [handleEnd]);
@@ -127,9 +123,9 @@ export const Compare = ({
     );
 
     const handleTouchStart = useCallback(
-        (e: React.TouchEvent) => {
+        () => {
             if (!autoplay) {
-                handleStart(e.touches[0].clientX);
+                handleStart();
             }
         },
         [handleStart, autoplay]
@@ -153,6 +149,12 @@ export const Compare = ({
     return (
         <div
             ref={sliderRef}
+            role="slider"
+            tabIndex={0}
+            aria-label="Before and after comparison"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(sliderXPercent)}
             className={cn("w-full h-full overflow-hidden", className)}
             style={{
                 position: "relative",
@@ -166,6 +168,17 @@ export const Compare = ({
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
             onTouchMove={handleTouchMove}
+            onKeyDown={(e) => {
+                const step = 5;
+                if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setSliderXPercent(prev => Math.min(100, prev + step));
+                }
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setSliderXPercent(prev => Math.max(0, prev - step));
+                }
+            }}
         >
             <AnimatePresence initial={false}>
                 <motion.div
@@ -210,7 +223,7 @@ export const Compare = ({
                             transition={{ duration: 0 }}
                         >
                             <img
-                                alt="first image"
+                                alt="Before"
                                 src={firstImageSrc}
                                 className={cn(
                                     "absolute inset-0  z-20 rounded-2xl shrink-0 w-full h-full select-none object-cover",
@@ -236,7 +249,7 @@ export const Compare = ({
                             "absolute top-0 left-0 z-[19]  rounded-2xl w-full h-full select-none object-cover",
                             secondImageClassname
                         )}
-                        alt="second image"
+                        alt="After"
                         src={secondImageSrc}
                         draggable={false}
                     />

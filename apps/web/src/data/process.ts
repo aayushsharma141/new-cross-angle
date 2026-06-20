@@ -152,7 +152,7 @@ export const processStages: ProcessStage[] = [
       "Warranty certificates",
       "Styled, move-in-ready space"
     ],
-    image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1200&auto=format&fit=crop"
   }
 ];
 

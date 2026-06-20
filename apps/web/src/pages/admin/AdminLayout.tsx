@@ -10,11 +10,11 @@ import {
 } from "@/components/admin/KeyboardShortcutsOverlay";
 import { AdminRouteErrorBoundary } from "@/components/admin/AdminRouteErrorBoundary";
 import { Database, Loader2 } from "lucide-react";
-import { useHubStats, getModules, formatStorage } from "@/pages/admin/AdminHub";
-import { useNavigate } from "react-router-dom";
+import { useHubStats, getModules, formatStorage } from "@/hooks/useHubStats";
 import { SkipNav } from "@/components/ui/enhanced/SkipNav";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
+import { captureException } from "@/lib/sentry";
 import { useToast } from "@/hooks/useToast";
 
 const AdminLayout = (): JSX.Element | null => {
@@ -27,7 +27,6 @@ const AdminLayout = (): JSX.Element | null => {
     const [roleTimeout, setRoleTimeout] = useState(false);
     const { settings, refetch: refetchSettings } = useSiteSettings();
     const maintenanceMode = settings?.maintenance_mode_active || false;
-    const navigate = useNavigate();
     const { toast } = useToast();
 
     const { stats } = useHubStats();
@@ -53,6 +52,7 @@ const AdminLayout = (): JSX.Element | null => {
             toast({ title: "Maintenance Mode Disabled", description: "The site is now live." });
         } catch (err) {
             console.error(err);
+            captureException(err, { tags: { area: "admin-layout", action: "deactivate-maintenance" } });
             toast({ title: "Error", description: "Failed to disable maintenance mode.", variant: "destructive" });
         }
     };
@@ -124,8 +124,6 @@ const AdminLayout = (): JSX.Element | null => {
     }
 
     const isFullWidth = location.pathname === "/admin" || location.pathname === "/admin/" || location.pathname.startsWith("/admin/crm") || location.pathname.startsWith("/admin/cms") || location.pathname.startsWith("/admin/blog") || location.pathname.startsWith("/admin/estimate") || location.pathname.startsWith("/admin/estimator") || location.pathname.startsWith("/admin/discovery") || location.pathname.startsWith("/admin/dashboard") || location.pathname.startsWith("/admin/system") || location.pathname.startsWith("/admin/user-access");
-    const isHub = location.pathname === "/admin" || location.pathname === "/admin/" || location.pathname.startsWith("/admin/dashboard");
-
     return (
         <div className="h-screen max-h-screen flex flex-col bg-admin-bg admin-theme overflow-hidden">
             <SkipNav targetId="admin-main" />

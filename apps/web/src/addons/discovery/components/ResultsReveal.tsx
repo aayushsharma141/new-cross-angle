@@ -4,12 +4,10 @@ import html2canvas from 'html2canvas';
 import {
   Sun,
   Layers,
-  Map as MapIcon,
   Zap,
   Lightbulb,
   Paintbrush,
   Layout as LayoutIcon,
-  Wind,
   Plus,
   Minus,
   Download,
@@ -22,7 +20,7 @@ import { visualImages } from '@/constants/discovery';
 import { trackResultLoaded } from '../infrastructure/analytics/tracker';
 import { MediaSlot } from '@/components/ui/enhanced/MediaSlot';
 import { useAnalytics } from '@/analytics/AnalyticsProvider';
-import { SplitText, FallingText, FadeContent, BlurText, ScrollVelocity } from '@/components/ReactBits';
+import { FallingText, BlurText, ScrollVelocity } from '@/components/ReactBits';
 
 interface Props {
   scores: AestheticScores;
@@ -42,7 +40,6 @@ const SCORE_LABELS: Record<keyof AestheticScores, string> = {
   novelty: 'Novelty',
 };
 
-const ACCENT = '#E35336';
 const GOLD = '#E35336';
 
 const AXIS_INTERPRETATIONS: Record<keyof AestheticScores, (v: number) => string> = {
@@ -422,7 +419,7 @@ const TransformationReadiness: React.FC<{ scores: AestheticScores }> = ({ scores
   );
 };
 
-const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId, signals, onRetake, onComplete }) => {
+const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId, signals, onRetake }) => {
   const { track } = useAnalytics();
 
   const displayName = aiResult?.identityName || archetype.name;
@@ -485,11 +482,6 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
     }
     return topImages;
   }, [signals, topImages]);
-
-  const fadeUp = {
-    initial: { opacity: 0, y: 24 },
-    animate: { opacity: 1, y: 0 },
-  };
 
   return (
     <div
@@ -983,9 +975,9 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
               <p className="text-[9px] font-mono tracking-[0.3em] uppercase text-site-text-meta/30">The Interior Intelligence OS</p>
             </div>
             <div className="flex gap-12 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30">
-              <a href="#" className="hover:text-site-crimson transition-colors">Vision</a>
-              <a href="#" className="hover:text-site-crimson transition-colors">Manifesto</a>
-              <a href="#" className="hover:text-site-crimson transition-colors">Legal</a>
+              <button type="button" className="hover:text-site-crimson transition-colors bg-transparent border-0 p-0 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30 cursor-pointer">Vision</button>
+              <button type="button" className="hover:text-site-crimson transition-colors bg-transparent border-0 p-0 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30 cursor-pointer">Manifesto</button>
+              <button type="button" className="hover:text-site-crimson transition-colors bg-transparent border-0 p-0 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30 cursor-pointer">Legal</button>
             </div>
           </div>
           <div className="pt-8 border-t border-site-border flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] font-mono text-site-text-meta/20 tracking-[0.3em] uppercase">

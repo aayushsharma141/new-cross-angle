@@ -18,7 +18,7 @@ interface ProjectHeroProps {
 
 // Removed ProfileStrip in favor of ProjectSnapshot
 
-const ProjectHero = ({ heroImage, title, category, location, area, year, tagline, brief, type }: ProjectHeroProps) => {
+const ProjectHero = ({ heroImage, title, category, tagline, brief }: ProjectHeroProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,

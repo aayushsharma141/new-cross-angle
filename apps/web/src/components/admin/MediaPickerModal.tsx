@@ -37,7 +37,7 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
             const file = fileList[0];
             return MediaService.upload({ file, folderId: null });
         },
-        onSuccess: (data) => {
+        onSuccess: () => {
             toast({ title: "Upload successful" });
             void queryClient.invalidateQueries({ queryKey: ["media", "files"] });
             // Cannot directly select because upload only returns {id, url, name}. 
@@ -144,7 +144,9 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
                                         }`}
                                 >
                                     {file.mimeType.startsWith('video') ? (
-                                        <video src={file.url} className="w-full h-full object-cover" />
+                                        <video src={file.url} className="w-full h-full object-cover" aria-hidden={true} tabIndex={-1}>
+                                            <track kind="captions" />
+                                        </video>
                                     ) : (
                                         <img
                                             src={getOptimizedUrl(file.url, { width: 360, quality: 72 })}

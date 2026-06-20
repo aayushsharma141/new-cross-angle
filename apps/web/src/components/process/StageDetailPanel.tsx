@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Clock, IndianRupee, User, HardHat } from "lucide-react";
-import { processStages, type ProcessStage } from "@/data/process";
+import { processStages } from "@/data/process";
 
 const StageDetailPanel = () => {
   const [activeIdx, setActiveIdx] = useState(0);

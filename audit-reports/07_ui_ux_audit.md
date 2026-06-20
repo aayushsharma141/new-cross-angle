@@ -1,12 +1,14 @@
 # UI/UX Quality & Flaws Audit
 
 ## Overview
+
 This audit evaluates the current UI/UX quality across the application, with a focus on visual states, responsive design, conversion optimization, and adherence to premium design standards. The evaluation covers the home page (`Index.tsx`), portfolio/project details (`ProjectPage.tsx`), service categories (`ServiceCategoryPage.tsx`), and blog details (`BlogDetailPage.tsx`).
 
 ---
 
 ## 1. Visual Design & Aesthetic (Premium Feel)
-* **Strengths:** 
+
+* **Strengths:**
   * The application employs a highly premium dark-mode aesthetic (e.g., `bg-neutral-950`, `#050505`) with sophisticated accent colors like Gold (`#C6A15B`) and Crimson (`#C41230`).
   * Typography is well-considered, pairing serif fonts for headings with sans-serif fonts for body text, creating an elegant visual hierarchy.
   * Image treatments (like the `grayscale-[20%] group-hover:grayscale-0` in `ProjectPage.tsx`) add a sophisticated touch.
@@ -20,6 +22,7 @@ This audit evaluates the current UI/UX quality across the application, with a fo
 ---
 
 ## 2. Interactions & Micro-Animations
+
 * **Strengths:**
   * Extensive use of `framer-motion` and `GSAP` for scroll-triggered animations ("curtain effect" on the home page, timeline staggers, and parallax images).
   * Explicit checking of `prefers-reduced-motion` in `ProjectPage.tsx` shows excellent attention to accessibility.
@@ -34,6 +37,7 @@ This audit evaluates the current UI/UX quality across the application, with a fo
 ---
 
 ## 3. Responsive Design & Mobile-First Approach
+
 * **Strengths:**
   * Tailwind's mobile-first responsive prefixes (`md:`, `lg:`, `xl:`) are used effectively to adjust layouts.
   * Complex elements like the Table of Contents (`TableOfContents`) are intelligently hidden or simplified on smaller screens (`hidden xl:block`, with a mobile-friendly inline version provided).
@@ -44,6 +48,7 @@ This audit evaluates the current UI/UX quality across the application, with a fo
 ---
 
 ## 4. Conversion Optimization & User Journeys
+
 * **Strengths:**
   * Lead-generation is actively integrated (e.g., the `InArticleLeadCTA` in the blog detail page that triggers a scroll-based popup).
   * Clear, sticky "Next/Previous" navigation encourages continuous browsing in portfolios and blogs.
@@ -56,6 +61,7 @@ This audit evaluates the current UI/UX quality across the application, with a fo
 ---
 
 ## 5. Accessibility (A11y)
+
 * **Strengths:**
   * Proper ARIA labels on dynamic components (e.g., `aria-valuenow` on progress bars, `aria-label="Table of contents"`).
   * Semantic HTML tags (`<article>`, `<nav>`, `<main>`) are well-utilized.
@@ -66,6 +72,7 @@ This audit evaluates the current UI/UX quality across the application, with a fo
 ---
 
 ## Verdict & Rating
+
 **Rating: Professional agency-level**
 
 The site boasts a highly polished, visually stunning interface that successfully conveys a premium brand identity. However, it falls just short of "Elite / FAANG-level" due to inconsistencies in state management (loading screens, auth timeouts), typographical bugs in Services, alignment metrics mismatches, and minor contrast accessibility risks.
@@ -73,6 +80,7 @@ The site boasts a highly polished, visually stunning interface that successfully
 ---
 
 ## Recommendations
+
 1. **Fix Text Overlapping:** Update `/services` hero section text animations to animate sequentially or space them out properly.
 2. **Harmonize Experience Metrics:** Sync statistics between `/` and `/about-us` to ensure brand trust isn't compromised (e.g., use a single config file or static constants).
 3. **Align Accent Styling:** Replace `/estimate` selection button green highlights with Gold/Crimson brand gradients.

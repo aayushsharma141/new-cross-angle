@@ -1,24 +1,8 @@
 import React, { createContext, useContext, useState } from "react";
 import { createPortal } from "react-dom";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
-import { breadcrumbsForPath } from "@/lib/admin-routes";
-import { User, LogOut, Settings, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/primitives/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/primitives/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/primitives/avatar";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { usePermissions } from "@/hooks/usePermissions";
-import { useAdminDisplayName } from "@/hooks/useAdminDisplayName";
-import { ROLE_LABELS } from "@/lib/auth/rbac";
+import { ArrowLeft } from "lucide-react";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
@@ -55,15 +39,7 @@ export const ModuleLayout = ({ title, description, tabs, sidebar, children }: Mo
     const location = useLocation();
     const { settings } = useSiteSettings();
     const logoUrl = settings?.company_logo_url || settings?.logo_light_url || '/logo-icon.png';
-    const navigate = useNavigate();
     const [slotEl, setSlotEl] = useState<HTMLDivElement | null>(null);
-    const breadcrumbs = breadcrumbsForPath(location.pathname);
-
-    const { user, logout, role, isLoading } = useAdminAuth();
-    const { can } = usePermissions();
-    const { displayName, initials } = useAdminDisplayName();
-    const roleLabel = isLoading ? "Loading Role" : role ? ROLE_LABELS[role] : "No Role";
-    const avatarSeed = encodeURIComponent(displayName || user?.email || "admin");
 
     return (
         <ModuleActionsSlotContext.Provider value={slotEl}>

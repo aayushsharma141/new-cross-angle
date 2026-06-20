@@ -115,7 +115,7 @@ export default function AdminUsers(): JSX.Element {
   return (
     <div className="flex flex-col space-y-6 animate-in fade-in duration-700">
       <ModuleActions>
-        <Button onClick={openAddUser} variant="primary" className="rounded-xl shadow-lg shadow-primary/20">
+        <Button onClick={openAddUser} variant="default" className="rounded-xl shadow-lg shadow-primary/20">
           <UserPlus className={`${icons.sm} mr-2`} />Add User
         </Button>
       </ModuleActions>

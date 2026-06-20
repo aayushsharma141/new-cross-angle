@@ -41,8 +41,6 @@ const ProjectAmbience = ({ dayImage, eveningImage, nightImage }: ProjectAmbience
     Night: nightImage || ambienceData.Night.image,
   };
 
-  const current = ambienceData[active];
-
   return (
     <section className="border-y border-white/5 bg-black/50 py-24 md:py-32 relative overflow-hidden group">
       {/* Background Image layers */}

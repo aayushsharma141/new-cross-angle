@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { TactileMaterial } from "@/components/ui/enhanced/TactileMaterial";
 import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 

@@ -102,7 +102,6 @@ function MaterialRow({
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
               className="h-7 text-xs flex-1 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
               placeholder="Name"
-              autoFocus
             />
             <Button variant="ghost" size="icon" onClick={confirmEdit} className="h-7 w-7 text-emerald-400 shrink-0">
               <Check className="w-3.5 h-3.5" />
@@ -174,7 +173,9 @@ export function MaterialsEditor() {
   }, [data, dirty, items.length]);
 
   const strip = (arr: MaterialItemWithId[]): MaterialItem[] =>
-    arr.map(({ _id: _, ...rest }) => rest);
+    arr.map(({ name, description, color, scores }) => ({
+      name, description, color, scores,
+    }));
 
   const startEdit = (item: MaterialItemWithId) => {
     setEditId(item._id);

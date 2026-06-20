@@ -22,7 +22,6 @@ import {
 import { Badge } from '@/components/ui/primitives/badge';
 import { DataTable } from '@/components/admin/DataTable';
 import type { Lead } from '@/repositories/interfaces/LeadRepository';
-import type { PaginatedResponse } from '@/services/types';
 import { CRM_STAGE_BADGE_CLASSES, CRM_TEMPERATURES } from '@/lib/crm';
 
 const temperatureStyles: Record<string, string> = CRM_TEMPERATURES.reduce(
@@ -46,8 +45,6 @@ interface LeadTableProps {
   onSearchChange?: (search: string) => void;
   onStatusChange?: (id: string, status: string) => void;
   onViewLead?: (lead: Lead) => void;
-  onDeleteLead?: (lead: Lead) => void;
-  onBulkAction?: (ids: string[], action: string) => void;
 }
 
 export function LeadTable({
@@ -58,8 +55,6 @@ export function LeadTable({
   onSearchChange,
   onStatusChange,
   onViewLead,
-  onDeleteLead,
-  onBulkAction,
 }: LeadTableProps) {
   const columns: ColumnDef<Lead>[] = useMemo(
     () => [

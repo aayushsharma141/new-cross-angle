@@ -26,6 +26,7 @@ const HomeFinalCTA         = lazy(() => import("@/components/home/HomeFinalCTA")
 const Index = () => {
   return (
     <>
+      <h1 className="sr-only">Crossangle Interior | Premium Interior Design Studio in Jamshedpur</h1>
       <Helmet>
         <title>Crossangle Interior | Premium Interior Design Studio in Jamshedpur</title>
         <meta

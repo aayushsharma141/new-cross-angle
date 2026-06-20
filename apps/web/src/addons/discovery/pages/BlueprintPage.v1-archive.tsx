@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import './BlueprintPage.css';
-import { Link } from "react-router-dom";
 
 export default function BlueprintPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -157,25 +156,25 @@ function BlueprintHeader() {
 
       {/*  SIDE NAV  */}
       <nav id="sidenav">
-        <div className="snav-item active" onClick={() => scrollTo({ top: 0, behavior: 'smooth' })}>
+        <div className="snav-item active" role="button" tabIndex={0} onClick={() => scrollTo({ top: 0, behavior: 'smooth' })} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollTo({ top: 0, behavior: 'smooth' }); } }}>
           <span className="snav-label">Cover</span><span className="snav-dot"></span>
         </div>
-        <div className="snav-item" onClick={() => document.getElementById('concept')?.scrollIntoView({ behavior: 'smooth' })}>
+        <div className="snav-item" role="button" tabIndex={0} onClick={() => document.getElementById('concept')?.scrollIntoView({ behavior: 'smooth' })} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('concept')?.scrollIntoView({ behavior: 'smooth' }); } }}>
           <span className="snav-label">Concept</span><span className="snav-dot"></span>
         </div>
-        <div className="snav-item" onClick={() => document.getElementById('techstack')?.scrollIntoView({ behavior: 'smooth' })}>
+        <div className="snav-item" role="button" tabIndex={0} onClick={() => document.getElementById('techstack')?.scrollIntoView({ behavior: 'smooth' })} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('techstack')?.scrollIntoView({ behavior: 'smooth' }); } }}>
           <span className="snav-label">Tech Stack</span><span className="snav-dot"></span>
         </div>
-        <div className="snav-item" onClick={() => document.getElementById('components')?.scrollIntoView({ behavior: 'smooth' })}>
+        <div className="snav-item" role="button" tabIndex={0} onClick={() => document.getElementById('components')?.scrollIntoView({ behavior: 'smooth' })} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('components')?.scrollIntoView({ behavior: 'smooth' }); } }}>
           <span className="snav-label">Components</span><span className="snav-dot"></span>
         </div>
-        <div className="snav-item" onClick={() => document.getElementById('animations')?.scrollIntoView({ behavior: 'smooth' })}>
+        <div className="snav-item" role="button" tabIndex={0} onClick={() => document.getElementById('animations')?.scrollIntoView({ behavior: 'smooth' })} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('animations')?.scrollIntoView({ behavior: 'smooth' }); } }}>
           <span className="snav-label">Animations</span><span className="snav-dot"></span>
         </div>
-        <div className="snav-item" onClick={() => document.getElementById('journey')?.scrollIntoView({ behavior: 'smooth' })}>
+        <div className="snav-item" role="button" tabIndex={0} onClick={() => document.getElementById('journey')?.scrollIntoView({ behavior: 'smooth' })} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('journey')?.scrollIntoView({ behavior: 'smooth' }); } }}>
           <span className="snav-label">Journey</span><span className="snav-dot"></span>
         </div>
-        <div className="snav-item" onClick={() => document.getElementById('responsive')?.scrollIntoView({ behavior: 'smooth' })}>
+        <div className="snav-item" role="button" tabIndex={0} onClick={() => document.getElementById('responsive')?.scrollIntoView({ behavior: 'smooth' })} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('responsive')?.scrollIntoView({ behavior: 'smooth' }); } }}>
           <span className="snav-label">Responsive</span><span className="snav-dot"></span>
         </div>
       </nav>

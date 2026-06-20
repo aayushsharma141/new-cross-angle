@@ -72,12 +72,6 @@ const loadGoogleAnalytics = (measurementId: string) => {
 
 
 
-// Sentry initialization is handled globally in main.tsx to capture boot errors.
-// Configuration for PII masking is defined in lib/sentry.ts.
-const loadSentry = async () => {
-  // Identification logic can go here if needed after consent.
-};
-
 export const CookieConsentProvider = ({
   children,
 }: {

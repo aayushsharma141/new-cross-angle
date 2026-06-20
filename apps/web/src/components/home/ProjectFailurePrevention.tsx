@@ -1,5 +1,4 @@
 import { ScrollReveal } from "../ui/enhanced/scroll-reveal";
-import { AlertCircle, HelpCircle } from "lucide-react";
 
 export const ProjectFailurePrevention = () => {
   return (

@@ -1,4 +1,5 @@
 # Executive Architectural Alignment & Aesthetics Refinement Plan
+
 ## Bridging "Dream Home Brief" (kiro-p1/kiro-p2) with existing Discovery & Estimator Add-ons
 
 ---
@@ -50,10 +51,13 @@ graph TD
 - **Right Panel (60%):** The main interactive playground, displaying cards, grids, sliders, and navigation buttons.
 
 ### 2.2 Dynamic Interactive Elements
+
 To make the user interface feel extremely premium, we will incorporate three dynamic design details inspired by `kiro-p2`:
 
 #### A. Procedural Grain/Noise Layer
+
 A static dark background can feel sterile. We will implement an SVG-based noise overlay to create a premium, tangible paper-like texture.
+
 ```css
 .noise-overlay {
   position: fixed;
@@ -67,13 +71,16 @@ A static dark background can feel sterile. We will implement an SVG-based noise 
 ```
 
 #### B. Score-Reactive Ambient Light Coordinates
+
 The ambient backdrop will possess "visual consciousness." Based on the dominant aesthetic trait in the user's score vector, the background radial glow coordinates will shift dynamically:
+
 - Dominant **Warmth**: Soft Amber (`rgba(200, 162, 95, 0.05)`)
 - Dominant **Minimalism**: Cool Silver (`rgba(220, 220, 230, 0.05)`)
 - Dominant **Novelty**: Deep Amethyst (`rgba(160, 80, 200, 0.05)`)
 - Dominant **Social**: Seaforest Teal (`rgba(100, 180, 160, 0.05)`)
 
 #### C. Floating Score Particles
+
 Subtle background particles will float upward behind the content, reacting to progress. When a user completes a stage, a burst of micro-particles will drift upward, representing the "synthesis of spatial vectors."
 
 ---
@@ -82,18 +89,21 @@ Subtle background particles will float upward behind the content, reacting to pr
 
 To elevate the Discovery Add-on from a simple aesthetic questionnaire to an advanced spatial compiler, we will integrate three vital stages from the "Dream Home Brief" (`kiro-p1`/`kiro-p2`) directly into the flow:
 
-### 3.1 Step additions to style quiz:
+### 3.1 Step additions to style quiz
+
 1. **Property Specifications (`PropertyDetails`):** Preceding the style questions, the client quickly selects property type, carpet area, city, and BHK.
 2. **Room Prioritisation Tour (`RoomPriorityTour`):** Clients walk through standard/optional residential rooms (Living, Master Bedroom, Pooja Room, Balcony), sorting them into *Must-Have*, *Nice-to-Have*, or *Skip* with dynamic cards.
 3. **The "Reality Check" (Clarity Advisories):** Immediately before the full results are revealed, the system runs a conflict matrix to check for design contradictions.
 
 ### 3.2 The Real-Time Conflict Engine
+
 If the client has selected luxurious finishes (e.g. Italian marble) but input a modest budget, or requested a minimal look with high storage needs, the **Reality Check** phase highlights these visual advisories.
 
 > [!TIP]
 > Presenting conflicts in a beautiful, non-judgmental "Clarity Advisory Card" drastically raises design-studio credibility. It demonstrates professional expertise before the client ever speaks to a designer.
 
-#### Visualizing a "Reality Check" Conflict Card:
+#### Visualizing a "Reality Check" Conflict Card
+
 ```
 +────────────────────────────────────────────────────────────────────────────+
 |  🔴 HARD CONFLICT — SPATIAL CONSTRAINTS                                    |
@@ -115,7 +125,7 @@ If the client has selected luxurious finishes (e.g. Italian marble) but input a 
 
 ## 4. Flawless Funnel Data-Handoff Flow
 
-To optimize conversion, the style quiz and estimator must operate as a unified, frictionless system. 
+To optimize conversion, the style quiz and estimator must operate as a unified, frictionless system.
 
 When a client finishes their Style Discovery journey, they are presented with a final result showing their matched Archetype (e.g., *Warm Modernist*). When they click the CTA to "Estimate My Space Costs," the client is directed to the Cost Estimator with fields **pre-filled**, entirely bypassing manual re-entry.
 
@@ -131,7 +141,8 @@ flowchart TD
     H --> I[Instant Personalized Quote Breakdown generated]
 ```
 
-### Technical State Handoff Scaffolding:
+### Technical State Handoff Scaffolding
+
 We will coordinate state between the Discovery context and the Estimator Zustand store via a unified cache layer:
 
 ```typescript
@@ -208,30 +219,35 @@ sequenceDiagram
 This section shows the visual layout of each step inside the new 3-panel split layout:
 
 ### Step 1: Spatial & Property Setup
+
 - **Left Panel (30%):** Standard static branding. Explains that spatial scope affects the style choices (e.g. apartments benefit from space-expanding light palettes).
 - **Middle Panel (10%):** Progress track highlighting node 01.
 - **Right Panel (60%):** Option cards for Property Type (Apartment, Villa, Independent) and inputs for City & Carpet Area.
 
 ### Step 2: Interactive Room Priority Tour
+
 - **Left Panel (30%):** Spatial Counter. Shows a live tally of selected "Must-Have" rooms and calculates the recommended minimum carpet area dynamically.
 - **Middle Panel (10%):** Progress track highlighting node 02.
 - **Right Panel (60%):** Masonry grid of room cards with emojis. Click to toggle priorities:
   `Must-Have` (Active/White) | `Nice-to-Have` (Gold border) | `Skip` (Dull/Gray)
 
 ### Step 3: Aesthetic Instinct & Tactile Materials
+
 - **Left Panel (30%):** **Aesthetic HSL Radar Chart**. As user selects styles, the chart's shape shifts in real-time, mapping their DNA. Background color subtly shifts into an amber glow.
 - **Middle Panel (10%):** Progress track highlighting node 03.
 - **Right Panel (60%):** Grid of high-fidelity visual renders. Multi-select top 3 images that visually resonate.
 
 ### Step 4: The Reality Check (Clarity Advisories)
+
 - **Left Panel (30%):** Shows a warning icon with text: "Engineering check in progress."
 - **Middle Panel (10%):** Progress track highlighting node 07.
 - **Right Panel (60%):** Displays evaluated conflict banners (e.g. Budget vs Luxury, Open Kitchen vs Heavy Cooking) with detailed "Suggested Resolutions" and an acknowledgement button ("I understand, proceed").
 
 ### Step 5: Matched Archetype Dashboard & Cost Estimator Handoff
+
 - **Left Panel (30%):** Shows a beautiful radar polygon of their aesthetic DNA.
 - **Middle Panel (10%):** Highlight node 08 (Completion).
-- **Right Panel (60%):** 
+- **Right Panel (60%):**
   - Matched Style Badge (e.g., **"The Warm Modernist"**).
   - List of signature textures (Timber, Woven Linen).
   - Actionable CTA: `[ Estimate My Design Cost — Pre-filled ]` (Leads directly to pre-populated Estimator).
@@ -319,16 +335,19 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
 Here are the concrete development waves to roll out this aesthetic and layout alignment:
 
 ### Wave 1: Token & Theme Standardisation
+
 - Extract the gold brand token (`#c8a96e`) and add it to our tailwind theme configurations as `site-gold`.
 - Scaffold the Procedural Noise filter component (`NoiseOverlay.tsx`) and place it inside the core App Shell.
 - Standardise form border shapes, active card selection outlines, and transition animations (`framer-motion`) across both add-ons.
 
 ### Wave 2: Layout Unified Re-scaffolding
+
 - Modify `DiscoveryEngine.tsx` to adopt the 3-panel split layout components.
 - Standardise progress sidebar components. Unify `ProgressSidebar` to render vertical tracks with active node states in both add-ons.
 - Bind the real-time HSL Radar Chart widget to the Left Panel in the style quiz layout.
 
 ### Wave 3: Feature Integration & Data Bridge
+
 - Import `PropertyDetails` and `RoomPriorityTour` into the style quiz stages.
 - Port the Conflict Rules and evaluate helper (`conflictEngine.ts`) into the Discovery core directory.
 - Build the **Reality Check** interactive stage displaying advisories with acknowledgement callbacks.
@@ -336,6 +355,7 @@ Here are the concrete development waves to roll out this aesthetic and layout al
 - Inject the `applyDiscoveryData` helper into the Estimator's store mounting event.
 
 ### Wave 4: Validation & UAT Testing
+
 - Perform UI tests using the browser subagent to verify alignment at desktop, tablet, and mobile breakpoints.
 - Ensure that pre-fill data is cleanly read by the Estimator and does not create state validation issues.
 - Deploy the enhanced funnel for user acquisition.

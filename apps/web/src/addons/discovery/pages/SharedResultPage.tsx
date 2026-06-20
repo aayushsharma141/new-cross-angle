@@ -1,12 +1,12 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState, Suspense, lazy } from "react";
+import { lazy, useEffect, useState, Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
-import { AestheticScores, Archetype, AIAestheticResult, UserSignals } from "@/types/discovery";
+import { AestheticScores, Archetype, AIAestheticResult } from "@/types/discovery";
 import { getArchetype } from "@/addons/discovery/core/archetype";
 import { initialSignals } from "@/addons/discovery/flow/session";
 
-import ResultsReveal from "@/addons/discovery/components/ResultsReveal";
+const ResultsReveal = lazy(() => import("@/addons/discovery/components/ResultsReveal"));
 
 /** Map archetype names to a stable OG image slug so we can serve
  *  pre-generated social preview images from /public/og/archetypes/.

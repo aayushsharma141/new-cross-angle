@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Sparkles, Hammer, ShieldAlert, HeartHandshake } from "lucide-react";
+import { Sparkles, Hammer, HeartHandshake } from "lucide-react";
 import { useParams } from "react-router-dom";
 
 interface Swatch {

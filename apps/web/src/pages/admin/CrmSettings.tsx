@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminTabSlider } from "@/components/admin/ui/AdminTabSlider";
-import { Layers, Database, Save, Loader2, GripVertical, Plus, Trash2, RefreshCw } from "lucide-react";
+import { Layers, Database, Save, Loader2, GripVertical, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import { useFlowConfig } from "@/hooks/useFlowConfig";

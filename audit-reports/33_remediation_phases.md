@@ -10,7 +10,7 @@
 Low cognitive load, no architectural decisions needed. Pick any.
 
 | # | Finding | File(s) | Effort | Agent Type |
-|---|---------|---------|--------|------------|
+| --- | --------- | --------- | -------- | ------------ |
 | 3 | ServicesHero uses `#FF2A2A` (not brand crimson) | `ServicesHero.tsx` | 10min | 🎨 UI/UX |
 | 7 | ServicesHero word-swap `minWidth` too narrow for "Forgettable" (10ch vs 6ch) | `ServicesHero.tsx` | 5min | 🎨 UI/UX |
 | 14 | Timeline Gantt Week 8 out-of-bounds (`weeks[8]` → `undefined`) | `TimelineGantt.tsx` | 15min | 🏗️ Fullstack |
@@ -27,7 +27,7 @@ Low cognitive load, no architectural decisions needed. Pick any.
 **Theme:** Visitors see contradictory data. Fix this before anything else.
 
 | # | Finding | File(s) | Effort | Agent Type |
-|---|---------|---------|--------|------------|
+| --- | --------- | --------- | -------- | ------------ |
 | 1 | **Metrics drift** — 4 contradictory stat sets across Hero, CredibilityStrip, Home About, and AboutPage | `Hero.tsx:348-354`, `CredibilityStrip.tsx:10-14`, `About.tsx:51-60`, `AboutStats.tsx:63-66` | 1.5hr | 🏗️ Fullstack |
 | 4 | Missing `FixedSocialBar` on 3 slug pages (ServiceCategory, ServiceDetail, BlogDetail) — or move to PublicLayout | `ServiceCategoryPage.tsx`, `ServiceDetailPage.tsx`, `BlogDetailPage.tsx`, `PublicLayout.tsx` | 15min | 🏗️ Fullstack |
 | 2 | **BlogDetailPage** — 20+ inline `style={{ color: CRIMSON }}` using JS constant instead of Tailwind `text-site-crimson` | `BlogDetailPage.tsx` | 2hr | 🎨 UI/UX + 🏗️ Fullstack |
@@ -43,7 +43,7 @@ Low cognitive load, no architectural decisions needed. Pick any.
 **Theme:** These are WCAG 2.1 AA violations that block keyboard-only and screen reader users entirely.
 
 | # | Finding | File(s) | Effort | Agent Type |
-|---|---------|---------|--------|------------|
+| --- | --------- | --------- | -------- | ------------ |
 | 22 | **No focus traps on any modal/dialog** — GalleryLightbox, LeadDetailSheet, ConfirmDialog, PortfolioFormDialog, HeroMediaPickerModal, BlogEditorForm | `GalleryLightbox.tsx`, `AdminLeads.tsx`, `ConfirmDialog.tsx`, `PortfolioFormDialog.tsx`, `HeroMediaPickerModal.tsx` | 2hr | 🏗️ Fullstack |
 | 17 | **Lightbox modal focus trapping** — GalleryLightbox allows tab focus behind backdrop | `GalleryLightbox.tsx` | 20min | 🏗️ Fullstack |
 | — | SkipNav missing from public layout | `PublicLayout.tsx` | 15min | 🏗️ Fullstack |
@@ -59,7 +59,7 @@ Low cognitive load, no architectural decisions needed. Pick any.
 **Theme:** 4 different CRUD patterns, 2 toast systems, 3 confirmation dialog patterns.
 
 | # | Finding | File(s) | Effort | Agent Type |
-|---|---------|---------|--------|------------|
+| --- | --------- | --------- | -------- | ------------ |
 | 27 | **Universal Admin CRUD Unification** — Standardize on React Query + `useToast` + `ConfirmDialog` across all admin modules | `AdminServices.tsx`, `AdminTestimonials.tsx`, `AdminHero.tsx`, `AdminBeforeAndAfter.tsx`, `AdminSiteAssets.tsx`, `AdminGallery.tsx` | 4hr | 🏗️ Fullstack + 🔧 Backend |
 | 5 | AdminSiteAssets uses `useState+useEffect` instead of React Query | `AdminSiteAssets.tsx` | 30min | 🏗️ Fullstack |
 | 20 | Inconsistent CMS CRUD form and fetching patterns | All admin CMS modules | 3hr | 🏗️ Fullstack |
@@ -68,6 +68,7 @@ Low cognitive load, no architectural decisions needed. Pick any.
 **Total effort:** ~5-6hr (can parallelize)
 
 **Agent handoff note:** This is the largest phase. Break into sub-phases:
+
 - 3a. Migrate 5 remaining pages to React Query (AdminServices, AdminHero, AdminTestimonials, AdminBeforeAndAfter, AdminSiteAssets)
 - 3b. Standardize confirmation dialogs (`window.confirm()` → `ConfirmDialog`)
 - 3c. Unify button/input imports across all admin pages
@@ -94,7 +95,7 @@ Low cognitive load, no architectural decisions needed. Pick any.
 **Theme:** Individually small but collectively impactful.
 
 | # | Finding | File(s) | Effort | Agent Type |
-|---|---------|---------|--------|------------|
+| --- | --------- | --------- | -------- | ------------ |
 | 15 | Category filter URL parameter persistence (Portfolio/Services) | `ProjectArchive.tsx`, `ServicesPage.tsx` | 30min | 🏗️ Fullstack |
 | 18 | Admin Layout deep route breadcrumbs/TopBar missing | `AdminLayout.tsx` | 45min | 🏗️ Fullstack |
 | 10 | BlueprintPage.css monolithic — 1000+ lines redefining brand colors | `BlueprintPage.css` | 3hr | 🎨 UI/UX + 🏗️ Fullstack |
@@ -111,7 +112,7 @@ Low cognitive load, no architectural decisions needed. Pick any.
 **Theme:** Without these, code quality will keep degrading. Do this after urgent UX fixes.
 
 | # | Finding | File(s) | Effort | Agent Type |
-|---|---------|---------|--------|------------|
+| --- | --------- | --------- | -------- | ------------ |
 | 26 | **No pre-commit hooks** — No husky, no lint-staged, no CI | Root config | 1hr | 🛠️ DevOps |
 | 26b | **TypeScript strictness** — `strictNullChecks: false`, `noImplicitAny: false` at app level | `apps/web/tsconfig.json` | 1hr | 🏗️ Fullstack + 🛠️ DevOps |
 | 26c | **ESLint critical rules off** — `no-unused-vars: off`, no a11y plugin, no import ordering | `eslint.config.js` | 1hr | 🏗️ Fullstack + 🛠️ DevOps |
@@ -125,7 +126,7 @@ Low cognitive load, no architectural decisions needed. Pick any.
 ## Orchestration Summary
 
 | Phase | Focus | Total Effort | Agent Type | Dependency |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | 0 | Quick confidence restorers | ~1hr | Any | None |
 | 1 | Trust & credibility (metrics, social, colors) | ~3.5hr | 🏗️ Fullstack + 🎨 UI/UX | None |
 | 2 | Keyboard & screen reader (focus traps, skipnav) | ~2.5hr | 🏗️ Fullstack | None |
@@ -137,10 +138,12 @@ Low cognitive load, no architectural decisions needed. Pick any.
 **Total estimated effort:** ~22-24hr across all 6 phases
 
 ### Can Parallelize
+
 - Phase 0 + Phase 1 + Phase 2 + Phase 5 (independent, different files)
 - Phase 3 + Phase 6 can start after Phase 2 (same agent type may conflict)
 
 ### Must Be Sequential
+
 - Phase 4 depends on Phase 3 (optimistic updates need React Query base)
 - Phase 6b (strictNullChecks) depends on Phase 3 (manual fetch pages would break)
 
@@ -151,7 +154,7 @@ Low cognitive load, no architectural decisions needed. Pick any.
 Each roadmap item is already mapped to a slash command ready for execution:
 
 | Command | Phase | Effort | Agent |
-|---------|-------|--------|-------|
+| --------- | ------- | -------- | ------- |
 | `/align_metrics` | 1 | 1.5hr | Fullstack |
 | `/fix_services_hero` | 0 | 10min | UI/UX |
 | `/align_estimator_accents` | 0 | 15min | UI/UX |

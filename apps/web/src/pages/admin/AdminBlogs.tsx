@@ -1,19 +1,21 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { FileText, Plus, Pencil, LayoutGrid, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 
-import { Input } from "@/components/ui/primitives/input";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { Button } from "@/components/ui/primitives/button";
 import { BlogList } from "@/components/admin/blogs/BlogList";
 import { BlogEditorForm } from "@/components/admin/blogs/BlogEditorForm";
 import { BlogPost } from "@/types/blog";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/useToast";
+import { captureException } from "@/lib/sentry";
 
 const AdminBlogs = () => {
   const [searchParams] = useSearchParams();
   const editSlug = searchParams.get("edit");
   const deepLinkHandled = useRef(false);
+  const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState("all");
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
@@ -24,7 +26,12 @@ const AdminBlogs = () => {
     const handleDeepLink = async () => {
       if (editSlug && !deepLinkHandled.current) {
         deepLinkHandled.current = true;
-        const { data } = await supabase.from('blog_posts').select('*').eq('slug', editSlug).single();
+        const { data, error } = await supabase.from('blog_posts').select('*').eq('slug', editSlug).single();
+        if (error) {
+          toast({ title: "Error", description: "Could not load blog post for editing.", variant: "destructive" });
+          captureException(error, { tags: { area: "admin-blogs" }, extra: { slug: editSlug } });
+          return;
+        }
         if (data) {
           setEditingPost(data as unknown as BlogPost);
           setActiveTab("editor");
@@ -32,7 +39,7 @@ const AdminBlogs = () => {
       }
     };
     void handleDeepLink();
-  }, [editSlug]);
+  }, [editSlug, toast]);
 
   const handleEdit = (post: BlogPost) => {
     setEditingPost(post);

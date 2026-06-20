@@ -90,17 +90,20 @@ export default function TiltedCard({
     }
 
     return (
-        <figure
+        <div
             ref={ref}
+            role="button"
+            tabIndex={onClick ? 0 : undefined}
             className={`relative w-full h-full [perspective:800px] flex flex-col items-center justify-center ${onClick ? 'cursor-pointer' : ''}`}
-            style={{
-                height: containerHeight,
-                width: containerWidth
-            }}
             onMouseMove={handleMouse}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onClick={onClick}
+            onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
+            style={{
+                height: containerHeight,
+                width: containerWidth
+            }}
         >
             {showMobileWarning && (
                 <div className="absolute top-4 text-center text-sm block sm:hidden">
@@ -136,7 +139,7 @@ export default function TiltedCard({
             </motion.div>
 
             {showTooltip && (
-                <motion.figcaption
+                <motion.div
                     className="pointer-events-none absolute left-0 top-0 rounded-[4px] bg-white px-[10px] py-[4px] text-[10px] text-[#2d2d2d] opacity-0 z-[3] hidden sm:block"
                     style={{
                         x,
@@ -146,8 +149,8 @@ export default function TiltedCard({
                     }}
                 >
                     {captionText}
-                </motion.figcaption>
+                </motion.div>
             )}
-        </figure>
+        </div>
     );
 }

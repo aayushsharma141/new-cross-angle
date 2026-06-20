@@ -8,9 +8,6 @@ import {
     Mail,
     Tag,
     RefreshCw,
-    Scroll,
-    Clock,
-    Eye,
     BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";

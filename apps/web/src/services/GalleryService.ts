@@ -39,7 +39,7 @@ export class GalleryService {
   async createCategory(payload: Partial<GalleryCategory>): Promise<GalleryCategory> {
     const { data, error } = await supabase
       .from('gallery_categories')
-      .insert(payload)
+      .insert(payload as any)
       .select()
       .single();
 
@@ -50,7 +50,7 @@ export class GalleryService {
   async updateCategory(id: string, payload: Partial<GalleryCategory>): Promise<GalleryCategory> {
     const { data, error } = await supabase
       .from('gallery_categories')
-      .update(payload)
+      .update(payload as any)
       .eq('id', id)
       .select()
       .single();
@@ -112,7 +112,7 @@ export class GalleryService {
   async createGalleryItem(payload: Partial<GalleryItem>): Promise<GalleryItem> {
     const { data, error } = await supabase
       .from('gallery_items')
-      .insert(payload)
+      .insert(payload as any)
       .select()
       .single();
 
@@ -123,7 +123,7 @@ export class GalleryService {
   async updateGalleryItem(id: string, payload: Partial<GalleryItem>): Promise<GalleryItem> {
     const { data, error } = await supabase
       .from('gallery_items')
-      .update(payload)
+      .update(payload as any)
       .eq('id', id)
       .select()
       .single();

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, Cookie, Lock, ShieldCheck, X } from "lucide-react";
+import { ChevronLeft, Cookie, Lock, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useCookieConsent } from "./CookieConsentProvider";
 

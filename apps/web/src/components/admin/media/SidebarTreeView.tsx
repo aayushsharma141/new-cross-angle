@@ -21,18 +21,24 @@ export function SidebarTreeView({ folders, currentFolderId, onSelect }: SidebarT
     return (
       <div className="w-full">
         <div
+          role="button"
+          tabIndex={0}
           className={`flex items-center group cursor-pointer px-2 py-1.5 rounded-md text-sm transition-colors ${
             isSelected ? "bg-admin-primary/10 text-admin-primary font-medium" : "text-admin-text hover:bg-admin-surface"
           }`}
           style={{ paddingLeft: `${level * 12 + 8}px` }}
           onClick={() => onSelect(folder)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(folder); } }}
         >
           <div
+            role="button"
+            tabIndex={0}
             className="w-4 h-4 mr-1 flex items-center justify-center cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               setExpanded(!expanded);
             }}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); setExpanded(!expanded); } }}
           >
             {children.length > 0 ? (
               expanded ? (
@@ -64,10 +70,13 @@ export function SidebarTreeView({ folders, currentFolderId, onSelect }: SidebarT
         Folders
       </div>
       <div
+        role="button"
+        tabIndex={0}
         className={`flex items-center cursor-pointer px-2 py-1.5 rounded-md text-sm transition-colors mb-2 ${
           currentFolderId === null ? "bg-admin-primary/10 text-admin-primary font-medium" : "text-admin-text hover:bg-admin-surface"
         }`}
         onClick={() => onSelect(null)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(null); } }}
       >
         <div className="w-4 h-4 mr-1" />
         <Folder className={`w-4 h-4 mr-2 ${currentFolderId === null ? "text-admin-primary" : "text-admin-text-subtle"}`} />

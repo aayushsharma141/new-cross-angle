@@ -107,17 +107,4 @@ export const getOptimizedSrcSet = (
     .join(', ');
 };
 
-/**
- * Returns a low-quality image placeholder (LQIP) URL — a 20px-wide blurred
- * thumbnail for use as a `src` before the full image loads.
- *
- * Usage:
- *   const lqip = getBlurPlaceholder(imageUrl);
- *   <img src={lqip} ... />
- */
-export const getBlurPlaceholder = (
-  url: string | undefined,
-  blurAmount = 10,
-): string => {
-  return getOptimizedUrl(url, { width: 20, quality: 20, blur: blurAmount, format: 'webp' });
-};
+

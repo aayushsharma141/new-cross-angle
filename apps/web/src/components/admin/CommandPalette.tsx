@@ -9,16 +9,11 @@ import {
   Settings, 
   Image, 
   FolderOpen,
-  MessageSquare,
   Calculator,
   ChevronRight,
   Plus,
-  Edit,
-  Trash2,
-  ExternalLink,
   LayoutDashboard,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { usePermissions } from '@/hooks/usePermissions';
 import { ADMIN_ROUTES } from '@/lib/admin-routes';
 

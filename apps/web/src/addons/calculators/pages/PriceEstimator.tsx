@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Compass,
   LayoutGrid,
-  MessageSquareText,
   PaintBucket,
   PenTool,
   Sparkles,
@@ -17,7 +16,7 @@ import logoIcon from "@/assets/logo-icon.png";
 import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
 import EstimatorCard from "@/components/estimator/EstimatorCard";
 import { CostEstimator } from "@/addons/calculators/components/CostEstimator";
-import { EstimatorBackground } from "@/addons/_shared/components/backgrounds/EstimatorBackground";
+
 import { MagicRings, SoftAurora, FallingText, Magnet } from "@/components/ReactBits";
 import { loadDiscoveryResult } from "@/addons/discovery/core/persistence";
 import { ECOSYSTEM_COPY, ECOSYSTEM_ROUTES } from "@/addons/_shared/ecosystemCopy";
@@ -57,20 +56,6 @@ const CostEstimatorPage = () => {
     }
   ];
 
-  const ecosystemSteps = [
-    {
-      icon: <Compass className="w-5 h-5 text-[#233526]" />,
-      ...ECOSYSTEM_COPY.discoveryRole,
-    },
-    {
-      icon: <Sparkles className="w-5 h-5 text-[#8b6f47]" />,
-      ...ECOSYSTEM_COPY.estimatorRole,
-    },
-    {
-      icon: <MessageSquareText className="w-5 h-5 text-[#233526]" />,
-      ...ECOSYSTEM_COPY.consultationRole,
-    },
-  ];
 
   if (selectedPath) {
     return (

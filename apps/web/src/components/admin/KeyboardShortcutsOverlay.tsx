@@ -40,6 +40,8 @@ const SHORTCUT_GROUPS: { heading: string; items: Shortcut[] }[] = [
     },
 ];
 
+const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
 interface KeyboardShortcutsOverlayProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -66,9 +68,9 @@ export function KeyboardShortcutsOverlay({ open, onOpenChange }: KeyboardShortcu
 
                 <div className="space-y-5 py-2">
                     {SHORTCUT_GROUPS.map((group) => (
-                        <section key={group.heading} aria-labelledby={`kbd-group-${group.heading}`}>
+                        <section key={group.heading} aria-labelledby={`kbd-group-${slugify(group.heading)}`}>
                             <h3
-                                id={`kbd-group-${group.heading}`}
+                                id={`kbd-group-${slugify(group.heading)}`}
                                 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-admin-muted"
                             >
                                 {group.heading}

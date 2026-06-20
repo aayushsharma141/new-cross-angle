@@ -9,7 +9,6 @@ import { DEFAULT_PRICING_CONFIG } from "../data/pricing-config";
 import { loadDiscoveryResult } from "@/addons/discovery/core/persistence";
 import { getEstimatorPreFill } from "../data/archetype-mapping";
 import { buildDiscoveryHandoff } from "../data/discovery-handoff";
-import { computeEstimate } from "../data/estimator-engine";
 import { runALCSPipeline } from "../data/engines";
 import type { OrchestratorOutput } from "../data/engines";
 import type { DiscoveryHandoff, EstimatorResponse } from "../data/discovery-handoff";

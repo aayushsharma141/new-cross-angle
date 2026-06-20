@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { usePermissions } from "@/hooks/usePermissions";
 
@@ -45,7 +45,7 @@ const AdminHero = () => {
     const queryClient = useQueryClient();
 
     const [items, setItems] = useState<HeroMediaItem[]>([]);
-    const [isSaving, setIsSaving] = useState(false);
+
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<HeroMediaItem | null>(null);
     const [previewItem, setPreviewItem] = useState<HeroMediaItem | null>(null);
@@ -99,7 +99,7 @@ const AdminHero = () => {
 
     /* ─── Add ─── */
     const addMutation = useMutation({
-        mutationFn: async (payload: any) => {
+        mutationFn: async (payload: Record<string, unknown>) => {
             const { error } = await supabase.from("hero_media").insert(payload);
             if (error) throw error;
         },
@@ -171,7 +171,7 @@ const AdminHero = () => {
     };
 
     const updateMutation = useMutation({
-        mutationFn: async ({ id, updatePayload }: { id: string, updatePayload: any }) => {
+        mutationFn: async ({ id, updatePayload }: { id: string, updatePayload: Record<string, unknown> }) => {
             const { error } = await supabase
                 .from("hero_media")
                 .update(updatePayload)
@@ -516,7 +516,7 @@ const AdminHero = () => {
                         className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
                         onClick={() => setPreviewItem(null)}
                     >
-                        <div className="max-w-5xl w-full mx-4 relative" onClick={(e) => e.stopPropagation()}>
+                        <div className="max-w-5xl w-full mx-4 relative" role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') e.stopPropagation(); }} onClick={(e) => e.stopPropagation()}>
                             {/* Close */}
                             <Button
                                 variant="ghost"

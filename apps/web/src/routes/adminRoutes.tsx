@@ -1,5 +1,5 @@
 import { Navigate, Route } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import { lazy } from "react";
 import { RoleGuard } from "@/components/admin/RoleGuard";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import AdminAuth from "@/pages/admin/AdminAuth";
@@ -24,7 +24,6 @@ const AdminPricingConfig = lazy(() => import("@/pages/admin/AdminPricingConfig")
 const AdminHero = lazy(() => import("@/pages/admin/AdminHero"));
 const AdminGallery = lazy(() => import("@/pages/admin/AdminGallery"));
 const AdminBeforeAndAfter = lazy(() => import("@/pages/admin/AdminBeforeAndAfter"));
-const AdminStats = lazy(() => import("@/pages/admin/AdminStats"));
 const AdminMilestones = lazy(() => import("@/pages/admin/AdminMilestones"));
 const AdminProcessSteps = lazy(() => import("@/pages/admin/AdminProcessSteps"));
 const AdminSiteAssets = lazy(() => import("@/pages/admin/AdminSiteAssets"));

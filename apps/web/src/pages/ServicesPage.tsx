@@ -5,7 +5,6 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 import ScrollToTop from "@/components/layout/ScrollToTop";
-import { LogoAnimation } from "@/components/shared/LogoAnimation";
 import ServicesHero from "@/components/services/ServicesHero";
 import ServicesMarquee from "@/components/services/ServicesMarquee";
 import ServicesWhyUs from "@/components/services/ServicesWhyUs";
@@ -18,7 +17,6 @@ import ServicesInvestmentTiers from "@/components/services/ServicesInvestmentTie
 import ServicesTransformations from "@/components/services/ServicesTransformations";
 import ServicesProcess from "@/components/services/ServicesProcess";
 import ServicesFAQ from "@/components/services/ServicesFAQ";
-import ServicesFinalCTA from "@/components/services/ServicesFinalCTA";
 import { Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed, LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -90,6 +88,7 @@ const ServicesPage = () => {
 
   return (
     <>
+      <h1 className="sr-only">Our Services | Cross Angle Interior</h1>
       <Helmet>
         <title>Services | CrossAngle Interior</title>
         <meta
@@ -223,7 +222,7 @@ const ServicesPage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.05] border border-white/[0.05] overflow-hidden rounded-2xl">
-              {commercialServices.map((service, i) => {
+              {commercialServices.map((service) => {
                 const Icon = (service.icon ? IconMap[service.icon as keyof typeof IconMap] : undefined) || Building2;
                 return (
                   <Link to={`/services/${service.category_id}/${service.slug}`} key={service.id} className="group relative bg-black p-10 lg:p-16 overflow-hidden transition-all duration-500 hover:bg-[#080808]">
@@ -323,7 +322,6 @@ const ServicesPage = () => {
         <ServicesWhyUs />
         <ProcessTeaser />
         <ServicesFAQ />
-        <ServicesFinalCTA />
         <ServicesCTA />
       </main>
       <Footer />

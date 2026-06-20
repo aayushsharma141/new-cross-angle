@@ -1,31 +1,23 @@
 import { useEffect, useState, lazy, Suspense, type JSX, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import {
   Plus,
   Layers,
   ArrowRight,
   Send,
   Package,
-  Globe,
-  Activity,
-  BarChart3,
   Download,
   Loader2,
 } from "lucide-react";
 import { QuickActionButton } from "@/components/admin/QuickActions";
-import { Button } from "@/components/ui/primitives/button";
 import { CalendarDateRangePicker } from "@/components/ui/enhanced/date-range-picker";
 import { useToast } from "@/hooks/useToast";
 import { DateRange } from "react-day-picker";
 import { subDays, endOfDay } from "date-fns";
 import { useSystem } from "@/context/SystemContext";
 import { ModuleLayout, ModuleActions } from "@/components/admin/layout/ModuleLayout";
-import { useAdminDisplayName } from "@/hooks/useAdminDisplayName";
-import { usePermissions } from "@/hooks/usePermissions";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { supabase } from "@/integrations/supabase/client";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const OverviewTab = lazy(() => import("./tabs/OverviewTab"));
 const TrafficTab = lazy(() => import("./tabs/TrafficTab"));
@@ -54,7 +46,7 @@ const downloadCsv = (filename: string, rows: string[][]): void => {
   URL.revokeObjectURL(url);
 };
 
-const TabFallback = ({ label }: { label: string }) => (
+const TabFallback = () => (
   <div className="flex items-center justify-center h-64">
     <Loader2 className="w-8 h-8 animate-spin text-admin-primary/50" />
   </div>
@@ -64,7 +56,7 @@ const AdminDashboard = (): JSX.Element => {
   const { toast } = useToast();
   const { health, refreshHealth } = useSystem();
   const { displayName } = useAdminDisplayName();
-  const { can, role } = usePermissions();
+  const { can } = usePermissions();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get("tab") as TabType) || "overview";
   

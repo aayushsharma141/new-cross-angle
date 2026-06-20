@@ -116,7 +116,7 @@ export const DiscoveryProgressSidebar = ({
                     aria-hidden="true"
                 />
                 <ol className="space-y-4 relative z-10 m-0 p-0 list-none flex-1">
-                {PHASES.map(({ id, label, eyebrow, stages }, phaseIndex) => {
+                {PHASES.map(({ id, label, eyebrow, stages }) => {
                     const isActive = stages.includes(currentStage);
                     const isCompleted = currentStage > Math.max(...stages);
                     // We only allow navigation back to the START of a phase for simplicity, or we can just disable jumping.
@@ -127,40 +127,40 @@ export const DiscoveryProgressSidebar = ({
                     return (
                         <li 
                             key={id}
-                            {...(isClickable ? { role: "button" } : {})}
-                            tabIndex={isClickable ? 0 : undefined}
                             aria-current={isActive ? "step" : undefined}
-                            aria-label={`Phase ${parseInt(eyebrow, 10)}: ${label}${isCompleted ? " (completed)" : isActive ? " (current)" : ""}`}
-                            onClick={() => isClickable && onNavigate(firstStage)}
-                            onKeyDown={(e) => {
-                                if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
-                                    e.preventDefault();
-                                    onNavigate(firstStage);
-                                }
-                            }}
                             className={cn(
-                                "flex flex-col gap-2 py-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2 rounded-md px-2 -mx-2",
+                                "flex flex-col gap-2 py-2 transition-all duration-200 rounded-md px-2 -mx-2",
                                 isClickable ? "cursor-pointer group" : "cursor-default"
                             )}
                         >
-                            <div className="flex items-center gap-3">
-                                <div className={cn(
-                                    "w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center text-[11px] font-semibold shrink-0 transition-all duration-300 bg-white",
-                                    isActive 
-                                        ? "border-[#8b6f47] bg-[#8b6f47] text-white shadow-[0_0_8px_rgba(209,175,110,0.4)]" 
-                                        : isCompleted 
-                                            ? "border-[#8b6f47] text-[#8b6f47]" 
-                                            : "border-[#e8e4dd] text-[#5a5a5a]/40",
-                                    isClickable && !isActive && "group-hover:border-[#8b6f47] group-hover:text-[#8b6f47]"
-                                )} aria-hidden="true">
-                                    {isCompleted ? "✓" : parseInt(eyebrow, 10)}
+                            <button
+                                type="button"
+                                aria-label={`Phase ${parseInt(eyebrow, 10)}: ${label}${isCompleted ? " (completed)" : isActive ? " (current)" : ""}`}
+                                onClick={() => isClickable && onNavigate(firstStage)}
+                                className={cn(
+                                    "w-full text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2 rounded-md flex flex-col gap-2 bg-transparent border-0 p-0",
+                                    isClickable ? "cursor-pointer group" : "cursor-default"
+                                )}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className={cn(
+                                        "w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center text-[11px] font-semibold shrink-0 transition-all duration-300 bg-white",
+                                        isActive 
+                                            ? "border-[#8b6f47] bg-[#8b6f47] text-white shadow-[0_0_8px_rgba(209,175,110,0.4)]" 
+                                            : isCompleted 
+                                                ? "border-[#8b6f47] text-[#8b6f47]" 
+                                                : "border-[#e8e4dd] text-[#5a5a5a]/40",
+                                        isClickable && !isActive && "group-hover:border-[#8b6f47] group-hover:text-[#8b6f47]"
+                                    )} aria-hidden="true">
+                                        {isCompleted ? "✓" : parseInt(eyebrow, 10)}
+                                    </div>
+                                    <span className={cn(
+                                        "text-[14px] transition-colors",
+                                        isActive ? "text-[#1a1a1a] font-semibold" : isCompleted ? "text-[#8b6f47]" : "text-[#5a5a5a]/40",
+                                        isClickable && !isActive && "group-hover:text-[#8b6f47]"
+                                    )}>{label}</span>
                                 </div>
-                                <span className={cn(
-                                    "text-[14px] transition-colors",
-                                    isActive ? "text-[#1a1a1a] font-semibold" : isCompleted ? "text-[#8b6f47]" : "text-[#5a5a5a]/40",
-                                    isClickable && !isActive && "group-hover:text-[#8b6f47]"
-                                )}>{label}</span>
-                            </div>
+                            </button>
 
                             {/* Optional: sub-steps indicator when active */}
                             <AnimatePresence>

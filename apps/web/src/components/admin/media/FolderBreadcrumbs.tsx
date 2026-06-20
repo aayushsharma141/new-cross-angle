@@ -22,7 +22,7 @@ export const FolderBreadcrumbs = ({
         Root
       </button>
 
-      {folderPath.map((folder, index) => (
+      {folderPath.map((folder) => (
         <div key={folder.id} className="flex items-center space-x-2">
           <ChevronRight className="w-4 h-4 text-admin-border" />
           <button

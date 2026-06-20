@@ -77,23 +77,6 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
 
     const archetype = useMemo(() => getArchetype(scores), [scores]);
 
-    // Score-reactive ambient color — shifts based on dominant axis
-    const ambientColor = useMemo(() => {
-        const axes = [
-            { key: "warmth", color: "180, 100, 60" },      // warm amber
-            { key: "minimalism", color: "200, 200, 220" },  // cool silver
-            { key: "novelty", color: "160, 80, 200" },      // creative purple
-            { key: "social", color: "100, 180, 160" },      // social teal
-            { key: "structure", color: "80, 120, 200" },    // structured blue
-        ] as const;
-        let max = 0;
-        let dominant: (typeof axes)[number] = axes[0];
-        for (const a of axes) {
-            const v = scores[a.key as keyof typeof scores];
-            if (v > max) { max = v; dominant = a; }
-        }
-        return dominant.color;
-    }, [scores]);
 
     const handleRetake = useCallback(() => {
             analyticsTrack("cta_clicked", { ctaId: "retake_quiz", destination: "quiz_start" });
@@ -159,7 +142,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
         if (intent) {
             setSignals((prev) => ({ ...prev, intent }));
         }
-        const sid = startSession(m);
+        const sid = startSession();
         setSessionId(sid);
         setStartTime(Date.now());
         trackQuizStarted(analyticsTrack, sid, m);
@@ -324,7 +307,6 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
     const currentSignals: UserSignals = { ...signals, scores: normalizedScores };
 
     const isQuizStage = stage > Stage.Welcome && stage < Stage.Results;
-    const isResultsStage = stage === Stage.Results || stage === Stage.LeadCapture;
 
     return (
         <div className={cn(

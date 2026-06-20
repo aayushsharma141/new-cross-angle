@@ -5,7 +5,7 @@
 **Viewport:** 1440x900
 
 | Page | Est. Perf | FCP | LCP | CLS | DOM | Resources | H1/H2/H3 | Img no alt |
-|------|-----------|-----|-----|-----|-----|-----------|----------|------------|
+| ------ | ----------- | ----- | ----- | ----- | ----- | ----------- | ---------- | ------------ |
 | homepage | 100/100 | 1.5s | 2.3s | 0.0204 | 567 | 182 (17867 KB) | 1/2/3 | 0 |
 | services-hub | 100/100 | 0.4s | 1.6s | 0.0003 | 999 | 179 (7563 KB) | 1/10/3 | 0 |
 | service-category | 100/100 | 0.4s | 1.6s | 0.0000 | 471 | 163 (156 KB) | 1/3/3 | 0 |
@@ -15,13 +15,13 @@
 
 ## homepage
 
-- **URL:** http://localhost:8080/
+- **URL:** <http://localhost:8080/>
 - **Title:** Crossangle Interior | Premium Interior Design Studio in Jamshedpur
 
 ### Web Vitals
 
 | Metric | Value | Threshold |
-|--------|-------|-----------|
+| -------- | ------- | ----------- |
 | FCP | 1.5s | < 1.8s Good, < 3.0s Needs Improve |
 | LCP | 2.3s | < 2.5s Good, < 4.0s Needs Improve |
 | CLS | 0.0204 | < 0.1 Good, < 0.25 Needs Improve |
@@ -44,13 +44,13 @@
 
 ## services-hub
 
-- **URL:** http://localhost:8080/services
+- **URL:** <http://localhost:8080/services>
 - **Title:** Services | CrossAngle Interior
 
 ### Web Vitals
 
 | Metric | Value | Threshold |
-|--------|-------|-----------|
+| -------- | ------- | ----------- |
 | FCP | 0.4s | < 1.8s Good, < 3.0s Needs Improve |
 | LCP | 1.6s | < 2.5s Good, < 4.0s Needs Improve |
 | CLS | 0.0003 | < 0.1 Good, < 0.25 Needs Improve |
@@ -73,13 +73,13 @@
 
 ## service-category
 
-- **URL:** http://localhost:8080/services/residential
+- **URL:** <http://localhost:8080/services/residential>
 - **Title:** Residential Design services | Cross Angle Interior
 
 ### Web Vitals
 
 | Metric | Value | Threshold |
-|--------|-------|-----------|
+| -------- | ------- | ----------- |
 | FCP | 0.4s | < 1.8s Good, < 3.0s Needs Improve |
 | LCP | 1.6s | < 2.5s Good, < 4.0s Needs Improve |
 | CLS | 0.0000 | < 0.1 Good, < 0.25 Needs Improve |
@@ -102,13 +102,13 @@
 
 ## service-detail
 
-- **URL:** http://localhost:8080/services/residential/living-room
+- **URL:** <http://localhost:8080/services/residential/living-room>
 - **Title:** Living Room Design - Residential Design | Cross Angle Interior
 
 ### Web Vitals
 
 | Metric | Value | Threshold |
-|--------|-------|-----------|
+| -------- | ------- | ----------- |
 | FCP | 0.4s | < 1.8s Good, < 3.0s Needs Improve |
 | LCP | 1.9s | < 2.5s Good, < 4.0s Needs Improve |
 | CLS | 0.0000 | < 0.1 Good, < 0.25 Needs Improve |
@@ -128,4 +128,3 @@
 ![Screenshot](./service-detail.png)
 
 ---
-

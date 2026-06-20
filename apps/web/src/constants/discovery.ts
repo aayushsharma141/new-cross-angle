@@ -1,4 +1,4 @@
-import { LifestyleQuestion, MaterialOption, Archetype, VisualImage, AestheticScores } from "@/types/discovery";
+import { LifestyleQuestion, MaterialOption, VisualImage } from "@/types/discovery";
 import visual1 from "@/assets/discovery/visual-1.jpg";
 import visual2 from "@/assets/discovery/visual-2.jpg";
 import visual3 from "@/assets/discovery/visual-3.jpg";
@@ -25,7 +25,6 @@ import lifestyle5 from "@/assets/discovery/lifestyle-5.jpg";
 import lifestyle6 from "@/assets/discovery/lifestyle-6.jpg";
 import lifestyle7 from "@/assets/discovery/lifestyle-7.jpg";
 import lifestyle8 from "@/assets/discovery/lifestyle-8.jpg";
-import lifestyle9 from "@/assets/discovery/lifestyle-9.jpg";
 
 export const TOTAL_STAGES = 16;
 
@@ -33,12 +32,6 @@ export const ADJECTIVE_OPTIONS = [
   "Calm", "Structured", "Bold", "Playful", "Elegant",
   "Moody", "Warm", "Minimal", "Eclectic", "Soft",
   "Grounded", "Luxurious", "Organic", "Modern", "Timeless",
-];
-
-const REFLECTION_PROMPTS = [
-  "Where do you feel most at peace?",
-  "Do you gravitate toward warmth or minimalism?",
-  "Do you feel energized by boldness or calmness?",
 ];
 
 export const lifestyleQuestions: LifestyleQuestion[] = [

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useState, useEffect, useMemo } from "react";
-import { Plus, Pencil, Trash2, Loader2, ImagePlus, Briefcase, FileText, Search } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Pencil, Trash2, Briefcase, FileText } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import { Textarea } from "@/components/ui/primitives/textarea";
@@ -21,7 +21,6 @@ import { serviceSchema, formatZodErrors } from "@/lib/validation/validations";
 import { FeaturesEditor, ProcessEditor, FAQEditor } from "@/components/admin/ServiceFormFields";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { AdminFilterBar, AdminSafeAction, AdminEmptyState, AdminSkeletonCard } from "@/components/admin/shared";
-import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { DataLoadingBoundary } from "@/components/ui/enhanced/DataLoadingBoundary";
 import * as LucideIcons from "lucide-react";
@@ -164,7 +163,7 @@ const AdminServices = () => {
     };
 
     const upsertMutation = useMutation({
-        mutationFn: async (payload: any) => {
+        mutationFn: async (payload: Record<string, unknown>) => {
             const { error: rpcError } = await supabase.rpc('upsert_service', payload);
             if (rpcError) throw rpcError;
             return payload;
@@ -320,8 +319,7 @@ const AdminServices = () => {
                     filteredServices.map((service, i) => {
                         const delayClass = `fade-up-${Math.min((i % 4) + 1, 4)}`;
 
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        const ServiceIcon = (LucideIcons as any)[service.icon || "Briefcase"] || LucideIcons.Briefcase;
+                        const ServiceIcon = (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[service.icon || "Briefcase"] || LucideIcons.Briefcase;
 
                         return (
                             <div key={service.id} className={`${delayClass} group`}>

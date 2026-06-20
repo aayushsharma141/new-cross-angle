@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { icons } from '@/design-system/tokens/icons';
-import { Loader2, Plus, Pencil, Trash2, Image as ImageIcon, GripVertical } from 'lucide-react';
+import { Loader2, Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
 import { Input } from '@/components/ui/primitives/input';
 import { Textarea } from '@/components/ui/primitives/textarea';
 import { Label } from '@/components/ui/primitives/label';
-import { Switch } from '@/components/ui/primitives/switch';
 import { Card, CardContent } from '@/components/ui/primitives/card';
 import { useToast } from '@/hooks/useToast';
 import { MediaPicker } from '@/components/admin/media/MediaPicker';
 import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
-import { getOptimizedUrl } from '@/lib/cdn';
 import { Image } from '@/components/ui/enhanced/image';
 import {
     Dialog,

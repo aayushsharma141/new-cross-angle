@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Building2, Home, LayoutTemplate, Layers, Ruler, PaintRoller, Hammer, Home as HomeIcon, MapPin } from 'lucide-react';
+import { Building2, Home, LayoutTemplate, Layers, PaintRoller, Hammer, Home as HomeIcon, MapPin } from 'lucide-react';
 import type { UserSignals } from '@/types/discovery';
 
 interface PropertyRealityProps {
   onComplete: (data: Pick<UserSignals, 'propertyType' | 'carpetArea' | 'projectScope'>) => void;
-  intent?: string;
 }
 
-export default function PropertyReality({ onComplete, intent }: PropertyRealityProps) {
+export default function PropertyReality({ onComplete }: PropertyRealityProps) {
   const [step, setStep] = useState<0 | 1 | 2>(0);
   const [propertyType, setPropertyType] = useState<UserSignals['propertyType']>();
   const [carpetArea, setCarpetArea] = useState<number>(1200);

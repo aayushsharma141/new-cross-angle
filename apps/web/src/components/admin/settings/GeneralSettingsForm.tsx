@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/useToast";
 import { auditService } from "@/services/AuditService";
 import { supabase } from "@/integrations/supabase/client";
 import { siteSettingsSchema, SiteSettingsFormData } from "@/lib/validation/validations";
-import { Loader2, Save, Globe, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageCircle, Plus, Trash2, Send, Clock } from "lucide-react";
+import { Loader2, Globe, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageCircle, Plus, Trash2, Send, Clock } from "lucide-react";
 
 const PinterestIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -213,7 +213,7 @@ function OfficeHoursField({ control }: { control: Control<SiteSettingsFormData> 
 
 export function GeneralSettingsForm() {
     const { toast } = useToast();
-    const [isLoading, setIsLoading] = useState(false);
+    const [, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
 
     const form = useForm<SiteSettingsFormData>({
@@ -370,7 +370,7 @@ export function GeneralSettingsForm() {
         }
     };
 
-    useKeyboardShortcut("s", (e) => {
+    useKeyboardShortcut("s", () => {
         form.handleSubmit(onSubmit)();
     }, { ctrl: true });
 

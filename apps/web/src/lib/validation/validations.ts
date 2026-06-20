@@ -252,11 +252,7 @@ export const generateSlug = (text: string): string => {
         .replace(/^-|-$/g, "");
 };
 
-export const validateSlugUniqueness = async (
-    slug: string,
-    tableName: string,
-    excludeId?: string
-): Promise<boolean> => {
+export const validateSlugUniqueness = async (): Promise<boolean> => {
     // This will be implemented with supabase query
     return true;
 };

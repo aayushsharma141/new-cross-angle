@@ -187,19 +187,6 @@ const mapSupabaseToTestimonial = (item: SupabaseTestimonialItem): Testimonial =>
   };
 };
 
-const mapSupabaseToBlog = (item: SupabaseItem): Blog => {
-  return {
-    id: item.id,
-    title: item.title || 'Untitled',
-    excerpt: item.excerpt || "",
-    image: item.cover_image || item.cover_image_url || "",
-    category: "Interior Design", // Default for now, as schema doesn't have category yet
-    date: new Date(item.created_at || new Date()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-    slug: item.slug || item.id,
-    content: item.content
-  };
-};
-
 const mapSupabaseToServiceDetail = (item: SupabaseItem): ServiceDetail => {
   let descJson: Record<string, unknown> = {};
   if (typeof item.description === 'string') {
@@ -479,7 +466,7 @@ export const api = {
   },
 
   // Stub other methods if used by context, or leave empty
-  createProject: async (_project: Omit<Project, "id">): Promise<Project> => { throw new Error("Read only"); },
-  updateProject: async (_id: string, _updates: Partial<Project>): Promise<Project> => { throw new Error("Read only"); },
-  deleteProject: async (_id: string): Promise<void> => { throw new Error("Read only"); }
+  createProject: async (): Promise<Project> => { throw new Error("Read only"); },
+  updateProject: async (): Promise<Project> => { throw new Error("Read only"); },
+  deleteProject: async (): Promise<void> => { throw new Error("Read only"); }
 };

@@ -361,7 +361,10 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="absolute inset-0 group cursor-pointer"
+                    role="button"
+                    tabIndex={0}
                     onClick={toggleVideo}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleVideo(); } }}
                   >
                     <div
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-[2s] group-hover:scale-105"
@@ -461,8 +464,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                 onTouchStart={e => startDrag(e.touches[0].clientX)}
                 onTouchMove={e => moveDrag(e.touches[0].clientX)}
                 onTouchEnd={endDrag}
-                role="region"
-                aria-roledescription="panorama"
+                role="button"
                 aria-label="Panoramic view of the interior space. Use arrow keys to pan left and right."
                 tabIndex={0}
               >
@@ -606,7 +608,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
             >
               <img
                 src={assets.photos[currentIdx]}
-                alt={`Project interior photo ${currentIdx + 1} of ${assets.photos.length}`}
+                alt={`Project interior view ${currentIdx + 1} of ${assets.photos.length}`}
                 className="w-full h-full object-cover select-none"
               />
 
@@ -666,8 +668,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
               key={idx}
               type="button"
               onClick={() => setCurrentIdx(idx)}
-              role="listitem"
-              aria-label={`View photo ${idx + 1}`}
+              aria-label={`View picture ${idx + 1}`}
               aria-current={currentIdx === idx ? "true" : undefined}
               className={[
                 "flex-shrink-0 w-24 md:w-32 aspect-[16/10] overflow-hidden rounded-lg border transition-all duration-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-site-gold",
@@ -737,7 +738,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
               exit={{ opacity: 0 }}
               transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
               src={assets.photos[currentIdx]}
-              alt={`Fullscreen interior photo ${currentIdx + 1} of ${assets.photos.length}`}
+              alt={`Fullscreen view ${currentIdx + 1} of ${assets.photos.length}`}
               className="max-w-full max-h-[85vh] object-contain rounded-lg border border-white/10 shadow-2xl"
               onClick={e => e.stopPropagation()}
             />

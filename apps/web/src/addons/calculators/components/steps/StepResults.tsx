@@ -1,9 +1,9 @@
 /* Results — Final Estimate Display */
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import type { CalculatorFormData, EstimateResult } from "../data/types";
 import { formatCurrency, formatRange } from "../data/format-utils";
-import { SERVICES as DEFAULT_SERVICES, TIERS as DEFAULT_TIERS, THEME } from "../data/pricing-config";
+import { SERVICES as DEFAULT_SERVICES, THEME } from "../data/pricing-config";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Link } from "react-router-dom";
 import { Home, Calendar, Check, AlertTriangle, PhoneCall, Info, Compass } from "lucide-react";
@@ -47,7 +47,6 @@ function getItemExplanation(label: string, propertyType: string): string {
 
 export function StepResults({ formData, estimate, discoveryApplied = false, discoveryName = "", discoveryRationale = "", alcsEstimatorResponse = null, onReset, onBack }: Props) {
     const { data: services = DEFAULT_SERVICES } = useFlowConfig<typeof DEFAULT_SERVICES>("services");
-    const { data: tiers = DEFAULT_TIERS } = useFlowConfig<typeof DEFAULT_TIERS>("city_tiers");
     const [expandedItemIndex, setExpandedItemIndex] = useState<number | null>(null);
     const [appliedSavings, setAppliedSavings] = useState<number>(0);
 
@@ -88,7 +87,6 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
     }
 
     const svc = services.find(s => s.id === formData.selectedService);
-    const cityLabel = formData.city === 'Other' ? 'Other City' : formData.city;
     const hasBlueprint = discoveryApplied && Boolean(discoveryName);
     const blueprintName = discoveryName || "your Discovery Blueprint";
     const blueprintSummary = hasBlueprint
@@ -483,19 +481,4 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
     );
 }
 
-function Badge({ label, variant = "glass" }: { label: string; variant?: "glass" | "primary" | "gold" }) {
-    const variants = {
-        glass: "bg-white/70 text-[#5a5a5a] border-[#e8e4dd] font-medium backdrop-blur-md",
-        primary: "bg-[#8b6f47]/15 text-[#8b6f47] border-[#8b6f47]/25 font-bold",
-        gold: "bg-[#8b6f47]/15 text-[#8b6f47] border-[#8b6f47]/25 font-bold",
-    };
 
-    return (
-        <span className={cn(
-            "px-4 py-1.5 rounded-[4px] text-[10px] font-black uppercase tracking-wider border",
-            variants[variant]
-        )}>
-            {label}
-        </span>
-    );
-}

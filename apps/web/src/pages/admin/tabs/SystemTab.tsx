@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
 import { RecentActivityFeed } from "@/components/admin/dashboard/RecentActivityFeed";
-import { Activity, Zap, Database, HardDrive, Shield, Server } from "lucide-react";
+import { Database, HardDrive, Shield, Server } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { formatDistanceToNow } from "date-fns";
 import { useSystem } from "@/context/SystemContext";

@@ -83,6 +83,7 @@ const AboutPage = () => {
 
   return (
     <>
+      <h1 className="sr-only">About Cross Angle Interior | Premium Interior Design Studio in Jamshedpur</h1>
       <Helmet>
         <title>About Us | Cross Angle Interior - Premier Interior Design Studio</title>
         <meta

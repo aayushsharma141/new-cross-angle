@@ -1,37 +1,18 @@
-import { useRef, useState, useEffect } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { processMetrics } from "@/data/process";
+import useCountUp from "@/hooks/useCountUp";
 
-function useCountUp(end: number, durationMs: number, active: boolean) {
-  const [value, setValue] = useState(0);
-  const rafRef = useRef<number>(0);
-
-  useEffect(() => {
-    if (!active) return;
-    const start = performance.now();
-    function tick(now: number) {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / durationMs, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.round(eased * end));
-      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
-    }
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [end, durationMs, active]);
-
-  return value;
-}
-
-const MetricItem = ({ metric, isInView, idx }: { metric: { label: string; value: string; suffix?: string }; isInView: boolean; idx: number }) => {
+const MetricItem = ({ metric, idx }: { metric: { label: string; value: string; suffix?: string }; idx: number }) => {
   const numericValue = parseFloat(metric.value.replace(/[^0-9.]/g, ""));
   const isNumeric = !isNaN(numericValue);
-  const countedValue = useCountUp(isNumeric ? numericValue : 0, 1800, isInView);
+  const { count, ref } = useCountUp(isNumeric ? numericValue : 0, { duration: 1800 });
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
       transition={{ duration: 0.6, delay: idx * 0.1 }}
       className="text-center"
     >
@@ -41,7 +22,7 @@ const MetricItem = ({ metric, isInView, idx }: { metric: { label: string; value:
             {metric.value.startsWith("<") && (
               <span className="text-site-gold text-[clamp(1rem,2vw,1.8rem)] mr-1">&lt;</span>
             )}
-            {countedValue}
+            {count}
             {metric.suffix || (metric.value.includes("+") ? "+" : metric.value.includes("★") ? "★" : "")}
           </>
         ) : (
@@ -56,18 +37,12 @@ const MetricItem = ({ metric, isInView, idx }: { metric: { label: string; value:
 };
 
 const TrustStrip = () => {
-  const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "-60px" });
-
   return (
-    <section
-      ref={sectionRef}
-      className="relative bg-[#050505] border-y border-white/[0.05] py-16 md:py-20 overflow-hidden"
-    >
+    <section className="relative bg-[#050505] border-y border-white/[0.05] py-16 md:py-20 overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
           {processMetrics.map((metric, idx) => (
-            <MetricItem key={metric.label} metric={metric} isInView={isInView} idx={idx} />
+            <MetricItem key={metric.label} metric={metric} idx={idx} />
           ))}
         </div>
       </div>

@@ -15,7 +15,7 @@ import type { LifestyleDensityResult } from "./types";
 
 // ─── Positive Scenario Generators ────────────────────────────────────────────
 
-function generatePositives(h: DiscoveryHandoff, space: SpaceAllocationResult, density: LifestyleDensityResult): SimulationScenario[] {
+function generatePositives(h: DiscoveryHandoff, space: SpaceAllocationResult): SimulationScenario[] {
   const positives: SimulationScenario[] = [];
 
   // Hosting scenario
@@ -201,7 +201,7 @@ export function computeRealitySimulation(
   spaceResult: SpaceAllocationResult,
   densityResult: LifestyleDensityResult
 ): RealitySimulationResult {
-  const positives = generatePositives(handoff, spaceResult, densityResult);
+  const positives = generatePositives(handoff, spaceResult);
   const frictions = generateFrictions(handoff, spaceResult, densityResult);
   const futureRisks = assessFutureRisks(handoff, densityResult);
   const livabilityScore = computeLivabilityScore(positives, frictions, futureRisks);

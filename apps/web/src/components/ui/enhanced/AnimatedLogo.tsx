@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface AnimatedLogoProps {
@@ -51,13 +51,11 @@ const interiorLetterVariants: Variants = {
 
 export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
   className,
-  isScrolled,
   textSize,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  const [, setIsHovered] = useState(false);
   const logoRef = useRef<HTMLDivElement>(null);
   const [hoverX, setHoverX] = useState<number | null>(null);
-  const [hoverY, setHoverY] = useState<number | null>(null);
 
   const word1 = "CROSSANGLE";
   const word2 = "INTERIOR";
@@ -70,13 +68,11 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       setHoverX(x);
-      setHoverY(y);
       logo.style.setProperty("--logo-spotlight-x", `${x}px`);
       logo.style.setProperty("--logo-spotlight-y", `${y}px`);
     };
     const handleMouseLeave = () => {
       setHoverX(null);
-      setHoverY(null);
     };
 
     logo.addEventListener("mousemove", handleMouseMove);
@@ -90,6 +86,8 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
   return (
     <div
       ref={logoRef}
+      role="button"
+      tabIndex={0}
       className={cn(
         "relative flex flex-row items-center font-serif font-bold cursor-pointer group shrink-0 logo-hover-container",
         className
@@ -100,6 +98,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         setIsHovered(true);
         setTimeout(() => setIsHovered(false), 800);
       }}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsHovered(true); setTimeout(() => setIsHovered(false), 800); } }}
     >
       {/* Cursor-Reactive Illumination Highlight */}
       <div

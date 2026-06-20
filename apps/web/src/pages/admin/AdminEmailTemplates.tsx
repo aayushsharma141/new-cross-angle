@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { ModuleLayout, ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { Button } from "@/components/ui/primitives/button";
 import { Loader2, Save } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { captureException } from "@/lib/sentry";
 import { supabase } from "@/integrations/supabase/client";
 
 const defaultAutoReplyHtml = `
@@ -25,9 +25,7 @@ const AdminEmailTemplates = () => {
     const [isSaving, setIsSaving] = useState(false);
     
     const [autoReplyHtml, setAutoReplyHtml] = useState(defaultAutoReplyHtml);
-    const [weeklyReportHtml, setWeeklyReportHtml] = useState("Weekly Report templating is managed securely in code. Check back later for visual editor.");
-
-    useEffect(() => {
+        useEffect(() => {
         if (settings?.integrations) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const integrations = settings.integrations as any;
@@ -64,6 +62,7 @@ const AdminEmailTemplates = () => {
             await refetch();
         } catch (error) {
             console.error("Failed to save email templates", error);
+            captureException(error, { tags: { area: "admin-email-templates" } });
             toast({ title: "Failed to update templates", variant: "destructive" });
         } finally {
             setIsSaving(false);
@@ -92,9 +91,9 @@ const AdminEmailTemplates = () => {
                         </p>
 
                         <div className="mb-4">
-                            <label className="text-xs font-semibold uppercase tracking-wider text-admin-text-muted mb-2 block">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-admin-text-muted mb-2 block">
                                 Available Variables:
-                            </label>
+                            </span>
                             <div className="flex flex-wrap gap-2 text-xs">
                                 <span className="bg-admin-background px-2 py-1 rounded border border-admin-border text-admin-primary">
                                     {`{{lead.name}}`}

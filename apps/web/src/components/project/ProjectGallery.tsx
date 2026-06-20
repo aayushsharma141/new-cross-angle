@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import { ChevronLeft, ChevronRight, Play, Maximize2, RotateCw, Image as ImageIcon, Video, Eye, ArrowDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Maximize2, RotateCw, Image as ImageIcon, Video, Eye } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { getOptimizedUrl } from "@/lib/cdn";
 import portfolioBedroom from "@/assets/portfolio-bedroom.jpg";
@@ -89,7 +89,7 @@ const projectAssets: Record<string, {
   }
 };
 
-const ProjectGallery = ({ gallery, title }: ProjectGalleryProps) => {
+const ProjectGallery = ({ title }: ProjectGalleryProps) => {
   const { slug } = useParams<{ slug: string }>();
   const [activeMode, setActiveMode] = useState<"photos" | "video" | "360">("photos");
 
@@ -404,8 +404,13 @@ const ProjectGallery = ({ gallery, title }: ProjectGalleryProps) => {
             className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center"
           >
             <div 
+              role="button"
+              tabIndex={-1}
               className="absolute inset-0 overflow-auto flex items-center justify-center p-6 cursor-zoom-out" 
-              onClick={() => setLightboxOpen(false)}
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setLightboxOpen(false);
+              }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setLightboxOpen(false); } }}
             >
               <button className="absolute top-8 right-8 text-white/60 hover:text-white text-xs uppercase tracking-widest font-mono z-50">
                 Close [ESC]
@@ -415,12 +420,8 @@ const ProjectGallery = ({ gallery, title }: ProjectGalleryProps) => {
                 animate={{ scale: 1 }}
                 exit={{ scale: 0.95 }}
                 src={imagesList[currentIdx]} 
-                alt="Expanded view" 
+                alt="" 
                 className="w-auto max-w-full md:max-w-none max-h-none md:max-h-[85vh] object-contain border border-white/10 shadow-2xl rounded-lg"
-                onClick={(e) => {
-                  // allow pinch zoom to work without closing on mobile if they tap the image
-                  e.stopPropagation();
-                }}
               />
             </div>
           </motion.div>

@@ -150,11 +150,14 @@ export function MediaPicker({ onSelect, trigger }: MediaPickerProps) {
                             {filteredFiles.map((file) => (
                                 <div
                                     key={file.id}
+                                    role="button"
+                                    tabIndex={0}
                                     className={cn(
                                         "group relative aspect-square rounded-lg border overflow-hidden cursor-pointer transition-all hover:border-[hsl(var(--admin-primary))]",
                                         selectedFile === file.url && "ring-2 ring-[hsl(var(--admin-primary))] border-[hsl(var(--admin-primary))]"
                                     )}
                                     onClick={() => setSelectedFile(file.url)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedFile(file.url); } }}
                                 >
                                     <img
                                         src={getOptimizedUrl(file.url, { width: 360, quality: 72 })}

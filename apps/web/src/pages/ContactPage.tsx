@@ -16,6 +16,7 @@ const InteractiveMap = lazy(() => import("@/components/contact/InteractiveMap"))
 const ContactPage = () => {
   return (
     <>
+      <h1 className="sr-only">Contact Us | Cross Angle Interior - Get A Quote</h1>
       <Helmet>
         <title>Contact Us | Cross Angle Interior - Get A Quote</title>
         <meta

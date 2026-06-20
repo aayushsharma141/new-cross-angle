@@ -1,8 +1,7 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion, useInView, useSpring, useMotionValue, AnimatePresence } from "framer-motion";
+import { motion, useInView, useMotionValue, AnimatePresence } from "framer-motion";
 import { ArrowRight, Compass, Calculator, Sparkles, Fingerprint, Palette, Layers, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { DiscoveryBackground } from "@/addons/_shared/components/backgrounds/DiscoveryBackground";
 import { EstimatorBackground } from "@/addons/_shared/components/backgrounds/EstimatorBackground";
 
@@ -251,11 +250,6 @@ const fadeUp = {
   },
 } as const;
 
-const charVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0 },
-} as const;
-
 const fadeIn = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.5, ease: "easeOut" as const } },
@@ -270,9 +264,6 @@ function EngineBlock({ engine }: { engine: Engine }) {
   // Mouse Parallax Logic
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 50, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 50, damping: 20 });
-
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
@@ -567,7 +558,7 @@ export default function ServicesEngines() {
             fontSize: "clamp(1.6rem, 3.5vw, 2.4rem)",
           }}
         >
-          Plan Your Interior Before You Invest.
+          Most studios ask you to book a call. We let you discover your style and estimate your project first.
         </motion.h2>
         
         <motion.p

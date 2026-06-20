@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 interface MediaSlotProps {
   assetKey: string;
@@ -54,14 +55,10 @@ export function MediaSlot({ assetKey, className, fallbackUrl, alt, onLoad }: Med
   }
 
   if (isVideo) {
-    // Auto-generate a high-quality video thumbnail from ImageKit for fast loading/buffering
-    const isImageKit = url.includes("ik.imagekit.io");
-    let poster = undefined;
-    if (isImageKit) {
+    const poster = url.includes("ik.imagekit.io")
       // ImageKit transformation: Start Offset (so) 1 grabs the frame at 1 second
-      // We also add w-1920 to ensure it's a high-res placeholder
-      poster = url.replace('cross-angle/', 'cross-angle/tr:so-1,w-1920/');
-    }
+      ? getOptimizedUrl(url, { width: 1920, quality: 85 }).replace("/tr:", "/tr:so-1,")
+      : undefined;
 
     return (
       <video
@@ -77,15 +74,9 @@ export function MediaSlot({ assetKey, className, fallbackUrl, alt, onLoad }: Med
     );
   }
 
-  // Handle optimized image delivery for 4K
-  let optimizedUrl = url;
-  if (url.includes("ik.imagekit.io")) {
-    optimizedUrl = url.replace('cross-angle/', 'cross-angle/tr:q-100,w-1920/'); // Force max quality + ultra width
-  }
-
   return (
     <img
-      src={optimizedUrl}
+      src={getOptimizedUrl(url, { width: 1920, quality: 100 })}
       alt={alt || assetKey}
       className={cn("w-full h-full object-cover", className)}
       loading="lazy"

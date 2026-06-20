@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, ArrowUp, ArrowDown, ImageIcon, Upload, X, Check, Search } from "lucide-react";
+import { useState } from "react";
+import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, ArrowUp, ArrowDown, ImageIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Image } from "@/components/ui/enhanced/image";
 import { Input } from "@/components/ui/primitives/input";
@@ -19,8 +19,6 @@ import { MediaPicker as CanonicalMediaPicker } from "@/components/admin/media/Me
 import { AdminSafeAction } from "@/components/admin/shared";
 import { AdminFilterBar } from "@/components/admin/shared/AdminFilterBar";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
-const BUCKET = "media";
 
 // ─── Media Input Wrapper ──────────────────────────────────────────────────
 function MediaInput({ value, onChange, label }: { value: string; onChange: (url: string) => void; label: string }) {
@@ -104,7 +102,6 @@ export default function AdminBeforeAndAfter() {
   const queryClient = useQueryClient();
   
   const [searchQuery, setSearchQuery] = useState("");
-  const [saving, setSaving] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(defaultForm);
@@ -169,6 +166,7 @@ export default function AdminBeforeAndAfter() {
       testimonial_quote: form.testimonial_quote.trim() || null,
       testimonial_client_name: form.testimonial_client_name.trim() || null,
       active: form.active,
+      products_used: [],
     };
     
     saveMutation.mutate(payload);
@@ -186,8 +184,8 @@ export default function AdminBeforeAndAfter() {
     }
   });
 
-  const handleDelete = (id: string) => {
-    deleteMutation.mutate(id);
+  const handleDelete = async (id: string) => {
+    await deleteMutation.mutateAsync(id);
   };
 
   const toggleMutation = useMutation({

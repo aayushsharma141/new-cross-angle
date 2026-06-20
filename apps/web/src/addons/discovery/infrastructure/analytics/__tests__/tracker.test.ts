@@ -26,8 +26,8 @@ const makeTrack = () => vi.fn() as unknown as TrackFn & ReturnType<typeof vi.fn>
 
 describe("startSession", () => {
     it("returns a unique UUID each call", () => {
-        const id1 = startSession("deep");
-        const id2 = startSession("quick");
+        const id1 = startSession();
+        const id2 = startSession();
         expect(id1).toMatch(/^[0-9a-f-]{36}$/);
         expect(id1).not.toBe(id2);
     });
@@ -143,7 +143,6 @@ describe("trackLeadGateSubmitted", () => {
 describe("tracker source — no deprecated table writes", () => {
     it("does not import from supabase", async () => {
         // Dynamic import so we can check module meta in test env
-        const src = await import("../tracker?raw").catch(() => null);
         // If raw import not available (normal in jsdom), use grep-style check
         const trackerModule = await import("../tracker");
         // Ensure supabase client is not a live dep: the module shouldn't have

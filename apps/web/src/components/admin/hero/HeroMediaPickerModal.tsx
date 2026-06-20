@@ -65,13 +65,15 @@ export function HeroMediaPickerModal({ open, onClose, onSelect }: HeroMediaPicke
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            role="button"
+            tabIndex={0}
             className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-6"
-            onClick={onClose}
+            onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClose(); } }}
         >
             <FocusLock returnFocus className="w-full max-w-4xl flex items-center justify-center">
             <div
                 className="bg-zinc-900 border border-zinc-700/50 rounded-xl max-w-4xl w-full max-h-[80vh] flex flex-col shadow-2xl"
-                onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
                 <div className="flex items-center justify-between p-5 border-b border-zinc-800">

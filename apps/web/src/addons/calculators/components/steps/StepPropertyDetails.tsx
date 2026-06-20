@@ -126,7 +126,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
             {/* ── BHK selection (not for office/renovation) ── */}
             {(isApartment || isVilla || isTurnkey) && (
                 <div className="mb-6">
-                    <label className={labelStyle}>Configuration</label>
+                    <span className={labelStyle}>Configuration</span>
                     <motion.div
                         variants={cardListContainer}
                         initial="hidden"
@@ -193,7 +193,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
             {/* ── Room counters (not for office) ── */}
             {!isOffice && (
                 <div className="mb-6">
-                    <label className={labelStyle}>Room Configuration</label>
+                    <span className={labelStyle}>Room Configuration</span>
                     <div className="grid grid-cols-2 gap-2">
                         <Counter label="Bedrooms" value={formData.bedrooms} onChange={v => updateField("bedrooms", v)} />
                         <Counter label="Bathrooms" value={formData.bathrooms} onChange={v => updateField("bathrooms", v)} />
@@ -208,7 +208,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
             {/* ── Villa amenities ── */}
             {isVilla && (
                 <div className="mb-6">
-                    <label className={labelStyle} id="amenities-label">Amenities</label>
+                    <span className={labelStyle} id="amenities-label">Amenities</span>
                     <div className="flex flex-wrap gap-2" role="group" aria-labelledby="amenities-label">
                         <ToggleChip label="🏊 Swimming Pool" active={formData.hasPool} onClick={() => updateField("hasPool", !formData.hasPool)} />
                         <ToggleChip label="🌿 Garden" active={formData.hasGarden} onClick={() => updateField("hasGarden", !formData.hasGarden)} />
@@ -223,7 +223,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
             {/* ── Office sections ── */}
             {isOffice && (
                 <div className="mb-8">
-                    <label className={labelStyle}>Office Sections</label>
+                    <span className={labelStyle}>Office Sections</span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                         <Counter label="Cabins" value={formData.cabins} onChange={v => updateField("cabins", v)} />
                         <Counter label="Conference Rooms" value={formData.conferenceRooms} onChange={v => updateField("conferenceRooms", v)} />
@@ -241,12 +241,12 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
             {/* ── Independent floor ── */}
             {pt === "independent_floor" && (
                 <div className="mb-6">
-                    <label className={labelStyle}>Building Details</label>
+                    <span className={labelStyle}>Building Details</span>
                     <div className="grid grid-cols-2 gap-2">
                         <Counter label="Total Floors" value={formData.floors} min={1} onChange={v => updateField("floors", v)} />
                     </div>
                     <div className="mt-4">
-                        <label className="block text-xs font-medium mb-2 text-gray-500">Which Floor?</label>
+                        <span className="block text-xs font-medium mb-2 text-gray-500">Which Floor?</span>
                         <div className="flex flex-wrap gap-1.5">
                             {["Ground", "1st", "2nd", "3rd", "4th+"].map(f => {
                                 const active = formData.floorNumber === f;
@@ -274,7 +274,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
             {/* ── Renovation scope ── */}
             {isRenovation && (
                 <div className="mb-6">
-                    <label className={labelStyle}>Renovation Scope</label>
+                    <span className={labelStyle}>Renovation Scope</span>
                     <div className="flex flex-col gap-2">
                         {renovationStages.map(s => {
                             const active = formData.renovationScope === s.id;
@@ -298,7 +298,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                     </div>
                     {formData.renovationScope === "room" && (
                         <div className="mt-4">
-                            <label className="block text-xs font-medium mb-2 text-gray-500">Select Rooms to Renovate</label>
+                            <span className="block text-xs font-medium mb-2 text-gray-500">Select Rooms to Renovate</span>
                             <div className="flex flex-wrap gap-2">
                                 {renovationRooms.map(r => (
                                     <ToggleChip
@@ -316,7 +316,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
             {/* ── Project stage ── */}
             {stages.length > 0 && (
                 <div className="mb-3">
-                    <label className={labelStyle}>Project Stage</label>
+                    <span className={labelStyle}>Project Stage</span>
                     <div className="flex flex-col gap-2">
                         {stages.map(s => {
                             const active = formData.stage === s.id;

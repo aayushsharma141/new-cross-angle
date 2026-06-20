@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Instagram, Linkedin, Mail } from "lucide-react";
 import { ScrollReveal } from "../ui/enhanced/scroll-reveal";
 import { useEffect, useState } from "react";

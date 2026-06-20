@@ -15,11 +15,10 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/primitives/dialog";
-import { Plus, Loader2, ListOrdered, Pencil, Trash2, Calendar } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminSafeAction } from "@/components/admin/shared";
-import { AdminFilterBar } from "@/components/admin/shared";
 
 interface Milestone {
     id: string;

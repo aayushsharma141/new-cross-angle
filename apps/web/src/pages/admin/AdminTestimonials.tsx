@@ -1,10 +1,11 @@
 import { useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { MessageSquare, ShieldCheck, EyeOff, StarHalf, Edit2, Trash2, User } from "lucide-react";
+import { MessageSquare, StarHalf, Edit2, Trash2, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/useToast";
 import { usePermissions } from "@/hooks/usePermissions";
 import { auditService } from "@/services/AuditService";
+import { getOptimizedUrl } from "@/lib/cdn";
 import { AdminMetricsPanel, AdminFilterBar, AdminEmptyState, AdminSafeAction, AdminSkeletonCard } from "@/components/admin/shared";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { DataLoadingBoundary } from "@/components/ui/enhanced/DataLoadingBoundary";
@@ -20,7 +21,7 @@ const defaultFormData: TestimonialFormData = {
 
 const AdminTestimonials = () => {
   const [searchParams] = useSearchParams();
-  const editId = searchParams.get("edit");
+  searchParams.get("edit");
   const { toast } = useToast();
   const { can } = usePermissions();
   const canWrite = can("content", "edit");
@@ -33,7 +34,7 @@ const AdminTestimonials = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [formData, setFormData] = useState<TestimonialFormData>(defaultFormData);
-  const [isSaving, setIsSaving] = useState(false);
+
 
   const { data: testimonials = [], isLoading } = useQuery({
     queryKey: ['admin-testimonials'],
@@ -72,13 +73,13 @@ const AdminTestimonials = () => {
   };
 
   const saveMutation = useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       let error;
       if (editingTestimonial) { 
         const { error: e } = await supabase.from('testimonials').update(payload).eq('id', editingTestimonial.id); 
         error = e; 
       } else { 
-        const { error: e } = await supabase.from('testimonials').insert({ ...payload, display_order: testimonials.length }); 
+        const { error: e } = await supabase.from('testimonials').insert({ ...payload, display_order: testimonials.length } as any); 
         error = e; 
       }
       if (error) throw error;
@@ -229,7 +230,7 @@ const AdminTestimonials = () => {
                   {/* Avatar */}
                   <div className="w-[44px] h-[44px] rounded-[10px] bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex flex-col items-center justify-center shrink-0 overflow-hidden">
                     {testimonial.avatar_url ? (
-                      <img src={testimonial.avatar_url} alt={testimonial.author_name} className="w-full h-full object-cover" />
+                      <img src={getOptimizedUrl(testimonial.avatar_url, { width: 88, quality: 80 })} alt={testimonial.author_name} className="w-full h-full object-cover" />
                     ) : (
                       <User className="w-5 h-5 text-[hsl(var(--admin-text-muted))]" />
                     )}
@@ -285,7 +286,7 @@ const AdminTestimonials = () => {
                           icon={Trash2}
                           label="Delete"
                           confirmLabel="Delete review?"
-                          onConfirm={() => handleDelete(testimonial.id)}
+                          onConfirm={async () => { await deleteMutation.mutateAsync(testimonial.id); }}
                           danger
                         />
                       </>

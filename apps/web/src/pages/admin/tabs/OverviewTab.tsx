@@ -16,9 +16,6 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
-  Bar,
-  BarChart,
-  Cell,
 } from "recharts";
 
 interface OverviewTabProps {

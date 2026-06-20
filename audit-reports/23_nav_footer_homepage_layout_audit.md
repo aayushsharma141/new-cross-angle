@@ -27,7 +27,7 @@
 ### Visual Layout & Behavior
 
 | Aspect | Current State | Assessment |
-|--------|--------------|------------|
+| -------- | -------------- | ------------ |
 | Logo | `AnimatedLogo` + `<img>`. Two logos side-by-side. | Branding clutter — two logos competing for attention. One should be background/fallback. |
 | Desktop Nav | `SpotlightNavContainer` spotlight pill menu, 7 links across center. Active link highlighted gold. | Polished. Spotlight effect is premium. |
 | Mobile Nav | Accordion drawer (`AnimatePresence`), full-width CTA button, staggered link animation. Focus trap + Escape key. | Well-implemented accessibility pattern. |
@@ -72,6 +72,7 @@
 ```
 
 ### Strengths
+
 - **Contextual CTA**: `getFooterCopy()` tailors headline/sub per page path — 13 distinct variations defined.
 - **Live clock**: Small delight element, shows IST in `Space Mono` font.
 - **Mobile accordion**: 4 columns collapse into accordion on mobile with `max-h` transitions. Proper ARIA (`aria-expanded`, `aria-controls`, `role="region"`).
@@ -95,7 +96,7 @@
 ### Section Assembly (`Index.tsx`)
 
 | # | Section | Loading | Section ID | Container Width |
-|---|---------|---------|------------|-----------------|
+| --- | --------- | --------- | ------------ | ----------------- |
 | 1 | Hero | **Eager** | `#home` | `container-wide` |
 | 2 | StyleDiscoveryTeaser | Lazy (300px margin) | `#discovery` | `max-w-7xl` |
 | 3 | Portfolio | Lazy (300px margin) | `#portfolio` | Section-internal |
@@ -123,6 +124,7 @@
 **Narrative strength**: The sequence follows a logical "Who → What → Show me → Prove it → How → Social proof → Cost → Act" funnel.
 
 **Narrative weaknesses**:
+
 - **No About/Philosophy section in the main flow**: `About.tsx` and `Philosophy.tsx` exist but are NOT included in `Index.tsx`. Brand story is only in Hero stats + Footer.
 - **No Services section in the main flow**: `Services.tsx` exists but is NOT included in `Index.tsx`. The hub page `/services` handles this, but the homepage has no explicit "what we do" service list.
 - **No TrustSection in the main flow**: `TrustSection.tsx` (warranty, brand badges) exists but is NOT included.
@@ -145,7 +147,7 @@
 ### Breakpoint System
 
 | Breakpoint | Tailwind Width | Usage |
-|-----------|---------------|-------|
+| ----------- | --------------- | ------- |
 | `xs` | 400px (custom) | Minor adjustments |
 | `sm` | 640px | Default mobile-first |
 | `md` | 768px | Tablet breakpoint — major layout switches |
@@ -156,7 +158,7 @@
 ### Container Width Inconsistencies
 
 | Component | Container Class | Max Width |
-|-----------|---------------|-----------|
+| ----------- | --------------- | ----------- |
 | Navbar | `container-wide` | 1600px |
 | Footer | `container-wide` | 1600px |
 | Hero | `container-wide` | 1600px |
@@ -174,7 +176,7 @@
 ### Mobile Responsiveness Patterns
 
 | Component | Mobile Behavior | Assessment |
-|-----------|----------------|------------|
+| ----------- | ---------------- | ------------ |
 | Navbar | Hamburger → accordion drawer, full-width CTA | ✅ Well-executed |
 | Footer | 4 columns → accordion stack | ✅ Responsive |
 | FixedSocialBar | Hidden on mobile (removed per prior audit) | ✅ Correct |
@@ -188,6 +190,7 @@
 ### `py-section-y` — Undefined Utility
 
 **11 components** use `py-section-y` as a className (`Services.tsx:49`, `BeforeAfterShowcase.tsx:65`, etc.). This class is **not defined** in:
+
 - `index.css`
 - `tailwind.config.ts`
 - Any `.css` or `.scss` file in the project
@@ -207,7 +210,7 @@ The global `@media (prefers-reduced-motion: reduce)` in `index.css:1064` correct
 ## 5. Performance & Bundle Concerns
 
 | Issue | Location | Impact | Suggested Fix |
-|-------|----------|--------|---------------|
+| ------- | ---------- | -------- | --------------- |
 | All hero slides in DOM | `Hero.tsx:232` | Unnecessary DOM nodes | Virtualize or limit to 3 slides |
 | 100 bubble particles | `Footer.tsx:22` | 100 animating elements on every page | Limit to 30, add `isInView` check |
 | Duplicate logo render | `Navbar.tsx:90-104` | Two logo elements side-by-side | Use one or the other conditionally |
@@ -224,7 +227,7 @@ The global `@media (prefers-reduced-motion: reduce)` in `index.css:1064` correct
 ## 6. Prioritized Fix Roadmap
 
 | Priority | Issue | Location | Effort | Impact |
-|----------|-------|----------|--------|--------|
+| ---------- | ------- | ---------- | -------- | -------- |
 | **P0** | Define `py-section-y` in Tailwind config or CSS | `tailwind.config.ts` | S | Fixes invisible spacing across 11 sections |
 | **P0** | Unify content containers to `container-wide` | All home sections | M | Fixes alignment jump at 1280-1600px |
 | **P1** | Create `<PublicLayout>` shell wrapping Nav/Footer/FixedSocialBar/ScrollToTop | New component | M | Eliminates 5-line boilerplate from every page |
@@ -265,11 +268,13 @@ This fills the current gap: after Hero, the user has no "About" or "Services" co
 ## ✅ Audit Completion
 
 ### Lighthouse Performance Audit (2026-06-17)
+
 See full report: [`24_lighthouse_performance_report.md`](./24_lighthouse_performance_report.md)
 
 **Results:**
+
 | Page | FCP | LCP | CLS | Transfer Size | DOM |
-|------|-----|-----|-----|---------------|-----|
+| ------ | ----- | ----- | ----- | --------------- | ----- |
 | Homepage (`/`) | 1.5s | 2.3s | 0.020 | 17,867 KB | 567 |
 | Services Hub (`/services`) | 0.4s | 1.6s | 0.000 | 7,563 KB | 999 |
 | Service Category (`/services/residential`) | 0.4s | 1.6s | 0.000 | 156 KB | 471 |

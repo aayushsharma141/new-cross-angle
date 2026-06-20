@@ -1,20 +1,17 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './BlueprintPage.css';
 import { Link } from "react-router-dom";
-import { docsRegistry, DocItem } from '../data/docsRegistry';
+import { docsRegistry } from '../data/docsRegistry';
 import { 
   Search, 
   FileText, 
-  Settings, 
   ShieldCheck, 
-  FileCheck, 
   ArrowRight, 
   Check, 
   Copy, 
   Cpu, 
   Sparkles, 
   BookOpen,
-  ArrowLeft,
   Terminal,
   ExternalLink,
   ChevronRight,
@@ -34,7 +31,7 @@ import {
   Zap,
   CheckCircle
 } from 'lucide-react';
-import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+import { useScroll, useMotionValueEvent } from 'framer-motion';
 import Squares from '@/components/ReactBits/Squares';
 import FadeContent from '@/components/ReactBits/FadeContent';
 import FallingText from '@/components/ReactBits/FallingText';
@@ -47,7 +44,6 @@ export default function BlueprintPage() {
   const [activeTab, setActiveTab] = useState<'blueprint' | 'docs' | 'proposal'>('blueprint');
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<string>('All');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -323,19 +319,19 @@ export default function BlueprintPage() {
                       <Terminal className="w-3.5 h-3.5" /> Quick Documentation Index
                     </h4>
                     <div className="space-y-3 font-mono text-xs">
-                      <div className="flex justify-between text-neutral-400 hover:text-white cursor-pointer" onClick={() => { setActiveTab('docs'); setSelectedDocId('design_history_md'); }}>
+                      <div role="button" tabIndex={0} className="flex justify-between text-neutral-400 hover:text-white cursor-pointer" onClick={() => { setActiveTab('docs'); setSelectedDocId('design_history_md'); }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('docs'); setSelectedDocId('design_history_md'); } }}>
                         <span>↳ DESIGN_HISTORY.md</span>
                         <span className="text-neutral-600">3.3 KB</span>
                       </div>
-                      <div className="flex justify-between text-neutral-400 hover:text-white cursor-pointer" onClick={() => { setActiveTab('docs'); setSelectedDocId('crossangle_md'); }}>
+                      <div role="button" tabIndex={0} className="flex justify-between text-neutral-400 hover:text-white cursor-pointer" onClick={() => { setActiveTab('docs'); setSelectedDocId('crossangle_md'); }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('docs'); setSelectedDocId('crossangle_md'); } }}>
                         <span>↳ CROSSANGLE.md (DB Schema)</span>
                         <span className="text-neutral-600">10.6 KB</span>
                       </div>
-                      <div className="flex justify-between text-neutral-400 hover:text-white cursor-pointer" onClick={() => { setActiveTab('docs'); setSelectedDocId('prd_md'); }}>
+                      <div role="button" tabIndex={0} className="flex justify-between text-neutral-400 hover:text-white cursor-pointer" onClick={() => { setActiveTab('docs'); setSelectedDocId('prd_md'); }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('docs'); setSelectedDocId('prd_md'); } }}>
                         <span>↳ UX Enhancement PRD</span>
                         <span className="text-neutral-600">3.0 KB</span>
                       </div>
-                      <div className="flex justify-between text-neutral-400 hover:text-white cursor-pointer" onClick={() => { setActiveTab('docs'); setSelectedDocId('10_improvement_roadmap_md'); }}>
+                      <div role="button" tabIndex={0} className="flex justify-between text-neutral-400 hover:text-white cursor-pointer" onClick={() => { setActiveTab('docs'); setSelectedDocId('10_improvement_roadmap_md'); }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('docs'); setSelectedDocId('10_improvement_roadmap_md'); } }}>
                         <span>↳ 10_Improvement_Roadmap.md</span>
                         <span className="text-neutral-600">14.8 KB</span>
                       </div>
@@ -722,7 +718,7 @@ const item = {
               { label: 'Journey', id: 'p-journey' },
               { label: 'Responsive', id: 'p-responsive' },
             ].map(n => (
-              <div key={n.id} className="snav-item" onClick={() => document.getElementById(n.id)?.scrollIntoView({ behavior: 'smooth' })}>
+              <div key={n.id} className="snav-item" role="button" tabIndex={0} onClick={() => document.getElementById(n.id)?.scrollIntoView({ behavior: 'smooth' })} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById(n.id)?.scrollIntoView({ behavior: 'smooth' }); } }}>
                 <span className="snav-label">{n.label}</span><span className="snav-dot"></span>
               </div>
             ))}
@@ -995,7 +991,10 @@ const item = {
                       <div key={catName} className="space-y-1">
                         {/* Folder Header */}
                         <div 
+                          role="button"
+                          tabIndex={0}
                           onClick={() => toggleFolder(catName)}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleFolder(catName); } }}
                           className="folder-header flex items-center justify-between py-1 px-1.5 rounded hover:bg-neutral-900/40 cursor-pointer text-xs text-neutral-300 font-bold transition-colors"
                         >
                           <div className="flex items-center gap-2">
@@ -1017,7 +1016,10 @@ const item = {
                               return (
                                 <div
                                   key={doc.id}
+                                  role="button"
+                                  tabIndex={0}
                                   onClick={() => setSelectedDocId(doc.id)}
+                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedDocId(doc.id); } }}
                                   className={`doc-row flex items-center justify-between py-1.5 px-2 rounded cursor-pointer transition-all border ${
                                     isSelected 
                                       ? 'bg-[#C41230]/10 border-[#C41230]/30 text-white font-semibold' 

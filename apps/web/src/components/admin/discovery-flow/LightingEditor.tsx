@@ -101,7 +101,6 @@ function LightRow({
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
               className="h-7 text-xs flex-1 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
               placeholder="Name"
-              autoFocus
             />
             <Button variant="ghost" size="icon" onClick={confirmEdit} className="h-7 w-7 text-emerald-400 shrink-0">
               <Check className="w-3.5 h-3.5" />
@@ -176,7 +175,9 @@ export function LightingEditor() {
   }, [data, dirty, items.length]);
 
   const strip = (arr: LightItemWithId[]): LightItem[] =>
-    arr.map(({ _id: _, ...rest }) => rest);
+    arr.map(({ name, description, bgColor, scores }) => ({
+      name, description, bgColor, scores,
+    }));
 
   const startEdit = (item: LightItemWithId) => { setEditId(item._id); setDraft({ ...item }); };
   const cancelEdit = () => setEditId(null);

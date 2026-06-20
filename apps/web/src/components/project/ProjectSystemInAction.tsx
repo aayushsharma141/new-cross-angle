@@ -6,7 +6,7 @@ interface ProjectSystemInActionProps {
   project: Project;
 }
 
-const ProjectSystemInAction = ({ project }: ProjectSystemInActionProps) => {
+const ProjectSystemInAction = (_props: ProjectSystemInActionProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,

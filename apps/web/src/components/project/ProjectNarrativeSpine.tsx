@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { motion, useSpring, useTransform, MotionValue } from "framer-motion";
 
 interface ProjectNarrativeSpineProps {

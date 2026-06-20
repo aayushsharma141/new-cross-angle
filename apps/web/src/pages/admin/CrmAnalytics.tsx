@@ -33,10 +33,9 @@ import {
   Sparkles,
   Megaphone,
   UserCheck,
-  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ResponsiveContainer, BarChart, Bar, Cell, XAxis, YAxis, Tooltip, PieChart, Pie, Legend, LabelList } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, Cell, XAxis, YAxis, Tooltip, PieChart, Pie, LabelList } from "recharts";
 
 // ─── Source Normalizer ────────────────────────────────────────────────────────
 // Single source of truth: maps every raw DB value → canonical key
@@ -380,7 +379,7 @@ export default function CrmAnalytics() {
                 </tr>
               </thead>
               <tbody>
-                {analytics.sourcePerformance.map((src, idx) => {
+                {analytics.sourcePerformance.map((src) => {
                   const Icon = src.meta.icon;
                   return (
                     <tr key={src.key} className="border-b border-[hsl(var(--admin-border-subtle))] hover:bg-[hsl(var(--admin-surface))/0.3] transition-colors last:border-0">

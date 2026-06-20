@@ -1,8 +1,7 @@
 import { useCallback } from "react";
 import { useDropzone, FileRejection } from "react-dropzone";
-import { Upload, Loader2, FileImage, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/primitives/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/primitives/alert";
+import { Upload, Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/primitives/alert";
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
