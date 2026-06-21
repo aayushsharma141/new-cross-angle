@@ -28,15 +28,14 @@ import {
 import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { MediaGrid } from "@/components/admin/media/MediaGrid";
 import { MediaUploadZone } from "@/components/admin/media/MediaUploadZone";
-import { MediaDetailsSheet } from "@/components/admin/media/MediaDetailsSheet";
+import { AssetWorkspaceLayout } from "@/components/admin/media/AssetWorkspaceLayout";
 import { icons } from "@/design-system/tokens/icons";
-import { BulkActionsToolbar } from "@/components/admin/BulkActionsToolbar";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminMetricsPanel, AdminSkeletonCard } from "@/components/admin/shared";
 import { queryKeys } from "@/lib/queryKeys";
 import type { Tables } from "@/integrations/supabase/types";
+import { MediaService } from "@/services/MediaService";
 
 interface MediaFile {
     id: string;
@@ -49,7 +48,7 @@ interface MediaFile {
     caption?: string;
 }
 
-type MediaRow = Tables<"media">;
+type MediaRow = Tables<"media_files">;
 
 const FOLDERS = ["portfolio", "services", "blogs", "general"];
 const BUCKET_NAME = "media";
@@ -65,7 +64,7 @@ const deriveFolder = (fileName: string): string => {
 
 const fetchMediaFiles = async (): Promise<MediaFile[]> => {
     const { data, error } = await supabase
-        .from("media")
+        .from("media_files")
         .select("*")
         .order("created_at", { ascending: false });
 
@@ -73,13 +72,13 @@ const fetchMediaFiles = async (): Promise<MediaFile[]> => {
 
     return data.map((file: MediaRow) => ({
         id: file.id,
-        name: file.file_name,
+        name: file.display_name || file.file_name,
         url: file.url,
         folder: deriveFolder(file.file_name),
         size: file.size_bytes || 0,
-        created_at: file.created_at,
-        alt: file.alt || undefined,
-        caption: file.title || undefined,
+        created_at: file.created_at || "",
+        alt: file.alt_text || undefined,
+        caption: file.caption || undefined,
     }));
 };
 
@@ -106,6 +105,11 @@ const AdminMedia = () => {
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [isSyncingImageKit, setIsSyncingImageKit] = useState(false);
 
+    // DAM contextual states
+    const [uploadDomain, setUploadDomain] = useState<string>("system");
+    const [uploadEntityType, setUploadEntityType] = useState<string>("system");
+    const [uploadRole, setUploadRole] = useState<string>("general");
+
     // ── Data fetching ─────────────────────────────────────────────────────────
 
     const { data: files = [], isLoading } = useQuery({
@@ -131,52 +135,44 @@ const AdminMedia = () => {
             const errors: string[] = [];
 
             for (const file of fileList) {
-                const folder = selectedFolder === "all" ? "general" : selectedFolder;
-                const path = `${folder}/${file.name}`;
-
-                const { error: storageError } = await supabase.storage
-                    .from(BUCKET_NAME)
-                    .upload(path, file, { upsert: true });
-
-                const storageErrCode =
-                    storageError && typeof (storageError as Record<string, unknown>).error === "string"
-                        ? (storageError as Record<string, unknown>).error as string
-                        : "";
-                const isAlreadyExistsError =
-                    storageError &&
-                    (storageError.message.toLowerCase().includes("already exists") ||
-                        storageError.message.toLowerCase().includes("duplicate") ||
-                        storageErrCode === "Duplicate");
-
-                if (storageError && !isAlreadyExistsError) {
-                    errors.push(`${file.name}: ${storageError.message}`);
-                    continue;
-                }
-
-                const { data: publicUrlObj } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
-
-                const { error: dbError } = await supabase.from("media").upsert(
-                    {
-                        url: publicUrlObj.publicUrl,
-                        file_name: path,
-                        file_type: file.type,
-                        size_bytes: file.size,
-                        alt: file.name,
+                try {
+                    // 1. Upload to DAM (ImageKit + assets + asset_versions + optionally asset_usages)
+                    const { url, filePath } = await MediaService.uploadDamAsset({
+                        file,
                         title: file.name,
-                        uploaded_by: userData?.user?.id,
-                    },
-                    { onConflict: "file_name" }
-                );
+                        domain: uploadDomain,
+                        entityType: uploadEntityType,
+                        entityId: null, // UI currently doesn't specify an entity ID
+                        role: uploadRole
+                    });
 
-                if (dbError) {
-                    if (!isAlreadyExistsError) {
-                        await supabase.storage.from(BUCKET_NAME).remove([path]);
+                    // 2. Dual Write to Legacy `media_files` (keeps old CMS UI working)
+                    const { error: dbError } = await supabase.from("media_files").upsert(
+                        {
+                            url: url,
+                            file_name: filePath,
+                            display_name: file.name,
+                            mime_type: file.type || "application/octet-stream",
+                            size_bytes: file.size,
+                            alt_text: file.name,
+                            caption: file.name,
+                            storage_provider: "imagekit",
+                            storage_path: filePath,
+                            uploaded_by: userData?.user?.id,
+                        },
+                        { onConflict: "file_name" }
+                    );
+
+                    if (dbError) {
+                        errors.push(`${file.name}: Legacy DB Error - ${dbError.message}`);
+                        // Ideally we'd rollback DAM here, but we will let it pass for now.
+                        continue;
                     }
-                    errors.push(`${file.name}: ${dbError.message}`);
-                    continue;
-                }
 
-                successCount++;
+                    successCount++;
+                } catch (e: any) {
+                    errors.push(`${file.name}: ${e.message}`);
+                }
             }
 
             if (errors.length > 0) {
@@ -189,12 +185,12 @@ const AdminMedia = () => {
             setUploadError(null);
             void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
         },
-        onError: (err: { errors?: string[]; successCount?: number; total?: number } | Error) => {
-            if (err.errors) {
+        onError: (err: any) => {
+            if (err && typeof err === "object" && "errors" in err && Array.isArray(err.errors)) {
                 const msg = err.errors.join("; ");
                 setUploadError(msg);
                 toast({
-                    title: `${err.successCount} of ${err.total} file(s) uploaded`,
+                    title: `${err.successCount || 0} of ${err.total || 0} file(s) uploaded`,
                     description: `Failed: ${msg}`,
                     variant: "destructive",
                 });
@@ -209,7 +205,7 @@ const AdminMedia = () => {
 
     const deleteMutation = useMutation({
         mutationFn: async (file: MediaFile) => {
-            const { error: dbError } = await supabase.from("media").delete().eq("id", file.id);
+            const { error: dbError } = await supabase.from("media_files").delete().eq("id", file.id);
             if (dbError) throw dbError;
 
             const { error: storageError } = await supabase.storage
@@ -241,7 +237,7 @@ const AdminMedia = () => {
 
             const results = await Promise.allSettled(
                 fileEntries.map(async (f) => {
-                    const { error: dbError } = await supabase.from("media").delete().eq("id", f.id);
+                    const { error: dbError } = await supabase.from("media_files").delete().eq("id", f.id);
                     if (dbError) throw new Error(`DB: ${dbError.message}`);
                     const { error: storageError } = await supabase.storage
                         .from(BUCKET_NAME)
@@ -291,7 +287,7 @@ const AdminMedia = () => {
                     if (file.name === ".emptyFolderPlaceholder" || !file.metadata) continue;
                     const path = folder === "general" ? file.name : `${folder}/${file.name}`;
                     const { data: existing } = await supabase
-                        .from("media")
+                        .from("media_files")
                         .select("id")
                         .eq("file_name", path)
                         .maybeSingle();
@@ -299,13 +295,16 @@ const AdminMedia = () => {
                         const { data: publicUrlObj } = supabase.storage
                             .from(BUCKET_NAME)
                             .getPublicUrl(path);
-                        await supabase.from("media").insert({
+                        await supabase.from("media_files").insert({
                             url: publicUrlObj.publicUrl,
                             file_name: path,
-                            file_type: file.metadata?.mimetype || "unknown",
+                            display_name: file.name,
+                            mime_type: file.metadata?.mimetype || "unknown",
                             size_bytes: file.metadata?.size || 0,
-                            alt: file.name,
-                            title: file.name,
+                            alt_text: file.name,
+                            caption: file.name,
+                            storage_provider: "supabase",
+                            storage_path: path,
                             uploaded_by: userData?.user?.id,
                         });
                         syncedCount++;
@@ -495,114 +494,45 @@ const AdminMedia = () => {
             </div>
 
             <div className="fade-up-3 space-y-6">
-                {/* Bulk selection toolbar */}
-                <BulkActionsToolbar
-                selectedCount={selectedFiles.size}
-                onClear={() => setSelectedFiles(new Set())}
-                onDelete={() => setBulkDeleteDialogOpen(true)}
-                isDeleting={bulkDeleteMutation.isPending}
-            />
+                {/* Upload zone */}
+                {!isReadOnly && (
+                    <div className="space-y-4">
+                        <div className="flex gap-4 p-4 border border-admin-border/50 rounded-xl bg-admin-card/50">
+                            <div className="space-y-1 flex-1">
+                                <label htmlFor="dam-domain-select" className="text-xs text-muted-foreground font-semibold">DAM Domain</label>
+                                <Select value={uploadDomain} onValueChange={setUploadDomain}>
+                                    <SelectTrigger id="dam-domain-select"><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="system">System (Default)</SelectItem>
+                                        <SelectItem value="portfolio">Portfolio</SelectItem>
+                                        <SelectItem value="services">Services</SelectItem>
+                                        <SelectItem value="discovery">Discovery</SelectItem>
+                                        <SelectItem value="blog">Blog</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-1 flex-1">
+                                <label htmlFor="entity-type-input" className="text-xs text-muted-foreground font-semibold">Entity Type</label>
+                                <Input id="entity-type-input" placeholder="e.g., projects, archetypes" value={uploadEntityType} onChange={e => setUploadEntityType(e.target.value)} />
+                            </div>
+                            <div className="space-y-1 flex-1">
+                                <label htmlFor="role-input" className="text-xs text-muted-foreground font-semibold">Role</label>
+                                <Input id="role-input" placeholder="e.g., general, hero, gallery" value={uploadRole} onChange={e => setUploadRole(e.target.value)} />
+                            </div>
+                        </div>
+                        <MediaUploadZone
+                            onUpload={(fileList) => uploadMutation.mutate(fileList)}
+                            isUploading={uploadMutation.isPending}
+                            folderName={selectedFolder}
+                            errorMessage={uploadError}
+                        />
+                    </div>
+                )}
 
-            {/* Filters */}
-            <div className="flex flex-wrap items-center gap-4">
-                <div className="relative flex-1 min-w-[200px]">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search files..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                    />
+                {/* Asset Workspace */}
+                <div className="h-[700px] border border-border rounded-xl overflow-hidden mt-6">
+                    <AssetWorkspaceLayout />
                 </div>
-
-                <Select value={selectedFolder} onValueChange={setSelectedFolder}>
-                    <SelectTrigger className="w-[150px]">
-                        <FolderOpen className="w-4 h-4 mr-2" />
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Folders</SelectItem>
-                        <SelectItem value="imagekit">ImageKit</SelectItem>
-                        {FOLDERS.map((folder) => (
-                            <SelectItem key={folder} value={folder} className="capitalize">
-                                {folder}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-
-                <Button variant="outline" size="sm" onClick={toggleSelectAll}>
-                    {selectedFiles.size === filteredFiles.length && filteredFiles.length > 0 ? (
-                        <>
-                            <CheckSquare className="w-4 h-4 mr-2" />
-                            Deselect All
-                        </>
-                    ) : (
-                        <>
-                            <Square className="w-4 h-4 mr-2" />
-                            Select All
-                        </>
-                    )}
-                </Button>
-
-                <div className="flex border rounded-md overflow-hidden">
-                    <Button
-                        variant={viewMode === "grid" ? "secondary" : "ghost"}
-                        size="icon"
-                        onClick={() => setViewMode("grid")}
-                        aria-label="Show media as grid"
-                    >
-                        <Grid className="w-4 h-4" />
-                    </Button>
-                    <Button
-                        variant={viewMode === "list" ? "secondary" : "ghost"}
-                        size="icon"
-                        onClick={() => setViewMode("list")}
-                        aria-label="Show media as list"
-                    >
-                        <List className="w-4 h-4" />
-                    </Button>
-                </div>
-            </div>
-
-            {/* Upload zone */}
-            {!isReadOnly && (
-                <MediaUploadZone
-                    onUpload={(fileList) => uploadMutation.mutate(fileList)}
-                    isUploading={uploadMutation.isPending}
-                    folderName={selectedFolder}
-                    errorMessage={uploadError}
-                />
-            )}
-
-            {/* Files grid/list */}
-            <MediaGrid
-                files={filteredFiles as any}
-                viewMode={viewMode}
-                selectedFiles={selectedFiles}
-                onToggleSelection={toggleFileSelection}
-                onPreview={setPreviewFile as any}
-                onDelete={(file) => {
-                    setFileToDelete(file as any);
-                    setDeleteDialogOpen(true);
-                }}
-                onCopyUrl={copyToClipboard}
-                copiedUrl={copiedUrl}
-                isReadOnly={isReadOnly}
-            />
-
-            {/* File details sheet */}
-            <MediaDetailsSheet
-                file={previewFile as any}
-                open={!!previewFile}
-                onClose={() => setPreviewFile(null)}
-                onDelete={(file) => {
-                    setFileToDelete(file as any);
-                    setDeleteDialogOpen(true);
-                }}
-                onCopyUrl={copyToClipboard}
-                isReadOnly={isReadOnly}
-            />
 
             {/* Single delete confirm */}
             <ConfirmDialog
