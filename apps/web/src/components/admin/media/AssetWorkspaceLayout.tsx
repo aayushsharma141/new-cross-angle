@@ -16,24 +16,33 @@ export function AssetWorkspaceLayout() {
     };
 
     return (
-        <div className="h-full w-full bg-background overflow-hidden flex flex-col font-inter">
-            <ResizablePanelGroup direction="horizontal" className="flex-1">
-                <ResizablePanel 
-                    defaultSize={20} 
-                    minSize={15} 
-                    maxSize={30}
-                    className="border-r border-border bg-background"
+        <div className="h-full w-full flex flex-col bg-background text-foreground">
+            {/* Split pane layout */}
+            <div className="flex-1 overflow-hidden">
+                <ResizablePanelGroup
+                    direction="horizontal"
+                    className="h-full w-full rounded-none"
                 >
-                    <AssetSidebar 
-                        selectedAssetId={selectedAssetId} 
-                        onSelect={handleSelectAsset} 
-                    />
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={80} className="bg-muted relative">
-                    <AssetInspector selectedAssetId={selectedAssetId} />
-                </ResizablePanel>
-            </ResizablePanelGroup>
+                    {/* Sidebar / Asset List */}
+                    <ResizablePanel
+                        defaultSize={35}
+                        minSize={25}
+                        maxSize={50}
+                        className="bg-muted/10 border-r"
+                    >
+                        <AssetSidebar 
+                            selectedAssetId={selectedAssetId} 
+                            onSelect={handleSelectAsset} 
+                        />
+                    </ResizablePanel>
+                    
+                    <ResizableHandle withHandle />
+                    
+                    <ResizablePanel defaultSize={65} className="bg-background relative">
+                        <AssetInspector selectedAssetId={selectedAssetId} />
+                    </ResizablePanel>
+                </ResizablePanelGroup>
+            </div>
         </div>
     );
 }
