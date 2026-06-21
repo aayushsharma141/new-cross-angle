@@ -1,12 +1,22 @@
-# Cross Angle Interior SEO & Content Hierarchy Restructure
+# Cross Angle Interior Web Application
+
+## Current Milestone: v2.0 DAM V3 Architecture Redesign
+
+**Goal:** Transition from a legacy URL-string media storage system to a robust, identity-based Asset → Usage → Entity Digital Asset Management architecture.
+
+**Target features:**
+- Centralized `Asset` tracking (prevent orphan files).
+- Role-based `AssetUsage` references (no more hardcoded `project_hero` columns).
+- Future-proof lineage via `parent_asset_id` for AI derivations.
+- Zero-downtime Strangler Fig migration protocol.
 
 ## What This Is
 
-An architectural and content-level restructuring of the "Cross Angle Interior" web application. The focus is to enhance information architecture (IA), create clear topic clusters (silos), deepen service and project descriptions, and apply modern SEO best practices (schema, header hierarchy, internal contextual linking) to drive more organic discovery and improve conversion funnels. 
+An architectural and content-level restructuring of the "Cross Angle Interior" web application. The platform is transitioning from a simple visual CMS into an extensible product suite spanning SEO-focused content silos, a Discovery Engine, and a robust media identity architecture.
 
 ## Core Value
 
-Bridge the gap between stunning visual design and high-performance SEO by treating Service Categories as authoritative Pillar Pages and Past Projects as detailed Case Studies, creating a seamless user journey from discovery to lead generation.
+Bridge the gap between stunning visual design, high-performance SEO, and rigorous data integrity. By centralizing assets and normalizing content hierarchies, the platform guarantees a seamless user journey and lays the groundwork for advanced generative AI workflows.
 
 ## Requirements
 

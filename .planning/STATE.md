@@ -1,15 +1,25 @@
-# Project State
+---
+milestone: v2.0
+name: DAM V3 Architecture Redesign
+status: planning
+---
 
-## Project Reference
+## Current Position
 
-See: `.planning/PROJECT.md` (updated 2026-06-08)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-06-22 — Milestone v2.0 started
 
-**Core value**: Bridge the gap between stunning visual design and high-performance SEO by treating Service Categories as authoritative Pillar Pages and Past Projects as Case Studies.
+## Blockers
 
-**Current focus**: Phase 9: Developer Infrastructure
+- None
 
-## Current Status
+## Context
 
-- Phases 1-8 completed (including the massive UI/UX Audit Remediation).
-- UI/UX bugs largely crushed. React Query implemented across all Admin CRUD.
-- Phase 9 roadmap generated to fix zero-day developer infrastructure issues and TS strictness.
+- We have completed a comprehensive media architecture audit and locked the V3 DAM Entity and Governance models. 
+- Moving from path-based reference to identity-based asset management.
+
+## Todos
+
+- [ ] Execute Phase 1 (Schema & Enums)
