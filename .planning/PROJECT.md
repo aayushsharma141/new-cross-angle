@@ -1,6 +1,20 @@
 # Cross Angle Interior Web Application
 
-## Current Milestone: v2.0 DAM V3 Architecture Redesign
+## Current State
+
+**Shipped Version:** v2.0 (DAM V3 Architecture)
+
+**Recent Accomplishments:**
+- Transitioned from legacy URL strings to central `assets` and `asset_usages`.
+- Standardized ImageKit uploads with dual-writes and strict taxonomy via enums.
+- Created fallback reading mechanism for smooth frontend migration.
+- Executed backfill migrations and deprecated legacy columns cleanly.
+
+## Next Milestone Goals
+*To be defined.*
+
+<details>
+<summary>Archive: v2.0 DAM V3 Architecture Redesign</summary>
 
 **Goal:** Transition from a legacy URL-string media storage system to a robust, identity-based Asset → Usage → Entity Digital Asset Management architecture.
 
@@ -9,6 +23,8 @@
 - Role-based `AssetUsage` references (no more hardcoded `project_hero` columns).
 - Future-proof lineage via `parent_asset_id` for AI derivations.
 - Zero-downtime Strangler Fig migration protocol.
+
+</details>
 
 ## What This Is
 

@@ -1,25 +1,27 @@
 ---
-milestone: v2.0
-name: DAM V3 Architecture Redesign
-status: planning
+milestone: v3.0
+name: DAM V3 Workspace
+status: pending
 ---
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-06-22 — Milestone v2.0 started
+*Pending definition.*
 
 ## Blockers
 
-- None
+*None.*
 
-## Context
+## Workflow Status
+- **Milestone:** v3.0 (DAM V3 Workspace)
+- **Status:** **PLANNING**
+- **Current Phase:** None.
 
-- We have completed a comprehensive media architecture audit and locked the V3 DAM Entity and Governance models. 
-- Moving from path-based reference to identity-based asset management.
+## Phase Progress
+*Pending definition.*
+
+## Next Actions
+- Define the new milestone roadmap.
 
 ## Todos
-
-- [ ] Execute Phase 1 (Schema & Enums)
+*Pending definition.*
