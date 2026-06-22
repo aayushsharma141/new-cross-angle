@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { AssetService } from "@/services/AssetService";
-import { Loader2, Image as ImageIcon, FileVideo, AlertCircle, Trash2, Download, RefreshCw, Link as LinkIcon, Info } from "lucide-react";
+import { AssetService, type AssetRow } from "@/services/AssetService";
+import { Loader2, AlertCircle, Trash2, Download, RefreshCw, Link as LinkIcon, Info } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { ScrollArea } from "@/components/ui/primitives/scroll-area";
 import { Separator } from "@/components/ui/primitives/separator";
@@ -59,7 +59,7 @@ export function AssetInspector({ selectedAssetId }: AssetInspectorProps) {
 
 // -- Sub Components -- //
 
-function AssetPreview({ asset }: { asset: any }) {
+function AssetPreview({ asset }: { asset: AssetRow }) {
     // In DAM V3, we load the actual URL from the current_version_id
     const { data: version, isLoading } = useQuery({
         queryKey: ["dam", "asset_versions", asset.current_version_id],
@@ -84,7 +84,9 @@ function AssetPreview({ asset }: { asset: any }) {
                     <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
                 ) : version?.url ? (
                     asset.type === "video" ? (
-                        <video src={version.url} controls className="w-full h-full object-contain" />
+                        <video src={version.url} controls className="w-full h-full object-contain">
+                            <track kind="captions" />
+                        </video>
                     ) : (
                         <img src={version.url} alt={asset.title} className="w-full h-full object-contain" />
                     )
@@ -149,7 +151,7 @@ function AssetUsagePanel({ assetId }: { assetId: string }) {
     );
 }
 
-function AssetVersionPanel({ asset }: { asset: any }) {
+function AssetVersionPanel({ asset: _asset }: { asset: AssetRow }) {
     return (
         <div className="space-y-3">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Versions</h3>
@@ -163,7 +165,7 @@ function AssetVersionPanel({ asset }: { asset: any }) {
     );
 }
 
-function AssetCollectionPanel({ asset }: { asset: any }) {
+function AssetCollectionPanel({ asset: _asset }: { asset: AssetRow }) {
     return (
         <div className="space-y-3">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Collections</h3>
@@ -177,7 +179,7 @@ function AssetCollectionPanel({ asset }: { asset: any }) {
     );
 }
 
-function AssetMetadataPanel({ asset }: { asset: any }) {
+function AssetMetadataPanel({ asset }: { asset: AssetRow }) {
     return (
         <div className="space-y-4">
             <h3 className="text-lg font-semibold">Metadata</h3>
@@ -199,7 +201,7 @@ function AssetMetadataPanel({ asset }: { asset: any }) {
     );
 }
 
-function AssetActionsPanel({ asset }: { asset: any }) {
+function AssetActionsPanel({ asset: _asset }: { asset: AssetRow }) {
     return (
         <div className="space-y-4">
             <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">Danger Zone</h3>
