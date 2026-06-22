@@ -40,30 +40,43 @@ BEGIN
 END;
 $$;
 
--- Attach triggers to key tables
-DROP TRIGGER IF EXISTS audit_leads ON public.leads;
-CREATE TRIGGER audit_leads AFTER INSERT OR UPDATE OR DELETE ON public.leads
-  FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_fn();
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'leads') THEN
+    DROP TRIGGER IF EXISTS audit_leads ON public.leads;
+    CREATE TRIGGER audit_leads AFTER INSERT OR UPDATE OR DELETE ON public.leads
+      FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_fn();
+  END IF;
 
-DROP TRIGGER IF EXISTS audit_blog_posts ON public.blog_posts;
-CREATE TRIGGER audit_blog_posts AFTER INSERT OR UPDATE OR DELETE ON public.blog_posts
-  FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_fn();
+  IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'blog_posts') THEN
+    DROP TRIGGER IF EXISTS audit_blog_posts ON public.blog_posts;
+    CREATE TRIGGER audit_blog_posts AFTER INSERT OR UPDATE OR DELETE ON public.blog_posts
+      FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_fn();
+  END IF;
 
-DROP TRIGGER IF EXISTS audit_projects ON public.projects;
-CREATE TRIGGER audit_projects AFTER INSERT OR UPDATE OR DELETE ON public.projects
-  FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_fn();
+  IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'projects') THEN
+    DROP TRIGGER IF EXISTS audit_projects ON public.projects;
+    CREATE TRIGGER audit_projects AFTER INSERT OR UPDATE OR DELETE ON public.projects
+      FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_fn();
+  END IF;
 
-DROP TRIGGER IF EXISTS audit_services ON public.services;
-CREATE TRIGGER audit_services AFTER INSERT OR UPDATE OR DELETE ON public.services
-  FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_fn();
+  IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'services') THEN
+    DROP TRIGGER IF EXISTS audit_services ON public.services;
+    CREATE TRIGGER audit_services AFTER INSERT OR UPDATE OR DELETE ON public.services
+      FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_fn();
+  END IF;
 
-DROP TRIGGER IF EXISTS audit_media ON public.media;
-CREATE TRIGGER audit_media AFTER INSERT OR UPDATE OR DELETE ON public.media
-  FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_fn();
+  IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'media') THEN
+    DROP TRIGGER IF EXISTS audit_media ON public.media;
+    CREATE TRIGGER audit_media AFTER INSERT OR UPDATE OR DELETE ON public.media
+      FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_fn();
+  END IF;
 
-DROP TRIGGER IF EXISTS audit_testimonials ON public.testimonials;
-CREATE TRIGGER audit_testimonials AFTER INSERT OR UPDATE OR DELETE ON public.testimonials
-  FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_fn();
+  IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'testimonials') THEN
+    DROP TRIGGER IF EXISTS audit_testimonials ON public.testimonials;
+    CREATE TRIGGER audit_testimonials AFTER INSERT OR UPDATE OR DELETE ON public.testimonials
+      FOR EACH ROW EXECUTE FUNCTION public.audit_trigger_fn();
+  END IF;
+END $$;
 
 -- Lead activity trigger: auto-log status changes to lead_activities
 CREATE OR REPLACE FUNCTION public.log_lead_status_change() RETURNS trigger

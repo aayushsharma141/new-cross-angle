@@ -13,7 +13,7 @@ import { saveSession, loadSession, clearSession } from "../flow/persistence";
 import { startSession, trackQuizStarted, trackQuizCompleted, trackQuizStepViewed, trackQuizStepCompleted } from "../infrastructure/analytics/tracker";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
 import { synthesizeConsultationIntelligence, detectInterpretationConflict } from "../alcs/intelligence";
-import WelcomeScreen from "./WelcomeScreen";
+import DiscoveryLanding from "./DiscoveryLanding";
 import PropertyReality from "./PropertyReality";
 import LifestyleReflection from "./LifestyleReflection";
 import VisualInstinct from "./VisualInstinct";
@@ -401,7 +401,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                 {/* Stage content — fills remaining height, each component manages its own scroll */}
                 <div className="flex-1 min-h-0 relative z-10 h-full">
                     <AnimatePresence mode="wait">
-                        {stage === Stage.Welcome && <WelcomeScreen key="welcome" onStart={handleStart} config={config} />}
+                        {stage === Stage.Welcome && <DiscoveryLanding key="welcome" onStart={handleStart} config={config} />}
                         {stage === Stage.PropertyReality && (
                             <PropertyReality key="property" onComplete={handlePropertyRealityComplete} intent={currentSignals.intent} />
                         )}

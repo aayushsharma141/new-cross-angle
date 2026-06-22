@@ -1,7 +1,6 @@
-import { lazy, Suspense, useState } from "react";
+import { useState } from "react";
 import { Outlet, Navigate, useLocation, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ModuleLayout } from "@/components/admin/layout/ModuleLayout";
-import { PageSkeleton } from "@/components/ui/enhanced/PageSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { leadRepo } from "@/repositories";
 import type { Lead } from "@/lib/scoring/leadScoring";
@@ -17,9 +16,6 @@ import {
 } from "@/lib/crm";
 import { Sheet, SheetContent } from "@/components/ui/primitives/sheet";
 import { Menu } from "lucide-react";
-
-const CrmAnalytics = lazy(() => import("@/pages/admin/CrmAnalytics"));
-const CrmSettings = lazy(() => import("@/pages/admin/CrmSettings"));
 
 // ─── Sidebar counter helpers ─────────────────────────────────────────────────
 function getViewCount(viewId: string, leads: Lead[], now: Date): number {
@@ -60,8 +56,6 @@ export const CrmModule = () => {
   }, {} as Record<string, number>);
 
   const isLeadsPage = location.pathname.startsWith("/admin/crm/leads");
-  const isAnalyticsPage = location.pathname.startsWith("/admin/crm/analytics");
-  const isSettingsPage = location.pathname.startsWith("/admin/crm/settings");
 
   // ── Navigation handlers ──────────────────────────────────────────────────
   const handleStageClick = (stageId: string) => {
@@ -209,18 +203,10 @@ export const CrmModule = () => {
         description="Manage leads, track pipeline stages, and review client interactions across the sales lifecycle."
         sidebar={sidebarContent}
       >
-        {isAnalyticsPage ? (
-          <Suspense fallback={<div className="p-8"><PageSkeleton /></div>}>
-            <CrmAnalytics />
-          </Suspense>
-        ) : isSettingsPage ? (
-          <Suspense fallback={<div className="p-8"><PageSkeleton /></div>}>
-            <CrmSettings />
-          </Suspense>
-        ) : (
-          <Outlet />
-        )}
+        <Outlet />
       </ModuleLayout>
     </>
   );
 };
+
+export default CrmModule;

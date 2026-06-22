@@ -163,10 +163,10 @@ CREATE POLICY "Public Read Access for Asset Tags" ON public.asset_tags FOR SELEC
 CREATE POLICY "Public Read Access for Asset Tag Links" ON public.asset_tag_links FOR SELECT USING (true);
 
 -- Allow full access to authenticated users (CMS Admins)
-CREATE POLICY "Auth Full Access for Asset Collections" ON public.asset_collections FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Auth Full Access for Assets" ON public.assets FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Auth Full Access for Asset Versions" ON public.asset_versions FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Auth Full Access for Asset Usages" ON public.asset_usages FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Auth Full Access for Asset Metadata" ON public.asset_metadata FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Auth Full Access for Asset Tags" ON public.asset_tags FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Auth Full Access for Asset Tag Links" ON public.asset_tag_links FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Auth Full Access for Asset Collections" ON public.asset_collections FOR ALL TO authenticated USING (public.is_admin_or_editor(auth.uid())) WITH CHECK (public.is_admin_or_editor(auth.uid()));
+CREATE POLICY "Auth Full Access for Assets" ON public.assets FOR ALL TO authenticated USING (public.is_admin_or_editor(auth.uid())) WITH CHECK (public.is_admin_or_editor(auth.uid()));
+CREATE POLICY "Auth Full Access for Asset Versions" ON public.asset_versions FOR ALL TO authenticated USING (public.is_admin_or_editor(auth.uid())) WITH CHECK (public.is_admin_or_editor(auth.uid()));
+CREATE POLICY "Auth Full Access for Asset Usages" ON public.asset_usages FOR ALL TO authenticated USING (public.is_admin_or_editor(auth.uid())) WITH CHECK (public.is_admin_or_editor(auth.uid()));
+CREATE POLICY "Auth Full Access for Asset Metadata" ON public.asset_metadata FOR ALL TO authenticated USING (public.is_admin_or_editor(auth.uid())) WITH CHECK (public.is_admin_or_editor(auth.uid()));
+CREATE POLICY "Auth Full Access for Asset Tags" ON public.asset_tags FOR ALL TO authenticated USING (public.is_admin_or_editor(auth.uid())) WITH CHECK (public.is_admin_or_editor(auth.uid()));
+CREATE POLICY "Auth Full Access for Asset Tag Links" ON public.asset_tag_links FOR ALL TO authenticated USING (public.is_admin_or_editor(auth.uid())) WITH CHECK (public.is_admin_or_editor(auth.uid()));

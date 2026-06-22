@@ -1,15 +1,9 @@
-import { useState, useRef, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
     Loader2,
-    Search,
     FolderOpen,
-    Grid,
-    List,
-    CheckSquare,
-    Square,
     CloudDownload,
     HardDrive,
     FileImage,
@@ -86,19 +80,10 @@ const AdminMedia = () => {
     const { toast } = useToast();
     const { isEditor } = useAdminAuth();
     const queryClient = useQueryClient();
-    const [searchParams] = useSearchParams();
-    const urlSearch = searchParams.get("search");
-    const urlFile = searchParams.get("file");
-    const deepLinkHandled = useRef(false);
 
-    const [selectedFolder, setSelectedFolder] = useState<string>("all");
-    const [selectedType] = useState<string>("all");
-    const [searchQuery, setSearchQuery] = useState(urlSearch ?? "");
-    const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-    const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+    const [selectedFolder] = useState<string>("all");
 
     const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
-    const [previewFile, setPreviewFile] = useState<MediaFile | null>(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
     const [fileToDelete, setFileToDelete] = useState<MediaFile | null>(null);
@@ -117,14 +102,7 @@ const AdminMedia = () => {
         queryFn: fetchMediaFiles,
     });
 
-    // Deep-link from command palette: ?file=<name>
-    useEffect(() => {
-        if (urlFile && !deepLinkHandled.current && files.length > 0) {
-            deepLinkHandled.current = true;
-            const target = files.find((f) => f.name === urlFile);
-            if (target) setPreviewFile(target);
-        }
-    }, [files, urlFile]);
+
 
     // ── Upload mutation ───────────────────────────────────────────────────────
 
@@ -170,7 +148,7 @@ const AdminMedia = () => {
                     }
 
                     successCount++;
-                } catch (e: any) {
+                } catch (e: unknown) {
                     errors.push(`${file.name}: ${e.message}`);
                 }
             }
@@ -185,7 +163,7 @@ const AdminMedia = () => {
             setUploadError(null);
             void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
         },
-        onError: (err: any) => {
+        onError: (err: unknown) => {
             if (err && typeof err === "object" && "errors" in err && Array.isArray(err.errors)) {
                 const msg = err.errors.join("; ");
                 setUploadError(msg);
@@ -215,7 +193,6 @@ const AdminMedia = () => {
         },
         onSuccess: () => {
             toast({ title: "Success", description: "File deleted successfully" });
-            setPreviewFile(null);
             void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
         },
         onError: (err: Error) => {
@@ -377,46 +354,6 @@ const AdminMedia = () => {
 
     // ── Selection & filtering ─────────────────────────────────────────────────
 
-    const toggleFileSelection = (id: string) => {
-        setSelectedFiles((prev) => {
-            const next = new Set(prev);
-            if (next.has(id)) next.delete(id);
-            else next.add(id);
-            return next;
-        });
-    };
-
-    const copyToClipboard = async (url: string) => {
-        await navigator.clipboard.writeText(url);
-        setCopiedUrl(url);
-        toast({ title: "Copied", description: "URL copied to clipboard" });
-        setTimeout(() => setCopiedUrl(null), 2000);
-    };
-
-    const filteredFiles = files.filter((file) => {
-        const q = searchQuery.toLowerCase();
-        const matchesSearch =
-            file.name.toLowerCase().includes(q) || file.url.toLowerCase().includes(q);
-        const matchesFolder = selectedFolder === "all" || file.folder === selectedFolder;
-        let matchesType = true;
-        if (selectedType === "image") {
-            matchesType =
-                /\.(jpg|jpeg|png|gif|webp|svg|avif)$/i.test(file.name) ||
-                /\.(jpg|jpeg|png|gif|webp|svg|avif)$/i.test(file.url);
-        } else if (selectedType === "video") {
-            matchesType = /\.(mp4|webm|ogg)$/i.test(file.name);
-        }
-        return matchesFolder && matchesSearch && matchesType;
-    });
-
-    const toggleSelectAll = () => {
-        if (selectedFiles.size === filteredFiles.length && filteredFiles.length > 0) {
-            setSelectedFiles(new Set());
-        } else {
-            setSelectedFiles(new Set(filteredFiles.map((f) => f.id)));
-        }
-    };
-
     const isReadOnly = !isEditor;
 
     // ── Render ────────────────────────────────────────────────────────────────
@@ -455,7 +392,7 @@ const AdminMedia = () => {
                         { label: "Storage Used", value: (files.reduce((a, f) => a + f.size, 0) / (1024 * 1024)).toFixed(1) + " MB", icon: HardDrive },
                         { label: "Images", value: String(files.filter(f => /\.(jpg|jpeg|png|gif|webp|svg|avif)$/i.test(f.name)).length), icon: FileImage },
                         { label: "Videos", value: String(files.filter(f => /\.(mp4|webm|ogg)$/i.test(f.name)).length), icon: FileVideo }
-                    ] as any} 
+                    ] as unknown as never} 
                 />
             </div>
 

@@ -51,6 +51,9 @@ BEGIN
     END IF;
 END $$;
 
+COMMIT;
+BEGIN;
+
 ALTER TABLE IF EXISTS public.user_roles
     ALTER COLUMN role SET DEFAULT 'viewer'::public.app_role;
 

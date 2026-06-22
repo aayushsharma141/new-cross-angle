@@ -11,15 +11,19 @@ import {
 } from "@/components/ui/primitives/dialog";
 import { useToast } from "@/hooks/useToast";
 import { MediaService, MediaFile } from "@/services/MediaService";
+import { supabase } from "@/integrations/supabase/client";
 import { getOptimizedUrl } from "@/lib/cdn";
 
 interface MediaPickerModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSelect: (file: MediaFile) => void;
+    domain?: string;
+    entityType?: string;
+    role?: string;
 }
 
-const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProps) => {
+const MediaPickerModal = ({ open, onOpenChange, onSelect, domain = "system", entityType = "system", role = "general" }: MediaPickerModalProps) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedFile, setSelectedFile] = useState<MediaFile | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,7 +39,36 @@ const MediaPickerModal = ({ open, onOpenChange, onSelect }: MediaPickerModalProp
     const uploadMutation = useMutation({
         mutationFn: async (fileList: FileList) => {
             const file = fileList[0];
-            return MediaService.upload({ file, folderId: null });
+            const { url, filePath } = await MediaService.uploadDamAsset({
+                file,
+                title: file.name,
+                domain,
+                entityType,
+                entityId: null,
+                role,
+            });
+
+            // Dual Write for Legacy UI
+            const { data: userData } = await supabase.auth.getUser();
+            const { error: dbError } = await supabase.from("media_files").upsert(
+                {
+                    url: url,
+                    file_name: filePath,
+                    display_name: file.name,
+                    mime_type: file.type || "application/octet-stream",
+                    size_bytes: file.size,
+                    alt_text: file.name,
+                    caption: file.name,
+                    storage_provider: "imagekit",
+                    storage_path: filePath,
+                    uploaded_by: userData?.user?.id,
+                },
+                { onConflict: "file_name" }
+            );
+
+            if (dbError) throw dbError;
+
+            return { url, name: file.name };
         },
         onSuccess: () => {
             toast({ title: "Upload successful" });

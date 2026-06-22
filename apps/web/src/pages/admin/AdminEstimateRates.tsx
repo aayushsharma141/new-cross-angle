@@ -30,7 +30,8 @@ export default function AdminEstimateRates() {
     const { data: rateData, isLoading } = useQuery<{ id?: string; config: PricingConfig; updated_at?: string } | null>({
         queryKey: ["estimate-rates"],
         queryFn: async (): Promise<{ id?: string; config: PricingConfig; updated_at?: string } | null> => {
-            const { data, error } = await supabase
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { data, error } = await (supabase as any)
                 .from("estimate_rates")
                 .select("*")
                 .order("updated_at", { ascending: false })
@@ -65,13 +66,15 @@ export default function AdminEstimateRates() {
             };
 
             if (rateData?.id) {
-                const { error } = await supabase
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { error } = await (supabase as any)
                     .from("estimate_rates")
                     .update(payload)
                     .eq("id", rateData.id);
                 if (error) throw error;
             } else {
-                const { error } = await supabase
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { error } = await (supabase as any)
                     .from("estimate_rates")
                     .insert([payload]);
                 if (error) throw error;

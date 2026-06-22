@@ -8,11 +8,9 @@ import {
     ArrowUpDown,
     ArrowUp,
     ArrowDown,
-    Scroll,
     RefreshCw,
     FileText,
     Search,
-    TrendingUp,
 } from "lucide-react";
 import { AdminMetricsPanel } from "@/components/admin/shared";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
@@ -56,14 +54,15 @@ export default function AdminBlogPerformance() {
         try {
             const { data: blogData, error: blogErr } = await supabase
                 .from("blog_posts")
-                .select("id, title, slug, is_published, created_at")
+                .select("id, title, slug, status, created_at")
                 .order("created_at", { ascending: false });
 
             if (blogErr) { console.error("Error loading blogs", blogErr); setLoading(false); return; }
 
             const analyticsMap: Record<string, { views: number; read_time: number; scroll_depth: number }> = {};
             try {
-                const { data: ad } = await supabase
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { data: ad } = await (supabase as any)
                     .from("article_analytics")
                     .select("article_id, views, avg_read_time_seconds, scroll_completion_rate");
                 if (ad) ad.forEach((a: { article_id: string; views: number; avg_read_time_seconds: number; scroll_completion_rate: number }) => {
@@ -71,8 +70,8 @@ export default function AdminBlogPerformance() {
                 });
             } catch { /* table may not exist */ }
 
-            setArticles((blogData || []).map((b: { id: string; title: string; slug: string; is_published: boolean; created_at: string }) => ({
-                id: b.id, title: b.title, slug: b.slug, is_published: b.is_published, created_at: b.created_at,
+            setArticles((blogData || []).map((b: { id: string; title: string; slug: string; status: string; created_at: string }) => ({
+                id: b.id, title: b.title, slug: b.slug, is_published: b.status === "published", created_at: b.created_at,
                 views: analyticsMap[b.id]?.views ?? 0,
                 read_time: analyticsMap[b.id]?.read_time ?? 0,
                 scroll_depth: analyticsMap[b.id]?.scroll_depth ?? 0,
@@ -160,10 +159,10 @@ export default function AdminBlogPerformance() {
             <div className="fade-up-1">
                 <AdminMetricsPanel 
                     metrics={[
-                        { label: "Total Views", value: totalViews.toLocaleString(), icon: Eye },
-                        { label: "Top Article", value: topArticle?.title?.substring(0, 20) || "—", icon: TrendingUp },
-                        { label: "Avg. Scroll", value: `${avgScroll}%`, icon: Scroll },
-                        { label: "Avg. Read Time", value: avgReadTime ? `${(avgReadTime / 60).toFixed(1)}m` : "—", icon: Clock }
+                        { label: "Total Views", value: totalViews.toLocaleString() },
+                        { label: "Top Article", value: topArticle?.title?.substring(0, 20) || "—" },
+                        { label: "Avg. Scroll", value: `${avgScroll}%` },
+                        { label: "Avg. Read Time", value: avgReadTime ? `${(avgReadTime / 60).toFixed(1)}m` : "—" }
                     ]} 
                 />
             </div>

@@ -86,9 +86,15 @@ The design uses a dark-mode cinematic theme with a luxury brand appeal (reminisc
 ---
 
 ### H. Aesthetic Discovery quiz page (`/aesthetic-discovery-engine`)
-- **Layout:** Clean layout, lets visitors answer questions with language presets (English/Hinglish). The "Start Over" button correctly clears previous selections.
-- **Visual Screenshot:**
+- **Layout & Onboarding**: The landing page has been updated to the V3 luxurious split layout. The Left Panel holds brand narrative and CTAs, while the Right Panel hosts the interactive tabs.
+- **Redesigned Archetypes Tab**: The horizontal scroll card slider has been replaced:
+  - **Desktop**: A sleek split catalog with scrollable style names on the left (35%) and detailed traits, material bias, design strategy, and interactive color palettes with hover tooltips on the right (65%).
+  - **Mobile**: Collapsible accordions with instant transition animations, providing perfect vertical fitting without horizontal clip constraints.
+- **Visual Screenshots**:
   - ![Aesthetic Discovery Quiz](file:///C:/Users/aayus/.gemini/antigravity-ide/brain/6eaa78d9-dbbc-4188-a679-422ed9345545/discovery_quiz_view_1781857502111.png)
+  - ![Warm Modernist Detail Grid](file:///C:/Users/aayus/.gemini/antigravity-ide/brain/8198f32b-2298-403f-9a77-66f0699dd811/warm_modernist_hover_1781953520704.png)
+  - ![Serene Naturalist Detail Grid](file:///C:/Users/aayus/.gemini/antigravity-ide/brain/8198f32b-2298-403f-9a77-66f0699dd811/serene_naturalist_hover_1781953550784.png)
+
 
 ---
 

@@ -45,8 +45,10 @@ interface SupabaseItem {
   featured?: boolean;
   year_completed?: string | number;
   year?: string | number;
-  cover_image_url?: string;
-  hero_image?: string;
+  deprecated_cover_image_url?: string;
+  deprecated_hero_image?: string;
+  cover_image_url?: string; // used for fallback mapping
+  hero_image?: string; // used for fallback mapping
   project_gallery?: SupabaseGalleryItem[];
   brief?: string;
   approach?: string;
@@ -55,6 +57,7 @@ interface SupabaseItem {
   testimonial_author?: string;
   testimonial_role?: string;
   excerpt?: string;
+  deprecated_cover_image?: string;
   cover_image?: string;
   created_at?: string;
   content?: string;
@@ -62,6 +65,7 @@ interface SupabaseItem {
   icon?: string;
   short_tag?: string;
   tag?: string;
+  deprecated_icon_url?: string;
   icon_url?: string;
   category_id?: string;
   features?: string[];
@@ -70,6 +74,110 @@ interface SupabaseItem {
   service_faqs?: SupabaseFAQ[];
   faq?: SupabaseFAQ[];
 }
+
+interface AssetVersion {
+  url: string;
+  mime_type?: string | null;
+  size_bytes?: number | null;
+}
+
+interface AssetUsageRecord {
+  entity_id: string;
+  role: string;
+  display_order?: number | null;
+  assets?: {
+    asset_versions?: AssetVersion[];
+  } | null;
+}
+
+// Helper to fetch and stitch DAM usages
+const fetchAndStitchDamUsages = async (items: SupabaseItem[], entityType: string) => {
+  if (!supabase || items.length === 0) return items;
+
+  const ids = items.map(i => i.id).filter(Boolean) as string[];
+  if (ids.length === 0) return items;
+
+  try {
+    const { data: usages, error } = await supabase
+      .from('asset_usages')
+      .select(`
+        entity_id,
+        role,
+        display_order,
+        assets (
+          asset_versions (
+            url,
+            mime_type,
+            size_bytes
+          )
+        )
+      `)
+      .eq('entity_type', entityType)
+      .in('entity_id', ids);
+
+    if (error || !usages) {
+      console.warn('Failed to fetch asset usages:', error);
+      return items;
+    }
+
+    // Map usages to items
+    const typedUsages = usages as unknown as AssetUsageRecord[];
+    for (const item of items) {
+      const itemUsages = typedUsages.filter(u => u.entity_id === item.id);
+      if (itemUsages.length === 0) continue;
+
+      const getAsset = (role: string): AssetVersion | undefined => {
+        const usage = itemUsages.find(u => u.role === role);
+        return usage?.assets?.asset_versions?.[0];
+      };
+
+      const getUrls = (role: string): string[] => {
+        const matchingUsages = itemUsages
+          .filter(u => u.role === role)
+          .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+        return matchingUsages
+          .map(u => u.assets?.asset_versions?.[0]?.url)
+          .filter((url): url is string => Boolean(url));
+      };
+
+      if (entityType === 'project') {
+        const coverAsset = getAsset('cover');
+        if (coverAsset?.url) {
+          item.cover_image_url = coverAsset.url;
+          (item as SupabaseItem & { coverAsset?: AssetVersion }).coverAsset = coverAsset;
+        }
+
+        const heroAsset = getAsset('hero');
+        if (heroAsset?.url) {
+          item.hero_image = heroAsset.url;
+          (item as SupabaseItem & { heroAsset?: AssetVersion }).heroAsset = heroAsset;
+        }
+
+        // Note: For project_gallery we map generic gallery roles.
+        const galleryUrls = getUrls('gallery');
+        if (galleryUrls.length > 0) {
+          item.project_gallery = galleryUrls.map(url => ({ image_url: url, room_name: 'General' }));
+        }
+      } else if (entityType === 'service') {
+        const heroAsset = getAsset('hero');
+        if (heroAsset?.url) {
+          item.hero_image = heroAsset.url;
+          (item as SupabaseItem & { heroAsset?: AssetVersion }).heroAsset = heroAsset;
+        }
+        
+        const iconAsset = getAsset('icon');
+        if (iconAsset?.url) {
+          item.icon_url = iconAsset.url;
+          (item as SupabaseItem & { iconAsset?: AssetVersion }).iconAsset = iconAsset;
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Exception fetching DAM usages:', e);
+  }
+
+  return items;
+};
 
 // Helper to map Supabase Project to Project interface
 const mapSupabaseToProject = (item: SupabaseItem): Project => {
@@ -125,6 +233,8 @@ const mapSupabaseToProject = (item: SupabaseItem): Project => {
     style: (item.style_tags && Array.isArray(item.style_tags) && item.style_tags.length > 0) ? item.style_tags.join(', ') : (item.style || "-"),
     year: Number(item.year_completed || item.year || new Date().getFullYear()),
     heroImage: heroImageFromDesc || item.cover_image_url || item.hero_image || "",
+    heroAsset: (item as SupabaseItem & { heroAsset?: AssetVersion }).heroAsset,
+    coverAsset: (item as SupabaseItem & { coverAsset?: AssetVersion }).coverAsset,
     gallery: gallery,
     brief: item.brief || "",
     approach: item.approach || "",
@@ -254,7 +364,8 @@ export const api = {
         return localProjects;
       }
 
-      return data.map(mapSupabaseToProject);
+      const itemsWithDam = await fetchAndStitchDamUsages(data, 'project');
+      return itemsWithDam.map(mapSupabaseToProject);
     } catch (e) {
       console.warn('Exception during project fetch:', e);
       return [];
@@ -282,7 +393,8 @@ export const api = {
         if (localP) return localP;
         return null;
       }
-      return mapSupabaseToProject(data);
+      const itemsWithDam = await fetchAndStitchDamUsages([data], 'project');
+      return mapSupabaseToProject(itemsWithDam[0]);
     } catch (e) {
       console.warn('Exception during project by slug fetch:', e);
       return null;
@@ -295,7 +407,7 @@ export const api = {
     try {
       const { data, error } = await supabase
         .from('projects')
-        .select('id, title, slug, type, location, cover_image_url')
+        .select('id, title, slug, type, location, deprecated_cover_image_url')
         .order('display_order', { ascending: true });
 
       if (error || !data || data.length === 0) {
@@ -304,19 +416,21 @@ export const api = {
           id: item.id,
           title: item.title,
           slug: item.slug,
-          type: item.type,
+          type: item.type as "residential" | "commercial",
           location: item.location,
           heroImage: item.heroImage
         }));
       }
       
-      return data.map(item => ({
+      const itemsWithDam = await fetchAndStitchDamUsages(data, 'project');
+      
+      return itemsWithDam.map(item => ({
         id: item.id,
         title: item.title,
         slug: item.slug,
-        type: item.type,
+        type: item.type as "residential" | "commercial",
         location: item.location,
-        heroImage: item.cover_image_url
+        heroImage: item.deprecated_cover_image_url || item.cover_image_url
       }));
     } catch (e) {
       console.warn('Exception during minimal projects fetch:', e);
@@ -326,18 +440,6 @@ export const api = {
 
   getBlogs: async (): Promise<Blog[]> => {
     if (!supabase) return [];
-    interface BlogRow {
-      id: string;
-      title: string | null;
-      excerpt: string | null;
-      cover_image_url: string | null;
-      tags: string[] | null;
-      published_at: string | null;
-      created_at: string | null;
-      slug: string | null;
-      content: string | null;
-      view_count: number | null;
-    }
     const { data, error } = await supabase
       .from('blog_posts')
       .select('*')
@@ -349,11 +451,13 @@ export const api = {
       return [];
     }
 
-    return (data || []).map((item: BlogRow) => ({
+    const itemsWithDam = await fetchAndStitchDamUsages(data || [], 'blog');
+
+    return itemsWithDam.map((item: SupabaseItem) => ({
       id: item.id,
       title: item.title || 'Untitled',
       excerpt: item.excerpt || '',
-      image: item.cover_image_url || '',
+      image: item.cover_image_url || item.deprecated_cover_image_url || '',
       category: (item.tags && item.tags.length > 0) ? item.tags[0] : 'Interior Design',
       date: new Date(item.published_at || item.created_at || new Date()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
       slug: item.slug || item.id,
@@ -379,7 +483,8 @@ export const api = {
       return [];
     }
 
-    return (data || []).map(mapSupabaseToServiceDetail);
+    const itemsWithDam = await fetchAndStitchDamUsages(data || [], 'service');
+    return itemsWithDam.map(mapSupabaseToServiceDetail);
   },
 
   getServiceBySlug: async (slug: string): Promise<ServiceDetail | null> => {
@@ -397,7 +502,8 @@ export const api = {
       return null;
     }
 
-    return mapSupabaseToServiceDetail(data);
+    const itemsWithDam = await fetchAndStitchDamUsages([data], 'service');
+    return mapSupabaseToServiceDetail(itemsWithDam[0]);
   },
 
   getTestimonials: async (): Promise<Testimonial[]> => {
@@ -458,7 +564,8 @@ export const api = {
         return fallback.slice(0, 3);
       }
 
-      return data.map(mapSupabaseToProject);
+      const itemsWithDam = await fetchAndStitchDamUsages(data, 'project');
+      return itemsWithDam.map(mapSupabaseToProject);
     } catch (e) {
       console.warn('Exception during featured project fetch:', e);
       return [];

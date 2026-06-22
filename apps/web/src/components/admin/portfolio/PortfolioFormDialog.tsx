@@ -413,6 +413,9 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         value={formData.cover_image_url}
                                         onChange={(url) => setFormData({ ...formData, cover_image_url: url })}
                                         placeholder="Cover Image URL"
+                                        domain="portfolio"
+                                        entityType="project"
+                                        damRole="cover_image"
                                     />
                                 </div>
                             </div>
@@ -428,6 +431,9 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         value={formData.hero_image_url}
                                         onChange={(url) => setFormData({ ...formData, hero_image_url: url })}
                                         placeholder="Hero Image URL"
+                                        domain="portfolio"
+                                        entityType="project"
+                                        damRole="hero_image"
                                     />
                                 </div>
                             </div>

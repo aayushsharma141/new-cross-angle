@@ -4,18 +4,23 @@
 
 -- NOTE: We use simple text replacement. Make sure no custom statuses conflict.
 
-BEGIN;
+DO $$ BEGIN IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+        AND table_name = 'leads'
+        AND column_name = 'status'
+) THEN
+    -- Map 'contacted' to 'in_conversation'
+    UPDATE leads SET status = 'in_conversation' WHERE status = 'contacted';
 
--- Map 'contacted' to 'in_conversation'
-UPDATE leads SET status = 'in_conversation' WHERE status = 'contacted';
+    -- Map 'qualified' and 'consultation_scheduled' to 'meeting_planned'
+    UPDATE leads SET status = 'meeting_planned' WHERE status IN ('qualified', 'consultation_scheduled');
 
--- Map 'qualified' and 'consultation_scheduled' to 'meeting_planned'
-UPDATE leads SET status = 'meeting_planned' WHERE status IN ('qualified', 'consultation_scheduled');
+    -- Map 'proposal_sent' to 'quote_sent'
+    UPDATE leads SET status = 'quote_sent' WHERE status = 'proposal_sent';
 
--- Map 'proposal_sent' to 'quote_sent'
-UPDATE leads SET status = 'quote_sent' WHERE status = 'proposal_sent';
-
--- Map 'negotiation' and 'final_review' to 'closing'
-UPDATE leads SET status = 'closing' WHERE status IN ('negotiation', 'final_review');
-
-COMMIT;
+    -- Map 'negotiation' and 'final_review' to 'closing'
+    UPDATE leads SET status = 'closing' WHERE status IN ('negotiation', 'final_review');
+END IF;
+END $$;

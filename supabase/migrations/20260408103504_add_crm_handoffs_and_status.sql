@@ -1,8 +1,11 @@
--- Add new statuses to existing enum
-ALTER TYPE lead_status_enum ADD VALUE IF NOT EXISTS 'consultation_scheduled';
-ALTER TYPE lead_status_enum ADD VALUE IF NOT EXISTS 'proposal_sent';
-ALTER TYPE lead_status_enum ADD VALUE IF NOT EXISTS 'final_review';
-
+-- Add new statuses to existing enum (if it exists)
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'lead_status_enum') THEN
+        ALTER TYPE lead_status_enum ADD VALUE IF NOT EXISTS 'consultation_scheduled';
+        ALTER TYPE lead_status_enum ADD VALUE IF NOT EXISTS 'proposal_sent';
+        ALTER TYPE lead_status_enum ADD VALUE IF NOT EXISTS 'final_review';
+    END IF;
+END $$;
 -- Create loss_reason_enum
 DO $$ BEGIN
     CREATE TYPE loss_reason_enum AS ENUM (

@@ -18,6 +18,9 @@ import { useSystem } from "@/context/SystemContext";
 import { ModuleLayout, ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { supabase } from "@/integrations/supabase/client";
+import { useAdminDisplayName } from "@/hooks/useAdminDisplayName";
+import { usePermissions } from "@/hooks/usePermissions";
+import { Button } from "@/components/ui/primitives/button";
 
 const OverviewTab = lazy(() => import("./tabs/OverviewTab"));
 const TrafficTab = lazy(() => import("./tabs/TrafficTab"));
@@ -46,9 +49,10 @@ const downloadCsv = (filename: string, rows: string[][]): void => {
   URL.revokeObjectURL(url);
 };
 
-const TabFallback = () => (
-  <div className="flex items-center justify-center h-64">
+const TabFallback = ({ label }: { label?: string }) => (
+  <div className="flex items-center justify-center h-64 flex-col gap-2">
     <Loader2 className="w-8 h-8 animate-spin text-admin-primary/50" />
+    {label && <span className="text-xs text-[hsl(var(--admin-muted))]">Loading {label}...</span>}
   </div>
 );
 

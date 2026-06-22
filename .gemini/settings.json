@@ -1,4 +1,5 @@
 {
+  "systemInstruction": "This is Aayush Sharma's project — Cross Angle Interior, a UHNW luxury interior design studio site. Always use Tailwind CSS (v3) with shadcn/ui (Radix UI primitives). Keep brand name as 'Cross Angle Interior' or 'Crossangle Interior' as used in context. Never remove existing comments or docstrings. Before making ANY changes or edits to the codebase, you MUST first read and refer to the codebase memory file at C:\\Users\\aayus\\Desktop\\main\\memory.md to understand the full project structure, architecture, data flow, field names, routing, and all established patterns. Also refer to C:\\Users\\aayus\\Desktop\\main\\CROSSANGLE.md for immutable project truths — never rewrite it without owner approval. Critical: never use wrong field names (see database-map.md trap table). Never trust client-side estimate totals. Never edit past migration files.",
   "hooks": {
     "BeforeTool": [
       {

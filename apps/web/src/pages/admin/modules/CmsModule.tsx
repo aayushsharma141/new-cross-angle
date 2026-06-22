@@ -33,3 +33,5 @@ export const CmsModule = () => {
         </ModuleLayout>
     );
 };
+
+export default CmsModule;

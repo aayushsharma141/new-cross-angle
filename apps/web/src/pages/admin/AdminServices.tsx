@@ -163,8 +163,19 @@ const AdminServices = () => {
     };
 
     const upsertMutation = useMutation({
-        mutationFn: async (payload: Record<string, unknown>) => {
-            const { error: rpcError } = await supabase.rpc('upsert_service', payload);
+        mutationFn: async (payload: {
+            p_active: boolean;
+            p_description: any;
+            p_display_order: number;
+            p_faqs: any;
+            p_icon_url: string | null;
+            p_name: string;
+            p_service_id: string | null;
+            p_short_tag: string | null;
+            p_slug: string;
+            p_steps: any;
+        }) => {
+            const { error: rpcError } = await supabase.rpc('upsert_service', payload as any);
             if (rpcError) throw rpcError;
             return payload;
         },
@@ -319,7 +330,7 @@ const AdminServices = () => {
                     filteredServices.map((service, i) => {
                         const delayClass = `fade-up-${Math.min((i % 4) + 1, 4)}`;
 
-                        const ServiceIcon = (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[service.icon || "Briefcase"] || LucideIcons.Briefcase;
+                        const ServiceIcon = (LucideIcons as any)[service.icon || "Briefcase"] || LucideIcons.Briefcase;
 
                         return (
                             <div key={service.id} className={`${delayClass} group`}>
@@ -393,7 +404,7 @@ const AdminServices = () => {
                                             icon={Trash2}
                                             label="Delete"
                                             confirmLabel="Delete service?"
-                                            onConfirm={() => handleDelete(service.id)}
+                                            onConfirm={async () => { handleDelete(service.id); }}
                                             danger
                                         />
                                     </div>

@@ -162,3 +162,18 @@ This log records the tool activities, browser agent executions, and verification
 5. **Services Hub DOM depth: 18** — deepest nesting; ServicesEngines card-grid structure is deepest
 6. **JS Heap: 37–48 MB** — Framer Motion + GSAP + React Router state on every page
 7. **Homepage has only 2 H2s** — confirms orphaned components (About, Services, TrustSection, ServiceLocations, HomeBlog) not wired into Index.tsx
+
+---
+
+## 6. Aesthetic Discovery Engine Audit Activity Log
+
+### Archetypes Tab Audit (June 20, 2026)
+
+1. **Action**: Navigated to `http://localhost:8080/aesthetic-discovery-engine`.
+2. **Action**: Clicked the "Archetypes" tab to examine the redesigned grid catalog.
+3. **Observation**: Horizontal carousel was replaced with a highly professional split catalog layout. 
+   - Left side: Stretched vertical list of the 10 luxury archetypes with clean monospace numbering (01, 02...).
+   - Right side: Dynamic presentation card showing category tags, traits, material bias, color palette circles with custom tooltips, and a strategy paragraph.
+4. **Action**: Selected "Warm Modernist" and "Serene Naturalist" to verify click responsiveness and animation timing.
+5. **Observation**: Page re-renders instantly with Framer Motion slide-up animations. Inactive row items are muted to keep user focus on the active selection. Hovering over color circles yields tooltips instantly.
+6. **Action**: Captured screenshots `warm_modernist_hover` and `serene_naturalist_hover` showing the new desktop layout.

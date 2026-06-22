@@ -80,7 +80,7 @@ const AdminHero = () => {
     const addUrlRef = useRef<HTMLInputElement>(null);
 
     /* ─── Fetch ─── */
-    const { data: fetchedItems = [], isLoading } = useQuery({
+    const { data: fetchedItems = [], isLoading, refetch } = useQuery({
         queryKey: ['hero-items'],
         queryFn: async () => {
             const { data, error } = await supabase
@@ -100,7 +100,8 @@ const AdminHero = () => {
     /* ─── Add ─── */
     const addMutation = useMutation({
         mutationFn: async (payload: Record<string, unknown>) => {
-            const { error } = await supabase.from("hero_media").insert(payload);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { error } = await supabase.from("hero_media").insert(payload as any);
             if (error) throw error;
         },
         onSuccess: () => {
@@ -294,7 +295,7 @@ const AdminHero = () => {
             } catch (error) {
                 const err = error as Error;
                 toast({ title: "Error saving order", description: err.message, variant: "destructive" });
-                fetchItems();
+                void refetch();
             }
         }, 600);
     };

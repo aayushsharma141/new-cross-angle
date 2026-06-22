@@ -20,3 +20,5 @@ export const DiscoveryModule = () => {
         </ModuleLayout>
     );
 };
+
+export default DiscoveryModule;

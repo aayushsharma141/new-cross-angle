@@ -3,9 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { format, subDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
-    MousePointerClick,
-    Share2,
-    Mail,
     Tag,
     RefreshCw,
     BarChart3,
@@ -142,10 +139,10 @@ export default function AdminBlogEngagement() {
             <div className="fade-up-1">
                 <AdminMetricsPanel 
                     metrics={[
-                        { label: "Total Events", value: totalEvents.toLocaleString(), icon: BarChart3 },
-                        { label: "CTA Clicks", value: ctaClicks.toLocaleString(), icon: MousePointerClick },
-                        { label: "Share Clicks", value: shareClicks.toLocaleString(), icon: Share2 },
-                        { label: "Newsletter Sign-ups", value: newsletterSignups.toLocaleString(), icon: Mail }
+                        { label: "Total Events", value: totalEvents.toLocaleString() },
+                        { label: "CTA Clicks", value: ctaClicks.toLocaleString() },
+                        { label: "Share Clicks", value: shareClicks.toLocaleString() },
+                        { label: "Newsletter Sign-ups", value: newsletterSignups.toLocaleString() }
                     ]} 
                 />
             </div>

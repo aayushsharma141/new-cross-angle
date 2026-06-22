@@ -1,5 +1,5 @@
-﻿import { useState, useRef, useEffect, useCallback } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { leadRepo } from "@/repositories";
 import { supabase } from "@/integrations/supabase/client";
 import { LeadGridView } from "@/components/admin/leads/LeadGridView";
@@ -31,6 +31,8 @@ import {
 
   getCrmSourceLabel,
   getCrmLeadTypeLabel,
+  getCrmSort,
+  getCrmSavedView,
   type CrmStageId,
   type CrmSavedViewId,
   type CrmSortMode,
@@ -99,7 +101,56 @@ export default function AdminLeads() {
   const canCreate = can('leads', 'create');
   const canDelete = can('leads', 'delete');
 
+  const { data: leads = [], isLoading } = useQuery({
+    queryKey: ["leads"],
+    queryFn: async (): Promise<Lead[]> => {
+      const raw = await leadRepo.getLeads();
+      return raw as unknown as Lead[];
+    },
+  });
 
+  const now = useMemo(() => new Date(), []);
+
+  const filteredLeads = useMemo(() => {
+    let result = [...leads];
+
+    // Filter by stage status
+    if (statusFilter !== "all") {
+      result = result.filter((lead) => lead.status === statusFilter);
+    }
+
+    // Filter by saved view predicate
+    if (viewFilter !== "all") {
+      const view = getCrmSavedView(viewFilter);
+      if (view) {
+        result = result.filter((lead) => view.predicate(lead, now));
+      }
+    }
+
+    // Filter by source
+    if (sourceFilter !== "all") {
+      result = result.filter((lead) => (lead.source || lead.lead_source) === sourceFilter);
+    }
+
+    // Filter by search query
+    if (debouncedSearch) {
+      const query = debouncedSearch.toLowerCase().trim();
+      result = result.filter((lead) => {
+        return (
+          (lead.name || "").toLowerCase().includes(query) ||
+          (lead.email || "").toLowerCase().includes(query) ||
+          (lead.phone || "").toLowerCase().includes(query) ||
+          (lead.city || "").toLowerCase().includes(query)
+        );
+      });
+    }
+
+    // Sort leads
+    const sortOption = getCrmSort(sortMode);
+    result.sort(sortOption.comparator);
+
+    return result;
+  }, [leads, statusFilter, viewFilter, sourceFilter, debouncedSearch, sortMode, now]);
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...patch }: Partial<Lead> & { id: string }): Promise<void> => {
@@ -481,11 +532,6 @@ export default function AdminLeads() {
         }}
         onDelete={canDelete ? (id) => setDeleteTargetId(id) : undefined}
         isReadOnly={!can('leads', 'edit')}
-        allLeads={leads}
-        onViewLead={(matchedLead) => {
-          setIsSheetOpen(false);
-          setTimeout(() => { setSelectedLead(matchedLead); setIsSheetOpen(true); }, 150);
-        }}
       />
 
       <ConfirmDialog

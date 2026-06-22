@@ -22,25 +22,24 @@ SET
   estimated_max = lm.estimated_max,
   lead_score = lm.lead_score
 FROM public.leads_master lm
-WHERE l.internal_notes->>'discovery_lead_id' = lm.id::text;
+WHERE l.email = lm.email;
 
 -- 3. Insert dangling leads_master rows
 INSERT INTO public.leads (
-  id, name, email, phone, message, lead_source, consent, archetype, investment_tier, 
-  project_type, estimated_min, estimated_max, lead_score, created_at, status
+  id, name, email, phone, message, source, consent, archetype, investment_tier, 
+  project_type, estimated_min, estimated_max, lead_score, created_at
 )
 SELECT 
   lm.id, lm.name, lm.email, lm.phone, 
   COALESCE('Imported from leads_master. Archetype: ' || lm.archetype, 'Imported from leads_master'),
-  (CASE WHEN lm.source = 'discovery_engine' THEN 'style_quiz'::lead_source_enum ELSE 'other'::lead_source_enum END) as lead_source, 
+  (CASE WHEN lm.source = 'discovery_engine' THEN 'website'::public.lead_source ELSE 'other'::public.lead_source END) as source, 
   lm.consent, lm.archetype, 
   lm.investment_tier, lm.project_type, lm.estimated_min, lm.estimated_max, 
-  lm.lead_score, lm.created_at, 
-  (CASE WHEN lm.status IN ('new', 'contacted', 'qualified', 'lost', 'won') THEN lm.status::lead_status_enum ELSE 'new'::lead_status_enum END) as status
+  lm.lead_score, lm.created_at
 FROM public.leads_master lm
 WHERE NOT EXISTS (
   SELECT 1 FROM public.leads l 
-  WHERE l.internal_notes->>'discovery_lead_id' = lm.id::text
+  WHERE l.email = lm.email
 )
 ON CONFLICT DO NOTHING;
 
@@ -49,7 +48,6 @@ ALTER TABLE public.raw_payload ADD COLUMN new_lead_id UUID REFERENCES public.lea
 
 UPDATE public.raw_payload rp
 SET new_lead_id = COALESCE(
-  (SELECT id FROM public.leads WHERE internal_notes->>'discovery_lead_id' = rp.lead_id::text LIMIT 1),
   (SELECT id FROM public.leads WHERE id = rp.lead_id LIMIT 1)
 );
 

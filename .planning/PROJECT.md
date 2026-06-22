@@ -10,8 +10,17 @@
 - Created fallback reading mechanism for smooth frontend migration.
 - Executed backfill migrations and deprecated legacy columns cleanly.
 
-## Next Milestone Goals
-*To be defined.*
+## Current Milestone: v3.0 DAM V3 Workspace
+
+**Goal:** Transition the CMS Media Library from an "FTP Client" (Upload, Grid, Delete) to a true "Asset Workspace" (Assets, Collections, Usage, Versions, Relationships) acting as the visual operating system for editors.
+
+**Target features:**
+- Asset Workspace (Usage Panel, Versions Panel, Replace Operations).
+- Universal Asset Picker (prioritize reuse over re-uploading).
+- Discovery Integration (DAM powers Discovery visuals).
+- Collection Workspace (first-class collections view, bulk uploads).
+- Archive & Governance (soft deletion, usage protection).
+- Search & Intelligence (faceted search, intelligence dashboards).
 
 <details>
 <summary>Archive: v2.0 DAM V3 Architecture Redesign</summary>

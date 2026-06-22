@@ -14,6 +14,9 @@ interface MediaPickerFieldProps {
     disabled?: boolean;
     className?: string;
     previewClassName?: string;
+    domain?: string;
+    entityType?: string;
+    damRole?: string;
 }
 
 export function MediaPickerField({
@@ -24,7 +27,10 @@ export function MediaPickerField({
     placeholder = "Select an image...",
     disabled = false,
     className = "",
-    previewClassName = "h-32 object-cover"
+    previewClassName = "h-32 object-cover",
+    domain = "system",
+    entityType = "system",
+    damRole = "general"
 }: MediaPickerFieldProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -79,6 +85,9 @@ export function MediaPickerField({
                     onChange(file.url);
                     setIsModalOpen(false);
                 }}
+                domain={domain}
+                entityType={entityType}
+                role={damRole}
             />
         </div>
     );

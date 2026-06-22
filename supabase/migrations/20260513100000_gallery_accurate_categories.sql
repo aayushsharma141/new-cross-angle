@@ -2,10 +2,12 @@
 -- Every image path has been visually inspected before being assigned to a category.
 -- Run: supabase db push
 
--- ── 1. Clear stale gallery items ──────────────────────────────────────────────
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'gallery_items') THEN
+    EXECUTE $dyn$
 TRUNCATE TABLE public.gallery_items RESTART IDENTITY CASCADE;
 
--- ── 2. Ensure categories exist (idempotent upsert) ────────────────────────────
 INSERT INTO public.gallery_categories (id, name, slug, display_order)
 VALUES
   ('2a215905-b59a-4643-8638-2ac635593dd2', 'Modular Kitchen',      'modular-kitchen',     1),
@@ -19,19 +21,9 @@ ON CONFLICT (id) DO UPDATE
       slug          = EXCLUDED.slug,
       display_order = EXCLUDED.display_order;
 
--- ── 3. Verified gallery items ─────────────────────────────────────────────────
--- Key: (category_id, title, image_url, location, year, description, display_order)
-
 INSERT INTO public.gallery_items
   (category_id, title, image_url, location, year, description, display_order)
 VALUES
-
--- ══════════════════════════════════════════════════════
---  MODULAR KITCHEN
---  Verified images: visual-1 (white modular), visual-11 (bright island kitchen),
---  visual-16 (compact kitchen), reflect-env-kitchen (family kitchen scene)
--- ══════════════════════════════════════════════════════
-
 ('2a215905-b59a-4643-8638-2ac635593dd2',
  'Contemporary Modular Kitchen',
  '/images/projects/discovery/visual-1.jpg',
@@ -59,15 +51,6 @@ VALUES
  'Jamshedpur', 2023,
  'Warm wood cabinetry and an inviting layout that brings the whole family together at the heart of the home.',
  4),
-
--- ══════════════════════════════════════════════════════
---  BEDROOM INTERIOR
---  Verified images: visual-3 (wooden headboard), visual-9 (cozy neutral),
---  visual-17 (luxury classic), lifestyle-4 (white bed detail),
---  reflect-bedroom-cocoon (canopy), reflect-bedroom-sanctuary,
---  reflect-bedroom-design (black mirrored), reflect-bedroom-minimal,
---  reflect-bedroom-retreat (dark moody)
--- ══════════════════════════════════════════════════════
 
 ('98872acf-6f4c-4e87-9e51-0e7a54d3c270',
  'Modern Master Bedroom',
@@ -131,16 +114,6 @@ VALUES
  'Kolkata', 2024,
  'Heavy curtains, a generous rug and muted tones create a cocoon of calm for the end of every day.',
  9),
-
--- ══════════════════════════════════════════════════════
---  LIVING ROOM INTERIOR
---  Verified images: visual-2 (sectional with view), visual-5 (dining nook),
---  visual-6 (rustic fireplace living), visual-7 (modern double-height),
---  visual-8 (gallery wall eclectic), visual-10 (dining/round table),
---  visual-12 (neutral spacious), visual-18 (minimal dining),
---  lifestyle-1 (sunlit living), lifestyle-5 (open plan mezzanine),
---  lifestyle-6 (gallery wall living)
--- ══════════════════════════════════════════════════════
 
 ('e3df285f-f4d5-418f-8fea-28a4ca4945f1',
  'Panoramic Living Room',
@@ -219,11 +192,6 @@ VALUES
  'Classic furnishings meet an impressive gallery wall — a living room that doubles as a personal museum.',
  11),
 
--- ══════════════════════════════════════════════════════
---  BATHROOM
---  Verified images: visual-4 (double vanity minimal), visual-13 (glass shower stone)
--- ══════════════════════════════════════════════════════
-
 ('26f2cb91-70ed-4900-beab-060ad928d32e',
  'Minimalist Double Vanity Bathroom',
  '/images/projects/discovery/visual-4.jpg',
@@ -237,12 +205,6 @@ VALUES
  'Kolkata', 2024,
  'Walk-in glass shower with textured stone tiling, brushed fittings and a calm, grounded atmosphere.',
  2),
-
--- ══════════════════════════════════════════════════════
---  COMMERCIAL
---  Verified images: reflect-workspace-dynamic (open office),
---  reflect-workspace-open (bright studio office)
--- ══════════════════════════════════════════════════════
 
 ('6b2c84e1-f9f2-45ff-820b-17405a413575',
  'Dynamic Co-Working Space',
@@ -258,15 +220,12 @@ VALUES
  'Flooded with natural light and framed by lush greenery — a studio workspace that inspires creativity.',
  2),
 
--- ══════════════════════════════════════════════════════
---  WARDROBE
---  portfolio-bedroom.jpg verified as bedroom with full built-in wardrobe wall
---  lifestyle-9.jpg verified as organized desk/shelving (closest match available)
--- ══════════════════════════════════════════════════════
-
 ('af5ba9ab-de5b-432b-8bf8-ede07b9746ae',
  'Built-In Wardrobe Suite',
  '/images/projects/portfolio-bedroom.jpg',
  'Jamshedpur', 2024,
  'Floor-to-ceiling built-in wardrobe with flush handles, soft-close hinges and integrated LED lighting.',
  1);
+$dyn$;
+  END IF;
+END $$;

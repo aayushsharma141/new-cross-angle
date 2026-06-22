@@ -33,6 +33,16 @@ export interface UploadOptions {
   onProgress?: (percent: number) => void;
 }
 
+export interface DamUploadOptions {
+  file: File;
+  title?: string;
+  domain: string; // e.g., 'portfolio', 'discovery'
+  entityType: string; // e.g., 'projects', 'archetypes'
+  entityId?: string | null;
+  role: string; // e.g., 'hero', 'gallery'
+  onProgress?: (percent: number) => void;
+}
+
 const BUCKET_NAME = "media";
 
 export type MediaProvider = "imagekit" | "supabase" | "external";
@@ -86,14 +96,6 @@ export const MediaService = {
   },
 
   async createFolder(name: string, parentId: string | null = null): Promise<MediaFolder> {
-    // In a real implementation with LTREE, path is managed by DB triggers or explicitly.
-    // For now, we will pass a dummy path "root" if it's required by constraints,
-    // though the DB might handle it if there's a trigger. If no trigger, we should construct it.
-    // But since `path` is not nullable and we don't have a trigger yet, let's just pass `root.newfolder`.
-    // Wait, the ltree syntax `root.parent_id.child_id` is typically used, or just text.
-    // Let's pass a placeholder if required, or we could handle it via RPC.
-    // We'll use a random slug for path just to satisfy non-null constraint,
-    // though ideally the DB trigger does this.
     const tempPath = `root.${name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}_${Date.now()}`;
     
     const { data, error } = await supabase
@@ -130,7 +132,7 @@ export const MediaService = {
   },
 
   // ----------------------------------------------------
-  // FILES
+  // FILES & ASSETS
   // ----------------------------------------------------
 
   async getFiles(folderId?: string | null): Promise<MediaFile[]> {
@@ -157,6 +159,7 @@ export const MediaService = {
     return this.getFiles();
   },
 
+  // Legacy upload
   async upload(options: UploadOptions): Promise<{ id: string; url: string; name: string }> {
     const { file, folderId, onProgress } = options;
 
@@ -199,6 +202,91 @@ export const MediaService = {
 
           onProgress?.(100);
           resolve({ id: insertedFile.id, url: data.url, name: file.name });
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = () => reject(new Error("Failed to read file"));
+      reader.readAsDataURL(file);
+    });
+  },
+
+  // DAM V3 Upload
+  async uploadDamAsset(options: DamUploadOptions): Promise<{ assetId: string; url: string; filePath: string }> {
+    const { file, title, domain, entityType, entityId, role, onProgress } = options;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error("Not authenticated");
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+        try {
+          const type = file.type.startsWith("video/") ? "video" : 
+                       file.type.startsWith("image/") ? "image" : "document";
+
+          // 1. Create the base asset as "uploading" (Step 1 RPC)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { data: assetId, error: createError } = await (supabase as any).rpc("rpc_create_uploading_asset", {
+            p_type: type,
+            p_source: "uploaded",
+            p_title: title || file.name,
+          });
+
+          if (createError) throw new Error(`Asset creation failed: ${createError.message}`);
+
+          // 2. Upload to ImageKit via edge function
+          const { data, error } = await supabase.functions.invoke("imagekit-upload", {
+            body: {
+              action: "upload",
+              fileName: file.name,
+              fileData: base64,
+              folder: `dam/${domain}/${entityType}`, 
+              useUniqueName: true,
+            },
+          });
+
+          if (error) {
+            // Delete the "uploading" asset if ImageKit upload fails
+            console.error("ImageKit upload failed, rolling back asset", error);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await (supabase as any).from("assets").delete().eq("id", assetId as string);
+            throw new Error(error.message || "Upload failed");
+          }
+
+          // 3. Finalize the asset (Step 2 RPC)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { error: rpcError } = await (supabase as any).rpc("rpc_finalize_dam_asset", {
+            p_asset_id: assetId,
+            p_file_id: data.filePath || data.name,
+            p_url: data.url,
+            p_size_bytes: file.size,
+            p_mime_type: file.type || "application/octet-stream",
+            p_width: data.width || null,
+            p_height: data.height || null,
+            p_domain: domain,
+            p_entity_type: entityType,
+            p_entity_id: entityId,
+            p_role: role
+          });
+
+          if (rpcError) {
+            // Rollback ImageKit upload and database asset on DB failure
+            console.error("DB RPC failed, attempting to rollback from ImageKit and DB", rpcError);
+            await supabase.functions.invoke("imagekit-upload", {
+              body: { action: "delete", filePath: data.filePath || data.name }
+            }).catch(e => console.warn("Rollback ImageKit failed:", e));
+            await Promise.resolve(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (supabase as any).from("assets").delete().eq("id", assetId as string)
+            ).catch(e => console.warn("Rollback DB failed:", e));
+            
+            throw new Error(`Asset finalization failed: ${rpcError.message}`);
+          }
+
+          onProgress?.(100);
+          resolve({ assetId: assetId as string, url: data.url, filePath: data.filePath || data.name });
         } catch (err) {
           reject(err);
         }

@@ -16,6 +16,8 @@ export interface Project {
   style: string;
   year: number;
   heroImage: string;
+  heroAsset?: { url: string; mime_type: string; size_bytes: number };
+  coverAsset?: { url: string; mime_type: string; size_bytes: number };
   gallery: { room: string; images: string[] }[];
   brief: string;
   approach: string;

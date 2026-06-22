@@ -20,7 +20,6 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/primitives/button";
 import { CountUp, SpotlightCard } from "@/components/ReactBits/index";
-const MotionLink = motion.create(Link);
 
 const ModuleTile = ({
     title,
@@ -39,26 +38,29 @@ const ModuleTile = ({
     const navigate = useNavigate();
 
     return (
-        <MotionLink
-            to={href}
+        <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 * index, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-            onClick={() => setCurrentModule(title)}
-            className={cn(
-                "group relative flex flex-col rounded-2xl border h-full",
-                urgent
-                    ? "border-[hsl(var(--admin-wine))]/40 shadow-[0_20px_40px_rgba(150,0,0,0.12)]"
-                    : featured
-                    ? "border-[hsl(var(--admin-primary))]/40 shadow-[0_20px_40px_rgba(212,175,55,0.08)]"
-                    : "border-[hsl(var(--admin-border))]/60 shadow-[0_10px_30px_rgba(0,0,0,0.05)]",
-                "bg-[hsl(var(--admin-card))] backdrop-blur-xl text-left",
-                "transition-all duration-500 ease-out cursor-pointer overflow-hidden",
-                "hover:-translate-y-1 hover:shadow-[0_30px_60px_rgba(212,175,55,0.12)]",
-                !featured && !urgent && "hover:border-[hsl(var(--admin-primary))]/40",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-primary))]/50",
-            )}
+            className="h-full"
         >
+            <Link
+                to={href}
+                onClick={() => setCurrentModule(title)}
+                className={cn(
+                    "group relative flex flex-col rounded-2xl border h-full",
+                    urgent
+                        ? "border-[hsl(var(--admin-wine))]/40 shadow-[0_20px_40px_rgba(150,0,0,0.12)]"
+                        : featured
+                        ? "border-[hsl(var(--admin-primary))]/40 shadow-[0_20px_40px_rgba(212,175,55,0.08)]"
+                        : "border-[hsl(var(--admin-border))]/60 shadow-[0_10px_30px_rgba(0,0,0,0.05)]",
+                    "bg-[hsl(var(--admin-card))] backdrop-blur-xl text-left",
+                    "transition-all duration-500 ease-out cursor-pointer overflow-hidden",
+                    "hover:-translate-y-1 hover:shadow-[0_30px_60px_rgba(212,175,55,0.12)]",
+                    !featured && !urgent && "hover:border-[hsl(var(--admin-primary))]/40",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-primary))]/50",
+                )}
+            >
             <SpotlightCard 
                 className="flex flex-col flex-1 h-full w-full"
                 spotlightColor={urgent ? "rgba(150,0,0,0.15)" : featured ? "rgba(212,175,55,0.15)" : "rgba(255,255,255,0.05)"}
@@ -211,7 +213,8 @@ const ModuleTile = ({
                 </div>
             </div>
             </SpotlightCard>
-        </MotionLink>
+            </Link>
+        </motion.div>
     );
 };
 

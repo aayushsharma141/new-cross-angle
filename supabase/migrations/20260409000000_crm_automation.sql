@@ -46,14 +46,10 @@ AS $$
 BEGIN
     -- Only fire when scoring-relevant fields change
     IF TG_OP = 'INSERT'
-       OR OLD.budget IS DISTINCT FROM NEW.budget
-       OR OLD.budget_value_inr IS DISTINCT FROM NEW.budget_value_inr
        OR OLD.category IS DISTINCT FROM NEW.category
-       OR OLD.lead_type IS DISTINCT FROM NEW.lead_type
        OR OLD.message IS DISTINCT FROM NEW.message
        OR OLD.timeline IS DISTINCT FROM NEW.timeline
        OR OLD.source IS DISTINCT FROM NEW.source
-       OR OLD.lead_source IS DISTINCT FROM NEW.lead_source
        OR OLD.email IS DISTINCT FROM NEW.email
        OR OLD.phone IS DISTINCT FROM NEW.phone
     THEN
@@ -64,18 +60,17 @@ BEGIN
                 'Authorization', 'Bearer ' || current_setting('app.supabase_service_role_key')
             ),
             body := jsonb_build_object(
-                'lead_id', NEW.id,
-                'old_score', OLD.score
+                'lead_id', NEW.id
             )
         );
     END IF;
 
-    -- Auto-set closed_at when status changes to won or lost
-    IF OLD.status IS DISTINCT FROM NEW.status
-       AND NEW.status IN ('won', 'lost')
-    THEN
-        NEW.closed_at := COALESCE(NEW.closed_at, now());
-    END IF;
+    -- status and closed_at do not exist yet on leads table
+    -- IF OLD.status IS DISTINCT FROM NEW.status
+    --    AND NEW.status IN ('won', 'lost')
+    -- THEN
+    --     NEW.closed_at := COALESCE(NEW.closed_at, now());
+    -- END IF;
 
     RETURN NEW;
 END;
@@ -86,17 +81,12 @@ DROP TRIGGER IF EXISTS on_lead_change_score_update ON public.leads;
 
 CREATE TRIGGER on_lead_change_score_update
     AFTER INSERT OR UPDATE OF
-        budget,
-        budget_value_inr,
         category,
-        lead_type,
         message,
         timeline,
         source,
-        lead_source,
         email,
-        phone,
-        status
+        phone
     ON public.leads
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_lead_score_update();

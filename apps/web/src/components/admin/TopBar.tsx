@@ -35,7 +35,7 @@ export function TopBar() {
 
     return (
         <header className="sticky top-0 z-40 w-full border-b border-admin-border/50 bg-admin-surface/80 backdrop-blur-xl px-6 h-16 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
-            <nav aria-label="Admin">
+            <nav aria-label="Admin" className="w-full flex items-center justify-between">
                 <div className="flex items-center gap-6">
                 <Link to={ADMIN_ROUTES.hub.path} className="flex items-center gap-4 group">
                     <img src={logoUrl} alt="Company Logo" className="w-16 h-16 object-contain" />
