@@ -120,7 +120,7 @@ export function AssetSidebar({
                 <div className="flex">
                     <button
                         role="tab"
-                        aria-selected={tab === "assets"}
+                        aria-selected={!!(tab === "assets")}
                         aria-controls="panel-assets"
                         onClick={() => setTab("assets")}
                         className={cn(
@@ -134,7 +134,7 @@ export function AssetSidebar({
                     </button>
                     <button
                         role="tab"
-                        aria-selected={tab === "collections"}
+                        aria-selected={!!(tab === "collections")}
                         aria-controls="panel-collections"
                         onClick={() => setTab("collections")}
                         className={cn(
@@ -148,7 +148,7 @@ export function AssetSidebar({
                     </button>
                     <button
                         role="tab"
-                        aria-selected={tab === "archived"}
+                        aria-selected={!!(tab === "archived")}
                         aria-controls="panel-archived"
                         onClick={() => setTab("archived")}
                         className={cn(
