@@ -8,8 +8,17 @@ import {
     HardDrive,
     FileImage,
     FileVideo,
-    Files
+    Files,
+    Upload
 } from "lucide-react";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/primitives/dialog";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import {
@@ -94,6 +103,7 @@ const AdminMedia = () => {
     const [uploadDomain, setUploadDomain] = useState<string>("system");
     const [uploadEntityType, setUploadEntityType] = useState<string>("system");
     const [uploadRole, setUploadRole] = useState<string>("general");
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
     // ── Data fetching ─────────────────────────────────────────────────────────
 
@@ -149,7 +159,7 @@ const AdminMedia = () => {
 
                     successCount++;
                 } catch (e: unknown) {
-                    errors.push(`${file.name}: ${e.message}`);
+                    errors.push(`${file.name}: ${e instanceof Error ? e.message : String(e)}`);
                 }
             }
 
@@ -161,20 +171,22 @@ const AdminMedia = () => {
         onSuccess: ({ successCount }) => {
             toast({ title: "Success", description: `${successCount} file(s) uploaded successfully` });
             setUploadError(null);
+            setIsUploadModalOpen(false);
             void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
         },
         onError: (err: unknown) => {
-            if (err && typeof err === "object" && "errors" in err && Array.isArray(err.errors)) {
-                const msg = err.errors.join("; ");
+            if (err && typeof err === "object" && "errors" in err && Array.isArray((err as Record<string, unknown>).errors)) {
+                const payload = err as { errors: string[]; successCount?: number; total?: number };
+                const msg = payload.errors.join("; ");
                 setUploadError(msg);
                 toast({
-                    title: `${err.successCount || 0} of ${err.total || 0} file(s) uploaded`,
+                    title: `${payload.successCount || 0} of ${payload.total || 0} file(s) uploaded`,
                     description: `Failed: ${msg}`,
                     variant: "destructive",
                 });
                 void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
             } else {
-                toast({ title: "Error", description: (err as Error).message, variant: "destructive" });
+                toast({ title: "Error", description: err instanceof Error ? err.message : String(err), variant: "destructive" });
             }
         },
     });
@@ -400,74 +412,87 @@ const AdminMedia = () => {
                 {/* Action buttons */}
                 {!isReadOnly && (
                     <ModuleActions>
-                    <Button
-                        variant="outline"
-                        onClick={() => syncStorageMutation.mutate()}
-                        disabled={syncStorageMutation.isPending || isSyncingImageKit}
-                    >
-                        {syncStorageMutation.isPending ? (
-                            <Loader2 className={`${icons.sm} mr-2 animate-spin`} />
-                        ) : (
-                            <FolderOpen className={`${icons.sm} mr-2`} />
-                        )}
-                        Sync Storage
-                    </Button>
+                        <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
+                            <DialogTrigger asChild>
+                                <Button>
+                                    <Upload className={`${icons.sm} mr-2`} />
+                                    Upload Asset
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[700px]">
+                                <DialogHeader>
+                                    <DialogTitle>Upload Asset</DialogTitle>
+                                    <DialogDescription>
+                                        Upload a new asset to the Digital Asset Manager.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 pt-4">
+                                    <div className="flex gap-4 p-4 border border-admin-border/50 rounded-xl bg-admin-card/50">
+                                        <div className="space-y-1 flex-1">
+                                            <label htmlFor="dam-domain-select" className="text-xs text-muted-foreground font-semibold">DAM Domain</label>
+                                            <Select value={uploadDomain} onValueChange={setUploadDomain}>
+                                                <SelectTrigger id="dam-domain-select"><SelectValue /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="system">System (Default)</SelectItem>
+                                                    <SelectItem value="portfolio">Portfolio</SelectItem>
+                                                    <SelectItem value="services">Services</SelectItem>
+                                                    <SelectItem value="discovery">Discovery</SelectItem>
+                                                    <SelectItem value="blog">Blog</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-1 flex-1">
+                                            <label htmlFor="entity-type-input" className="text-xs text-muted-foreground font-semibold">Entity Type</label>
+                                            <Input id="entity-type-input" placeholder="e.g., projects, archetypes" value={uploadEntityType} onChange={e => setUploadEntityType(e.target.value)} />
+                                        </div>
+                                        <div className="space-y-1 flex-1">
+                                            <label htmlFor="role-input" className="text-xs text-muted-foreground font-semibold">Role</label>
+                                            <Input id="role-input" placeholder="e.g., general, hero, gallery" value={uploadRole} onChange={e => setUploadRole(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <MediaUploadZone
+                                        onUpload={(fileList) => uploadMutation.mutate(fileList)}
+                                        isUploading={uploadMutation.isPending}
+                                        folderName={selectedFolder}
+                                        errorMessage={uploadError}
+                                    />
+                                </div>
+                            </DialogContent>
+                        </Dialog>
 
-                    <Button
-                        variant="outline"
-                        onClick={handleSyncImageKit}
-                        disabled={syncStorageMutation.isPending || isSyncingImageKit}
-                        title="Import all files uploaded directly to ImageKit"
-                    >
-                        {isSyncingImageKit ? (
-                            <Loader2 className={`${icons.sm} mr-2 animate-spin`} />
-                        ) : (
-                            <CloudDownload className={`${icons.sm} mr-2`} />
-                        )}
-                        {isSyncingImageKit ? "Importing…" : "Import from ImageKit"}
-                    </Button>
-                </ModuleActions>
-            )}
+                        <Button
+                            variant="outline"
+                            onClick={() => syncStorageMutation.mutate()}
+                            disabled={syncStorageMutation.isPending || isSyncingImageKit}
+                        >
+                            {syncStorageMutation.isPending ? (
+                                <Loader2 className={`${icons.sm} mr-2 animate-spin`} />
+                            ) : (
+                                <FolderOpen className={`${icons.sm} mr-2`} />
+                            )}
+                            Sync
+                        </Button>
+
+                        <Button
+                            variant="outline"
+                            onClick={handleSyncImageKit}
+                            disabled={syncStorageMutation.isPending || isSyncingImageKit}
+                            title="Import all files uploaded directly to ImageKit"
+                        >
+                            {isSyncingImageKit ? (
+                                <Loader2 className={`${icons.sm} mr-2 animate-spin`} />
+                            ) : (
+                                <CloudDownload className={`${icons.sm} mr-2`} />
+                            )}
+                            {isSyncingImageKit ? "Importing…" : "Import"}
+                        </Button>
+                    </ModuleActions>
+                )}
             </div>
 
             <div className="fade-up-3 space-y-6">
-                {/* Upload zone */}
-                {!isReadOnly && (
-                    <div className="space-y-4">
-                        <div className="flex gap-4 p-4 border border-admin-border/50 rounded-xl bg-admin-card/50">
-                            <div className="space-y-1 flex-1">
-                                <label htmlFor="dam-domain-select" className="text-xs text-muted-foreground font-semibold">DAM Domain</label>
-                                <Select value={uploadDomain} onValueChange={setUploadDomain}>
-                                    <SelectTrigger id="dam-domain-select"><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="system">System (Default)</SelectItem>
-                                        <SelectItem value="portfolio">Portfolio</SelectItem>
-                                        <SelectItem value="services">Services</SelectItem>
-                                        <SelectItem value="discovery">Discovery</SelectItem>
-                                        <SelectItem value="blog">Blog</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-1 flex-1">
-                                <label htmlFor="entity-type-input" className="text-xs text-muted-foreground font-semibold">Entity Type</label>
-                                <Input id="entity-type-input" placeholder="e.g., projects, archetypes" value={uploadEntityType} onChange={e => setUploadEntityType(e.target.value)} />
-                            </div>
-                            <div className="space-y-1 flex-1">
-                                <label htmlFor="role-input" className="text-xs text-muted-foreground font-semibold">Role</label>
-                                <Input id="role-input" placeholder="e.g., general, hero, gallery" value={uploadRole} onChange={e => setUploadRole(e.target.value)} />
-                            </div>
-                        </div>
-                        <MediaUploadZone
-                            onUpload={(fileList) => uploadMutation.mutate(fileList)}
-                            isUploading={uploadMutation.isPending}
-                            folderName={selectedFolder}
-                            errorMessage={uploadError}
-                        />
-                    </div>
-                )}
-
                 {/* Asset Workspace */}
-                <div className="h-[700px] border border-border rounded-xl overflow-hidden mt-6">
+                <div className="h-[calc(100vh-12rem)] min-h-[600px] border border-border rounded-xl overflow-hidden mt-6">
                     <AssetWorkspaceLayout />
                 </div>
 

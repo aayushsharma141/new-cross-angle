@@ -1,20 +1,29 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AssetService, type AssetRow } from "@/services/AssetService";
-import { Loader2, AlertCircle, Trash2, Download, RefreshCw, Link as LinkIcon, Info } from "lucide-react";
+import { CollectionService } from "@/services/CollectionService";
+import { Loader2, AlertCircle, Trash2, Link as LinkIcon, Info, Folders, X, Archive, ArchiveRestore } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/primitives/button";
 import { ScrollArea } from "@/components/ui/primitives/scroll-area";
 import { Separator } from "@/components/ui/primitives/separator";
 import { Badge } from "@/components/ui/primitives/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/primitives/select";
 import { formatDistanceToNow } from "date-fns";
+import { useToast } from "@/hooks/useToast";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface AssetInspectorProps {
     selectedAssetId: string | null;
+    activeCollectionId?: string | null;
+    onCollectionFilter?: (id: string | null) => void;
 }
 
-export function AssetInspector({ selectedAssetId }: AssetInspectorProps) {
+export function AssetInspector({ selectedAssetId, onCollectionFilter }: AssetInspectorProps) {
     const { data: assets } = useQuery({
         queryKey: ["dam", "assets"],
-        queryFn: AssetService.getAssets,
+        queryFn: () => AssetService.getAssets(),
     });
 
     const asset = assets?.find(a => a.id === selectedAssetId);
@@ -42,14 +51,13 @@ export function AssetInspector({ selectedAssetId }: AssetInspectorProps) {
             <div className="p-6 space-y-8 max-w-4xl mx-auto">
                 <AssetPreview asset={asset} />
                 <Separator />
-                <AssetUsagePanel assetId={asset.id} />
+                <AssetUsagePanel asset={asset} />
                 <Separator />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <AssetVersionPanel asset={asset} />
-                    <AssetCollectionPanel asset={asset} />
-                </div>
+                <AssetCollectionPanel asset={asset} onCollectionFilter={onCollectionFilter} />
                 <Separator />
                 <AssetMetadataPanel asset={asset} />
+                <Separator />
+                <AssetVersionPanel asset={asset} />
                 <Separator />
                 <AssetActionsPanel asset={asset} />
             </div>
@@ -60,12 +68,9 @@ export function AssetInspector({ selectedAssetId }: AssetInspectorProps) {
 // -- Sub Components -- //
 
 function AssetPreview({ asset }: { asset: AssetRow }) {
-    // In DAM V3, we load the actual URL from the current_version_id
-    const { data: version, isLoading } = useQuery({
-        queryKey: ["dam", "asset_versions", asset.current_version_id],
-        queryFn: () => AssetService.getAssetVersion(asset.current_version_id),
-        enabled: !!asset.current_version_id,
-    });
+    // Use the first asset_version URL directly (latest is first due to order desc)
+    const versionUrl = asset.asset_versions?.[0]?.url;
+    const isLoading = false;
 
     return (
         <div className="space-y-4">
@@ -82,13 +87,13 @@ function AssetPreview({ asset }: { asset: AssetRow }) {
             <div className="aspect-video bg-muted/50 rounded-lg border border-border flex items-center justify-center overflow-hidden">
                 {isLoading ? (
                     <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                ) : version?.url ? (
+                ) : versionUrl ? (
                     asset.type === "video" ? (
-                        <video src={version.url} controls className="w-full h-full object-contain">
+                        <video src={versionUrl} controls className="w-full h-full object-contain">
                             <track kind="captions" />
                         </video>
                     ) : (
-                        <img src={version.url} alt={asset.title} className="w-full h-full object-contain" />
+                        <img src={versionUrl} alt={asset.title ?? "Asset"} className="w-full h-full object-contain" />
                     )
                 ) : (
                     <div className="text-muted-foreground flex flex-col items-center">
@@ -101,20 +106,35 @@ function AssetPreview({ asset }: { asset: AssetRow }) {
     );
 }
 
-function AssetUsagePanel({ assetId }: { assetId: string }) {
+function AssetUsagePanel({ asset }: { asset: AssetRow }) {
     const { data: usages = [], isLoading } = useQuery({
-        queryKey: ["dam", "asset_usages", assetId],
-        queryFn: () => AssetService.getAssetUsages(assetId),
+        queryKey: ["dam", "asset_usages", asset.id],
+        queryFn: () => AssetService.getAssetUsages(asset.id),
     });
 
     const isUsed = usages.length > 0;
+    
+    let healthStatus = "Orphaned";
+    if (asset.status === "archived") healthStatus = "Archived";
+    else if (asset.status !== "ready") healthStatus = "Processing";
+    else if (isUsed) healthStatus = "In Use";
 
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <div>
                     <h3 className="text-lg font-semibold">Usage & Safety</h3>
-                    <p className="text-sm text-muted-foreground">Where is this asset actively used?</p>
+                    <div className="flex gap-2 items-center mt-1">
+                        <span className={cn(
+                            "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full",
+                            healthStatus === "In Use" ? "bg-emerald-500/10 text-emerald-500" :
+                            healthStatus === "Archived" ? "bg-amber-500/10 text-amber-500" :
+                            healthStatus === "Processing" ? "bg-blue-500/10 text-blue-500" :
+                            "bg-muted text-muted-foreground"
+                        )}>
+                            ● {healthStatus}
+                        </span>
+                    </div>
                 </div>
                 {isLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
@@ -136,7 +156,9 @@ function AssetUsagePanel({ assetId }: { assetId: string }) {
                                     <p className="text-xs text-muted-foreground font-mono">{usage.entity_id}</p>
                                 </div>
                             </div>
-                            <Button variant="ghost" size="sm">View</Button>
+                            <Button variant="ghost" size="sm" asChild>
+                                <Link to={`/admin/${usage.entity_type}s/${usage.entity_id}`}>Edit</Link>
+                            </Button>
                         </div>
                     ))}
                 </div>
@@ -165,15 +187,83 @@ function AssetVersionPanel({ asset: _asset }: { asset: AssetRow }) {
     );
 }
 
-function AssetCollectionPanel({ asset: _asset }: { asset: AssetRow }) {
+function AssetCollectionPanel({ asset, onCollectionFilter }: { asset: AssetRow; onCollectionFilter?: (id: string | null) => void; }) {
+    const queryClient = useQueryClient();
+    const { toast } = useToast();
+
+    const { data: collections = [] } = useQuery({
+        queryKey: ["dam", "collections"],
+        queryFn: () => CollectionService.getCollections(),
+    });
+
+    const assignMutation = useMutation({
+        mutationFn: (collectionId: string | null) =>
+            CollectionService.assignAssetToCollection(asset.id, collectionId),
+        onSuccess: () => {
+            toast({ title: "Collection updated" });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "collections"] });
+        },
+        onError: (err: Error) => {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        },
+    });
+
+    // Determine current collection from loaded assets list
+    const currentCollectionId = asset.collection_id;
+    const currentCollection = collections.find((c) => c.id === currentCollectionId);
+
     return (
         <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Collections</h3>
-            <div className="p-4 border border-dashed rounded-md bg-muted/10 text-center">
-                <p className="text-xs text-muted-foreground">Collections feature arriving in Phase 7.</p>
-                <Button variant="link" size="sm" className="mt-1 h-auto py-0 text-xs" disabled>
-                    Assign to Collection
-                </Button>
+            <h3 className="text-lg font-semibold">Collection Context</h3>
+
+            {currentCollection ? (
+                <div className="flex items-center gap-3 p-3 rounded-md border border-border bg-muted/20">
+                    <Folders className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <button 
+                        type="button"
+                        className="flex-1 min-w-0 cursor-pointer hover:underline text-left appearance-none bg-transparent border-none p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
+                        onClick={() => onCollectionFilter?.(currentCollection.id)}
+                    >
+                        <p className="text-sm font-medium truncate">{currentCollection.name}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{currentCollection.type.replace("_", " ")}</p>
+                    </button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive focus-visible:ring-1 focus-visible:ring-primary focus-visible:outline-none"
+                        onClick={() => assignMutation.mutate(null)}
+                        disabled={assignMutation.isPending}
+                        title="Remove from collection"
+                        aria-label="Remove from collection"
+                    >
+                        {assignMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
+                    </Button>
+                </div>
+            ) : (
+                <p className="text-xs text-muted-foreground">Not in any collection.</p>
+            )}
+
+            <div className="flex gap-2 items-center">
+                <Select
+                    onValueChange={(v) => assignMutation.mutate(v)}
+                    disabled={assignMutation.isPending || collections.length === 0}
+                >
+                    <SelectTrigger className="h-8 text-xs flex-1">
+                        <SelectValue placeholder={collections.length === 0 ? "No collections" : "Assign to collection…"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {collections.map((col) => (
+                            <SelectItem key={col.id} value={col.id} className="text-xs">
+                                {col.name}
+                                <span className="ml-2 text-muted-foreground capitalize text-[10px]">
+                                    {col.type.replace("_", " ")}
+                                </span>
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                {assignMutation.isPending && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
             </div>
         </div>
     );
@@ -201,24 +291,97 @@ function AssetMetadataPanel({ asset }: { asset: AssetRow }) {
     );
 }
 
-function AssetActionsPanel({ asset: _asset }: { asset: AssetRow }) {
+function AssetActionsPanel({ asset }: { asset: AssetRow }) {
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+    const archiveMutation = useMutation({
+        mutationFn: () => AssetService.archiveAsset(asset.id),
+        onSuccess: () => {
+            toast({ title: "Asset Archived" });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+        },
+    });
+
+    const restoreMutation = useMutation({
+        mutationFn: () => AssetService.restoreAsset(asset.id),
+        onSuccess: () => {
+            toast({ title: "Asset Restored" });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+        },
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: () => AssetService.deleteAsset(asset.id),
+        onSuccess: () => {
+            toast({ title: "Asset Deleted" });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+            setDeleteDialogOpen(false);
+        },
+        onError: (err: Error) => {
+            if (err.name === "AssetInUseError") {
+                toast({ 
+                    title: "Asset in Use", 
+                    description: err.message, 
+                    variant: "destructive" 
+                });
+            } else {
+                toast({ title: "Error", description: err.message, variant: "destructive" });
+            }
+            setDeleteDialogOpen(false);
+        }
+    });
+
+    const isArchived = asset.status === "archived";
+
     return (
         <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">Danger Zone</h3>
+            <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">Governance</h3>
             <div className="flex gap-3">
-                <Button variant="outline" className="flex-1">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download File
-                </Button>
-                <Button variant="outline" className="flex-1">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Replace (v2)
-                </Button>
-                <Button variant="destructive" className="flex-1">
+                {isArchived ? (
+                    <Button 
+                        variant="outline" 
+                        className="flex-1" 
+                        onClick={() => restoreMutation.mutate()}
+                        disabled={restoreMutation.isPending}
+                    >
+                        {restoreMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ArchiveRestore className="w-4 h-4 mr-2" />}
+                        Restore
+                    </Button>
+                ) : (
+                    <Button 
+                        variant="outline"
+                        size="sm" 
+                        className="flex-1 text-amber-600 hover:text-amber-700 hover:bg-amber-50 focus-visible:ring-1 focus-visible:ring-amber-500 focus-visible:outline-none" 
+                        onClick={() => archiveMutation.mutate()}
+                        disabled={archiveMutation.isPending}
+                        aria-label="Archive asset"
+                    >
+                        {archiveMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Archive className="w-4 h-4 mr-2" />}
+                        Archive
+                    </Button>
+                )}
+                
+                <Button 
+                    variant="destructive" 
+                    className="flex-1"
+                    onClick={() => setDeleteDialogOpen(true)}
+                >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Delete Asset
+                    Delete
                 </Button>
             </div>
+
+            <ConfirmDialog
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+                title="Delete Asset"
+                description={`Are you sure you want to permanently delete "${asset.title || asset.id}"? This cannot be undone. If the asset is currently in use, the deletion will be blocked.`}
+                confirmText={deleteMutation.isPending ? "Deleting..." : "Delete Permanently"}
+                variant="destructive"
+                onConfirm={() => deleteMutation.mutate()}
+            />
         </div>
     );
 }

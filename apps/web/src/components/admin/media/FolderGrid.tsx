@@ -61,7 +61,7 @@ const FolderItem = ({ folder, onNavigate, onRename, onDelete, isReadOnly }: Fold
             <div role="button" tabIndex={-1} className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white rounded-full backdrop-blur-md">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white rounded-full backdrop-blur-md focus-visible:ring-1 focus-visible:ring-primary focus-visible:outline-none" aria-label="Folder actions">
                     <MoreVertical className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
