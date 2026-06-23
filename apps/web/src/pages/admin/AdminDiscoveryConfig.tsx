@@ -8,6 +8,8 @@ import { AdjectivesEditor } from "@/components/admin/discovery-flow/AdjectivesEd
 import { MaterialsEditor } from "@/components/admin/discovery-flow/MaterialsEditor";
 import { LightingEditor } from "@/components/admin/discovery-flow/LightingEditor";
 import { ArchetypesEditor } from "@/components/admin/discovery-flow/ArchetypesEditor";
+import { DiscoveryAssetsPanel } from "@/components/admin/discovery-flow/DiscoveryAssetsPanel";
+import { ImageIcon } from "lucide-react";
 
 const TABS = [
   {
@@ -33,6 +35,12 @@ const TABS = [
     label: "Archetypes",
     icon: Users,
     description: "Result personalities",
+  },
+  {
+    id: "media-slots",
+    label: "Media Slots",
+    icon: ImageIcon,
+    description: "Manage visual prompts and archetype media",
   },
 ] as const;
 
@@ -104,6 +112,7 @@ export default function AdminDiscoveryConfig() {
         {tab === "materials" && <MaterialsEditor />}
         {tab === "lights" && <LightingEditor />}
         {tab === "archetypes" && <ArchetypesEditor />}
+        {tab === "media-slots" && <DiscoveryAssetsPanel />}
       </div>
     </div>
   );

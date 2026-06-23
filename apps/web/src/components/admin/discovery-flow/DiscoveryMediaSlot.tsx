@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { useDiscoveryAsset } from '@/hooks/useDiscoveryAsset';
 import { UniversalAssetPicker } from '@/components/admin/media/UniversalAssetPicker';
 import { AssetUsageService } from '@/services/AssetUsageService';
+import { AssetRow } from '@/services/AssetService';
 
 interface DiscoveryMediaSlotProps {
   label: string;
@@ -25,7 +26,7 @@ export function DiscoveryMediaSlot({
   const [pickerOpen, setPickerOpen] = useState(false);
   const { url, isLoading } = useDiscoveryAsset(entityType, entityId, role);
 
-  const handleReplace = async (asset: any) => {
+  const handleReplace = async (asset: AssetRow) => {
     await AssetUsageService.replaceUsage({
       assetId: asset.id,
       entityType,
@@ -93,12 +94,11 @@ export function DiscoveryMediaSlot({
 
       {pickerOpen && (
         <UniversalAssetPicker
-          domain="discovery"
-          entityType={entityType}
-          role={role}
-          defaultCollectionFilter="discovery"
-          onSelect={handleReplace}
+          open={pickerOpen}
           onOpenChange={(isOpen) => setPickerOpen(isOpen)}
+          domain="discovery"
+          role={role}
+          onSelect={handleReplace}
         />
       )}
     </div>

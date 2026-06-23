@@ -1,5 +1,5 @@
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef } from "react";
 import { Upload, Loader2, Image as ImageIcon, Search, Check } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
@@ -33,8 +33,8 @@ export function UniversalAssetPicker({
     role = "general" 
 }: UniversalAssetPickerProps) {
     const [searchQuery, setSearchQuery] = useState("");
-    const [filterDomain, setFilterDomain] = useState<string>("all");
-    const [filterRole, setFilterRole] = useState<string>("all");
+    const [filterDomain, setFilterDomain] = useState<string>(domain);
+    const [filterRole, setFilterRole] = useState<string>(role);
     const [uploadDomain, setUploadDomain] = useState<string>(domain);
     const [uploadRole, setUploadRole] = useState<string>(role);
     const [uploadTitle, setUploadTitle] = useState<string>("");
@@ -45,8 +45,13 @@ export function UniversalAssetPicker({
     const queryClient = useQueryClient();
 
     const { data: assets = [], isLoading, refetch, isRefetching } = useQuery({
-        queryKey: ["assets", "all"],
-        queryFn: () => AssetService.getAssets(),
+        // Include filter values in the queryKey so React Query refetches when they change
+        queryKey: ["assets", "picker", searchQuery, filterDomain, filterRole],
+        queryFn: () => AssetService.getAssets(null, {
+            searchQuery: searchQuery || undefined,
+            domain: filterDomain !== "all" ? filterDomain : undefined,
+            role: filterRole !== "all" ? filterRole : undefined,
+        }),
         enabled: open,
     });
 
@@ -105,12 +110,9 @@ export function UniversalAssetPicker({
         }
     };
 
-    const filteredAssets = useMemo(() => {
-        return assets.filter((asset) => {
-            const title = asset.title || "";
-            return title.toLowerCase().includes(searchQuery.toLowerCase());
-        });
-    }, [assets, searchQuery]);
+    // Filtering is now handled server-side via AssetService.getAssets opts.
+    // No client-side filtering needed — assets from the query are already filtered.
+    const filteredAssets = assets;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -194,15 +196,20 @@ export function UniversalAssetPicker({
                                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 p-1">
                                     {filteredAssets.map((asset) => {
                                         const url = asset.asset_versions?.[0]?.url;
+                                        const usageCount = asset.asset_usages?.[0]?.count ?? 0;
+                                        const isSelected = selectedAsset?.id === asset.id;
                                         return (
                                             <button
                                                 key={asset.id}
                                                 onClick={() => handleSelect(asset)}
                                                 onDoubleClick={() => handleDoubleClick(asset)}
-                                                className={`aspect-square relative rounded-lg overflow-hidden border-2 transition-all bg-black/40 group ${selectedAsset?.id === asset.id
+                                                aria-label={`${asset.title || 'Untitled asset'}, used ${usageCount} time${usageCount !== 1 ? 's' : ''}`}
+                                                aria-pressed={isSelected ? "true" : "false"}
+                                                className={`aspect-square relative rounded-lg overflow-hidden border-2 transition-all bg-black/40 group ${
+                                                    isSelected
                                                         ? "border-admin-primary ring-2 ring-admin-primary/30"
                                                         : "border-transparent hover:border-admin-primary/50"
-                                                    }`}
+                                                }`}
                                             >
                                                 {url ? (
                                                     <img
@@ -217,12 +224,19 @@ export function UniversalAssetPicker({
                                                         <span className="text-xs">No image</span>
                                                     </div>
                                                 )}
+
+                                                {/* Usage count badge */}
+                                                {usageCount > 0 && (
+                                                    <div className="absolute top-1.5 right-1.5 bg-black/70 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-none">
+                                                        {usageCount}×
+                                                    </div>
+                                                )}
                                                 
                                                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 pt-6">
                                                     <p className="text-xs text-white truncate text-left">{asset.title}</p>
                                                 </div>
 
-                                                {selectedAsset?.id === asset.id && (
+                                                {isSelected && (
                                                     <div className="absolute inset-0 bg-admin-primary/20 flex items-center justify-center">
                                                         <Check className="w-8 h-8 text-admin-primary bg-background rounded-full p-1" />
                                                     </div>

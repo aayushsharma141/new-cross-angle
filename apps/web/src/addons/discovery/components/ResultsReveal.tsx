@@ -18,9 +18,17 @@ import {
 import { AestheticScores, Archetype, AIAestheticResult, UserSignals } from '@/types/discovery';
 import { visualImages } from '@/constants/discovery';
 import { trackResultLoaded } from '../infrastructure/analytics/tracker';
-import { MediaSlot } from '@/components/ui/enhanced/MediaSlot';
 import { useAnalytics } from '@/analytics/AnalyticsProvider';
 import { FallingText, BlurText, ScrollVelocity } from '@/components/ReactBits';
+import { useDiscoveryAsset } from '@/hooks/useDiscoveryAsset';
+import { toEntityId } from '@/lib/discovery-utils';
+import { getOptimizedUrl } from '@/lib/cdn';
+
+const DiscoveryConsumerImage = ({ entityType, entityId, role, fallbackUrl, alt, className }: { entityType: string, entityId: string, role: string, fallbackUrl?: string, alt?: string, className?: string }) => {
+  const { url } = useDiscoveryAsset(entityType, entityId, role, fallbackUrl);
+  const displayUrl = url ? getOptimizedUrl(url, { width: 1920, quality: 100 }) : fallbackUrl;
+  return <img src={displayUrl} alt={alt} className={className} loading="lazy" />;
+};
 
 interface Props {
   scores: AestheticScores;
@@ -489,6 +497,20 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
     >
       {/* ── S1: IDENTITY REVEAL ─────────────────────────────────────────── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-32 overflow-hidden bg-site-bg">
+        {archetype.heroImageUrl && (
+          <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+            <DiscoveryConsumerImage
+              entityType="archetype"
+              entityId={toEntityId(archetype.name)}
+              role="hero"
+              fallbackUrl={archetype.heroImageUrl}
+              alt={`${displayName} Hero`}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-site-bg/60 via-transparent to-site-bg" />
+          </div>
+        )}
+        
         {/* Cinematic Ambient glow */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -601,8 +623,10 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
               {visualMirrorImages[0] && (
                 <div className="md:col-span-7 relative group">
                   <div className="aspect-[4/3] overflow-hidden rounded-sm border border-white/5 relative bg-white/5">
-                    <MediaSlot
-                      assetKey={visualMirrorImages[0].assetKey || `discovery_visual-${visualMirrorImages[0].id}`}
+                    <DiscoveryConsumerImage
+                      entityType="discovery_visual"
+                      entityId={`visual-${visualMirrorImages[0].id}`}
+                      role="visual"
                       fallbackUrl={visualMirrorImages[0].url}
                       alt="Selected visual resonance 1"
                       className="h-full w-full absolute inset-0 opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out"
@@ -622,8 +646,10 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
                 {visualMirrorImages[1] && (
                   <div className="relative group">
                     <div className="aspect-[3/4] md:aspect-square overflow-hidden rounded-sm border border-white/5 relative bg-white/5">
-                      <MediaSlot
-                        assetKey={visualMirrorImages[1].assetKey || `discovery_visual-${visualMirrorImages[1].id}`}
+                      <DiscoveryConsumerImage
+                        entityType="discovery_visual"
+                        entityId={`visual-${visualMirrorImages[1].id}`}
+                        role="visual"
                         fallbackUrl={visualMirrorImages[1].url}
                         alt="Selected visual resonance 2"
                         className="h-full w-full absolute inset-0 opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out"
@@ -640,8 +666,10 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
                 {visualMirrorImages[2] && (
                   <div className="relative group md:ml-12 mt-4 md:mt-0">
                     <div className="aspect-video overflow-hidden rounded-sm border border-white/5 relative bg-white/5">
-                      <MediaSlot
-                        assetKey={visualMirrorImages[2].assetKey || `discovery_visual-${visualMirrorImages[2].id}`}
+                      <DiscoveryConsumerImage
+                        entityType="discovery_visual"
+                        entityId={`visual-${visualMirrorImages[2].id}`}
+                        role="visual"
                         fallbackUrl={visualMirrorImages[2].url}
                         alt="Selected visual resonance 3"
                         className="h-full w-full absolute inset-0 opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out grayscale-[30%] hover:grayscale-0"
@@ -785,8 +813,18 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
       </section>
 
       {/* ── S9: DESIGN STRATEGY (Poetic Strategy Pillars) ───────────────────── */}
-      <section className="px-6 py-32 bg-site-bg-section relative">
-        <div className="max-w-6xl mx-auto">
+      <section className="px-6 py-32 bg-site-bg-section relative overflow-hidden">
+        {archetype.moodboardImageUrl && (
+          <div className="absolute inset-0 z-0 opacity-10 pointer-events-none mix-blend-overlay">
+            <MediaSlot
+              assetKey=""
+              fallbackUrl={archetype.moodboardImageUrl}
+              alt={`${displayName} Moodboard`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <div className="max-w-6xl mx-auto relative z-10">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
