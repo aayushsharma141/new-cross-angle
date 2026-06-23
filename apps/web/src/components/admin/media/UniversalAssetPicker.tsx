@@ -3,6 +3,8 @@ import { useState, useRef, useMemo } from "react";
 import { Upload, Loader2, Image as ImageIcon, Search, Check } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
+import { Label } from "@/components/ui/primitives/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/primitives/select";
 import {
     Dialog,
     DialogContent,
@@ -20,7 +22,6 @@ export interface UniversalAssetPickerProps {
     onOpenChange: (open: boolean) => void;
     onSelect: (asset: AssetRow, url: string) => void;
     domain?: string;
-    entityType?: string;
     role?: string;
 }
 
@@ -29,10 +30,14 @@ export function UniversalAssetPicker({
     onOpenChange, 
     onSelect, 
     domain = "system", 
-    entityType = "system", 
     role = "general" 
 }: UniversalAssetPickerProps) {
     const [searchQuery, setSearchQuery] = useState("");
+    const [filterDomain, setFilterDomain] = useState<string>("all");
+    const [filterRole, setFilterRole] = useState<string>("all");
+    const [uploadDomain, setUploadDomain] = useState<string>(domain);
+    const [uploadRole, setUploadRole] = useState<string>(role);
+    const [uploadTitle, setUploadTitle] = useState<string>("");
     const [activeTab, setActiveTab] = useState("library");
     const [selectedAsset, setSelectedAsset] = useState<AssetRow | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -51,11 +56,11 @@ export function UniversalAssetPicker({
             // MediaService.uploadDamAsset handles creating the asset, asset_versions, and dual write
             const result = await MediaService.uploadDamAsset({
                 file,
-                title: file.name,
-                domain,
-                entityType,
+                title: uploadTitle || file.name,
+                domain: uploadDomain,
+                entityType: uploadDomain,
                 entityId: null,
-                role,
+                role: uploadRole,
             });
 
             return { url: result.url, name: file.name };
@@ -123,15 +128,41 @@ export function UniversalAssetPicker({
                     <TabsContent value="library" className="flex-1 flex flex-col min-h-0 mt-4 outline-none">
                         {/* Toolbar */}
                         <div className="flex flex-wrap items-center gap-3 pb-4">
-                            <div className="relative flex-1 min-w-[240px]">
+                            <div className="relative flex-1 min-w-[200px]">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="Search assets by title..."
+                                    placeholder="Search assets..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="pl-10 h-9"
                                 />
                             </div>
+
+                            <Select value={filterDomain} onValueChange={setFilterDomain}>
+                                <SelectTrigger className="w-[140px] h-9">
+                                    <SelectValue placeholder="Domain" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Domains</SelectItem>
+                                    <SelectItem value="portfolio">Portfolio</SelectItem>
+                                    <SelectItem value="blog">Blog</SelectItem>
+                                    <SelectItem value="discovery">Discovery</SelectItem>
+                                    <SelectItem value="system">System</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            <Select value={filterRole} onValueChange={setFilterRole}>
+                                <SelectTrigger className="w-[140px] h-9">
+                                    <SelectValue placeholder="Role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Roles</SelectItem>
+                                    <SelectItem value="hero">Hero</SelectItem>
+                                    <SelectItem value="gallery">Gallery</SelectItem>
+                                    <SelectItem value="icon">Icon</SelectItem>
+                                    <SelectItem value="general">General</SelectItem>
+                                </SelectContent>
+                            </Select>
                             
                             <Button 
                                 size="icon" 
@@ -203,36 +234,81 @@ export function UniversalAssetPicker({
                             )}
                         </div>
                     </TabsContent>
+                    <TabsContent value="upload" className="flex-1 overflow-y-auto mt-4 outline-none px-1 pb-4">
+                        <div className="max-w-xl mx-auto space-y-6">
+                            <div className="bg-white/5 p-4 rounded-xl border border-white/10 space-y-4">
+                                <h3 className="font-medium text-sm">Asset Metadata</h3>
+                                <div>
+                                    <Label className="mb-1.5 block text-xs text-muted-foreground">Title / Alt Text</Label>
+                                    <Input 
+                                        placeholder="Describe the image..." 
+                                        value={uploadTitle}
+                                        onChange={(e) => setUploadTitle(e.target.value)}
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label className="mb-1.5 block text-xs text-muted-foreground">Domain</Label>
+                                        <Select value={uploadDomain} onValueChange={setUploadDomain}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Domain" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="system">System</SelectItem>
+                                                <SelectItem value="portfolio">Portfolio</SelectItem>
+                                                <SelectItem value="blog">Blog</SelectItem>
+                                                <SelectItem value="discovery">Discovery</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div>
+                                        <Label className="mb-1.5 block text-xs text-muted-foreground">Role</Label>
+                                        <Select value={uploadRole} onValueChange={setUploadRole}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Role" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="general">General</SelectItem>
+                                                <SelectItem value="hero">Hero</SelectItem>
+                                                <SelectItem value="gallery">Gallery</SelectItem>
+                                                <SelectItem value="icon">Icon</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <TabsContent value="upload" className="flex-1 flex flex-col min-h-0 mt-4 outline-none">
-                        <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-xl bg-white/5 hover:bg-white/10 transition-colors p-12">
                             <input
                                 type="file"
                                 title="Upload image file"
                                 ref={fileInputRef}
                                 onChange={(e) => handleUpload(e.target.files)}
                                 className="hidden"
+                                accept="image/*"
                             />
-                            <div className="text-center max-w-md mx-auto space-y-4">
-                                <div className="w-16 h-16 bg-admin-primary/20 text-admin-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                                    {uploadMutation.isPending ? (
-                                        <Loader2 className="w-8 h-8 animate-spin" />
-                                    ) : (
-                                        <Upload className="w-8 h-8" />
-                                    )}
+                            <div 
+                                className="flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-xl bg-white/5 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition-colors p-12 cursor-pointer"
+                                onClick={() => fileInputRef.current?.click()}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault();
+                                        fileInputRef.current?.click();
+                                    }
+                                }}
+                            >
+                                <div className="text-center max-w-md mx-auto space-y-4">
+                                    <div className="w-16 h-16 bg-admin-primary/20 text-admin-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                                        {uploadMutation.isPending ? (
+                                            <Loader2 className="w-8 h-8 animate-spin" />
+                                        ) : (
+                                            <Upload className="w-8 h-8" />
+                                        )}
+                                    </div>
+                                    <h3 className="text-lg font-medium">Click to upload or drag and drop</h3>
+                                    <p className="text-sm text-muted-foreground">SVG, PNG, JPG or GIF (max. 10MB)</p>
                                 </div>
-                                <h3 className="text-xl font-display font-medium">Upload New Asset</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    Select a file to upload directly to the DAM. It will be immediately available for selection.
-                                </p>
-                                <Button 
-                                    size="lg" 
-                                    variant="gold" 
-                                    onClick={() => fileInputRef.current?.click()} 
-                                    disabled={uploadMutation.isPending}
-                                >
-                                    {uploadMutation.isPending ? "Uploading..." : "Browse Files"}
-                                </Button>
                             </div>
                         </div>
                     </TabsContent>

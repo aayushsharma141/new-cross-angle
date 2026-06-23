@@ -2,12 +2,15 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface AssetRow {
   id: string;
-  title: string;
+  collection_id?: string | null;
+  title: string | null;
   type: string;
   source: string;
-  current_version_id: string | null;
+  status: "uploading" | "processing" | "ready" | "failed" | "archived";
   created_at: string;
   updated_at: string;
+  asset_versions?: { id: string; url: string | null; version_number: number; file_id: string }[];
+  asset_usages?: { count: number }[];
 }
 
 export interface AssetUsageRow {
@@ -19,15 +22,127 @@ export interface AssetUsageRow {
   created_at: string;
 }
 
+/** Thrown when attempting to hard-delete an asset that still has active usages. */
+export class AssetInUseError extends Error {
+  constructor(public readonly usages: AssetUsageRow[]) {
+    super(`Asset is still referenced by ${usages.length} usage(s) and cannot be deleted.`);
+    this.name = "AssetInUseError";
+  }
+}
+
 export const AssetService = {
-  async getAssets(): Promise<AssetRow[]> {
+  async getAssets(
+    collectionId?: string | null,
+    opts?: { 
+        showArchived?: boolean; 
+        searchQuery?: string; 
+        status?: AssetRow["status"]; 
+        unused?: boolean;
+        domain?: string;
+        role?: string;
+    }
+  ): Promise<AssetRow[]> {
+    let query = supabase
+      .from("assets")
+      .select(`
+        *,
+        asset_versions (
+          id,
+          url,
+          version_number,
+          file_id
+        ),
+        asset_usages (count)
+      `)
+      .order("updated_at", { ascending: false });
+
+    // By default, exclude archived assets from normal views unless overridden
+    if (!opts?.showArchived && !opts?.status) {
+      query = query.neq("status", "archived");
+    }
+
+    if (opts?.status) {
+      query = query.eq("status", opts.status);
+    }
+
+    if (collectionId) {
+      query = query.eq("collection_id", collectionId);
+    }
+
+    if (collectionId) {
+      query = query.eq("collection_id", collectionId);
+    }
+
+    if (opts?.searchQuery) {
+      query = query.ilike("title", `%${opts.searchQuery}%`);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    
+    let results = data as unknown as AssetRow[];
+    
+    if (opts?.unused) {
+        results = results.filter(a => !a.asset_usages || a.asset_usages.length === 0 || a.asset_usages[0].count === 0);
+    }
+
+    return results;
+  },
+
+  async getArchivedAssets(): Promise<AssetRow[]> {
     const { data, error } = await supabase
       .from("assets")
-      .select("*")
+      .select(`
+        *,
+        asset_versions (
+          id,
+          url,
+          version_number,
+          file_id
+        )
+      `)
+      .eq("status", "archived")
       .order("updated_at", { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return data as unknown as AssetRow[];
+  },
+
+  async archiveAsset(id: string): Promise<void> {
+    const { error } = await supabase
+      .from("assets")
+      .update({ status: "archived" })
+      .eq("id", id);
+
+    if (error) throw error;
+  },
+
+  async restoreAsset(id: string): Promise<void> {
+    const { error } = await supabase
+      .from("assets")
+      .update({ status: "ready" })
+      .eq("id", id);
+
+    if (error) throw error;
+  },
+
+  /**
+   * Hard-deletes an asset. Pre-flight checks for active usages.
+   * Throws AssetInUseError if the asset is still referenced.
+   */
+  async deleteAsset(id: string): Promise<void> {
+    // Pre-flight: check for active usages
+    const usages = await AssetService.getAssetUsages(id);
+    if (usages.length > 0) {
+      throw new AssetInUseError(usages);
+    }
+
+    const { error } = await supabase
+      .from("assets")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
   },
 
   async getAssetUsages(assetId: string): Promise<AssetUsageRow[]> {
@@ -41,16 +156,13 @@ export const AssetService = {
     return data || [];
   },
 
-  // Needed to resolve the actual image URL since `assets` itself does not store the URL. 
-  // It is stored in `asset_versions` or we can join with `media_files` (since dual write is active).
-  // Let's use `asset_versions` as it is the V3 way.
   async getAssetVersion(versionId: string) {
     const { data, error } = await supabase
       .from("asset_versions")
       .select("*")
       .eq("id", versionId)
       .single();
-    
+
     if (error) throw error;
     return data;
   }
