@@ -13,6 +13,7 @@ import {
     X,
     ChevronRight,
     Archive,
+    ArchiveRestore,
     Search,
     Upload,
     Trash2
@@ -599,66 +600,15 @@ export function AssetSidebar({
                     ) : (
                         <div className="flex-1 overflow-y-auto p-3">
                             <div className="grid grid-cols-2 gap-2">
-                                {archivedAssets.map((asset) => {
-                                    const isSelected = asset.id === selectedAssetId;
-                                    const isImage = asset.type === "image";
-                                    const isVideo = asset.type === "video";
-                                    const thumbUrl = asset.asset_versions?.[0]?.url;
-
-                                    const collection = collections.find(c => c.id === asset.collection_id);
-
-                                    return (
-                                        <button
-                                            key={asset.id}
-                                            onClick={() => onSelect(isSelected ? null : asset.id)}
-                                            className={cn(
-                                                "group relative aspect-square flex flex-col items-center justify-center rounded-md border bg-muted/50 overflow-hidden text-left focus:outline-none focus:ring-2 focus:ring-primary transition-all",
-                                                isSelected
-                                                    ? "ring-2 ring-primary border-transparent"
-                                                    : "border-border hover:border-primary/50 hover:bg-muted"
-                                            )}
-                                        >
-                                            {thumbUrl ? (
-                                                <img
-                                                    src={getOptimizedUrl(thumbUrl, { width: 200, quality: 70 })}
-                                                    alt={asset.title || "Asset"}
-                                                    className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-luminosity grayscale"
-                                                    loading="lazy"
-                                                />
-                                            ) : (
-                                                <div className="absolute inset-0 flex items-center justify-center">
-                                                    {isImage ? (
-                                                        <ImageIcon className="w-8 h-8 text-muted-foreground/30" />
-                                                    ) : isVideo ? (
-                                                        <FileVideo className="w-8 h-8 text-muted-foreground/30" />
-                                                    ) : (
-                                                        <FileIcon className="w-8 h-8 text-muted-foreground/30" />
-                                                    )}
-                                                </div>
-                                            )}
-                                            <div className="absolute top-1.5 left-1.5 flex flex-col gap-1 items-start">
-                                                {collection && (
-                                                    <span className="text-[9px] px-1.5 py-0.5 rounded shadow-sm backdrop-blur-md border bg-background/80 text-foreground border-border font-medium">
-                                                        {collection.name}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <div className="absolute top-1.5 right-1.5 flex flex-col gap-1 items-end">
-                                                <span className="text-[9px] px-1.5 py-0.5 rounded font-medium shadow-sm backdrop-blur-md text-white border bg-amber-500/80 border-amber-500/20">
-                                                    Archived
-                                                </span>
-                                            </div>
-                                            <div
-                                                className={cn(
-                                                    "absolute inset-x-0 bottom-0 bg-background/90 backdrop-blur-sm p-1.5 transform transition-transform",
-                                                    isSelected ? "translate-y-0" : "translate-y-full group-hover:translate-y-0"
-                                                )}
-                                            >
-                                                <p className="text-[10px] truncate font-medium">{asset.title}</p>
-                                            </div>
-                                        </button>
-                                    );
-                                })}
+                                {archivedAssets.map((asset) => (
+                                    <ArchivedAssetCard
+                                        key={asset.id}
+                                        asset={asset}
+                                        collections={collections}
+                                        isSelected={asset.id === selectedAssetId}
+                                        onSelect={() => onSelect(asset.id === selectedAssetId ? null : asset.id)}
+                                    />
+                                ))}
                             </div>
                         </div>
                     )}
@@ -878,9 +828,120 @@ function CollectionRow({
                             {deleteMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                             Delete
                         </Button>
-                    </DialogFooter>
+        </DialogFooter>
                 </DialogContent>
             </Dialog>
         </>
+    );
+}
+
+// ─── ArchivedAssetCard ────────────────────────────────────────────────────────
+// Extracted component so each card can hold its own restore mutation state.
+
+function ArchivedAssetCard({
+    asset,
+    collections,
+    isSelected,
+    onSelect,
+}: {
+    asset: AssetRow;
+    collections: CollectionRow[];
+    isSelected: boolean;
+    onSelect: () => void;
+}) {
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+
+    const restoreMutation = useMutation({
+        mutationFn: () => AssetService.restoreAsset(asset.id),
+        onSuccess: () => {
+            toast({ title: "Asset restored", description: asset.title || asset.id });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "assets", "archived"] });
+        },
+        onError: (err: Error) => {
+            toast({ title: "Restore failed", description: err.message, variant: "destructive" });
+        },
+    });
+
+    const thumbUrl = asset.asset_versions?.[0]?.url;
+    const collection = collections.find((c) => c.id === asset.collection_id);
+    const isImage = asset.type === "image";
+    const isVideo = asset.type === "video";
+
+    return (
+        <div className="relative group">
+            <button
+                onClick={onSelect}
+                className={cn(
+                    "w-full aspect-square flex flex-col items-center justify-center rounded-md border bg-muted/50 overflow-hidden text-left focus:outline-none focus:ring-2 focus:ring-primary transition-all",
+                    isSelected
+                        ? "ring-2 ring-primary border-transparent"
+                        : "border-border hover:border-primary/50 hover:bg-muted"
+                )}
+            >
+                {thumbUrl ? (
+                    <img
+                        src={getOptimizedUrl(thumbUrl, { width: 200, quality: 70 })}
+                        alt={asset.title || "Asset"}
+                        className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-luminosity grayscale"
+                        loading="lazy"
+                    />
+                ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        {isImage ? (
+                            <ImageIcon className="w-8 h-8 text-muted-foreground/30" />
+                        ) : isVideo ? (
+                            <FileVideo className="w-8 h-8 text-muted-foreground/30" />
+                        ) : (
+                            <FileIcon className="w-8 h-8 text-muted-foreground/30" />
+                        )}
+                    </div>
+                )}
+
+                {/* Collection badge */}
+                {collection && (
+                    <div className="absolute top-1.5 left-1.5">
+                        <span className="text-[9px] px-1.5 py-0.5 rounded shadow-sm backdrop-blur-md border bg-background/80 text-foreground border-border font-medium">
+                            {collection.name}
+                        </span>
+                    </div>
+                )}
+
+                {/* Archived badge */}
+                <div className="absolute top-1.5 right-1.5">
+                    <span className="text-[9px] px-1.5 py-0.5 rounded font-medium shadow-sm backdrop-blur-md text-white border bg-amber-500/80 border-amber-500/20">
+                        Archived
+                    </span>
+                </div>
+
+                {/* Hover footer: title + restore */}
+                <div
+                    className={cn(
+                        "absolute inset-x-0 bottom-0 bg-background/90 backdrop-blur-sm p-1.5 flex items-center justify-between gap-1 transform transition-transform",
+                        isSelected ? "translate-y-0" : "translate-y-full group-hover:translate-y-0"
+                    )}
+                >
+                    <p className="text-[10px] truncate font-medium flex-1">{asset.title}</p>
+                    <button
+                        type="button"
+                        aria-label="Restore asset"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            restoreMutation.mutate();
+                        }}
+                        disabled={restoreMutation.isPending}
+                        className="flex-shrink-0 p-0.5 rounded hover:bg-primary/10 hover:text-primary text-muted-foreground transition-colors focus:outline-none focus:ring-1 focus:ring-primary"
+                        title="Restore asset"
+                    >
+                        {restoreMutation.isPending ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                            <ArchiveRestore className="w-3.5 h-3.5" />
+                        )}
+                    </button>
+                </div>
+            </button>
+        </div>
     );
 }

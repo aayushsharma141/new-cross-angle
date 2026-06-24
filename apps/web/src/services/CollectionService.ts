@@ -78,23 +78,30 @@ export const CollectionService = {
     // First, find all assets in this collection
     const { data: assets, error: assetsError } = await supabase
       .from("assets")
-      .select("id")
+      .select("id, status")
       .eq("collection_id", collectionId);
       
     if (assetsError) throw assetsError;
 
     if (assets && assets.length > 0) {
-      const assetIds = assets.map(a => a.id);
-      
-      const { data: usages, error: usagesError } = await supabase
-        .from("asset_usages")
-        .select("*")
-        .in("asset_id", assetIds);
+      // Only consider assets that are NOT archived — archived assets are logically retired
+      // and should not block collection deletion even if they still have usage rows.
+      const activeAssets = (assets as Array<{ id: string; status: string }>).filter(
+        (a) => a.status !== "archived"
+      );
+      const assetIds = activeAssets.map((a) => a.id);
 
-      if (usagesError) throw usagesError;
+      if (assetIds.length > 0) {
+        const { data: usages, error: usagesError } = await supabase
+          .from("asset_usages")
+          .select("*")
+          .in("asset_id", assetIds);
 
-      if (usages && usages.length > 0) {
-        throw new AssetInUseError(usages);
+        if (usagesError) throw usagesError;
+
+        if (usages && usages.length > 0) {
+          throw new AssetInUseError(usages);
+        }
       }
     }
 
