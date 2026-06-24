@@ -28,16 +28,20 @@ export function DiscoveryAssetsPanel() {
           Visual Prompts (1-18)
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {visualSlots.map((num) => (
-            <DiscoveryMediaSlot
-              key={`visual-${num}`}
-              label={`Visual Prompt ${num}`}
-              entityType="discovery_visual"
-              entityId={`visual-${num}`}
-              role="visual"
-              description="Used in the Visual Instinct quiz phase"
-            />
-          ))}
+          {visualSlots.map((num) => {
+            const visualKey = `visual-${num}`;
+            const entityId = toEntityId(visualKey);
+            return (
+              <DiscoveryMediaSlot
+                key={visualKey}
+                label={`Visual Prompt ${num}`}
+                entityType="discovery_visual"
+                entityId={entityId}
+                role="visual"
+                description="Used in the Visual Instinct quiz phase"
+              />
+            );
+          })}
         </div>
       </div>
 

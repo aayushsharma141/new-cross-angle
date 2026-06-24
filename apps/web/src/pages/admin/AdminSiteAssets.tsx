@@ -3,8 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/primitives/button";
 import { Loader2, Image as ImageIcon, ImagePlus, MonitorPlay } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
-import MediaPickerModal from "@/components/admin/MediaPickerModal";
-import type { MediaFile } from "@/services/MediaService";
+import { UniversalAssetPicker } from "@/components/admin/media/UniversalAssetPicker";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface SiteAsset {
@@ -79,10 +78,7 @@ export default function AdminSiteAssets() {
         }
     });
 
-    const handleSelectMedia = (file: MediaFile) => {
-        if (!currentEditingAsset) return;
-        updateMutation.mutate({ id: currentEditingAsset.id, fileId: file.id });
-    };
+    // Removed handleSelectMedia as it is handled inline
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
@@ -170,11 +166,19 @@ export default function AdminSiteAssets() {
                     ))}
                 </div>
             )}
-
-            <MediaPickerModal
+            <UniversalAssetPicker
                 open={pickerOpen}
                 onOpenChange={setPickerOpen}
-                onSelect={handleSelectMedia}
+                onSelect={(asset, url) => {
+                    if (!currentEditingAsset) return;
+                    const fileId = asset.asset_versions?.[0]?.file_id;
+                    if (fileId) {
+                        updateMutation.mutate({ id: currentEditingAsset.id, fileId });
+                    } else {
+                        toast({ title: "Error", description: "Selected asset does not have an underlying file ID.", variant: "destructive" });
+                        setPickerOpen(false);
+                    }
+                }}
             />
         </div>
     );

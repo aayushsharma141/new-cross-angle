@@ -69,10 +69,6 @@ export const AssetService = {
       query = query.eq("collection_id", collectionId);
     }
 
-    if (collectionId) {
-      query = query.eq("collection_id", collectionId);
-    }
-
     if (opts?.searchQuery) {
       query = query.ilike("title", `%${opts.searchQuery}%`);
     }
@@ -84,6 +80,27 @@ export const AssetService = {
     
     if (opts?.unused) {
         results = results.filter(a => !a.asset_usages || a.asset_usages.length === 0 || a.asset_usages[0].count === 0);
+    }
+
+    // Domain/role filtering: these values live on asset_usages, not assets themselves.
+    // Fetch matching usage records if a domain or role filter is requested.
+    if (opts?.domain || opts?.role) {
+        let usageQuery = supabase
+            .from("asset_usages")
+            .select("asset_id, entity_type, role, domain");
+
+        if (opts.domain) {
+            usageQuery = usageQuery.ilike("domain", opts.domain);
+        }
+        if (opts.role) {
+            usageQuery = usageQuery.eq("role", opts.role);
+        }
+
+        const { data: usageData, error: usageError } = await usageQuery;
+        if (usageError) throw usageError;
+
+        const matchingAssetIds = new Set((usageData || []).map(u => u.asset_id));
+        results = results.filter(a => matchingAssetIds.has(a.id));
     }
 
     return results;

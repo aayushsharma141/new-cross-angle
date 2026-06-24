@@ -103,7 +103,6 @@ const AdminMedia = () => {
     const [uploadDomain, setUploadDomain] = useState<string>("system");
     const [uploadEntityType, setUploadEntityType] = useState<string>("system");
     const [uploadRole, setUploadRole] = useState<string>("general");
-    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
     // ── Data fetching ─────────────────────────────────────────────────────────
 
@@ -114,82 +113,7 @@ const AdminMedia = () => {
 
 
 
-    // ── Upload mutation ───────────────────────────────────────────────────────
 
-    const uploadMutation = useMutation({
-        mutationFn: async (fileList: File[]) => {
-            const { data: userData } = await supabase.auth.getUser();
-            let successCount = 0;
-            const errors: string[] = [];
-
-            for (const file of fileList) {
-                try {
-                    // 1. Upload to DAM (ImageKit + assets + asset_versions + optionally asset_usages)
-                    const { url, filePath } = await MediaService.uploadDamAsset({
-                        file,
-                        title: file.name,
-                        domain: uploadDomain,
-                        entityType: uploadEntityType,
-                        entityId: null, // UI currently doesn't specify an entity ID
-                        role: uploadRole
-                    });
-
-                    // 2. Dual Write to Legacy `media_files` (keeps old CMS UI working)
-                    const { error: dbError } = await supabase.from("media_files").upsert(
-                        {
-                            url: url,
-                            file_name: filePath,
-                            display_name: file.name,
-                            mime_type: file.type || "application/octet-stream",
-                            size_bytes: file.size,
-                            alt_text: file.name,
-                            caption: file.name,
-                            storage_provider: "imagekit",
-                            storage_path: filePath,
-                            uploaded_by: userData?.user?.id,
-                        },
-                        { onConflict: "file_name" }
-                    );
-
-                    if (dbError) {
-                        errors.push(`${file.name}: Legacy DB Error - ${dbError.message}`);
-                        // Ideally we'd rollback DAM here, but we will let it pass for now.
-                        continue;
-                    }
-
-                    successCount++;
-                } catch (e: unknown) {
-                    errors.push(`${file.name}: ${e instanceof Error ? e.message : String(e)}`);
-                }
-            }
-
-            if (errors.length > 0) {
-                throw { successCount, total: fileList.length, errors };
-            }
-            return { successCount };
-        },
-        onSuccess: ({ successCount }) => {
-            toast({ title: "Success", description: `${successCount} file(s) uploaded successfully` });
-            setUploadError(null);
-            setIsUploadModalOpen(false);
-            void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
-        },
-        onError: (err: unknown) => {
-            if (err && typeof err === "object" && "errors" in err && Array.isArray((err as Record<string, unknown>).errors)) {
-                const payload = err as { errors: string[]; successCount?: number; total?: number };
-                const msg = payload.errors.join("; ");
-                setUploadError(msg);
-                toast({
-                    title: `${payload.successCount || 0} of ${payload.total || 0} file(s) uploaded`,
-                    description: `Failed: ${msg}`,
-                    variant: "destructive",
-                });
-                void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
-            } else {
-                toast({ title: "Error", description: err instanceof Error ? err.message : String(err), variant: "destructive" });
-            }
-        },
-    });
 
     // ── Delete mutation ───────────────────────────────────────────────────────
 
@@ -412,53 +336,7 @@ const AdminMedia = () => {
                 {/* Action buttons */}
                 {!isReadOnly && (
                     <ModuleActions>
-                        <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
-                            <DialogTrigger asChild>
-                                <Button>
-                                    <Upload className={`${icons.sm} mr-2`} />
-                                    Upload Asset
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[700px]">
-                                <DialogHeader>
-                                    <DialogTitle>Upload Asset</DialogTitle>
-                                    <DialogDescription>
-                                        Upload a new asset to the Digital Asset Manager.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="space-y-4 pt-4">
-                                    <div className="flex gap-4 p-4 border border-admin-border/50 rounded-xl bg-admin-card/50">
-                                        <div className="space-y-1 flex-1">
-                                            <label htmlFor="dam-domain-select" className="text-xs text-muted-foreground font-semibold">DAM Domain</label>
-                                            <Select value={uploadDomain} onValueChange={setUploadDomain}>
-                                                <SelectTrigger id="dam-domain-select"><SelectValue /></SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="system">System (Default)</SelectItem>
-                                                    <SelectItem value="portfolio">Portfolio</SelectItem>
-                                                    <SelectItem value="services">Services</SelectItem>
-                                                    <SelectItem value="discovery">Discovery</SelectItem>
-                                                    <SelectItem value="blog">Blog</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="space-y-1 flex-1">
-                                            <label htmlFor="entity-type-input" className="text-xs text-muted-foreground font-semibold">Entity Type</label>
-                                            <Input id="entity-type-input" placeholder="e.g., projects, archetypes" value={uploadEntityType} onChange={e => setUploadEntityType(e.target.value)} />
-                                        </div>
-                                        <div className="space-y-1 flex-1">
-                                            <label htmlFor="role-input" className="text-xs text-muted-foreground font-semibold">Role</label>
-                                            <Input id="role-input" placeholder="e.g., general, hero, gallery" value={uploadRole} onChange={e => setUploadRole(e.target.value)} />
-                                        </div>
-                                    </div>
-                                    <MediaUploadZone
-                                        onUpload={(fileList) => uploadMutation.mutate(fileList)}
-                                        isUploading={uploadMutation.isPending}
-                                        folderName={selectedFolder}
-                                        errorMessage={uploadError}
-                                    />
-                                </div>
-                            </DialogContent>
-                        </Dialog>
+
 
                         <Button
                             variant="outline"

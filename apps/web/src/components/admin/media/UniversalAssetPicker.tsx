@@ -204,7 +204,7 @@ export function UniversalAssetPicker({
                                                 onClick={() => handleSelect(asset)}
                                                 onDoubleClick={() => handleDoubleClick(asset)}
                                                 aria-label={`${asset.title || 'Untitled asset'}, used ${usageCount} time${usageCount !== 1 ? 's' : ''}`}
-                                                aria-pressed={isSelected ? "true" : "false"}
+                                                {...({ "aria-pressed": isSelected } as React.HTMLAttributes<HTMLButtonElement>)}
                                                 className={`aspect-square relative rounded-lg overflow-hidden border-2 transition-all bg-black/40 group ${
                                                     isSelected
                                                         ? "border-admin-primary ring-2 ring-admin-primary/30"

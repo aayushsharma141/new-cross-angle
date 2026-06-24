@@ -40,6 +40,7 @@ export interface DamUploadOptions {
   entityType: string; // e.g., 'projects', 'archetypes'
   entityId?: string | null;
   role: string; // e.g., 'hero', 'gallery'
+  collectionId?: string | null;
   onProgress?: (percent: number) => void;
 }
 
@@ -213,7 +214,7 @@ export const MediaService = {
 
   // DAM V3 Upload
   async uploadDamAsset(options: DamUploadOptions): Promise<{ assetId: string; url: string; filePath: string }> {
-    const { file, title, domain, entityType, entityId, role, onProgress } = options;
+    const { file, title, domain, entityType, entityId, role, collectionId, onProgress } = options;
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error("Not authenticated");
@@ -283,6 +284,11 @@ export const MediaService = {
             ).catch(e => console.warn("Rollback DB failed:", e));
             
             throw new Error(`Asset finalization failed: ${rpcError.message}`);
+          }
+
+          if (collectionId) {
+            const { error: collError } = await supabase.from("assets").update({ collection_id: collectionId }).eq("id", assetId);
+            if (collError) throw new Error(`Asset uploaded, but collection assignment failed: ${collError.message}`);
           }
 
           onProgress?.(100);

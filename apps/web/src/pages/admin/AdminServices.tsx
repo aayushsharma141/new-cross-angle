@@ -20,6 +20,7 @@ import { ServiceDetail } from "@repo/types";
 import { serviceSchema, formatZodErrors } from "@/lib/validation/validations";
 import { FeaturesEditor, ProcessEditor, FAQEditor } from "@/components/admin/ServiceFormFields";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
+import { AssetUsageService } from "@/services/AssetUsageService";
 import { AdminFilterBar, AdminSafeAction, AdminEmptyState, AdminSkeletonCard } from "@/components/admin/shared";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { DataLoadingBoundary } from "@/components/ui/enhanced/DataLoadingBoundary";
@@ -56,17 +57,18 @@ const AdminServices = () => {
     const [searchQuery, setSearchQuery] = useState("");
 
     // Form State
-    const [formData, setFormData] = useState<Partial<ServiceDetail>>({
+    const [formData, setFormData] = useState({
         title: "",
         slug: "",
         description: "",
         hero_image: "",
+        hero_asset_id: null as string | null,
         category_id: "residential",
         icon: "Home",
         tag: "",
-        features: [],
-        process_steps: [],
-        faq: []
+        features: [] as string[],
+        process_steps: [] as { title: string, description: string }[],
+        faq: [] as { question: string, answer: string }[]
     });
 
     const { toast } = useToast();
@@ -128,6 +130,7 @@ const AdminServices = () => {
             slug: service.slug,
             description: service.description || "",
             hero_image: service.hero_image || "",
+            hero_asset_id: null,
             category_id: service.category_id || "residential",
             icon: service.icon || "Home",
             tag: service.tag || "",
@@ -175,11 +178,27 @@ const AdminServices = () => {
             p_slug: string;
             p_steps: any;
         }) => {
-            const { error: rpcError } = await supabase.rpc('upsert_service', payload as any);
+            const { data, error: rpcError } = await supabase.rpc('upsert_service', payload as any);
             if (rpcError) throw rpcError;
-            return payload;
+            
+            return {
+                payload,
+                returnedId: data as string
+            };
         },
-        onSuccess: (payload) => {
+        onSuccess: ({ payload, returnedId }) => {
+            const finalServiceId = payload.p_service_id || returnedId;
+
+            // Sync asset relationship if one was selected
+            if (finalServiceId && formData.hero_asset_id) {
+                void AssetUsageService.replaceUsage({
+                    assetId: formData.hero_asset_id,
+                    entityType: "services",
+                    entityId: finalServiceId,
+                    role: "hero"
+                });
+            }
+
             toast({ title: payload.p_service_id ? "Service updated!" : "Service created!" });
             void auditService.writeAudit(
                 payload.p_service_id ? 'UPDATE' : 'CREATE',
@@ -251,6 +270,7 @@ const AdminServices = () => {
             slug: "",
             description: "",
             hero_image: "",
+            hero_asset_id: null,
             category_id: "residential",
             icon: "Home",
             tag: "",
@@ -512,10 +532,21 @@ const AdminServices = () => {
                                     <div className="space-y-2">
                                         <Label htmlFor="svc-hero" className="text-[hsl(var(--admin-text))]">Hero Image URL</Label>
                                         <MediaPickerField
-                                            id="svc-hero"
-                                            value={formData.hero_image || ""}
+                                            id="hero_image"
+                                            value={formData.hero_image}
                                             onChange={(url) => setFormData({ ...formData, hero_image: url })}
-                                            placeholder="https://..."
+                                            onAssetSelect={(asset, url) => {
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    hero_image: url,
+                                                    hero_asset_id: asset.id
+                                                }));
+                                            }}
+                                            entityId={editingService?.id}
+                                            placeholder="Select hero image..."
+                                            domain="services"
+                                            entityType="services"
+                                            damRole="hero"
                                         />
                                     </div>
 

@@ -50,6 +50,8 @@ export interface Archetype {
   traits: string[];
   materialBias: string;
   strategy: string;
+  heroImageUrl?: string;
+  moodboardImageUrl?: string;
   match: (scores: AestheticScores) => number;
 }
 

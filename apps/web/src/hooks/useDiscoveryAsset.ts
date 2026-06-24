@@ -12,14 +12,35 @@ export function useDiscoveryAsset(
     queryFn: async () => {
       const { data, error } = await supabase
         .from('asset_usages')
-        .select('assets(url)')
+        .select(`
+          assets (
+            asset_versions (
+              url,
+              version_number
+            )
+          )
+        `)
         .eq('entity_type', entityType)
         .eq('entity_id', entityId)
         .eq('role', role)
         .maybeSingle();
 
       if (error || !data) return fallbackUrl;
-      return (data.assets as unknown as { url: string } | null)?.url ?? fallbackUrl;
+
+      const typedData = data as unknown as {
+        assets: {
+          asset_versions: { url: string; version_number: number }[];
+        } | null;
+      };
+
+      const versions = typedData?.assets?.asset_versions;
+      if (versions && versions.length > 0) {
+        const validVersion = versions.find((v) => v.url);
+        if (validVersion?.url) {
+          return validVersion.url;
+        }
+      }
+      return fallbackUrl;
     },
     staleTime: 1000 * 60 * 5, // 5 min
     enabled: Boolean(entityType && entityId && role),

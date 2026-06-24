@@ -22,6 +22,7 @@ import {
 import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
+import { AssetUsageService } from "@/services/AssetUsageService";
 import { portfolioSchema, formatZodErrors } from "@/lib/validation/validations";
 import { Switch } from "@/components/ui/primitives/switch";
 import FocusLock from "react-focus-lock";
@@ -77,10 +78,12 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
         style: "",
         year_completed: new Date().getFullYear(),
         cover_image_url: "",
+        cover_asset_id: null as string | null,
         brief: "",
         approach: "",
         video_url: "",
         hero_image_url: "",
+        hero_asset_id: null as string | null,
         is_featured: false,
         status: "draft" as "draft" | "live",
     });
@@ -122,10 +125,12 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                 style: (initialData.style_tags && initialData.style_tags[0]) || "", // Taking first tag
                 year_completed: initialData.year_completed || new Date().getFullYear(),
                 cover_image_url: initialData.cover_image_url || "",
+                cover_asset_id: null,
                 brief: desc.brief || "",
                 approach: desc.approach || "",
                 video_url: desc.video_url || "",
                 hero_image_url: desc.hero_image_url || "",
+                hero_asset_id: null,
                 is_featured: initialData.featured || false,
                 status: initialData.status === 'live' ? 'live' : 'draft',
             });
@@ -145,10 +150,12 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                 style: "",
                 year_completed: new Date().getFullYear(),
                 cover_image_url: "",
+                cover_asset_id: null,
                 brief: "",
                 approach: "",
                 video_url: "",
                 hero_image_url: "",
+                hero_asset_id: null,
                 is_featured: false,
                 status: "draft",
             });
@@ -220,6 +227,8 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                 itemData.category_id = null;
             }
 
+            let finalProjectId = initialData?.id;
+            
             if (initialData?.id) {
                 const { error } = await supabase
                     .from('projects')
@@ -227,10 +236,33 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                     .eq('id', initialData.id);
                 if (error) throw error;
             } else {
-                const { error } = await supabase
+                const { data, error } = await supabase
                     .from('projects')
-                    .insert(itemData);
+                    .insert(itemData)
+                    .select('id')
+                    .single();
                 if (error) throw error;
+                finalProjectId = data.id;
+            }
+
+            // After successful save, sync asset relationships if they were changed
+            if (finalProjectId) {
+                if (formData.cover_asset_id) {
+                    await AssetUsageService.replaceUsage({
+                        assetId: formData.cover_asset_id,
+                        entityType: "project",
+                        entityId: finalProjectId,
+                        role: "cover_image"
+                    });
+                }
+                if (formData.hero_asset_id) {
+                    await AssetUsageService.replaceUsage({
+                        assetId: formData.hero_asset_id,
+                        entityType: "project",
+                        entityId: finalProjectId,
+                        role: "hero"
+                    });
+                }
             }
 
             toast({
@@ -409,9 +441,17 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                     <p className="text-sm text-zinc-500 mb-4">Displayed on the portfolio listing page.</p>
                                 </div>
                                 <div className="max-w-xl">
-                                    <MediaPickerField
+                                <MediaPickerField
                                         value={formData.cover_image_url}
                                         onChange={(url) => setFormData({ ...formData, cover_image_url: url })}
+                                        onAssetSelect={(asset, url) => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                cover_image_url: url,
+                                                cover_asset_id: asset.id
+                                            }));
+                                        }}
+                                        entityId={initialData?.id}
                                         placeholder="Cover Image URL"
                                         domain="portfolio"
                                         entityType="project"
@@ -427,9 +467,17 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                     <p className="text-sm text-zinc-500 mb-4">The massive banner image shown at the top of the individual project page. Falls back to Grid Cover if empty.</p>
                                 </div>
                                 <div className="max-w-xl">
-                                    <MediaPickerField
+                                <MediaPickerField
                                         value={formData.hero_image_url}
                                         onChange={(url) => setFormData({ ...formData, hero_image_url: url })}
+                                        onAssetSelect={(asset, url) => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                hero_image_url: url,
+                                                hero_asset_id: asset.id
+                                            }));
+                                        }}
+                                        entityId={initialData?.id}
                                         placeholder="Hero Image URL"
                                         domain="portfolio"
                                         entityType="project"

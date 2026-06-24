@@ -7,6 +7,7 @@ import { useAnalytics } from "@/analytics/AnalyticsProvider";
 import { track } from "@/analytics/track";
 import { TiltedCard } from "@/components/ReactBits";
 import { useDiscoveryAsset } from "@/hooks/useDiscoveryAsset";
+import { toEntityId } from "@/lib/discovery-utils";
 
 interface Props {
   sessionId: string | null;
@@ -191,7 +192,7 @@ function VisualCard({
   toggle: (id: number) => void;
   markLoaded: (id: number) => void;
 }) {
-  const { url } = useDiscoveryAsset("discovery_visual", `visual-${img.id}`, "visual", img.url);
+  const { url } = useDiscoveryAsset("discovery_visual", toEntityId(`visual-${img.id}`), "visual", img.url);
 
   // Preload image when DAM URL resolves, then mark as loaded
   useEffect(() => {

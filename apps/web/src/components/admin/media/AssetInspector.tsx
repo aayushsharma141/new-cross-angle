@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AssetService, type AssetRow } from "@/services/AssetService";
 import { CollectionService } from "@/services/CollectionService";
 import { Loader2, AlertCircle, Trash2, Link as LinkIcon, Info, Folders, X, Archive, ArchiveRestore } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/primitives/button";
 import { ScrollArea } from "@/components/ui/primitives/scroll-area";
 import { Separator } from "@/components/ui/primitives/separator";
@@ -20,7 +20,7 @@ interface AssetInspectorProps {
     onCollectionFilter?: (id: string | null) => void;
 }
 
-export function AssetInspector({ selectedAssetId, onCollectionFilter }: AssetInspectorProps) {
+export function AssetInspector({ selectedAssetId, onCollectionFilter, activeCollectionId }: AssetInspectorProps) {
     const { data: assets } = useQuery({
         queryKey: ["dam", "assets"],
         queryFn: () => AssetService.getAssets(),
@@ -53,7 +53,7 @@ export function AssetInspector({ selectedAssetId, onCollectionFilter }: AssetIns
                 <Separator />
                 <AssetUsagePanel asset={asset} />
                 <Separator />
-                <AssetCollectionPanel asset={asset} onCollectionFilter={onCollectionFilter} />
+                <AssetCollectionPanel asset={asset} onCollectionFilter={onCollectionFilter} activeCollectionId={activeCollectionId} />
                 <Separator />
                 <AssetMetadataPanel asset={asset} />
                 <Separator />
@@ -187,7 +187,7 @@ function AssetVersionPanel({ asset: _asset }: { asset: AssetRow }) {
     );
 }
 
-function AssetCollectionPanel({ asset, onCollectionFilter }: { asset: AssetRow; onCollectionFilter?: (id: string | null) => void; }) {
+function AssetCollectionPanel({ asset, onCollectionFilter, activeCollectionId }: { asset: AssetRow; onCollectionFilter?: (id: string | null) => void; activeCollectionId?: string | null }) {
     const queryClient = useQueryClient();
     const { toast } = useToast();
 
@@ -212,6 +212,14 @@ function AssetCollectionPanel({ asset, onCollectionFilter }: { asset: AssetRow; 
     // Determine current collection from loaded assets list
     const currentCollectionId = asset.collection_id;
     const currentCollection = collections.find((c) => c.id === currentCollectionId);
+
+    const [selectedDropdownId, setSelectedDropdownId] = useState<string | undefined>(
+        (!asset.collection_id && activeCollectionId) ? activeCollectionId : undefined
+    );
+
+    useEffect(() => {
+        setSelectedDropdownId((!asset.collection_id && activeCollectionId) ? activeCollectionId : undefined);
+    }, [asset.id, asset.collection_id, activeCollectionId]);
 
     return (
         <div className="space-y-3">
@@ -246,7 +254,8 @@ function AssetCollectionPanel({ asset, onCollectionFilter }: { asset: AssetRow; 
 
             <div className="flex gap-2 items-center">
                 <Select
-                    onValueChange={(v) => assignMutation.mutate(v)}
+                    value={selectedDropdownId}
+                    onValueChange={(v) => setSelectedDropdownId(v)}
                     disabled={assignMutation.isPending || collections.length === 0}
                 >
                     <SelectTrigger className="h-8 text-xs flex-1">
@@ -263,7 +272,16 @@ function AssetCollectionPanel({ asset, onCollectionFilter }: { asset: AssetRow; 
                         ))}
                     </SelectContent>
                 </Select>
-                {assignMutation.isPending && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+                <Button 
+                    size="sm" 
+                    className="h-8 text-xs px-3" 
+                    disabled={!selectedDropdownId || assignMutation.isPending}
+                    onClick={() => {
+                        if (selectedDropdownId) assignMutation.mutate(selectedDropdownId);
+                    }}
+                >
+                    Assign
+                </Button>
             </div>
         </div>
     );

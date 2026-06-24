@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AssetService, type AssetRow } from "@/services/AssetService";
 import { CollectionService, type CollectionRow, type CollectionType } from "@/services/CollectionService";
@@ -13,7 +13,9 @@ import {
     X,
     ChevronRight,
     Archive,
-    Search
+    Search,
+    Upload,
+    Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/primitives/button";
@@ -27,6 +29,17 @@ import {
 } from "@/components/ui/primitives/select";
 import { useToast } from "@/hooks/useToast";
 import { getOptimizedUrl } from "@/lib/cdn";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/primitives/dialog";
+import { MediaUploadZone } from "@/components/admin/media/MediaUploadZone";
+import { MediaService } from "@/services/MediaService";
+import { supabase } from "@/integrations/supabase/client";
 
 const COLLECTION_TYPE_LABELS: Record<CollectionType, string> = {
     shoot: "Shoot",
@@ -65,6 +78,14 @@ export function AssetSidebar({
     const [debouncedQuery, setDebouncedQuery] = useState("");
     const [insightFilter, setInsightFilter] = useState<"all" | "unused" | "failed">("all");
 
+    // Upload state
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [uploadError, setUploadError] = useState<string | null>(null);
+    const [uploadDomain, setUploadDomain] = useState<string>("system");
+    const [uploadEntityType, setUploadEntityType] = useState<string>("system");
+    const [uploadRole, setUploadRole] = useState<string>("general");
+    const [uploadStats, setUploadStats] = useState<{ current: number; total: number; percent: number } | null>(null);
+
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
@@ -73,7 +94,7 @@ export function AssetSidebar({
         return () => clearTimeout(handler);
     }, [searchQuery]);
 
-    const { data: assets = [], isLoading: assetsLoading } = useQuery({
+    const { data: damAssets = [], isLoading: damLoading } = useQuery({
         queryKey: ["dam", "assets", activeCollectionId, debouncedQuery, insightFilter],
         queryFn: () => {
             const opts: { searchQuery?: string; unused?: boolean; status?: AssetRow["status"] } = {};
@@ -83,6 +104,36 @@ export function AssetSidebar({
             return AssetService.getAssets(activeCollectionId, opts);
         },
     });
+
+    const { data: legacyFiles = [], isLoading: legacyLoading } = useQuery({
+        queryKey: ["dam", "legacy-files", debouncedQuery],
+        queryFn: () => MediaService.getFiles(),
+        enabled: tab === "assets" && !activeCollectionId,
+    });
+
+    const assets = useMemo(() => {
+        const mapped: AssetRow[] = legacyFiles.map((f) => ({
+            id: f.id,
+            collection_id: f.folderId,
+            title: f.name,
+            type: f.mimeType.startsWith("video/") ? "video" : f.mimeType.startsWith("image/") ? "image" : "document" as AssetRow["type"],
+            source: "uploaded" as AssetRow["source"],
+            status: "ready" as AssetRow["status"],
+            created_at: f.createdAt,
+            updated_at: f.createdAt,
+            asset_versions: [{ id: f.id, url: f.url, version_number: 1, file_id: f.id }],
+            asset_usages: [{ count: 0 }],
+        }));
+        const all = [...damAssets, ...mapped];
+        if (debouncedQuery) {
+            const q = debouncedQuery.toLowerCase();
+            return all.filter((a) => (a.title || "").toLowerCase().includes(q));
+        }
+        if (insightFilter === "unused") return all.filter((a) => !a.asset_usages?.[0]?.count);
+        return all;
+    }, [damAssets, legacyFiles, debouncedQuery, insightFilter]);
+
+    const assetsLoading = damLoading || legacyLoading;
 
     const { data: collections = [], isLoading: collectionsLoading } = useQuery({
         queryKey: ["dam", "collections"],
@@ -113,6 +164,85 @@ export function AssetSidebar({
         createMutation.mutate();
     };
 
+    const uploadMutation = useMutation({
+        mutationFn: async (fileList: File[]) => {
+            const { data: userData } = await supabase.auth.getUser();
+            let successCount = 0;
+            const errors: string[] = [];
+
+            setUploadStats({ current: 0, total: fileList.length, percent: 0 });
+
+            for (let i = 0; i < fileList.length; i++) {
+                const file = fileList[i];
+                try {
+                    const { url, filePath } = await MediaService.uploadDamAsset({
+                        file,
+                        title: file.name,
+                        domain: uploadDomain,
+                        entityType: uploadEntityType,
+                        entityId: null,
+                        role: uploadRole,
+                        collectionId: activeCollectionId,
+                        onProgress: (p) => setUploadStats({ current: i + 1, total: fileList.length, percent: p })
+                    });
+
+                    const { error: dbError } = await supabase.from("media_files").upsert(
+                        {
+                            url: url,
+                            file_name: filePath,
+                            display_name: file.name,
+                            mime_type: file.type || "application/octet-stream",
+                            size_bytes: file.size,
+                            alt_text: file.name,
+                            caption: file.name,
+                            storage_provider: "imagekit",
+                            storage_path: filePath,
+                            uploaded_by: userData?.user?.id,
+                        },
+                        { onConflict: "file_name" }
+                    );
+
+                    if (dbError) {
+                        errors.push(`${file.name}: Legacy DB Error - ${dbError.message}`);
+                        continue;
+                    }
+
+                    successCount++;
+                } catch (e: unknown) {
+                    errors.push(`${file.name}: ${e instanceof Error ? e.message : String(e)}`);
+                }
+            }
+
+            if (errors.length > 0) {
+                throw { successCount, total: fileList.length, errors };
+            }
+            return { successCount };
+        },
+        onSuccess: ({ successCount }) => {
+            toast({ title: "Success", description: `${successCount} file(s) uploaded successfully` });
+            setUploadError(null);
+            setIsUploadModalOpen(false);
+            void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "collections"] });
+        },
+        onError: (err: unknown) => {
+            if (err && typeof err === "object" && "errors" in err && Array.isArray((err as Record<string, unknown>).errors)) {
+                const payload = err as { errors: string[]; successCount?: number; total?: number };
+                const msg = payload.errors.join("; ");
+                setUploadError(msg);
+                toast({
+                    title: `${payload.successCount || 0} of ${payload.total || 0} file(s) uploaded`,
+                    description: `Failed: ${msg}`,
+                    variant: "default",
+                });
+                void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+                void queryClient.invalidateQueries({ queryKey: ["dam", "collections"] });
+            } else {
+                toast({ title: "Error", description: err instanceof Error ? err.message : String(err), variant: "destructive" });
+            }
+        },
+    });
+
     return (
         <div className="h-full flex flex-col overflow-hidden bg-background">
             {/* Tab switcher */}
@@ -120,7 +250,7 @@ export function AssetSidebar({
                 <div className="flex">
                     <button
                         role="tab"
-                        aria-selected={!!(tab === "assets")}
+                        aria-selected={tab === "assets" || undefined}
                         aria-controls="panel-assets"
                         onClick={() => setTab("assets")}
                         className={cn(
@@ -134,7 +264,7 @@ export function AssetSidebar({
                     </button>
                     <button
                         role="tab"
-                        aria-selected={!!(tab === "collections")}
+                        aria-selected={tab === "collections" || undefined}
                         aria-controls="panel-collections"
                         onClick={() => setTab("collections")}
                         className={cn(
@@ -148,7 +278,7 @@ export function AssetSidebar({
                     </button>
                     <button
                         role="tab"
-                        aria-selected={!!(tab === "archived")}
+                        aria-selected={tab === "archived" || undefined}
                         aria-controls="panel-archived"
                         onClick={() => setTab("archived")}
                         className={cn(
@@ -170,24 +300,42 @@ export function AssetSidebar({
                         <div className="flex-shrink-0 flex items-center gap-2 px-3 py-2 bg-primary/10 border-b border-border text-xs text-primary">
                             <span className="truncate flex-1">Filtered by collection</span>
                             <button
+                                onClick={() => setIsUploadModalOpen(true)}
+                                className="flex items-center gap-1 hover:text-foreground font-medium px-2 py-0.5 rounded border border-primary/20 bg-primary/10 transition-colors"
+                            >
+                                <Upload className="w-3 h-3 shrink-0" />
+                                Upload
+                            </button>
+                            <button
                                 onClick={() => onCollectionFilter(null)}
                                 className="hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded"
                                 aria-label="Clear collection filter"
                             >
-                                <X className="w-3 h-3" />
+                                <X className="w-3 h-3 shrink-0" />
                             </button>
                         </div>
                     )}
                     <div className="flex-shrink-0 p-3 border-b border-border space-y-3">
-                        <div className="relative">
-                            <Search className="absolute left-2.5 top-1.5 h-4 w-4 text-muted-foreground" />
-                            <input
-                                type="text"
-                                placeholder="Search assets..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-9 pr-3 py-1.5 text-xs bg-muted/50 border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
-                            />
+                        <div className="flex gap-2">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-2.5 top-1.5 h-4 w-4 text-muted-foreground" />
+                                <input
+                                    type="text"
+                                    placeholder="Search assets..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full pl-9 pr-3 py-1.5 text-xs bg-muted/50 border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
+                                />
+                            </div>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-[30px] px-2 border-border/60 hover:bg-muted"
+                                onClick={() => setIsUploadModalOpen(true)}
+                                title="Upload Asset"
+                            >
+                                <Upload className="w-4 h-4 text-muted-foreground" />
+                            </Button>
                         </div>
                         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
                             <button
@@ -516,6 +664,55 @@ export function AssetSidebar({
                     )}
                 </div>
             )}
+
+            {/* Upload Dialog */}
+            <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
+                <DialogContent className="sm:max-w-[700px]">
+                    <DialogHeader>
+                        <DialogTitle>{activeCollectionId ? "Upload to Collection" : "Upload Asset"}</DialogTitle>
+                        <DialogDescription>
+                            Upload a new asset to the Digital Asset Manager.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-4">
+                        <div className="flex gap-4 p-4 border border-border/50 rounded-xl bg-muted/50">
+                            <div className="space-y-1 flex-1">
+                                <label htmlFor="dam-domain-select" className="text-xs text-muted-foreground font-semibold">DAM Domain</label>
+                                <Select value={uploadDomain} onValueChange={setUploadDomain}>
+                                    <SelectTrigger id="dam-domain-select"><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="system">System (Default)</SelectItem>
+                                        <SelectItem value="portfolio">Portfolio</SelectItem>
+                                        <SelectItem value="services">Services</SelectItem>
+                                        <SelectItem value="discovery">Discovery</SelectItem>
+                                        <SelectItem value="blog">Blog</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-1 flex-1">
+                                <label htmlFor="entity-type-input" className="text-xs text-muted-foreground font-semibold">Entity Type</label>
+                                <Input id="entity-type-input" placeholder="e.g., projects, archetypes" value={uploadEntityType} onChange={e => setUploadEntityType(e.target.value)} />
+                            </div>
+                            <div className="space-y-1 flex-1">
+                                <label htmlFor="role-input" className="text-xs text-muted-foreground font-semibold">Role</label>
+                                <Input id="role-input" placeholder="e.g., general, hero, gallery" value={uploadRole} onChange={e => setUploadRole(e.target.value)} />
+                            </div>
+                        </div>
+                        <MediaUploadZone
+                            onUpload={(fileList) => uploadMutation.mutate(fileList)}
+                            isUploading={uploadMutation.isPending}
+                            folderName="collection"
+                            errorMessage={uploadError}
+                            collectionId={activeCollectionId}
+                        />
+                        {uploadMutation.isPending && uploadStats && (
+                            <div className="text-xs text-center text-muted-foreground animate-pulse">
+                                Uploading {uploadStats.current} / {uploadStats.total} files ({Math.round(uploadStats.percent)}%)
+                            </div>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
@@ -529,38 +726,161 @@ function CollectionRow({
     isActive: boolean;
     onClick: () => void;
 }) {
+    const [isRenaming, setIsRenaming] = useState(false);
+    const [newName, setNewName] = useState(collection.name);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const queryClient = useQueryClient();
+    const { toast } = useToast();
+
+    const updateMutation = useMutation({
+        mutationFn: () => CollectionService.updateCollection(collection.id, { name: newName.trim() }),
+        onSuccess: () => {
+            toast({ title: "Collection renamed", description: newName });
+            setIsRenaming(false);
+            void queryClient.invalidateQueries({ queryKey: ["dam", "collections"] });
+        },
+        onError: (err: Error) => {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        },
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: () => CollectionService.deleteCollection(collection.id),
+        onSuccess: () => {
+            toast({ title: "Collection deleted" });
+            setIsDeleteDialogOpen(false);
+            void queryClient.invalidateQueries({ queryKey: ["dam", "collections"] });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+        },
+        onError: (err: Error) => {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        },
+    });
+
+    const handleRenameSubmit = () => {
+        if (!newName.trim() || newName.trim() === collection.name) {
+            setIsRenaming(false);
+            return;
+        }
+        updateMutation.mutate();
+    };
+
     return (
-        <button
-            onClick={onClick}
-            className={cn(
-                "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-left transition-colors group",
-                isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
-        >
-            <Folders className="w-3.5 h-3.5 shrink-0" />
-            <div className="flex-1 min-w-0">
-                <p className={cn("text-xs font-medium truncate", isActive ? "text-primary" : "text-foreground")}>
-                    {collection.name}
-                </p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                    <span
-                        className={cn(
-                            "text-[10px] px-1.5 py-0.5 rounded font-medium",
-                            COLLECTION_TYPE_COLORS[collection.type]
+        <>
+            <div
+                className={cn(
+                    "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-left transition-colors group relative",
+                    isActive
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+            >
+                <button 
+                    className="flex-1 min-w-0 flex items-center gap-2.5 outline-none"
+                    onClick={() => {
+                        if (isRenaming) return;
+                        onClick();
+                    }}
+                >
+                    <Folders className="w-3.5 h-3.5 shrink-0" />
+                    <div className="flex-1 min-w-0 text-left">
+                        {isRenaming ? (
+                            <Input
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                className="h-6 text-xs px-1.5 py-0 bg-background/50"
+                                autoFocus
+                                onClick={(e) => e.stopPropagation()}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.stopPropagation();
+                                        handleRenameSubmit();
+                                    }
+                                    if (e.key === "Escape") {
+                                        e.stopPropagation();
+                                        setIsRenaming(false);
+                                        setNewName(collection.name);
+                                    }
+                                }}
+                                onBlur={() => {
+                                    setIsRenaming(false);
+                                    setNewName(collection.name);
+                                }}
+                                disabled={updateMutation.isPending}
+                            />
+                        ) : (
+                            <p 
+                                className={cn("text-xs font-medium truncate cursor-text", isActive ? "text-primary" : "text-foreground")}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsRenaming(true);
+                                }}
+                                title="Click to rename"
+                            >
+                                {collection.name}
+                            </p>
                         )}
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                            <span
+                                className={cn(
+                                    "text-[10px] px-1.5 py-0.5 rounded font-medium",
+                                    COLLECTION_TYPE_COLORS[collection.type]
+                                )}
+                            >
+                                {COLLECTION_TYPE_LABELS[collection.type]}
+                            </span>
+                            {collection.asset_count !== undefined && (
+                                <span className="text-[10px] text-muted-foreground">
+                                    {collection.asset_count} assets
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </button>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsDeleteDialogOpen(true);
+                        }}
+                        className="p-1 hover:bg-destructive/10 hover:text-destructive rounded transition-colors text-muted-foreground"
+                        title="Delete collection"
                     >
-                        {COLLECTION_TYPE_LABELS[collection.type]}
-                    </span>
-                    {collection.asset_count !== undefined && (
-                        <span className="text-[10px] text-muted-foreground">
-                            {collection.asset_count} assets
-                        </span>
+                        <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                    {!isRenaming && (
+                        <ChevronRight className="w-3 h-3 shrink-0 opacity-60 text-muted-foreground" />
                     )}
                 </div>
             </div>
-            <ChevronRight className="w-3 h-3 shrink-0 opacity-0 group-hover:opacity-60 transition-opacity" />
-        </button>
+
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent className="sm:max-w-[400px]">
+                    <DialogHeader>
+                        <DialogTitle>Delete Collection</DialogTitle>
+                        <DialogDescription>
+                            This will unassign {collection.asset_count || 0} assets. Assets will remain in the Media Library.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="mt-4">
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsDeleteDialogOpen(false)}
+                            disabled={deleteMutation.isPending}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={() => deleteMutation.mutate()}
+                            disabled={deleteMutation.isPending}
+                        >
+                            {deleteMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            Delete
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }
