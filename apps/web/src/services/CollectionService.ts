@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { AssetInUseError } from "@/services/AssetService";
 
 export type CollectionType = "shoot" | "campaign" | "moodboard_set" | "project_delivery";
 
@@ -93,7 +94,6 @@ export const CollectionService = {
       if (usagesError) throw usagesError;
 
       if (usages && usages.length > 0) {
-        const { AssetInUseError } = await import("./AssetService");
         throw new AssetInUseError(usages);
       }
     }
