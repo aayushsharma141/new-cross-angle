@@ -15,7 +15,7 @@ import {
   INVESTMENT_PRESETS,
   TIMELINE_OPTIONS,
 } from "@/addons/calculators/components/data/pricing-config";
-import { ADJECTIVE_OPTIONS, materialOptions, lightOptions } from "@/constants/discovery";
+import { ADJECTIVE_OPTIONS, materialOptions, lightOptions, visualImages, DESIGN_LANGUAGES, COLOR_MOODS, DISLIKE_COLORS } from "@/constants/discovery";
 import { CRM_STAGES } from "@/lib/crm/stages";
 
 export type FlowConfigKey =
@@ -37,6 +37,8 @@ export type FlowConfigKey =
   | "discovery_materials"
   | "discovery_lights"
   | "discovery_archetypes"
+  | "discovery_questions"
+  | "discovery_visual_prompts"
   | "crm_stages";
 
 const DEFAULTS: Record<FlowConfigKey, unknown> = {
@@ -58,6 +60,12 @@ const DEFAULTS: Record<FlowConfigKey, unknown> = {
   discovery_materials: materialOptions,
   discovery_lights: lightOptions,
   discovery_archetypes: [],
+  discovery_questions: {
+    design_languages: DESIGN_LANGUAGES,
+    color_moods: COLOR_MOODS,
+    dislike_colors: DISLIKE_COLORS,
+  },
+  discovery_visual_prompts: visualImages,
   crm_stages: CRM_STAGES.map(s => ({ id: s.id, label: s.label, dotClass: s.dotClass })),
 };
 

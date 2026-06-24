@@ -11,7 +11,7 @@ interface DiscoveryMediaSlotProps {
   label: string;
   entityType: string;
   entityId: string;
-  role: string;
+  damRole: string;
   description?: string;
 }
 
@@ -19,23 +19,23 @@ export function DiscoveryMediaSlot({
   label,
   entityType,
   entityId,
-  role,
+  damRole,
   description,
 }: DiscoveryMediaSlotProps) {
   const queryClient = useQueryClient();
   const [pickerOpen, setPickerOpen] = useState(false);
-  const { url, isLoading } = useDiscoveryAsset(entityType, entityId, role);
+  const { url, isLoading } = useDiscoveryAsset(entityType, entityId, damRole);
 
   const handleReplace = async (asset: AssetRow) => {
     await AssetUsageService.replaceUsage({
       assetId: asset.id,
       entityType,
       entityId,
-      role,
+      role: damRole,
     });
     // Invalidate the specific discovery asset query
     queryClient.invalidateQueries({
-      queryKey: ['dam', 'discovery-asset', entityType, entityId, role],
+      queryKey: ['dam', 'discovery-asset', entityType, entityId, damRole],
     });
     setPickerOpen(false);
   };
@@ -97,7 +97,7 @@ export function DiscoveryMediaSlot({
           open={pickerOpen}
           onOpenChange={(isOpen) => setPickerOpen(isOpen)}
           domain="discovery"
-          role={role}
+          role={damRole}
           onSelect={handleReplace}
         />
       )}

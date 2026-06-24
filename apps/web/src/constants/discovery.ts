@@ -53,4 +53,29 @@ export const lightOptions = [
   { name: "Dramatic Spotlight", description: "Theatrical, curated, bold.", bgColor: "hsl(0 0% 20%)", scores: { structure: 2, minimalism: -1, novelty: 3 } },
 ];
 
+export const DESIGN_LANGUAGES = [
+  { name: "Modern Indian", desc: "Contemporary with Indian warmth" },
+  { name: "Contemporary", desc: "Clean, current, timeless" },
+  { name: "Minimal", desc: "Less is more, breathing space" },
+  { name: "Luxury Modern", desc: "Premium materials, statement pieces" },
+  { name: "Warm Earthy", desc: "Natural tones, organic textures" },
+  { name: "Japandi", desc: "Japanese minimalism + Scandinavian warmth" },
+  { name: "Industrial", desc: "Raw materials, urban edge" },
+  { name: "Traditional Indian", desc: "Heritage, carved wood, rich colors" },
+  { name: "Hotel Luxury", desc: "Polished, curated, impressive" },
+  { name: "Modern Royal", desc: "Grand but not old-fashioned" },
+];
 
+export const COLOR_MOODS = [
+  { name: "Warm beige", color: "#d6c9b3" },
+  { name: "White minimal", color: "#f4f4f2", border: true },
+  { name: "Dark moody", color: "#2a2a2a" },
+  { name: "Earthy clay", color: "#b05e3b" },
+  { name: "Wood-heavy", color: "#8c7023" },
+  { name: "Black luxury", color: "#101010" },
+  { name: "Neutral luxury", color: "#c8bead" },
+  { name: "Bold colors", color: "#8a1a41" },
+  { name: "Pastel calm", color: "#c3d8cd" },
+];
+
+export const DISLIKE_COLORS = ["White", "Black", "Beige", "Grey", "Pink", "Yellow", "Red", "Blue"];

@@ -1,17 +1,25 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { MessageSquare, Palette, Sun, Users, Target } from "lucide-react";
+import { MessageSquare, Palette, Sun, Users, Target, Sliders, FileText } from "lucide-react";
 
 import { PosthogFunnelChart } from "@/components/admin/analytics/PosthogFunnelChart";
 
+import { QuestionsEditor } from "@/components/admin/discovery-flow/QuestionsEditor";
 import { AdjectivesEditor } from "@/components/admin/discovery-flow/AdjectivesEditor";
 import { MaterialsEditor } from "@/components/admin/discovery-flow/MaterialsEditor";
 import { LightingEditor } from "@/components/admin/discovery-flow/LightingEditor";
+import { VisualPromptsEditor } from "@/components/admin/discovery-flow/VisualPromptsEditor";
 import { ArchetypesEditor } from "@/components/admin/discovery-flow/ArchetypesEditor";
 import { DiscoveryAssetsPanel } from "@/components/admin/discovery-flow/DiscoveryAssetsPanel";
 import { ImageIcon } from "lucide-react";
 
 const TABS = [
+  {
+    id: "questions",
+    label: "Quiz Questions",
+    icon: FileText,
+    description: "Stated questions, design languages, color moods, and dislikes",
+  },
   {
     id: "adjectives",
     label: "Adjectives",
@@ -31,6 +39,12 @@ const TABS = [
     description: "Mood options in Step 6",
   },
   {
+    id: "visual-prompts",
+    label: "Visual Prompts",
+    icon: Sliders,
+    description: "Manage visual instincts prompt scoring and weights",
+  },
+  {
     id: "archetypes",
     label: "Archetypes",
     icon: Users,
@@ -47,7 +61,7 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 export default function AdminDiscoveryConfig() {
-  const [tab, setTab] = useState<TabId>("adjectives");
+  const [tab, setTab] = useState<TabId>("questions");
 
   const activeTab = TABS.find((t) => t.id === tab)!;
 
@@ -108,9 +122,11 @@ export default function AdminDiscoveryConfig() {
 
       {/* Editor panels */}
       <div className="fade-up-2">
+        {tab === "questions" && <QuestionsEditor />}
         {tab === "adjectives" && <AdjectivesEditor />}
         {tab === "materials" && <MaterialsEditor />}
         {tab === "lights" && <LightingEditor />}
+        {tab === "visual-prompts" && <VisualPromptsEditor />}
         {tab === "archetypes" && <ArchetypesEditor />}
         {tab === "media-slots" && <DiscoveryAssetsPanel />}
       </div>

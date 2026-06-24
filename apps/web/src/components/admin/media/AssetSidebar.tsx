@@ -16,7 +16,8 @@ import {
     ArchiveRestore,
     Search,
     Upload,
-    Trash2
+    Trash2,
+    Filter
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/primitives/button";
@@ -77,7 +78,11 @@ export function AssetSidebar({
     const [newCollectionType, setNewCollectionType] = useState<CollectionType>("shoot");
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
-    const [insightFilter, setInsightFilter] = useState<"all" | "unused" | "failed">("all");
+    const [insightFilter, setInsightFilter] = useState<"all" | "unused" | "failed" | "recent" | "duplicates">("all");
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+    const [filterDomain, setFilterDomain] = useState<string>("all");
+    const [filterRole, setFilterRole] = useState<string>("all");
+    const [filterTags, setFilterTags] = useState<string[]>([]);
 
     // Upload state
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -96,14 +101,23 @@ export function AssetSidebar({
     }, [searchQuery]);
 
     const { data: damAssets = [], isLoading: damLoading } = useQuery({
-        queryKey: ["dam", "assets", activeCollectionId, debouncedQuery, insightFilter],
+        queryKey: ["dam", "assets", activeCollectionId, debouncedQuery, insightFilter, filterDomain, filterRole, filterTags],
         queryFn: () => {
-            const opts: { searchQuery?: string; unused?: boolean; status?: AssetRow["status"] } = {};
+            const opts: { searchQuery?: string; unused?: boolean; status?: AssetRow["status"]; recent?: boolean; domain?: string; role?: string; tags?: string[] } = {};
             if (debouncedQuery) opts.searchQuery = debouncedQuery;
             if (insightFilter === "unused") opts.unused = true;
             if (insightFilter === "failed") opts.status = "failed";
+            if (insightFilter === "recent") opts.recent = true;
+            if (filterDomain !== "all") opts.domain = filterDomain;
+            if (filterRole !== "all") opts.role = filterRole;
+            if (filterTags.length > 0) opts.tags = filterTags;
             return AssetService.getAssets(activeCollectionId, opts);
         },
+    });
+
+    const { data: tags = [] } = useQuery({
+        queryKey: ["dam", "tags"],
+        queryFn: () => AssetService.getTags(),
     });
 
     const { data: legacyFiles = [], isLoading: legacyLoading } = useQuery({
@@ -125,12 +139,28 @@ export function AssetSidebar({
             asset_versions: [{ id: f.id, url: f.url, version_number: 1, file_id: f.id }],
             asset_usages: [{ count: 0 }],
         }));
-        const all = [...damAssets, ...mapped];
+        let all = [...damAssets, ...mapped];
         if (debouncedQuery) {
             const q = debouncedQuery.toLowerCase();
-            return all.filter((a) => (a.title || "").toLowerCase().includes(q));
+            all = all.filter((a) => (a.title || "").toLowerCase().includes(q));
         }
-        if (insightFilter === "unused") return all.filter((a) => !a.asset_usages?.[0]?.count);
+        if (insightFilter === "unused") all = all.filter((a) => !a.asset_usages?.[0]?.count);
+        if (insightFilter === "duplicates") {
+            const sizeMap = new Map<number, AssetRow[]>();
+            for (const a of all) {
+                const size = a.asset_versions?.[0]?.size_bytes;
+                if (size) {
+                    if (!sizeMap.has(size)) sizeMap.set(size, []);
+                    sizeMap.get(size)!.push(a);
+                }
+            }
+            all = [];
+            for (const group of sizeMap.values()) {
+                if (group.length > 1) {
+                    all.push(...group);
+                }
+            }
+        }
         return all;
     }, [damAssets, legacyFiles, debouncedQuery, insightFilter]);
 
@@ -330,6 +360,15 @@ export function AssetSidebar({
                             </div>
                             <Button
                                 size="sm"
+                                variant={isFiltersOpen ? "secondary" : "outline"}
+                                className="h-[30px] px-2 border-border/60"
+                                onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+                                title="Filters"
+                            >
+                                <Filter className="w-4 h-4 text-muted-foreground" />
+                            </Button>
+                            <Button
+                                size="sm"
                                 variant="outline"
                                 className="h-[30px] px-2 border-border/60 hover:bg-muted"
                                 onClick={() => setIsUploadModalOpen(true)}
@@ -338,6 +377,46 @@ export function AssetSidebar({
                                 <Upload className="w-4 h-4 text-muted-foreground" />
                             </Button>
                         </div>
+                        {isFiltersOpen && (
+                            <div className="p-2 bg-muted/30 rounded-md border border-border/60 space-y-2 animate-in fade-in slide-in-from-top-1">
+                                <div className="flex gap-2">
+                                    <Select value={filterDomain} onValueChange={setFilterDomain}>
+                                        <SelectTrigger className="h-7 text-xs flex-1"><SelectValue placeholder="Domain" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Domains</SelectItem>
+                                            <SelectItem value="portfolio">Portfolio</SelectItem>
+                                            <SelectItem value="services">Services</SelectItem>
+                                            <SelectItem value="discovery">Discovery</SelectItem>
+                                            <SelectItem value="blog">Blog</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <Select value={filterRole} onValueChange={setFilterRole}>
+                                        <SelectTrigger className="h-7 text-xs flex-1"><SelectValue placeholder="Role" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Roles</SelectItem>
+                                            <SelectItem value="general">General</SelectItem>
+                                            <SelectItem value="hero">Hero</SelectItem>
+                                            <SelectItem value="gallery">Gallery</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-muted-foreground mb-1">Tags</p>
+                                    <div className="flex flex-wrap gap-1">
+                                        {tags.map(t => (
+                                            <button 
+                                                key={t.id} 
+                                                onClick={() => setFilterTags(prev => prev.includes(t.id) ? prev.filter(id => id !== t.id) : [...prev, t.id])}
+                                                className={cn("px-1.5 py-0.5 rounded text-[10px] border transition-colors", filterTags.includes(t.id) ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:bg-muted")}
+                                            >
+                                                {t.name}
+                                            </button>
+                                        ))}
+                                        {tags.length === 0 && <span className="text-[10px] text-muted-foreground">No tags available</span>}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
                             <button
                                 onClick={() => setInsightFilter("all")}
@@ -346,10 +425,22 @@ export function AssetSidebar({
                                 All
                             </button>
                             <button
+                                onClick={() => setInsightFilter("recent")}
+                                className={cn("text-[10px] px-2 py-1 rounded-full whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary", insightFilter === "recent" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80")}
+                            >
+                                Recent
+                            </button>
+                            <button
                                 onClick={() => setInsightFilter("unused")}
                                 className={cn("text-[10px] px-2 py-1 rounded-full whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary", insightFilter === "unused" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80")}
                             >
                                 Unused
+                            </button>
+                            <button
+                                onClick={() => setInsightFilter("duplicates")}
+                                className={cn("text-[10px] px-2 py-1 rounded-full whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary", insightFilter === "duplicates" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80")}
+                            >
+                                Duplicates
                             </button>
                             <button
                                 onClick={() => setInsightFilter("failed")}

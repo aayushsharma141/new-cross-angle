@@ -37,7 +37,7 @@ export function DiscoveryAssetsPanel() {
                 label={`Visual Prompt ${num}`}
                 entityType="discovery_visual"
                 entityId={entityId}
-                role="visual"
+                damRole="visual"
                 description="Used in the Visual Instinct quiz phase"
               />
             );
@@ -67,13 +67,13 @@ export function DiscoveryAssetsPanel() {
                       label="Hero Image"
                       entityType="archetype"
                       entityId={entityId}
-                      role="hero"
+                      damRole="hero"
                     />
                     <DiscoveryMediaSlot
                       label="Moodboard"
                       entityType="archetype"
                       entityId={entityId}
-                      role="moodboard"
+                      damRole="moodboard"
                     />
                   </div>
                 </div>

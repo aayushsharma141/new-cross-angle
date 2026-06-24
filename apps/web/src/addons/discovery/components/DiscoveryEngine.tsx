@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 import { Stage, AestheticScores, UserSignals, AIAestheticResult } from "@/types/discovery";
+import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { visualImages } from "@/constants/discovery";
 import { getArchetype } from "../core/archetype";
 import { normalizeScore } from "../core/normalization";
@@ -47,6 +48,9 @@ interface DiscoveryEngineProps {
 }
 
 export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {}) => {
+    const { data: questionsData } = useFlowConfig<unknown>("discovery_questions");
+    const { data: visualPromptsData } = useFlowConfig<unknown[]>("discovery_visual_prompts");
+
     const [stage, setStage] = useState<Stage>(Stage.Welcome);
     const [mode, setMode] = useState<"quick" | "deep">("deep");
     const [scores, setScores] = useState<AestheticScores>(initialScores);
@@ -412,7 +416,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                             <RoomPriority key="room-priority" signals={currentSignals} onComplete={handleRoomPriorityComplete} />
                         )}
                         {stage === Stage.VisualInstinct && (
-                            <VisualInstinct key="visual" sessionId={sessionId} signals={currentSignals} onComplete={handleVisualComplete} />
+                            <VisualInstinct key="visual" sessionId={sessionId} signals={currentSignals} onComplete={handleVisualComplete} visualPrompts={visualPromptsData as Parameters<typeof VisualInstinct>[0]["visualPrompts"]} />
                         )}
                         {stage === Stage.ReinterpretationGate && currentSignals.consultationIntelligence?.interpretationConflict.detected && (
                             <ReinterpretationGate
@@ -423,7 +427,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                             />
                         )}
                         {stage === Stage.AdjectiveSelection && (
-                            <AdjectiveSelection key="adjectives" sessionId={sessionId} onComplete={handleAdjectiveComplete} />
+                            <AdjectiveSelection key="adjectives" sessionId={sessionId} onComplete={handleAdjectiveComplete} questionsData={questionsData as Parameters<typeof AdjectiveSelection>[0]["questionsData"]} />
                         )}
                         {stage === Stage.PivotQuestion && (
                             <PivotQuestion key="pivot" onComplete={handlePivotComplete} />

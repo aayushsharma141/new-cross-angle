@@ -5,6 +5,11 @@ import { AestheticScores } from "@/types/discovery";
 interface AdjectiveSelectionProps {
   sessionId: string | null;
   onComplete: (partial: Partial<AestheticScores>, adjectives: string[], freeText: string) => void;
+  questionsData?: {
+    design_languages: { name: string; desc: string }[];
+    color_moods: { name: string; color: string; border?: boolean }[];
+    dislike_colors: string[];
+  };
 }
 
 const DESIGN_LANGUAGES = [
@@ -34,7 +39,11 @@ const COLOR_MOODS = [
 
 const DISLIKE_COLORS = ["White", "Black", "Beige", "Grey", "Pink", "Yellow", "Red", "Blue"];
 
-const AdjectiveSelection = ({ onComplete }: AdjectiveSelectionProps) => {
+const AdjectiveSelection = ({ onComplete, questionsData }: AdjectiveSelectionProps) => {
+  const designLanguages = questionsData?.design_languages ?? DESIGN_LANGUAGES;
+  const colorMoods = questionsData?.color_moods ?? COLOR_MOODS;
+  const dislikeColors = questionsData?.dislike_colors ?? DISLIKE_COLORS;
+
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
   const [selectedDislikes, setSelectedDislikes] = useState<string[]>([]);
@@ -80,7 +89,7 @@ const AdjectiveSelection = ({ onComplete }: AdjectiveSelectionProps) => {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3" role="group" aria-label="Design language selection (pick up to 3)">
-            {DESIGN_LANGUAGES.map((style) => (
+            {designLanguages.map((style) => (
               <button
                 type="button"
                 key={style.name}
@@ -106,7 +115,7 @@ const AdjectiveSelection = ({ onComplete }: AdjectiveSelectionProps) => {
         <div className="w-full">
           <h3 className="text-lg font-semibold text-[#1a1a1a] mb-6">Color moods that feel liveable</h3>
           <div className="flex flex-wrap gap-3 mb-10">
-            {COLOR_MOODS.map((mood) => (
+            {colorMoods.map((mood) => (
               <button
                 key={mood.name}
                 onClick={() => toggleMood(mood.name)}
@@ -127,7 +136,7 @@ const AdjectiveSelection = ({ onComplete }: AdjectiveSelectionProps) => {
 
           <h3 className="text-lg font-semibold text-[#1a1a1a] mb-6">Colors you dislike</h3>
           <div className="flex flex-wrap gap-3 mb-12">
-            {DISLIKE_COLORS.map((color) => (
+            {dislikeColors.map((color) => (
               <button
                 key={color}
                 onClick={() => toggleDislike(color)}

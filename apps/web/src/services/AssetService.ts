@@ -9,8 +9,15 @@ export interface AssetRow {
   status: "uploading" | "processing" | "ready" | "failed" | "archived";
   created_at: string;
   updated_at: string;
-  asset_versions?: { id: string; url: string | null; version_number: number; file_id: string }[];
+  asset_versions?: { id: string; url: string | null; version_number: number; file_id: string; size_bytes?: number }[];
   asset_usages?: { count: number }[];
+  asset_tag_links?: { tag_id: string }[];
+}
+
+export interface AssetTagRow {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 export interface AssetUsageRow {
@@ -40,6 +47,8 @@ export const AssetService = {
         unused?: boolean;
         domain?: string;
         role?: string;
+        tags?: string[];
+        recent?: boolean;
     }
   ): Promise<AssetRow[]> {
     let query = supabase
@@ -50,9 +59,11 @@ export const AssetService = {
           id,
           url,
           version_number,
-          file_id
+          file_id,
+          size_bytes
         ),
-        asset_usages (count)
+        asset_usages (count),
+        asset_tag_links (tag_id)
       `)
       .order("updated_at", { ascending: false });
 
@@ -103,7 +114,36 @@ export const AssetService = {
         results = results.filter(a => matchingAssetIds.has(a.id));
     }
 
+    // Tags filtering
+    if (opts?.tags && opts.tags.length > 0) {
+      const { data: tagLinks, error: tagLinksError } = await supabase
+        .from('asset_tag_links')
+        .select('asset_id')
+        .in('tag_id', opts.tags);
+
+      if (tagLinksError) throw tagLinksError;
+      
+      const matchedAssetIds = new Set((tagLinks || []).map(l => l.asset_id));
+      results = results.filter(a => matchedAssetIds.has(a.id));
+    }
+
+    if (opts?.recent) {
+        // Last 7 days
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        results = results.filter(a => new Date(a.created_at) >= sevenDaysAgo);
+    }
+
     return results;
+  },
+
+  async getTags(): Promise<AssetTagRow[]> {
+    const { data, error } = await supabase
+      .from("asset_tags")
+      .select("*")
+      .order("name", { ascending: true });
+    if (error) throw error;
+    return data || [];
   },
 
   async getArchivedAssets(): Promise<AssetRow[]> {

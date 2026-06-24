@@ -932,18 +932,18 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
             The Physical <br /><em>Manifestation</em>
           </h2>
           <p className="text-xl text-white/40 mb-16 leading-relaxed max-w-2xl mx-auto font-light">
-            Your results are a guide. Our designers are the architects. Let us bridge the gap between your decoded digital DNA and the sanctuary you deserve.
+            {archetype.ctaDescription || "Your results are a guide. Our designers are the architects. Let us bridge the gap between your decoded digital DNA and the sanctuary you deserve."}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <motion.a
-              href="/contact-us"
+              href={archetype.ctaDestination || "/contact-us"}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="px-12 py-5 bg-site-crimson text-site-bg text-xs font-bold tracking-[0.3em] uppercase rounded-none hover:bg-site-crimson/90 transition-colors shadow-[0_0_30px_rgba(227, 83, 54,0.2)] relative group overflow-hidden"
             >
               <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              Book Final Design Review
+              {archetype.ctaText || "Book Final Design Review"}
             </motion.a>
             <a
               href="/system-blueprint"

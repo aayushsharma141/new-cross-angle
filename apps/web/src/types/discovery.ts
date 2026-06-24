@@ -52,6 +52,9 @@ export interface Archetype {
   strategy: string;
   heroImageUrl?: string;
   moodboardImageUrl?: string;
+  ctaText?: string;
+  ctaDescription?: string;
+  ctaDestination?: string;
   match: (scores: AestheticScores) => number;
 }
 

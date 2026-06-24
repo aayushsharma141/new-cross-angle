@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { visualImages } from "@/constants/discovery";
-import { VISUAL_WEIGHTS } from "../core/weights";
 import { AestheticScores, UserSignals } from "@/types/discovery";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
 import { track } from "@/analytics/track";
@@ -13,6 +12,12 @@ interface Props {
   sessionId: string | null;
   signals?: UserSignals;
   onComplete: (scores: Partial<AestheticScores>, selectedIds?: number[]) => void;
+  visualPrompts?: {
+    id: number;
+    url: string;
+    assetKey?: string;
+    tags: Partial<AestheticScores>;
+  }[];
 }
 
 const INTENT_PROMPT: Record<string, string> = {
@@ -22,7 +27,8 @@ const INTENT_PROMPT: Record<string, string> = {
   Pride: "Which spaces feel aspirational and deeply impressive?",
 };
 
-const VisualInstinct = ({ sessionId, signals, onComplete }: Props) => {
+const VisualInstinct = ({ sessionId, signals, onComplete, visualPrompts }: Props) => {
+  const prompts = visualPrompts ?? visualImages;
   const intentPrompt = signals?.intent ? (INTENT_PROMPT[signals.intent] || `Pick ${6} images that feel like "home" to you.`) : `Pick ${6} images that feel like "home" to you.`;
   const [selected, setSelected] = useState<number[]>([]);
   const [loaded, setLoaded] = useState<Set<number>>(new Set());
@@ -32,7 +38,7 @@ const VisualInstinct = ({ sessionId, signals, onComplete }: Props) => {
   const toggle = (id: number) => {
     const isSelecting = !selected.includes(id);
     if (isSelecting && selected.length < MAX && sessionId) {
-      const img = visualImages.find(i => i.id === id);
+      const img = prompts.find(i => i.id === id);
       track(analytics, "image_selected", {
         imageId: id,
         tags: img?.tags || {},
@@ -51,7 +57,8 @@ const VisualInstinct = ({ sessionId, signals, onComplete }: Props) => {
   const confirm = () => {
     const scores: Partial<AestheticScores> = {};
     for (const id of selected) {
-      const weights = VISUAL_WEIGHTS[id];
+      const img = prompts.find(i => i.id === id);
+      const weights = img?.tags;
       if (weights) {
         for (const [k, v] of Object.entries(weights)) {
           if (v !== undefined) {
@@ -129,7 +136,7 @@ const VisualInstinct = ({ sessionId, signals, onComplete }: Props) => {
       {/* Uniform 4-col grid — predictable, all images same aspect ratio */}
       <div className="flex-1 overflow-y-auto px-6 pb-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {visualImages.map((img, idx) => {
+          {prompts.map((img, idx) => {
             const isSelected = selected.includes(img.id);
             const isMaxed = selected.length >= MAX && !isSelected;
 
