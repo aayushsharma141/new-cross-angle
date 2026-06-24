@@ -107,3 +107,25 @@ Optional (can be deferred to Phase 10):
   4. Collection guard: filter to non-archived assets only
   5. archived_by / archived_at audit columns
 ```
+
+---
+
+## Audit-Fix Results (gsd-audit-fix — 2026-06-24)
+
+**Source:** 09-REVIEWS.md  
+**Findings:** 6 total, 4 auto-fixable, 2 manual-only  
+**Fixed:** 4/4 auto-fixable findings  
+**Failed:** 0
+
+| # | Finding | Status | Commit |
+|---|---------|--------|--------|
+| F-01 | `deleteAsset` — storage + `asset_versions` orphans | ✅ Fixed | `de07bc2d` |
+| F-02 | Dynamic `import()` of `AssetInUseError` in `CollectionService` | ✅ Fixed | `fe9e0b72` |
+| F-03 | Archived tab cards — no inline Restore button | ✅ Fixed | `1b2aa58f` |
+| F-04 | Collection guard allows archived asset usages to block | ✅ Fixed | `1b2aa58f` |
+
+### Manual-only findings (require developer attention):
+- **G5:** `restoreAsset` always restores to `"ready"` regardless of pre-archive status — requires schema change to store `pre_archive_status` (Phase 10 backlog)
+- **G6:** No audit trail (`archived_by`/`archived_at`) — requires DB migration (Phase 10 backlog)
+
+**Phase 09 is now ready for sign-off.** All release blockers resolved.
