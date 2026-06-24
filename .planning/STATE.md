@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v3.0
-milestone_name: DAM V3 Workspace
-status: Awaiting next milestone
-last_updated: "2026-06-24T18:35:02.133Z"
-last_activity: 2026-06-24 — Milestone v3.0 completed and archived
+milestone: v4.0
+milestone_name: Discovery & Estimator Operating System
+status: planning
+last_updated: "2026-06-24T18:46:53.669Z"
+last_activity: 2026-06-24
 progress:
-  total_phases: 6
-  completed_phases: 1
-  total_plans: 6
-  completed_plans: 1
-  percent: 17
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Current Position
@@ -24,10 +24,10 @@ None.
 
 ## Current Position
 
-Phase: Milestone v3.0 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-06-24 — Milestone v3.0 completed and archived
+Status: Defining requirements
+Last activity: 2026-06-24 — Milestone v4.0 started
 
 ## Operator Next Steps
 

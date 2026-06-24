@@ -5,16 +5,21 @@
 **Shipped Version:** v3.0 (DAM V3 Workspace)
 
 **Recent Accomplishments:**
-- Replaced the restrictive `MediaDetailsSheet` with a full-page Asset Workspace that orbits around a single asset's lifecycle, context, usage, versioning, and replacement operations.
+- Replaced the restrictive `MediaDetailsSheet` with a full-page Asset Workspace mapping versions, usages, metadata, and replacements.
 - Redesigned the contextual media selection flow into a Universal Asset Picker prioritizing asset reuse over re-uploading.
 - Integrated the DAM into the Discovery Engine to resolve Archetype Hero, Moodboard, Reflection, and Visual Prompt media dynamically.
 - Implemented the Collection Workspace supporting bulk uploads and collection-level management.
 - Implemented Archive & Governance workflows using soft deletion and usage checks to protect integrity of the usage graph.
 - Delivered Search & Intelligence workflows including client-side duplicate grouping, tags index, and faceted search UI.
 
-## Current Milestone: None
+## Current Milestone: v4.0 Discovery & Estimator Operating System
 
-No active milestone. Run `/gsd-new-milestone` to start a new one.
+**Goal:** Connect Discovery and Estimator systems into a single configurable visual operating system and lead-qualification funnel.
+
+**Target features:**
+- **Discovery Workspace V2**: Full admin configuration system for Archetypes, Visual Prompts, Reflections, Moodboards, Lifestyle Scenarios, Result Pages, and CTA Assets.
+- **Estimator Workspace**: Configuration engine for Property Types, Packages, Addons, Pricing Logic, Visual Assets, and Result Templates.
+- **Discovery → Estimator Handoff**: Automated transfer of user style archetype, budget indicators, and design preferences to pre-fill the Estimator questionnaire.
 
 <details>
 <summary>Archive: v3.0 DAM V3 Workspace</summary>
@@ -120,4 +125,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-24 after v3.0 milestone*
+*Last updated: 2026-06-25 after v4.0 milestone start*
