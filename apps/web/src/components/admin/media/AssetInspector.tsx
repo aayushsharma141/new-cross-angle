@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/useToast";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/primitives/dialog";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -314,6 +315,11 @@ function AssetActionsPanel({ asset }: { asset: AssetRow }) {
     const queryClient = useQueryClient();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
+    const { data: usages = [], isLoading: usagesLoading } = useQuery({
+        queryKey: ["dam", "asset_usages", asset.id],
+        queryFn: () => AssetService.getAssetUsages(asset.id),
+    });
+
     const archiveMutation = useMutation({
         mutationFn: () => AssetService.archiveAsset(asset.id),
         onSuccess: () => {
@@ -385,21 +391,58 @@ function AssetActionsPanel({ asset }: { asset: AssetRow }) {
                     variant="destructive" 
                     className="flex-1"
                     onClick={() => setDeleteDialogOpen(true)}
+                    disabled={usagesLoading}
                 >
                     <Trash2 className="w-4 h-4 mr-2" />
                     Delete
                 </Button>
             </div>
 
-            <ConfirmDialog
-                open={deleteDialogOpen}
-                onOpenChange={setDeleteDialogOpen}
-                title="Delete Asset"
-                description={`Are you sure you want to permanently delete "${asset.title || asset.id}"? This cannot be undone. If the asset is currently in use, the deletion will be blocked.`}
-                confirmText={deleteMutation.isPending ? "Deleting..." : "Delete Permanently"}
-                variant="destructive"
-                onConfirm={() => deleteMutation.mutate()}
-            />
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <DialogContent className="sm:max-w-[400px]">
+                    <DialogHeader>
+                        <DialogTitle>Delete Asset</DialogTitle>
+                        <DialogDescription>
+                            {usages.length > 0 
+                                ? `Cannot delete — still in use by ${usages.length} context(s). Please remove all references before deleting.`
+                                : `Are you sure you want to permanently delete "${asset.title || asset.id}"? This cannot be undone.`}
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    {usages.length > 0 && (
+                        <div className="border rounded-md divide-y overflow-hidden mt-4">
+                            {usages.map((usage) => (
+                                <div key={usage.id} className="flex items-center justify-between p-3 bg-muted/20">
+                                    <div className="flex items-center gap-3">
+                                        <LinkIcon className="w-4 h-4 text-muted-foreground" />
+                                        <div>
+                                            <p className="text-sm font-medium capitalize">{usage.entity_type} <span className="text-muted-foreground font-normal">({usage.role})</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <DialogFooter className="mt-4">
+                        <Button
+                            variant="outline"
+                            onClick={() => setDeleteDialogOpen(false)}
+                            disabled={deleteMutation.isPending}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={() => deleteMutation.mutate()}
+                            disabled={deleteMutation.isPending || usages.length > 0}
+                        >
+                            {deleteMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            Delete Permanently
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
