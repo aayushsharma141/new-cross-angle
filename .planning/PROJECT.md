@@ -2,15 +2,22 @@
 
 ## Current State
 
-**Shipped Version:** v2.0 (DAM V3 Architecture)
+**Shipped Version:** v3.0 (DAM V3 Workspace)
 
 **Recent Accomplishments:**
-- Transitioned from legacy URL strings to central `assets` and `asset_usages`.
-- Standardized ImageKit uploads with dual-writes and strict taxonomy via enums.
-- Created fallback reading mechanism for smooth frontend migration.
-- Executed backfill migrations and deprecated legacy columns cleanly.
+- Replaced the restrictive `MediaDetailsSheet` with a full-page Asset Workspace that orbits around a single asset's lifecycle, context, usage, versioning, and replacement operations.
+- Redesigned the contextual media selection flow into a Universal Asset Picker prioritizing asset reuse over re-uploading.
+- Integrated the DAM into the Discovery Engine to resolve Archetype Hero, Moodboard, Reflection, and Visual Prompt media dynamically.
+- Implemented the Collection Workspace supporting bulk uploads and collection-level management.
+- Implemented Archive & Governance workflows using soft deletion and usage checks to protect integrity of the usage graph.
+- Delivered Search & Intelligence workflows including client-side duplicate grouping, tags index, and faceted search UI.
 
-## Current Milestone: v3.0 DAM V3 Workspace
+## Current Milestone: None
+
+No active milestone. Run `/gsd-new-milestone` to start a new one.
+
+<details>
+<summary>Archive: v3.0 DAM V3 Workspace</summary>
 
 **Goal:** Transition the CMS Media Library from an "FTP Client" (Upload, Grid, Delete) to a true "Asset Workspace" (Assets, Collections, Usage, Versions, Relationships) acting as the visual operating system for editors.
 
@@ -21,6 +28,8 @@
 - Collection Workspace (first-class collections view, bulk uploads).
 - Archive & Governance (soft deletion, usage protection).
 - Search & Intelligence (faceted search, intelligence dashboards).
+
+</details>
 
 <details>
 <summary>Archive: v2.0 DAM V3 Architecture Redesign</summary>
@@ -88,10 +97,10 @@ We are now aligning the process pages and eliminating duplicate content widgets 
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Adopt Silo URL Structure | Enforces strict `/services/category/sub-category` paths to signal topical authority to search engines. | — Completed (Phase 2) |
-| Project Pages as Case Studies | Galleries need descriptive text and service cross-linking to rank and convert effectively. | — Completed (Phase 3) |
-| Unified 5-Stage Process Framework | Standardise on the 5-stage process across the site to avoid confusing premium leads with conflicting models. | — Pending |
-| De-duplicate Services and Process Pages | Make `/our-process` the sole detailed home for the methodology. Replace with a teaser banner on `/services`. | — Pending |
+| Adopt Silo URL Structure | Enforces strict `/services/category/sub-category` paths to signal topical authority to search engines. | - Completed (Phase 2) |
+| Project Pages as Case Studies | Galleries need descriptive text and service cross-linking to rank and convert effectively. | - Completed (Phase 3) |
+| Unified 5-Stage Process Framework | Standardise on the 5-stage process across the site to avoid confusing premium leads with conflicting models. | - Pending |
+| De-duplicate Services and Process Pages | Make `/our-process` the sole detailed home for the methodology. Replace with a teaser banner on `/services`. | - Pending |
 
 ## Evolution
 
@@ -111,4 +120,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-09 after content audit*
+*Last updated: 2026-06-24 after v3.0 milestone*
