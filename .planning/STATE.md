@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v4.0
 milestone_name: Discovery & Estimator Operating System
-status: planning
-last_updated: "2026-06-24T18:46:53.669Z"
-last_activity: 2026-06-24
+status: Defining requirements
+last_updated: "2026-06-24T18:55:44.203Z"
+last_activity: 2026-06-24 — Milestone v4.0 started
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
