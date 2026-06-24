@@ -9,6 +9,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import WorkspaceCockpit from './WorkspaceCockpit';
 import WorkspaceEvidencePanel from './WorkspaceEvidencePanel';
+import WorkspaceDuringMeeting from './WorkspaceDuringMeeting';
+import WorkspaceAfterMeeting from './WorkspaceAfterMeeting';
 import { generateConversationStrategy } from '@/addons/calculators/components/data/engines/conversation-strategy';
 import { generateRiskCards } from '@/addons/calculators/components/data/engines/risk-cards';
 
@@ -158,15 +160,17 @@ export default function AdminLeadWorkspace() {
           )}
 
           {meetingState === 'during' && (
-            <div className="flex items-center justify-center h-48 text-[hsl(var(--admin-text-muted))] text-sm border border-dashed border-[hsl(var(--admin-border))] rounded-lg">
-              During meeting state content will be implemented in Phase 4.
-            </div>
+            <WorkspaceDuringMeeting 
+              leadId={lead.id}
+              strategyBlocks={strategyBlocks}
+              riskCards={riskCards}
+              activeBlockId={activeBlockId}
+              setActiveBlockId={setActiveBlockId}
+            />
           )}
 
           {meetingState === 'after' && (
-            <div className="flex items-center justify-center h-48 text-[hsl(var(--admin-text-muted))] text-sm border border-dashed border-[hsl(var(--admin-border))] rounded-lg">
-              After meeting state content will be implemented in Phase 4.
-            </div>
+            <WorkspaceAfterMeeting leadId={lead.id} />
           )}
         </div>
 
