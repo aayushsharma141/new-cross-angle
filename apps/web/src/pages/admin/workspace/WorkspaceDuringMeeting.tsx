@@ -10,6 +10,7 @@ import { RiskCard } from '@/addons/calculators/components/data/engines/risk-card
 
 interface WorkspaceDuringMeetingProps {
   leadId: string;
+  sessionId: string;
   strategyBlocks: StrategyBlock[];
   riskCards: RiskCard[];
   activeBlockId: string | null;
@@ -18,6 +19,7 @@ interface WorkspaceDuringMeetingProps {
 
 export default function WorkspaceDuringMeeting({
   leadId,
+  sessionId,
   strategyBlocks,
   riskCards,
   activeBlockId,
@@ -38,6 +40,7 @@ export default function WorkspaceDuringMeeting({
     
     createEvent({
       lead_id: leadId,
+      session_id: sessionId,
       event_type: 'Meeting',
       payload: {
         type: 'recommendation_decision',

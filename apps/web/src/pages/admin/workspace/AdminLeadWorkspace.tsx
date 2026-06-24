@@ -18,6 +18,7 @@ export default function AdminLeadWorkspace() {
   const { id } = useParams<{ id: string }>();
   const [meetingState, setMeetingState] = useState<'before' | 'during' | 'after'>('before');
   const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
+  const [sessionId] = useState(() => crypto.randomUUID());
 
   const { data: lead, isLoading } = useQuery({
     queryKey: ['lead-workspace', id],
@@ -162,6 +163,7 @@ export default function AdminLeadWorkspace() {
           {meetingState === 'during' && (
             <WorkspaceDuringMeeting 
               leadId={lead.id}
+              sessionId={sessionId}
               strategyBlocks={strategyBlocks}
               riskCards={riskCards}
               activeBlockId={activeBlockId}
@@ -170,7 +172,7 @@ export default function AdminLeadWorkspace() {
           )}
 
           {meetingState === 'after' && (
-            <WorkspaceAfterMeeting leadId={lead.id} />
+            <WorkspaceAfterMeeting leadId={lead.id} sessionId={sessionId} />
           )}
         </div>
 

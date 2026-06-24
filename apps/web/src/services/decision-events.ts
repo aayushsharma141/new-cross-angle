@@ -19,6 +19,7 @@ export interface DecisionEventPayload {
 export interface DecisionEvent {
   id: string;
   lead_id: string;
+  session_id?: string;
   event_type: EventType;
   occurred_at: string;
   payload: DecisionEventPayload;
@@ -27,6 +28,7 @@ export interface DecisionEvent {
 
 export interface CreateDecisionEventParams {
   lead_id: string;
+  session_id?: string;
   event_type: EventType;
   occurred_at?: string;
   payload: DecisionEventPayload;
@@ -37,12 +39,13 @@ export function useCreateDecisionEvent() {
 
   return useMutation({
     mutationFn: async (params: CreateDecisionEventParams) => {
-      const { lead_id, event_type, occurred_at, payload } = params;
+      const { lead_id, session_id, event_type, occurred_at, payload } = params;
       
       const { data, error } = await (supabase as any)
         .from('decision_events')
         .insert({
           lead_id,
+          session_id,
           event_type,
           occurred_at: occurred_at || new Date().toISOString(),
           payload

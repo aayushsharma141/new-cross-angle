@@ -7,9 +7,10 @@ import { useCreateDecisionEvent } from '@/services/decision-events';
 
 interface WorkspaceAfterMeetingProps {
   leadId: string;
+  sessionId: string;
 }
 
-export default function WorkspaceAfterMeeting({ leadId }: WorkspaceAfterMeetingProps) {
+export default function WorkspaceAfterMeeting({ leadId, sessionId }: WorkspaceAfterMeetingProps) {
   const { mutate: createEvent, isPending } = useCreateDecisionEvent();
   
   const [objections, setObjections] = useState('');
@@ -23,6 +24,7 @@ export default function WorkspaceAfterMeeting({ leadId }: WorkspaceAfterMeetingP
     e.preventDefault();
     createEvent({
       lead_id: leadId,
+      session_id: sessionId,
       event_type: 'Meeting',
       payload: {
         type: 'meeting_debrief',
