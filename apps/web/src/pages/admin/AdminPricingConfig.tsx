@@ -1,7 +1,8 @@
 import { useState, lazy, Suspense } from "react";
 import { cn } from "@/lib/utils";
-import { Home, LayoutList, Wrench, Sparkles, IndianRupee, Loader2, BarChart3 } from "lucide-react";
+import { Home, LayoutList, Wrench, Sparkles, IndianRupee, Loader2, BarChart3, Package } from "lucide-react";
 import { PosthogFunnelChart } from "@/components/admin/analytics/PosthogFunnelChart";
+import { ExecutionTiersEditor } from "@/components/admin/estimator-flow/ExecutionTiersEditor";
 import { PropertyTypesEditor } from "@/components/admin/estimator-flow/PropertyTypesEditor";
 import { DetailsEditor } from "@/components/admin/estimator-flow/DetailsEditor";
 import { ServicesEditor } from "@/components/admin/estimator-flow/ServicesEditor";
@@ -12,6 +13,7 @@ const AdminEstimateRates = lazy(() => import("./AdminEstimateRates"));
 
 const TABS = [
   { id: "pricing", label: "Pricing & Rates", icon: IndianRupee },
+  { id: "packages", label: "Packages", icon: Package },
   { id: "property", label: "Property Types", icon: Home },
   { id: "details", label: "Details & Rooms", icon: LayoutList },
   { id: "services", label: "Services", icon: Wrench },
@@ -74,6 +76,7 @@ export default function AdminPricingConfig() {
             <AdminEstimateRates />
           </Suspense>
         )}
+        {tab === "packages" && <ExecutionTiersEditor />}
         {tab === "property" && <PropertyTypesEditor />}
         {tab === "details" && <DetailsEditor />}
         {tab === "services" && <ServicesEditor />}

@@ -410,9 +410,18 @@ export function useCalculatorStore(analytics?: AnalyticsClient) {
         if (!estimate) return;
         setIsSaving(true);
         try {
-            // Let the secure server re-calculate and handle DB entries
+            // Let the secure server re-calculate and handle DB entries.
+            // Forward the Discovery handoff so the edge function can persist
+            // archetype + signals into the lead record for designer context.
             const { data, error } = await supabase.functions.invoke("submit-estimate", {
-                body: { formData }
+                body: {
+                    formData,
+                    // PHASE 13: CRM intelligence — full DiscoveryHandoff
+                    // Undefined when user reaches Estimator without Discovery
+                    discoveryContext: discoveryHandoff ?? undefined,
+                    // PHASE 15: ALCS Recommendation & Explainability
+                    alcsRecommendation: alcsPipeline?.blueprint.recommendation ?? undefined,
+                }
             });
 
             if (error) {
@@ -449,7 +458,7 @@ export function useCalculatorStore(analytics?: AnalyticsClient) {
         } finally {
             setIsSaving(false);
         }
-    }, [estimate, formData, analytics]);
+    }, [estimate, formData, analytics, discoveryHandoff, alcsPipeline]);
 
     return {
         formData,

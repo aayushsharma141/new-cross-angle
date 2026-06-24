@@ -184,6 +184,13 @@ export interface SimulationScenario {
 
 // ─── AI Recommendation ──────────────────────────────────────────────────────
 
+export interface RecommendationEvidence {
+  signal: string;      // e.g., "Natural light preference", "Material-first luxury language"
+  scoreImpact: number; // e.g., +15, -4
+  source: "sensory" | "lifestyle" | "property" | "archetype" | "budget";
+  rationale: string;
+}
+
 export interface AIRecommendationResult {
   /** Best-fit strategy label */
   strategyLabel: string;
@@ -198,6 +205,12 @@ export interface AIRecommendationResult {
   reasoning: string;
   /** Short human summary */
   summary: string;
+  /** Explainability: confidence score out of 100 */
+  confidence: number;
+  /** Explainability: ledger of how the recommendation was scored */
+  evidence: RecommendationEvidence[];
+  /** Explainability: top drivers (e.g. ["Material Quality", "Natural Light"]) */
+  primaryDrivers: string[];
 }
 
 // ─── Final Execution Blueprint (9 Sections) ─────────────────────────────────

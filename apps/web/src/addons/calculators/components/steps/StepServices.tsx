@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import type { CalculatorFormData, ServiceId, ExecutionTierId } from "../data/types";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
+import type { ExecutionTierItem } from "@/components/admin/estimator-flow/ExecutionTiersEditor";
 import { SERVICES as DEFAULT_SERVICES } from "../data/pricing-config";
 import {
     selectableCardClassLight,
@@ -20,6 +21,7 @@ interface Props {
 
 export function StepServices({ formData, updateField }: Props) {
     const { data: services = DEFAULT_SERVICES } = useFlowConfig<typeof DEFAULT_SERVICES>("services");
+    const { data: executionTiers } = useFlowConfig<ExecutionTierItem[]>("execution_tiers");
     const [expandedId, setExpandedId] = useState<string | null>(null);
 
     const toggle = (id: string) => setExpandedId(prev => prev === id ? null : id);
@@ -181,8 +183,13 @@ export function StepServices({ formData, updateField }: Props) {
                                                 Select Execution Grade
                                             </div>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                {Object.entries(svc.tiers).map(([key, tier]) => {
+                                                {Object.entries(svc.tiers).map(([key, staticTier]) => {
                                                     const active = formData.executionTier === key;
+                                                    const dynamicTier = executionTiers?.find(t => t.id === key);
+                                                    const label = dynamicTier?.label || staticTier.label;
+                                                    const desc = dynamicTier?.desc || staticTier.desc;
+                                                    const imageId = dynamicTier?.imageId;
+                                                    
                                                     return (
                                                         <button type="button" key={key}
                                                             onClick={() => updateField("executionTier", key as ExecutionTierId)}
@@ -190,19 +197,28 @@ export function StepServices({ formData, updateField }: Props) {
                                                                 ? "bg-[#8b6f47]/10 border-[#8b6f47] ring-2 ring-[#8b6f47]/10"
                                                                 : "bg-[#ffffff] border-[#1a1a1a]/[0.06] hover:border-[#8b6f47]/30"
                                                                 }`}
-                                                            title={`Select ${tier.label} execution grade`}>
-                                                            <div className="flex justify-between items-center mb-1">
-                                                                <div className={`font-black text-sm uppercase tracking-tight transition-colors ${active ? "text-[#8b6f47] font-bold" : "text-[#1a1a1a]/80"
-                                                                    }`}>
-                                                                    {tier.label}
+                                                            title={`Select ${label} execution grade`}>
+                                                            <div className="flex gap-3 h-full">
+                                                                {imageId && (
+                                                                    <div className="w-12 h-12 shrink-0">
+                                                                        <img src={imageId} alt={label} className="w-full h-full object-cover rounded-md border border-[#1a1a1a]/10" />
+                                                                    </div>
+                                                                )}
+                                                                <div className="flex-1 flex flex-col justify-center">
+                                                                    <div className="flex justify-between items-center mb-1">
+                                                                        <div className={`font-black text-sm uppercase tracking-tight transition-colors ${active ? "text-[#8b6f47] font-bold" : "text-[#1a1a1a]/80"
+                                                                            }`}>
+                                                                            {label}
+                                                                        </div>
+                                                                        {active && <div className="w-1.5 h-1.5 rounded-full bg-[#8b6f47] shadow-[0_0_8px_rgba(209,175,110,0.5)]" />}
+                                                                    </div>
+                                                                    <div className="text-[#8b6f47] text-sm font-black italic tracking-tight mb-1">
+                                                                        ₹{staticTier.min.toLocaleString()} – ₹{staticTier.max.toLocaleString()} <span className="text-[10px] opacity-70">/sqft</span>
+                                                                    </div>
+                                                                    <div className="text-[#5a5a5a] text-[10px] leading-relaxed line-clamp-2">
+                                                                        {desc}
+                                                                    </div>
                                                                 </div>
-                                                                {active && <div className="w-1.5 h-1.5 rounded-full bg-[#8b6f47] shadow-[0_0_8px_rgba(209,175,110,0.5)]" />}
-                                                            </div>
-                                                            <div className="text-[#8b6f47] text-sm font-black italic tracking-tight mb-2">
-                                                                ₹{tier.min.toLocaleString()} – ₹{tier.max.toLocaleString()} <span className="text-[10px] opacity-70">/sqft</span>
-                                                            </div>
-                                                            <div className="text-[#5a5a5a] text-[10px] leading-relaxed line-clamp-2">
-                                                                {tier.desc}
                                                             </div>
                                                         </button>
                                                     );

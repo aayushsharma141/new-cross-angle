@@ -1,4 +1,4 @@
-import type { AestheticScores } from "@/types/discovery";
+import type { AestheticScores, UserSignals } from "@/types/discovery";
 
 const DISCOVERY_RESULT_KEY = "ca_discovery_result";
 const TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -9,11 +9,15 @@ export interface DiscoveryResult {
   /** Display name — AI identity if available, otherwise base archetype name */
   displayName: string;
   scores: AestheticScores;
+  /** Full quiz signals — used by the Estimator ALCS pipeline for rich DiscoveryHandoff */
+  signals?: UserSignals;
   /** AI-generated identity, present when deep mode was used */
   aiIdentity?: {
     identityName: string;
     tagline?: string;
   };
+  /** Archetype confidence score 0–1 (from ALCS engine) */
+  archetypeConfidence?: number;
   savedAt: number;
 }
 

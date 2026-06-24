@@ -12,6 +12,15 @@ export type PropertyType =
     | "turnkey"
     | "renovation";
 
+export interface PropertyTypeItem {
+    id: PropertyType;
+    label: string;
+    icon: string;
+    desc: string;
+    imageId?: string | null;
+}
+
+
 /** City tier for pricing multiplier */
 export type CityTier = "metro" | "tier1" | "tier2";
 

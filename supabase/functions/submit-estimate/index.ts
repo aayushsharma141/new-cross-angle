@@ -145,7 +145,7 @@ Deno.serve(async (req: Request) => {
 
     try {
         const body = await req.json();
-        const { formData } = body;
+        const { formData, discoveryContext, alcsRecommendation } = body;
 
         if (!formData || !formData.email || !formData.area) {
             return badRequestResponse(req, "Invalid strictly required form data", {}, requestId);
@@ -209,6 +209,23 @@ Deno.serve(async (req: Request) => {
                 score_category: score.category,
                 score_breakdown: score.breakdown,
             },
+            // ——— PHASE 13: Discovery Intelligence ———
+            // Populated when user completes Discovery quiz before Estimator.
+            // Null when user reaches Estimator directly (no discovery session).
+            discovery_archetype: discoveryContext?.archetype ?? null,
+            discovery_confidence: discoveryContext?.archetypeConfidence ?? null,
+            discovery_emotional_goal: discoveryContext?.emotionalGoal ?? null,
+            discovery_lifestyle: discoveryContext?.lifestyle ?? null,
+            discovery_priorities: discoveryContext?.priorities ?? null,
+            discovery_sensory: discoveryContext?.sensory ?? null,
+            discovery_contradictions: discoveryContext?.contradictions ?? null,
+
+            // ——— PHASE 15: ALCS Recommendation & Explainability ———
+            alcs_execution_path: alcsRecommendation?.executionPath ?? null,
+            alcs_confidence: alcsRecommendation?.confidence ?? null,
+            alcs_reasoning: alcsRecommendation?.reasoning ?? null,
+            alcs_evidence: alcsRecommendation?.evidence ?? null,
+            alcs_primary_drivers: alcsRecommendation?.primaryDrivers ?? null,
         });
 
         if (errInsert) {

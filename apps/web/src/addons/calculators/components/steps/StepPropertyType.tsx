@@ -2,7 +2,7 @@
 
 import { useRef, KeyboardEvent } from "react";
 import { motion } from "framer-motion";
-import type { CalculatorFormData, PropertyType } from "../data/types";
+import type { CalculatorFormData, PropertyType, PropertyTypeItem } from "../data/types";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import {
     selectableCardClassLight,
@@ -20,12 +20,6 @@ interface Props {
     updateField: <K extends keyof CalculatorFormData>(field: K, value: CalculatorFormData[K]) => void;
 }
 
-interface PropertyTypeItem {
-  id: string;
-  label: string;
-  icon: string;
-  desc: string;
-}
 
 export function StepPropertyType({ formData, updateField }: Props) {
     const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -99,8 +93,12 @@ export function StepPropertyType({ formData, updateField }: Props) {
                                     />
                                 )}
 
-                                <div className="text-4xl mb-3 filter drop-shadow-md group-hover:scale-110 transition-transform duration-300">
-                                    {pt.icon}
+                                <div className="text-4xl mb-3 filter drop-shadow-md group-hover:scale-110 transition-transform duration-300 flex justify-center">
+                                    {pt.imageId ? (
+                                        <img src={pt.imageId} alt={pt.label} className="w-16 h-16 rounded-lg object-cover shadow-sm" />
+                                    ) : (
+                                        pt.icon
+                                    )}
                                 </div>
 
                                 <div className="mb-1">

@@ -1,6 +1,7 @@
 import React, { useMemo, useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
+import { useNavigate } from 'react-router-dom';
 import {
   Sun,
   Layers,
@@ -12,7 +13,9 @@ import {
   Minus,
   Download,
   Share2,
-  RefreshCw
+  RefreshCw,
+  Calculator,
+  ArrowRight,
 } from 'lucide-react';
 
 import { AestheticScores, Archetype, AIAestheticResult, UserSignals } from '@/types/discovery';
@@ -23,6 +26,7 @@ import { FallingText, BlurText, ScrollVelocity } from '@/components/ReactBits';
 import { useDiscoveryAsset } from '@/hooks/useDiscoveryAsset';
 import { toEntityId } from '@/lib/discovery-utils';
 import { getOptimizedUrl } from '@/lib/cdn';
+import { saveDiscoveryResult } from '../core/persistence';
 
 const DiscoveryConsumerImage = ({ entityType, entityId, role, fallbackUrl, alt, className }: { entityType: string, entityId: string, role: string, fallbackUrl?: string, alt?: string, className?: string }) => {
   const { url } = useDiscoveryAsset(entityType, entityId, role, fallbackUrl);
@@ -429,6 +433,7 @@ const TransformationReadiness: React.FC<{ scores: AestheticScores }> = ({ scores
 
 const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId, signals, onRetake }) => {
   const { track } = useAnalytics();
+  const navigate = useNavigate();
 
   const displayName = aiResult?.identityName || archetype.name;
   const displayTagline = aiResult?.tagline || archetype.tagline;
@@ -467,7 +472,19 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
     if (sessionId) {
       trackResultLoaded(track, sessionId, displayName);
     }
-  }, [sessionId, displayName, track]);
+    // PHASE 13: Persist discovery result as fallback so Estimator can read it
+    // even if the user bypasses the LeadGate form.
+    saveDiscoveryResult({
+      archetype: archetype.name,
+      displayName: aiResult?.identityName || archetype.name,
+      scores,
+      signals,
+      aiIdentity: aiResult?.identityName
+        ? { identityName: aiResult.identityName, tagline: aiResult.tagline }
+        : undefined,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);  // run once on mount only
 
   const topImages = useMemo(() => {
     return [...visualImages]
@@ -935,19 +952,32 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
             {archetype.ctaDescription || "Your results are a guide. Our designers are the architects. Let us bridge the gap between your decoded digital DNA and the sanctuary you deserve."}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center flex-wrap">
+            {/* Primary: Go to Estimator */}
+            <motion.button
+              type="button"
+              onClick={() => navigate('/estimate')}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="px-10 py-5 bg-site-crimson text-site-bg text-xs font-bold tracking-[0.3em] uppercase rounded-none hover:bg-site-crimson/90 transition-colors shadow-[0_0_30px_rgba(227,83,54,0.2)] relative group overflow-hidden flex items-center gap-3"
+            >
+              <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              <Calculator className="w-4 h-4 relative z-10" />
+              <span className="relative z-10">Estimate My Investment</span>
+              <ArrowRight className="w-4 h-4 relative z-10 transition-transform group-hover:translate-x-1" />
+            </motion.button>
             <motion.a
               href={archetype.ctaDestination || "/contact-us"}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="px-12 py-5 bg-site-crimson text-site-bg text-xs font-bold tracking-[0.3em] uppercase rounded-none hover:bg-site-crimson/90 transition-colors shadow-[0_0_30px_rgba(227, 83, 54,0.2)] relative group overflow-hidden"
+              className="px-12 py-5 border border-white/20 text-white/70 text-xs font-bold tracking-[0.3em] uppercase rounded-none hover:border-site-crimson hover:text-site-crimson transition-colors relative group overflow-hidden"
             >
-              <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              {archetype.ctaText || "Book Final Design Review"}
+              <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              {archetype.ctaText || "Book Design Review"}
             </motion.a>
             <a
               href="/system-blueprint"
-              className="px-12 py-5 border border-white/10 text-white/60 text-xs font-semibold tracking-[0.3em] uppercase rounded-sm hover:border-white/30 hover:text-white transition-all"
+              className="px-12 py-5 border border-white/10 text-white/40 text-xs font-semibold tracking-[0.3em] uppercase rounded-sm hover:border-white/30 hover:text-white transition-all"
             >
               Explore System Blueprint
             </a>

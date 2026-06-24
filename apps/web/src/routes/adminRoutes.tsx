@@ -42,6 +42,7 @@ const AdminBlogPerformance = lazy(() => import("@/pages/admin/AdminBlogPerforman
 const AdminBlogEngagement = lazy(() => import("@/pages/admin/AdminBlogEngagement"));
 const CrmAnalytics = lazy(() => import("@/pages/admin/CrmAnalytics"));
 const CrmSettings = lazy(() => import("@/pages/admin/CrmSettings"));
+const AdminLeadWorkspace = lazy(() => import("@/pages/admin/workspace/AdminLeadWorkspace"));
 
 export const adminRoutes = (
   <>
@@ -70,6 +71,7 @@ export const adminRoutes = (
 
         <Route path="crm" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><CrmModule /></RoleGuard>}>
           <Route path="leads" element={<AdminLeads />} />
+          <Route path="leads/:id/workspace" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminLeadWorkspace /></RoleGuard>} />
           <Route path="analytics" element={<CrmAnalytics />} />
           <Route path="settings" element={<CrmSettings />} />
           <Route path="users" element={<Navigate to="/admin/user-access/users" replace />} />

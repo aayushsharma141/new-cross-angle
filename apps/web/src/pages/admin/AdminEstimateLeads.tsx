@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import {
   Loader2, Trash2, MoreVertical, Search, Download,
-  Target, Phone, Mail, X, ArrowUpDown,
+  Target, Phone, Mail, X, ArrowUpDown, Brain, Sparkles, FileText, Printer, Copy
 } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
 import {
@@ -21,6 +22,7 @@ import { auditService } from '@/services/AuditService';
 import { cn } from '@/lib/utils';
 import { format, subDays } from 'date-fns';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell, AreaChart, Area, CartesianGrid } from 'recharts';
+import { generateDesignerBrief } from '@/addons/calculators/components/data/engines/brief-generator';
 
 type Lead = Database['public']['Tables']['leads']['Row'];
 type EstimateLeadStatus = 'new' | 'contacted' | 'qualified' | 'won' | 'lost';
@@ -38,6 +40,7 @@ const formatINR = (val: number | null) =>
 
 export default function AdminEstimateLeads() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
@@ -45,6 +48,13 @@ export default function AdminEstimateLeads() {
   const [sortField, setSortField] = useState<'created_at' | 'estimated_min' | 'lead_score'>('created_at');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [detailLead, setDetailLead] = useState<Lead | null>(null);
+  const [showBrief, setShowBrief] = useState(false);
+
+  const briefData = useMemo(() => {
+    if (!detailLead) return null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return generateDesignerBrief(detailLead as any);
+  }, [detailLead]);
 
   const { data, isLoading, error } = useQuery<Lead[]>({
     queryKey: ['estimate-leads'],
@@ -327,7 +337,18 @@ export default function AdminEstimateLeads() {
                   <TableCell className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
                     <input type="checkbox" title={`Select ${lead.name}`} aria-label={`Select ${lead.name}`} checked={selectedIds.has(lead.id)} onChange={() => { const n = new Set(selectedIds); if (n.has(lead.id)) { n.delete(lead.id); } else { n.add(lead.id); } setSelectedIds(n); }} className="rounded" />
                   </TableCell>
-                  <TableCell className="py-3 px-4 font-medium text-[hsl(var(--admin-text))]">{lead.name}</TableCell>
+                  <TableCell className="py-3 px-4 font-medium text-[hsl(var(--admin-text))]"
+                  >
+                    <div>{lead.name}</div>
+                    {(lead as Record<string, unknown>).discovery_archetype && (
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <Brain className="w-2.5 h-2.5 text-[hsl(var(--admin-primary))]/60" />
+                        <span className="text-[9px] font-semibold text-[hsl(var(--admin-primary))]/60 uppercase tracking-wider">
+                          {(lead as Record<string, unknown>).discovery_archetype as string}
+                        </span>
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="py-3 px-4">
                     <div className="text-xs text-[hsl(var(--admin-text-muted))]">{lead.email}</div>
                     <div className="text-xs text-[hsl(var(--admin-text-muted))]">{lead.phone || '—'}</div>
@@ -375,12 +396,19 @@ export default function AdminEstimateLeads() {
 
       {/* Detail Panel */}
       {detailLead && (
-        <div className="fixed inset-0 z-50 flex justify-end" role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setDetailLead(null); }} onClick={() => setDetailLead(null)}>
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-          <div className="relative w-full max-w-md bg-[hsl(var(--admin-background))] border-l border-[hsl(var(--admin-border))] overflow-y-auto animate-in slide-in-from-right duration-300" role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') e.stopPropagation(); }} onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" role="button" tabIndex={0} aria-label="Close details" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setDetailLead(null); }} onClick={() => setDetailLead(null)} />
+          <div className="relative w-full max-w-md bg-[hsl(var(--admin-background))] border-l border-[hsl(var(--admin-border))] overflow-y-auto animate-in slide-in-from-right duration-300">
             <div className="sticky top-0 bg-[hsl(var(--admin-background))] border-b border-[hsl(var(--admin-border))] p-4 flex items-center justify-between z-10">
               <h2 className="text-lg font-bold text-[hsl(var(--admin-text))]">Lead Details</h2>
-              <Button variant="ghost" size="icon" onClick={() => setDetailLead(null)}><X className="w-4 h-4" /></Button>
+              <div className="flex items-center gap-2">
+                {(detailLead as Record<string, unknown>).discovery_archetype && (
+                  <Button size="sm" variant="outline" onClick={() => navigate(`/admin/leads/${detailLead.id}/workspace`)} className="gap-1.5 h-8 text-xs border-[hsl(var(--admin-primary))]/30 text-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))]/10">
+                    <Sparkles className="w-3.5 h-3.5" /> Open Project Intelligence &rarr;
+                  </Button>
+                )}
+                <Button variant="ghost" size="icon" onClick={() => setDetailLead(null)}><X className="w-4 h-4" /></Button>
+              </div>
             </div>
             <div className="p-6 space-y-6">
               <div>
@@ -418,6 +446,146 @@ export default function AdminEstimateLeads() {
                 </div>
               )}
 
+              {/* Discovery Intelligence Panel */}
+              {(detailLead as Record<string, unknown>).discovery_archetype && (
+                <div className="rounded-xl bg-[hsl(var(--admin-primary))]/5 border border-[hsl(var(--admin-primary))]/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[hsl(var(--admin-primary))] flex items-center gap-1.5">
+                      <Brain className="w-3 h-3" /> Aesthetic Profile
+                    </p>
+                    {(detailLead as Record<string, unknown>).discovery_confidence && (
+                      <span className="text-[10px] font-bold text-[hsl(var(--admin-success))] bg-[hsl(var(--admin-success))]/10 px-2 py-0.5 rounded-full">
+                        {Math.round(((detailLead as Record<string, unknown>).discovery_confidence as number) * 100)}% match
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Archetype + Emotional Goal */}
+                  <div>
+                    <p className="text-sm font-bold text-[hsl(var(--admin-text))]">
+                      {(detailLead as Record<string, unknown>).discovery_archetype as string}
+                    </p>
+                    {(detailLead as Record<string, unknown>).discovery_emotional_goal && (
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-0.5 italic">
+                        &ldquo;{(detailLead as Record<string, unknown>).discovery_emotional_goal as string}&rdquo;
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Lifestyle */}
+                  {(detailLead as Record<string, unknown>).discovery_lifestyle && (() => {
+                    const ls = (detailLead as Record<string, unknown>).discovery_lifestyle as Record<string, unknown>;
+                    const chips = [
+                      ls.familyType,
+                      ls.members ? `${ls.members} members` : null,
+                      ls.hostingFreq ? `Hosts ${String(ls.hostingFreq).toLowerCase()}` : null,
+                      ls.cookingRole === 'Daily Ritual' ? 'Daily cooking' : null,
+                      ls.workFromHome ? 'WFH' : null,
+                      ls.children ? `${ls.children} child${Number(ls.children) > 1 ? 'ren' : ''}` : null,
+                    ].filter(Boolean) as string[];
+                    return chips.length > 0 ? (
+                      <div>
+                        <p className="text-[9px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] mb-1">Lifestyle</p>
+                        <div className="flex flex-wrap gap-1">
+                          {chips.map((c, i) => (
+                            <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-md bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-muted))] border border-[hsl(var(--admin-border))]">{c}</span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+
+                  {/* Room Priorities */}
+                  {(detailLead as Record<string, unknown>).discovery_priorities && (() => {
+                    const p = (detailLead as Record<string, unknown>).discovery_priorities as Record<string, unknown>;
+                    const must = Array.isArray(p.mustHave) ? (p.mustHave as string[]).slice(0, 4) : [];
+                    return must.length > 0 ? (
+                      <div>
+                        <p className="text-[9px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] mb-1">Must-Have Rooms</p>
+                        <div className="flex flex-wrap gap-1">
+                          {must.map((r, i) => (
+                            <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-md bg-[hsl(var(--admin-primary))]/10 text-[hsl(var(--admin-primary))] border border-[hsl(var(--admin-primary))]/20 font-semibold">{r}</span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+
+                  {/* Sensory */}
+                  {(detailLead as Record<string, unknown>).discovery_sensory && (() => {
+                    const s = (detailLead as Record<string, unknown>).discovery_sensory as Record<string, unknown>;
+                    const items = [
+                      s.lighting ? `Lighting: ${s.lighting}` : null,
+                      s.luxuryResolvedAs ? `Luxury: ${String(s.luxuryResolvedAs).replace(/_/g, ' ')}` : null,
+                      Array.isArray(s.textures) && (s.textures as string[]).length > 0
+                        ? `Textures: ${(s.textures as string[]).slice(0, 2).join(', ')}` : null,
+                    ].filter(Boolean) as string[];
+                    return items.length > 0 ? (
+                      <div>
+                        <p className="text-[9px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] mb-1 flex items-center gap-1">
+                          <Sparkles className="w-2.5 h-2.5" /> Sensory Profile
+                        </p>
+                        <div className="space-y-0.5">
+                          {items.map((item, i) => (
+                            <p key={i} className="text-[10px] text-[hsl(var(--admin-text))]">{item}</p>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
+              )}
+
+              {/* ALCS Recommendation Explainability */}
+              {(detailLead as Record<string, unknown>).alcs_execution_path && (
+                <div className="rounded-xl bg-[hsl(var(--admin-success))]/5 border border-[hsl(var(--admin-success))]/20 p-4 space-y-3 mt-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[hsl(var(--admin-success))] flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3" /> AI Recommendation
+                    </p>
+                    {(detailLead as Record<string, unknown>).alcs_confidence && (
+                      <span className="text-[10px] font-bold text-[hsl(var(--admin-success))] bg-[hsl(var(--admin-success))]/10 px-2 py-0.5 rounded-full">
+                        {Math.round(((detailLead as Record<string, unknown>).alcs_confidence as number) * 100)}% Confidence
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm font-bold text-[hsl(var(--admin-text))] capitalize">
+                      {String((detailLead as Record<string, unknown>).alcs_execution_path).replace(/_/g, ' ')}
+                    </p>
+                    {(detailLead as Record<string, unknown>).alcs_reasoning && (
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1 leading-relaxed">
+                        {(detailLead as Record<string, unknown>).alcs_reasoning as string}
+                      </p>
+                    )}
+                  </div>
+
+                  {(detailLead as Record<string, unknown>).alcs_evidence && (
+                    <div className="pt-2 border-t border-[hsl(var(--admin-success))]/10">
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] mb-2">Why this recommendation?</p>
+                      <div className="space-y-2">
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        {((detailLead as Record<string, unknown>).alcs_evidence as any[]).map((ev, i) => (
+                          <div key={i} className="flex gap-2 items-start bg-[hsl(var(--admin-surface))]/50 p-2 rounded-lg border border-[hsl(var(--admin-border))]/50">
+                            <span className={cn(
+                                "text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0 mt-0.5",
+                                ev.scoreImpact > 0 ? "bg-[hsl(var(--admin-success))]/10 text-[hsl(var(--admin-success))]" : "bg-[hsl(var(--admin-danger))]/10 text-[hsl(var(--admin-danger))]"
+                            )}>
+                              {ev.scoreImpact > 0 ? '+' : ''}{ev.scoreImpact}
+                            </span>
+                            <div>
+                              <p className="text-xs font-semibold text-[hsl(var(--admin-text))]">{ev.signal}</p>
+                              <p className="text-[10px] text-[hsl(var(--admin-text-muted))] mt-0.5 leading-tight">{ev.rationale}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="text-[10px] text-[hsl(var(--admin-text-muted))]">
                 Created: {detailLead.created_at ? format(new Date(detailLead.created_at), 'PPpp') : '—'}
               </div>
@@ -426,6 +594,122 @@ export default function AdminEstimateLeads() {
                 {detailLead.phone && <Button size="sm" variant="outline" onClick={() => window.open(`tel:${detailLead.phone}`)} className="gap-1"><Phone className="w-3 h-3" />Call</Button>}
                 <Button size="sm" variant="outline" onClick={() => window.open(`mailto:${detailLead.email}`)} className="gap-1"><Mail className="w-3 h-3" />Email</Button>
                 <Button size="sm" variant="outline" onClick={() => { if (confirm('Delete?')) { deleteMutation.mutate(detailLead.id); setDetailLead(null); } }} className="gap-1 text-red-400 hover:text-red-300"><Trash2 className="w-3 h-3" />Delete</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Designer Brief Modal */}
+      {showBrief && briefData && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" role="button" tabIndex={0} title="Close brief" aria-label="Close brief" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setShowBrief(false); }} onClick={() => setShowBrief(false)} />
+          <div className="relative w-full max-w-2xl max-h-[90vh] bg-[hsl(var(--admin-background))] rounded-xl border border-[hsl(var(--admin-border))] shadow-2xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+            <div className="sticky top-0 bg-[hsl(var(--admin-background))] border-b border-[hsl(var(--admin-border))] p-4 flex items-center justify-between z-10">
+              <div>
+                <h2 className="text-xl font-bold text-[hsl(var(--admin-text))] flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-[hsl(var(--admin-primary))]" />
+                  Designer Brief: {briefData.identity.name}
+                </h2>
+                <p className="text-xs text-[hsl(var(--admin-text-muted))] mt-1 capitalize">
+                  {briefData.identity.archetype.replace(/_/g, ' ')} • {briefData.identity.propertyType} • {briefData.identity.confidence}% Match
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => {
+                  const text = `DESIGNER BRIEF: ${briefData.identity.name}\n\nSTRATEGY: ${briefData.strategy.recommendedPath.replace(/_/g, ' ')}\n${briefData.strategy.conversationStarters.join('\n')}\n\nWATCH OUTS:\n${briefData.strategy.watchOuts.map(w => '- ' + w).join('\n')}`;
+                  navigator.clipboard.writeText(text);
+                  toast({ title: "Copied to clipboard" });
+                }}>
+                  <Copy className="w-3.5 h-3.5" /> Copy Text
+                </Button>
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => window.print()}>
+                  <Printer className="w-3.5 h-3.5" /> Print
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setShowBrief(false)}><X className="w-4 h-4" /></Button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-8" id="printable-brief">
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] mb-3 flex items-center gap-1.5">
+                    <Target className="w-4 h-4 text-[hsl(var(--admin-primary))]" /> Strategy
+                  </h3>
+                  <div className="bg-[hsl(var(--admin-surface))]/50 p-4 rounded-lg border border-[hsl(var(--admin-border))]/50 h-full">
+                    <p className="text-sm font-bold text-[hsl(var(--admin-text))] capitalize mb-3 border-b border-[hsl(var(--admin-border))] pb-2">
+                      Path: {briefData.strategy.recommendedPath.replace(/_/g, ' ')}
+                    </p>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-[10px] font-bold text-[hsl(var(--admin-text-muted))] mb-1 uppercase tracking-wider">Conversation Starters</p>
+                        <ul className="text-xs text-[hsl(var(--admin-text))] space-y-1.5">
+                          {briefData.strategy.conversationStarters.map((s, i) => (
+                            <li key={i} className="italic text-muted-foreground">{s}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-[hsl(var(--admin-danger))] mb-1 uppercase tracking-wider">Watch Outs</p>
+                        <ul className="text-xs text-[hsl(var(--admin-text))] space-y-1 list-disc pl-3">
+                          {briefData.strategy.watchOuts.map((w, i) => (
+                            <li key={i} className="text-muted-foreground">{w}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] mb-3 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-[hsl(var(--admin-primary))]" /> Sensory Preferences
+                  </h3>
+                  <div className="bg-[hsl(var(--admin-surface))]/50 p-4 rounded-lg border border-[hsl(var(--admin-border))]/50 h-full space-y-3">
+                    <div>
+                      <p className="text-[10px] font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Lighting</p>
+                      <p className="text-xs font-medium text-[hsl(var(--admin-text))]">{briefData.sensory.lighting}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Textures</p>
+                      <p className="text-xs font-medium text-[hsl(var(--admin-text))]">{briefData.sensory.textures}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider">Luxury Mode</p>
+                      <p className="text-xs font-medium text-[hsl(var(--admin-text))]">{briefData.sensory.luxuryMode}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[hsl(var(--admin-text-muted))] mb-3 flex items-center gap-1.5">
+                  <Brain className="w-4 h-4 text-[hsl(var(--admin-primary))]" /> Lifestyle Context
+                </h3>
+                <div className="grid grid-cols-2 gap-4 bg-[hsl(var(--admin-surface))]/50 p-4 rounded-lg border border-[hsl(var(--admin-border))]/50">
+                  <div>
+                    <p className="text-[10px] font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider mb-2">Key Drivers</p>
+                    <ul className="text-xs text-[hsl(var(--admin-text))] space-y-1 list-disc pl-3">
+                      {briefData.lifestyle.summary.map((s, i) => (
+                        <li key={i}>{s}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-wider mb-2">Priority Spaces</p>
+                    {briefData.lifestyle.priorityRooms.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {briefData.lifestyle.priorityRooms.map((r, i) => (
+                          <span key={i} className="text-[10px] font-medium bg-[hsl(var(--admin-primary))]/10 text-[hsl(var(--admin-primary))] px-2 py-0.5 rounded-full capitalize">
+                            {r.replace(/-/g, ' ')}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-[hsl(var(--admin-text-muted))] italic">Not specified</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

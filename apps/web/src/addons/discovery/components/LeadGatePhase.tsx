@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/ui/primitives/input";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { UserSignals, AestheticScores, Archetype } from "@/types/discovery";
 import { trackLeadGateViewed, trackLeadGateSubmitted } from "../infrastructure/analytics/tracker";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
+import { saveDiscoveryResult } from "../core/persistence";
 
 interface Props {
     sessionId: string | null;
@@ -23,8 +25,10 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
     const [phone, setPhone] = useState("");
     const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
     const analytics = useAnalytics();
     const analyticsTrack = analytics.track.bind(analytics);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (sessionId) {
@@ -87,6 +91,15 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                 }
             }
 
+            // ——— PHASE 13: Persist Discovery result for Estimator handoff ———
+            // Always persist (even on non-critical error) so user can navigate to Estimator
+            saveDiscoveryResult({
+                archetype: archetype.name,
+                displayName: archetype.name,
+                scores,
+                signals,
+            });
+            setSubmitted(true);
             onComplete();
         } catch (err) {
             console.error("Submission exception:", err);
@@ -178,21 +191,52 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                         </div>
                     </div>
 
-                    <div className="pt-4">
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting || !name.trim() || !email.trim()}
-                            className="w-full h-14 bg-[#233526] text-white disabled:bg-[#e8e4dd] disabled:text-[#5a5a5a] disabled:opacity-100 rounded-xl text-sm font-semibold hover:bg-[#1a281c] transition-all duration-300 shadow-md group disabled:shadow-none"
-                        >
-                            {isSubmitting ? (
-                                <Loader2 className="w-5 h-5 animate-spin mx-auto text-white/70" />
-                            ) : (
-                                <span className="flex items-center justify-center gap-2">
-                                    Save & Get Consultation
+                    <div className="pt-4 space-y-3">
+                        {!submitted ? (
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting || !name.trim() || !email.trim()}
+                                className="w-full h-14 bg-[#233526] text-white disabled:bg-[#e8e4dd] disabled:text-[#5a5a5a] disabled:opacity-100 rounded-xl text-sm font-semibold hover:bg-[#1a281c] transition-all duration-300 shadow-md group disabled:shadow-none"
+                            >
+                                {isSubmitting ? (
+                                    <Loader2 className="w-5 h-5 animate-spin mx-auto text-white/70" />
+                                ) : (
+                                    <span className="flex items-center justify-center gap-2">
+                                        Save &amp; Get Consultation
+                                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                                    </span>
+                                )}
+                            </Button>
+                        ) : (
+                            <motion.div
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4 }}
+                                className="space-y-3"
+                            >
+                                <p className="text-center text-[11px] uppercase tracking-[0.15em] text-[#5a5a5a] font-semibold">
+                                    Blueprint saved ✓ — what's next?
+                                </p>
+                                {/* Primary: Estimator CTA */}
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/estimate")}
+                                    className="w-full h-14 bg-[#8b6f47] text-white rounded-xl text-sm font-semibold hover:bg-[#705939] transition-all duration-300 shadow-md flex items-center justify-center gap-2 group"
+                                >
+                                    <Calculator className="w-4 h-4" />
+                                    See My Cost Estimate
                                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                                </span>
-                            )}
-                        </Button>
+                                </button>
+                                {/* Secondary: proceed to full results */}
+                                <button
+                                    type="button"
+                                    onClick={onComplete}
+                                    className="w-full h-11 border border-[#e8e4dd] text-[#5a5a5a] rounded-xl text-xs font-semibold hover:bg-[#faf8f5] transition-all duration-200"
+                                >
+                                    View Full Aesthetic Report
+                                </button>
+                            </motion.div>
+                        )}
                     </div>
                 </form>
             </div>

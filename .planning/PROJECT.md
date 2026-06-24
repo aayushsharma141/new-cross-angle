@@ -51,11 +51,52 @@
 
 ## What This Is
 
-An architectural and content-level restructuring of the "Cross Angle Interior" web application. The platform is transitioning from a simple visual CMS into an extensible product suite spanning SEO-focused content silos, a Discovery Engine, and a robust media identity architecture.
+The "Cross Angle Interior" platform has evolved from a simple visual CMS into a **Design Intelligence Flywheel**. 
+
+**North Star Vision:**
+> *The platform exists to help professionals make better decisions today while ensuring every validated decision makes the organization better tomorrow.*
+
+**The Seven Verbs (every module fits one):** `Capture → Understand → Recommend → Execute → Measure → Learn → Improve`
+
+> See [CONSTITUTION.md](./.planning/CONSTITUTION.md) for the ten immutable laws that all future features, models, and workflows must obey. That document does not change with roadmap iterations.
+
+## The Architecture (Four Types of Intelligence)
+
+The platform separates cleanly into four layers of intelligence:
+
+1. **Operational Intelligence ("What is happening?")**
+   - DAM, CRM, Projects, Tasks
+2. **Decision Intelligence ("What should we do?")**
+   - ALCS, Recommendations, Designer Workspace
+3. **Institutional Intelligence ("What have we learned?")**
+   - Insights, Patterns, Benchmarks, Playbooks
+4. **Strategic Intelligence ("What should we become?")**
+   - Business strategy, Pricing models, Service packages, Market positioning
+
+*Note: In V7 and beyond, modules (DAM, CRM, Estimator) cease to be separate apps and instead become "Sensors" that capture specific evidence for the intelligence graph.*
 
 ## Core Value
 
-Bridge the gap between stunning visual design, high-performance SEO, and rigorous data integrity. By centralizing assets and normalizing content hierarchies, the platform guarantees a seamless user journey and lays the groundwork for advanced generative AI workflows.
+The core value proposition is not artificial intelligence, but **Evidence**. The ultimate asset is the compounding flywheel of: `Observation → Hypothesis → Recommendation → Decision → Outcome → Insight`. 
+
+When ALCS makes a recommendation, it will provide complete explainability (e.g., *"Based on Insight #42, derived from 184 validated projects, supported by 3,926 observations"*). This traceability builds trust that a black-box AI never can.
+
+## Long-Term Evolution
+
+The platform's lifecycle follows four primary epochs. The ultimate competitive moat is the closed learning loop.
+
+- **V1–V3 (The Operating System):** CMS, DAM, and Discovery. Building the infrastructure to capture data cleanly.
+- **V4–V5 (Decision Intelligence):** ALCS, CRM, and the Project Intelligence Workspace. Delivering real-time insights to improve the designer's workflow.
+- **V6 (Institutional Intelligence):** Building organizational memory. Curating insights from project outcomes.
+- **V7+ (Strategic Intelligence):** Business-level optimization. Using the intelligence graph to refine pricing, hiring, and market positioning.
+
+**Critical Rule for V6+:** *The platform must never automatically learn from every completed project.* Learning must be curated by designers validating that a recommendation genuinely worked.
+
+## The Decisive Filter
+
+For the next decade of development, every proposed feature must pass this test:
+
+> **Every feature must either capture evidence, generate insight, support a decision, or measure an outcome. If it does none of those four things, it doesn't belong in the platform.**
 
 ## Requirements
 
