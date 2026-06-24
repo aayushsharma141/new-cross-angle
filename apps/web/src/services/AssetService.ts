@@ -146,6 +146,7 @@ export const AssetService = {
   /**
    * Hard-deletes an asset. Pre-flight checks for active usages.
    * Throws AssetInUseError if the asset is still referenced.
+   * Cleans up all asset_versions rows and deletes each file from ImageKit storage.
    */
   async deleteAsset(id: string): Promise<void> {
     // Pre-flight: check for active usages
@@ -154,6 +155,38 @@ export const AssetService = {
       throw new AssetInUseError(usages);
     }
 
+    // 1. Fetch all version records to get their storage file_ids
+    const { data: versions, error: versionsError } = await supabase
+      .from("asset_versions")
+      .select("id, file_id")
+      .eq("asset_id", id);
+
+    if (versionsError) throw versionsError;
+
+    // 2. Delete each file from ImageKit storage (best-effort; log on failure)
+    if (versions && versions.length > 0) {
+      for (const version of versions) {
+        if (version.file_id) {
+          try {
+            await supabase.functions.invoke("imagekit-upload", {
+              body: { action: "delete", filePath: version.file_id },
+            });
+          } catch (e) {
+            console.warn(`[AssetService.deleteAsset] ImageKit delete failed for file_id=${version.file_id}:`, e);
+          }
+        }
+      }
+
+      // 3. Delete all asset_versions rows for this asset
+      const { error: deleteVersionsError } = await supabase
+        .from("asset_versions")
+        .delete()
+        .eq("asset_id", id);
+
+      if (deleteVersionsError) throw deleteVersionsError;
+    }
+
+    // 4. Hard-delete the asset record
     const { error } = await supabase
       .from("assets")
       .delete()
@@ -161,6 +194,7 @@ export const AssetService = {
 
     if (error) throw error;
   },
+
 
   async getAssetUsages(assetId: string): Promise<AssetUsageRow[]> {
     const { data, error } = await supabase
