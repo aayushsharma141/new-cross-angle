@@ -11,6 +11,7 @@ import WorkspaceCockpit from './WorkspaceCockpit';
 import WorkspaceEvidencePanel from './WorkspaceEvidencePanel';
 import WorkspaceDuringMeeting from './WorkspaceDuringMeeting';
 import WorkspaceAfterMeeting from './WorkspaceAfterMeeting';
+import { WorkspaceDecisionTimeline } from './WorkspaceDecisionTimeline';
 import { generateConversationStrategy } from '@/addons/calculators/components/data/engines/conversation-strategy';
 import { generateRiskCards } from '@/addons/calculators/components/data/engines/risk-cards';
 
@@ -157,6 +158,8 @@ export default function AdminLeadWorkspace() {
                   )}
                 </div>
               </div>
+              
+              <WorkspaceDecisionTimeline leadId={lead.id} />
             </>
           )}
 

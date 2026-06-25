@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 
 export type EventType = 'Meeting' | 'Call' | 'Proposal' | 'Revision' | 'SiteVisit' | 'Approval' | 'Handover';
@@ -60,5 +60,23 @@ export function useCreateDecisionEvent() {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ['decision-events', variables.lead_id] });
     }
+  });
+}
+
+export function useDecisionEvents(leadId: string) {
+  return useQuery({
+    queryKey: ['decision-events', leadId],
+    queryFn: async () => {
+      if (!leadId) return [];
+      const { data, error } = await (supabase as any)
+        .from('decision_events')
+        .select('*')
+        .eq('lead_id', leadId)
+        .order('occurred_at', { ascending: true });
+        
+      if (error) throw error;
+      return data as DecisionEvent[];
+    },
+    enabled: !!leadId
   });
 }

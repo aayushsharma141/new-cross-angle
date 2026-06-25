@@ -38,6 +38,10 @@ export default function WorkspaceDuringMeeting({
   const submitDecision = (id: string, textContext: string) => {
     if (!activeReasonInput) return;
     
+    const strategy = strategyBlocks.find(b => b.id === id);
+    const risk = riskCards.find(r => r.id === id);
+    const recommendationSnapshot = strategy || risk;
+
     createEvent({
       lead_id: leadId,
       session_id: sessionId,
@@ -48,7 +52,9 @@ export default function WorkspaceDuringMeeting({
         originalContext: textContext,
         decision: activeReasonInput.decision,
         reason: reasonText,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        recommendationSnapshot,
+        engineVersion: '1.0' // Placeholder for engine version tracking
       }
     });
 
