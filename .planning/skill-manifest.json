@@ -1,0 +1,352 @@
+{
+  "skills": [
+    {
+      "name": "admin-dashboard",
+      "description": "Extend and modify the admin dashboard, developer portal, and operations console. Use when adding new admin tabs, metrics, monitoring features, or internal tools. Activates for dashboard development, analytics, user management, and internal tooling.",
+      "triggers": [],
+      "path": "admin-dashboard",
+      "file_path": "admin-dashboard/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "crm-automation",
+      "description": "CRM workflow automation for HubSpot, Salesforce, Pipedrive - lead management, deal tracking, and multi-CRM synchronization",
+      "triggers": [],
+      "path": "crm-automation",
+      "file_path": "crm-automation/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "crm-hygiene",
+      "description": "Audit and improve CRM data quality by identifying missing fields, inconsistent values, duplicate records, and stale data",
+      "triggers": [],
+      "path": "crm-hygiene",
+      "file_path": "crm-hygiene/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "crm-management",
+      "description": ">",
+      "triggers": [],
+      "path": "crm-management",
+      "file_path": "crm-management/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "deploy-to-vercel",
+      "description": "Deploy applications and websites to Vercel. Use when the user requests deployment actions like \"deploy my app\", \"deploy and give me the link\", \"push this live\", or \"create a preview deployment\".",
+      "triggers": [],
+      "path": "deploy-to-vercel",
+      "file_path": "deploy-to-vercel/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "find-skills",
+      "description": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.",
+      "triggers": [],
+      "path": "find-skills",
+      "file_path": "find-skills/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "frontend-design",
+      "description": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing pages, dashboards, React components, HTML/CSS layouts, or when styling/beautifying any web UI). Generates creative, polished code and UI design that avoids generic AI aesthetics.",
+      "triggers": [],
+      "path": "frontend-design",
+      "file_path": "frontend-design/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "playwright-best-practices",
+      "description": "Use when writing Playwright tests, fixing flaky tests, debugging failures, implementing Page Object Model, configuring CI/CD, optimizing performance, mocking APIs, handling authentication or OAuth, testing accessibility (axe-core), file uploads/downloads, date/time mocking, WebSockets, geolocation, permissions, multi-tab/popup flows, mobile/responsive layouts, touch gestures, GraphQL, error handling, offline mode, multi-user collaboration, third-party services (payments, email verification), console error monitoring, global setup/teardown, test annotations (skip, fixme, slow), test tags (@smoke, @fast, @critical, filtering with --grep), project dependencies, security testing (XSS, CSRF, auth), performance budgets (Web Vitals, Lighthouse), iframes, component testing, canvas/WebGL, service workers/PWA, test coverage, i18n/localization, Electron apps, or browser extension testing. Covers E2E, component, API, visual, accessibility, security, Electron, and extension testing.",
+      "triggers": [],
+      "path": "playwright-best-practices",
+      "file_path": "playwright-best-practices/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "description": "UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui). Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, mobile app, .html, .tsx, .vue, .svelte. Elements: button, modal, navbar, sidebar, card, table, form, chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, flat design. Topics: color palette, accessibility, animation, layout, typography, font pairing, spacing, hover, shadow, gradient. Integrations: shadcn/ui MCP for component search and examples.",
+      "triggers": [],
+      "path": "ui-ux-pro-max",
+      "file_path": "ui-ux-pro-max/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "vercel-cli-with-tokens",
+      "description": "Deploy and manage projects on Vercel using token-based authentication. Use when working with Vercel CLI using access tokens rather than interactive login — e.g. \"deploy to vercel\", \"set up vercel\", \"add environment variables to vercel\".",
+      "triggers": [],
+      "path": "vercel-cli-with-tokens",
+      "file_path": "vercel-cli-with-tokens/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "vercel-composition-patterns",
+      "description": {},
+      "triggers": [],
+      "path": "vercel-composition-patterns",
+      "file_path": "vercel-composition-patterns/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "vercel-react-best-practices",
+      "description": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.",
+      "triggers": [],
+      "path": "vercel-react-best-practices",
+      "file_path": "vercel-react-best-practices/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "vercel-react-native-skills",
+      "description": {},
+      "triggers": [],
+      "path": "vercel-react-native-skills",
+      "file_path": "vercel-react-native-skills/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "vercel-react-view-transitions",
+      "description": "Guide for implementing smooth, native-feeling animations using React's View Transition API (`<ViewTransition>` component, `addTransitionType`, and CSS view transition pseudo-elements). Use this skill whenever the user wants to add page transitions, animate route changes, create shared element animations, animate enter/exit of components, animate list reorder, implement directional (forward/back) navigation animations, or integrate view transitions in Next.js. Also use when the user mentions view transitions, `startViewTransition`, `ViewTransition`, transition types, or asks about animating between UI states in React without third-party animation libraries.",
+      "triggers": [],
+      "path": "vercel-react-view-transitions",
+      "file_path": "vercel-react-view-transitions/SKILL.md",
+      "root": ".agents/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "code-reviewer",
+      "description": "Comprehensive code review skill for TypeScript, JavaScript, Python, Swift, Kotlin, Go. Includes automated code analysis, best practice checking, security scanning, and review checklist generation. Use when reviewing pull requests, providing code feedback, identifying issues, or ensuring code quality standards.",
+      "triggers": [],
+      "path": "code-reviewer",
+      "file_path": "code-reviewer/SKILL.md",
+      "root": ".claude/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "file-organizer",
+      "description": "Safely audits, cleans up junk (node_modules, temp files), and organizes user directories without touching critical system files.",
+      "triggers": [],
+      "path": "file-organizer",
+      "file_path": "file-organizer/SKILL.md",
+      "root": ".claude/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "planning",
+      "description": "Create and manage persistent markdown planning files for structured task execution. Use when the user asks to \"create a plan\", \"track progress\", \"start a research project\", or when a task requires more than 5 tool calls and needs structured phase tracking to stay focused and avoid goal drift.",
+      "triggers": [],
+      "path": "planning",
+      "file_path": "planning/SKILL.md",
+      "root": ".claude/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "senior-architect",
+      "description": "Comprehensive software architecture skill for designing scalable, maintainable systems using ReactJS, NextJS, NodeJS, Express, React Native, Swift, Kotlin, Flutter, Postgres, GraphQL, Go, Python. Includes architecture diagram generation, system design patterns, tech stack decision frameworks, and dependency analysis. Use when designing system architecture, making technical decisions, creating architecture diagrams, evaluating trade-offs, or defining integration patterns.",
+      "triggers": [],
+      "path": "senior-architect",
+      "file_path": "senior-architect/SKILL.md",
+      "root": ".claude/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "senior-backend",
+      "description": "Comprehensive backend development skill for building scalable backend systems using NodeJS, Express, Go, Python, Postgres, GraphQL, REST APIs. Includes API scaffolding, database optimization, security implementation, and performance tuning. Use when designing APIs, optimizing database queries, implementing business logic, handling authentication/authorization, or reviewing backend code.",
+      "triggers": [],
+      "path": "senior-backend",
+      "file_path": "senior-backend/SKILL.md",
+      "root": ".claude/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "senior-fullstack",
+      "description": "Comprehensive fullstack development skill for building complete web applications with React, Next.js, Node.js, GraphQL, and PostgreSQL. Includes project scaffolding, code quality analysis, architecture patterns, and complete tech stack guidance. Use when building new projects, analyzing code quality, implementing design patterns, or setting up development workflows.",
+      "triggers": [],
+      "path": "senior-fullstack",
+      "file_path": "senior-fullstack/SKILL.md",
+      "root": ".claude/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "skill-creator",
+      "description": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.",
+      "triggers": [],
+      "path": "skill-creator",
+      "file_path": "skill-creator/SKILL.md",
+      "root": ".claude/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "webapp-testing",
+      "description": "Toolkit for interacting with and testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs.",
+      "triggers": [],
+      "path": "webapp-testing",
+      "file_path": "webapp-testing/SKILL.md",
+      "root": ".claude/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "my-rules",
+      "description": "Repository rules for graphify, visual design history, security execution, and audit protocols.",
+      "triggers": [],
+      "path": "my-rules",
+      "file_path": "my-rules/SKILL.md",
+      "root": ".gemini/skills",
+      "scope": "project",
+      "installed": true,
+      "deprecated": false
+    },
+    {
+      "name": "my-rules",
+      "description": "Repository rules for graphify, visual design history, security execution, and audit protocols.",
+      "triggers": [],
+      "path": "my-rules",
+      "file_path": "my-rules/SKILL.md",
+      "root": "~\\.codex\\skills",
+      "scope": "global",
+      "installed": true,
+      "deprecated": false
+    }
+  ],
+  "roots": [
+    {
+      "root": ".claude/skills",
+      "path": "C:\\Users\\aayus\\Desktop\\main\\.claude\\skills",
+      "scope": "project",
+      "present": true,
+      "deprecated": false,
+      "skill_count": 8
+    },
+    {
+      "root": ".agents/skills",
+      "path": "C:\\Users\\aayus\\Desktop\\main\\.agents\\skills",
+      "scope": "project",
+      "present": true,
+      "deprecated": false,
+      "skill_count": 14
+    },
+    {
+      "root": ".cursor/skills",
+      "path": "C:\\Users\\aayus\\Desktop\\main\\.cursor\\skills",
+      "scope": "project",
+      "present": false,
+      "deprecated": false
+    },
+    {
+      "root": ".github/skills",
+      "path": "C:\\Users\\aayus\\Desktop\\main\\.github\\skills",
+      "scope": "project",
+      "present": false,
+      "deprecated": false
+    },
+    {
+      "root": ".codex/skills",
+      "path": "C:\\Users\\aayus\\Desktop\\main\\.codex\\skills",
+      "scope": "project",
+      "present": false,
+      "deprecated": false
+    },
+    {
+      "root": ".gemini/skills",
+      "path": "C:\\Users\\aayus\\Desktop\\main\\.gemini\\skills",
+      "scope": "project",
+      "present": true,
+      "deprecated": false,
+      "skill_count": 1
+    },
+    {
+      "root": "~\\.claude\\skills",
+      "path": "C:\\Users\\aayus\\.claude\\skills",
+      "scope": "global",
+      "present": false,
+      "deprecated": false
+    },
+    {
+      "root": "~\\.codex\\skills",
+      "path": "C:\\Users\\aayus\\.codex\\skills",
+      "scope": "global",
+      "present": true,
+      "deprecated": false,
+      "skill_count": 1
+    },
+    {
+      "root": ".claude/get-shit-done/skills",
+      "path": "C:\\Users\\aayus\\.claude\\get-shit-done\\skills",
+      "scope": "import-only",
+      "present": false,
+      "deprecated": true
+    },
+    {
+      "root": ".claude/commands/gsd",
+      "path": "C:\\Users\\aayus\\.claude\\commands\\gsd",
+      "scope": "legacy-commands",
+      "present": false,
+      "deprecated": true
+    }
+  ],
+  "installation": {
+    "gsd_skills_installed": false,
+    "legacy_claude_commands_installed": false
+  },
+  "counts": {
+    "skills": 24,
+    "roots": 10
+  }
+}

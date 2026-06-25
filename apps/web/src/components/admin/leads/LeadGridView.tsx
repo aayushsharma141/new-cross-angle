@@ -1,9 +1,10 @@
-﻿import { format } from "date-fns";
+import { format } from "date-fns";
 import { Card } from "@/design-system/components/Card";
 import { Badge } from "@/components/ui/primitives/badge";
 import { Button } from "@/design-system/components/Button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/primitives/dropdown-menu";
-import { MoreHorizontal, Eye, Mail, Phone, Flame, Thermometer, Snowflake, Trash2, MapPin } from "lucide-react";
+import { MoreHorizontal, Eye, Mail, Phone, Flame, Thermometer, Snowflake, Trash2, MapPin, Brain } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Lead } from "@/lib/scoring/leadScoring";
 import { icons } from "@/design-system/tokens/icons";
 import {
@@ -59,6 +60,11 @@ export function LeadGridView({ leads, onLeadClick, onDeleteClick }: LeadGridView
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="admin-theme w-40 bg-admin-bg border-admin-border text-admin-text">
+                      <DropdownMenuItem asChild className="hover:bg-admin-surface">
+                        <Link to={`/admin/crm/leads/${lead.id}/workspace`}>
+                          <Brain className="w-3.5 h-3.5 mr-2 text-purple-400" /> Open Workspace
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onLeadClick(lead)} className="hover:bg-admin-surface">
                         <Eye className="w-3.5 h-3.5 mr-2" /> View Details
                       </DropdownMenuItem>

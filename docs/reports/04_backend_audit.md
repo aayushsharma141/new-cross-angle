@@ -1,27 +1,25 @@
-# 04 Backend & Infrastructure Audit — CrossAngle Interior
+# Backend & Infrastructure Audit
 
-**Objective:** Assessment of data modeling, API efficiency, and vertical/horizontal scalability.
+## Overview
 
-## 1. Database Architecture (Supabase/PostgreSQL) (Score: 78/100)
+Review of the database schemas, API structures, and horizontal scalability readiness.
 
-### 1.1 Schema Design
-The project utilizes a relational PostgreSQL schema. 
-- **The "Leads" Megatable:** A single `leads` table stores standard contact inquiries, discovery quiz results, and estimator data. While clean, this will lead to index bloat as the CRM grows.
-- **RPC Inefficiencies:** `get_lead_stats` is called on the dashboard. This RPC performs aggregate calculations on every load. **Elite Recommendation:** Implement a materialized view or a cached stats table updated via DB Triggers.
+## Backend Stack
 
-### 1.2 Data Integrity Risks
-- **Testimonials:** As discovered during Phase 0, the `testimonials` table lacks a `created_at` timestamp in the `Database` types, despite being expected by the frontend.
-- **Relational Constraints:** Good use of foreign keys (e.g., `projects -> project_categories`), but missing "Cascade Delete" on several leaf nodes which could lead to orphaned media assets.
+- **Database:** PostgreSQL (via Supabase)
+- **API:** Supabase PostgREST auto-generated APIs + custom RPCs.
 
-## 2. API & Service Layer
+## API Structure & Queries
 
-- **Pattern:** Using a Service-Repository pattern in `src/services/`. This provides great modularity and testability.
-- **Error Handling:** Centralized through Supabase client. However, `Promise.all` is underutilized in components fetching multiple datasets (Blog + Portfolio), leading to "Waterfall" loading patterns.
+- The application uses `@tanstack/react-query` on the frontend, which handles caching, retries, and deduplication out of the box, mitigating N+1 query problems on the client side.
+- Supabase provides a scalable REST/GraphQL API layer. Use of RPCs (e.g., `increment_project_view`) shows good practice for atomic operations that shouldn't be handled purely client-side.
 
-## 3. Infrastructure (Vite + Supabase)
+## Scalability
 
-- **Cold Starts:** No traditional "cold starts" as the app is SPA. However, Supabase Edge Functions (if used) or RPCs exhibit 2-5s latency on initial hits.
-- **Scalability:** The architecture is "Serverless" and can handle 10k+ concurrent users, but Supabase standard tier will throttle at 50,000 MAU.
+- **Horizontal Scalability:** Supabase (and PostgreSQL) can be scaled vertically and horizontally via read replicas. Edge caching can be applied to API requests.
+- **Statelessness:** The backend relies on JWT tokens for authentication, ensuring the API is fully stateless and highly horizontally scalable.
 
-## Verdict: Professional production-level
-Solid architecture for a high-traffic boutique studio. To reach **Elite**, the lead scoring and stats should be offloaded from runtime RPCs to asynchronous background workers or materialized views.
+## Verdict
+
+**Rating: Professional production-level**
+The use of Supabase provides a solid, scalable foundation. To reach Elite level, custom edge functions for compute-heavy tasks and dedicated Redis caching layers (beyond React Query) might be required for extreme scale.

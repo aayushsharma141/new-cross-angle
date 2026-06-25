@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/primitives/card';
 import { CheckCircle2, User, Clock, DollarSign } from 'lucide-react';
 
 export default function WorkspaceCockpit({ lead }: { lead: any }) {

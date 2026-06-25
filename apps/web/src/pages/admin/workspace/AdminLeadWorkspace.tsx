@@ -3,9 +3,9 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Brain, ShieldAlert, Sparkles, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/primitives/button';
+import { Card, CardContent } from '@/components/ui/primitives/card';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/primitives/tabs';
 
 import WorkspaceCockpit from './WorkspaceCockpit';
 import WorkspaceEvidencePanel from './WorkspaceEvidencePanel';
@@ -19,7 +19,22 @@ export default function AdminLeadWorkspace() {
   const { id } = useParams<{ id: string }>();
   const [meetingState, setMeetingState] = useState<'before' | 'during' | 'after'>('before');
   const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
-  const [sessionId] = useState(() => crypto.randomUUID());
+  
+  const [sessionId, setSessionId] = useState(() => {
+    const key = `active_session_${id}`;
+    let sid = localStorage.getItem(key);
+    if (!sid) {
+      sid = crypto.randomUUID();
+      localStorage.setItem(key, sid);
+    }
+    return sid;
+  });
+
+  const handleSessionComplete = () => {
+    const key = `active_session_${id}`;
+    localStorage.removeItem(key);
+    setSessionId(crypto.randomUUID());
+  };
 
   const { data: lead, isLoading } = useQuery({
     queryKey: ['lead-workspace', id],
@@ -175,7 +190,7 @@ export default function AdminLeadWorkspace() {
           )}
 
           {meetingState === 'after' && (
-            <WorkspaceAfterMeeting leadId={lead.id} sessionId={sessionId} />
+            <WorkspaceAfterMeeting leadId={lead.id} sessionId={sessionId} onSessionComplete={handleSessionComplete} />
           )}
         </div>
 

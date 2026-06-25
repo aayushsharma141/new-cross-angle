@@ -17,7 +17,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/primitives/dropdown-menu";
 import { Card } from "@/design-system/components/Card";
-import { MoreHorizontal, Eye, Mail, Phone, Trash2, Flame, Thermometer, Snowflake } from "lucide-react";
+import { Link } from "react-router-dom";
+import { MoreHorizontal, Eye, Mail, Phone, Trash2, Flame, Thermometer, Snowflake, Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getLeadTemperature, Lead } from "@/lib/scoring/leadScoring";
 import { icons } from "@/design-system/tokens/icons";
@@ -141,6 +142,15 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick }: LeadListView
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-44">
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to={`/admin/crm/leads/${lead.id}/workspace`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Brain className="mr-2 h-4 w-4 text-purple-400" />
+                          <span>Open Workspace</span>
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();

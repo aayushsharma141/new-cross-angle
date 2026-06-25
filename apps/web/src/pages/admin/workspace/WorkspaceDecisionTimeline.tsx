@@ -1,5 +1,5 @@
 import { useDecisionEvents } from '@/services/decision-events';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/primitives/card';
 import { History, Brain, ShieldAlert, CheckCircle2, MessageSquare, ListTodo, XCircle, Edit2 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -86,6 +86,12 @@ export function WorkspaceDecisionTimeline({ leadId }: { leadId: string }) {
 
                 if (event.payload.type === 'meeting_debrief') {
                   const p = event.payload;
+                  const outcomeVal = p.meetingOutcome || p.outcome || 'Pending';
+                  const decisionsVal = p.clientDecisions || p.decisions || 'None recorded';
+                  const objectionsVal = p.objectionsRaised || p.objections;
+                  const followUpVal = p.followUpActions || p.followUps;
+                  const notesVal = p.designerNotes || p.notes;
+
                   return (
                     <Card key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-purple-500">
                       <CardContent className="p-4 flex flex-col gap-3">
@@ -100,28 +106,47 @@ export function WorkspaceDecisionTimeline({ leadId }: { leadId: string }) {
                         <div className="grid grid-cols-2 gap-4 mt-2">
                           <div>
                             <span className="text-xs font-bold text-[hsl(var(--admin-text-muted))] block mb-1">Outcome</span>
-                            <span className="text-sm font-medium text-[hsl(var(--admin-text))]">{p.outcome || 'Pending'}</span>
+                            <span className="text-sm font-medium text-[hsl(var(--admin-text))]">{outcomeVal}</span>
                           </div>
                           <div>
                             <span className="text-xs font-bold text-[hsl(var(--admin-text-muted))] block mb-1">Client Decisions</span>
-                            <span className="text-sm text-[hsl(var(--admin-text))]">{p.decisions || 'None recorded'}</span>
+                            <span className="text-sm text-[hsl(var(--admin-text))]">{decisionsVal}</span>
                           </div>
                         </div>
 
-                        {p.objections && (
+                        {objectionsVal && (
                           <div>
                             <span className="text-xs font-bold text-[hsl(var(--admin-text-muted))] block mb-1">Actual Objections</span>
-                            <p className="text-sm text-[hsl(var(--admin-text))] italic">{p.objections}</p>
+                            <p className="text-sm text-[hsl(var(--admin-text))] italic">{objectionsVal}</p>
                           </div>
                         )}
 
-                        {p.followUps && (
+                        {followUpVal && (
                           <div>
                             <span className="text-xs font-bold text-[hsl(var(--admin-text-muted))] block mb-1 flex items-center gap-1">
                               <ListTodo className="w-3 h-3" />
                               Follow-ups
                             </span>
-                            <p className="text-sm text-[hsl(var(--admin-text))] bg-black/10 p-2 rounded">{p.followUps}</p>
+                            <div className="text-sm text-[hsl(var(--admin-text))] bg-black/10 p-2 rounded">
+                              {Array.isArray(followUpVal) ? (
+                                <ul className="list-disc pl-4 flex flex-col gap-1">
+                                  {followUpVal.map((act: string, idx: number) => (
+                                    <li key={idx}>{act}</li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                followUpVal
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {notesVal && (
+                          <div>
+                            <span className="text-xs font-bold text-[hsl(var(--admin-text-muted))] block mb-1">Designer Notes</span>
+                            <p className="text-sm text-[hsl(var(--admin-text))] bg-black/10 p-2 rounded italic">
+                              "{notesVal}"
+                            </p>
                           </div>
                         )}
 

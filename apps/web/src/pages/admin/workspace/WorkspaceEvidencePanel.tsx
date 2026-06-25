@@ -1,16 +1,16 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/primitives/card';
 import { Search } from 'lucide-react';
 import { StrategyBlock } from '@/addons/calculators/components/data/engines/conversation-strategy';
 import { RiskCard } from '@/addons/calculators/components/data/engines/risk-cards';
 
 interface WorkspaceEvidencePanelProps {
-  lead: any;
+  _lead: any;
   activeBlockId: string | null;
   strategyBlocks: StrategyBlock[];
   riskCards: RiskCard[];
 }
 
-export default function WorkspaceEvidencePanel({ lead, activeBlockId, strategyBlocks, riskCards }: WorkspaceEvidencePanelProps) {
+export default function WorkspaceEvidencePanel({ _lead, activeBlockId, strategyBlocks, riskCards }: WorkspaceEvidencePanelProps) {
   let evidence = "Select a strategy or risk block to view its underlying evidence chain and data sources.";
   
   if (activeBlockId) {

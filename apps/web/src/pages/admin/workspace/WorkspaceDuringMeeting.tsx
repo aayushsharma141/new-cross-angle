@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/primitives/card';
+import { Button } from '@/components/ui/primitives/button';
+import { Input } from '@/components/ui/primitives/input';
+import { Textarea } from '@/components/ui/primitives/textarea';
 import { Brain, ShieldAlert, Check, X, Edit2, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useCreateDecisionEvent } from '@/services/decision-events';
 import { StrategyBlock } from '@/addons/calculators/components/data/engines/conversation-strategy';
@@ -25,22 +25,26 @@ export default function WorkspaceDuringMeeting({
   activeBlockId,
   setActiveBlockId
 }: WorkspaceDuringMeetingProps) {
-  const { mutate: createEvent } = useCreateDecisionEvent();
+  const { mutate: createEvent, isPending } = useCreateDecisionEvent();
   const [activeReasonInput, setActiveReasonInput] = useState<{ id: string, decision: 'Accept'|'Modify'|'Reject' } | null>(null);
   const [reasonText, setReasonText] = useState('');
   const [liveNotes, setLiveNotes] = useState('');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleDecision = (id: string, type: 'Strategy' | 'Risk', decision: 'Accept'|'Modify'|'Reject', textContext: string) => {
+  const handleDecision = (id: string, decision: 'Accept'|'Modify'|'Reject') => {
     setActiveReasonInput({ id, decision });
     setReasonText('');
+    setErrorMsg(null);
   };
 
   const submitDecision = (id: string, textContext: string) => {
-    if (!activeReasonInput) return;
+    if (!activeReasonInput || isPending) return;
     
     const strategy = strategyBlocks.find(b => b.id === id);
     const risk = riskCards.find(r => r.id === id);
     const recommendationSnapshot = strategy || risk;
+
+    setErrorMsg(null);
 
     createEvent({
       lead_id: leadId,
@@ -56,10 +60,16 @@ export default function WorkspaceDuringMeeting({
         recommendationSnapshot,
         engineVersion: '1.0' // Placeholder for engine version tracking
       }
+    }, {
+      onSuccess: () => {
+        setActiveReasonInput(null);
+        setReasonText('');
+        setErrorMsg(null);
+      },
+      onError: (err: Error) => {
+        setErrorMsg(err.message || 'Failed to save decision. Please try again.');
+      }
     });
-
-    setActiveReasonInput(null);
-    setReasonText('');
   };
 
   const renderActionButtons = (id: string, textContext: string) => {
@@ -67,19 +77,23 @@ export default function WorkspaceDuringMeeting({
       return (
         <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-[hsl(var(--admin-border))]">
           <Input 
-            autoFocus
-            size="sm"
             placeholder={`Reason for ${activeReasonInput.decision.toLowerCase()}ing... (optional)`}
             value={reasonText}
             onChange={(e) => setReasonText(e.target.value)}
+            disabled={isPending}
             className="bg-[hsl(var(--admin-background))] text-sm h-8"
             onKeyDown={(e) => {
               if (e.key === 'Enter') submitDecision(id, textContext);
             }}
           />
+          {errorMsg && (
+            <div className="text-xs text-red-500 font-semibold">{errorMsg}</div>
+          )}
           <div className="flex justify-end gap-2">
-            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setActiveReasonInput(null)}>Cancel</Button>
-            <Button size="sm" className="h-7 text-xs" onClick={() => submitDecision(id, textContext)}>Save Decision</Button>
+            <Button size="sm" variant="ghost" className="h-7 text-xs" disabled={isPending} onClick={() => { setActiveReasonInput(null); setErrorMsg(null); }}>Cancel</Button>
+            <Button size="sm" className="h-7 text-xs" disabled={isPending} onClick={() => submitDecision(id, textContext)}>
+              {isPending ? 'Saving...' : 'Save Decision'}
+            </Button>
           </div>
         </div>
       );
@@ -87,13 +101,13 @@ export default function WorkspaceDuringMeeting({
 
     return (
       <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[hsl(var(--admin-border))]">
-        <Button size="sm" variant="outline" className="h-7 text-xs flex-1 gap-1 border-green-500/30 text-green-500 hover:bg-green-500/10" onClick={(e) => { e.stopPropagation(); handleDecision(id, 'Strategy', 'Accept', textContext); }}>
+        <Button size="sm" variant="outline" className="h-7 text-xs flex-1 gap-1 border-green-500/30 text-green-500 hover:bg-green-500/10" onClick={(e) => { e.stopPropagation(); handleDecision(id, 'Accept'); }}>
           <Check className="w-3 h-3" /> Accept
         </Button>
-        <Button size="sm" variant="outline" className="h-7 text-xs flex-1 gap-1 border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10" onClick={(e) => { e.stopPropagation(); handleDecision(id, 'Strategy', 'Modify', textContext); }}>
+        <Button size="sm" variant="outline" className="h-7 text-xs flex-1 gap-1 border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10" onClick={(e) => { e.stopPropagation(); handleDecision(id, 'Modify'); }}>
           <Edit2 className="w-3 h-3" /> Modify
         </Button>
-        <Button size="sm" variant="outline" className="h-7 text-xs flex-1 gap-1 border-red-500/30 text-red-500 hover:bg-red-500/10" onClick={(e) => { e.stopPropagation(); handleDecision(id, 'Strategy', 'Reject', textContext); }}>
+        <Button size="sm" variant="outline" className="h-7 text-xs flex-1 gap-1 border-red-500/30 text-red-500 hover:bg-red-500/10" onClick={(e) => { e.stopPropagation(); handleDecision(id, 'Reject'); }}>
           <X className="w-3 h-3" /> Reject
         </Button>
       </div>

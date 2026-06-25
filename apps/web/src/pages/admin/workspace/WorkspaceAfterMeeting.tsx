@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/primitives/card';
+import { Button } from '@/components/ui/primitives/button';
+import { Textarea } from '@/components/ui/primitives/textarea';
 import { ClipboardList, Save } from 'lucide-react';
 import { useCreateDecisionEvent } from '@/services/decision-events';
 
 interface WorkspaceAfterMeetingProps {
   leadId: string;
   sessionId: string;
+  onSessionComplete?: () => void;
 }
 
-export default function WorkspaceAfterMeeting({ leadId, sessionId }: WorkspaceAfterMeetingProps) {
+export default function WorkspaceAfterMeeting({ leadId, sessionId, onSessionComplete }: WorkspaceAfterMeetingProps) {
   const { mutate: createEvent, isPending } = useCreateDecisionEvent();
   
   const [objections, setObjections] = useState('');
@@ -19,9 +20,12 @@ export default function WorkspaceAfterMeeting({ leadId, sessionId }: WorkspaceAf
   const [outcome, setOutcome] = useState('Pending');
   const [notes, setNotes] = useState('');
   const [saved, setSaved] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isPending) return;
+    setErrorMsg(null);
     createEvent({
       lead_id: leadId,
       session_id: sessionId,
@@ -38,7 +42,13 @@ export default function WorkspaceAfterMeeting({ leadId, sessionId }: WorkspaceAf
     }, {
       onSuccess: () => {
         setSaved(true);
+        if (onSessionComplete) {
+          onSessionComplete();
+        }
         setTimeout(() => setSaved(false), 3000);
+      },
+      onError: (err: Error) => {
+        setErrorMsg(err.message || 'Failed to submit debrief. Please try again.');
       }
     });
   };
@@ -117,7 +127,8 @@ export default function WorkspaceAfterMeeting({ leadId, sessionId }: WorkspaceAf
           </CardContent>
         </Card>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 items-center">
+          {errorMsg && <span className="text-red-500 text-sm mr-2">{errorMsg}</span>}
           {saved && <span className="text-green-500 text-sm flex items-center mr-2">Saved to Decision Timeline!</span>}
           <Button type="submit" disabled={isPending} className="gap-2">
             <Save className="w-4 h-4" />
