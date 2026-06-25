@@ -6,7 +6,8 @@ import { ServiceDetail } from "@repo/types";
 
 interface SupabaseGalleryItem {
   room_name?: string;
-  image_url: string;
+  deprecated_image_url?: string;
+  image_url?: string; // kept for backward compat pre-DAM-v3 migration
 }
 
 interface SupabaseMaterialItem {
@@ -60,10 +61,11 @@ interface SupabaseItem {
   deprecated_cover_image?: string;
   cover_image?: string;
   created_at?: string;
-  content?: string;
-  description?: string | { content?: string; icon?: string; category_id?: string; features?: string[] };
+  content?: any;
+  description?: any;
   icon?: string;
   short_tag?: string;
+  tags?: string[];
   tag?: string;
   deprecated_icon_url?: string;
   icon_url?: string;
@@ -73,6 +75,8 @@ interface SupabaseItem {
   process_steps?: SupabaseProcessStep[];
   service_faqs?: SupabaseFAQ[];
   faq?: SupabaseFAQ[];
+  published_at?: string;
+  view_count?: number;
 }
 
 interface AssetVersion {
@@ -199,10 +203,12 @@ const mapSupabaseToProject = (item: SupabaseItem): Project => {
   if (item.project_gallery && Array.isArray(item.project_gallery)) {
     item.project_gallery.forEach((g: SupabaseGalleryItem) => {
       const room = g.room_name || "General";
+      const url = g.deprecated_image_url || g.image_url;
+      if (!url) return;
       if (!galleryMap.has(room)) {
         galleryMap.set(room, []);
       }
-      galleryMap.get(room)?.push(g.image_url);
+      galleryMap.get(room)?.push(url);
     });
   }
 
@@ -422,7 +428,7 @@ export const api = {
         }));
       }
       
-      const itemsWithDam = await fetchAndStitchDamUsages(data, 'project');
+      const itemsWithDam = await fetchAndStitchDamUsages((data as any[]) || [], 'project');
       
       return itemsWithDam.map(item => ({
         id: item.id,
@@ -526,7 +532,7 @@ export const api = {
       .neq('testimonial_quote', null);
       
     if (!projError && projData) {
-      return projData.map((p: Record<string, string>) => ({
+      return (projData as any[]).map((p: Record<string, string>) => ({
         id: p.id,
         quote: p.testimonial_quote || '',
         author: p.client_name || 'Client',

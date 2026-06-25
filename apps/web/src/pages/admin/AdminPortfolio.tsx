@@ -188,9 +188,9 @@ export default function AdminPortfolio(): JSX.Element {
                   
                   {/* Image */}
                   <div className="w-[80px] h-[60px] rounded-lg bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex items-center justify-center shrink-0 overflow-hidden relative">
-                    {item.cover_image_url ? (
+                    {item.deprecated_cover_image_url ? (
                       <Image
-                        src={item.cover_image_url}
+                        src={item.deprecated_cover_image_url}
                         alt={item.title}
                         width={160}
                         quality={72}

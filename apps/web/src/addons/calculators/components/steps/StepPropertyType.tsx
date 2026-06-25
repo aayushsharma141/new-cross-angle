@@ -4,6 +4,7 @@ import { useRef, KeyboardEvent } from "react";
 import { motion } from "framer-motion";
 import type { CalculatorFormData, PropertyType, PropertyTypeItem } from "../data/types";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
+import { getOptimizedUrl } from "@/lib/cdn";
 import {
     selectableCardClassLight,
     CARD_INTERACTIONS,
@@ -95,7 +96,7 @@ export function StepPropertyType({ formData, updateField }: Props) {
 
                                 <div className="text-4xl mb-3 filter drop-shadow-md group-hover:scale-110 transition-transform duration-300 flex justify-center">
                                     {pt.imageId ? (
-                                        <img src={pt.imageId} alt={pt.label} className="w-16 h-16 rounded-lg object-cover shadow-sm" />
+                                        <img src={getOptimizedUrl(pt.imageId, { width: 128, quality: 75 })} alt={pt.label} className="w-16 h-16 rounded-lg object-cover shadow-sm" />
                                     ) : (
                                         pt.icon
                                     )}

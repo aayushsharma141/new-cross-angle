@@ -196,7 +196,7 @@ export default function AdminLeadWorkspace() {
 
         {/* Right Rail - 25% */}
         <div className="w-[25%] overflow-y-auto pl-2 custom-scrollbar">
-          <WorkspaceEvidencePanel lead={lead} activeBlockId={activeBlockId} strategyBlocks={strategyBlocks} riskCards={riskCards} />
+          <WorkspaceEvidencePanel _lead={lead} activeBlockId={activeBlockId} strategyBlocks={strategyBlocks} riskCards={riskCards} />
         </div>
       </div>
     </div>

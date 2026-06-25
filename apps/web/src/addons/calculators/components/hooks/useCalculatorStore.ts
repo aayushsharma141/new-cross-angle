@@ -90,6 +90,7 @@ interface DiscoveryPreFillSnapshot {
 /** Load persisted draft from localStorage and optionally apply Discovery pre-fill */
 function loadDraft(): {
     data: CalculatorFormData;
+    step: number;
     appliedDiscovery: boolean;
     displayName: string;
     rationale: string;
@@ -97,6 +98,7 @@ function loadDraft(): {
     discoveryHandoff: DiscoveryHandoff | null;
 } {
     let data = { ...INITIAL_FORM_DATA };
+    let step = 0;
     let appliedDiscovery = false;
     let displayName = "";
     let rationale = "";
@@ -107,8 +109,13 @@ function loadDraft(): {
     try {
         const raw = localStorage.getItem(ESTIMATOR_DRAFT_KEY);
         if (raw) {
-            const parsed = JSON.parse(raw) as Partial<CalculatorFormData>;
-            data = { ...data, ...parsed };
+            const parsed = JSON.parse(raw);
+            if (parsed.data && typeof parsed.step === "number") {
+                data = { ...data, ...parsed.data };
+                step = parsed.step;
+            } else {
+                data = { ...data, ...(parsed as Partial<CalculatorFormData>) };
+            }
         }
     } catch (e) {
         console.warn("[Estimator] Could not load draft:", e);
@@ -152,20 +159,13 @@ function loadDraft(): {
                 }
                 // Persist the merged state so page refreshes don't re-apply
                 try {
-                    localStorage.setItem(ESTIMATOR_DRAFT_KEY, JSON.stringify(data));
+                    localStorage.setItem(ESTIMATOR_DRAFT_KEY, JSON.stringify({ data, step }));
                 } catch { /* quota / private mode */ }
             }
         }
     }
 
-    return { data, appliedDiscovery, displayName, rationale, prefillSnapshot, discoveryHandoff };
-}
-
-/** Save current form to localStorage */
-function saveDraft(data: CalculatorFormData) {
-    try {
-        localStorage.setItem(ESTIMATOR_DRAFT_KEY, JSON.stringify(data));
-    } catch { /* ignore */ }
+    return { data, step, appliedDiscovery, displayName, rationale, prefillSnapshot, discoveryHandoff };
 }
 
 export function useCalculatorStore(analytics?: AnalyticsClient) {
@@ -174,9 +174,16 @@ export function useCalculatorStore(analytics?: AnalyticsClient) {
     const [discoveryApplied, setDiscoveryApplied] = useState(draftResult.appliedDiscovery);
     const [discoveryName] = useState(draftResult.displayName);
     const [discoveryRationale] = useState(draftResult.rationale);
-    const [currentStep, setCurrentStep] = useState(0);
+    const [currentStep, setCurrentStep] = useState(draftResult.step);
     const [showResults, setShowResults] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+
+    // Save draft whenever formData or currentStep changes
+    useEffect(() => {
+        try {
+            localStorage.setItem(ESTIMATOR_DRAFT_KEY, JSON.stringify({ data: formData, step: currentStep }));
+        } catch { /* ignore */ }
+    }, [formData, currentStep]);
 
     /** ALCS: Discovery handoff loaded at mount (from localStorage) */
     const discoveryHandoff: DiscoveryHandoff | null = draftResult.discoveryHandoff;
@@ -232,7 +239,6 @@ export function useCalculatorStore(analytics?: AnalyticsClient) {
     const updateField = useCallback(<K extends keyof CalculatorFormData>(field: K, value: CalculatorFormData[K]) => {
         setFormData(prev => {
             const next = { ...prev, [field]: value };
-            saveDraft(next);
             return next;
         });
     }, []);
@@ -241,7 +247,6 @@ export function useCalculatorStore(analytics?: AnalyticsClient) {
     const updateFields = useCallback((partial: Partial<CalculatorFormData>) => {
         setFormData(prev => {
             const next = { ...prev, ...partial };
-            saveDraft(next);
             return next;
         });
     }, []);

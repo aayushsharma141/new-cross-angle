@@ -4,6 +4,7 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 import type { CalculatorFormData, ServiceId, ExecutionTierId } from "../data/types";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import type { ExecutionTierItem } from "@/components/admin/estimator-flow/ExecutionTiersEditor";
+import { getOptimizedUrl } from "@/lib/cdn";
 import { SERVICES as DEFAULT_SERVICES } from "../data/pricing-config";
 import {
     selectableCardClassLight,
@@ -201,7 +202,7 @@ export function StepServices({ formData, updateField }: Props) {
                                                             <div className="flex gap-3 h-full">
                                                                 {imageId && (
                                                                     <div className="w-12 h-12 shrink-0">
-                                                                        <img src={imageId} alt={label} className="w-full h-full object-cover rounded-md border border-[#1a1a1a]/10" />
+                                                                        <img src={getOptimizedUrl(imageId, { width: 96, quality: 75 })} alt={label} className="w-full h-full object-cover rounded-md border border-[#1a1a1a]/10" />
                                                                     </div>
                                                                 )}
                                                                 <div className="flex-1 flex flex-col justify-center">
