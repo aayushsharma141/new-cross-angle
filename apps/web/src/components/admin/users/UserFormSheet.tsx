@@ -173,8 +173,8 @@ export function UserFormSheet({
                     throw new Error(error.message);
                 }
 
-                if (data?.error) {
-                    throw new Error(String(data.error));
+                if ((data as any)?.error) {
+                    throw new Error(String((data as any).error));
                 }
 
                 toast({
@@ -203,8 +203,8 @@ export function UserFormSheet({
                     await updateUserDirectly(values);
                 }
 
-                if (!error && data?.error) {
-                    throw new Error(String(data.error));
+                if (!error && (data as any)?.error) {
+                    throw new Error(String((data as any).error));
                 }
 
                 toast({

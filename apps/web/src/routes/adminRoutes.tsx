@@ -20,7 +20,7 @@ const AdminUserAccessSecurity = lazy(() => import("@/pages/admin/AdminUserAccess
 const UserAccessModule = lazy(() => import("@/pages/admin/modules/UserAccessModule"));
 const AdminTeam = lazy(() => import("@/pages/admin/AdminTeam"));
 const AdminEstimateLeads = lazy(() => import("@/pages/admin/AdminEstimateLeads"));
-const AdminPricingConfig = lazy(() => import("@/pages/admin/AdminPricingConfig"));
+const AdminEstimatorConfig = lazy(() => import("@/pages/admin/AdminEstimatorConfig"));
 const AdminHero = lazy(() => import("@/pages/admin/AdminHero"));
 const AdminGallery = lazy(() => import("@/pages/admin/AdminGallery"));
 const AdminBeforeAndAfter = lazy(() => import("@/pages/admin/AdminBeforeAndAfter"));
@@ -84,7 +84,7 @@ export const adminRoutes = (
 
         <Route path="estimator" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><EstimatorModule /></RoleGuard>}>
           <Route path="estimate-leads" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminEstimateLeads /></RoleGuard>} />
-          <Route path="pricing-configuration" element={<RoleGuard allowedRoles={["super_admin"]}><AdminPricingConfig /></RoleGuard>} />
+          <Route path="config" element={<RoleGuard allowedRoles={["super_admin"]}><AdminEstimatorConfig /></RoleGuard>} />
         </Route>
 
         <Route path="blog" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><BlogModule /></RoleGuard>}>

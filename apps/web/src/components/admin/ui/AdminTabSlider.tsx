@@ -1,4 +1,5 @@
-import { useState, type ReactNode, type LucideIcon } from "react";
+import { useState, type ReactNode } from "react";
+import { type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface AdminTab {

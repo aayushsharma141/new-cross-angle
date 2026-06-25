@@ -25,7 +25,7 @@ interface DataTableProps<T> {
   emptyIcon?: LucideIcon;
   emptyTitle?: string;
   emptyDescription?: string;
-  emptyAction?: ReactNode;
+  emptyAction?: { label: string; onClick: () => void; };
 }
 
 export function DataTable<T extends { id?: string | number }>({

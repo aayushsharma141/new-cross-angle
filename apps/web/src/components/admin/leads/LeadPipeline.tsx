@@ -40,13 +40,12 @@ interface ColumnProps {
   id: string;
   leads: Lead[];
   onLeadClick: (l: Lead) => void;
-  onLeadMove: (leadId: string, newStatus: string) => void;
   onAddLead?: (status: string) => void;
   onStageFilter?: (status: string) => void;
   isSingleColumn?: boolean;
 }
 
-const Column = ({ id, leads, onLeadClick, onLeadMove, onAddLead, onStageFilter, isSingleColumn }: ColumnProps) => {
+const Column = ({ id, leads, onLeadClick, onAddLead, onStageFilter, isSingleColumn }: ColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({ id });
   
   const meta = getCrmStageMeta(id) ?? {
@@ -168,7 +167,7 @@ const Column = ({ id, leads, onLeadClick, onLeadMove, onAddLead, onStageFilter, 
           <SortableContext items={leads.map((l) => l.id)} strategy={isSingleColumn ? rectSortingStrategy : verticalListSortingStrategy}>
             {leads.map((lead) => (
               <div key={lead.id} className={isSingleColumn ? "h-fit" : ""}>
-                <LeadCard lead={lead} onClick={onLeadClick} onStageChange={onLeadMove} />
+                <LeadCard lead={lead} onClick={onLeadClick} />
               </div>
             ))}
           </SortableContext>
@@ -252,7 +251,6 @@ export function LeadPipeline({ leads, onLeadMove, onLeadClick, onAddLead, onStag
               id={status}
               leads={leads.filter((l) => l.status === status)}
               onLeadClick={onLeadClick}
-              onLeadMove={onLeadMove}
               onAddLead={onAddLead}
               onStageFilter={onStageFilter}
               isSingleColumn={columns.length === 1}

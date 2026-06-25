@@ -31,7 +31,7 @@ export function RecentActivityFeed({ dateRange }: { dateRange?: DateRange }) {
     const { data: activities, isLoading } = useQuery({
         queryKey: ["recent-activity", dateRange],
         queryFn: async () => {
-            let query = supabase
+            let query = (supabase as any)
                 .from("system_logs")
                 .select("*, profiles(full_name)")
                 .order("created_at", { ascending: false })

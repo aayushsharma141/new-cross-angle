@@ -17,7 +17,6 @@ export function HeroMediaPickerModal({ open, onClose, onSelect }: HeroMediaPicke
                 onSelect(url, type, asset.title || "Asset");
             }}
             domain="hero"
-            entityType="hero"
             role="background"
         />
     );

@@ -39,7 +39,10 @@ export type FlowConfigKey =
   | "discovery_archetypes"
   | "discovery_questions"
   | "discovery_visual_prompts"
-  | "crm_stages";
+  | "crm_stages"
+  | "alcs_rules"
+  | "result_templates"
+  | "media_assets";
 
 const DEFAULTS: Record<FlowConfigKey, unknown> = {
   property_types: PROPERTY_TYPES,
@@ -67,6 +70,9 @@ const DEFAULTS: Record<FlowConfigKey, unknown> = {
   },
   discovery_visual_prompts: visualImages,
   crm_stages: CRM_STAGES.map(s => ({ id: s.id, label: s.label, dotClass: s.dotClass })),
+  alcs_rules: null,
+  result_templates: null,
+  media_assets: null,
 };
 
 export function useFlowConfig<T = unknown>(key: FlowConfigKey) {

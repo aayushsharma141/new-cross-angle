@@ -526,7 +526,7 @@ export const api = {
     }
     
     // Fallback: extract from projects table if testimonials table fails/is empty
-    const { data: projData, error: projError } = await supabase
+    const { data: projData, error: projError } = await (supabase as any)
       .from('projects')
       .select('id, client_name, testimonial_quote, testimonial_role')
       .neq('testimonial_quote', null);

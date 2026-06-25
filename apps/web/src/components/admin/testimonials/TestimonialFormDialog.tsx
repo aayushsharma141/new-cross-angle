@@ -69,7 +69,6 @@ export const TestimonialFormDialog = ({ open, onClose, formData, onChange, onSav
           <MediaPickerField
               value={formData.avatar_url}
               onChange={(url) => onChange({ ...formData, avatar_url: url })}
-              label="Avatar Image"
               previewClassName="w-20 h-20 rounded-full object-cover border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))]"
           />
         </div>

@@ -1,3 +1,2 @@
-export { DataTable } from './DataTable';
-
-export * from './ui';
+export { DataTable } from './ui/DataTable';
+export * from './shared';

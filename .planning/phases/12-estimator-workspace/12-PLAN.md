@@ -1,61 +1,131 @@
-# Phase 12: Estimator Workspace - Plan
+---
+phase: 12-estimator-workspace
+plan: 01
+type: execute
+wave: 1
+depends_on: []
+files_modified:
+  - apps/web/src/pages/admin/AdminEstimatorConfig.tsx
+  - apps/web/src/App.tsx
+  - apps/web/src/components/admin/estimator-flow/PricingIntelligenceWorkspace.tsx
+  - apps/web/src/components/admin/estimator-flow/ResultIntelligenceWorkspace.tsx
+  - apps/web/src/lib/registry/EstimatorRegistry.ts
+autonomous: true
+requirements: [EST-CONFIG-01, EST-CONFIG-02]
+must_haves:
+  truths:
+    - "No estimator setting may exist outside the Estimator Workspace after Phase 12."
+    - "Every configuration change updates the Live Simulation Panel immediately."
+    - "Every editor reads and writes through a unified Estimator Registry instead of directly mutating scattered state."
+    - "The right panel always shows the real downstream impact of the current configuration (budget, recommendation, confidence)."
+    - "Admin can interact with the Estimator Workspace Foundation containing a 280px navigation rail, a fluid editor workspace, and a 360-400px Live Simulation Panel."
+  artifacts:
+    - path: "apps/web/src/pages/admin/AdminEstimatorConfig.tsx"
+      provides: "Estimator Workspace Foundation (UI Shell)"
+    - path: "apps/web/src/components/admin/estimator-flow/PricingIntelligenceWorkspace.tsx"
+      provides: "Unified Pricing Intelligence Workspace"
+    - path: "apps/web/src/components/admin/estimator-flow/ResultIntelligenceWorkspace.tsx"
+      provides: "Result Experience Editor"
+    - path: "apps/web/src/lib/registry/EstimatorRegistry.ts"
+      provides: "Centralized configuration registry for Estimator"
+  key_links:
+    - from: "apps/web/src/pages/admin/AdminEstimatorConfig.tsx"
+      to: "apps/web/src/components/admin/estimator-flow/PricingIntelligenceWorkspace.tsx"
+      via: "Navigation rail"
+      pattern: "<PricingIntelligenceWorkspace"
+    - from: "apps/web/src/pages/admin/AdminEstimatorConfig.tsx"
+      to: "apps/web/src/components/admin/estimator-flow/ResultIntelligenceWorkspace.tsx"
+      via: "Navigation rail"
+      pattern: "<ResultIntelligenceWorkspace"
+    - from: "apps/web/src/components/admin/estimator-flow/PricingIntelligenceWorkspace.tsx"
+      to: "apps/web/src/lib/registry/EstimatorRegistry.ts"
+      via: "State management/mutation"
+      pattern: "EstimatorRegistry."
+---
 
-## Phase Goal
+<objective>
+Assemble a cohesive, modular Estimator Workspace. Phase 12 converts scattered configuration screens into an operating-system-level workspace architecture utilizing a unified Estimator Registry and a Live Simulation Sandbox.
+Purpose: Ensure all estimator settings live inside one UI-Contract compliant interface, reading/writing exclusively via Estimator Registry, with real-time feedback visible in a Live Simulation Panel.
+Output: Unified workspace shell, Pricing Intelligence Workspace, Result Intelligence Workspace, and Estimator Registry.
+</objective>
 
-Create an admin workspace for managing estimator formulas, property types, pricing coefficients, and design packages.
+<execution_context>
+@~/.gemini/antigravity/get-shit-done/workflows/execute-plan.md
+@~/.gemini/antigravity/get-shit-done/templates/summary.md
+</execution_context>
 
-## Context Summary
+<context>
+@.planning/PROJECT.md
+@.planning/ROADMAP.md
+@.planning/STATE.md
+@.planning/phases/12-estimator-workspace/12-UI-SPEC.md
+@apps/web/src/hooks/useFlowConfig.ts
+</context>
 
-- **Formula Complexity**: Simple base price × static multipliers.
-- **Visual Assets**: Integrate `MediaPickerField` into estimator configurations.
-- **Publishing Workflow**: Changes go live instantly (no draft state).
-- **Existing Config Mechanism**: `useFlowConfig.ts` leveraging `estimator_flow_config` in Supabase.
+<tasks>
 
-## Implementation Steps
+<task type="auto">
+  <name>Task 1: Estimator Workspace Foundation (UI Shell) & Registry</name>
+  <files>apps/web/src/pages/admin/AdminEstimatorConfig.tsx, apps/web/src/App.tsx, apps/web/src/lib/registry/EstimatorRegistry.ts</files>
+  <action>Create `EstimatorRegistry.ts` (or update `useFlowConfig.ts` to expose this shape) as a single interface handling Pricing, Packages, Addons, ALCS, Results, and Media. Then, create `AdminEstimatorConfig.tsx` as the structural UI shell: a 280px navigation rail (Pricing, Packages, Addons, ALCS Rules, Results, Media), a fluid editor workspace, and a 360-400px Live Simulation Panel on the right. Include responsive logic, keyboard shortcuts (Ctrl/Cmd+S), and skeleton states. Remove any other disconnected setting routes in `App.tsx`.</action>
+  <verify>
+    <automated>npm run check -- --filter=web</automated>
+  </verify>
+  <done>Estimator Workspace Shell renders correctly with a Live Simulation Panel placeholder and a unified Registry backend. Scattered settings are removed.</done>
+</task>
 
-### 1. Extend Configuration Schemas for Visual Assets
+<task type="auto">
+  <name>Task 2: Pricing Intelligence Workspace & Live Simulation Panel</name>
+  <files>apps/web/src/components/admin/estimator-flow/PricingIntelligenceWorkspace.tsx, apps/web/src/pages/admin/AdminEstimatorConfig.tsx</files>
+  <action>Move pricing-related configuration (base rates, multipliers, regional coefficients, complexity factors) into `PricingIntelligenceWorkspace.tsx`. Make all edits go through `EstimatorRegistry`. Build the Live Simulation Panel in `AdminEstimatorConfig.tsx` to instantly recompute and display the Estimated Range, ALCS recommendation, selected execution path, and budget based on a Mock/Real Lead selector. Ensure real-time reactivity as pricing intelligence is tweaked.</action>
+  <verify>
+    <automated>npm run check -- --filter=web</automated>
+  </verify>
+  <done>Pricing workspace built and modifying any value instantly updates the budget and recommendation inside the Live Simulation Panel.</done>
+</task>
 
-- **File**: `apps/web/src/hooks/useFlowConfig.ts` (and potentially imported type definitions).
-- **Action**: Update the interfaces for `PropertyTypeItem` and package tiers to include an `imageId` or `mediaId` string field.
-- **Details**: Ensure the default objects (e.g., `PROPERTY_TYPES`) support these new fields gracefully, setting them to empty or `null` by default if no asset is assigned.
+<task type="auto">
+  <name>Task 3: Result Intelligence Workspace</name>
+  <files>apps/web/src/components/admin/estimator-flow/ResultIntelligenceWorkspace.tsx, apps/web/src/pages/admin/AdminEstimatorConfig.tsx</files>
+  <action>Implement `ResultIntelligenceWorkspace.tsx` managing recommendation templates, ALCS explanation blocks, confidence messaging, CTA configuration, and dynamic placeholders through the `EstimatorRegistry`. Expand the Live Simulation Panel to preview the client-facing result dynamically, including designer explanations and confidence messaging based on the selected mock lead.</action>
+  <verify>
+    <automated>npm run check -- --filter=web</automated>
+  </verify>
+  <done>Result Experience Editor can configure all recommendation, messaging, and CTA elements, with the Live Simulation Panel reflecting the exact client-facing output.</done>
+</task>
 
-### 2. Upgrade PropertyTypesEditor with DAM Asset Picker
+</tasks>
 
-- **File**: `apps/web/src/components/admin/estimator-flow/PropertyTypesEditor.tsx`
-- **Action**: Modify the edit form to include the `MediaPickerField` from the DAM.
-- **Details**:
-  - When editing a property type, display a thumbnail of the currently selected DAM asset.
-  - Clicking the image opens the DAM media picker to select an asset.
-  - Fallback to the current text-based icon if no image is provided.
-  - Ensure the list view displays the thumbnail gracefully instead of just the text icon.
+<threat_model>
+## Trust Boundaries
 
-### 3. Implement Execution Tiers (Design Packages) Editor
+| Boundary | Description |
+|----------|-------------|
+| Admin UI → Supabase API | Admin configuration inputs saving to `estimator_flow_config` via `EstimatorRegistry` |
 
-- **File**: `apps/web/src/components/admin/estimator-flow/ExecutionTiersEditor.tsx` (New or adapt existing)
-- **Action**: Create an editor for design packages/execution tiers.
-- **Details**:
-  - Bind to the `execution_tiers` key in `useFlowConfig`.
-  - Allow admin to define the package name, description, multiplier coefficient, and select a visual thumbnail via `MediaPickerField`.
-  - Add this component as a new tab in `AdminPricingConfig.tsx` or replace an existing unused section.
+## STRIDE Threat Register
 
-### 4. Enhance Pricing Coefficients UI
+| Threat ID | Category | Component | Disposition | Mitigation Plan |
+|-----------|----------|-----------|-------------|-----------------|
+| T-12-01 | Spoofing | `EstimatorRegistry` saving logic | mitigate | Rely on RLS policies enforcing authenticated admin access. |
+| T-12-02 | Tampering | Configuration Inputs | mitigate | Ensure inputs are strictly typed; Supabase constraints block malformed JSON. |
+</threat_model>
 
-- **File**: `apps/web/src/pages/admin/AdminEstimateRates.tsx`
-- **Action**: Review and ensure all static multipliers (base rates, coefficient bounds) are editable and bound to `useFlowConfig`.
-- **Details**:
-  - Connect numeric input fields to their respective keys (e.g., base sqft rate, tier multipliers).
-  - Ensure immediate save and invalidation of queries to reflect changes instantly.
+<verification>
+- Verify no estimator setting exists outside the Estimator Workspace.
+- Navigate to the Estimator Workspace.
+- Select a mock lead in the Live Simulation Panel.
+- Change a pricing setting or result template and verify the Live Simulation Panel immediately updates (estimated range, confidence, recommendation).
+- Verify all configuration data reads/writes via the new `EstimatorRegistry` structure.
+</verification>
 
-### 5. Verification & Testing
+<success_criteria>
+- No estimator setting exists outside the Estimator Workspace.
+- Every configuration change updates the Live Simulation Panel immediately.
+- Every editor reads and writes through the Estimator Registry.
+- The right panel always shows the real downstream impact of the current configuration.
+</success_criteria>
 
-- **Action**: Run the application and open the Estimator Admin workspace.
-- **Details**:
-  - Verify that property types can have a DAM image assigned and saved correctly.
-  - Verify that the Design Packages/Execution Tiers can be fully managed (name, coefficient, image).
-  - Test the public Estimator flow (if accessible) to ensure it dynamically uses the newly mapped DAM assets and coefficients from the configuration.
-
-## Success Criteria
-
-1. Administrator can adjust property type details and assign DAM assets from the UI.
-2. Design packages (Execution tiers) can be managed with their specific base multipliers and visual thumbnails.
-3. Pricing logic and configuration updates are saved via `useFlowConfig` and apply instantly without needing codebase redeployments.
+<output>
+Create `.planning/phases/12-estimator-workspace/12-01-SUMMARY.md` when done
+</output>
