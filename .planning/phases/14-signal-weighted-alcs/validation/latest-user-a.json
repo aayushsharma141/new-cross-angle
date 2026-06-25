@@ -1,0 +1,169 @@
+{
+  "input": {
+    "handoff": {
+      "userId": "anon-test",
+      "timestamp": "2026-06-25T22:01:16.578Z",
+      "emotionalGoal": "Comfortable Living",
+      "archetype": "The Warm Modernist",
+      "archetypeConfidence": 0.9,
+      "lifestyle": {
+        "familyType": "Nuclear",
+        "members": 2,
+        "children": 0,
+        "workFromHome": true,
+        "hostingFreq": "Sometimes",
+        "cookingRole": "Occasional",
+        "petsPresent": false
+      },
+      "property": {
+        "type": "apartment",
+        "areaSqFt": 1500,
+        "floors": 1,
+        "ageYears": 5,
+        "scope": "renovation",
+        "city": "Delhi",
+        "cityTier": "metro"
+      },
+      "priorities": {
+        "mustHave": [
+          "Living Room",
+          "Kitchen"
+        ],
+        "niceToHave": [],
+        "emotionalWeights": {
+          "Living Room": 0.5,
+          "Kitchen": 0.5
+        }
+      },
+      "sensory": {
+        "lighting": "natural",
+        "luxuryResolvedAs": "invest-in-materials",
+        "textures": [
+          "organic"
+        ],
+        "colors": []
+      },
+      "budget": 5000000,
+      "confidence": {
+        "emotionalGoal": 0.8,
+        "budget": 0.8,
+        "rooms": 0.8,
+        "overall": 0.8
+      },
+      "contradictions": [],
+      "acceptedCompromises": []
+    },
+    "propertySuitability": {
+      "score": 75,
+      "tier": "good"
+    },
+    "density": {
+      "level": "moderate",
+      "score": 50,
+      "dimensions": {
+        "occupancy": 50,
+        "activity": 50,
+        "storage": 50,
+        "noise": 50,
+        "maintenance": 50
+      },
+      "narrative": "",
+      "warnings": []
+    },
+    "conflicts": {
+      "conflicts": [],
+      "overallAlignment": 80,
+      "narrative": ""
+    },
+    "investment": {
+      "budgetArchetype": "balanced",
+      "archetypeNarrative": "",
+      "highImpactZones": [
+        "Living Room"
+      ],
+      "lowImpactZones": [],
+      "investmentDensity": 3333,
+      "cityBenchmark": {
+        "low": 2000,
+        "median": 3000,
+        "high": 4000
+      },
+      "benchmarkPosition": "at"
+    },
+    "simulation": {
+      "positives": [],
+      "frictions": [],
+      "futureRisks": [],
+      "livabilityScore": 80
+    },
+    "existingProperty": {
+      "hasExistingProperty": true,
+      "recommendedPath": "strategic_renovation",
+      "pathRationale": "",
+      "renovationToRebuildRatio": 0.3,
+      "structuralConstraints": [],
+      "layoutFlexibility": "moderate"
+    }
+  },
+  "result": {
+    "strategyLabel": "Smart Renovation",
+    "propertyFit": 75,
+    "propertyFitTier": "good",
+    "executionPath": "smart_renovation",
+    "focusAreas": [
+      "Living Room"
+    ],
+    "reasoning": "Because your family lifestyle prioritizes productive home working — and your luxury language centers on material quality — natural stone, solid wood, and premium textiles — your existing property becomes the canvas — not a constraint. Strategic renovation upgrades the spaces that matter most while preserving what already works.",
+    "summary": "Your property is workable for your lifestyle goals (75% fit). The recommended strategy is \"Smart Strategic Renovation\" — focusing on Living Room as highest emotional return areas.",
+    "confidence": 90,
+    "evidence": [
+      {
+        "signal": "Base viability",
+        "scoreImpact": 40,
+        "source": "property",
+        "rationale": "Existing property supports renovation"
+      },
+      {
+        "signal": "Pragmatic alignment",
+        "scoreImpact": 20,
+        "source": "archetype",
+        "rationale": "Matches balanced/conservative investment psychology"
+      },
+      {
+        "signal": "Balanced capital",
+        "scoreImpact": 15,
+        "source": "budget",
+        "rationale": "Budget perfectly aligns with strategic upgrades"
+      },
+      {
+        "signal": "Apartment suitability",
+        "scoreImpact": 10,
+        "source": "property",
+        "rationale": "Renovation is standard for apartment upgrades"
+      },
+      {
+        "signal": "Adequate property suitability",
+        "scoreImpact": 10,
+        "source": "property",
+        "rationale": "Property fits core needs"
+      },
+      {
+        "signal": "Good aspiration alignment",
+        "scoreImpact": 10,
+        "source": "archetype",
+        "rationale": "Low friction with existing space"
+      },
+      {
+        "signal": "Moderate layout flexibility",
+        "scoreImpact": 5,
+        "source": "property",
+        "rationale": "Some structural adaptability"
+      }
+    ],
+    "primaryDrivers": [
+      "Baseline Fit",
+      "Pragmatic alignment",
+      "Balanced capital"
+    ]
+  }
+}
