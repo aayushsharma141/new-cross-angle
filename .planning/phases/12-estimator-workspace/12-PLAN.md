@@ -67,7 +67,7 @@ Output: Unified workspace shell, Pricing Intelligence Workspace, Result Intellig
 <task type="auto">
   <name>Task 1: Estimator Workspace Foundation (UI Shell) & Registry</name>
   <files>apps/web/src/pages/admin/AdminEstimatorConfig.tsx, apps/web/src/App.tsx, apps/web/src/lib/registry/EstimatorRegistry.ts</files>
-  <action>Create `EstimatorRegistry.ts` (or update `useFlowConfig.ts` to expose this shape) as a single interface handling Pricing, Packages, Addons, ALCS, Results, and Media. Then, create `AdminEstimatorConfig.tsx` as the structural UI shell: a 280px navigation rail (Pricing, Packages, Addons, ALCS Rules, Results, Media), a fluid editor workspace, and a 360-400px Live Simulation Panel on the right. Include responsive logic, keyboard shortcuts (Ctrl/Cmd+S), and skeleton states. Remove any other disconnected setting routes in `App.tsx`.</action>
+  <action>- [x] Create `EstimatorRegistry.ts` as the single source of truth for pricing, ALCS, and result templates.e this shape) as a single interface handling Pricing, Packages, Addons, ALCS, Results, and Media. Then,- [x] Refactor `AdminEstimatorConfig.tsx` to act as the 3-panel workspace shell.: a 280px navigation rail (Pricing, Packages, Addons, ALCS Rules, Results, Media), a fluid editor workspace, and a 360-400px Live Simulation Panel on the right. Include responsive logic, keyboard shortcuts (Ctrl/Cmd+S), and skeleton states.- [x] Remove any other disconnected setting routes in `App.tsx`.</action>
   <verify>
     <automated>npm run check -- --filter=web</automated>
   </verify>
@@ -77,7 +77,7 @@ Output: Unified workspace shell, Pricing Intelligence Workspace, Result Intellig
 <task type="auto">
   <name>Task 2: Pricing Intelligence Workspace & Live Simulation Panel</name>
   <files>apps/web/src/components/admin/estimator-flow/PricingIntelligenceWorkspace.tsx, apps/web/src/pages/admin/AdminEstimatorConfig.tsx</files>
-  <action>Move pricing-related configuration (base rates, multipliers, regional coefficients, complexity factors) into `PricingIntelligenceWorkspace.tsx`. Make all edits go through `EstimatorRegistry`. Build the Live Simulation Panel in `AdminEstimatorConfig.tsx` to instantly recompute and display the Estimated Range, ALCS recommendation, selected execution path, and budget based on a Mock/Real Lead selector. Ensure real-time reactivity as pricing intelligence is tweaked.</action>
+  <action>Move pricing-related configuration (base rates, multipliers, regional coefficients, complexity factors) into `PricingIntelligenceWorkspace.tsx`. Make all edits go through `EstimatorRegistry`.- [x] Build the Live Simulation panel to instantly compute downstream impact based on edits.tsx` to instantly recompute and display the Estimated Range, ALCS recommendation, selected execution path, and budget based on a Mock/Real Lead selector. Ensure real-time reactivity as pricing intelligence is tweaked.</action>
   <verify>
     <automated>npm run check -- --filter=web</automated>
   </verify>
@@ -87,7 +87,7 @@ Output: Unified workspace shell, Pricing Intelligence Workspace, Result Intellig
 <task type="auto">
   <name>Task 3: Result Intelligence Workspace</name>
   <files>apps/web/src/components/admin/estimator-flow/ResultIntelligenceWorkspace.tsx, apps/web/src/pages/admin/AdminEstimatorConfig.tsx</files>
-  <action>Implement `ResultIntelligenceWorkspace.tsx` managing recommendation templates, ALCS explanation blocks, confidence messaging, CTA configuration, and dynamic placeholders through the `EstimatorRegistry`. Expand the Live Simulation Panel to preview the client-facing result dynamically, including designer explanations and confidence messaging based on the selected mock lead.</action>
+  <action>- [x] Implement `PricingIntelligenceWorkspace.tsx` managing base rates, execution tiers, and multipliers., ALCS explanation blocks, confidence messaging, CTA configuration, and dynamic placeholders through the `EstimatorRegistry`.- [x] Expand the Live Simulation Panel to preview the client-facing result dynamically, including designer explanations and confidence messaging based on the selected mock lead.</action>
   <verify>
     <automated>npm run check -- --filter=web</automated>
   </verify>
