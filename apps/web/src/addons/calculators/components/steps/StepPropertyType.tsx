@@ -43,10 +43,10 @@ export function StepPropertyType({ formData, updateField }: Props) {
 
     if (propertyTypes.length === 0) {
         return (
-            <div className="text-center py-12 px-6 border border-dashed border-[#e8e4dd] rounded-[8px] bg-white/40">
+            <div className="text-center py-12 px-6 border border-dashed border-kiro-line rounded-[8px] bg-white/40">
                 <div className="text-4xl mb-3 opacity-40">🏗️</div>
-                <p className="text-sm text-[#5a5a5a] font-medium mb-1">Property types unavailable</p>
-                <p className="text-xs text-[#5a5a5a]/70">Please refresh the page or try again later.</p>
+                <p className="text-sm text-kiro-inkSoft font-medium mb-1">Property types unavailable</p>
+                <p className="text-xs text-kiro-inkSoft/70">Please refresh the page or try again later.</p>
             </div>
         );
     }
@@ -103,16 +103,16 @@ export function StepPropertyType({ formData, updateField }: Props) {
                                 </div>
 
                                 <div className="mb-1">
-                                    <div className={`font-bold text-sm tracking-tight ${selected ? "text-[#8b6f47] drop-shadow-sm" : "text-[#1a1a1a]"}`}>
+                                    <div className={`font-bold text-sm tracking-tight ${selected ? "text-kiro-accent drop-shadow-sm" : "text-kiro-ink"}`}>
                                         {pt.label}
                                     </div>
-                                    <div className={`text-[10px] leading-relaxed mt-1 uppercase tracking-tighter ${selected ? "text-[#1a1a1a]/70" : "text-[#5a5a5a]"}`}>
+                                    <div className={`text-[10px] leading-relaxed mt-1 uppercase tracking-tighter ${selected ? "text-kiro-ink/70" : "text-kiro-inkSoft"}`}>
                                         {pt.desc}
                                     </div>
                                 </div>
 
                                 {selected && (
-                                    <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-[#8b6f47] to-transparent opacity-60" />
+                                    <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-kiro-accent to-transparent opacity-60" />
                                 )}
                             </SpotlightCard>
                         </motion.button>

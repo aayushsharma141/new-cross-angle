@@ -108,23 +108,23 @@ export function StepAddons({ formData, updateField }: Props) {
                             )}
                             
                             <div className="flex justify-between items-start mb-3 relative z-10">
-                                <span className="text-[#8b6f47] drop-shadow-sm">{AddonIconMap[addon.id] || addon.icon}</span>
-                                <span className={`text-[9px] font-bold px-2 py-0.5 uppercase tracking-wider transition-colors ${active ? "bg-[#8b6f47] text-white" : "bg-[#1a1a1a]/10 text-[#5a5a5a]"
+                                <span className="text-kiro-accent drop-shadow-sm">{AddonIconMap[addon.id] || addon.icon}</span>
+                                <span className={`text-[9px] font-bold px-2 py-0.5 uppercase tracking-wider transition-colors ${active ? "bg-kiro-accent text-white" : "bg-kiro-ink/10 text-kiro-inkSoft"
                                     }`}>
                                     {active ? "SELECTED" : "ADD"}
                                 </span>
                             </div>
 
                             <div className="mb-1 relative z-10">
-                                <div className={`font-bold text-sm transition-colors ${active ? "text-[#8b6f47]" : "text-[#1a1a1a]"}`}>
+                                <div className={`font-bold text-sm transition-colors ${active ? "text-kiro-accent" : "text-kiro-ink"}`}>
                                     {addon.label}
                                 </div>
-                                <div className="text-[#5a5a5a] text-[11px] leading-relaxed mt-0.5">
+                                <div className="text-kiro-inkSoft text-[11px] leading-relaxed mt-0.5">
                                     {addon.desc}
                                 </div>
                             </div>
 
-                            <div className="mt-3 font-black text-sm text-[#8b6f47] relative z-10">
+                            <div className="mt-3 font-black text-sm text-kiro-accent relative z-10">
                                 {getAddonCost(addon)}
                             </div>
                         </motion.button>
@@ -132,9 +132,9 @@ export function StepAddons({ formData, updateField }: Props) {
                 })}
             </motion.div>
 
-            <div className="mt-6 p-4 bg-[#8b6f47]/5 border border-[#8b6f47]/20 rounded-[8px] flex justify-between items-center">
-                <span className="text-[#1a1a1a] font-bold text-sm">Add-ons Subtotal</span>
-                <span className={`font-black text-lg ${addonTotal > 0 ? "text-[#8b6f47]" : "text-[#5a5a5a] text-sm"}`}>
+            <div className="mt-6 p-4 bg-kiro-accent/5 border border-kiro-accent/20 rounded-[8px] flex justify-between items-center">
+                <span className="text-kiro-ink font-bold text-sm">Add-ons Subtotal</span>
+                <span className={`font-black text-lg ${addonTotal > 0 ? "text-kiro-accent" : "text-kiro-inkSoft text-sm"}`}>
                     {addonTotal > 0 ? formatCurrency(addonTotal) : "None selected"}
                 </span>
             </div>

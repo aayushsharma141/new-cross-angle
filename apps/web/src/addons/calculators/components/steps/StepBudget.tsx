@@ -49,13 +49,13 @@ export function StepBudget({ formData, updateField }: Props) {
     return (
         <div className="max-w-2xl mx-auto">
             {/* Big budget display */}
-            <div className="text-center py-7 mb-5 rounded-none border border-[#1a1a1a]/[0.06] bg-gradient-to-br from-site-bg-card to-site-bg">
-                <div className="text-[#5a5a5a] text-xs mb-1 uppercase tracking-widest">Total Allocation</div>
-                <div className="text-[#8b6f47] text-4xl font-extrabold tracking-tighter">
+            <div className="text-center py-7 mb-5 rounded-none border border-kiro-ink/[0.06] bg-gradient-to-br from-site-bg-card to-site-bg">
+                <div className="text-kiro-inkSoft text-xs mb-1 uppercase tracking-widest">Total Allocation</div>
+                <div className="text-kiro-accent text-4xl font-extrabold tracking-tighter">
                     {formatCurrency(formData.budgetAmount)}
                 </div>
-                <div className="text-[11px] text-[#5a5a5a] mt-2">
-                    Suggested baseline for your area: <span className="text-[#1a1a1a] font-medium">{formatCurrency(minInvestment)}</span>
+                <div className="text-[11px] text-kiro-inkSoft mt-2">
+                    Suggested baseline for your area: <span className="text-kiro-ink font-medium">{formatCurrency(minInvestment)}</span>
                 </div>
             </div>
 
@@ -78,9 +78,9 @@ export function StepBudget({ formData, updateField }: Props) {
                         updateField("budgetAmount", Number(e.target.value));
                         updateField("budgetPreset", "");
                     }}
-                    className="w-full h-2 bg-[#ffffff] border border-[#1a1a1a]/[0.06] rounded-full appearance-none cursor-pointer accent-[#8b6f47] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                    className="w-full h-2 bg-kiro-surface border border-kiro-ink/[0.06] rounded-full appearance-none cursor-pointer accent-kiro-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                 />
-                <div className="flex justify-between text-[#5a5a5a] text-xs mt-1 font-mono">
+                <div className="flex justify-between text-kiro-inkSoft text-xs mt-1 font-mono">
                     <span>₹15L</span><span>₹15 Cr+</span>
                 </div>
             </div>
@@ -118,23 +118,23 @@ export function StepBudget({ formData, updateField }: Props) {
                                     transition={breathingTransitionLight}
                                 />
                             )}
-                            <div className={`font-bold text-sm ${active ? "text-[#8b6f47]" : "text-[#1a1a1a]"}`}>
+                            <div className={`font-bold text-sm ${active ? "text-kiro-accent" : "text-kiro-ink"}`}>
                                 {bp.label}
                             </div>
-                            <div className={`text-xs mt-0.5 ${active ? "text-[#1a1a1a]/70" : "text-[#5a5a5a]"}`}>{bp.range}</div>
+                            <div className={`text-xs mt-0.5 ${active ? "text-kiro-ink/70" : "text-kiro-inkSoft"}`}>{bp.range}</div>
                         </motion.button>
                     );
                 })}
             </div>
 
             {/* Feasibility bar */}
-            <div className="rounded-none px-4 py-3 border border-[#1a1a1a]/[0.06] bg-[#ffffff]">
+            <div className="rounded-none px-4 py-3 border border-kiro-ink/[0.06] bg-kiro-surface">
                 <div className="flex justify-between mb-2">
-                    <span className="text-[#5a5a5a] text-xs uppercase tracking-wider">Feasibility Index</span>
-                    <span className={`text-xs font-semibold ${feasibility.label === "Legacy Tier" ? "text-[#8b6f47]" :
+                    <span className="text-kiro-inkSoft text-xs uppercase tracking-wider">Feasibility Index</span>
+                    <span className={`text-xs font-semibold ${feasibility.label === "Legacy Tier" ? "text-kiro-accent" :
                         feasibility.label === "Luxury Tier" ? "text-yellow-500" :
                             feasibility.label === "Comfortable Scope" ? "text-emerald-500" :
-                                "text-[#5a5a5a]"
+                                "text-kiro-inkSoft"
                         }`}>{feasibility.label}</span>
                 </div>
                 <div className="rounded-none h-2 overflow-hidden bg-site-bg">

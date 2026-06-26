@@ -34,32 +34,32 @@ const CostEstimatorPage = () => {
       id: "residential",
       title: "Residential",
       description: "Homes, apartments, and villas planned around lifestyle, rooms, and finish level.",
-      icon: <LayoutGrid size={32} className="text-[#8b6f47]" />
+      icon: <LayoutGrid size={32} className="text-kiro-accent" />
     },
     {
       id: "commercial",
       title: "Commercial",
       description: "Offices, studios, and retail spaces shaped around brand and operational needs.",
-      icon: <Building2 size={32} className="text-[#8b6f47]" />
+      icon: <Building2 size={32} className="text-kiro-accent" />
     },
     {
       id: "renovation",
       title: "Renovation",
       description: "Upgrade an existing space with practical scope, phasing, and cost clarity.",
-      icon: <PaintBucket size={32} className="text-[#8b6f47]" />
+      icon: <PaintBucket size={32} className="text-kiro-accent" />
     },
     {
       id: "custom",
       title: "Custom Project",
       description: "Single rooms, bespoke furniture, and special requirements that need a custom brief.",
-      icon: <PenTool size={32} className="text-[#8b6f47]" />
+      icon: <PenTool size={32} className="text-kiro-accent" />
     }
   ];
 
 
   if (selectedPath) {
     return (
-      <main id="main-content" className="h-screen w-full bg-[#faf8f5] overflow-hidden relative">
+      <main id="main-content" className="h-screen w-full bg-kiro-bg overflow-hidden relative">
         <Helmet>
           <title>Cost Estimator | Cross Angle Interior</title>
           <meta property="og:title" content="Cost Estimator | Cross Angle Interior" />
@@ -98,13 +98,13 @@ const CostEstimatorPage = () => {
         }}
       />
 
-      <main id="main-content" className="min-h-screen flex flex-col relative z-10 bg-[#faf8f5] overflow-x-hidden">
+      <main id="main-content" className="min-h-screen flex flex-col relative z-10 bg-kiro-bg overflow-x-hidden">
         
         {/* Nav Header (Standalone) */}
         <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-2">
           <a
             href="/"
-            className="flex items-center gap-2 sm:gap-3 shrink-0 group min-w-0 hover:opacity-75 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 rounded-lg"
+            className="flex items-center gap-2 sm:gap-3 shrink-0 group min-w-0 hover:opacity-75 focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 rounded-lg"
             aria-label="Return to CrossAngle Home"
           >
             <img
@@ -114,7 +114,7 @@ const CostEstimatorPage = () => {
             />
             <AnimatedLogo
               isScrolled={false}
-              className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0 [&_span]:text-[#1a1a1a]"
+              className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0 [&_span]:text-kiro-ink"
             />
           </a>
         </div>
@@ -181,8 +181,8 @@ const CostEstimatorPage = () => {
                   transition={{ delay: 0.1 }}
                   className="mb-3 flex items-center gap-2 px-5 py-2.5 bg-white/90 backdrop-blur-md border border-[#233526]/20 rounded-full shadow-sm"
                 >
-                  <Sparkles size={14} className="text-[#8b6f47]" />
-                  <span className="text-xs font-mono tracking-widest uppercase text-[#1a1a1a] font-bold">
+                  <Sparkles size={14} className="text-kiro-accent" />
+                  <span className="text-xs font-mono tracking-widest uppercase text-kiro-ink font-bold">
                     Free · Smart Calculation · 3 minutes
                   </span>
                 </motion.div>
@@ -191,25 +191,25 @@ const CostEstimatorPage = () => {
                   Interior Personalization Ecosystem
                 </h2>
 
-                <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-serif italic leading-[1.05] mb-3 text-[#1a1a1a] tracking-tight flex flex-col items-center">
+                <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-serif italic leading-[1.05] mb-3 text-kiro-ink tracking-tight flex flex-col items-center">
                   <FallingText text="Estimate with your" className="justify-center" delay={20} />
                   <span className="text-[#233526] mt-2">
                     <FallingText text="Discovery Blueprint." className="justify-center text-[#233526]" delay={20} />
                   </span>
                 </h1>
 
-                <p className="text-lg md:text-xl text-[#5a5a5a] font-light max-w-2xl mb-4 leading-relaxed">
+                <p className="text-lg md:text-xl text-kiro-inkSoft font-light max-w-2xl mb-4 leading-relaxed">
                   The Estimator is the practical execution layer of the Discovery Engine. Start with Discovery for a richer, more personal report, then turn that blueprint into an accurate investment range.
                 </p>
 
                 {/* Connection Status */}
-                <div className="mb-5 flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl border border-[#e8e4dd] rounded-full shadow-sm">
+                <div className="mb-5 flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl border border-kiro-line rounded-full shadow-sm">
                   {hasBlueprint ? (
-                    <CheckCircle2 className="w-4 h-4 text-[#8b6f47]" />
+                    <CheckCircle2 className="w-4 h-4 text-kiro-accent" />
                   ) : (
-                    <Compass className="w-4 h-4 text-[#8b6f47]" />
+                    <Compass className="w-4 h-4 text-kiro-accent" />
                   )}
-                  <span className="text-sm font-medium text-[#1a1a1a]">
+                  <span className="text-sm font-medium text-kiro-ink">
                     {hasBlueprint ? `Connected to ${blueprintName}` : "Create a Discovery Blueprint first for best results"}
                   </span>
                 </div>
@@ -220,9 +220,9 @@ const CostEstimatorPage = () => {
                       <button
                         type="button"
                         onClick={() => setSelectedPath("personalized")}
-                        className="group w-full sm:w-auto px-10 py-4 md:px-14 md:py-5 bg-gradient-to-r from-[#233526] to-[#2c3d2f] text-white text-xs md:text-sm font-semibold tracking-[0.2em] uppercase rounded-full hover:shadow-[0_12px_30px_rgba(35,53,38,0.25)] hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
+                        className="group w-full sm:w-auto px-10 py-4 md:px-14 md:py-5 bg-gradient-to-r from-[#233526] to-[#2c3d2f] text-white text-xs md:text-sm font-semibold tracking-[0.2em] uppercase rounded-full hover:shadow-[0_12px_30px_rgba(35,53,38,0.25)] hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#8b6f47]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-kiro-accent/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
                         {ECOSYSTEM_COPY.ctas.startPersonalizedEstimator}
                         <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
                       </button>
@@ -231,9 +231,9 @@ const CostEstimatorPage = () => {
                     <Magnet range={60} className="w-full sm:w-auto">
                       <Link
                         to={ECOSYSTEM_ROUTES.discovery}
-                        className="group w-full sm:w-auto px-10 py-4 md:px-14 md:py-5 bg-gradient-to-r from-[#233526] to-[#2c3d2f] text-white text-xs md:text-sm font-semibold tracking-[0.2em] uppercase rounded-full hover:shadow-[0_12px_30px_rgba(35,53,38,0.25)] hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
+                        className="group w-full sm:w-auto px-10 py-4 md:px-14 md:py-5 bg-gradient-to-r from-[#233526] to-[#2c3d2f] text-white text-xs md:text-sm font-semibold tracking-[0.2em] uppercase rounded-full hover:shadow-[0_12px_30px_rgba(35,53,38,0.25)] hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#8b6f47]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-kiro-accent/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
                         {ECOSYSTEM_COPY.ctas.startDiscovery}
                         <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
                       </Link>
@@ -244,7 +244,7 @@ const CostEstimatorPage = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedPath("direct")}
-                      className="group w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 border border-[#1a1a1a]/20 bg-white/95 backdrop-blur-md text-[#1a1a1a] text-xs md:text-sm font-bold tracking-[0.15em] uppercase rounded-full hover:border-[#1a1a1a]/60 hover:bg-white hover:shadow-xl hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-2"
+                      className="group w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 border border-kiro-ink/20 bg-white/95 backdrop-blur-md text-kiro-ink text-xs md:text-sm font-bold tracking-[0.15em] uppercase rounded-full hover:border-kiro-ink/60 hover:bg-white hover:shadow-xl hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-2"
                     >
                       {hasBlueprint ? "Adjust Scope Manually" : ECOSYSTEM_COPY.ctas.startEstimator}
                     </button>
@@ -254,13 +254,13 @@ const CostEstimatorPage = () => {
 
               <section className="max-w-6xl mx-auto pt-8">
                 <div className="text-center mb-5">
-                  <p className="text-[11px] font-mono tracking-[0.25em] uppercase text-[#8b6f47] mb-3">
+                  <p className="text-[11px] font-mono tracking-[0.25em] uppercase text-kiro-accent mb-3">
                     Scope Selection
                   </p>
-                  <h2 className="text-3xl md:text-4xl font-serif text-[#1a1a1a] mb-3">
+                  <h2 className="text-3xl md:text-4xl font-serif text-kiro-ink mb-3">
                     Choose the practical estimate path
                   </h2>
-                  <p className="text-sm md:text-base text-[#5a5a5a] max-w-2xl mx-auto leading-relaxed">
+                  <p className="text-sm md:text-base text-kiro-inkSoft max-w-2xl mx-auto leading-relaxed">
                     These paths define the execution context. Your Discovery Blueprint, when available, continues to personalize service level and add-on suggestions inside the estimator.
                   </p>
                 </div>

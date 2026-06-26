@@ -9,10 +9,10 @@ interface Props {
     updateFields: (partial: Partial<CalculatorFormData>) => void;
 }
 
-const labelStyle = "block text-sm font-medium mb-2 text-[#5a5a5a]";
-const inputStyle = "w-full bg-[#ffffff] !bg-[#ffffff] border border-[#1a1a1a]/[0.08] focus:border-[#8b6f47] rounded-[8px] px-4 py-2.5 text-[#1a1a1a] !text-[#1a1a1a] text-sm outline-none transition-all shadow-inner placeholder:text-[#1a1a1a]/30 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2";
-const dropdownStyle = "bg-[#ffffff] border border-[#1a1a1a]/[0.08] rounded-[8px] mt-1.5 max-h-52 overflow-y-auto shadow-2xl z-50 relative pointer-events-auto";
-const dropdownItemStyle = "flex justify-between items-center w-full bg-transparent border-none text-[#1a1a1a] px-4 py-2.5 cursor-pointer text-sm text-left hover:bg-[#8b6f47]/10 transition-colors";
+const labelStyle = "block text-sm font-medium mb-2 text-kiro-inkSoft";
+const inputStyle = "w-full bg-kiro-surface !bg-kiro-surface border border-kiro-ink/[0.08] focus:border-kiro-accent rounded-[8px] px-4 py-2.5 text-kiro-ink !text-kiro-ink text-sm outline-none transition-all shadow-inner placeholder:text-kiro-ink/30 focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2";
+const dropdownStyle = "bg-kiro-surface border border-kiro-ink/[0.08] rounded-[8px] mt-1.5 max-h-52 overflow-y-auto shadow-2xl z-50 relative pointer-events-auto";
+const dropdownItemStyle = "flex justify-between items-center w-full bg-transparent border-none text-kiro-ink px-4 py-2.5 cursor-pointer text-sm text-left hover:bg-kiro-accent/10 transition-colors";
 
 export function StepLocation({ formData, updateFields }: Props) {
     const { data: LOCATION_DATA } = useFlowConfig<Record<string, Record<string, string>>>("location_data");
@@ -77,7 +77,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                                 updateFields({ state: "", city: "", cityTier: "tier1" });
                                 setStateSearch("");
                             }}
-                            className="absolute right-3 text-[#5a5a5a] hover:text-[#8b6f47] transition-colors text-sm"
+                            className="absolute right-3 text-kiro-inkSoft hover:text-kiro-accent transition-colors text-sm"
                             title="Clear state"
                         >
                             ✕
@@ -92,7 +92,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                             </button>
                         ))}
                         {filteredStates.length === 0 && (
-                            <div className="p-3 text-[#5a5a5a] text-xs text-center italic">No states found</div>
+                            <div className="p-3 text-kiro-inkSoft text-xs text-center italic">No states found</div>
                         )}
                     </div>
                 )}
@@ -101,7 +101,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                     <div className="flex flex-wrap gap-2 mt-3">
                         {states.map(s => (
                             <button key={s} onClick={() => handleStateSelect(s)}
-                                className="bg-[#ffffff] border border-[#1a1a1a]/[0.06] text-[#1a1a1a]/70 rounded-none px-3 py-1.5 cursor-pointer text-xs hover:border-[#8b6f47]/50 hover:text-[#1a1a1a] transition-all">
+                                className="bg-kiro-surface border border-kiro-ink/[0.06] text-kiro-ink/70 rounded-none px-3 py-1.5 cursor-pointer text-xs hover:border-kiro-accent/50 hover:text-kiro-ink transition-all">
                                 {s}
                             </button>
                         ))}
@@ -133,7 +133,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                                     updateFields({ city: "", cityTier: "tier1" });
                                     setCitySearch("");
                                 }}
-                                className="absolute right-3 text-[#5a5a5a] hover:text-[#8b6f47] transition-colors text-sm"
+                                className="absolute right-3 text-kiro-inkSoft hover:text-kiro-accent transition-colors text-sm"
                                 title="Clear city"
                             >
                                 ✕
@@ -147,9 +147,9 @@ export function StepLocation({ formData, updateFields }: Props) {
                                 return (
                                     <button key={c} onClick={() => handleCitySelect(c)} className={dropdownItemStyle}>
                                         <span className="font-medium">{c}</span>
-                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-none uppercase tracking-tighter ${t === "tier1" ? "bg-[#8b6f47]/15 text-[#8b6f47]" :
+                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-none uppercase tracking-tighter ${t === "tier1" ? "bg-kiro-accent/15 text-kiro-accent" :
                                             t === "tier2" ? "bg-amber-500/15 text-amber-500" :
-                                                "bg-[#1a1a1a]/10 text-[#1a1a1a]/70"
+                                                "bg-kiro-ink/10 text-kiro-ink/70"
                                             }`}>
                                             {TIERS[t]?.label || t}
                                         </span>
@@ -164,12 +164,12 @@ export function StepLocation({ formData, updateFields }: Props) {
                                 const t = LOCATION_DATA[formData.state]?.[c];
                                 return (
                                     <button key={c} onClick={() => handleCitySelect(c)}
-                                        className="bg-[#ffffff] border border-[#1a1a1a]/[0.06] rounded-none px-3 py-1.5 cursor-pointer hover:border-[#8b6f47]/50 transition-all group">
+                                        className="bg-kiro-surface border border-kiro-ink/[0.06] rounded-none px-3 py-1.5 cursor-pointer hover:border-kiro-accent/50 transition-all group">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[#1a1a1a]/70 text-xs group-hover:text-[#1a1a1a] transition-colors">{c}</span>
-                                            <span className={`text-[9px] font-bold px-1 py-0 rounded-none uppercase tracking-tighter opacity-70 ${t === "tier1" ? "bg-[#8b6f47]/15 text-[#8b6f47]" :
+                                            <span className="text-kiro-ink/70 text-xs group-hover:text-kiro-ink transition-colors">{c}</span>
+                                            <span className={`text-[9px] font-bold px-1 py-0 rounded-none uppercase tracking-tighter opacity-70 ${t === "tier1" ? "bg-kiro-accent/15 text-kiro-accent" :
                                                 t === "tier2" ? "bg-amber-500/15 text-amber-500" :
-                                                    "bg-[#1a1a1a]/10 text-[#1a1a1a]/70"
+                                                    "bg-kiro-ink/10 text-kiro-ink/70"
                                                 }`}>
                                                 {t}
                                             </span>
@@ -184,38 +184,38 @@ export function StepLocation({ formData, updateFields }: Props) {
 
             {/* Tier badge */}
             {tierInfo && (
-                <div className={`bg-[#ffffff] border-2 rounded-none p-5 mt-2 animate-in zoom-in-95 duration-300 shadow-xl ${formData.cityTier === "tier1" ? "border-[#8b6f47]/20 bg-[#8b6f47]/5" :
+                <div className={`bg-kiro-surface border-2 rounded-none p-5 mt-2 animate-in zoom-in-95 duration-300 shadow-xl ${formData.cityTier === "tier1" ? "border-kiro-accent/20 bg-kiro-accent/5" :
                     formData.cityTier === "tier2" ? "border-amber-500/20 bg-amber-500/5" :
-                        "border-[#1a1a1a]/[0.06] bg-[#ffffff]/50"
+                        "border-kiro-ink/[0.06] bg-kiro-surface/50"
                     }`}>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-2.5">
-                            <span className={`text-sm font-black px-3 py-1 rounded-none uppercase tracking-wider ${formData.cityTier === "tier1" ? "bg-[#8b6f47]/15 text-[#8b6f47]" :
+                            <span className={`text-sm font-black px-3 py-1 rounded-none uppercase tracking-wider ${formData.cityTier === "tier1" ? "bg-kiro-accent/15 text-kiro-accent" :
                                 formData.cityTier === "tier2" ? "bg-amber-500/15 text-amber-500" :
-                                    "bg-[#1a1a1a]/10 text-[#1a1a1a]/70"
+                                    "bg-kiro-ink/10 text-kiro-ink/70"
                                 }`}>
                                 {tierInfo.label}
                             </span>
-                            <span className="text-[#5a5a5a] text-xs font-semibold uppercase tracking-widest">
+                            <span className="text-kiro-inkSoft text-xs font-semibold uppercase tracking-widest">
                                 Location Class
                             </span>
                         </div>
                         <div className="text-right">
-                            <span className="text-[#5a5a5a] text-[10px] font-bold uppercase block -mb-1">Tier Multiplier</span>
-                            <span className={`text-2xl font-black italic tracking-tight ${formData.cityTier === "tier1" ? "text-[#8b6f47]" :
+                            <span className="text-kiro-inkSoft text-[10px] font-bold uppercase block -mb-1">Tier Multiplier</span>
+                            <span className={`text-2xl font-black italic tracking-tight ${formData.cityTier === "tier1" ? "text-kiro-accent" :
                                 formData.cityTier === "tier2" ? "text-amber-500" :
-                                    "text-[#1a1a1a]/70"
+                                    "text-kiro-ink/70"
                                 }`}>
                                 {tierInfo.multiplier}×
                             </span>
                         </div>
                     </div>
-                    <div className="mt-4 pt-4 border-t border-[#1a1a1a]/[0.06]">
-                        <p className="text-[#5a5a5a] text-xs leading-relaxed">
-                            <span className="text-[#1a1a1a] font-semibold">{formData.city}, {formData.state}</span> —
-                            Operational costs and logistics rates will be adjusted by the <span className={`font-bold underline underline-offset-4 decoration-current/30 ${formData.cityTier === "tier1" ? "text-[#8b6f47]" :
+                    <div className="mt-4 pt-4 border-t border-kiro-ink/[0.06]">
+                        <p className="text-kiro-inkSoft text-xs leading-relaxed">
+                            <span className="text-kiro-ink font-semibold">{formData.city}, {formData.state}</span> —
+                            Operational costs and logistics rates will be adjusted by the <span className={`font-bold underline underline-offset-4 decoration-current/30 ${formData.cityTier === "tier1" ? "text-kiro-accent" :
                                 formData.cityTier === "tier2" ? "text-amber-500" :
-                                    "text-[#1a1a1a]/70"
+                                    "text-kiro-ink/70"
                                 }`}>{tierInfo.label.toLowerCase()} multiplier</span>.
                         </p>
                     </div>

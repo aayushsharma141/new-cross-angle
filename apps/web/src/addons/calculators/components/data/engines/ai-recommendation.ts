@@ -401,7 +401,7 @@ export function computeAIRecommendation(context: EngineContext): AIRecommendatio
     });
 
   return {
-    strategyLabel: topPath.path.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
+    strategyLabel: topPath.path.replace(/_/g, " ").replace(/kiro-accent\w/g, l => l.toUpperCase()),
     propertyFit: context.propertySuitability.score,
     propertyFitTier: context.propertySuitability.tier,
     executionPath: topPath.path,

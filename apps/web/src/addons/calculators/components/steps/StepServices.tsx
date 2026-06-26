@@ -28,7 +28,7 @@ export function StepServices({ formData, updateField }: Props) {
     const toggle = (id: string) => setExpandedId(prev => prev === id ? null : id);
 
     return (
-        <div className="max-w-4xl mx-auto overflow-y-auto max-h-[65vh] pr-1 scroll-smooth">
+        <div className="max-w-4xl mx-auto">
             <AnimatedContent distance={20} delay={0.05} duration={0.6}>
                 <motion.div
                     variants={cardListContainer}
@@ -73,26 +73,26 @@ export function StepServices({ formData, updateField }: Props) {
                                         <div className="flex justify-between items-start gap-4">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-3 mb-1.5">
-                                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-none uppercase tracking-wider transition-colors ${selected ? "bg-[#8b6f47] text-black" : "bg-[#1a1a1a]/10 text-[#1a1a1a]/70"
+                                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-none uppercase tracking-wider transition-colors ${selected ? "bg-kiro-accent text-black" : "bg-kiro-ink/10 text-kiro-ink/70"
                                                         }`}>
                                                         {svc.id}
                                                     </span>
-                                                    <span className={`font-bold text-base transition-colors group-hover:text-[#1a1a1a] ${selected ? "text-[#8b6f47] font-bold" : "text-[#1a1a1a]/80 font-medium"
+                                                    <span className={`font-bold text-base transition-colors group-hover:text-kiro-ink ${selected ? "text-kiro-accent font-bold" : "text-kiro-ink/80 font-medium"
                                                         }`}>
                                                         {svc.label}
                                                     </span>
                                                 </div>
-                                                <div className={`text-xs leading-relaxed max-w-md transition-colors ${selected ? "text-[#1a1a1a]/75" : "text-[#5a5a5a]"}`}>
+                                                <div className={`text-xs leading-relaxed max-w-md transition-colors ${selected ? "text-kiro-ink/75" : "text-kiro-inkSoft"}`}>
                                                     {svc.desc}
                                                 </div>
                                             </div>
                                             <div className="text-right flex flex-col items-end">
-                                                <div className={`font-black text-sm tracking-tight transition-colors ${svc.tiers ? "text-[#8b6f47]" : selected ? "text-[#8b6f47]" : "text-[#1a1a1a]/95"
+                                                <div className={`font-black text-sm tracking-tight transition-colors ${svc.tiers ? "text-kiro-accent" : selected ? "text-kiro-accent" : "text-kiro-ink/95"
                                                     }`}>
                                                     {svc.rateLabel}
                                                 </div>
                                                 {selected && (
-                                                    <span className="text-[#8b6f47] text-[10px] font-bold uppercase mt-1 animate-pulse">
+                                                    <span className="text-kiro-accent text-[10px] font-bold uppercase mt-1 animate-pulse">
                                                         Selected
                                                     </span>
                                                 )}
@@ -101,11 +101,11 @@ export function StepServices({ formData, updateField }: Props) {
                                     </button>
 
                                     {/* Expand toggle */}
-                                    <div className="px-5 pb-3 flex justify-between items-center border-t border-[#1a1a1a]/[0.06]">
+                                    <div className="px-5 pb-3 flex justify-between items-center border-t border-kiro-ink/[0.06]">
                                         <button type="button" onClick={() => toggle(svc.id)}
                                             {...{"aria-expanded": expanded}}
                                             aria-controls={`svc-details-${svc.id}`}
-                                            className="text-[#5a5a5a] text-[11px] font-semibold hover:text-[#8b6f47] transition-colors uppercase tracking-widest flex items-center gap-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] rounded-sm"
+                                            className="text-kiro-inkSoft text-[11px] font-semibold hover:text-kiro-accent transition-colors uppercase tracking-widest flex items-center gap-1 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent rounded-sm"
                                             >
                                             {expanded ? (
                                                 <>Hide Details <ChevronUp size={14} /></>
@@ -117,17 +117,17 @@ export function StepServices({ formData, updateField }: Props) {
 
                                     {/* Expanded details */}
                                     {expanded && (
-                                        <div id={`svc-details-${svc.id}`} className="border-t border-[#1a1a1a]/[0.06] bg-site-bg/20 p-5 grid grid-cols-1 sm:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <div id={`svc-details-${svc.id}`} className="border-t border-kiro-ink/[0.06] bg-site-bg/20 p-5 grid grid-cols-1 sm:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-2 duration-300">
                                             {/* Includes */}
                                             <div>
-                                                <div className="text-[#8b6f47] text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                <div className="text-kiro-accent text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-current" />
                                                     Deliverables
                                                 </div>
                                                 <div className="space-y-2">
                                                     {svc.includes.map((item, i) => (
-                                                        <div key={i} className="text-[#1a1a1a] text-[12px] flex items-start gap-2 leading-snug">
-                                                            <span className="text-[#8b6f47]/60 mt-0.5">•</span>
+                                                        <div key={i} className="text-kiro-ink text-[12px] flex items-start gap-2 leading-snug">
+                                                            <span className="text-kiro-accent/60 mt-0.5">•</span>
                                                             {item}
                                                         </div>
                                                     ))}
@@ -137,14 +137,14 @@ export function StepServices({ formData, updateField }: Props) {
                                             <div className="space-y-4">
                                                 {svc.excludes && svc.excludes.length > 0 && (
                                                     <div>
-                                                        <div className="text-[#8b6f47] text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                        <div className="text-kiro-accent text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2">
                                                             <div className="w-1.5 h-1.5 rounded-full bg-current" />
                                                             Out of Scope
                                                         </div>
                                                         <div className="space-y-2">
                                                             {svc.excludes.map((item, i) => (
-                                                                <div key={i} className="text-[#5a5a5a] text-[12px] flex items-start gap-2 leading-snug italic">
-                                                                    <span className="text-[#1a1a1a]/20 mt-0.5">✗</span>
+                                                                <div key={i} className="text-kiro-inkSoft text-[12px] flex items-start gap-2 leading-snug italic">
+                                                                    <span className="text-kiro-ink/20 mt-0.5">✗</span>
                                                                     {item}
                                                                 </div>
                                                             ))}
@@ -155,20 +155,20 @@ export function StepServices({ formData, updateField }: Props) {
                                                 <div className="grid grid-cols-2 gap-4 pt-2">
                                                     {svc.revisions && (
                                                         <div>
-                                                            <div className="text-[10px] text-[#5a5a5a] uppercase font-black tracking-tighter">Revisions</div>
-                                                            <div className="text-xs text-[#1a1a1a] mt-0.5 font-medium">{svc.revisions}</div>
+                                                            <div className="text-[10px] text-kiro-inkSoft uppercase font-black tracking-tighter">Revisions</div>
+                                                            <div className="text-xs text-kiro-ink mt-0.5 font-medium">{svc.revisions}</div>
                                                         </div>
                                                     )}
                                                     {svc.timeline && (
                                                         <div>
-                                                            <div className="text-[10px] text-[#5a5a5a] uppercase font-black tracking-tighter">Turnaround</div>
-                                                            <div className="text-xs text-[#1a1a1a] mt-0.5 font-medium">{svc.timeline}</div>
+                                                            <div className="text-[10px] text-kiro-inkSoft uppercase font-black tracking-tighter">Turnaround</div>
+                                                            <div className="text-xs text-kiro-ink mt-0.5 font-medium">{svc.timeline}</div>
                                                         </div>
                                                     )}
                                                 </div>
 
                                                 {svc.extras && (
-                                                    <div className="bg-[#8b6f47]/5 border border-[#8b6f47]/20 rounded-none p-3 text-[11px] text-[#8b6f47]/80 leading-relaxed font-medium">
+                                                    <div className="bg-kiro-accent/5 border border-kiro-accent/20 rounded-none p-3 text-[11px] text-kiro-accent/80 leading-relaxed font-medium">
                                                         <span className="font-black mr-1">NOTE:</span> {svc.extras}
                                                     </div>
                                                 )}
@@ -178,8 +178,8 @@ export function StepServices({ formData, updateField }: Props) {
 
                                     {/* Execution tiers for services that have them */}
                                     {selected && svc.tiers && (
-                                        <div className="border-t border-[#1a1a1a]/[0.06] bg-site-bg/40 p-5">
-                                            <div className="text-[#5a5a5a] text-[10px] font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                                        <div className="border-t border-kiro-ink/[0.06] bg-site-bg/40 p-5">
+                                            <div className="text-kiro-inkSoft text-[10px] font-black uppercase tracking-widest mb-4 flex items-center gap-2">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
                                                 Select Execution Grade
                                             </div>
@@ -195,28 +195,28 @@ export function StepServices({ formData, updateField }: Props) {
                                                         <button type="button" key={key}
                                                             onClick={() => updateField("executionTier", key as ExecutionTierId)}
                                                             className={`group border-2 rounded-none p-4 text-left transition-all duration-200 relative overflow-hidden ${active
-                                                                ? "bg-[#8b6f47]/10 border-[#8b6f47] ring-2 ring-[#8b6f47]/10"
-                                                                : "bg-[#ffffff] border-[#1a1a1a]/[0.06] hover:border-[#8b6f47]/30"
+                                                                ? "bg-kiro-accent/10 border-kiro-accent ring-2 ring-kiro-accent/10"
+                                                                : "bg-kiro-surface border-kiro-ink/[0.06] hover:border-kiro-accent/30"
                                                                 }`}
                                                             title={`Select ${label} execution grade`}>
                                                             <div className="flex gap-3 h-full">
                                                                 {imageId && (
                                                                     <div className="w-12 h-12 shrink-0">
-                                                                        <img src={getOptimizedUrl(imageId, { width: 96, quality: 75 })} alt={label} className="w-full h-full object-cover rounded-md border border-[#1a1a1a]/10" />
+                                                                        <img src={getOptimizedUrl(imageId, { width: 96, quality: 75 })} alt={label} className="w-full h-full object-cover rounded-md border border-kiro-ink/10" />
                                                                     </div>
                                                                 )}
                                                                 <div className="flex-1 flex flex-col justify-center">
                                                                     <div className="flex justify-between items-center mb-1">
-                                                                        <div className={`font-black text-sm uppercase tracking-tight transition-colors ${active ? "text-[#8b6f47] font-bold" : "text-[#1a1a1a]/80"
+                                                                        <div className={`font-black text-sm uppercase tracking-tight transition-colors ${active ? "text-kiro-accent font-bold" : "text-kiro-ink/80"
                                                                             }`}>
                                                                             {label}
                                                                         </div>
-                                                                        {active && <div className="w-1.5 h-1.5 rounded-full bg-[#8b6f47] shadow-[0_0_8px_rgba(209,175,110,0.5)]" />}
+                                                                        {active && <div className="w-1.5 h-1.5 rounded-full bg-kiro-accent shadow-[0_0_8px_rgba(209,175,110,0.5)]" />}
                                                                     </div>
-                                                                    <div className="text-[#8b6f47] text-sm font-black italic tracking-tight mb-1">
+                                                                    <div className="text-kiro-accent text-sm font-black italic tracking-tight mb-1">
                                                                         ₹{staticTier.min.toLocaleString()} – ₹{staticTier.max.toLocaleString()} <span className="text-[10px] opacity-70">/sqft</span>
                                                                     </div>
-                                                                    <div className="text-[#5a5a5a] text-[10px] leading-relaxed line-clamp-2">
+                                                                    <div className="text-kiro-inkSoft text-[10px] leading-relaxed line-clamp-2">
                                                                         {desc}
                                                                     </div>
                                                                 </div>

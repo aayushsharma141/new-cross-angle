@@ -31,25 +31,25 @@ function Counter({ label, value, onChange, min = 0, max = 20 }: {
     label: string; value: number; onChange: (v: number) => void; min?: number; max?: number;
 }) {
     return (
-        <div className="flex items-center justify-between rounded-[8px] px-4 py-2.5 border bg-[#ffffff]/80 border-[#1a1a1a]/[0.06] hover:border-[#1a1a1a]/[0.12] transition-all duration-300" role="group" aria-label={`${label}: ${value}`}>
-            <span className="text-sm font-medium text-[#1a1a1a]/90" id={`counter-${label.replace(/\s/g, '-').toLowerCase()}`}>{label}</span>
+        <div className="flex items-center justify-between rounded-[8px] px-4 py-2.5 border bg-kiro-surface/80 border-kiro-ink/[0.06] hover:border-kiro-ink/[0.12] transition-all duration-300" role="group" aria-label={`${label}: ${value}`}>
+            <span className="text-sm font-medium text-kiro-ink/90" id={`counter-${label.replace(/\s/g, '-').toLowerCase()}`}>{label}</span>
             <div className="flex items-center gap-3">
                 <button
                     type="button"
                     aria-label={`Decrease ${label}`}
                     disabled={value <= min}
                     onClick={() => onChange(Math.max(min, value - 1))}
-                    className="w-7 h-7 flex items-center justify-center rounded-full border text-base transition-all duration-200 bg-[#ffffff] border-[#1a1a1a]/[0.08] text-[#1a1a1a]/80 hover:bg-[#8b6f47] hover:text-white hover:border-[#8b6f47] hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47]"
+                    className="w-7 h-7 flex items-center justify-center rounded-full border text-base transition-all duration-200 bg-kiro-surface border-kiro-ink/[0.08] text-kiro-ink/80 hover:bg-kiro-accent hover:text-white hover:border-kiro-accent hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent"
                 >
                     −
                 </button>
-                <span className="font-mono font-semibold w-6 text-center text-[#1a1a1a] text-[15px] tabular-nums" aria-live="polite" aria-atomic="true">{value}</span>
+                <span className="font-mono font-semibold w-6 text-center text-kiro-ink text-[15px] tabular-nums" aria-live="polite" aria-atomic="true">{value}</span>
                 <button
                     type="button"
                     aria-label={`Increase ${label}`}
                     disabled={value >= max}
                     onClick={() => onChange(Math.min(max, value + 1))}
-                    className="w-7 h-7 flex items-center justify-center rounded-full border text-base transition-all duration-200 bg-[#ffffff] border-[#1a1a1a]/[0.08] text-[#1a1a1a]/80 hover:bg-[#8b6f47] hover:text-white hover:border-[#8b6f47] hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47]"
+                    className="w-7 h-7 flex items-center justify-center rounded-full border text-base transition-all duration-200 bg-kiro-surface border-kiro-ink/[0.08] text-kiro-ink/80 hover:bg-kiro-accent hover:text-white hover:border-kiro-accent hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent"
                 >
                     +
                 </button>
@@ -66,8 +66,8 @@ function ToggleChip({ label, active, onClick }: { label: string; active: boolean
             className={`
                 flex-1 min-w-[120px] px-4 py-4 rounded-[8px] border text-center transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2
                 ${active
-                    ? "bg-[rgba(209,175,110,0.08)] border-[#8b6f47] text-[#8b6f47] shadow-[0_4px_20px_rgba(209,175,110,0.15)] -translate-y-0.5 font-bold"
-                    : "bg-[#ffffff]/80 border-[#1a1a1a]/[0.06] text-[#1a1a1a]/80 hover:border-[#8b6f47]/40 hover:-translate-y-0.5 hover:text-[#1a1a1a] font-medium"
+                    ? "bg-[rgba(209,175,110,0.08)] border-kiro-accent text-kiro-accent shadow-[0_4px_20px_rgba(209,175,110,0.15)] -translate-y-0.5 font-bold"
+                    : "bg-kiro-surface/80 border-kiro-ink/[0.06] text-kiro-ink/80 hover:border-kiro-accent/40 hover:-translate-y-0.5 hover:text-kiro-ink font-medium"
                 }
             `}
         >
@@ -143,7 +143,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                                     whileHover={CARD_INTERACTIONS.whileHover}
                                     whileTap={CARD_INTERACTIONS.whileTap}
                                     onClick={() => applyBHK(bhk)}
-                                    className={selectableCardClassLight(active, `px-4.5 py-2 text-sm ${active ? "font-bold text-[#8b6f47]" : "font-normal text-[#1a1a1a]/80"}`)}
+                                    className={selectableCardClassLight(active, `px-4.5 py-2 text-sm ${active ? "font-bold text-kiro-accent" : "font-normal text-kiro-ink/80"}`)}
                                 >
                                     {active && (
                                         <motion.span
@@ -164,7 +164,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
             {/* ── Area slider ── */}
             <div className="mb-6">
                 <label htmlFor="area-slider" className={labelStyle}>
-                    Carpet Area: <span className="font-bold text-[#8b6f47]">{formData.area.toLocaleString()} sq ft</span>
+                    Carpet Area: <span className="font-bold text-kiro-accent">{formData.area.toLocaleString()} sq ft</span>
                 </label>
                 <div className="flex items-center gap-4">
                     <input
@@ -174,7 +174,7 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                         min={200} max={15000} step={50}
                         value={formData.area}
                         onChange={e => updateField("area", Number(e.target.value))}
-                        className="flex-1 h-2 bg-[#ffffff] border border-[#1a1a1a]/[0.06] rounded-full appearance-none cursor-pointer accent-[#8b6f47] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                        className="flex-1 h-2 bg-kiro-surface border border-kiro-ink/[0.06] rounded-full appearance-none cursor-pointer accent-kiro-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                     />
                     <input
                         type="number"
@@ -182,10 +182,10 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                         min={200} max={15000} step={50}
                         value={formData.area}
                         onChange={e => updateField("area", Number(e.target.value))}
-                        className="w-24 bg-[#ffffff] !bg-[#ffffff] border border-[#1a1a1a]/[0.08] focus:border-[#8b6f47] rounded-[8px] px-3 py-1.5 text-[#1a1a1a] !text-[#1a1a1a] text-sm outline-none transition-all shadow-inner placeholder:text-[#1a1a1a]/30 text-center font-mono font-semibold focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                        className="w-24 bg-kiro-surface !bg-kiro-surface border border-kiro-ink/[0.08] focus:border-kiro-accent rounded-[8px] px-3 py-1.5 text-kiro-ink !text-kiro-ink text-sm outline-none transition-all shadow-inner placeholder:text-kiro-ink/30 text-center font-mono font-semibold focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                     />
                 </div>
-                <div className="flex justify-between text-[#5a5a5a] text-xs mt-1">
+                <div className="flex justify-between text-kiro-inkSoft text-xs mt-1">
                     <span>200 sq ft</span><span>15,000 sq ft</span>
                 </div>
             </div>
@@ -257,8 +257,8 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                                         className={`
                                             px-3 py-1.5 rounded-none text-xs border transition-all duration-200
                                             ${active
-                                                ? "bg-[#8b6f47]/15 border-[#8b6f47] text-[#8b6f47] shadow-[0_0_10px_rgba(209,175,110,0.2)]"
-                                                : "bg-[#ffffff] border-[#1a1a1a]/[0.06] text-[#1a1a1a]/70 hover:border-[#8b6f47]/40 hover:text-[#1a1a1a]"
+                                                ? "bg-kiro-accent/15 border-kiro-accent text-kiro-accent shadow-[0_0_10px_rgba(209,175,110,0.2)]"
+                                                : "bg-kiro-surface border-kiro-ink/[0.06] text-kiro-ink/70 hover:border-kiro-accent/40 hover:text-kiro-ink"
                                             }
                                         `}
                                     >
@@ -285,13 +285,13 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                                     className={`
                                         px-5 py-4 rounded-[8px] border text-left transition-all duration-300 cursor-pointer
                                         ${active
-                                            ? "bg-[rgba(209,175,110,0.08)] border-[#8b6f47] shadow-[0_4px_20px_rgba(209,175,110,0.15)] -translate-y-0.5"
-                                            : "bg-[#ffffff]/80 border-[#1a1a1a]/[0.06] hover:border-[#8b6f47]/40 hover:-translate-y-0.5"
+                                            ? "bg-[rgba(209,175,110,0.08)] border-kiro-accent shadow-[0_4px_20px_rgba(209,175,110,0.15)] -translate-y-0.5"
+                                            : "bg-kiro-surface/80 border-kiro-ink/[0.06] hover:border-kiro-accent/40 hover:-translate-y-0.5"
                                         }
                                     `}
                                 >
-                                    <div className={`text-sm font-semibold transition-colors ${active ? "text-[#8b6f47]" : "text-[#1a1a1a]"}`}>{s.label}</div>
-                                    <div className={`text-[11px] mt-0.5 transition-colors ${active ? "text-[#1a1a1a]/70" : "text-[#5a5a5a]"}`}>{s.desc}</div>
+                                    <div className={`text-sm font-semibold transition-colors ${active ? "text-kiro-accent" : "text-kiro-ink"}`}>{s.label}</div>
+                                    <div className={`text-[11px] mt-0.5 transition-colors ${active ? "text-kiro-ink/70" : "text-kiro-inkSoft"}`}>{s.desc}</div>
                                 </button>
                             );
                         })}
@@ -327,13 +327,13 @@ export function StepPropertyDetails({ formData, updateField, updateFields }: Pro
                                     className={`
                                         px-5 py-4 rounded-[8px] border text-left transition-all duration-300 cursor-pointer
                                         ${active
-                                            ? "bg-[rgba(209,175,110,0.08)] border-[#8b6f47] shadow-[0_4px_20px_rgba(209,175,110,0.15)] -translate-y-0.5"
-                                            : "bg-[#ffffff]/80 border-[#1a1a1a]/[0.06] hover:border-[#8b6f47]/40 hover:-translate-y-0.5"
+                                            ? "bg-[rgba(209,175,110,0.08)] border-kiro-accent shadow-[0_4px_20px_rgba(209,175,110,0.15)] -translate-y-0.5"
+                                            : "bg-kiro-surface/80 border-kiro-ink/[0.06] hover:border-kiro-accent/40 hover:-translate-y-0.5"
                                         }
                                     `}
                                 >
-                                    <div className={`text-sm font-semibold transition-colors ${active ? "text-[#8b6f47]" : "text-[#1a1a1a]"}`}>{s.l}</div>
-                                    <div className={`text-[11px] mt-0.5 transition-colors ${active ? "text-[#1a1a1a]/70" : "text-[#5a5a5a]"}`}>{s.d}</div>
+                                    <div className={`text-sm font-semibold transition-colors ${active ? "text-kiro-accent" : "text-kiro-ink"}`}>{s.l}</div>
+                                    <div className={`text-[11px] mt-0.5 transition-colors ${active ? "text-kiro-ink/70" : "text-kiro-inkSoft"}`}>{s.d}</div>
                                 </button>
                             );
                         })}

@@ -114,15 +114,15 @@ export const breathingTransition = {
 
 /** Light base — white glass card on cream background */
 export const CARD_BASE_LIGHT =
-    "bg-white/85 backdrop-blur-md border border-[#1a1a1a]/[0.06] rounded-[8px] transition-all duration-300 relative overflow-hidden";
+    "bg-white/85 backdrop-blur-md border border-kiro-ink/[0.06] rounded-[8px] transition-all duration-300 relative overflow-hidden";
 
 /** Light idle hover — warm sage accent reveal */
 export const CARD_HOVER_LIGHT =
-    "hover:border-[#8b6f47]/50 hover:bg-white/95 hover:shadow-[0_4px_16px_rgba(139,111,71,0.08)] cursor-pointer";
+    "hover:border-kiro-accent/50 hover:bg-white/95 hover:shadow-[0_4px_16px_rgba(139,111,71,0.08)] cursor-pointer";
 
 /** Light selected — sage gold tint with distinct border + lift */
 export const CARD_SELECTED_LIGHT =
-    "bg-[#8b6f47]/[0.12] border-[#8b6f47] ring-1 ring-[#8b6f47] scale-[1.02] shadow-[0_4px_24px_rgba(139,111,71,0.22)] z-10 cursor-pointer";
+    "bg-kiro-accent/[0.12] border-kiro-accent ring-1 ring-kiro-accent scale-[1.02] shadow-[0_4px_24px_rgba(139,111,71,0.22)] z-10 cursor-pointer";
 
 /**
  * Light-mode version of selectableCardClass.
