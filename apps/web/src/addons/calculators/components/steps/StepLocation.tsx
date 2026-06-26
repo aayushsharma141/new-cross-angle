@@ -9,8 +9,8 @@ interface Props {
     updateFields: (partial: Partial<CalculatorFormData>) => void;
 }
 
-const labelStyle = "block text-sm font-medium mb-2 text-gray-500";
-const inputStyle = "w-full bg-[#ffffff] !bg-[#ffffff] border border-[#1a1a1a]/[0.08] focus:border-[#8b6f47] rounded-[8px] px-4 py-2.5 text-[#1a1a1a] !text-[#1a1a1a] text-sm outline-none transition-all shadow-inner placeholder:text-[#1a1a1a]/30";
+const labelStyle = "block text-sm font-medium mb-2 text-[#5a5a5a]";
+const inputStyle = "w-full bg-[#ffffff] !bg-[#ffffff] border border-[#1a1a1a]/[0.08] focus:border-[#8b6f47] rounded-[8px] px-4 py-2.5 text-[#1a1a1a] !text-[#1a1a1a] text-sm outline-none transition-all shadow-inner placeholder:text-[#1a1a1a]/30 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2";
 const dropdownStyle = "bg-[#ffffff] border border-[#1a1a1a]/[0.08] rounded-[8px] mt-1.5 max-h-52 overflow-y-auto shadow-2xl z-50 relative pointer-events-auto";
 const dropdownItemStyle = "flex justify-between items-center w-full bg-transparent border-none text-[#1a1a1a] px-4 py-2.5 cursor-pointer text-sm text-left hover:bg-[#8b6f47]/10 transition-colors";
 
@@ -98,7 +98,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                 )}
                 {/* Show state chips when no search text */}
                 {!stateSearch && !formData.state && (
-                    <div className="flex flex-wrap gap-2 mt-3 max-h-40 overflow-y-auto pr-1">
+                    <div className="flex flex-wrap gap-2 mt-3">
                         {states.map(s => (
                             <button key={s} onClick={() => handleStateSelect(s)}
                                 className="bg-[#ffffff] border border-[#1a1a1a]/[0.06] text-[#1a1a1a]/70 rounded-none px-3 py-1.5 cursor-pointer text-xs hover:border-[#8b6f47]/50 hover:text-[#1a1a1a] transition-all">
@@ -159,7 +159,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                         </div>
                     )}
                     {!citySearch && !formData.city && (
-                        <div className="flex flex-wrap gap-2 mt-3 overflow-y-auto pr-1">
+                        <div className="flex flex-wrap gap-2 mt-3">
                             {cities.map(c => {
                                 const t = LOCATION_DATA[formData.state]?.[c];
                                 return (

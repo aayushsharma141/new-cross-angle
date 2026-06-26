@@ -9,7 +9,6 @@ import { INVESTMENT_PRESETS } from "../data/pricing-config";
 import {
     selectableCardClassLight,
     CARD_INTERACTIONS,
-    cardListContainer,
     cardListItem,
     breathingAnimationLight,
     breathingTransitionLight,
@@ -86,19 +85,22 @@ export function StepBudget({ formData, updateField }: Props) {
                 </div>
             </div>
 
-            {/* Presets */}
-            <motion.div
-                variants={cardListContainer}
-                initial="hidden"
-                animate="show"
+            {/* Presets — radiogroup semantics */}
+            <div
+                role="radiogroup"
+                aria-label="Investment presets"
                 className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"
             >
-                {investmentPresets.map(bp => {
+                {investmentPresets.map((bp, i) => {
                     const active = formData.budgetPreset === bp.label;
+                    const isTabable = active || (!formData.budgetPreset && i === 0);
                     return (
                         <motion.button
                             type="button"
                             key={bp.label}
+                            role="radio"
+                            aria-checked={active}
+                            tabIndex={isTabable ? 0 : -1}
                             variants={cardListItem}
                             whileHover={CARD_INTERACTIONS.whileHover}
                             whileTap={CARD_INTERACTIONS.whileTap}
@@ -123,7 +125,7 @@ export function StepBudget({ formData, updateField }: Props) {
                         </motion.button>
                     );
                 })}
-            </motion.div>
+            </div>
 
             {/* Feasibility bar */}
             <div className="rounded-none px-4 py-3 border border-[#1a1a1a]/[0.06] bg-[#ffffff]">

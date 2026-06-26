@@ -149,7 +149,21 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
     }
 
     return (
-        <div className="min-h-[100dvh] grid grid-cols-1 md:grid-cols-[280px_1fr] bg-[#faf8f5] font-sans text-[#1a1a1a] relative overflow-x-hidden">
+        <form 
+            onSubmit={(e) => { 
+                e.preventDefault(); 
+                if (canProceed && !isSaving) nextStep(); 
+            }}
+            className="min-h-[100dvh] grid grid-cols-1 md:grid-cols-[280px_1fr] bg-[#faf8f5] font-sans text-[#1a1a1a] relative overflow-x-hidden"
+        >
+            {/* Skip link — first focusable element, visible only on keyboard focus */}
+            <a
+                href="#estimator-form-content"
+                className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[200] focus:px-4 focus:py-2 focus:bg-[#8b6f47] focus:text-white focus:rounded-[8px] focus:text-sm focus:font-semibold focus:shadow-lg"
+            >
+                Skip to form
+            </a>
+
             {/* Dark Premium Background */}
             <EstimatorBackground />
 
@@ -310,7 +324,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                     </div>
                 </div>
 
-                <div className="flex-1 min-h-0">
+                <div id="estimator-form-content" className="flex-1 min-h-0" tabIndex={-1}>
                     {/* Compact step heading — sidebar owns counter + subtitle; main keeps just the contextual H2 */}
                     <h2 className="text-[22px] sm:text-[26px] font-semibold tracking-tight font-serif text-[#1a1a1a] mb-5 leading-tight">
                         {stepInfo.title}
@@ -336,9 +350,10 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                 </div>
 
                 <div className="flex flex-col gap-2 mt-8 sm:mt-[40px] pt-[20px] sm:pt-[24px] border-t border-[#1a1a1a]/[0.06]">
-                    {/* Validation message */}
+                    {/* Validation message — id used by aria-describedby on Continue */}
                     {validationMessage && (
                         <motion.p
+                            id="step-validation-msg"
                             initial={{ opacity: 0, y: 4 }}
                             animate={{ opacity: 1, y: 0 }}
                             className="text-[13px] text-amber-700 font-medium text-right"
@@ -363,6 +378,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                             onClick={nextStep} 
                             disabled={!canProceed || isSaving}
                             aria-label={currentStep === STEP_LABELS.length - 1 ? "Get your estimate" : `Continue to ${STEP_LABELS[currentStep + 1] || "next step"}`}
+                            aria-describedby={validationMessage ? "step-validation-msg" : undefined}
                             className="px-5 sm:px-[28px] py-[12px] sm:py-[14px] bg-[#8b6f47] text-white hover:bg-[#705939] rounded-[10px] text-[14px] sm:text-[15px] font-semibold transition-all duration-200 shadow-[0_4px_12px_rgba(139,111,71,0.2)] hover:shadow-[0_6px_20px_rgba(139,111,71,0.3)] active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
                         >
                             {isSaving ? (
@@ -380,6 +396,6 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                     </div>
                 </div>
             </main>
-        </div>
+        </form>
     );
 }

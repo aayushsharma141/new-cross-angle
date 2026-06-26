@@ -1,5 +1,6 @@
 /* Step 7 — Timeline & Contact */
 
+import React from "react";
 import { motion } from "framer-motion";
 import { Zap, Calendar, Search, ClipboardList } from "lucide-react";
 import type { CalculatorFormData } from "../data/types";
@@ -8,7 +9,6 @@ import { TIMELINE_OPTIONS } from "../data/pricing-config";
 import {
     selectableCardClassLight,
     CARD_INTERACTIONS,
-    cardListContainer,
     cardListItem,
     breathingAnimationLight,
     breathingTransitionLight,
@@ -37,19 +37,22 @@ export function StepTimeline({ formData, updateField }: Props) {
         <div className="max-w-4xl mx-auto">
 
 
-            {/* Timeline options */}
-            <motion.div
-                variants={cardListContainer}
-                initial="hidden"
-                animate="show"
+            {/* Timeline options — radiogroup for keyboard/screen reader nav */}
+            <div
+                role="radiogroup"
+                aria-label="Project start timeline"
                 className="grid grid-cols-3 gap-3 mb-6"
             >
-                {timelineOptions.map(opt => {
+                {timelineOptions.map((opt, i) => {
                     const active = formData.startTiming === opt.label;
+                    const isTabable = active || (!formData.startTiming && i === 0);
                     return (
                         <motion.button
                             type="button"
                             key={opt.label}
+                            role="radio"
+                            aria-checked={active}
+                            tabIndex={isTabable ? 0 : -1}
                             variants={cardListItem}
                             whileHover={CARD_INTERACTIONS.whileHover}
                             whileTap={CARD_INTERACTIONS.whileTap}
@@ -72,7 +75,7 @@ export function StepTimeline({ formData, updateField }: Props) {
                         </motion.button>
                     );
                 })}
-            </motion.div>
+            </div>
 
             {/* Project duration (C4/C5) */}
             {showDuration && (
@@ -132,6 +135,7 @@ export function StepTimeline({ formData, updateField }: Props) {
                             type="text"
                             autoComplete="name"
                             required
+                            aria-required="true"
                             placeholder="Your name"
                             value={formData.name}
                             onChange={e => updateField("name", e.target.value)}
@@ -157,6 +161,7 @@ export function StepTimeline({ formData, updateField }: Props) {
                             type="tel"
                             autoComplete="tel"
                             required
+                            aria-required="true"
                             placeholder="+91 99999 99999"
                             value={formData.phone}
                             onChange={e => updateField("phone", e.target.value)}
