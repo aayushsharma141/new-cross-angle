@@ -101,7 +101,7 @@ const CostEstimatorPage = () => {
       <main id="main-content" className="min-h-screen flex flex-col relative z-10 bg-[#faf8f5] overflow-x-hidden">
         
         {/* Nav Header (Standalone) */}
-        <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4">
+        <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-2">
           <a
             href="/"
             className="flex items-center gap-2 sm:gap-3 shrink-0 group min-w-0 hover:opacity-75 focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 rounded-lg"
@@ -110,7 +110,7 @@ const CostEstimatorPage = () => {
             <img
               src={logoIcon}
               alt="Cross Angle Interior"
-              className="h-11 md:h-16 w-auto transition-all duration-500 shrink-0 animate-in fade-in zoom-in duration-300"
+              className="h-8 md:h-10 w-auto transition-all duration-500 shrink-0 animate-in fade-in zoom-in duration-300"
             />
             <AnimatedLogo
               isScrolled={false}
@@ -159,7 +159,7 @@ const CostEstimatorPage = () => {
           />
         </div>
 
-        <div className="container flex-1 flex flex-col justify-center mx-auto px-6 relative z-10 pt-28 pb-16">
+        <div className="container flex-1 flex flex-col justify-center mx-auto px-6 relative z-10 pt-20 pb-8">
           
           <AnimatePresence mode="wait">
             <motion.div 
@@ -179,7 +179,7 @@ const CostEstimatorPage = () => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="mb-6 flex items-center gap-2 px-5 py-2.5 bg-white/90 backdrop-blur-md border border-[#233526]/20 rounded-full shadow-sm"
+                  className="mb-3 flex items-center gap-2 px-5 py-2.5 bg-white/90 backdrop-blur-md border border-[#233526]/20 rounded-full shadow-sm"
                 >
                   <Sparkles size={14} className="text-[#8b6f47]" />
                   <span className="text-xs font-mono tracking-widest uppercase text-[#1a1a1a] font-bold">
@@ -187,23 +187,23 @@ const CostEstimatorPage = () => {
                   </span>
                 </motion.div>
 
-                <h2 className="text-xs font-mono tracking-[0.35em] uppercase text-[#70593a] font-semibold mb-5">
+                <h2 className="text-xs font-mono tracking-[0.35em] uppercase text-[#70593a] font-semibold mb-3">
                   Interior Personalization Ecosystem
                 </h2>
 
-                <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-serif italic leading-[1.05] mb-5 text-[#1a1a1a] tracking-tight flex flex-col items-center">
+                <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-serif italic leading-[1.05] mb-3 text-[#1a1a1a] tracking-tight flex flex-col items-center">
                   <FallingText text="Estimate with your" className="justify-center" delay={20} />
                   <span className="text-[#233526] mt-2">
                     <FallingText text="Discovery Blueprint." className="justify-center text-[#233526]" delay={20} />
                   </span>
                 </h1>
 
-                <p className="text-lg md:text-xl text-[#5a5a5a] font-light max-w-2xl mb-8 leading-relaxed">
+                <p className="text-lg md:text-xl text-[#5a5a5a] font-light max-w-2xl mb-4 leading-relaxed">
                   The Estimator is the practical execution layer of the Discovery Engine. Start with Discovery for a richer, more personal report, then turn that blueprint into an accurate investment range.
                 </p>
 
                 {/* Connection Status */}
-                <div className="mb-10 flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl border border-[#e8e4dd] rounded-full shadow-sm">
+                <div className="mb-5 flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl border border-[#e8e4dd] rounded-full shadow-sm">
                   {hasBlueprint ? (
                     <CheckCircle2 className="w-4 h-4 text-[#8b6f47]" />
                   ) : (
@@ -252,8 +252,8 @@ const CostEstimatorPage = () => {
                 </div>
               </section>
 
-              <section className="max-w-6xl mx-auto pt-16">
-                <div className="text-center mb-10">
+              <section className="max-w-6xl mx-auto pt-8">
+                <div className="text-center mb-5">
                   <p className="text-[11px] font-mono tracking-[0.25em] uppercase text-[#8b6f47] mb-3">
                     Scope Selection
                   </p>
