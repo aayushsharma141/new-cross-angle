@@ -87,7 +87,7 @@ export default {
 					ink: '#1a1a1a',
 					inkSoft: '#5a5a5a',
 					line: '#e8e4dd',
-					accent: '#8b6f47',
+					accent: '#7a5c30',
 					accentSoft: '#f3ede2',
 					hard: '#d64545',
 					soft: '#e89c3a',

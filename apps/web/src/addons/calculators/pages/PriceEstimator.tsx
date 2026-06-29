@@ -3,24 +3,19 @@ import { Helmet } from "react-helmet-async";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
-  Building2,
   CheckCircle2,
   Compass,
-  LayoutGrid,
-  PaintBucket,
-  PenTool,
   Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoIcon from "@/assets/logo-icon.png";
 import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
-import EstimatorCard from "@/components/estimator/EstimatorCard";
+
 import { CostEstimator } from "@/addons/calculators/components/CostEstimator";
 
 import { MagicRings, SoftAurora, FallingText, Magnet } from "@/components/ReactBits";
 import { loadDiscoveryResult } from "@/addons/discovery/core/persistence";
 import { ECOSYSTEM_COPY, ECOSYSTEM_ROUTES } from "@/addons/_shared/ecosystemCopy";
-import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
 import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
 
 const CostEstimatorPage = () => {
@@ -29,37 +24,26 @@ const CostEstimatorPage = () => {
   const blueprintName = discovery?.aiIdentity?.identityName || discovery?.displayName || discovery?.archetype;
   const hasBlueprint = Boolean(blueprintName);
 
-  const paths = [
-    {
-      id: "residential",
-      title: "Residential",
-      description: "Homes, apartments, and villas planned around lifestyle, rooms, and finish level.",
-      icon: <LayoutGrid size={32} className="text-kiro-accent" />
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15, delayChildren: 0.2 }
     },
-    {
-      id: "commercial",
-      title: "Commercial",
-      description: "Offices, studios, and retail spaces shaped around brand and operational needs.",
-      icon: <Building2 size={32} className="text-kiro-accent" />
-    },
-    {
-      id: "renovation",
-      title: "Renovation",
-      description: "Upgrade an existing space with practical scope, phasing, and cost clarity.",
-      icon: <PaintBucket size={32} className="text-kiro-accent" />
-    },
-    {
-      id: "custom",
-      title: "Custom Project",
-      description: "Single rooms, bespoke furniture, and special requirements that need a custom brief.",
-      icon: <PenTool size={32} className="text-kiro-accent" />
-    }
-  ];
+    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.4 } }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
+  };
+
+
 
 
   if (selectedPath) {
     return (
-      <main id="main-content" className="h-screen w-full bg-kiro-bg overflow-hidden relative">
+      <main id="main-content" className="h-screen w-full bg-[#faf8f5] overflow-hidden relative">
         <Helmet>
           <title>Cost Estimator | Cross Angle Interior</title>
           <meta property="og:title" content="Cost Estimator | Cross Angle Interior" />
@@ -98,23 +82,23 @@ const CostEstimatorPage = () => {
         }}
       />
 
-      <main id="main-content" className="min-h-screen flex flex-col relative z-10 bg-kiro-bg overflow-x-hidden">
+      <main id="main-content" className="min-h-screen flex flex-col relative z-10 bg-[#faf8f5] overflow-x-hidden">
         
         {/* Nav Header (Standalone) */}
-        <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-2">
+        <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4">
           <a
             href="/"
-            className="flex items-center gap-2 sm:gap-3 shrink-0 group min-w-0 hover:opacity-75 focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 rounded-lg"
+            className="flex items-center gap-2 sm:gap-3 shrink-0 group min-w-0 hover:opacity-75 focus-visible:ring-2 focus-visible:ring-[#7a5c30] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 rounded-lg"
             aria-label="Return to CrossAngle Home"
           >
             <img
               src={logoIcon}
               alt="Cross Angle Interior"
-              className="h-8 md:h-10 w-auto transition-all duration-500 shrink-0 animate-in fade-in zoom-in duration-300"
+              className="h-11 md:h-16 w-auto transition-all duration-500 shrink-0 animate-in fade-in zoom-in duration-300"
             />
             <AnimatedLogo
               isScrolled={false}
-              className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0 [&_span]:text-kiro-ink"
+              className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0 [&_span]:text-[#1a1a1a]"
             />
           </a>
         </div>
@@ -159,7 +143,7 @@ const CostEstimatorPage = () => {
           />
         </div>
 
-        <div className="container flex-1 flex flex-col justify-center mx-auto px-6 relative z-10 pt-20 pb-8">
+        <div className="container flex-1 flex flex-col justify-center mx-auto px-6 relative z-10 pt-28 pb-16">
           
           <AnimatePresence mode="wait">
             <motion.div 
@@ -172,111 +156,122 @@ const CostEstimatorPage = () => {
             >
               <section className="relative flex flex-col items-center justify-center max-w-4xl mx-auto text-center px-6">
                 
-                <SiteBreadcrumb items={[{ label: "Cost Estimator" }]} className="mb-4" />
-
-                {/* Urgency badge */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="mb-3 flex items-center gap-2 px-5 py-2.5 bg-white/90 backdrop-blur-md border border-[#233526]/20 rounded-full shadow-sm"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="show"
+                  exit="exit"
+                  className="flex flex-col items-center w-full"
                 >
-                  <Sparkles size={14} className="text-kiro-accent" />
-                  <span className="text-xs font-mono tracking-widest uppercase text-kiro-ink font-bold">
-                    Free · Smart Calculation · 3 minutes
-                  </span>
-                </motion.div>
 
-                <h2 className="text-xs font-mono tracking-[0.35em] uppercase text-[#70593a] font-semibold mb-3">
-                  Interior Personalization Ecosystem
-                </h2>
 
-                <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-serif italic leading-[1.05] mb-3 text-kiro-ink tracking-tight flex flex-col items-center">
-                  <FallingText text="Estimate with your" className="justify-center" delay={20} />
-                  <span className="text-[#233526] mt-2">
-                    <FallingText text="Discovery Blueprint." className="justify-center text-[#233526]" delay={20} />
-                  </span>
-                </h1>
+                  {/* Urgency badge */}
+                  <motion.div
+                    variants={itemVariants}
+                    className="mb-8 flex items-center gap-2.5 px-5 py-2.5 bg-white/40 backdrop-blur-xl border border-white/60 rounded-full shadow-[0_8px_32px_rgba(122,92,48,0.06)] relative overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-[shimmer_3s_infinite]" />
+                    <Sparkles size={14} className="text-[#7a5c30]" />
+                    <span className="text-[11px] font-mono tracking-[0.2em] uppercase text-[#7a5c30] font-bold relative z-10">
+                      Free · Smart Calculation · 3 minutes
+                    </span>
+                  </motion.div>
 
-                <p className="text-lg md:text-xl text-kiro-inkSoft font-light max-w-2xl mb-4 leading-relaxed">
-                  The Estimator is the practical execution layer of the Discovery Engine. Start with Discovery for a richer, more personal report, then turn that blueprint into an accurate investment range.
-                </p>
 
-                {/* Connection Status */}
-                <div className="mb-5 flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl border border-kiro-line rounded-full shadow-sm">
-                  {hasBlueprint ? (
-                    <CheckCircle2 className="w-4 h-4 text-kiro-accent" />
-                  ) : (
-                    <Compass className="w-4 h-4 text-kiro-accent" />
-                  )}
-                  <span className="text-sm font-medium text-kiro-ink">
-                    {hasBlueprint ? `Connected to ${blueprintName}` : "Create a Discovery Blueprint first for best results"}
-                  </span>
-                </div>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
-                  {hasBlueprint ? (
-                    <Magnet range={60} className="w-full sm:w-auto">
+                  <motion.h1 
+                    variants={itemVariants}
+                    className="text-4xl md:text-6xl lg:text-[5rem] font-serif italic leading-[1.05] mb-6 text-[#1a1a1a] tracking-tight flex flex-col items-center"
+                  >
+                    <FallingText text="Know What Your Dream Interior Costs" className="justify-center" delay={20} />
+                    <span className="text-[#233526] mt-3 relative">
+                      <span className="text-base md:text-lg lg:text-xl font-mono tracking-[0.15em] uppercase font-semibold">Powered by Your Discovery Blueprint</span>
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1/3 h-[2px] bg-gradient-to-r from-transparent via-[#7a5c30]/40 to-transparent" />
+                    </span>
+                  </motion.h1>
+
+                  <motion.p 
+                    variants={itemVariants}
+                    className="text-lg md:text-xl text-[#5a5a5a] font-light max-w-2xl mb-10 leading-relaxed"
+                  >
+                    Your style meets your budget. Turn your personal Discovery Blueprint into a clear, personalized investment range — no guesswork, just the confidence to bring your vision to life.
+                  </motion.p>
+
+                  {/* Connection Status — Compact */}
+                  <motion.div variants={itemVariants} className="mb-10">
+                    <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-white/60 backdrop-blur-xl border border-white/60 rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
+                      {hasBlueprint ? (
+                        <>
+                          <span className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center">
+                            <CheckCircle2 size={12} className="text-emerald-600" />
+                          </span>
+                          <span className="text-[11px] md:text-xs text-[#1a1a1a] font-medium tracking-tight">
+                            Connected to <span className="font-semibold">{blueprintName}</span>
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="w-5 h-5 rounded-full bg-amber-50 flex items-center justify-center">
+                            <Compass size={12} className="text-[#7a5c30]" />
+                          </span>
+                          <span className="text-[11px] md:text-xs text-[#1a1a1a] font-medium tracking-tight">
+                            No Blueprint yet —{" "}
+                            <Link to={ECOSYSTEM_ROUTES.discovery} className="underline underline-offset-2 hover:text-[#7a5c30] transition-colors">
+                              Create one first
+                            </Link>
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </motion.div>
+
+                  <motion.div 
+                    variants={itemVariants}
+                    className="flex flex-col sm:flex-row items-center justify-center gap-6 w-full"
+                  >
+                    {hasBlueprint ? (
+                      <Magnet range={60} className="w-full sm:w-auto">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPath("personalized")}
+                          className="group w-full sm:w-auto px-10 py-5 md:px-14 md:py-6 bg-[#233526] text-white text-xs md:text-sm font-semibold tracking-[0.15em] uppercase rounded-full hover:bg-[#1a281c] shadow-[0_12px_32px_rgba(35,53,38,0.25)] hover:shadow-[0_20px_48px_rgba(35,53,38,0.4)] hover:-translate-y-1 active:translate-y-0 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#7a5c30] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-400 flex items-center justify-center gap-4 relative overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                          <span className="relative z-10">{ECOSYSTEM_COPY.ctas.startPersonalizedEstimator}</span>
+                          <div className="relative z-10 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                            <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform duration-300" />
+                          </div>
+                        </button>
+                      </Magnet>
+                    ) : (
+                      <Magnet range={60} className="w-full sm:w-auto">
+                        <Link
+                          to={ECOSYSTEM_ROUTES.discovery}
+                          className="group w-full sm:w-auto px-10 py-5 md:px-14 md:py-6 bg-[#233526] text-white text-xs md:text-sm font-semibold tracking-[0.15em] uppercase rounded-full hover:bg-[#1a281c] shadow-[0_12px_32px_rgba(35,53,38,0.25)] hover:shadow-[0_20px_48px_rgba(35,53,38,0.4)] hover:-translate-y-1 active:translate-y-0 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#7a5c30] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-400 flex items-center justify-center gap-4 relative overflow-hidden"
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                          <span className="relative z-10">{ECOSYSTEM_COPY.ctas.startDiscovery}</span>
+                          <div className="relative z-10 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                            <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform duration-300" />
+                          </div>
+                        </Link>
+                      </Magnet>
+                    )}
+                    
+                    <Magnet range={50} className="w-full sm:w-auto">
                       <button
                         type="button"
-                        onClick={() => setSelectedPath("personalized")}
-                        className="group w-full sm:w-auto px-10 py-4 md:px-14 md:py-5 bg-gradient-to-r from-[#233526] to-[#2c3d2f] text-white text-xs md:text-sm font-semibold tracking-[0.2em] uppercase rounded-full hover:shadow-[0_12px_30px_rgba(35,53,38,0.25)] hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
+                        onClick={() => setSelectedPath("direct")}
+                        className="group w-full sm:w-auto px-8 py-5 md:px-10 md:py-6 border border-[#1a1a1a]/15 bg-white/60 backdrop-blur-xl text-[#1a1a1a] text-xs md:text-sm font-bold tracking-[0.15em] uppercase rounded-full hover:border-[#1a1a1a]/30 hover:bg-white/90 hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] hover:-translate-y-1 active:translate-y-0 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#7a5c30] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-400 flex items-center justify-center gap-2"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-kiro-accent/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-                        {ECOSYSTEM_COPY.ctas.startPersonalizedEstimator}
-                        <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
+                        {hasBlueprint ? "Estimate Without Blueprint" : "Estimate Directly"}
                       </button>
                     </Magnet>
-                  ) : (
-                    <Magnet range={60} className="w-full sm:w-auto">
-                      <Link
-                        to={ECOSYSTEM_ROUTES.discovery}
-                        className="group w-full sm:w-auto px-10 py-4 md:px-14 md:py-5 bg-gradient-to-r from-[#233526] to-[#2c3d2f] text-white text-xs md:text-sm font-semibold tracking-[0.2em] uppercase rounded-full hover:shadow-[0_12px_30px_rgba(35,53,38,0.25)] hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-kiro-accent/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-                        {ECOSYSTEM_COPY.ctas.startDiscovery}
-                        <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
-                      </Link>
-                    </Magnet>
-                  )}
-                  
-                  <Magnet range={50} className="w-full sm:w-auto">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedPath("direct")}
-                      className="group w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 border border-kiro-ink/20 bg-white/95 backdrop-blur-md text-kiro-ink text-xs md:text-sm font-bold tracking-[0.15em] uppercase rounded-full hover:border-kiro-ink/60 hover:bg-white hover:shadow-xl hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 flex items-center justify-center gap-2"
-                    >
-                      {hasBlueprint ? "Adjust Scope Manually" : ECOSYSTEM_COPY.ctas.startEstimator}
-                    </button>
-                  </Magnet>
-                </div>
+                  </motion.div>
+                </motion.div>
               </section>
 
-              <section className="max-w-6xl mx-auto pt-8">
-                <div className="text-center mb-5">
-                  <p className="text-[11px] font-mono tracking-[0.25em] uppercase text-kiro-accent mb-3">
-                    Scope Selection
-                  </p>
-                  <h2 className="text-3xl md:text-4xl font-serif text-kiro-ink mb-3">
-                    Choose the practical estimate path
-                  </h2>
-                  <p className="text-sm md:text-base text-kiro-inkSoft max-w-2xl mx-auto leading-relaxed">
-                    These paths define the execution context. Your Discovery Blueprint, when available, continues to personalize service level and add-on suggestions inside the estimator.
-                  </p>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
-                {paths.map((path) => (
-                  <EstimatorCard
-                    key={path.id}
-                    title={path.title}
-                    description={path.description}
-                    icon={path.icon}
-                    onClick={() => setSelectedPath(path.id)}
-                  />
-                ))}
-                </div>
-              </section>
             </motion.div>
           </AnimatePresence>
 

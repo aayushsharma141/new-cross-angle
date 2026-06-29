@@ -11,7 +11,7 @@ import { api, Blog } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Clock, Eye, ArrowRight, ArrowDown,
-  TrendingUp, Mail, Sparkles, BookOpen, Tag, ChevronRight
+  TrendingUp, Mail, Sparkles, BookOpen, Tag
 } from "lucide-react";
 import { OptimizedImage as Image } from "@/components/ui/enhanced/OptimizedImage";
 import gsap from "gsap";
@@ -230,13 +230,6 @@ const BlogPage = () => {
             <div className="container mx-auto px-4 relative z-10 flex items-end pb-20 blog-hero-content" style={{ minHeight: "72vh" }}>
               <div className="max-w-xl space-y-5 md:pl-14">
 
-                {/* Breadcrumb */}
-                <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-white/40 text-[11px] font-sans tracking-wide">
-                  <Link to="/" className="hover:text-white/70 transition-colors">Home</Link>
-                  <ChevronRight className="w-3 h-3" />
-                  <span className="text-white/60">Articles</span>
-                </nav>
-
                 <span
                   className="inline-block text-[10px] font-bold uppercase tracking-[0.25em] px-3.5 py-1.5 rounded-full"
                   style={{ background: `${CRIMSON}25`, color: CRIMSON, border: `1px solid ${CRIMSON}40` }}
@@ -289,7 +282,6 @@ const BlogPage = () => {
                   <button
                     key={cat}
                     role="tab"
-                    aria-controls="blog-posts-panel"
                     id={`tab-${cat.toLowerCase().replace(/\s+/g, '-')}`}
                     {...({ "aria-selected": activeCategory === cat } as React.HTMLAttributes<HTMLButtonElement>)}
                     aria-label={`Filter by ${cat}`}

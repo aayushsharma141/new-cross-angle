@@ -129,7 +129,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-3 w-3 shrink-0 text-white/40" />
-                  <a href={`tel:${phone.replace(/\s/g, "")}`} className="text-[12px] text-white/70 hover:text-[#d1af6e] transition-colors">{phone}</a>
+                  <a href={`tel:${String(phone).replace(/\s/g, "")}`} className="text-[12px] text-white/70 hover:text-[#d1af6e] transition-colors">{String(phone)}</a>
                 </div>
               </div>
               <a

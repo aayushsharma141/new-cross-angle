@@ -1,0 +1,71 @@
+<USER_REQUEST>
+Here's the revised plan with your structural changes integrated:
+Phase 1 — Structural UX (Highest Priority)
+1a. Eliminate nested scrolling
+Target: CostEstimator.tsx, StepServices.tsx, StepLocation.tsx, StepPropertyDetails.tsx
+Current: Browser → Wizard wrapper → Step content → Inner grid = 4 scroll contexts.
+Fix:
+- Remove overflow-y: auto from the wizard's main content area (line 225). Let the browser handle the single natural scroll.
+- Remove max-h-[65vh] from StepServices.tsx:31.
+- Remove max-h-40 overflow-y-auto from StepLocation.tsx chip grids.
+- The wizard outer container stays h-[100dvh] on desktop (grid split with sidebar) but the main panel scrolls naturally as one unit.
+Result: exactly one scroll container.
+1b. Sidebar owns all navigation chrome
+Target: CostEstimator.tsx
+Move into the sidebar (lines 260-276):
+- Step counter ("Step 1 of 7")
+- Step title (animated SplitText)
+- Step subtitle (animated BlurText)
+- Discovery Applied banner (compacted)
+Main panel becomes minimal: Question header → Inputs → Action buttons.
+This frees ~140px of vertical space in the main content area on every step.
+1c. Collapse top navigation, don't hide
+Target: CostEstimator.tsx (line 84), PriceEstimator.tsx (line 104)
+Reduce h-11 md:h-16 → h-8 md:h-10 on logo. Reduce py-4 → py-2. Reduces header from 64px → ~44px.
+1d. Compact the landing page
+Target: PriceEstimator.tsx
+- Keep min-h-screen but compress the hero section. The goal is "hero visually fits" not "hero locked at 100vh".
+- Reduce padding chain: pt-28 pb-16 → pt-20 pb-8, mb-8 → mb-4, mb-10 → mb-5, pt-16 → pt-8.
+- The hero + cards should present well on a single scroll, not overflow into double-scroll.
+1e. Results page restructure
+Target: StepResults.tsx
+Current IA: 6+ cards in a loose grid.
+New IA:
+1. Overview header — compressed StarBorder, just shows total range + blueprint tag
+2. Budget Breakdown — execution intelligence (compact rows, no expandable drawers by default)
+3. 3 Key Insights — property fit (score ring), budget 
+<truncated 32083 bytes>
+ity
+7. **Phase 3** — Token migration
+8. **Phase 4** — Performance
+9. **Phase 5** — Primitive extraction
+10. **Phase 6** — Progressive disclosure and responsive polish
+11. **Phase 7** — Full validation, Playwright, Lighthouse, cross-browser checks
+
+This sequencing minimizes regression risk and keeps each change set focused enough to review and troubleshoot independently.
+
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-06-26T05:55:08+05:30.
+
+The user's current state is as follows:
+Active Document: c:\Users\aayus\Desktop\main\.planning\phases\14-signal-weighted-alcs\14-PLAN.md (LANGUAGE_MARKDOWN)
+Cursor is on line: 1
+Other open documents:
+- c:\Users\aayus\Desktop\main\.planning\phases\14-signal-weighted-alcs\regression-alcs.ts (LANGUAGE_TYPESCRIPT)
+- c:\Users\aayus\Desktop\main\.planning\phases\14-signal-weighted-alcs\verify-alcs.ts (LANGUAGE_TYPESCRIPT)
+- c:\Users\aayus\Desktop\main\.planning\phases\15-recommendation-explainability\15-PLAN.md (LANGUAGE_MARKDOWN)
+- c:\Users\aayus\Desktop\main\apps\web\src\pages\admin\AdminEstimateLeads.tsx (LANGUAGE_TSX)
+- c:\Users\aayus\Desktop\main\.planning\phases\14-signal-weighted-alcs\14-PLAN.md (LANGUAGE_MARKDOWN)
+Browser State:
+  Page 696D24516416A1FE26CE98A897D551AB (Cross Angle Interior | Luxury Interior Design Studio) - http://localhost:8080/admin
+    Viewport: 1920x945, Page Height: 945
+  Page DAC87A0DF86DD602D7893C9CDE2B0C76 (Cost Estimator | Cross Angle Interior) - http://localhost:8080/estimate [ACTIVE]
+    Viewport: 1920x945, Page Height: 945
+Running terminal commands:
+- opencode --port 30627 (in c:\Users\aayus\Desktop\main, running for 11h22m3s)
+- npm run dev (in c:\Users\aayus\Desktop\main, running for 4h25m29s)
+</ADDITIONAL_METADATA>
+<USER_SETTINGS_CHANGE>
+The user changed setting `Model Selection` from None to Claude Sonnet 4.6 (Thinking). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.
+</USER_SETTINGS_CHANGE>

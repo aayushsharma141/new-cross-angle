@@ -1,19 +1,13 @@
 /* Step 6 — Add-ons */
 
-import { useMemo } from "react";
-import { motion } from "framer-motion";
+
 import { Utensils, Shirt, Sparkles, Smartphone, Sofa, Lightbulb } from "lucide-react";
 import type { CalculatorFormData } from "../data/types";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
-import { ADDONS as DEFAULT_ADDONS, DEFAULT_PRICING_CONFIG } from "../data/pricing-config";
+import { ADDONS as DEFAULT_ADDONS } from "../data/pricing-config";
 import { formatCurrency } from "../data/format-utils";
 import {
     selectableCardClassLight,
-    CARD_INTERACTIONS,
-    cardListContainer,
-    cardListItem,
-    breathingAnimationLight,
-    breathingTransitionLight,
 } from "@/addons/_shared/card-styles";
 
 interface Props {
@@ -33,17 +27,7 @@ export function StepAddons({ formData, updateField }: Props) {
         premiumLighting: <Lightbulb size={32} strokeWidth={1.5} />,
     };
 
-    const addonTotal = useMemo(() => {
-        let total = 0;
-        const c = DEFAULT_PRICING_CONFIG.addons;
-        if (formData.modularKitchen) total += c.modular_kitchen;
-        if (formData.wardrobes > 0) total += formData.wardrobes * c.wardrobe_per_room;
-        if (formData.falseCeiling) total += formData.area * c.false_ceiling_sqft;
-        if (formData.smartHome) total += c.smart_home;
-        if (formData.customFurniture) total += c.custom_furniture;
-        if (formData.premiumLighting) total += c.premium_lighting;
-        return total;
-    }, [formData]);
+
 
     const isActive = (id: string): boolean => {
         switch (id) {
@@ -78,32 +62,22 @@ export function StepAddons({ formData, updateField }: Props) {
     };
 
     return (
-        <div className="max-w-4xl mx-auto">
-            <motion.div
-                variants={cardListContainer}
-                initial="hidden"
-                animate="show"
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
-            >
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {addons.map(addon => {
                     const active = isActive(addon.id);
                     return (
-                        <motion.button
+                        <button
                             type="button"
                             key={addon.id}
                             title={`Add ${addon.label}`}
-                            variants={cardListItem}
-                            whileHover={CARD_INTERACTIONS.whileHover}
-                            whileTap={CARD_INTERACTIONS.whileTap}
                             onClick={() => toggleAddon(addon.id)}
-                            className={selectableCardClassLight(active, "group p-4 text-left")}
+                            className={`${selectableCardClassLight(active, "group p-4 text-left hover:-translate-y-0.5 active:scale-95 transition-transform duration-200")} ${active ? "bg-[#7a5c30]/[0.12]" : "bg-white/70 hover:bg-[#7a5c30]/[0.05]"}`}
                         >
                             {active && (
-                                <motion.span
+                                <span
                                     aria-hidden="true"
-                                    className="absolute inset-0 pointer-events-none"
-                                    animate={breathingAnimationLight}
-                                    transition={breathingTransitionLight}
+                                    className="absolute inset-0 pointer-events-none animate-pulse shadow-[0_0_24px_rgba(139,111,71,0.25)] rounded-[8px]"
                                 />
                             )}
                             
@@ -119,7 +93,7 @@ export function StepAddons({ formData, updateField }: Props) {
                                 <div className={`font-bold text-sm transition-colors ${active ? "text-kiro-accent" : "text-kiro-ink"}`}>
                                     {addon.label}
                                 </div>
-                                <div className="text-kiro-inkSoft text-[11px] leading-relaxed mt-0.5">
+                                <div className="text-kiro-inkSoft text-[13px] leading-relaxed mt-0.5">
                                     {addon.desc}
                                 </div>
                             </div>
@@ -127,17 +101,11 @@ export function StepAddons({ formData, updateField }: Props) {
                             <div className="mt-3 font-black text-sm text-kiro-accent relative z-10">
                                 {getAddonCost(addon)}
                             </div>
-                        </motion.button>
+                        </button>
                     );
                 })}
-            </motion.div>
-
-            <div className="mt-6 p-4 bg-kiro-accent/5 border border-kiro-accent/20 rounded-[8px] flex justify-between items-center">
-                <span className="text-kiro-ink font-bold text-sm">Add-ons Subtotal</span>
-                <span className={`font-black text-lg ${addonTotal > 0 ? "text-kiro-accent" : "text-kiro-inkSoft text-sm"}`}>
-                    {addonTotal > 0 ? formatCurrency(addonTotal) : "None selected"}
-                </span>
             </div>
+
         </div>
     );
 }

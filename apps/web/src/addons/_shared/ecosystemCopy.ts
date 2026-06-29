@@ -47,8 +47,8 @@ export const ECOSYSTEM_COPY = {
   ctas: {
     startDiscovery: "Create My Discovery Blueprint",
     refineDiscovery: "Refine My Discovery Blueprint",
-    startEstimator: "Start Estimate",
-    startPersonalizedEstimator: "Start Personalized Estimate",
+    startEstimator: "Estimate Directly",
+    startPersonalizedEstimator: "Get My Personalized Estimate",
     continueEstimator: "Continue To Estimator",
     consult: "Review With A Designer",
   },

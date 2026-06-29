@@ -545,7 +545,7 @@ export default function AdminEstimateLeads() {
                     </p>
                     {(detailLead as Record<string, unknown>).alcs_confidence && (
                       <span className="text-[10px] font-bold text-[hsl(var(--admin-success))] bg-[hsl(var(--admin-success))]/10 px-2 py-0.5 rounded-full">
-                        {Math.round(((detailLead as Record<string, unknown>).alcs_confidence as number) * 100)}% Confidence
+                        {Math.round((detailLead as Record<string, unknown>).alcs_confidence as number)}% Confidence
                       </span>
                     )}
                   </div>
@@ -559,7 +559,17 @@ export default function AdminEstimateLeads() {
                         {(detailLead as Record<string, unknown>).alcs_reasoning as string}
                       </p>
                     )}
-                  </div>
+                   </div>
+
+                  {(detailLead as Record<string, unknown>).alcs_primary_drivers && (
+                    <div className="flex flex-wrap gap-1">
+                      {((detailLead as Record<string, unknown>).alcs_primary_drivers as string[]).map((d, i) => (
+                        <span key={i} className="text-[9px] bg-[hsl(var(--admin-success))]/10 text-[hsl(var(--admin-success))] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wide">
+                          {d}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
                   {(detailLead as Record<string, unknown>).alcs_evidence && (
                     <div className="pt-2 border-t border-[hsl(var(--admin-success))]/10">

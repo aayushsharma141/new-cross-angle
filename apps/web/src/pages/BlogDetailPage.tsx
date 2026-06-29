@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { format } from "date-fns";
 import {
-    Clock, Linkedin, LinkIcon, ArrowLeft, ArrowRight, Eye, ChevronRight,
+    Clock, Linkedin, LinkIcon, ArrowLeft, ArrowRight, Eye,
     List, Calculator
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -515,14 +515,7 @@ const BlogDetailPage = () => {
                     <div className="w-full pt-36 pb-14" style={{ background: "#000" }}>
                         <header className="container mx-auto px-4 max-w-3xl blog-header-content">
 
-                            {/* Breadcrumb */}
-                            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-white/30 text-[11px] font-sans mb-6">
-                                <Link to="/" className="hover:text-white/60 transition-colors">Home</Link>
-                                <ChevronRight className="w-3 h-3" />
-                                <Link to="/blog" className="hover:text-white/60 transition-colors">Articles</Link>
-                                <ChevronRight className="w-3 h-3" />
-                                <span className="text-white/50 line-clamp-1 max-w-[200px]">{cleanTitle(post.title)}</span>
-                            </nav>
+
 
                             {/* Category badge */}
                             {post.category && (

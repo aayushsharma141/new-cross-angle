@@ -15,10 +15,13 @@
 
 | # | Phase | Goal | Requirements | Status |
 |---|-------|------|--------------|--------|
-| 14 | Signal-Weighted ALCS | Wire `sensory.*` + `priorities.emotionalWeights` into ALCS path scoring and reasoning — two users with same archetype but different sensory profiles receive different strategy and reasoning | INTEL-01, INTEL-02 | Done |
-| 15 | Recommendation Explainability | Attach a structured `evidence[]` array to every recommendation, expose it in the CRM lead detail panel | INTEL-03, INTEL-04 | Pending |
-| 16 | Designer Briefing Card | Auto-generate a pre-call brief from the CRM lead record with archetype context, hero rooms, sensory language, and conversation starters | INTEL-05 | Pending |
-| 17 | Project Intelligence Workspace | Evolve the CRM to actively prepare the designer: Conversation Strategy, Objection Predictions, Presentation Sequence, and Proposal Generation. Building paused pending Phase 16 user validation sprint. | INTEL-06, INTEL-07 | Paused for Validation |
+| 18 | Workspace Skeleton (A1) | Implement 3-column responsive layout (Sidebar \| Workspace \| Dossier) and ultra-wide breakpoints. | UX-01 | Done |
+| 19 | Project Dossier Framework (A2) | Mount placeholder cards into Dossier and connect to store state (no intelligence). | UX-01 | Done |
+| 20 | Adaptive Step Layouts (B) | Refactor Estimator Steps 1-7 into distinct task-driven layouts obeying "One Primary Decision". | UX-02 | Pending |
+| 21 | Workspace Intelligence (C) | Implement logic for Live Estimate, Confidence, Missing Information, and Project Health. | UX-03 | Pending |
+| 22 | Recommendation Explainability (D) | Build core reasoning engine explaining why packages are recommended. | INTEL-03, INTEL-04 | Pending |
+| 23 | Decision Impact Engine (E) | Expose reasoning as immediate live trade-offs (Financial, Operational, etc.) upon selection. | UX-04 | Pending |
+| 24 | Project Blueprint Generation (F) | Transition active workspace into final, printable/shareable result document. | UX-05 | Pending |
 
 ---
 
@@ -53,3 +56,37 @@
 **Requirements:** INTEL-06, INTEL-07
 **Status:** ⏸️ **Paused.** Awaiting real-world user feedback from the Phase 16 Designer Brief Product Validation Sprint (recorded in `VALIDATION-SPRINT.md`). This feedback will shape the implementation of the Workspace.
 
+### Phase 18: Workspace Skeleton (Phase A1)
+**Goal:** Build the strict 3-column responsive layout (Sidebar | Workspace | Dossier) and establish ultra-wide (1800px+) max-width bounds. No logic or widgets—just plumbing and structure.
+**Requirements:** UX-01
+**Status:** Done
+
+### Phase 19: Project Dossier Framework (Phase A2)
+**Goal:** Mount placeholder cards (`EstimateCard`, `ProjectHealthCard`, etc.) into the Dossier and connect them to the global state store without adding calculation logic.
+**Requirements:** UX-01
+**Status:** Done
+
+### Phase 20: Adaptive Step Layouts (Phase B)
+**Goal:** Refactor Steps 1-7 into their specific, task-driven layouts (Grid, Dashboard, Comparison Matrix). Enforce the "One Primary Decision" rule.
+**Requirements:** UX-02
+**Status:** Planned
+
+### Phase 21: Workspace Intelligence (Phase C)
+**Goal:** Connect logic and store values to populate the Live Estimate, Confidence score, Missing Information prompts, and Project Health dashboard.
+**Requirements:** UX-03
+**Status:** Planned
+
+### Phase 22: Recommendation Explainability (Phase D)
+**Goal:** Build the core reasoning engine that determines *why* certain packages are recommended (this merges previous Phase 15 goals into the workspace).
+**Requirements:** INTEL-03, INTEL-04
+**Status:** Planned
+
+### Phase 23: Decision Impact Engine (Phase E)
+**Goal:** Expose the reasoning from Phase 22 as live trade-offs (Financial, Operational, Lifestyle, Investment) reflecting the immediate impact of user selections.
+**Requirements:** UX-04
+**Status:** Planned
+
+### Phase 24: Project Blueprint Generation (Phase F)
+**Goal:** Transition the active workspace into a final, printable/shareable project blueprint result document.
+**Requirements:** UX-05
+**Status:** Planned

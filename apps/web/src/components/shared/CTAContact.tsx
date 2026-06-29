@@ -21,7 +21,6 @@ import useScrollReveal from "@/hooks/useScrollReveal";
 import { Link, useSearchParams } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import gsap from "gsap";
-import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 import { useLeadValidation } from "@/hooks/useLeadValidation";
 import useReducedMotion from "@/hooks/useReducedMotion";
 import { PROPERTY_TYPES } from "@/addons/calculators/components/data/pricing-config";
@@ -232,27 +231,12 @@ const CTAContact = () => {
       ref={containerRef}
       className="relative overflow-hidden px-4 pt-40 pb-20 md:pt-52 md:pb-32"
     >
-      {/* ── Background ── */}
-      <div className="absolute inset-0 z-0 bg-[#050505]">
-        <MediaSlot
-          assetKey="contact_hero_bg"
-          fallbackUrl="/reality_render.jpg"
-          alt=""
-          className="pointer-events-none absolute -top-[15%] left-0 h-[130%] w-full opacity-[0.18] saturate-[0.4] select-none"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/90 via-[#050505]/60 to-[#050505]/95" />
-      </div>
 
-      {/* ── Ambient glow ── */}
+
+      {/* ── Refined architectural glow ── */}
       <div
-        className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-[600px] w-[1100px] opacity-60 blur-[120px]"
-        style={{ background: "radial-gradient(ellipse at top, rgba(209,175,110,0.22) 0%, rgba(182,24,38,0.08) 45%, transparent 70%)" }}
-        aria-hidden="true"
-      />
-      {/* Secondary warm pulse glow */}
-      <div
-        className="pointer-events-none absolute left-1/2 top-[80px] -translate-x-1/2 h-[300px] w-[600px] opacity-40 blur-[90px] animate-pulse"
-        style={{ background: "radial-gradient(ellipse at center, rgba(209,175,110,0.18) 0%, transparent 65%)", animationDuration: "4s" }}
+        className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-[500px] w-[900px] opacity-50 blur-[180px]"
+        style={{ background: "radial-gradient(ellipse at top, rgba(126,104,82,0.15) 0%, rgba(61,15,24,0.06) 50%, transparent 75%)" }}
         aria-hidden="true"
       />
 

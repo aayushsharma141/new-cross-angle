@@ -5,7 +5,6 @@ import { Draggable } from "gsap/all";
 import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
 
 // Ensure GSAP plugins are registered if in a browser environment
 if (typeof window !== "undefined") {
@@ -91,8 +90,6 @@ const ServicesHero = () => {
 
         {/* ───────── LEFT CONTENT ───────── */}
         <div className="hero-left-content w-full lg:w-[55%] xl:w-[58%] flex flex-col justify-center gap-7 px-6 sm:px-10 lg:pl-14 xl:pl-20 2xl:pl-28 lg:pr-10 py-10 lg:py-0">
-
-          <SiteBreadcrumb items={[{ label: "Services" }]} className="mb-[-1rem] mt-4" />
 
           {/* Label */}
           <motion.div

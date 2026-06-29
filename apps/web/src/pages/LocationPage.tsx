@@ -5,7 +5,6 @@ import Footer from "@/components/layout/Footer";
 import { motion } from "framer-motion";
 import { ArrowRight, MapPin, Building, Home, Users } from "lucide-react";
 import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
-import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
 import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 
@@ -173,14 +172,6 @@ const LocationPage = () => {
 
       <main id="main-content" className="bg-[#020202] min-h-screen pt-32 md:pt-48">
         <div className="max-w-[1400px] mx-auto px-6 mb-24">
-          <SiteBreadcrumb 
-            items={[
-              { label: "Locations", href: "/locations" },
-              { label: formattedCity }
-            ]} 
-            className="mb-12"
-          />
-
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

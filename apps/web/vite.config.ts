@@ -39,7 +39,7 @@ export default defineConfig(() => {
           },
         },
         // PostHog SDK also polls /s/ directly in some versions
-        '/s': {
+        '^/s(/.*)?$': {
           target: 'https://us.i.posthog.com',
           changeOrigin: true,
           configure: (proxy) => {

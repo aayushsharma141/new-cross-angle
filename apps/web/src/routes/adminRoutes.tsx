@@ -85,6 +85,10 @@ export const adminRoutes = (
         <Route path="estimator" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><EstimatorModule /></RoleGuard>}>
           <Route path="estimate-leads" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminEstimateLeads /></RoleGuard>} />
           <Route path="config" element={<RoleGuard allowedRoles={["super_admin"]}><AdminEstimatorConfig /></RoleGuard>} />
+          {/* Legacy redirects — old URLs before Phase 12 consolidation */}
+          <Route path="pricing-configuration" element={<Navigate to="/admin/estimator/config" replace />} />
+          <Route path="result-templates" element={<Navigate to="/admin/estimator/config" replace />} />
+          <Route path="flow-configuration" element={<Navigate to="/admin/estimator/config" replace />} />
         </Route>
 
         <Route path="blog" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><BlogModule /></RoleGuard>}>

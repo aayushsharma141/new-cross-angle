@@ -1,18 +1,10 @@
 /* Step 4 — Investment Scope */
 
-import { useMemo, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+
 import type { CalculatorFormData } from "../data/types";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { formatCurrency } from "../data/format-utils";
 import { INVESTMENT_PRESETS } from "../data/pricing-config";
-import {
-    selectableCardClassLight,
-    CARD_INTERACTIONS,
-    cardListItem,
-    breathingAnimationLight,
-    breathingTransitionLight,
-} from "@/addons/_shared/card-styles";
 
 interface Props {
     formData: CalculatorFormData;
@@ -21,46 +13,20 @@ interface Props {
 
 export function StepBudget({ formData, updateField }: Props) {
     const { data: investmentPresets = INVESTMENT_PRESETS } = useFlowConfig<typeof INVESTMENT_PRESETS>("investment_presets");
-    // Minimum relevant scope for UHNW is higher
-    const minInvestment = useMemo(() => Math.max(1500000, formData.area * 3500), [formData.area]);
-
-    const feasibility = useMemo(() => {
-        const ratio = formData.budgetAmount / minInvestment;
-        const pct = Math.min(100, Math.max(0, (ratio / 2.5) * 100));
-
-        let label = "Entry Level (< " + formatCurrency(minInvestment) + ")";
-        if (ratio >= 2.5) label = "Legacy Tier";
-        else if (ratio >= 1.8) label = "Luxury Tier";
-        else if (ratio >= 1.2) label = "Comfortable Scope";
-        else if (ratio >= 1.0) label = "Viable Entry";
-
-        return { pct, label };
-    }, [formData.budgetAmount, minInvestment]);
-
-    const barRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (barRef.current) {
-            barRef.current.style.setProperty("--progress", `${feasibility.pct}%`);
-        }
-    }, [feasibility.pct]);
 
 
     return (
-        <div className="max-w-2xl mx-auto">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
             {/* Big budget display */}
-            <div className="text-center py-7 mb-5 rounded-none border border-kiro-ink/[0.06] bg-gradient-to-br from-site-bg-card to-site-bg">
-                <div className="text-kiro-inkSoft text-xs mb-1 uppercase tracking-widest">Total Allocation</div>
-                <div className="text-kiro-accent text-4xl font-extrabold tracking-tighter">
+            <div className="text-center py-10 mb-8 rounded-[12px] border border-kiro-ink/[0.06] bg-kiro-surface shadow-sm">
+                <div className="text-kiro-inkSoft text-sm mb-2 uppercase tracking-wide">Total Allocation</div>
+                <div className="text-kiro-accent text-5xl md:text-6xl font-extrabold tracking-tighter">
                     {formatCurrency(formData.budgetAmount)}
-                </div>
-                <div className="text-[11px] text-kiro-inkSoft mt-2">
-                    Suggested baseline for your area: <span className="text-kiro-ink font-medium">{formatCurrency(minInvestment)}</span>
                 </div>
             </div>
 
             {/* Slider */}
-            <div className="mb-6">
+            <div className="mb-10 px-2">
                 <label htmlFor="budget-slider" className="sr-only">Investment amount</label>
                 <input
                     id="budget-slider"
@@ -78,9 +44,9 @@ export function StepBudget({ formData, updateField }: Props) {
                         updateField("budgetAmount", Number(e.target.value));
                         updateField("budgetPreset", "");
                     }}
-                    className="w-full h-2 bg-kiro-surface border border-kiro-ink/[0.06] rounded-full appearance-none cursor-pointer accent-kiro-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
+                    className="w-full h-2.5 bg-kiro-surface border border-kiro-ink/[0.06] rounded-full appearance-none cursor-pointer accent-kiro-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                 />
-                <div className="flex justify-between text-kiro-inkSoft text-xs mt-1 font-mono">
+                <div className="flex justify-between text-kiro-inkSoft text-xs mt-3 font-mono font-medium">
                     <span>₹15L</span><span>₹15 Cr+</span>
                 </div>
             </div>
@@ -89,62 +55,43 @@ export function StepBudget({ formData, updateField }: Props) {
             <div
                 role="radiogroup"
                 aria-label="Investment presets"
-                className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"
+                className="grid grid-cols-2 lg:grid-cols-4 gap-4"
             >
                 {investmentPresets.map((bp, i) => {
                     const active = formData.budgetPreset === bp.label;
                     const isTabable = active || (!formData.budgetPreset && i === 0);
                     return (
-                        <motion.button
+                        <button
                             type="button"
                             key={bp.label}
-                            role="radio"
-                            aria-checked={active}
+                            aria-label={`${bp.label} (${bp.range})${active ? " (selected)" : ""}`}
                             tabIndex={isTabable ? 0 : -1}
-                            variants={cardListItem}
-                            whileHover={CARD_INTERACTIONS.whileHover}
-                            whileTap={CARD_INTERACTIONS.whileTap}
                             onClick={() => {
                                 updateField("budgetPreset", bp.label);
                                 updateField("budgetAmount", bp.value);
                             }}
-                            className={selectableCardClassLight(active, "p-4 text-center")}
+                            className={`
+                                p-5 text-center transition-all duration-300 rounded-[12px] border cursor-pointer flex flex-col items-center justify-center
+                                ${active
+                                    ? "bg-kiro-accent/[0.18] border-kiro-accent font-bold shadow-[0_4px_24px_rgba(139,111,71,0.25)] -translate-y-1 scale-[1.02] ring-2 ring-kiro-accent/30"
+                                    : "bg-kiro-surface/80 border-kiro-ink/[0.06] hover:bg-kiro-accentSoft hover:border-kiro-accent/55 hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(139,111,71,0.12)]"
+                                }
+                            `}
                         >
                             {active && (
-                                <motion.span
+                                <span
                                     aria-hidden="true"
-                                    className="absolute inset-0 pointer-events-none"
-                                    animate={breathingAnimationLight}
-                                    transition={breathingTransitionLight}
+                                    className="absolute inset-0 pointer-events-none animate-pulse shadow-[0_0_24px_rgba(139,111,71,0.25)] rounded-[12px]"
                                 />
                             )}
-                            <div className={`font-bold text-sm ${active ? "text-kiro-accent" : "text-kiro-ink"}`}>
+                            <div className={`font-bold text-sm transition-colors ${active ? "text-kiro-accent" : "text-kiro-ink"}`}>
                                 {bp.label}
                             </div>
-                            <div className={`text-xs mt-0.5 ${active ? "text-kiro-ink/70" : "text-kiro-inkSoft"}`}>{bp.range}</div>
-                        </motion.button>
+                            <div className={`text-xs mt-1 transition-colors ${active ? "text-kiro-ink/70" : "text-kiro-inkSoft"}`}>{bp.range}</div>
+                        </button>
                     );
                 })}
             </div>
-
-            {/* Feasibility bar */}
-            <div className="rounded-none px-4 py-3 border border-kiro-ink/[0.06] bg-kiro-surface">
-                <div className="flex justify-between mb-2">
-                    <span className="text-kiro-inkSoft text-xs uppercase tracking-wider">Feasibility Index</span>
-                    <span className={`text-xs font-semibold ${feasibility.label === "Legacy Tier" ? "text-kiro-accent" :
-                        feasibility.label === "Luxury Tier" ? "text-yellow-500" :
-                            feasibility.label === "Comfortable Scope" ? "text-emerald-500" :
-                                "text-kiro-inkSoft"
-                        }`}>{feasibility.label}</span>
-                </div>
-                <div className="rounded-none h-2 overflow-hidden bg-site-bg">
-                    <div
-                        ref={barRef}
-                        className="h-full rounded-none transition-all duration-500 ease-out w-[var(--progress)] bg-gradient-to-r from-emerald-500 via-yellow-500 to-site-gold"
-                    />
-                </div>
-            </div>
-
         </div>
     );
 }

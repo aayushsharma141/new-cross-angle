@@ -14,7 +14,6 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import ReactMarkdown from 'react-markdown';
 import { Image } from "@/components/ui/enhanced/image";
-import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
 
 const ServiceDetailPage = () => {
     const { category: categorySlug, service: serviceSlug } = useParams();
@@ -104,16 +103,6 @@ const ServiceDetailPage = () => {
                 <Navbar />
 
                 <main id="main-content" className="flex-grow">
-                    {/* Breadcrumb */}
-                    <div className="pt-24 pb-4">
-                        <SiteBreadcrumb 
-                            items={[
-                                { label: "Services", href: "/services" },
-                                { label: category.title, href: `/services/${category.slug}` },
-                                { label: service.title }
-                            ]} 
-                        />
-                    </div>
 
                     {/* Hero Section */}
                     <section className="relative py-16 md:py-24 overflow-hidden">
