@@ -48,7 +48,7 @@ export const getOptimizedUrl = (url: string | undefined, options: OptimizationOp
   const isSupabase = url.includes(SUPABASE_URL);
   const isLocalImage = url.startsWith('/images/');
 
-  const shouldBypass = isLocalImage && (import.meta.env.DEV || import.meta.env.VITE_BYPASS_IMAGEKIT === 'true');
+  const shouldBypass = import.meta.env.DEV || import.meta.env.VITE_BYPASS_IMAGEKIT === 'true';
 
   if ((!isImageKit && !isSupabase && !isLocalImage) || shouldBypass) return url;
 
