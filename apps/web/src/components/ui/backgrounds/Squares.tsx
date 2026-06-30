@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 
 export const Squares = ({
   direction = 'right', // 'diagonal', 'up', 'down', 'left', 'right'
@@ -62,7 +62,7 @@ export const Squares = ({
     };
 
     const updateAnimation = () => {
-      let effectiveSpeed = Math.max(speed, 0.1);
+      const effectiveSpeed = Math.max(speed, 0.1);
       switch (direction) {
         case 'diagonal':
           gridOffset.current.x -= effectiveSpeed;

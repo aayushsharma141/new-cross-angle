@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/primitives/badge';
 import { DataTable } from '@/components/admin/DataTable';
 import type { Lead } from '@/repositories/interfaces/LeadRepository';
 import { CRM_STAGE_BADGE_CLASSES, CRM_TEMPERATURES } from '@/lib/crm';
+import { CRM_STAGES } from '@/lib/crm/stages';
 
 const temperatureStyles: Record<string, string> = CRM_TEMPERATURES.reduce(
   (acc, t) => {
@@ -258,13 +259,13 @@ export function LeadTable({
                 <DropdownMenuLabel className="text-xs text-muted-foreground">
                   Change Status
                 </DropdownMenuLabel>
-                {['new', 'in_conversation', 'meeting_planned', 'quote_sent', 'closing', 'won', 'lost'].map((status) => (
+                {CRM_STAGES.map((stage) => (
                   <DropdownMenuItem
-                    key={status}
-                    onClick={() => onStatusChange?.(lead.id, status)}
-                    disabled={lead.status === status}
+                    key={stage.id}
+                    onClick={() => onStatusChange?.(lead.id, stage.id)}
+                    disabled={lead.status === stage.id}
                   >
-                    {status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    {stage.label}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>

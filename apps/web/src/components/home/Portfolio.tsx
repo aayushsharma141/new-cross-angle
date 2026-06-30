@@ -3,13 +3,15 @@ import { ArrowUpRight, X, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/primitives/dialog";
 import { cn } from "@/lib/utils";
-import { categories, type Project } from "@/data/projects";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { type Project } from "@/lib/api";
+
+const categories = ["All", "Residential", "Commercial"];
 import { Image as BaseImage } from "@/components/ui/enhanced/image";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useGSAP } from "@/hooks/useGsap";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 const ProjectCard = ({
   project,

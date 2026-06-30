@@ -1,4 +1,27 @@
-import { Project } from "@/data/projects";
+export interface Project {
+  id: string;
+  slug: string;
+  title: string;
+  client: string;
+  location: string;
+  type: "residential" | "commercial";
+  category: string;
+  area: string;
+  budget: string;
+  duration: string;
+  style: string;
+  year: number;
+  heroImage: string;
+  heroAsset?: { url: string; mime_type?: string | null; size_bytes?: number | null };
+  coverAsset?: { url: string; mime_type?: string | null; size_bytes?: number | null };
+  gallery: { room: string; images: string[] }[];
+  brief: string;
+  approach: string;
+  challengeShort?: string;
+  resultShort?: string;
+  materials: { name: string; details: string }[];
+  testimonial?: { quote: string; author: string; role: string };
+}
 import { supabase } from "@/integrations/supabase/client";
 import { ServiceDetail } from "@repo/types";
 
@@ -15,10 +38,51 @@ interface SupabaseMaterialItem {
   details?: string;
 }
 
+export interface ProcessStage {
+  id: string;
+  number: string;
+  title: string;
+  subtitle: string;
+  summary: string;
+  detail: string;
+  timeline: string;
+  budgetRange: string;
+  clientDoes: string[];
+  weDo: string[];
+  deliverables: string[];
+  image: string;
+}
+
+export interface ProcessFAQ {
+  question: string;
+  answer: string;
+}
+
+export interface ProcessMetric {
+  value: string;
+  label: string;
+  suffix?: string;
+}
+
 interface SupabaseProcessStep {
   step_number: number;
   title: string;
   description: string;
+}
+
+interface SupabaseDesignProcessStep {
+  id: string;
+  step_number: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  detail: string;
+  image_url: string;
+  timeline_estimate: string;
+  budget_range: string;
+  client_does: string[];
+  we_do: string[];
+  deliverables: string[];
 }
 
 interface SupabaseFAQ {
@@ -366,8 +430,7 @@ export const api = {
       }
 
       if (!data || data.length === 0) {
-        const { projects: localProjects } = await import('@/data/projects');
-        return localProjects;
+        return [];
       }
 
       const itemsWithDam = await fetchAndStitchDamUsages(data, 'project');
@@ -394,9 +457,6 @@ export const api = {
         .maybeSingle();
 
       if (error || !data) {
-        const { projects: localProjects } = await import('@/data/projects');
-        const localP = localProjects.find(p => p.slug === slug || p.id === slug);
-        if (localP) return localP;
         return null;
       }
       const itemsWithDam = await fetchAndStitchDamUsages([data], 'project');
@@ -417,15 +477,7 @@ export const api = {
         .order('display_order', { ascending: true });
 
       if (error || !data || data.length === 0) {
-        const { projects: localProjects } = await import('@/data/projects');
-        return localProjects.map(item => ({
-          id: item.id,
-          title: item.title,
-          slug: item.slug,
-          type: item.type as "residential" | "commercial",
-          location: item.location,
-          heroImage: item.heroImage
-        }));
+        return [];
       }
       
       const itemsWithDam = await fetchAndStitchDamUsages((data as any[]) || [], 'project');
@@ -576,6 +628,65 @@ export const api = {
       console.warn('Exception during featured project fetch:', e);
       return [];
     }
+  },
+
+  getProcessStages: async (): Promise<ProcessStage[]> => {
+    if (!supabase) return [];
+    try {
+      const { data, error } = await supabase
+        .from('design_process_steps')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (error || !data) return [];
+
+      return (data as any[]).map((d: SupabaseDesignProcessStep) => ({
+        id: d.id,
+        number: d.step_number || "00",
+        title: d.title || "",
+        subtitle: d.subtitle || "",
+        summary: d.description || "",
+        detail: d.detail || "",
+        timeline: d.timeline_estimate || "",
+        budgetRange: d.budget_range || "",
+        clientDoes: d.client_does || [],
+        weDo: d.we_do || [],
+        deliverables: d.deliverables || [],
+        image: d.image_url || ""
+      }));
+    } catch (e) {
+      console.warn('Error fetching process stages:', e);
+      return [];
+    }
+  },
+
+  getProcessFAQs: async (): Promise<ProcessFAQ[]> => {
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from('process_faqs' as any)
+      .select('*')
+      .order('display_order', { ascending: true });
+    
+    if (error || !data) return [];
+    return (data as any[]).map((d: { question: string; answer: string }) => ({
+      question: d.question,
+      answer: d.answer
+    }));
+  },
+
+  getProcessMetrics: async (): Promise<ProcessMetric[]> => {
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from('process_metrics' as any)
+      .select('*')
+      .order('display_order', { ascending: true });
+    
+    if (error || !data) return [];
+    return (data as any[]).map((d: { value: string; label: string; suffix: string | null }) => ({
+      value: d.value,
+      label: d.label,
+      suffix: d.suffix || undefined
+    }));
   },
 
   // Stub other methods if used by context, or leave empty

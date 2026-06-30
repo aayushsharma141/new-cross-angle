@@ -124,21 +124,55 @@ const SystemTab = ({ date }: SystemTabProps) => {
           <h3 className="text-xs font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-widest mb-4">Active Integrations</h3>
           <div className="space-y-3">
             {[
-              { name: "Supabase (DB & Auth)", ok: true },
-              { name: "Resend (Email)", ok: true },
-              { name: "Vercel (Hosting)", ok: true },
-              { name: "PostHog (Analytics)", ok: true, status: "Active" },
+              {
+                name: "Supabase (DB & Auth)",
+                // Individually probed: DB query fires on every refreshHealth call
+                ok: health.database === "connected",
+                status: health.database === "connected" ? "Connected" : "Disconnected",
+                probe: "Direct DB probe",
+              },
+              {
+                name: "PostHog (Analytics)",
+                // Probed via edge function gateway — posthog-query invocation in SystemContext
+                ok: health.api === "online",
+                status: health.api === "online" ? "Reachable" : "Unreachable",
+                probe: "Edge fn gateway",
+              },
+              {
+                name: "Resend (Email)",
+                // Not independently probed — status reflects edge function gateway reachability
+                ok: health.api === "online",
+                status: health.api === "online" ? "Gateway OK" : "Gateway Down",
+                probe: "Not independently probed",
+              },
+              {
+                name: "Vercel (Hosting)",
+                // Hosting status cannot be reliably determined client-side
+                ok: null,
+                status: "No probe available",
+                probe: "Deployment status only",
+              },
             ].map((item) => (
-              <div key={item.name} className="flex justify-between items-center text-[13px]">
-                <span className="text-[hsl(var(--admin-text-muted))]">{item.name}</span>
-                <span className={cn("font-bold flex items-center gap-1.5", item.ok ? "text-[hsl(var(--admin-success))]" : "text-[hsl(var(--admin-warning))]")}>
-                  <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-                  {item.status ?? "Active"}
+              <div key={item.name} className="flex justify-between items-start gap-2 text-[13px]">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[hsl(var(--admin-text-muted))]">{item.name}</span>
+                  <span className="text-[10px] text-[hsl(var(--admin-text-muted))]/60">{item.probe}</span>
+                </div>
+                <span className={cn(
+                  "font-bold flex items-center gap-1.5 shrink-0 text-right",
+                  item.ok === true  && "text-[hsl(var(--admin-success))]",
+                  item.ok === false && "text-[hsl(var(--admin-danger))]",
+                  item.ok === null  && "text-[hsl(var(--admin-text-muted))]",
+                )}>
+                  {item.ok !== null && (
+                    <div className={cn("w-1.5 h-1.5 rounded-full bg-current", item.ok && "animate-pulse")} />
+                  )}
+                  {item.status}
                 </span>
               </div>
             ))}
           </div>
-          {can("settings", "view") && (
+          {can('settings', 'view') && (
             <Link to="/admin/system/settings" className="mt-4 block text-xs text-center text-[hsl(var(--admin-primary))] hover:underline font-bold">
               Manage Integrations
             </Link>

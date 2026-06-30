@@ -9,36 +9,17 @@ import {
     FileImage,
     FileVideo,
     Files,
-    Upload
 } from "lucide-react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/primitives/dialog";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/primitives/select";
 import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { MediaUploadZone } from "@/components/admin/media/MediaUploadZone";
 import { AssetWorkspaceLayout } from "@/components/admin/media/AssetWorkspaceLayout";
 import { icons } from "@/design-system/tokens/icons";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminMetricsPanel, AdminSkeletonCard } from "@/components/admin/shared";
 import { queryKeys } from "@/lib/queryKeys";
 import type { Tables } from "@/integrations/supabase/types";
-import { MediaService } from "@/services/MediaService";
 
 interface MediaFile {
     id: string;
@@ -90,19 +71,11 @@ const AdminMedia = () => {
     const { isEditor } = useAdminAuth();
     const queryClient = useQueryClient();
 
-    const [selectedFolder] = useState<string>("all");
-
     const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
     const [fileToDelete, setFileToDelete] = useState<MediaFile | null>(null);
-    const [uploadError, setUploadError] = useState<string | null>(null);
     const [isSyncingImageKit, setIsSyncingImageKit] = useState(false);
-
-    // DAM contextual states
-    const [uploadDomain, setUploadDomain] = useState<string>("system");
-    const [uploadEntityType, setUploadEntityType] = useState<string>("system");
-    const [uploadRole, setUploadRole] = useState<string>("general");
 
     // ── Data fetching ─────────────────────────────────────────────────────────
 

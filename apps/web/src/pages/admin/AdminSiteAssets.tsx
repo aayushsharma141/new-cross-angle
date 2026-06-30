@@ -169,7 +169,7 @@ export default function AdminSiteAssets() {
             <UniversalAssetPicker
                 open={pickerOpen}
                 onOpenChange={setPickerOpen}
-                onSelect={(asset, url) => {
+                onSelect={(asset, _url) => {
                     if (!currentEditingAsset) return;
                     const fileId = asset.asset_versions?.[0]?.file_id;
                     if (fileId) {

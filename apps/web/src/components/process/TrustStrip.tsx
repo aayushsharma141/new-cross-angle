@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { processMetrics } from "@/data/process";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import useCountUp from "@/hooks/useCountUp";
 
 const MetricItem = ({ metric, idx }: { metric: { label: string; value: string; suffix?: string }; idx: number }) => {
@@ -37,6 +38,13 @@ const MetricItem = ({ metric, idx }: { metric: { label: string; value: string; s
 };
 
 const TrustStrip = () => {
+  const { data: processMetrics = [] } = useQuery({
+    queryKey: ['processMetrics'],
+    queryFn: api.getProcessMetrics
+  });
+
+  if (processMetrics.length === 0) return null;
+
   return (
     <section className="relative bg-[#050505] border-y border-white/[0.05] py-16 md:py-20 overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6">

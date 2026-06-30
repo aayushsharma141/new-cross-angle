@@ -2,7 +2,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Compare } from "@/components/ui/enhanced/compare";
-import { type Project } from "@/data/projects";
+import { type Project } from "@/lib/api";
 
 // Curated 1-sentence narrative sets mapped by slug
 const storyTransformationData: Record<string, {

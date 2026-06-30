@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { processFAQs } from "@/data/process";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
 const ProcessFAQ = () => {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  const { data: processFAQs = [] } = useQuery({
+    queryKey: ['processFAQs'],
+    queryFn: api.getProcessFAQs
+  });
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -18,6 +24,8 @@ const ProcessFAQ = () => {
       }
     }))
   };
+
+  if (processFAQs.length === 0) return null;
 
   return (
     <section className="relative bg-[#050505] border-t border-white/[0.05] py-24 md:py-32 px-6 overflow-hidden">

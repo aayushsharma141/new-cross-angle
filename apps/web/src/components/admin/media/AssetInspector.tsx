@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/primitives/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/primitives/select";
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/useToast";
-import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/primitives/dialog";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";

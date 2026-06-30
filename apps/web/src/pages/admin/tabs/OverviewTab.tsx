@@ -140,12 +140,13 @@ const OverviewTab = ({ date, changeTab }: OverviewTabProps) => {
         counts[row.status] = (counts[row.status] || 0) + 1;
       }
       const colors: Record<string, string> = {
-        new: "hsl(43, 74%, 49%)",
-        contacted: "hsl(200, 70%, 50%)",
-        qualified: "hsl(150, 60%, 45%)",
-        proposal: "hsl(280, 60%, 55%)",
-        won: "hsl(120, 60%, 45%)",
-        lost: "hsl(0, 60%, 50%)",
+        new: "hsl(var(--admin-primary))",
+        in_conversation: "hsl(var(--admin-primary))",
+        meeting_planned: "hsl(var(--admin-primary))",
+        quote_sent: "hsl(var(--admin-primary))",
+        closing: "hsl(var(--admin-primary))",
+        won: "hsl(var(--admin-success))",
+        lost: "hsl(var(--admin-error))",
       };
       return Object.entries(counts).map(([name, value]) => ({ name, value, color: colors[name] || "hsl(0,0%,50%)" }));
     },
@@ -158,7 +159,7 @@ const OverviewTab = ({ date, changeTab }: OverviewTabProps) => {
       {!closedInsights.has("conv-anomaly") && stats && stats.conversionRate < 15 && stats.leads > 5 && (
         <InsightCard
           title="Attention: Conversion Drop"
-          description="Your lead-to-project conversion rate has dropped 12% this week. We recommend checking the Estimator stage drop-offs."
+          description={`Your lead-to-project conversion rate is ${stats.conversionRate}% which is below the 15% benchmark. Check the Estimator stage drop-offs in Sales Insights.`}
           type="warning"
           actionLabel="View Sales Insights"
           onAction={() => changeTab("sales")}

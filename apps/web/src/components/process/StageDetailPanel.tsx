@@ -1,10 +1,18 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Clock, IndianRupee, User, HardHat } from "lucide-react";
-import { processStages } from "@/data/process";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
 const StageDetailPanel = () => {
+  const { data: processStages = [] } = useQuery({
+    queryKey: ['processStages'],
+    queryFn: api.getProcessStages
+  });
   const [activeIdx, setActiveIdx] = useState(0);
+
+  if (processStages.length === 0) return null;
+
   const activeStage = processStages[activeIdx];
 
   return (
@@ -53,7 +61,8 @@ const StageDetailPanel = () => {
               key={stage.id}
               type="button"
               role="tab"
-              aria-selected={activeIdx === idx}
+              aria-selected={activeIdx === idx ? "true" : "false"}
+              tabIndex={activeIdx === idx ? 0 : -1}
               aria-controls={`stage-panel-${stage.id}`}
               id={`stage-tab-${stage.id}`}
               onClick={() => setActiveIdx(idx)}

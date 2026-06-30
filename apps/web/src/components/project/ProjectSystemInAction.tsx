@@ -1,6 +1,6 @@
 import { motion, useScroll, useSpring } from "framer-motion";
 import { useRef } from "react";
-import { type Project } from "@/data/projects";
+import { type Project } from "@/lib/api";
 
 interface ProjectSystemInActionProps {
   project: Project;

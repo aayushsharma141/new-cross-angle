@@ -1,12 +1,14 @@
 
 import { Bar, ComposedChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell, LabelList } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
-import { Button } from "@/components/ui/primitives/button";
 import { Lightbulb } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { CRM_STAGES } from "@/lib/crm/stages";
 
-const FUNNEL_ORDER = ["new", "in_conversation", "meeting_planned", "quote_sent", "closing", "won", "lost"];
+// Derive from canonical CRM_STAGES — single source of truth
+const FUNNEL_ORDER = CRM_STAGES.map((s) => s.id);
+const STATUS_LABELS = Object.fromEntries(CRM_STAGES.map((s) => [s.id, s.shortLabel]));
 
 const COLORS: Record<string, string> = {
   new: "hsl(var(--admin-primary))",
@@ -16,16 +18,6 @@ const COLORS: Record<string, string> = {
   closing: "hsl(var(--admin-primary))",
   won: "hsl(var(--admin-success))",
   lost: "hsl(var(--admin-error))"
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  new: "New",
-  in_conversation: "In Conversation",
-  meeting_planned: "Meeting Planned",
-  quote_sent: "Quote Sent",
-  closing: "Closing",
-  won: "Won",
-  lost: "Lost"
 };
 
 export function LeadFunnelChart() {
@@ -77,12 +69,9 @@ export function LeadFunnelChart() {
                             <Lightbulb className="w-6 h-6" />
                         </div>
                         <h4 className="text-[hsl(var(--admin-foreground))] font-medium mb-2">Your funnel is ready</h4>
-                        <p className="text-[hsl(var(--admin-muted))] text-sm max-w-[280px] mb-4">
-                            Your first organic lead usually arrives within 3 days. Want to verify your CRM routing?
+                        <p className="text-[hsl(var(--admin-muted))] text-sm max-w-[280px]">
+                            Leads will appear here as they enter the CRM pipeline. Funnel conversion rates update automatically.
                         </p>
-                        <Button variant="outline" className="border-[hsl(var(--admin-success))]/20 text-[hsl(var(--admin-success))] hover:bg-[hsl(var(--admin-success))]/10">
-                            Send Test Lead
-                        </Button>
                     </div>
                 ) : (
                     <div className="h-[300px] w-full">

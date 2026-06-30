@@ -1,7 +1,15 @@
 import { motion } from "framer-motion";
-import { processStages } from "@/data/process";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
 const TimelineGantt = () => {
+  const { data: processStages = [] } = useQuery({
+    queryKey: ['processStages'],
+    queryFn: api.getProcessStages
+  });
+
+  if (processStages.length < 5) return null;
+
   const weeks = ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8"];
   const stageWeeks = [
     { stage: processStages[0], start: 0, end: 0 },

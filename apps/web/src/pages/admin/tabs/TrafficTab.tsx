@@ -30,7 +30,7 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
   const toIso = currentTo?.toISOString();
 
   // Core traffic KPIs
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading, isError } = useQuery({
     queryKey: ["traffic-stats", date],
     queryFn: async () => {
       let previousFromIso: string | undefined;
@@ -53,17 +53,12 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
       });
 
       if (error || !data) {
-        return {
-          views: 0,
-          viewsTrend: 0,
-          uniqueVisitors: 0,
-          engagementEvents: 0,
-          avgPagesPerVisitor: "0",
-        };
+        throw new Error("Failed to fetch traffic stats from PostHog");
       }
 
       return data;
     },
+    retry: 1,
   });
 
   // Traffic over time (area chart)
@@ -181,6 +176,15 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
           isLoading={isLoading}
         />
       </div>
+
+      {/* PostHog error banner */}
+      {isError && !isLoading && (
+        <div className="rounded-xl border border-[hsl(var(--admin-warning))]/30 bg-[hsl(var(--admin-warning))]/5 px-5 py-3 flex items-center gap-3 text-sm">
+          <span className="w-2 h-2 rounded-full bg-[hsl(var(--admin-warning))] shrink-0" />
+          <span className="text-[hsl(var(--admin-warning))] font-medium">Analytics unavailable</span>
+          <span className="text-[hsl(var(--admin-text-muted))]">PostHog could not be reached. Traffic data shown below may be stale or empty — not zero.</span>
+        </div>
+      )}
 
       {/* Traffic Over Time (Area Chart) */}
       <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6">

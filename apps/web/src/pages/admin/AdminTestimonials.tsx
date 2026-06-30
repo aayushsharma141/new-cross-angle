@@ -134,9 +134,6 @@ const AdminTestimonials = () => {
     }
   });
 
-  const handleDelete = (id: string): void => {
-    deleteMutation.mutate(id);
-  };
 
   // Derived state
   const activeCount = testimonials.filter(t => t.active).length;

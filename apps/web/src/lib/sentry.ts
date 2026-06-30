@@ -117,9 +117,16 @@ export function initSentry(): void {
         event.request.headers['Authorization'] = '[Filtered]';
       }
 
-      // Don't send events from admin routes to reduce noise — they are already
-      // monitored via edge function Sentry reporting.
-      if (event.request?.url?.includes('/admin')) return null;
+      // Tag admin errors separately so they can be filtered/routed in the
+      // Sentry dashboard without being silently dropped. The edge function
+      // Sentry project only covers server-side errors — frontend React errors
+      // in /admin are NOT captured there and would be lost entirely.
+      if (event.request?.url?.includes('/admin')) {
+        event.tags = { ...event.tags, area: 'admin' };
+        event.level = event.level ?? 'warning';
+        // Still scrub any admin-specific sensitive params before sending
+        if (event.request?.url) event.request.url = scrubUrl(event.request.url);
+      }
 
       return event;
     },

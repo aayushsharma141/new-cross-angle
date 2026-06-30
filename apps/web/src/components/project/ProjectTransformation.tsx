@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Compare } from "@/components/ui/enhanced/compare";
-import { type Project } from "@/data/projects";
+import { type Project } from "@/lib/api";
 
 interface ProjectTransformationProps {
   project: Project;

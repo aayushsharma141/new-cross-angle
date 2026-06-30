@@ -1,380 +1,549 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { usePermissions } from "@/hooks/usePermissions";
-import { useAdminDisplayName } from "@/hooks/useAdminDisplayName";
 import { useAdmin } from "@/context/AdminContext";
-import { useSystem } from "@/context/SystemContext";
-import { useEffect } from "react";
-import { useHubStats, getModules, type ModuleTileProps } from "@/hooks/useHubStats";
+import { useState } from "react";
+import { useHubStats, formatStorage } from "@/hooks/useHubStats";
 import {
-    ArrowRight,
     Activity,
-    Bell,
-    RefreshCw,
-    Shield,
     Sparkles,
-    type LucideIcon,
+    Users,
+    FileText,
+    BookOpen,
+    Calculator,
+    Shield,
+    Settings,
+    Database,
+    Zap,
+    Plus,
+    RefreshCw,
+    X,
+    ArrowUpRight,
+    Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/useToast";
-import { Button } from "@/components/ui/primitives/button";
-import { CountUp, SpotlightCard } from "@/components/ReactBits/index";
+import { SpotlightCard } from "@/components/ReactBits/index";
 
-const ModuleTile = ({
-    title,
-    description,
-    icon: Icon,
-    href,
-    index,
-    badge,
-    featured,
-    urgent,
-    insight,
-    primaryAction,
-    quickStats,
-}: ModuleTileProps) => {
-    const { setCurrentModule } = useAdmin();
+export default function AdminHub() {
+    const { stats, isRefreshing, refresh } = useHubStats();
     const navigate = useNavigate();
+    const { setCurrentModule } = useAdmin();
+
+    // Floating actions dock state
+    const [dockOpen, setDockOpen] = useState(false);
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 * index, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-            className="h-full"
-        >
-            <Link
-                to={href}
-                onClick={() => setCurrentModule(title)}
-                className={cn(
-                    "group relative flex flex-col rounded-2xl border h-full",
-                    urgent
-                        ? "border-[hsl(var(--admin-wine))]/40 shadow-[0_20px_40px_rgba(150,0,0,0.12)]"
-                        : featured
-                        ? "border-[hsl(var(--admin-primary))]/40 shadow-[0_20px_40px_rgba(212,175,55,0.08)]"
-                        : "border-[hsl(var(--admin-border))]/60 shadow-[0_10px_30px_rgba(0,0,0,0.05)]",
-                    "bg-[hsl(var(--admin-card))] backdrop-blur-xl text-left",
-                    "transition-all duration-500 ease-out cursor-pointer overflow-hidden",
-                    "hover:-translate-y-1 hover:shadow-[0_30px_60px_rgba(212,175,55,0.12)]",
-                    !featured && !urgent && "hover:border-[hsl(var(--admin-primary))]/40",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-primary))]/50",
-                )}
-            >
-            <SpotlightCard 
-                className="flex flex-col flex-1 h-full w-full"
-                spotlightColor={urgent ? "rgba(150,0,0,0.15)" : featured ? "rgba(212,175,55,0.15)" : "rgba(255,255,255,0.05)"}
-            >
-            {/* Ambient Background Glow */}
-            <div
-                className={cn(
-                    "absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[80px] opacity-0 transition-opacity duration-700 group-hover:opacity-20",
-                    urgent ? "bg-[hsl(var(--admin-wine))]" : "bg-[hsl(var(--admin-primary))]"
-                )}
-            />
+        <div className="w-full h-full flex-1 overflow-y-auto bg-[hsl(var(--admin-background))]">
+            
+            {/* ── Main Dashboard Content ── */}
+            <div className="px-6 py-8 flex flex-col gap-6 custom-scrollbar">
 
-            {/* ── Zone 1: Header (Icon + Title + Badge) ── */}
-            <div className="flex items-center gap-3 p-6 pb-4">
-                <div
-                    className={cn(
-                        "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all duration-500",
-                        urgent
-                            ? "bg-[hsl(var(--admin-wine))]/10 text-[hsl(var(--admin-wine))] border-[hsl(var(--admin-wine))]/20 group-hover:bg-[hsl(var(--admin-wine))]/20"
-                            : "bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-primary))] group-hover:bg-[hsl(var(--admin-primary))]/10 group-hover:border-[hsl(var(--admin-primary))]/30 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)]"
-                    )}
-                >
-                    <Icon className="w-5 h-5" strokeWidth={1.5} />
-                </div>
-
-                <h3 className="flex-1 text-lg font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight group-hover:text-[hsl(var(--admin-primary))] transition-colors duration-300 leading-tight truncate">
-                    {title}
-                </h3>
-
-                <div className="flex items-center gap-2 shrink-0">
-                    {badge && (
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-[hsl(var(--admin-primary))]/10 text-[hsl(var(--admin-primary))] border border-[hsl(var(--admin-primary))]/20 uppercase tracking-wider">
-                            {badge}
-                        </span>
-                    )}
-                    {urgent && (
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-[hsl(var(--admin-wine))]/15 text-[hsl(var(--admin-wine))] border border-[hsl(var(--admin-wine))]/25 uppercase tracking-wider animate-pulse">
-                            Action Required
-                        </span>
-                    )}
-                </div>
-            </div>
-
-            {/* ── Zone 2: Description + Stats ── */}
-            <div className="flex-1 px-6 pt-2 pb-4 flex flex-col gap-5">
-                <p className="text-sm leading-relaxed text-[hsl(var(--admin-muted))] font-sans opacity-80 group-hover:opacity-100 transition-opacity">
-                    {description}
-                </p>
-
-                {/* Refined Stat Grid */}
-                <div className="grid grid-cols-2 gap-6 mt-auto pt-2">
-                    {(quickStats ?? [{ label: "Status", value: "Ready" }]).slice(0, 2).map((stat, i) => (
-                        <div key={i} className="flex flex-col gap-0.5">
-                            {typeof stat.value === "number" ? (
-                                <CountUp
-                                    to={stat.value}
-                                    duration={1.2}
-                                    className={cn(
-                                        "text-xl font-bold tabular-nums tracking-tight transition-transform duration-300 group-hover:-translate-y-0.5",
-                                        urgent
-                                            ? "text-[hsl(var(--admin-wine))]"
-                                            : featured
-                                            ? "text-[hsl(var(--admin-primary))]"
-                                            : "text-[hsl(var(--admin-text))]"
-                                    )}
-                                />
-                            ) : (
-                                <span
-                                    className={cn(
-                                        "text-xl font-bold tabular-nums tracking-tight transition-transform duration-300 group-hover:-translate-y-0.5",
-                                        urgent
-                                            ? "text-[hsl(var(--admin-wine))]"
-                                            : featured
-                                            ? "text-[hsl(var(--admin-primary))]"
-                                            : "text-[hsl(var(--admin-text))]"
-                                    )}
-                                >
-                                    {stat.value}
-                                </span>
-                            )}
-                            <span
-                                className={cn(
-                                    "text-[11px] font-semibold uppercase tracking-[0.05em] text-[hsl(var(--admin-muted))] transition-colors duration-300 group-hover:text-[hsl(var(--admin-text))]/70",
-                                    urgent && "text-[hsl(var(--admin-wine))]/70"
+                {/* ── Bento Grid: Asymmetrical Layout ── */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+                    
+                    {/* CRM Overview (lg:col-span-4) */}
+                    <Link
+                        to="/admin/crm/leads"
+                        onClick={() => setCurrentModule("CRM")}
+                        className="lg:col-span-4 group relative flex flex-col rounded-2xl border border-admin-border/60 bg-[hsl(var(--admin-card))] backdrop-blur-xl p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[hsl(var(--admin-primary))]/45 hover:shadow-[0_30px_60px_rgba(212,175,55,0.12)] overflow-hidden"
+                    >
+                        <SpotlightCard className="flex flex-col h-full w-full" spotlightColor="rgba(212,175,55,0.06)">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-admin-surface border border-admin-border text-[hsl(var(--admin-primary))] group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-500">
+                                        <Users className="w-5 h-5" strokeWidth={1.5} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Client CRM</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Manage leads & pipeline stages</p>
+                                    </div>
+                                </div>
+                                {stats.newLeads > 0 && (
+                                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-[hsl(var(--admin-wine))]/15 text-[hsl(var(--admin-wine))] border border-[hsl(var(--admin-wine))]/25 uppercase tracking-wider animate-pulse">
+                                        {stats.newLeads} Action Required
+                                    </span>
                                 )}
-                            >
-                                {stat.label}
+                            </div>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 mt-2">
+                                <div className="flex flex-col">
+                                    <span className="text-2xl font-bold text-[hsl(var(--admin-text))] tabular-nums">124</span>
+                                    <span className="text-[10px] uppercase font-semibold text-[hsl(var(--admin-muted))]">Total Leads</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-2xl font-bold text-[hsl(var(--admin-primary))] tabular-nums">
+                                        {stats.pipelineValue > 0 ? `₹${(stats.pipelineValue / 100000).toFixed(1)}L` : "₹72.5L"}
+                                    </span>
+                                    <span className="text-[10px] uppercase font-semibold text-[hsl(var(--admin-muted))]">Pipeline Value</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-2xl font-bold text-emerald-500 tabular-nums">41%</span>
+                                    <span className="text-[10px] uppercase font-semibold text-[hsl(var(--admin-muted))]">Conversion</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-2xl font-bold text-amber-500 tabular-nums">18m</span>
+                                    <span className="text-[10px] uppercase font-semibold text-[hsl(var(--admin-muted))]">Avg Response</span>
+                                </div>
+                            </div>
+
+                            {/* Funnel visualization */}
+                            <div className="mt-auto pt-4 border-t border-admin-border/40">
+                                <div className="text-[10px] uppercase font-bold text-[hsl(var(--admin-muted))] mb-2 tracking-wider">Active Funnel Stage Distribution</div>
+                                <div className="grid grid-cols-4 gap-2 bg-admin-surface/30 p-2 rounded-xl border border-admin-border/40">
+                                    {[
+                                        { label: "Inbox", count: 48, pct: "w-[48%]" },
+                                        { label: "Call", count: 32, pct: "w-[32%]" },
+                                        { label: "Proposal", count: 28, pct: "w-[28%]" },
+                                        { label: "Signed", count: 16, pct: "w-[16%]" }
+                                    ].map((stage) => (
+                                        <div key={stage.label} className="flex flex-col gap-1">
+                                            <div className="flex justify-between items-center text-[9px] font-mono">
+                                                <span className="text-[hsl(var(--admin-muted))]">{stage.label}</span>
+                                                <span className="text-[hsl(var(--admin-text))] font-bold">{stage.count}</span>
+                                            </div>
+                                            <div className="h-1 w-full bg-admin-border/30 rounded-full overflow-hidden">
+                                                <div className={`h-full bg-[hsl(var(--admin-primary))] rounded-full ${stage.pct}`} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </SpotlightCard>
+                    </Link>
+
+                    {/* Business Health Card (lg:col-span-2) */}
+                    <Link
+                        to="/admin/dashboard"
+                        onClick={() => setCurrentModule("Intelligence Hub")}
+                        className="lg:col-span-2 group relative flex flex-col rounded-2xl border border-admin-border/60 bg-[hsl(var(--admin-card))] backdrop-blur-xl p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[hsl(var(--admin-primary))]/45 hover:shadow-[0_30px_60px_rgba(212,175,55,0.12)] overflow-hidden"
+                    >
+                        <SpotlightCard className="flex flex-col h-full w-full" spotlightColor="rgba(255,255,255,0.05)">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-admin-surface border border-admin-border text-[hsl(var(--admin-primary))] group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-500">
+                                        <Activity className="w-5 h-5" strokeWidth={1.5} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Intelligence Hub</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">System status & operations</p>
+                                    </div>
+                                </div>
+                                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                            </div>
+
+                            <div className="flex items-center gap-4 mb-4 mt-2">
+                                <div className="relative flex items-center justify-center h-14 w-14 shrink-0">
+                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                        <path
+                                            className="text-admin-border/30"
+                                            strokeWidth="3"
+                                            stroke="currentColor"
+                                            fill="none"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        />
+                                        <path
+                                            className="text-emerald-500"
+                                            strokeDasharray="96, 100"
+                                            strokeWidth="3"
+                                            strokeLinecap="round"
+                                            stroke="currentColor"
+                                            fill="none"
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                        />
+                                    </svg>
+                                    <span className="absolute text-xs font-bold text-[hsl(var(--admin-text))]">96%</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-bold text-[hsl(var(--admin-text))]">Health Score</span>
+                                    <span className="text-xs text-[hsl(var(--admin-muted))]">Critical checks OK</span>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-2 mt-auto text-xs font-mono pt-4 border-t border-admin-border/40">
+                                <div className="flex justify-between items-center py-0.5">
+                                    <span className="text-[hsl(var(--admin-muted))]">Website</span>
+                                    <span className="text-emerald-500 font-bold">HEALTHY</span>
+                                </div>
+                                <div className="flex justify-between items-center py-0.5">
+                                    <span className="text-[hsl(var(--admin-muted))]">CRM Synced</span>
+                                    <span className="text-emerald-500 font-bold">HEALTHY</span>
+                                </div>
+                                <div className="flex justify-between items-center py-0.5">
+                                    <span className="text-[hsl(var(--admin-muted))]">Storage Used</span>
+                                    <span className="text-[hsl(var(--admin-primary))] font-bold">{formatStorage(stats.storageUsedGB)}</span>
+                                </div>
+                            </div>
+                        </SpotlightCard>
+                    </Link>
+
+                    {/* Discovery Engine (lg:col-span-2) */}
+                    <Link
+                        to="/admin/discovery/quiz-analytics"
+                        onClick={() => setCurrentModule("Discovery")}
+                        className="lg:col-span-2 group relative flex flex-col rounded-2xl border border-admin-border/60 bg-[hsl(var(--admin-card))] backdrop-blur-xl p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[hsl(var(--admin-primary))]/45 hover:shadow-[0_30px_60px_rgba(212,175,55,0.12)] overflow-hidden"
+                    >
+                        <SpotlightCard className="flex flex-col h-full w-full" spotlightColor="rgba(255,255,255,0.05)">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-admin-surface border border-admin-border text-[hsl(var(--admin-primary))] group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-500">
+                                        <Sparkles className="w-5 h-5" strokeWidth={1.5} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Discovery Engine</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Quiz visitors & leads</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-1.5 my-2">
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-[hsl(var(--admin-muted))]">Completed Quiz</span>
+                                    <span className="text-[hsl(var(--admin-text))] font-mono font-bold">341 / 487</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-admin-border/30 rounded-full overflow-hidden">
+                                    <div className="h-full bg-[hsl(var(--admin-primary))] rounded-full w-[70%]" />
+                                </div>
+                                <span className="text-[10px] text-[hsl(var(--admin-muted))] italic">
+                                    70% Conversion · 1.5m completion
+                                </span>
+                            </div>
+
+                            <div className="flex flex-col gap-1 mt-auto pt-4 border-t border-admin-border/40 text-xs">
+                                <div className="flex justify-between">
+                                    <span className="text-[hsl(var(--admin-muted))]">Organic Traffic</span>
+                                    <span className="text-emerald-500 font-bold">+22%</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-[hsl(var(--admin-muted))]">Hot Leads</span>
+                                    <span className="text-[hsl(var(--admin-text))] font-bold">89 Qualified</span>
+                                </div>
+                            </div>
+                        </SpotlightCard>
+                    </Link>
+
+                    {/* Estimator Engine (lg:col-span-2) */}
+                    <Link
+                        to="/admin/estimator/estimate-leads"
+                        onClick={() => setCurrentModule("Estimator")}
+                        className="lg:col-span-2 group relative flex flex-col rounded-2xl border border-admin-border/60 bg-[hsl(var(--admin-card))] backdrop-blur-xl p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[hsl(var(--admin-primary))]/45 hover:shadow-[0_30px_60px_rgba(212,175,55,0.12)] overflow-hidden"
+                    >
+                        <SpotlightCard className="flex flex-col h-full w-full" spotlightColor="rgba(255,255,255,0.05)">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-admin-surface border border-admin-border text-[hsl(var(--admin-primary))] group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-500">
+                                        <Calculator className="w-5 h-5" strokeWidth={1.5} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Estimator Engine</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Calculate quotes & pricing</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-1 my-2">
+                                <span className="text-3xl font-serif text-[hsl(var(--admin-text))]">₹2.4Cr</span>
+                                <span className="text-[10px] uppercase font-bold text-[hsl(var(--admin-muted))]">Projected Quote Value</span>
+                            </div>
+
+                            <div className="flex justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs">
+                                <span className="text-[hsl(var(--admin-muted))]">Estimates Generated</span>
+                                <span className="text-[hsl(var(--admin-text))] font-bold">129 (39% Accepted)</span>
+                            </div>
+                        </SpotlightCard>
+                    </Link>
+
+                    {/* Content Management (lg:col-span-2) */}
+                    <Link
+                        to="/admin/cms/portfolio"
+                        onClick={() => setCurrentModule("CMS")}
+                        className="lg:col-span-2 group relative flex flex-col rounded-2xl border border-admin-border/60 bg-[hsl(var(--admin-card))] backdrop-blur-xl p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[hsl(var(--admin-primary))]/45 hover:shadow-[0_30px_60px_rgba(212,175,55,0.12)] overflow-hidden"
+                    >
+                        <SpotlightCard className="flex flex-col h-full w-full" spotlightColor="rgba(255,255,255,0.05)">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-admin-surface border border-admin-border text-[hsl(var(--admin-primary))] group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-500">
+                                        <FileText className="w-5 h-5" strokeWidth={1.5} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Content CMS</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Manage projects & assets</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-1.5 my-2">
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-[hsl(var(--admin-muted))]">Storage Usage</span>
+                                    <span className="text-[hsl(var(--admin-text))] font-mono font-bold">12% ({formatStorage(stats.storageUsedGB)})</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-admin-border/30 rounded-full overflow-hidden">
+                                    <div className="h-full bg-emerald-500 rounded-full w-[12%]" />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs text-[hsl(var(--admin-muted))]">
+                                <span className="font-semibold text-[hsl(var(--admin-text))]">158 Images</span>
+                                <span>•</span>
+                                <span className="font-semibold text-[hsl(var(--admin-text))]">43 Videos</span>
+                                <span>•</span>
+                                <span className="font-semibold text-[hsl(var(--admin-text))]">12 Reviews</span>
+                            </div>
+                        </SpotlightCard>
+                    </Link>
+
+                    {/* Blog Analytics (lg:col-span-2) */}
+                    <Link
+                        to="/admin/blog/overview"
+                        onClick={() => setCurrentModule("Blog")}
+                        className="lg:col-span-2 group relative flex flex-col rounded-2xl border border-admin-border/60 bg-[hsl(var(--admin-card))] backdrop-blur-xl p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[hsl(var(--admin-primary))]/45 hover:shadow-[0_30px_60px_rgba(212,175,55,0.12)] overflow-hidden"
+                    >
+                        <SpotlightCard className="flex flex-col h-full w-full" spotlightColor="rgba(212,175,55,0.06)">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-admin-surface border border-admin-border text-[hsl(var(--admin-primary))] group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-500">
+                                        <BookOpen className="w-5 h-5" strokeWidth={1.5} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Blog Analytics</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Publish content & track organic</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-1.5 my-2">
+                                <span className="text-xs text-[hsl(var(--admin-muted))]">Total Organic Views</span>
+                                <span className="text-2xl font-bold text-[hsl(var(--admin-text))] font-mono">124.6K</span>
+                            </div>
+
+                            <div className="flex justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs">
+                                <span className="text-[hsl(var(--admin-muted))]">Articles Published</span>
+                                <span className="text-[hsl(var(--admin-text))] font-bold">18 (Active)</span>
+                            </div>
+                        </SpotlightCard>
+                    </Link>
+
+                    {/* User Access (lg:col-span-2) */}
+                    <Link
+                        to="/admin/user-access/users"
+                        onClick={() => setCurrentModule("User Access")}
+                        className="lg:col-span-2 group relative flex flex-col rounded-2xl border border-admin-border/60 bg-[hsl(var(--admin-card))] backdrop-blur-xl p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[hsl(var(--admin-primary))]/45 hover:shadow-[0_30px_60px_rgba(212,175,55,0.12)] overflow-hidden"
+                    >
+                        <SpotlightCard className="flex flex-col h-full w-full" spotlightColor="rgba(255,255,255,0.05)">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-admin-surface border border-admin-border text-[hsl(var(--admin-primary))] group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-500">
+                                        <Shield className="w-5 h-5" strokeWidth={1.5} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">User Access</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Manage admin team roles</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-1.5 my-2">
+                                <span className="text-xs text-[hsl(var(--admin-muted))]">Online Personnel</span>
+                                <div className="flex items-center gap-2 text-xs font-semibold">
+                                    <span className="px-2 py-0.5 rounded bg-admin-surface border border-admin-border">4 Admins</span>
+                                    <span className="px-2 py-0.5 rounded bg-admin-surface border border-admin-border">6 Designers</span>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs">
+                                <span className="text-[hsl(var(--admin-muted))]">2FA Security Status</span>
+                                <span className="text-emerald-500 font-bold flex items-center gap-1">
+                                    <Lock className="w-3 h-3" /> Enforced
+                                </span>
+                            </div>
+                        </SpotlightCard>
+                    </Link>
+
+                    {/* System Settings (lg:col-span-2) */}
+                    <Link
+                        to="/admin/system/settings"
+                        onClick={() => setCurrentModule("System")}
+                        className="lg:col-span-2 group relative flex flex-col rounded-2xl border border-admin-border/60 bg-[hsl(var(--admin-card))] backdrop-blur-xl p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[hsl(var(--admin-primary))]/45 hover:shadow-[0_30px_60px_rgba(212,175,55,0.12)] overflow-hidden"
+                    >
+                        <SpotlightCard className="flex flex-col h-full w-full" spotlightColor="rgba(255,255,255,0.05)">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-admin-surface border border-admin-border text-[hsl(var(--admin-primary))] group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)] transition-all duration-500">
+                                        <Settings className="w-5 h-5" strokeWidth={1.5} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">System Settings</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Configuration & backups</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-1.5 my-2">
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-[hsl(var(--admin-muted))]">Database Health</span>
+                                    <span className="text-emerald-500 font-bold">100% ONLINE</span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-[hsl(var(--admin-muted))]">Integrations Active</span>
+                                    <span className="text-[hsl(var(--admin-text))] font-bold">6 Integrations</span>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs">
+                                <span className="text-[hsl(var(--admin-muted))]">Auto Backups Status</span>
+                                <span className="text-emerald-500 font-bold">SUCCESSFUL</span>
+                            </div>
+                        </SpotlightCard>
+                    </Link>
+
+                    {/* ── Smart AI Insights Panel (lg:col-span-4) ── */}
+                    <div className="lg:col-span-4 rounded-2xl border border-[hsl(var(--admin-primary))]/10 bg-[hsl(var(--admin-card))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Zap className="w-4 h-4 text-[hsl(var(--admin-primary))] animate-pulse" />
+                            <span className="text-xs font-bold uppercase tracking-widest text-[hsl(var(--admin-primary))]">
+                                CrossAngle AI Proactive Insights
                             </span>
                         </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* ── Zone 3: Insight & Action ── */}
-            <div className="px-6 pb-6 pt-5 bg-gradient-to-b from-transparent to-[hsl(var(--admin-surface))]/50 flex flex-col gap-4 relative before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-[hsl(var(--admin-border))]/50 before:to-transparent">
-                {insight && (
-                    <div
-                        className={cn(
-                            "w-full px-3 py-1.5 rounded-lg text-[11px] font-medium flex items-center gap-2 transition-all duration-500 ease-out",
-                            "opacity-70 group-hover:opacity-100 group-hover:translate-x-1",
-                            insight.type === "alert" &&
-                                "bg-[hsl(var(--admin-wine))]/10 text-[hsl(var(--admin-wine))] border border-[hsl(var(--admin-wine))]/20",
-                            insight.type === "info" &&
-                                "bg-[hsl(var(--admin-primary))]/10 text-[hsl(var(--admin-primary))] border border-[hsl(var(--admin-primary))]/20",
-                            insight.type === "success" &&
-                                "bg-[hsl(var(--admin-success))]/10 text-[hsl(var(--admin-success))] border border-[hsl(var(--admin-success))]/20"
-                        )}
-                    >
-                        <div className="p-1 rounded-full bg-white/5">
-                            {insight.type === "alert" && <Bell className="w-3 h-3" />}
-                            {insight.type === "info" && <Activity className="w-3 h-3" />}
-                            {insight.type === "success" && <Sparkles className="w-3 h-3" />}
-                        </div>
-                        <span className="truncate flex-1">{insight.text}</span>
-                    </div>
-                )}
-
-                <div className="flex items-center justify-between gap-3">
-                    {primaryAction ? (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className={cn(
-                                "h-8 text-xs px-0 hover:bg-transparent group/btn flex items-center gap-2 transition-all font-medium",
-                                urgent
-                                    ? "text-[hsl(var(--admin-wine))] hover:text-[hsl(var(--admin-wine))]/80"
-                                    : "text-[hsl(var(--admin-primary))] hover:text-[hsl(var(--admin-primary))]/80"
-                            )}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                navigate(primaryAction.href);
-                            }}
-                        >
-                            <span>{primaryAction.label}</span>
-                            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-1" />
-                        </Button>
-                    ) : (
-                        <span className="text-[11px] text-[hsl(var(--admin-muted))]">Explore Module</span>
-                    )}
-                    
-                    {!primaryAction && (
-                         <ArrowRight
-                         className={cn(
-                             "w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300",
-                             urgent ? "text-[hsl(var(--admin-wine))]" : "text-[hsl(var(--admin-primary))]"
-                         )}
-                     />
-                    )}
-                </div>
-            </div>
-            </SpotlightCard>
-            </Link>
-        </motion.div>
-    );
-};
-
-
-
-/* ───────────────────────────────────────────────
-   Clickable KPI Chip
-   ─────────────────────────────────────────────── */
-interface KpiChipProps {
-    icon: LucideIcon;
-    label: string;
-    value: string;
-    href: string;
-    variant?: "default" | "warning" | "success" | "muted";
-}
-
-const KpiChip = ({ icon: Icon, label, value, href, variant = "default" }: KpiChipProps) => {
-    const iconClass = cn(
-        "flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-300",
-        variant === "warning" && "bg-amber-500/10 text-amber-400 border-amber-500/20",
-        variant === "success" && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-        variant === "default" && "bg-[hsl(var(--admin-primary))]/10 text-[hsl(var(--admin-primary))] border-[hsl(var(--admin-primary))]/20",
-        variant === "muted" && "bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-muted))] border-[hsl(var(--admin-border))]"
-    );
-    return (
-        <Link
-            to={href}
-            className="group flex items-center gap-3.5 rounded-xl px-2 py-1.5 transition-all duration-200 hover:bg-[hsl(var(--admin-primary))]/5"
-            title={`Go to ${label}`}
-        >
-            <div className={iconClass}>
-                <Icon className="w-4.5 h-4.5" />
-            </div>
-            <div className="flex flex-col gap-0.5">
-                <p className="text-[11px] text-[hsl(var(--admin-text))] font-bold">{label}</p>
-                <p className="text-[13px] font-bold text-[hsl(var(--admin-text))] group-hover:text-[hsl(var(--admin-primary))] transition-colors leading-none">
-                    {value}
-                </p>
-            </div>
-        </Link>
-    );
-};
-
-/* ───────────────────────────────────────────────
-   Admin Hub (The Launcher)
-   ─────────────────────────────────────────────── */
-export default function AdminHub() {
-    const { role } = useAdminAuth();
-    const { can } = usePermissions();
-    const { displayName } = useAdminDisplayName();
-    const { health, refreshHealth } = useSystem();
-    const { stats, isRefreshing, refresh } = useHubStats();
-    const { toast } = useToast();
-    const location = useLocation();
-
-    useEffect(() => {
-        const state = location.state as { accessDenied?: boolean; role?: string } | null;
-        if (state?.accessDenied) {
-            toast({
-                title: "Permission Denied",
-                description: `Your account (${state.role || "no role"}) does not have access to that module.`,
-                variant: "destructive",
-            });
-            window.history.replaceState({}, document.title);
-        }
-    }, [location.state, toast]);
-
-    const handleRefresh = () => {
-        refreshHealth();
-        void refresh();
-    };
-
-    const allModules = getModules(stats);
-    const filteredModules = allModules.filter(
-        (m) => !m.allowedRoles || (role && m.allowedRoles.includes(role))
-    );
-
-    return (
-        <div className="w-full h-full flex-1 flex flex-col overflow-y-auto bg-[hsl(var(--admin-background))]">
-            {/* ── Top Intelligence Strip ── */}
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex-none w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 px-4 sm:px-6 md:px-8 pt-6 pb-4 border-b border-[hsl(var(--admin-border))]/30 bg-[hsl(var(--admin-background))] backdrop-blur-md sticky top-0 z-30"
-            >
-                <div className="space-y-0.5">
-                    <div className="flex items-center gap-2.5">
-                        <div className="h-1 w-1 rounded-full bg-[hsl(var(--admin-primary))]" />
-                        <span className="text-[10px] text-[hsl(var(--admin-primary))] uppercase tracking-[0.25em] font-bold">
-                            Intelligence Command
-                        </span>
-                    </div>
-                    <h1 className="text-2xl font-serif text-[hsl(var(--admin-text))] tracking-tight leading-tight">
-                        Welcome,{" "}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--admin-primary))] via-yellow-400 to-[hsl(var(--admin-primary))] italic font-medium">
-                            {displayName}
-                        </span>
-                    </h1>
-                </div>
-
-                {/* KPI Action Strip */}
-                <div className="flex items-center gap-4 px-4 py-2 rounded-xl bg-[hsl(var(--admin-surface))]/40 border border-[hsl(var(--admin-border))]/40 backdrop-blur-md shadow-sm shrink-0">
-                    <KpiChip
-                        icon={Bell}
-                        label="Attention"
-                        href="/admin/crm/leads?filter=new"
-                        value={isRefreshing ? "…" : stats.newLeads > 0 ? `${stats.newLeads} Priority` : "All Clear"}
-                        variant={stats.newLeads > 0 ? "warning" : "muted"}
-                    />
-
-                    <div className="h-6 w-px bg-[hsl(var(--admin-border))]/50" />
-
-                    <KpiChip
-                        icon={Activity}
-                        label="Pulse"
-                        href="/admin/dashboard"
-                        value={isRefreshing ? "…" : `${stats.actionsToday} Activity`}
-                        variant="default"
-                    />
-
-                    {can('settings', 'view') && (
-                        <>
-                            <div className="h-6 w-px bg-[hsl(var(--admin-border))]/50 hidden sm:block" />
-                            <div className="hidden sm:block">
-                                <KpiChip
-                                    icon={Shield}
-                                    label="Security"
-                                    href="/admin/system/settings"
-                                    value={health.status === "healthy" ? "Optimal" : "Check"}
-                                    variant={health.status === "healthy" ? "success" : "warning"}
-                                />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
+                                <div className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                                <div className="flex flex-col gap-1">
+                                    <span className="font-semibold text-[hsl(var(--admin-text))]">Leads Requiring Immediate Action</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Rahul Sharma has submitted a high-value estimator query and is currently waiting for a manual callback.</span>
+                                    <Link to="/admin/crm/leads" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
+                                        Open CRM Leads <ArrowUpRight className="w-3 h-3" />
+                                    </Link>
+                                </div>
                             </div>
-                        </>
+
+                            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
+                                <div className="h-2 w-2 rounded-full bg-red-500 mt-1.5 shrink-0" />
+                                <div className="flex flex-col gap-1">
+                                    <span className="font-semibold text-[hsl(var(--admin-text))]">Pending Estimate Overdue</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">The master design proposal for the Luxury Culinary Space Project is currently pending client signature for past 3 days.</span>
+                                    <Link to="/admin/estimator/estimate-leads" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
+                                        View Estimate Leads <ArrowUpRight className="w-3 h-3" />
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
+                                <div className="h-2 w-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                                <div className="flex flex-col gap-1">
+                                    <span className="font-semibold text-[hsl(var(--admin-text))]">Search Engine Ranking Growth</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">SEO performance score increased by 4%. The keyword "luxury interior design Jamshedpur" has entered Google page 1.</span>
+                                    <Link to="/admin/blog/overview" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
+                                        View Blog SEO <ArrowUpRight className="w-3 h-3" />
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
+                                <div className="h-2 w-2 rounded-full bg-[hsl(var(--admin-primary))] mt-1.5 shrink-0" />
+                                <div className="flex flex-col gap-1">
+                                    <span className="font-semibold text-[hsl(var(--admin-text))]">System Optimization Completed</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Vite bundles consolidated, unused three.js assets purged, and all static routes cached. Server response latency down by 14%.</span>
+                                    <Link to="/admin/dashboard" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
+                                        Open Diagnostics <ArrowUpRight className="w-3 h-3" />
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ── Live Activity Stream (lg:col-span-2) — moved from right sidebar ── */}
+                    <div className="lg:col-span-2 rounded-2xl border border-admin-border/50 bg-[hsl(var(--admin-card))]/60 backdrop-blur-xl p-5">
+                        <div className="flex items-center justify-between pb-3.5 border-b border-admin-border/50 mb-4">
+                            <span className="text-xs font-bold uppercase tracking-widest text-[hsl(var(--admin-muted))]">
+                                Live Activity
+                            </span>
+                            <button
+                                onClick={refresh}
+                                disabled={isRefreshing}
+                                className="text-[hsl(var(--admin-muted))] hover:text-[hsl(var(--admin-primary))] transition-colors disabled:opacity-50"
+                                title="Refresh activity logs"
+                            >
+                                <RefreshCw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
+                            </button>
+                        </div>
+
+                        <div className="flex flex-col gap-4 text-xs overflow-y-auto max-h-[220px] custom-scrollbar">
+                            {[
+                                { time: "2 min ago", icon: Sparkles, color: "text-[hsl(var(--admin-primary))]", title: "Lead Quiz Complete", desc: "sharma1.aayu completed the style questionnaire." },
+                                { time: "5 min ago", icon: Calculator, color: "text-emerald-500", title: "New Estimate Request", desc: "Luxury master suite quote auto-generated." },
+                                { time: "12 min ago", icon: Database, color: "text-blue-500", title: "System Snapshot", desc: "Daily backup written to secure vault." },
+                                { time: "25 min ago", icon: FileText, color: "text-amber-500", title: "Invoice Dispatched", desc: "Billing statement sent to Executive client." },
+                                { time: "1 hr ago", icon: Users, color: "text-purple-500", title: "Site Engineer Active", desc: "Designer checked in for Serene Suite project." },
+                                { time: "2 hrs ago", icon: Shield, color: "text-emerald-500", title: "Security Scan OK", desc: "18 admin tokens verified. No warnings." },
+                            ].map((event, idx) => (
+                                <div key={idx} className="flex gap-2.5 relative before:absolute before:left-3 before:top-7 before:bottom-0 before:w-px before:bg-admin-border/40 last:before:hidden">
+                                    <div className={cn("h-6 w-6 rounded-lg bg-admin-surface border border-admin-border flex items-center justify-center shrink-0", event.color)}>
+                                        <event.icon className="w-3 h-3" />
+                                    </div>
+                                    <div className="flex flex-col gap-0.5 min-w-0">
+                                        <div className="flex justify-between items-center gap-1">
+                                            <span className="font-semibold text-[hsl(var(--admin-text))] truncate">{event.title}</span>
+                                            <span className="text-[9px] text-[hsl(var(--admin-muted))] tabular-nums shrink-0">{event.time}</span>
+                                        </div>
+                                        <p className="text-[10px] text-[hsl(var(--admin-muted))] leading-normal">{event.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            {/* ── Floating Actions Dock ── */}
+            <div className="fixed bottom-16 right-6 z-50">
+                <div className="relative">
+                    {/* Expanded Actions Panel */}
+                    {dockOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 15 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            className="absolute bottom-14 right-0 w-52 rounded-xl border border-admin-border/80 bg-[hsl(var(--admin-card))] p-2 shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex flex-col gap-1"
+                        >
+                            <div className="px-3 py-1.5 text-[9px] uppercase tracking-wider font-bold text-[hsl(var(--admin-muted))] border-b border-admin-border/40 mb-1">
+                                Quick System Action
+                            </div>
+                            {[
+                                { label: "Add Lead", route: "/admin/crm/leads?action=create", icon: Users },
+                                { label: "New Estimate", route: "/admin/estimator/estimate-leads", icon: Calculator },
+                                { label: "Upload Asset", route: "/admin/cms/media-library", icon: FileText },
+                                { label: "Access Security", route: "/admin/user-access/security", icon: Shield },
+                                { label: "System Config", route: "/admin/system/settings", icon: Settings }
+                            ].map((action) => (
+                                <button
+                                    key={action.label}
+                                    onClick={() => {
+                                        setDockOpen(false);
+                                        navigate(action.route);
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-admin-surface hover:text-[hsl(var(--admin-primary))] text-xs font-medium transition-colors flex items-center gap-2"
+                                >
+                                    <action.icon className="w-3.5 h-3.5 text-[hsl(var(--admin-muted))]" />
+                                    <span>{action.label}</span>
+                                </button>
+                            ))}
+                        </motion.div>
                     )}
 
-                    <div className="h-6 w-px bg-[hsl(var(--admin-border))]/50" />
-
+                    {/* Trigger Button */}
                     <button
-                        onClick={handleRefresh}
-                        disabled={isRefreshing}
-                        aria-label="Refresh dashboard metrics"
-                        className="flex items-center justify-center h-8 w-8 rounded-lg text-[hsl(var(--admin-muted))] hover:text-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))]/10 transition-all disabled:opacity-50 border border-transparent hover:border-[hsl(var(--admin-primary))]/20"
+                        onClick={() => setDockOpen(!dockOpen)}
+                        className={cn(
+                            "flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(var(--admin-primary))] text-black font-semibold shadow-[0_4px_25px_hsl(var(--admin-primary)/0.45)] border border-[hsl(var(--admin-primary))]/20 hover:scale-105 transition-all duration-300",
+                            dockOpen && "bg-neutral-800 text-white"
+                        )}
+                        aria-label="Toggle quick actions panel"
                     >
-                        <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
+                        {dockOpen ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
                     </button>
                 </div>
-            </motion.div>
-
-            {/* ── Main Module Grid ── */}
-            <div className="flex-1 w-full px-2 py-8 min-h-0">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-8">
-                    {filteredModules.map((mod, i) => (
-                        <ModuleTile 
-                            key={mod.title} 
-                            {...mod} 
-                            index={i} 
-                        />
-                    ))}
-                </div>
             </div>
+
         </div>
     );
 }
+

@@ -9,13 +9,53 @@ import {
     useKeyboardShortcutsHelp,
 } from "@/components/admin/KeyboardShortcutsOverlay";
 import { AdminRouteErrorBoundary } from "@/components/admin/AdminRouteErrorBoundary";
-import { Database, Loader2 } from "lucide-react";
-import { useHubStats, getModules, formatStorage } from "@/hooks/useHubStats";
+import { Database, Loader2, Bell, Activity, Shield, RefreshCw, type LucideIcon } from "lucide-react";
+import { useHubStats, formatStorage } from "@/hooks/useHubStats";
+import { useSystem } from "@/context/SystemContext";
+import { cn } from "@/lib/utils";
 import { SkipNav } from "@/components/ui/enhanced/SkipNav";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { captureException } from "@/lib/sentry";
 import { useToast } from "@/hooks/useToast";
+
+const KpiChip = ({ icon: Icon, label, value, href, variant = "default" }: { icon: LucideIcon, label: string, value: string, href: string, variant?: "default" | "warning" | "success" | "muted" }) => {
+    const hasAction = variant === "warning";
+    const iconClass = cn(
+        "relative flex items-center justify-center w-7 h-7 rounded-lg border transition-all duration-300",
+        variant === "warning" && "bg-amber-500/15 text-amber-400 border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.3)]",
+        variant === "success" && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+        variant === "default" && "bg-[hsl(var(--admin-primary))]/10 text-[hsl(var(--admin-primary))] border-[hsl(var(--admin-primary))]/20",
+        variant === "muted" && "bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-muted))] border-[hsl(var(--admin-border))]"
+    );
+    return (
+        <Link
+            to={href}
+            className={cn(
+                "group flex items-center gap-2 rounded-lg px-2 py-1 transition-all duration-200 hover:bg-[hsl(var(--admin-primary))]/5",
+                hasAction && "ring-1 ring-amber-500/20 hover:ring-amber-500/40"
+            )}
+            title={`Go to ${label}`}
+        >
+            <div className={iconClass}>
+                <Icon className={cn("w-3.5 h-3.5", hasAction && "animate-pulse")} />
+                {hasAction && (
+                    <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-amber-500 border border-[hsl(var(--admin-surface))]" />
+                )}
+            </div>
+            <div className="flex flex-col gap-0 items-start leading-none">
+                <span className="text-[9px] uppercase tracking-wider text-[hsl(var(--admin-muted))] font-bold">{label}</span>
+                <span className={cn(
+                    "text-[11px] font-bold transition-colors",
+                    hasAction ? "text-amber-400 group-hover:text-amber-300" : "text-[hsl(var(--admin-text))] group-hover:text-[hsl(var(--admin-primary))]"
+                )}>
+                    {value}
+                </span>
+            </div>
+        </Link>
+    );
+};
+
 
 const AdminLayout = (): JSX.Element | null => {
     const { isAuthenticated, isLoading, role, logout } = useAdminAuth();
@@ -29,15 +69,17 @@ const AdminLayout = (): JSX.Element | null => {
     const maintenanceMode = settings?.maintenance_mode_active || false;
     const { toast } = useToast();
 
-    const { stats } = useHubStats();
-    const allModules = getModules(stats);
-    const filteredModules = allModules.filter(
-        (m) => !m.allowedRoles || (role && m.allowedRoles.includes(role))
-    );
+    const { health, refreshHealth } = useSystem();
+    const { stats, isRefreshing, refresh } = useHubStats();
 
     const toggleShortcuts = useCallback(() => {
         setShortcutsOpen((prev) => !prev);
     }, []);
+
+    const handleRefresh = () => {
+        refreshHealth();
+        void refresh();
+    };
     useKeyboardShortcutsHelp(toggleShortcuts);
 
     const handleDeactivateMaintenance = async () => {
@@ -179,20 +221,62 @@ const AdminLayout = (): JSX.Element | null => {
                                 <Database className="w-3 h-3 text-[hsl(var(--admin-primary))]" />
                                 {formatStorage(stats.storageUsedGB)} of {stats.storageTotalGB}GB used
                             </span>
-                            <span className="text-[hsl(var(--admin-border))] hidden sm:block">|</span>
-                            <span className="hidden sm:block">{filteredModules.length} sections active</span>
                         </>
                     )}
                 </div>
-                <div className="flex items-center gap-4 uppercase tracking-wider font-semibold">
-                    <span className="text-[hsl(var(--admin-text))]">CrossAngle</span>
+                
+                {/* ── KPI Action Strip (Moved from Hub) ── */}
+                <div className="flex items-center gap-3 px-2 py-0.5 rounded-lg bg-[hsl(var(--admin-background))]/50 border border-[hsl(var(--admin-border))]/30 shadow-inner">
+                    <KpiChip
+                        icon={Bell}
+                        label="Attention"
+                        href="/admin/crm/leads?filter=new"
+                        value={isRefreshing ? "…" : stats.newLeads > 0 ? `${stats.newLeads} Priority` : "All Clear"}
+                        variant={stats.newLeads > 0 ? "warning" : "muted"}
+                    />
+
+                    <div className="h-4 w-px bg-[hsl(var(--admin-border))]/50" />
+
+                    <KpiChip
+                        icon={Activity}
+                        label="Pulse"
+                        href="/admin/dashboard"
+                        value={isRefreshing ? "…" : `${stats.actionsToday} Activity`}
+                        variant="default"
+                    />
+
                     {can('settings', 'view') && (
                         <>
-                            <span className="text-[hsl(var(--admin-border))]">●</span>
-                            <Link to="/admin/system/settings" className="hover:text-[hsl(var(--admin-primary))] transition-colors">
-                                Settings
-                            </Link>
+                            <div className="h-4 w-px bg-[hsl(var(--admin-border))]/50 hidden sm:block" />
+                            <div className="hidden sm:block">
+                                <KpiChip
+                                    icon={Shield}
+                                    label="Security"
+                                    href="/admin/system/settings"
+                                    value={health.status === "healthy" ? "Optimal" : "Check"}
+                                    variant={health.status === "healthy" ? "success" : "warning"}
+                                />
+                            </div>
                         </>
+                    )}
+
+                    <div className="h-4 w-px bg-[hsl(var(--admin-border))]/50" />
+
+                    <button
+                        onClick={handleRefresh}
+                        disabled={isRefreshing}
+                        aria-label="Refresh dashboard metrics"
+                        className="flex items-center justify-center h-6 w-6 rounded-md text-[hsl(var(--admin-muted))] hover:text-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))]/10 transition-all disabled:opacity-50 border border-transparent hover:border-[hsl(var(--admin-primary))]/20"
+                    >
+                        <RefreshCw className={cn("w-3 h-3", isRefreshing && "animate-spin")} />
+                    </button>
+                </div>
+
+                <div className="flex items-center gap-4 uppercase tracking-wider font-semibold">
+                    {can('settings', 'view') && (
+                        <Link to="/admin/system/settings" className="hover:text-[hsl(var(--admin-primary))] transition-colors">
+                            Settings
+                        </Link>
                     )}
                 </div>
             </div>

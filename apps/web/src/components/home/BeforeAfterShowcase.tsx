@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Compare } from "@/components/ui/enhanced/compare";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { transformationStories as fallbackStories } from "@/data/transformationStories";
+
 import { ArrowRight, Quote, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,8 +54,11 @@ export const BeforeAfterShowcase = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  const stories = dbStories && dbStories.length > 0 ? dbStories : fallbackStories;
-  const current = stories[activeIndex] || stories[0];
+  const stories = dbStories && dbStories.length > 0 ? dbStories : [];
+  
+  if (stories.length === 0) return null;
+
+  const current = stories[activeIndex];
 
   const goNext = () => setActiveIndex((i) => (i + 1) % stories.length);
   const goPrev = () => setActiveIndex((i) => (i - 1 + stories.length) % stories.length);

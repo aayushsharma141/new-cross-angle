@@ -1,6 +1,6 @@
-import { useState, Suspense, lazy } from "react";
+import { useState, Suspense, lazy, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Home, LayoutList, Wrench, Sparkles, IndianRupee, Loader2, Package, Eye, FileText, ImageIcon, Settings2 } from "lucide-react";
+import { Home, Wrench, Sparkles, IndianRupee, Loader2, Package, Eye, FileText, ImageIcon, Settings2 } from "lucide-react";
 import { useEstimatorRegistry } from "@/lib/registry/EstimatorRegistry";
 import { Separator } from "@/components/ui/primitives/separator";
 import { calculateEstimate } from "@/addons/calculators/components/data/calculation-engine";
@@ -31,10 +31,18 @@ export default function AdminEstimatorConfig() {
   const [activeTab, setActiveTab] = useState<NavId>("pricing");
   const registry = useEstimatorRegistry();
 
-  const handleKeydown = (e: React.KeyboardEvent) => {
+  const handleKeydown = (_e: React.KeyboardEvent) => {
     // Ctrl/Cmd+S handling could be added here if we want a global save, 
     // but each workspace/editor handles its own saving right now.
   };
+
+  // Attach global keyboard shortcut listener to the document
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => handleKeydown(e as unknown as React.KeyboardEvent);
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Mock Lead for Live Simulation Sandbox
   const mockLeadData: CalculatorFormData = {
@@ -79,7 +87,9 @@ export default function AdminEstimatorConfig() {
     new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
 
   return (
-    <div className="flex h-[calc(100vh-64px)] w-full overflow-hidden bg-[hsl(var(--admin-bg))] text-[hsl(var(--admin-text))]" onKeyDown={handleKeydown}>
+    <div
+      className="flex h-[calc(100vh-64px)] w-full overflow-hidden bg-[hsl(var(--admin-bg))] text-[hsl(var(--admin-text))]"
+    >
       {/* Left Rail (Navigation) */}
       <aside className="w-[280px] shrink-0 border-r border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] hidden md:flex flex-col">
         <div className="p-4 border-b border-[hsl(var(--admin-border))]">

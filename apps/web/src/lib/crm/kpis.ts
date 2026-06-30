@@ -6,7 +6,7 @@
  * card for each one, instead of holding inline logic for each metric.
  */
 
-import { Users, Flame, User as UserIcon, Clock } from "lucide-react";
+import { Users, Flame, User as UserIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { Lead } from "@/lib/scoring/leadScoring";
 import { applyCrmSavedView } from "./views";
@@ -85,17 +85,5 @@ export const CRM_KPIS: readonly CrmKpiSpec[] = [
       };
     },
   },
-  {
-    id: "avg_reply",
-    // NOTE: This is currently a static placeholder until reply-time data lands.
-    label: "Avg. Reply Time",
-    icon: Clock,
-    iconTileClass: "bg-emerald-500/10 text-emerald-400",
-    compute: () => ({
-      value: "--",
-      suffix: "",
-      hint: "Coming soon",
-      hintTone: "neutral",
-    }),
-  },
+
 ] as const;

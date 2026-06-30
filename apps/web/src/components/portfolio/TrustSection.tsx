@@ -5,26 +5,6 @@ import { api } from "@/lib/api";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const FALLBACK_TESTIMONIALS = [
-  {
-    quote: "Our bedroom has become our personal retreat. The attention to detail and quality of work exceeded our expectations. Every morning feels like waking up in a 5-star hotel.",
-    author: "Mrs. Sharma",
-    role: "Homeowner, Serene Master Suite",
-    image: "https://ik.imagekit.io/wdrs8y61o/cross-angle/tr:q-85,f-auto,w-400/images/projects/discovery/lifestyle-1.jpg"
-  },
-  {
-    quote: "The kitchen is now the heart of our home. Cooking has become a joy! The modular setup is exactly what we needed for our busy family.",
-    author: "Mrs. Desai",
-    role: "Homeowner, Modern Culinary Space",
-    image: "https://ik.imagekit.io/wdrs8y61o/cross-angle/tr:q-85,f-auto,w-400/images/projects/discovery/visual-4.jpg"
-  },
-  {
-    quote: "Our new office has transformed how our team works. The space truly reflects our company culture and has significantly boosted team morale.",
-    author: "Vikram Singh",
-    role: "CEO, TechStart Solutions",
-    image: "https://ik.imagekit.io/wdrs8y61o/cross-angle/tr:q-85,f-auto,w-400/images/projects/discovery/visual-7.jpg"
-  }
-];
 
 const TrustSection = () => {
   const { data: testimonials = [], isLoading } = useQuery({
@@ -32,9 +12,7 @@ const TrustSection = () => {
     queryFn: api.getTestimonials,
   });
 
-  const displayTestimonials = testimonials.length > 0
-    ? testimonials.slice(0, 5)
-    : FALLBACK_TESTIMONIALS;
+  const displayTestimonials = testimonials.slice(0, 5);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [autoplay, setAutoplay] = useState(true);
@@ -63,6 +41,10 @@ const TrustSection = () => {
         <div className="w-8 h-8 rounded-full border-t-2 border-site-gold animate-spin" />
       </div>
     );
+  }
+
+  if (displayTestimonials.length === 0) {
+    return null;
   }
 
   const activeTestimonial = displayTestimonials[activeIndex];
