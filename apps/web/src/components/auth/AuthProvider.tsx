@@ -258,15 +258,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const getInitialSession = async () => {
             const start = performance.now();
             try {
-                // Step 1: Read the local session first so login pages are not
-                // blocked by a slow Supabase auth validation request.
-                const { data: { session: currentSession } } = await withTimeout(
-                    supabase.auth.getSession(),
-                    2500,
-                    "auth session lookup",
-                );
+                // Since we use HTTP-only cookies, the local session might be empty.
+                // We MUST rely on server-side validation which goes through our Vercel proxy.
+                let serverUser = null;
+                let userError = null;
+                try {
+                    const res = await withTimeout(fetch("/api/auth/me"), 6000, "auth user validation");
+                    if (res.ok) {
+                        const data = await res.json();
+                        serverUser = data.user;
+                    } else {
+                        userError = { message: "Unauthenticated" };
+                    }
+                } catch (err) {
+                    userError = err as Error;
+                }
 
-                if (!currentSession?.user) {
+                if (userError || !serverUser) {
+                    console.warn("Auth: No valid session found.", userError?.message);
                     if (isMounted) {
                         setUser(null);
                         setSession(null);
@@ -276,40 +285,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     return;
                 }
 
-                let validatedUser = currentSession.user;
-
-                // Step 2: Validate session server-side when reachable. If this
-                // is slow, continue with the locally restored session and let
-                // role verification prove access.
-                try {
-                    const { data: { user: serverUser }, error: userError } = await withTimeout(
-                        supabase.auth.getUser(),
-                        6000,
-                        "auth user validation",
-                    );
-
-                    if (userError || !serverUser) {
-                        console.warn("Auth: No valid session found.", userError?.message);
-                        if (isMounted) {
-                            setUser(null);
-                            setSession(null);
-                            setRole(null);
-                            setLoading(false);
-                        }
-                        return;
-                    }
-
-                    validatedUser = serverUser;
-                } catch (error) {
-                    console.warn("Auth: Session validation was slow; continuing with restored session.", error);
-                }
+                const validatedUser = serverUser;
 
                 // Step 3: Enforce Remember Me TTL (24-hour expiry for non-persistent sessions)
                 if (isSessionExpired()) {
                     console.log('Auth: Session TTL expired (Remember Me was unchecked). Signing out.');
-                    await supabase.auth.signOut();
+                    // Must use the API endpoint — supabase.auth.signOut() cannot clear HTTP-only cookies
+                    try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* best effort */ }
                     clearRoleCache();
                     clearSessionExpiry();
+
                     if (isMounted) {
                         setUser(null);
                         setSession(null);
@@ -320,9 +305,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 }
 
                 if (isMounted) {
-                    setSession(currentSession);
+                    // Session is managed server-side via HTTP-only cookie.
+                    // We don't have a real access_token to store here, so session stays null.
+                    // Components that need the user read from `user` directly.
+                    setSession(null);
                     setUser(validatedUser);
                 }
+
 
                 if (isMounted) {
                     setLoading(false);
@@ -436,8 +425,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Set loggingOut FIRST — this tells AuthGuard and AdminLayout
         // to show a transition overlay instead of redirecting/flashing.
         setLoggingOut(true);
-        if (supabase) {
-            await supabase.auth.signOut();
+        try {
+            await fetch("/api/auth/logout", { method: "POST" });
+        } catch (err) {
+            console.error("Auth: Error during logout API call", err);
         }
         clearRoleCache();
         clearSessionExpiry();
