@@ -18,6 +18,10 @@
 | 18 | Workspace Skeleton (A1) | Implement 3-column responsive layout (Sidebar \| Workspace \| Dossier) and ultra-wide breakpoints. | UX-01 | Done |
 | 19 | Project Dossier Framework (A2) | Mount placeholder cards into Dossier and connect to store state (no intelligence). | UX-01 | Done |
 | 25 | Semantic Token Architecture | Establish three-layer token system (Foundation → Semantic → Lighting States) required by all UI phases. | DLS-01 | Done |
+| 26 | Token Adoption Audit | Build and execute static analysis scripts to measure token adoption and audit code. | DLS-02 | Pending |
+| 27 | Primitive Components | Build primitive visual layout blocks (Box, Stack, Text, etc.) strictly consuming tokens. | DLS-03 | Pending |
+| 28 | Composition Library | Create compound layout modules (Cards, Hero, grids) using primitive components. | DLS-04 | Pending |
+| 29 | Homepage (Entrance) | Redesign and refactor the public homepage strictly using the new Composition library. | DLS-05 | Pending |
 | 20 | Adaptive Step Layouts (B) | Refactor Estimator Steps 1-7 into distinct task-driven layouts obeying "One Primary Decision". | UX-02 | Pending |
 | 21 | Workspace Intelligence (C) | Implement logic for Live Estimate, Confidence, Missing Information, and Project Health. | UX-03 | Pending |
 | 22 | Recommendation Explainability (D) | Build core reasoning engine explaining why packages are recommended. | INTEL-03, INTEL-04 | Pending |
@@ -66,6 +70,36 @@
 **Goal:** Mount placeholder cards (`EstimateCard`, `ProjectHealthCard`, etc.) into the Dossier and connect them to the global state store without adding calculation logic.
 **Requirements:** UX-01
 **Status:** Done
+
+### Phase 26: Token Adoption Audit
+**Goal:** Build and execute static analysis scripts to measure token adoption and audit code.
+**Success criteria:**
+1. Create a static analysis script in the workspace (e.g. `scripts/audit-tokens.ts`) to count raw Hex, HSL, border-radius, and spacing values outside `tokens/`.
+2. Output a structured audit report showing the counts and file locations.
+3. Establish a baseline adoption score (aiming for 100% adoption and 0 hardcoded violations over subsequent phases).
+4. No visual changes are allowed; only architectural correctness improves.
+**Status:** Planned
+
+### Phase 27: Primitive Components
+**Goal:** Build primitive visual layout blocks (Box, Flex, Stack, Text, etc.) strictly consuming tokens.
+**Success criteria:**
+1. Create layout primitives in `apps/web/src/design-system/components/primitives/`.
+2. All components strictly consume semantic and foundation CSS variables without bypassing them.
+**Status:** Planned
+
+### Phase 28: Composition Library
+**Goal:** Create compound layout modules (Cards, Hero, grids) using primitive components.
+**Success criteria:**
+1. Implement composition components in `apps/web/src/design-system/components/compositions/`.
+2. Strictly compose layouts from the primitive component library.
+**Status:** Planned
+
+### Phase 29: Homepage (Entrance)
+**Goal:** Redesign and refactor the public homepage strictly using the new Composition library.
+**Success criteria:**
+1. Refactor `Index.tsx` to consume composition library modules.
+2. Verify homepage has zero raw styling values.
+**Status:** Planned
 
 ### Phase 20: Adaptive Step Layouts (Phase B)
 **Goal:** Refactor Steps 1-7 into their specific, task-driven layouts (Grid, Dashboard, Comparison Matrix). Enforce the "One Primary Decision" rule.
