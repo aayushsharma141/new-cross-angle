@@ -1,0 +1,6 @@
+/* CORE */
+:root {
+  --p-radius-none: 0px;
+  --p-radius-sm:   2px;
+  --p-radius-md:   4px;
+}

@@ -294,7 +294,7 @@ export default function AdminMilestones() {
                                 <Textarea
                                     id="event"
                                     name="event"
-                                    placeholder="Describe the milestone event..."
+                                    placeholder="Describe the milestone event…"
                                     defaultValue={editingMilestone?.event || ""}
                                     required
                                     className="min-h-[100px]"

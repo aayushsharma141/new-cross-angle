@@ -17,6 +17,7 @@
 |---|-------|------|--------------|--------|
 | 18 | Workspace Skeleton (A1) | Implement 3-column responsive layout (Sidebar \| Workspace \| Dossier) and ultra-wide breakpoints. | UX-01 | Done |
 | 19 | Project Dossier Framework (A2) | Mount placeholder cards into Dossier and connect to store state (no intelligence). | UX-01 | Done |
+| 25 | Semantic Token Architecture | Establish three-layer token system (Foundation → Semantic → Lighting States) required by all UI phases. | DLS-01 | Done |
 | 20 | Adaptive Step Layouts (B) | Refactor Estimator Steps 1-7 into distinct task-driven layouts obeying "One Primary Decision". | UX-02 | Pending |
 | 21 | Workspace Intelligence (C) | Implement logic for Live Estimate, Confidence, Missing Information, and Project Health. | UX-03 | Pending |
 | 22 | Recommendation Explainability (D) | Build core reasoning engine explaining why packages are recommended. | INTEL-03, INTEL-04 | Pending |

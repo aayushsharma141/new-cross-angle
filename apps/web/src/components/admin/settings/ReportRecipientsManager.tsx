@@ -108,7 +108,7 @@ export function ReportRecipientsManager() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-[hsl(var(--admin-text-muted))]">Loading...</p>
+        <p className="text-sm text-[hsl(var(--admin-text-muted))]">Loading…</p>
       ) : recipients.length === 0 ? (
         <div className="text-center py-8 text-sm text-[hsl(var(--admin-text-muted))] border border-dashed border-[hsl(var(--admin-border))] rounded-xl">
           <Mail className="w-8 h-8 mx-auto mb-2 opacity-40" />

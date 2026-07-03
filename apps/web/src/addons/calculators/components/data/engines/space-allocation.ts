@@ -54,7 +54,7 @@ export function computeSpaceAllocation(handoff: DiscoveryHandoff): SpaceAllocati
   const totalAvailable = Math.round(handoff.property.areaSqFt * (1 - CIRCULATION_OVERHEAD));
 
   // Build room list with priorities
-  const allRooms = [
+  const allRooms: { room: string; priority: "must-have" | "nice-to-have" | "inferred" }[] = [
     ...handoff.priorities.mustHave.map(r => ({ room: r, priority: "must-have" as const })),
     ...handoff.priorities.niceToHave.map(r => ({ room: r, priority: "nice-to-have" as const })),
   ];

@@ -23,6 +23,13 @@ const RELEASE = import.meta.env.VITE_RELEASE as string | undefined;
 /** True once init() has succeeded. Prevents double-init. */
 let _initialized = false;
 
+// ─── Early Event Queues ──────────────────────────────────────────────────
+// Because Sentry is loaded asynchronously to save bundle size, errors that 
+// happen on initial render might be caught before Sentry is ready.
+// We queue them and flush them during initSentry().
+const _exceptionQueue: Array<{ error: unknown; context?: Parameters<typeof Sentry.captureException>[1]; resolve: (id: string) => void }> = [];
+const _messageQueue: Array<{ message: string; level: Sentry.SeverityLevel; context?: any; resolve: (id: string) => void }> = [];
+
 /**
  * Bootstraps Sentry. Safe to call multiple times — idempotent.
  *
@@ -38,6 +45,8 @@ export function initSentry(): void {
     } else {
       console.warn('[sentry] VITE_SENTRY_DSN is not set. Error reporting is disabled.');
     }
+    _initialized = true; // Mark as initialized so queues just resolve empty
+    flushQueues();
     return;
   }
 
@@ -92,7 +101,7 @@ export function initSentry(): void {
     replaysSessionSampleRate: ENV === 'production' ? 0.01 : 0.0,
     replaysOnErrorSampleRate: 1.0,
 
-    // ─── Privacy ─────────────────────────────────────────────────────────────
+    // ─── Privacy & Tagging ───────────────────────────────────────────────────
     /**
      * Never send PII to Sentry. Strip emails, phone numbers, and auth tokens
      * before any event is transmitted.
@@ -112,20 +121,23 @@ export function initSentry(): void {
         }
       };
 
-      if (event.request?.url) event.request.url = scrubUrl(event.request.url);
+      if (event.request?.url) {
+        event.request.url = scrubUrl(event.request.url);
+      }
       if (event.request?.headers?.['Authorization']) {
         event.request.headers['Authorization'] = '[Filtered]';
       }
 
+      // Determine URL regardless of whether request.url is populated
+      const currentUrl = event.request?.url || (typeof window !== 'undefined' ? window.location.href : '');
+
       // Tag admin errors separately so they can be filtered/routed in the
-      // Sentry dashboard without being silently dropped. The edge function
-      // Sentry project only covers server-side errors — frontend React errors
-      // in /admin are NOT captured there and would be lost entirely.
-      if (event.request?.url?.includes('/admin')) {
+      // Sentry dashboard without being silently dropped.
+      if (currentUrl.includes('/admin')) {
         event.tags = { ...event.tags, area: 'admin' };
         event.level = event.level ?? 'warning';
-        // Still scrub any admin-specific sensitive params before sending
-        if (event.request?.url) event.request.url = scrubUrl(event.request.url);
+      } else {
+        event.tags = { ...event.tags, area: 'public' };
       }
 
       return event;
@@ -146,6 +158,25 @@ export function initSentry(): void {
 
   _initialized = true;
   console.debug(`[sentry] Initialized. env=${ENV} release=${RELEASE ?? 'unknown'}`);
+
+  flushQueues();
+}
+
+/** Helper to flush queued events after initialization. */
+function flushQueues() {
+  if (!DSN && ENV === 'production') return; // Do not flush if disabled
+
+  _exceptionQueue.forEach(({ error, context, resolve }) => {
+    const id = Sentry.captureException(error, context);
+    resolve(id);
+  });
+  _exceptionQueue.length = 0;
+
+  _messageQueue.forEach(({ message, level, context, resolve }) => {
+    const id = Sentry.captureMessage(message, { ...context, level });
+    resolve(id);
+  });
+  _messageQueue.length = 0;
 }
 
 // ─── React Error Boundary re-export ──────────────────────────────────────────
@@ -166,6 +197,7 @@ export const SentryErrorBoundary = Sentry.ErrorBoundary;
 /**
  * Captures a handled exception with optional context.
  * Use this in catch() blocks where you want to report but not crash.
+ * Returns the generated event ID (or a promise of it if queued).
  *
  * @example
  *   captureException(error, { tags: { area: 'lead-form' } });
@@ -173,13 +205,18 @@ export const SentryErrorBoundary = Sentry.ErrorBoundary;
 export function captureException(
   error: unknown,
   context?: Parameters<typeof Sentry.captureException>[1],
-): void {
-  if (!_initialized) return;
-  Sentry.captureException(error, context);
+): string | Promise<string> {
+  if (!_initialized) {
+    return new Promise<string>((resolve) => {
+      _exceptionQueue.push({ error, context, resolve });
+    });
+  }
+  return Sentry.captureException(error, context);
 }
 
 /**
  * Captures a custom message event (non-error observability).
+ * Returns the generated event ID (or a promise of it if queued).
  *
  * @example
  *   captureMessage('Rate limit almost reached', 'warning', { extra: { count: 58 } });
@@ -187,10 +224,27 @@ export function captureException(
 export function captureMessage(
   message: string,
   level: Sentry.SeverityLevel = 'info',
-  context?: Parameters<typeof Sentry.captureMessage>[2],
-): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context?: any,
+): string | Promise<string> {
+  if (!_initialized) {
+    return new Promise<string>((resolve) => {
+      _messageQueue.push({ message, level, context, resolve });
+    });
+  }
+  return Sentry.captureMessage(message, {
+    ...context,
+    level,
+  });
+}
+
+/**
+ * Shows the user feedback dialog for a specific event.
+ * Call this if the user wants to submit feedback on an error.
+ */
+export function showReportDialog(options?: { eventId?: string; title?: string; subtitle?: string }): void {
   if (!_initialized) return;
-  Sentry.captureMessage(message, level, context);
+  Sentry.showReportDialog(options);
 }
 
 /**
@@ -201,7 +255,10 @@ export function captureMessage(
  *   setSentryUser({ id: user.id, email: user.email });
  */
 export function setSentryUser(user: { id: string; email?: string } | null): void {
-  if (!_initialized) return;
+  if (!_initialized) {
+    // Optionally queue user setting, but for now we'll just let subsequent events pick it up if called after init
+    return;
+  }
   if (user) {
     // Never send the raw email — hash or omit it.
     Sentry.setUser({ id: user.id });
@@ -209,3 +266,4 @@ export function setSentryUser(user: { id: string; email?: string } | null): void
     Sentry.setUser(null);
   }
 }
+

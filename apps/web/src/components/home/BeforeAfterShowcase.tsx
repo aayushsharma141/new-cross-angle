@@ -235,7 +235,7 @@ export const BeforeAfterShowcase = () => {
                     <Quote className="absolute -top-2 -left-1 w-8 h-8 text-white/5" />
                     <p className="text-white/70 text-sm italic leading-relaxed pl-4 border-l-2 border-site-gold/30">
                       "{current.testimonial.quote.length > 120
-                        ? current.testimonial.quote.slice(0, 120) + "..."
+                        ? current.testimonial.quote.slice(0, 120) + "…"
                         : current.testimonial.quote}"
                     </p>
                     <span className="text-[11px] text-white/60 mt-2 block pl-4">

@@ -44,69 +44,88 @@ const CrmAnalytics = lazy(() => import("@/pages/admin/CrmAnalytics"));
 const CrmSettings = lazy(() => import("@/pages/admin/CrmSettings"));
 const AdminLeadWorkspace = lazy(() => import("@/pages/admin/workspace/AdminLeadWorkspace"));
 
+// ─── Role Sets ────────────────────────────────────────────────────────────────
+// Kept as named constants so the intent is readable at a glance.
+
+const ADMIN_ONLY    = ["super_admin", "admin"] as const;
+const CMS_ROLES     = ["super_admin", "admin", "editor"] as const;
+const CRM_ROLES     = ["super_admin", "admin", "viewer"] as const;
+const SUPER_ONLY    = ["super_admin"] as const;
+
 export const adminRoutes = (
   <>
     <Route path="/admin/auth" element={<AdminAuth />} />
     <Route path="/admin/login" element={<Navigate to="/admin/auth" replace />} />
     <Route path="/admin/reset-password" element={<Navigate to="/admin/auth#type=recovery" replace />} />
+
     <Route element={<AuthGuard />}>
       <Route path="/admin" element={<AdminLayout />}>
+        {/* ── Hub: all authenticated admin roles ──────────────────────────── */}
         <Route index element={<AdminHub />} />
-        <Route path="dashboard/*" element={<AdminDashboard />} />
 
-        <Route path="cms" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><CmsModule /></RoleGuard>}>
-          <Route path="portfolio" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminPortfolio /></RoleGuard>} />
-          <Route path="services" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminServices /></RoleGuard>} />
-          <Route path="testimonials" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTestimonials /></RoleGuard>} />
-          <Route path="team-members" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminTeam /></RoleGuard>} />
-          <Route path="blog-posts" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminBlogs /></RoleGuard>} />
-          <Route path="media-library" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminMedia /></RoleGuard>} />
-          <Route path="hero-carousel" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminHero /></RoleGuard>} />
-          <Route path="gallery" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminGallery /></RoleGuard>} />
-          <Route path="before-and-after" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminBeforeAndAfter /></RoleGuard>} />
-          <Route path="milestones" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminMilestones /></RoleGuard>} />
-          <Route path="process-steps" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminProcessSteps /></RoleGuard>} />
-          <Route path="site-assets" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminSiteAssets /></RoleGuard>} />
+        {/* ── Dashboard: admin / super_admin only ──────────────────────── */}
+        <Route path="dashboard/*" element={<RoleGuard allowedRoles={ADMIN_ONLY}><AdminDashboard /></RoleGuard>} />
+
+        {/* ── CMS: super_admin | admin | editor ───────────────────────────── */}
+        <Route path="cms" element={<RoleGuard allowedRoles={CMS_ROLES}><CmsModule /></RoleGuard>}>
+          <Route path="portfolio"     element={<RoleGuard allowedRoles={CMS_ROLES}><AdminPortfolio /></RoleGuard>} />
+          <Route path="services"      element={<RoleGuard allowedRoles={CMS_ROLES}><AdminServices /></RoleGuard>} />
+          <Route path="testimonials"  element={<RoleGuard allowedRoles={CMS_ROLES}><AdminTestimonials /></RoleGuard>} />
+          <Route path="team-members"  element={<RoleGuard allowedRoles={CMS_ROLES}><AdminTeam /></RoleGuard>} />
+          <Route path="blog-posts"    element={<RoleGuard allowedRoles={CMS_ROLES}><AdminBlogs /></RoleGuard>} />
+          <Route path="media-library" element={<RoleGuard allowedRoles={CMS_ROLES}><AdminMedia /></RoleGuard>} />
+          <Route path="hero-carousel" element={<RoleGuard allowedRoles={CMS_ROLES}><AdminHero /></RoleGuard>} />
+          <Route path="gallery"       element={<RoleGuard allowedRoles={CMS_ROLES}><AdminGallery /></RoleGuard>} />
+          <Route path="before-and-after" element={<RoleGuard allowedRoles={CMS_ROLES}><AdminBeforeAndAfter /></RoleGuard>} />
+          <Route path="milestones"    element={<RoleGuard allowedRoles={CMS_ROLES}><AdminMilestones /></RoleGuard>} />
+          <Route path="process-steps" element={<RoleGuard allowedRoles={CMS_ROLES}><AdminProcessSteps /></RoleGuard>} />
+          <Route path="site-assets"   element={<RoleGuard allowedRoles={CMS_ROLES}><AdminSiteAssets /></RoleGuard>} />
         </Route>
 
-        <Route path="crm" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><CrmModule /></RoleGuard>}>
-          <Route path="leads" element={<AdminLeads />} />
-          <Route path="leads/:id/workspace" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminLeadWorkspace /></RoleGuard>} />
-          <Route path="analytics" element={<CrmAnalytics />} />
-          <Route path="settings" element={<CrmSettings />} />
-          <Route path="users" element={<Navigate to="/admin/user-access/users" replace />} />
+        {/* ── CRM: super_admin | admin | viewer ───────────────────────────── */}
+        <Route path="crm" element={<RoleGuard allowedRoles={CRM_ROLES}><CrmModule /></RoleGuard>}>
+          <Route path="leads"                  element={<AdminLeads />} />
+          <Route path="leads/:id/workspace"    element={<AdminLeadWorkspace />} />
+          <Route path="analytics"              element={<RoleGuard allowedRoles={ADMIN_ONLY}><CrmAnalytics /></RoleGuard>} />
+          <Route path="settings"               element={<RoleGuard allowedRoles={ADMIN_ONLY}><CrmSettings /></RoleGuard>} />
+          <Route path="users"                  element={<Navigate to="/admin/user-access/users" replace />} />
         </Route>
 
-        <Route path="discovery" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><DiscoveryModule /></RoleGuard>}>
-          <Route path="quiz-analytics" element={<AdminQuizAnalytics />} />
-          <Route path="quiz-configuration" element={<RoleGuard allowedRoles={["super_admin"]}><AdminDiscoveryConfig /></RoleGuard>} />
+        {/* ── Discovery: super_admin | admin ──────────────────────────────── */}
+        <Route path="discovery" element={<RoleGuard allowedRoles={ADMIN_ONLY}><DiscoveryModule /></RoleGuard>}>
+          <Route path="quiz-analytics"    element={<AdminQuizAnalytics />} />
+          <Route path="quiz-configuration" element={<RoleGuard allowedRoles={SUPER_ONLY}><AdminDiscoveryConfig /></RoleGuard>} />
         </Route>
 
-        <Route path="estimator" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><EstimatorModule /></RoleGuard>}>
-          <Route path="estimate-leads" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><AdminEstimateLeads /></RoleGuard>} />
-          <Route path="config" element={<RoleGuard allowedRoles={["super_admin"]}><AdminEstimatorConfig /></RoleGuard>} />
+        {/* ── Estimator: super_admin | admin ──────────────────────────────── */}
+        <Route path="estimator" element={<RoleGuard allowedRoles={ADMIN_ONLY}><EstimatorModule /></RoleGuard>}>
+          <Route path="estimate-leads" element={<AdminEstimateLeads />} />
+          <Route path="config" element={<RoleGuard allowedRoles={SUPER_ONLY}><AdminEstimatorConfig /></RoleGuard>} />
           {/* Legacy redirects — old URLs before Phase 12 consolidation */}
           <Route path="pricing-configuration" element={<Navigate to="/admin/estimator/config" replace />} />
-          <Route path="result-templates" element={<Navigate to="/admin/estimator/config" replace />} />
-          <Route path="flow-configuration" element={<Navigate to="/admin/estimator/config" replace />} />
+          <Route path="result-templates"      element={<Navigate to="/admin/estimator/config" replace />} />
+          <Route path="flow-configuration"    element={<Navigate to="/admin/estimator/config" replace />} />
         </Route>
 
-        <Route path="blog" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><BlogModule /></RoleGuard>}>
-          <Route path="overview" element={<AdminBlogOverview />} />
+        {/* ── Blog analytics: super_admin | admin ─────────────────────────── */}
+        <Route path="blog" element={<RoleGuard allowedRoles={ADMIN_ONLY}><BlogModule /></RoleGuard>}>
+          <Route path="overview"            element={<AdminBlogOverview />} />
           <Route path="article-performance" element={<AdminBlogPerformance />} />
-          <Route path="reader-engagement" element={<AdminBlogEngagement />} />
+          <Route path="reader-engagement"   element={<AdminBlogEngagement />} />
         </Route>
 
-        <Route path="user-access" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><UserAccessModule /></RoleGuard>}>
-          <Route path="users" element={<AdminUserAccessUsers />} />
-          <Route path="roles" element={<RoleGuard allowedRoles={["super_admin"]}><AdminUserAccessRoles /></RoleGuard>} />
+        {/* ── User Access: super_admin | admin ────────────────────────────── */}
+        <Route path="user-access" element={<RoleGuard allowedRoles={ADMIN_ONLY}><UserAccessModule /></RoleGuard>}>
+          <Route path="users"    element={<AdminUserAccessUsers />} />
+          <Route path="roles"    element={<RoleGuard allowedRoles={SUPER_ONLY}><AdminUserAccessRoles /></RoleGuard>} />
           <Route path="security" element={<AdminUserAccessSecurity />} />
         </Route>
 
-        <Route path="system" element={<RoleGuard allowedRoles={["super_admin", "admin"]}><SystemModule /></RoleGuard>}>
-          <Route path="settings" element={<RoleGuard allowedRoles={["super_admin"]}><AdminSettings /></RoleGuard>} />
-          <Route path="email-templates" element={<RoleGuard allowedRoles={["super_admin"]}><AdminEmailTemplates /></RoleGuard>} />
-          <Route path="audit-logs" element={<RoleGuard allowedRoles={["super_admin"]}><AdminAuditLogs /></RoleGuard>} />
+        {/* ── System: super_admin only ─────────────────────────────────────── */}
+        <Route path="system" element={<RoleGuard allowedRoles={SUPER_ONLY}><SystemModule /></RoleGuard>}>
+          <Route path="settings"        element={<AdminSettings />} />
+          <Route path="email-templates" element={<AdminEmailTemplates />} />
+          <Route path="audit-logs"      element={<AdminAuditLogs />} />
         </Route>
       </Route>
     </Route>

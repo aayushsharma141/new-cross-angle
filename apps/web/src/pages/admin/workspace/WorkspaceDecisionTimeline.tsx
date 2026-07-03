@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 export function WorkspaceDecisionTimeline({ leadId }: { leadId: string }) {
   const { data: events = [], isLoading } = useDecisionEvents(leadId);
 
-  if (isLoading) return <div className="text-sm text-[hsl(var(--admin-text-muted))]">Loading timeline...</div>;
+  if (isLoading) return <div className="text-sm text-[hsl(var(--admin-text-muted))]">Loading timeline…</div>;
   if (events.length === 0) return null;
 
   // Group by session_id

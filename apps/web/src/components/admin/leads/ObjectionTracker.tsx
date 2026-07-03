@@ -77,7 +77,7 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
     }
   };
 
-  if (loading) return <div className="p-4 text-xs text-[hsl(var(--admin-text-muted))]">Loading objections...</div>;
+  if (loading) return <div className="p-4 text-xs text-[hsl(var(--admin-text-muted))]">Loading objections…</div>;
 
   return (
     <div className="flex flex-col gap-4">

@@ -84,7 +84,7 @@ export function HeroItemFormFields({
                         <div className="flex gap-2">
                             <Input
                                 ref={urlRef}
-                                placeholder="https://videos.pexels.com/..."
+                                placeholder="https://videos.pexels.com/…"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
                                 className={`flex-1 ${
@@ -130,7 +130,7 @@ export function HeroItemFormFields({
                         <Label className="text-xs text-zinc-400">Media URL</Label>
                         <div className="flex gap-2">
                             <Input
-                                placeholder="https://..."
+                                placeholder="https://…"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
                                 className="flex-1 h-9 text-sm"
@@ -250,7 +250,7 @@ export function HeroItemFormFields({
                             <LinkIcon className="w-3.5 h-3.5 text-blue-400" /> CTA Link
                         </Label>
                         <Input
-                            placeholder="/contact or https://..."
+                            placeholder="/contact or https://…"
                             value={ctaLink}
                             onChange={(e) => setCtaLink(e.target.value)}
                             className={isEdit ? "h-9 text-sm" : ""}

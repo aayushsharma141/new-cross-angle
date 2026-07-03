@@ -49,7 +49,7 @@ export function AdminFilterBar({
             </svg>
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search…"
               value={searchQuery || ""}
               onChange={(e) => onSearchChange(e.target.value)}
               className="pl-7 pr-3 py-[5px] rounded-[5px] text-[11px] font-inherit transition-all duration-150 bg-transparent border border-[hsl(var(--admin-border-subtle))] text-[hsl(var(--admin-text))] w-[180px] focus:outline-none focus:border-[hsl(var(--admin-accent))]"

@@ -68,7 +68,7 @@ export function LeadTimeline({ leadId }: LeadTimelineProps) {
         }
     });
 
-    if (isLoading) return <div className="text-sm text-muted-foreground p-4">Loading history...</div>;
+    if (isLoading) return <div className="text-sm text-muted-foreground p-4">Loading history…</div>;
 
     if (!activities || activities.length === 0) {
         return <div className="text-sm text-muted-foreground p-4 bg-muted/30 rounded-lg text-center">No activity recorded yet.</div>;

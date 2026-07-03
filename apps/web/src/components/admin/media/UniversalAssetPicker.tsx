@@ -133,7 +133,7 @@ export function UniversalAssetPicker({
                             <div className="relative flex-1 min-w-[200px]">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="Search assets..."
+                                    placeholder="Search assets…"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="pl-10 h-9"
@@ -255,7 +255,7 @@ export function UniversalAssetPicker({
                                 <div>
                                     <Label className="mb-1.5 block text-xs text-muted-foreground">Title / Alt Text</Label>
                                     <Input 
-                                        placeholder="Describe the image..." 
+                                        placeholder="Describe the image…" 
                                         value={uploadTitle}
                                         onChange={(e) => setUploadTitle(e.target.value)}
                                     />

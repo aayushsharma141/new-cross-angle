@@ -40,7 +40,7 @@ export default function TiltedCard({
     displayOverlayContent = false,
     onClick
 }: TiltedCardProps) {
-    const ref = useRef<HTMLElement>(null);
+    const ref = useRef<HTMLDivElement>(null);
     const x = useMotionValue(0);
     const y = useMotionValue(0);
     const rotateX = useSpring(useMotionValue(0), springValues);
@@ -55,7 +55,7 @@ export default function TiltedCard({
 
     const [lastY, setLastY] = useState(0);
 
-    function handleMouse(e: React.MouseEvent<HTMLElement>) {
+    function handleMouse(e: React.MouseEvent<HTMLDivElement>) {
         if (!ref.current) return;
 
         const rect = ref.current.getBoundingClientRect();
@@ -99,7 +99,7 @@ export default function TiltedCard({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onClick={onClick}
-            onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
+            onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(e as unknown as React.MouseEvent<HTMLElement>); } } : undefined}
             style={{
                 height: containerHeight,
                 width: containerWidth

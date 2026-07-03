@@ -254,7 +254,7 @@ export default function CrmSettings() {
                     <div>
                       <h3 className="font-bold text-sm text-[hsl(var(--admin-text))]">Export Leads</h3>
                       <p className="text-[hsl(var(--admin-muted))] text-xs mt-1">
-                        Download a complete CSV backup of all {leadStats?.totalLeads ?? "..."} leads and their data.
+                        Download a complete CSV backup of all {leadStats?.totalLeads ?? "…"} leads and their data.
                       </p>
                     </div>
                     <Button

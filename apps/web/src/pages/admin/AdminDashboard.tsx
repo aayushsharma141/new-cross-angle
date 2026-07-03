@@ -1,15 +1,11 @@
 import { useEffect, useState, lazy, Suspense, type JSX, useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
-  Plus,
-  Layers,
-  ArrowRight,
   Send,
-  Package,
   Download,
   Loader2,
 } from "lucide-react";
-import { QuickActionButton } from "@/components/admin/QuickActions";
+
 import { CalendarDateRangePicker } from "@/components/ui/enhanced/date-range-picker";
 import { useToast } from "@/hooks/useToast";
 import { DateRange } from "react-day-picker";
@@ -27,6 +23,7 @@ const TrafficTab = lazy(() => import("./tabs/TrafficTab"));
 const SalesTab = lazy(() => import("./tabs/SalesTab"));
 const SystemTab = lazy(() => import("./tabs/SystemTab"));
 const ContentTab = lazy(() => import("./tabs/ContentTab"));
+import { RecentActivityFeed } from "@/components/admin/dashboard/RecentActivityFeed";
 
 type TabType = "overview" | "traffic" | "sales" | "system" | "content";
 
@@ -52,7 +49,7 @@ const downloadCsv = (filename: string, rows: string[][]): void => {
 const TabFallback = ({ label }: { label?: string }) => (
   <div className="flex items-center justify-center h-64 flex-col gap-2">
     <Loader2 className="w-8 h-8 animate-spin text-admin-primary/50" />
-    {label && <span className="text-xs text-[hsl(var(--admin-muted))]">Loading {label}...</span>}
+    {label && <span className="text-xs text-[hsl(var(--admin-muted))]">Loading {label}…</span>}
   </div>
 );
 
@@ -222,30 +219,12 @@ const AdminDashboard = (): JSX.Element => {
         </div>
 
         {/* Right sidebar â€” fixed width, scrollable independently */}
-        <div className="w-[300px] shrink-0 space-y-3 overflow-y-auto hidden xl:block">
-          <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-2xl p-5">
-            <h3 className="text-xs font-bold text-[hsl(var(--admin-text-muted))] uppercase tracking-widest mb-4">Quick Actions</h3>
-            <div className="flex flex-col gap-2">
-              {can('leads', 'create') && (
-                <QuickActionButton icon={Plus} label="New Lead" href="/admin/crm/leads" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
-              )}
-              {can('content', 'edit') && (
-                <QuickActionButton icon={Package} label="CMS Build" href="/admin/cms/portfolio" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
-              )}
-              <QuickActionButton icon={Send} label="Outreach" href="/admin/discovery/quiz-analytics" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
-              <QuickActionButton icon={Layers} label="Resources" href="/admin/cms/media-library" gradient="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] hover:border-[hsl(var(--admin-primary))/50]" />
-            </div>
+        <div className="w-[300px] shrink-0 overflow-y-auto hidden xl:block custom-scrollbar">
+          <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6 min-h-full">
+            <h3 className="text-sm font-bold text-[hsl(var(--admin-text))] mb-1">Recent System Activity</h3>
+            <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-4">Latest actions and changes</p>
+            <RecentActivityFeed dateRange={date} />
           </div>
-
-          <Link to="/admin/discovery/quiz-analytics" className="block bg-[hsl(var(--admin-primary))]/5 border border-[hsl(var(--admin-primary))]/20 rounded-2xl p-5 group hover:bg-[hsl(var(--admin-primary))]/10 transition-all">
-            <h3 className="text-sm font-bold text-[hsl(var(--admin-primary))] flex items-center justify-between mb-2">
-              Growth Insights
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </h3>
-            <p className="text-[hsl(var(--admin-text-muted))] text-xs leading-relaxed">
-              New visitor patterns detected. Review lead behaviour insights to improve conversions.
-            </p>
-          </Link>
         </div>
       </div>
     </ModuleLayout>

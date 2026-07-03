@@ -1,0 +1,40 @@
+/* CORE */
+:root {
+  /* Canvas */
+  --s-canvas-primary:   var(--m-wall);
+  --s-canvas-secondary: var(--m-plaster);
+
+  /* Surface */
+  --s-surface-primary:   var(--m-slab);
+  --s-surface-secondary: var(--m-panel);
+  --s-surface-elevated:  var(--m-surface);
+  --s-surface-overlay:   var(--m-glass);
+
+  /* Text */
+  --s-text-display: var(--m-detail);
+  --s-text-heading: var(--m-detail);
+  --s-text-body:    var(--m-subtext);
+  --s-text-muted:   var(--m-caption);
+  --s-text-subtle:  var(--m-caption);
+
+  /* Borders & Dividers */
+  --s-border-subtle:   var(--m-line);
+  --s-border-default:  color-mix(in srgb, var(--m-detail) 14%, transparent);
+  --s-border-strong:   color-mix(in srgb, var(--m-detail) 24%, transparent);
+  --s-divider-default: var(--s-border-subtle);
+
+  /* Actions */
+  --s-action-primary-bg:       var(--m-metal);
+  --s-action-primary-text:     var(--m-wall);
+  --s-action-secondary-bg:     transparent;
+  --s-action-secondary-border: var(--s-border-default);
+  --s-action-secondary-text:   var(--s-text-body);
+
+  /* Focus */
+  --s-focus-ring: var(--m-metal);
+}
+
+/* Reset the global --radius used by shadcn to the architectural scale */
+:root {
+  --radius: var(--p-radius-md);
+}

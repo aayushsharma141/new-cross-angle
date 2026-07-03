@@ -152,7 +152,7 @@ const OverviewTab = ({ date, changeTab }: OverviewTabProps) => {
     },
   });
 
-  const fmt = (v: number | string | undefined | null): string => (v == null ? "..." : typeof v === "number" ? v.toLocaleString() : v);
+  const fmt = (v: number | string | undefined | null): string => (v == null ? "…" : typeof v === "number" ? v.toLocaleString() : v);
 
   return (
     <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
@@ -173,7 +173,7 @@ const OverviewTab = ({ date, changeTab }: OverviewTabProps) => {
           title="Total Leads"
           value={fmt(stats?.leads)}
           numericValue={stats?.leads}
-          change={stats ? `${stats.leadsTrend > 0 ? "+" : ""}${stats.leadsTrend}% vs previous period` : "..."}
+          change={stats ? `${stats.leadsTrend > 0 ? "+" : ""}${stats.leadsTrend}% vs previous period` : "…"}
           trend={stats?.leadsTrend === 0 ? "neutral" : (stats?.leadsTrend || 0) > 0 ? "up" : "down"}
           icon={Users}
           variant="gold"

@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
-import { RecentActivityFeed } from "@/components/admin/dashboard/RecentActivityFeed";
 import { Database, HardDrive, Shield, Server } from "lucide-react";
-import { DateRange } from "react-day-picker";
+
 import { formatDistanceToNow } from "date-fns";
 import { useSystem } from "@/context/SystemContext";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { DateRange } from "react-day-picker";
 import { usePermissions } from "@/hooks/usePermissions";
 import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, Cell } from "recharts";
 
@@ -21,7 +21,7 @@ const formatStorage = (bytes: number): string => {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 };
 
-const SystemTab = ({ date }: SystemTabProps) => {
+const SystemTab = ({ date: _date }: SystemTabProps) => {
   const { health } = useSystem();
   const { can } = usePermissions();
 
@@ -212,13 +212,6 @@ const SystemTab = ({ date }: SystemTabProps) => {
             </ResponsiveContainer>
           </div>
         </div>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6 overflow-hidden">
-        <h3 className="text-sm font-bold text-[hsl(var(--admin-text))] mb-1">Recent System Activity</h3>
-        <p className="text-xs text-[hsl(var(--admin-text-muted))] mb-4">Latest actions and changes</p>
-        <RecentActivityFeed dateRange={date} />
       </div>
     </div>
   );

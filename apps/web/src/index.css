@@ -1,3 +1,4 @@
+@import "./tokens/index.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,6 +10,7 @@
      Used for: Homepage, Portfolio, Brand pages
   ========================= */
   :root {
+    color-scheme: dark;
     /* Backgrounds */
     --background: 0 0% 0%;
     /* Pure Black */
@@ -285,6 +287,19 @@
     @apply border-border;
   }
 
+  a, button, select, input, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  [role="dialog"],
+  [role="alertdialog"],
+  .modal,
+  .drawer,
+  .sheet,
+  [data-state="open"] {
+    overscroll-behavior: contain;
+  }
+
   body {
     background-color: var(--site-bg);
     color: var(--site-text);
@@ -296,6 +311,8 @@
     font-feature-settings: "kern" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation; /* Prevent 300ms tap delay on mobile */
+    overscroll-behavior: none; /* Prevent pull-to-refresh interference */
   }
 
   h1,

@@ -215,7 +215,7 @@ function ArchetypeCard({
                 value={item.ctaDescription || ""}
                 onChange={(e) => onUpdate("ctaDescription", e.target.value)}
                 className="h-7 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
-                placeholder="Brief text prompting estimator transition..."
+                placeholder="Brief text prompting estimator transition…"
               />
             </div>
           </div>
@@ -244,7 +244,7 @@ function ArchetypeCard({
                 domain="discovery"
                 entityType="archetypes"
                 damRole="hero"
-                placeholder="Select hero image..."
+                placeholder="Select hero image…"
               />
             </div>
             <div className="space-y-1">
@@ -264,7 +264,7 @@ function ArchetypeCard({
                 domain="discovery"
                 entityType="archetypes"
                 damRole="moodboard"
-                placeholder="Select moodboard image..."
+                placeholder="Select moodboard image…"
               />
             </div>
           </div>

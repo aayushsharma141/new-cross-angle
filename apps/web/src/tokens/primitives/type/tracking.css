@@ -1,0 +1,8 @@
+/* CORE */
+:root {
+  --p-tracking-tight:   -0.02em;
+  --p-tracking-tighter: -0.04em;
+  --p-tracking-normal:  0em;
+  --p-tracking-wide:    0.15em;
+  --p-tracking-wider:   0.28em;
+}

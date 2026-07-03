@@ -265,7 +265,7 @@ export default function AdminTeam() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="bio">Bio</Label>
-                                <Textarea id="bio" name="bio" defaultValue={editingMember?.bio || ""} placeholder="A short, visionary biography..." rows={3} />
+                                <Textarea id="bio" name="bio" defaultValue={editingMember?.bio || ""} placeholder="A short, visionary biography…" rows={3} />
                             </div>
                             <div className="space-y-2">
                                 <Label>Profile Image</Label>

@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/aria-role -- DiscoveryConsumerImage 'role' prop is a semantic asset type, not an ARIA role attribute */
 import React, { useMemo, useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
@@ -27,6 +28,7 @@ import { useDiscoveryAsset } from '@/hooks/useDiscoveryAsset';
 import { toEntityId } from '@/lib/discovery-utils';
 import { getOptimizedUrl } from '@/lib/cdn';
 import { saveDiscoveryResult } from '../core/persistence';
+import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
 
 const DiscoveryConsumerImage = ({ entityType, entityId, role, fallbackUrl, alt, className }: { entityType: string, entityId: string, role: string, fallbackUrl?: string, alt?: string, className?: string }) => {
   const { url } = useDiscoveryAsset(entityType, entityId, role, fallbackUrl);

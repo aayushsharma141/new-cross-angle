@@ -1,0 +1,18 @@
+/* CORE */
+:root {
+  --m-wall:      var(--f-charcoal-950);
+  --m-floor:     var(--f-charcoal-950);
+  --m-surface:   var(--f-charcoal-800);
+  --m-panel:     var(--f-charcoal-700);
+  --m-paper:     var(--f-charcoal-900);
+  --m-glass:     color-mix(in srgb, var(--f-charcoal-900) 65%, transparent);
+  --m-metal:     var(--f-bronze-300);
+  --m-fabric:    var(--f-charcoal-800);
+  --m-wood:      var(--f-charcoal-950);
+  --m-shadow:    var(--f-shadow-500);
+  --m-highlight: var(--f-stone-50);
+  --m-line:      color-mix(in srgb, var(--f-stone-50) 8%, transparent);
+  --m-detail:    var(--f-stone-50);
+  --m-subtext:   var(--f-stone-200);
+  --m-caption:   var(--f-stone-400);
+}

@@ -12,7 +12,18 @@ export function MediaPicker({ onSelect, trigger }: MediaPickerProps) {
 
     return (
         <>
-            <div onClick={() => setIsOpen(true)} className="inline-block w-full">
+            <div 
+                role="button" 
+                tabIndex={0} 
+                onClick={() => setIsOpen(true)} 
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setIsOpen(true);
+                    }
+                }}
+                className="inline-block w-full"
+            >
                 {trigger || <Button type="button" variant="outline">Select Image</Button>}
             </div>
             

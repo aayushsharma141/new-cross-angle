@@ -39,7 +39,8 @@ export const startSession = (): string => uuidv4();
  * Retained to avoid breaking existing call sites while Task 4 is in progress.
  * @deprecated Call trackQuizCompleted instead.
  */
-export const completeSession = (): void => {};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const completeSession = (..._args: any[]): void => {};
 
 // ── Named event helpers (PostHog contract) ────────────────────────────────────
 

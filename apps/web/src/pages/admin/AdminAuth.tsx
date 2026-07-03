@@ -23,10 +23,9 @@ import {
   RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
-import { Image } from "@/components/ui/enhanced/image";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import logoIcon from "@/assets/logo-icon.png";
+import { ROLE_DEFAULT_ROUTE } from "@/lib/auth/rbac";
 
 type AuthView = 'login' | 'forgot' | 'check-email' | 'reset-password' | 'reset-success' | 'expired' | 'logged-out';
 
@@ -111,12 +110,12 @@ const AdminAuth: React.FC = () => {
       return;
     }
 
-    // KEY FIX: Only redirect to /admin when BOTH user AND role are resolved.
-    // Previously, this fired as soon as `user` existed, racing ahead of role
-    // resolution and causing the "retrying... access denied" loop.
+    // KEY FIX: Only redirect when BOTH user AND role are resolved.
+    // Route each role to their specific dashboard (editor→/admin/cms, viewer→/admin/crm/leads).
     if (user && role && !isLoggedOut && view === 'login') {
       setRedirecting(true);
-      navigate('/admin', { replace: true });
+      const dest = ROLE_DEFAULT_ROUTE[role] ?? '/admin';
+      navigate(dest, { replace: true });
     }
   }, [user, role, navigate, location, view, toast]);
 
@@ -124,23 +123,41 @@ const AdminAuth: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const contentType = res.headers.get("content-type") ?? "";
+      const data = contentType.includes("application/json")
+        ? await res.json().catch(() => null)
+        : null;
+
+      if (!res.ok) {
+        throw new Error(data?.error || data?.message || `Login failed with status ${res.status}`);
+      }
+
+      if (!data) {
+        throw new Error("Login failed: server returned an empty response.");
+      }
 
       // ─── Remember Me TTL ──────────────────────────────────────────────────────────
       // If "Keep me logged in" is UNCHECKED, write a 24-hour expiry timestamp.
-      // AuthProvider reads this on every page load and signs the user out
-      // automatically once the TTL has passed.
-      // If CHECKED, clear any previous expiry so the session has no TTL.
       if (!rememberMe) {
         localStorage.setItem(SESSION_EXPIRES_KEY, String(Date.now() + REMEMBER_ME_TTL_MS));
       } else {
         localStorage.removeItem(SESSION_EXPIRES_KEY);
       }
-      // NOTE: Do NOT navigate here. The useEffect below watches `user` from AuthProvider
-      // and redirects once the SIGNED_IN event has processed and role has been resolved.
-      // Navigating immediately would race with onAuthStateChange, arriving at AdminLayout
-      // before role is fetched and causing the "Verifying access…" hang.
+      
+      // We must do a hard navigation because the Supabase JS client doesn't
+      // know about the HTTP-only cookie we just set, so it won't emit SIGNED_IN.
+      // A hard reload forces AuthProvider to fetch the session from the server.
+      // Route each role to their specific dashboard.
+      const userRole = (data.role ?? 'admin') as import('@/lib/auth/rbac').AppRole;
+      const dest = ROLE_DEFAULT_ROUTE[userRole] ?? '/admin';
+      window.location.href = dest;
+      return;
     } catch (err: unknown) {
       const error = err as { message?: string };
       let brandMessage = "An error occurred during authentication.";
@@ -260,76 +277,70 @@ const AdminAuth: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[hsl(220_25%_5%)] relative flex items-center justify-center overflow-hidden p-6 admin-theme">
+    <div className="min-h-screen bg-[#121212] relative flex items-center justify-center overflow-hidden p-6 admin-theme font-sans">
       <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/projects/discovery/lifestyle-5.jpg"
-          alt="Interior Luxury"
-          className="w-full h-full opacity-10 blur-xl scale-110"
-          imageClassName="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(220_25%_5%)/60%] via-[hsl(220_25%_5%)/85%] to-[hsl(220_25%_5%)]" />
-      </div>
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-15">
-        <div className="absolute top-[20%] -left-[10%] w-[120%] h-px bg-gradient-to-r from-transparent via-[hsl(38_92%_50%)/40%] to-transparent rotate-12" />
-        <div className="absolute top-[60%] -left-[10%] w-[120%] h-px bg-gradient-to-r from-transparent via-zinc-500/20 to-transparent -rotate-6" />
+        {/* Soft center top glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#121212]/80 to-[#121212]" />
       </div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-[440px] z-10">
         <div className="flex flex-col items-center mb-10">
           <a
             href="/"
-            className="flex items-center gap-2 sm:gap-3 shrink-0 group min-w-0 hover:opacity-75 focus-visible:ring-2 focus-visible:ring-[hsl(38_92%_50%)] focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 rounded-lg"
+            className="flex flex-col items-center gap-1 group min-w-0 hover:opacity-90 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 transition-all duration-300 rounded-lg"
             aria-label="Return to CrossAngle Home"
           >
             <img 
               src={logoUrl} 
-              alt="Cross Angle Interior" 
-              className="h-11 md:h-16 w-auto transition-all duration-500 shrink-0" 
+              alt="Cross Angle" 
+              className="h-16 md:h-20 w-auto transition-transform duration-500 group-hover:scale-105" 
             />
-            <AnimatedLogo
-              isScrolled={false}
-              className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0 [&_span]:text-[#C41230]"
-            />
+            <div className="flex gap-2 text-[#E62B34] font-serif text-xl tracking-widest uppercase drop-shadow-[0_0_15px_rgba(230,43,52,0.4)]">
+              <span>Crossangle</span>
+              <span>Interior</span>
+            </div>
           </a>
-          <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-500 mt-3.5 font-sans">Admin Console</p>
+          <p className="text-[10px] uppercase tracking-[0.4em] text-zinc-500 mt-4 font-sans">Admin Console</p>
         </div>
 
-        <div className="bg-[hsl(220_18%_8%)/90%] backdrop-blur-2xl border border-[hsl(220_15%_18%)/60%] rounded-3xl p-8 md:p-10 shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-[hsl(38_92%_50%)] to-transparent" />
+        <div className="bg-[#1A1A1A] backdrop-blur-2xl border-none rounded-3xl p-8 md:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] relative overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-amber-500/80 to-transparent shadow-[0_0_15px_rgba(245,158,11,0.5)]" />
           <AnimatePresence mode="wait">
             {view === 'login' && (
               <motion.div key="login" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
-                <h1 className="text-3xl font-serif text-white mb-1">Admin Login</h1>
-                <p className="text-xs text-zinc-500 mb-8 font-sans uppercase tracking-[0.2em]">Authorized admins only</p>
-                <form onSubmit={handleLogin} className="space-y-5">
-                  <div className="space-y-1.5">
+                <h1 className="text-3xl font-serif text-white mb-2">Admin Login</h1>
+                <p className="text-[11px] text-zinc-500 mb-8 font-sans uppercase tracking-[0.2em]">Authorized admins only</p>
+                <form onSubmit={handleLogin} className="space-y-6">
+                  <div className="space-y-2">
                     <Label htmlFor="email-login" className="text-[10px] uppercase tracking-widest text-zinc-400 ml-1">Email Address</Label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                      <Input id="email-login" name="email" type="email" autoComplete="username" placeholder="admin@crossangle.com" className="h-12 pl-12 bg-black/60 border-[hsl(220_15%_18%)] rounded-2xl focus:border-[hsl(38_92%_50%)/50%] transition-all font-sans text-white text-base md:text-base font-medium placeholder:font-normal placeholder:text-zinc-400" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                      <Input id="email-login" name="email" type="email" autoComplete="username" placeholder="admin@crossangle.com" className="h-14 pl-12 bg-[#27272A]/80 border-transparent rounded-2xl focus:bg-[#3F3F46]/50 focus:border-amber-500/50 transition-all font-sans text-white text-sm md:text-sm font-medium placeholder:font-medium placeholder:text-zinc-400" value={email} onChange={(e) => setEmail(e.target.value)} required />
                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between px-1">
-                      <Label htmlFor="password-login" className="text-[10px] uppercase tracking-widest text-zinc-400">Password</Label>
-                      <button type="button" onClick={() => setView('forgot')} className="text-[10px] uppercase tracking-widest text-[hsl(38_92%_50%)/60%] hover:text-[hsl(38_92%_50%)] transition-colors">Forgot Password?</button>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password-login" className="text-[10px] uppercase tracking-widest text-zinc-400 ml-1">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                      <Input id="password-login" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="••••••••" className="h-12 pl-12 pr-12 bg-black/60 border-[hsl(220_15%_18%)] rounded-2xl focus:border-[hsl(38_92%_50%)/50%] transition-all font-sans text-white text-base md:text-base font-medium placeholder:font-normal placeholder:text-zinc-400" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                      <Input id="password-login" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="••••••••" className="h-14 pl-12 pr-12 bg-[#27272A]/80 border-transparent rounded-2xl focus:bg-[#3F3F46]/50 focus:border-amber-500/50 transition-all font-sans text-white text-sm md:text-sm font-medium placeholder:font-medium placeholder:text-zinc-400" value={password} onChange={(e) => setPassword(e.target.value)} required />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300">
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 px-1">
-                    <Checkbox id="remember" checked={rememberMe} onCheckedChange={(c) => setRememberMe(c === true)} className="border-[hsl(220_15%_18%)] data-[state=checked]:bg-[hsl(38_92%_50%)] data-[state=checked]:border-[hsl(38_92%_50%)]" />
-                    <label htmlFor="remember" className="text-[11px] text-zinc-500 cursor-pointer select-none">Keep me logged in</label>
+                  
+                  <div className="flex items-center justify-between px-1 pt-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="remember" checked={rememberMe} onCheckedChange={(c) => setRememberMe(c === true)} className="border-zinc-700 bg-[#27272A] data-[state=checked]:bg-[#F59E0B] data-[state=checked]:border-[#F59E0B] rounded" />
+                      <label htmlFor="remember" className="text-[11px] text-zinc-500 cursor-pointer select-none">Keep me logged in</label>
+                    </div>
+                    <button type="button" onClick={() => setView('forgot')} className="text-[10px] font-bold uppercase tracking-widest text-zinc-300 hover:text-white transition-colors">Forgot Password?</button>
                   </div>
-                  <Button type="submit" disabled={loading || redirecting} className="w-full h-12 mt-4 bg-gradient-to-r from-[hsl(38_92%_50%)] to-[hsl(38_92%_45%)] hover:from-[hsl(38_92%_55%)] hover:to-[hsl(38_92%_50%)] text-black font-bold rounded-2xl flex items-center justify-center gap-2 group transition-all duration-300 shadow-lg shadow-[hsl(38_92%_50%)/20%]">
+                  
+                  <Button type="submit" disabled={loading || redirecting} className="w-full h-14 mt-6 bg-[#F59E0B] hover:bg-[#D97706] text-black font-bold rounded-2xl flex items-center justify-center gap-2 group transition-all duration-300">
                     {(loading || redirecting) ? <Loader2 className="w-4 h-4 animate-spin" /> : "Login"}
-                    {!(loading || redirecting) && <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
+                    {!(loading || redirecting) && <ChevronRight className="w-4 h-4 stroke-[3px] group-hover:translate-x-1 transition-transform" />}
                   </Button>
                 </form>
               </motion.div>
@@ -344,14 +355,14 @@ const AdminAuth: React.FC = () => {
                     <Label htmlFor="email-forgot" className="text-[10px] uppercase tracking-widest text-zinc-400 ml-1">Email Address</Label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                      <Input id="email-forgot" name="email" type="email" autoComplete="email" placeholder="admin@crossangle.com" className="h-12 pl-12 bg-black/60 border-[hsl(220_15%_18%)] rounded-2xl focus:border-[hsl(38_92%_50%)/50%] transition-all font-sans text-white text-base md:text-base font-medium placeholder:font-normal placeholder:text-zinc-400" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                      <Input id="email-forgot" name="email" type="email" autoComplete="email" placeholder="admin@crossangle.com" className="h-14 pl-12 bg-[#27272A]/80 border-transparent rounded-2xl focus:bg-[#3F3F46]/50 focus:border-amber-500/50 transition-all font-sans text-white text-sm md:text-sm font-medium placeholder:font-medium placeholder:text-zinc-400" value={email} onChange={(e) => setEmail(e.target.value)} required />
                     </div>
                   </div>
-                  <Button type="submit" disabled={loading} className="w-full h-12 bg-zinc-100 hover:bg-white text-black font-bold rounded-2xl flex items-center justify-center gap-2 group shadow-xl">
+                  <Button type="submit" disabled={loading} className="w-full h-14 mt-6 bg-[#F59E0B] hover:bg-[#D97706] text-black font-bold rounded-2xl flex items-center justify-center gap-2 group transition-all duration-300">
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send Secure Link"}
-                    {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
+                    {!loading && <ArrowRight className="w-4 h-4 stroke-[3px] group-hover:translate-x-1 transition-transform" />}
                   </Button>
-                  <button type="button" onClick={() => setView('login')} className="w-full text-center text-xs text-zinc-500 hover:text-white transition-colors">Return to Login</button>
+                  <button type="button" onClick={() => setView('login')} className="w-full text-center text-[11px] uppercase tracking-wider font-bold text-zinc-500 hover:text-white transition-colors mt-2">Return to Login</button>
                 </form>
               </motion.div>
             )}
@@ -476,9 +487,9 @@ const AdminAuth: React.FC = () => {
             )}
           </AnimatePresence>
         </div>
-        <div className="mt-10 flex items-center justify-center gap-6 opacity-30 group">
-          <div className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-emerald-500" /><span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-medium group-hover:text-emerald-500 transition-colors">Secure Connection</span></div>
-          <div className="w-px h-3 bg-zinc-800" /><span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-medium group-hover:text-[hsl(38_92%_50%)] transition-colors">Analytics OS v3.0.0</span>
+        <div className="mt-12 flex items-center justify-center gap-6 opacity-60 group">
+          <div className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-emerald-600 shadow-[0_0_8px_rgba(5,150,105,0.8)]" /><span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-semibold group-hover:text-zinc-400 transition-colors">Secure Connection</span></div>
+          <div className="w-px h-3 bg-zinc-800" /><span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-semibold group-hover:text-zinc-400 transition-colors">Analytics OS v3.0.0</span>
         </div>
       </motion.div>
     </div>

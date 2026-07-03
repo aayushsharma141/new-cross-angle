@@ -46,8 +46,8 @@ export const useAuth = () => {
 
 // ─── Role Cache (sessionStorage + 5-min TTL) ───────────────────────────────
 const ROLE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-const ROLE_CACHE_VERSION = "admin-rbac-v4";
-const ROLE_PRIORITY: AppRole[] = ["super_admin", "admin", "viewer"];
+const ROLE_CACHE_VERSION = "admin-rbac-v5"; // Bumped: added 'editor' role
+const ROLE_PRIORITY: AppRole[] = ["super_admin", "admin", "editor", "viewer"];
 
 interface CachedRole {
     role: string | null;

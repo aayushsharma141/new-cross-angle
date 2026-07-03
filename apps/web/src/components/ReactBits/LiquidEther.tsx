@@ -406,7 +406,7 @@ export default function LiquidEther({
         this.props = props || {};
         this.uniforms = this.props.material?.uniforms;
       }
-      init() {
+      init(_props?: any) {
         this.scene = new THREE.Scene();
         this.camera = new THREE.Camera();
         if (this.uniforms) {
@@ -445,8 +445,8 @@ export default function LiquidEther({
         this.uniforms = this.props.material.uniforms;
         this.init();
       }
-      init() {
-        super.init();
+      init(props?: any) {
+        super.init(props);
         this.createBoundary();
       }
       createBoundary() {
@@ -479,8 +479,8 @@ export default function LiquidEther({
         super({ output: simProps.dst });
         this.init(simProps);
       }
-      init(simProps: any) {
-        super.init();
+      init(simProps?: any) {
+        super.init(simProps);
         const mouseG = new THREE.PlaneGeometry(1, 1);
         const mouseM = new THREE.RawShaderMaterial({
           vertexShader: mouse_vert,

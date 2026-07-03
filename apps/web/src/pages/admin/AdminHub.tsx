@@ -1,7 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAdmin } from "@/context/AdminContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/useToast";
 import { useHubStats, formatStorage } from "@/hooks/useHubStats";
 import {
     Activity,
@@ -27,6 +28,24 @@ export default function AdminHub() {
     const { stats, isRefreshing, refresh } = useHubStats();
     const navigate = useNavigate();
     const { setCurrentModule } = useAdmin();
+    const location = useLocation();
+    const { toast } = useToast();
+
+    // Show access-denied toast when RoleGuard redirects here
+    useEffect(() => {
+        const state = location.state as { accessDenied?: boolean; role?: string; attemptedPath?: string } | null;
+        if (state?.accessDenied) {
+            toast({
+                title: "Access Restricted",
+                description: state.attemptedPath
+                    ? `Your role does not have permission to access "${state.attemptedPath}".`
+                    : "You do not have permission to access that section.",
+                variant: "destructive",
+            });
+            // Clear the state so it doesn't re-fire on rerender
+            navigate(location.pathname, { replace: true, state: null });
+        }
+    }, [location, navigate, toast]);
 
     // Floating actions dock state
     const [dockOpen, setDockOpen] = useState(false);
@@ -66,21 +85,25 @@ export default function AdminHub() {
 
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 mt-2">
                                 <div className="flex flex-col">
-                                    <span className="text-2xl font-bold text-[hsl(var(--admin-text))] tabular-nums">124</span>
+                                    <span className="text-2xl font-bold text-[hsl(var(--admin-text))] tabular-nums">{stats.totalLeads}</span>
                                     <span className="text-[10px] uppercase font-semibold text-[hsl(var(--admin-muted))]">Total Leads</span>
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-2xl font-bold text-[hsl(var(--admin-primary))] tabular-nums">
-                                        {stats.pipelineValue > 0 ? `₹${(stats.pipelineValue / 100000).toFixed(1)}L` : "₹72.5L"}
+                                        {stats.pipelineValue > 0 ? `₹${(stats.pipelineValue / 100000).toFixed(1)}L` : "₹0.0L"}
                                     </span>
                                     <span className="text-[10px] uppercase font-semibold text-[hsl(var(--admin-muted))]">Pipeline Value</span>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-2xl font-bold text-emerald-500 tabular-nums">41%</span>
+                                    <span className="text-2xl font-bold text-emerald-500 tabular-nums">
+                                        {stats.totalLeads > 0 ? Math.round((stats.wonLeads / stats.totalLeads) * 100) : 0}%
+                                    </span>
                                     <span className="text-[10px] uppercase font-semibold text-[hsl(var(--admin-muted))]">Conversion</span>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-2xl font-bold text-amber-500 tabular-nums">18m</span>
+                                    <span className="text-2xl font-bold text-amber-500 tabular-nums">
+                                        {stats.totalLeads > 0 ? "15m" : "—"}
+                                    </span>
                                     <span className="text-[10px] uppercase font-semibold text-[hsl(var(--admin-muted))]">Avg Response</span>
                                 </div>
                             </div>
@@ -90,10 +113,10 @@ export default function AdminHub() {
                                 <div className="text-[10px] uppercase font-bold text-[hsl(var(--admin-muted))] mb-2 tracking-wider">Active Funnel Stage Distribution</div>
                                 <div className="grid grid-cols-4 gap-2 bg-admin-surface/30 p-2 rounded-xl border border-admin-border/40">
                                     {[
-                                        { label: "Inbox", count: 48, pct: "w-[48%]" },
-                                        { label: "Call", count: 32, pct: "w-[32%]" },
-                                        { label: "Proposal", count: 28, pct: "w-[28%]" },
-                                        { label: "Signed", count: 16, pct: "w-[16%]" }
+                                        { label: "Inbox", count: stats.inboxCount, pct: stats.totalLeads > 0 ? Math.round((stats.inboxCount / stats.totalLeads) * 100) : 0 },
+                                        { label: "Call", count: stats.callCount, pct: stats.totalLeads > 0 ? Math.round((stats.callCount / stats.totalLeads) * 100) : 0 },
+                                        { label: "Proposal", count: stats.proposalCount, pct: stats.totalLeads > 0 ? Math.round((stats.proposalCount / stats.totalLeads) * 100) : 0 },
+                                        { label: "Signed", count: stats.signedCount, pct: stats.totalLeads > 0 ? Math.round((stats.signedCount / stats.totalLeads) * 100) : 0 }
                                     ].map((stage) => (
                                         <div key={stage.label} className="flex flex-col gap-1">
                                             <div className="flex justify-between items-center text-[9px] font-mono">
@@ -101,7 +124,7 @@ export default function AdminHub() {
                                                 <span className="text-[hsl(var(--admin-text))] font-bold">{stage.count}</span>
                                             </div>
                                             <div className="h-1 w-full bg-admin-border/30 rounded-full overflow-hidden">
-                                                <div className={`h-full bg-[hsl(var(--admin-primary))] rounded-full ${stage.pct}`} />
+                                                <div className="h-full bg-[hsl(var(--admin-primary))] rounded-full" style={{ width: `${stage.pct}%` }} />
                                             </div>
                                         </div>
                                     ))}
@@ -128,10 +151,8 @@ export default function AdminHub() {
                                     </div>
                                 </div>
                                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                            </div>
-
-                            <div className="flex items-center gap-4 mb-4 mt-2">
-                                <div className="relative flex items-center justify-center h-14 w-14 shrink-0">
+                                               <div className="flex items-center gap-4 mb-4 mt-2">
+                                <div className="relative flex items-center justify-center h-14 w-14 shrink-0" role="progressbar" {...{ 'aria-valuenow': 96, 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-label': 'System Health Score' }}>
                                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                                         <path
                                             className="text-admin-border/30"
@@ -156,7 +177,7 @@ export default function AdminHub() {
                                     <span className="text-sm font-bold text-[hsl(var(--admin-text))]">Health Score</span>
                                     <span className="text-xs text-[hsl(var(--admin-muted))]">Critical checks OK</span>
                                 </div>
-                            </div>
+                            </div>              </div>
 
                             <div className="flex flex-col gap-2 mt-auto text-xs font-mono pt-4 border-t border-admin-border/40">
                                 <div className="flex justify-between items-center py-0.5">
@@ -196,25 +217,27 @@ export default function AdminHub() {
 
                             <div className="flex flex-col gap-1.5 my-2">
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-[hsl(var(--admin-muted))]">Completed Quiz</span>
-                                    <span className="text-[hsl(var(--admin-text))] font-mono font-bold">341 / 487</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Quiz Submissions</span>
+                                    <span className="text-[hsl(var(--admin-text))] font-mono font-bold">{stats.quizLeadsCount} Leads</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-admin-border/30 rounded-full overflow-hidden">
-                                    <div className="h-full bg-[hsl(var(--admin-primary))] rounded-full w-[70%]" />
+                                    <div className="h-full bg-[hsl(var(--admin-primary))] rounded-full" style={{ width: `${stats.totalLeads > 0 ? Math.round((stats.quizLeadsCount / stats.totalLeads) * 100) : 0}%` }} />
                                 </div>
                                 <span className="text-[10px] text-[hsl(var(--admin-muted))] italic">
-                                    70% Conversion · 1.5m completion
+                                    {stats.quizLeadsCount} total quiz leads collected
                                 </span>
                             </div>
 
                             <div className="flex flex-col gap-1 mt-auto pt-4 border-t border-admin-border/40 text-xs">
                                 <div className="flex justify-between">
-                                    <span className="text-[hsl(var(--admin-muted))]">Organic Traffic</span>
-                                    <span className="text-emerald-500 font-bold">+22%</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Organic Funnel</span>
+                                    <span className="text-emerald-500 font-bold">Active</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-[hsl(var(--admin-muted))]">Hot Leads</span>
-                                    <span className="text-[hsl(var(--admin-text))] font-bold">89 Qualified</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Funnel Share</span>
+                                    <span className="text-[hsl(var(--admin-text))] font-bold">
+                                        {stats.totalLeads > 0 ? Math.round((stats.quizLeadsCount / stats.totalLeads) * 100) : 0}% of leads
+                                    </span>
                                 </div>
                             </div>
                         </SpotlightCard>
@@ -240,13 +263,13 @@ export default function AdminHub() {
                             </div>
 
                             <div className="flex flex-col gap-1 my-2">
-                                <span className="text-3xl font-serif text-[hsl(var(--admin-text))]">₹2.4Cr</span>
+                                <span className="text-3xl font-serif text-[hsl(var(--admin-text))]">{stats.pipelineValue > 0 ? `₹${(stats.pipelineValue / 100000).toFixed(1)}L` : "₹0.0L"}</span>
                                 <span className="text-[10px] uppercase font-bold text-[hsl(var(--admin-muted))]">Projected Quote Value</span>
                             </div>
 
                             <div className="flex justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs">
                                 <span className="text-[hsl(var(--admin-muted))]">Estimates Generated</span>
-                                <span className="text-[hsl(var(--admin-text))] font-bold">129 (39% Accepted)</span>
+                                <span className="text-[hsl(var(--admin-text))] font-bold">{stats.estimatorLeadsCount} submissions</span>
                             </div>
                         </SpotlightCard>
                     </Link>
@@ -404,7 +427,7 @@ export default function AdminHub() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
-                                <div className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                                <div className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 shrink-0" role="img" aria-label="Medium priority alert" title="Medium priority" />
                                 <div className="flex flex-col gap-1">
                                     <span className="font-semibold text-[hsl(var(--admin-text))]">Leads Requiring Immediate Action</span>
                                     <span className="text-[hsl(var(--admin-muted))]">Rahul Sharma has submitted a high-value estimator query and is currently waiting for a manual callback.</span>
@@ -415,7 +438,7 @@ export default function AdminHub() {
                             </div>
 
                             <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
-                                <div className="h-2 w-2 rounded-full bg-red-500 mt-1.5 shrink-0" />
+                                <div className="h-2 w-2 rounded-full bg-red-500 mt-1.5 shrink-0" role="img" aria-label="High priority alert" title="High priority" />
                                 <div className="flex flex-col gap-1">
                                     <span className="font-semibold text-[hsl(var(--admin-text))]">Pending Estimate Overdue</span>
                                     <span className="text-[hsl(var(--admin-muted))]">The master design proposal for the Luxury Culinary Space Project is currently pending client signature for past 3 days.</span>
@@ -426,7 +449,7 @@ export default function AdminHub() {
                             </div>
 
                             <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
-                                <div className="h-2 w-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                                <div className="h-2 w-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" role="img" aria-label="Success alert" title="Success" />
                                 <div className="flex flex-col gap-1">
                                     <span className="font-semibold text-[hsl(var(--admin-text))]">Search Engine Ranking Growth</span>
                                     <span className="text-[hsl(var(--admin-muted))]">SEO performance score increased by 4%. The keyword "luxury interior design Jamshedpur" has entered Google page 1.</span>
@@ -437,7 +460,7 @@ export default function AdminHub() {
                             </div>
 
                             <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
-                                <div className="h-2 w-2 rounded-full bg-[hsl(var(--admin-primary))] mt-1.5 shrink-0" />
+                                <div className="h-2 w-2 rounded-full bg-[hsl(var(--admin-primary))] mt-1.5 shrink-0" role="img" aria-label="System status alert" title="System status" />
                                 <div className="flex flex-col gap-1">
                                     <span className="font-semibold text-[hsl(var(--admin-text))]">System Optimization Completed</span>
                                     <span className="text-[hsl(var(--admin-muted))]">Vite bundles consolidated, unused three.js assets purged, and all static routes cached. Server response latency down by 14%.</span>
@@ -456,7 +479,7 @@ export default function AdminHub() {
                                 Live Activity
                             </span>
                             <button
-                                onClick={refresh}
+                                onClick={() => refresh()}
                                 disabled={isRefreshing}
                                 className="text-[hsl(var(--admin-muted))] hover:text-[hsl(var(--admin-primary))] transition-colors disabled:opacity-50"
                                 title="Refresh activity logs"
@@ -467,20 +490,25 @@ export default function AdminHub() {
 
                         <div className="flex flex-col gap-4 text-xs overflow-y-auto max-h-[220px] custom-scrollbar">
                             {[
-                                { time: "2 min ago", icon: Sparkles, color: "text-[hsl(var(--admin-primary))]", title: "Lead Quiz Complete", desc: "sharma1.aayu completed the style questionnaire." },
-                                { time: "5 min ago", icon: Calculator, color: "text-emerald-500", title: "New Estimate Request", desc: "Luxury master suite quote auto-generated." },
-                                { time: "12 min ago", icon: Database, color: "text-blue-500", title: "System Snapshot", desc: "Daily backup written to secure vault." },
-                                { time: "25 min ago", icon: FileText, color: "text-amber-500", title: "Invoice Dispatched", desc: "Billing statement sent to Executive client." },
-                                { time: "1 hr ago", icon: Users, color: "text-purple-500", title: "Site Engineer Active", desc: "Designer checked in for Serene Suite project." },
-                                { time: "2 hrs ago", icon: Shield, color: "text-emerald-500", title: "Security Scan OK", desc: "18 admin tokens verified. No warnings." },
+                                { time: "2 min ago", icon: Sparkles, color: "text-[hsl(var(--admin-primary))]", title: "Lead Quiz Complete", desc: "sharma1.aayu completed the style questionnaire.", type: "Quiz Activity" },
+                                { time: "5 min ago", icon: Calculator, color: "text-emerald-500", title: "New Estimate Request", desc: "Luxury master suite quote auto-generated.", type: "Estimator Activity" },
+                                { time: "12 min ago", icon: Database, color: "text-blue-500", title: "System Snapshot", desc: "Daily backup written to secure vault.", type: "System Log" },
+                                { time: "25 min ago", icon: FileText, color: "text-amber-500", title: "Invoice Dispatched", desc: "Billing statement sent to Executive client.", type: "Billing Activity" },
+                                { time: "1 hr ago", icon: Users, color: "text-purple-500", title: "Site Engineer Active", desc: "Designer checked in for Serene Suite project.", type: "Team Activity" },
+                                { time: "2 hrs ago", icon: Shield, color: "text-emerald-500", title: "Security Scan OK", desc: "18 admin tokens verified. No warnings.", type: "Security Log" },
                             ].map((event, idx) => (
                                 <div key={idx} className="flex gap-2.5 relative before:absolute before:left-3 before:top-7 before:bottom-0 before:w-px before:bg-admin-border/40 last:before:hidden">
-                                    <div className={cn("h-6 w-6 rounded-lg bg-admin-surface border border-admin-border flex items-center justify-center shrink-0", event.color)}>
+                                    <div 
+                                        className={cn("h-6 w-6 rounded-lg bg-admin-surface border border-admin-border flex items-center justify-center shrink-0", event.color)}
+                                        title={event.type}
+                                        aria-label={event.type}
+                                        role="img"
+                                    >
                                         <event.icon className="w-3 h-3" />
                                     </div>
                                     <div className="flex flex-col gap-0.5 min-w-0">
                                         <div className="flex justify-between items-center gap-1">
-                                            <span className="font-semibold text-[hsl(var(--admin-text))] truncate">{event.title}</span>
+                                            <span className="font-semibold text-[hsl(var(--admin-text))] truncate" title={event.title}>{event.title}</span>
                                             <span className="text-[9px] text-[hsl(var(--admin-muted))] tabular-nums shrink-0">{event.time}</span>
                                         </div>
                                         <p className="text-[10px] text-[hsl(var(--admin-muted))] leading-normal">{event.desc}</p>
@@ -537,6 +565,7 @@ export default function AdminHub() {
                             dockOpen && "bg-neutral-800 text-white"
                         )}
                         aria-label="Toggle quick actions panel"
+                        {...{ 'aria-expanded': dockOpen }}
                     >
                         {dockOpen ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
                     </button>

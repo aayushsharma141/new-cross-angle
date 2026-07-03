@@ -417,7 +417,7 @@ export default function AdminProcessSteps() {
                                     <Input
                                         id="image_alt"
                                         name="image_alt"
-                                        placeholder="Describe the image..."
+                                        placeholder="Describe the image…"
                                         defaultValue={editingStep?.image_alt || ""}
                                         className="admin-input"
                                     />
@@ -430,7 +430,7 @@ export default function AdminProcessSteps() {
                             <Input
                                 id="description"
                                 name="description"
-                                placeholder="Brief summary of the step..."
+                                placeholder="Brief summary of the step…"
                                 defaultValue={editingStep?.description || ""}
                                 required
                                 className="admin-input"
@@ -442,7 +442,7 @@ export default function AdminProcessSteps() {
                             <Textarea
                                 id="detail"
                                 name="detail"
-                                placeholder="Full details about this process step..."
+                                placeholder="Full details about this process step…"
                                 defaultValue={editingStep?.detail || ""}
                                 required
                                 className="admin-input min-h-[100px]"
@@ -464,7 +464,7 @@ export default function AdminProcessSteps() {
                                 className="admin-btn-primary"
                             >
                                 {(createMutation.isPending || updateMutation.isPending) ? (
-                                    "Saving..."
+                                    "Saving…"
                                 ) : (
                                     editingStep ? "Update Step" : "Create Step"
                                 )}

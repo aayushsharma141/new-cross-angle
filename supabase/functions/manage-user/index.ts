@@ -13,6 +13,7 @@ import {
     AppRole,
     canAssignRole,
     canManageRole,
+    isAdminOrAbove,
     isAppRole,
     normalizeRole,
 } from "../_lib/rbac.ts";
@@ -144,7 +145,7 @@ Deno.serve(async (req: Request) => {
         const adminClient = createClient(supabaseUrl, supabaseServiceKey);
         const actorRole = await getActorRole(adminClient, user.id);
 
-        if (!actorRole || actorRole === "viewer") {
+        if (!actorRole || !isAdminOrAbove(actorRole)) {
             return new Response(JSON.stringify({ error: "Forbidden: You do not have permission to manage users" }), {
                 status: 403,
                 headers: { ...corsHeaders, "Content-Type": "application/json" },

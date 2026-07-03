@@ -297,7 +297,7 @@ export default function AdminUserAccessSecurity(): JSX.Element {
               </div>
               <div className="pt-2">
                 <Button type="submit" disabled={isPasswordLoading} className="rounded-xl shadow-lg shadow-primary/20">
-                  {isPasswordLoading ? (<><Loader2 className="w-4 h-4 animate-spin mr-2" />Processing...</>) : "Update Protocol"}
+                  {isPasswordLoading ? (<><Loader2 className="w-4 h-4 animate-spin mr-2" />Processing…</>) : "Update Protocol"}
                 </Button>
               </div>
             </form>

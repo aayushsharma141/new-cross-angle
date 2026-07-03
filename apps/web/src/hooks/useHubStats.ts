@@ -21,6 +21,15 @@ export interface HubStats {
     storageUsedGB: number;
     storageTotalGB: number;
     pipelineValue: number;
+    totalLeads: number;
+    wonLeads: number;
+    lostLeads: number;
+    inboxCount: number;
+    callCount: number;
+    proposalCount: number;
+    signedCount: number;
+    quizLeadsCount: number;
+    estimatorLeadsCount: number;
 }
 
 export interface ModuleTileProps {
@@ -46,7 +55,7 @@ async function fetchHubStats(): Promise<HubStats> {
         { count: versionCount, error: e2 },
         { count: newLeadCount, error: e3 },
         { data: mediaData, error: e4 },
-        { data: estimateData, error: e5 },
+        { data: leadsData, error: e5 },
     ] = await Promise.all([
         supabase
             .from("lead_activities")
@@ -63,8 +72,7 @@ async function fetchHubStats(): Promise<HubStats> {
         supabase.from("media_files").select("size_bytes"),
         supabase
             .from("leads")
-            .select("estimated_min, estimated_max")
-            .eq("lead_source", "estimator"),
+            .select("status, lead_source, estimated_min"),
     ]);
 
     if (e1 || e2 || e3 || e4 || e5) {
@@ -77,11 +85,21 @@ async function fetchHubStats(): Promise<HubStats> {
     );
     const usedGB = totalBytes / (1024 * 1024 * 1024);
 
-    const pipelineValue = (estimateData ?? []).reduce(
-        (sum: number, e: { estimated_min: number | null; estimated_max: number | null }) =>
-            sum + (e.estimated_min ?? 0) + (e.estimated_max ?? 0),
-        0
-    );
+    const leads = leadsData ?? [];
+    const totalLeads = leads.length;
+    const wonLeads = leads.filter(l => l.status === "won").length;
+    const lostLeads = leads.filter(l => l.status === "lost").length;
+    const inboxCount = leads.filter(l => l.status === "new").length;
+    const callCount = leads.filter(l => l.status === "in_conversation" || l.status === "meeting_planned").length;
+    const proposalCount = leads.filter(l => l.status === "quote_sent" || l.status === "closing").length;
+    const signedCount = wonLeads;
+
+    const quizLeadsCount = leads.filter(l => l.lead_source === "style_quiz" || l.lead_source === "aesthetic_discovery_engine").length;
+    const estimatorLeadsCount = leads.filter(l => l.lead_source === "estimator").length;
+
+    const pipelineValue = leads
+        .filter(l => l.lead_source === "estimator")
+        .reduce((sum: number, l) => sum + (Number(l.estimated_min) || 0), 0);
 
     return {
         actionsToday: (activityCount ?? 0) + (versionCount ?? 0),
@@ -89,6 +107,15 @@ async function fetchHubStats(): Promise<HubStats> {
         storageUsedGB: usedGB,
         storageTotalGB: 20,
         pipelineValue,
+        totalLeads,
+        wonLeads,
+        lostLeads,
+        inboxCount,
+        callCount,
+        proposalCount,
+        signedCount,
+        quizLeadsCount,
+        estimatorLeadsCount,
     };
 }
 
@@ -98,6 +125,15 @@ const DEFAULT_STATS: HubStats = {
     storageUsedGB: 0,
     storageTotalGB: 20,
     pipelineValue: 0,
+    totalLeads: 0,
+    wonLeads: 0,
+    lostLeads: 0,
+    inboxCount: 0,
+    callCount: 0,
+    proposalCount: 0,
+    signedCount: 0,
+    quizLeadsCount: 0,
+    estimatorLeadsCount: 0,
 };
 
 export function useHubStats() {

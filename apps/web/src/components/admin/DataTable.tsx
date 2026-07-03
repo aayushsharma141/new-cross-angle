@@ -141,7 +141,7 @@ export function DataTable<TData>({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0 min-h-[44px] min-w-[44px]"
                   onClick={() => {
                     setGlobalFilter('');
                     onSearchChange?.('');
@@ -212,7 +212,7 @@ export function DataTable<TData>({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-5 w-5 p-0"
+                className="h-6 w-6 min-h-[44px] min-w-[44px] p-0"
                 onClick={() => table.getColumn(String(columnFilter.id))?.setFilterValue(undefined)}
               >
                 <X className="h-3 w-3" />
@@ -243,6 +243,15 @@ export function DataTable<TData>({
                     <th
                       key={header.id}
                       className="h-12 px-4 text-left align-middle font-medium text-muted-foreground"
+                      {...{
+                        'aria-sort': header.column.getCanSort()
+                          ? header.column.getIsSorted() === 'asc'
+                            ? 'ascending'
+                            : header.column.getIsSorted() === 'desc'
+                            ? 'descending'
+                            : 'none'
+                          : 'none'
+                      }}
                     >
                       {header.isPlaceholder
                         ? null
@@ -256,8 +265,9 @@ export function DataTable<TData>({
               {loading ? (
                 <tr>
                   <td colSpan={columns.length} className="h-32 text-center">
-                    <div className="flex items-center justify-center">
+                    <div className="flex items-center justify-center" role="status" aria-label="Loading">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                      <span className="sr-only">Loading…</span>
                     </div>
                   </td>
                 </tr>
@@ -281,7 +291,9 @@ export function DataTable<TData>({
               ) : (
                 <tr>
                   <td colSpan={columns.length} className="h-32 text-center text-muted-foreground">
-                    {emptyMessage}
+                    <div role="status" aria-live="polite">
+                      {emptyMessage}
+                    </div>
                   </td>
                 </tr>
               )}
@@ -293,13 +305,20 @@ export function DataTable<TData>({
       {enablePagination && pagination && (
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            Showing {((pagination.page - 1) * pagination.pageSize) + 1} to{' '}
-            {Math.min(pagination.page * pagination.pageSize, pagination.total)} of {pagination.total}
+            {pagination.total === 0 ? (
+              'No entries to show'
+            ) : (
+              <>
+                Showing {((pagination.page - 1) * pagination.pageSize) + 1} to{' '}
+                {Math.min(pagination.page * pagination.pageSize, pagination.total)} of {pagination.total}
+              </>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
+              className="min-h-[44px] min-w-[44px]"
               onClick={() => onPaginationChange?.(1, pagination.pageSize)}
               disabled={pagination.page <= 1}
               aria-label="First page"
@@ -309,6 +328,7 @@ export function DataTable<TData>({
             <Button
               variant="outline"
               size="sm"
+              className="min-h-[44px] min-w-[44px]"
               onClick={() => onPaginationChange?.(pagination.page - 1, pagination.pageSize)}
               disabled={pagination.page <= 1}
               aria-label="Previous page"
@@ -323,6 +343,7 @@ export function DataTable<TData>({
             <Button
               variant="outline"
               size="sm"
+              className="min-h-[44px] min-w-[44px]"
               onClick={() => onPaginationChange?.(pagination.page + 1, pagination.pageSize)}
               disabled={pagination.page >= pagination.totalPages}
               aria-label="Next page"
@@ -332,6 +353,7 @@ export function DataTable<TData>({
             <Button
               variant="outline"
               size="sm"
+              className="min-h-[44px] min-w-[44px]"
               onClick={() => onPaginationChange?.(pagination.totalPages, pagination.pageSize)}
               disabled={pagination.page >= pagination.totalPages}
               aria-label="Last page"

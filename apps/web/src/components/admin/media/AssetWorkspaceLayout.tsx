@@ -31,7 +31,7 @@ export function AssetWorkspaceLayout() {
             {/* Split pane layout */}
             <div className="flex-1 overflow-hidden">
                 <ResizablePanelGroup
-                    direction="horizontal"
+                    orientation="horizontal"
                     className="h-full w-full rounded-none"
                 >
                     {/* Sidebar / Asset List */}

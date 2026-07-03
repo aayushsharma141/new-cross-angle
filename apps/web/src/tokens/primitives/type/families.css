@@ -1,0 +1,6 @@
+/* CORE */
+:root {
+  --p-font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --p-font-sans:  "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --p-font-mono:  "Roboto Mono", ui-monospace, SFMono-Regular, monospace;
+}

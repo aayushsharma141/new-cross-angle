@@ -44,6 +44,7 @@ export interface AnalyticsEventMap {
   contact_form_started: { path: string };
   contact_form_submitted: { leadSource: string };
   estimate_path_selected: { pathId: string };
+  discovery_path_selected: { pathId: string };
 
   // ── Discovery → Estimator integration ─────────────────────────────────────
   /** Fires once when Discovery localStorage data is read and used to pre-fill the Estimator. */

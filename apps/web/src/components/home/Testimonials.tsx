@@ -57,7 +57,7 @@ const TestimonialCard = ({
     if (lastPunctuation > maxLength * 0.6) {
       return text.slice(0, lastPunctuation + 1);
     }
-    return substr.slice(0, substr.lastIndexOf(' ')) + '...';
+    return substr.slice(0, substr.lastIndexOf(' ')) + '…';
   };
 
   return (
@@ -98,7 +98,7 @@ const TestimonialCard = ({
             }}
             className="text-site-gold/80 hover:text-site-gold text-[0.75rem] md:text-[0.8rem] font-medium tracking-widest uppercase mt-3 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-site-gold rounded px-1 -mx-1"
           >
-            {isExpanded ? "Read less" : "Read more..."}
+            {isExpanded ? "Read less" : "Read more…"}
           </button>
         )}
       </div>

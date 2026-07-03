@@ -54,7 +54,7 @@ export default function AdminLeadWorkspace() {
   const riskCards = useMemo(() => lead ? generateRiskCards(lead as any) : [], [lead]);
 
   if (isLoading) {
-    return <div className="p-8 text-[hsl(var(--admin-text-muted))]">Loading workspace...</div>;
+    return <div className="p-8 text-[hsl(var(--admin-text-muted))]">Loading workspace…</div>;
   }
 
   if (!lead) {

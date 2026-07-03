@@ -1,0 +1,7 @@
+/* CORE */
+:root {
+  --p-shadow-sm: 0 1px 2px var(--f-shadow-200);
+  --p-shadow-md: 0 4px 12px var(--f-shadow-300);
+  --p-shadow-lg: 0 16px 40px var(--f-shadow-400);
+  --p-shadow-xl: 0 32px 80px var(--f-shadow-500);
+}

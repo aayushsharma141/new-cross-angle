@@ -62,7 +62,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                         id="state-input"
                         type="text"
                         title="Search for your state"
-                        placeholder="Search state..."
+                        placeholder="Search state…"
                         value={formData.state || stateSearch}
                         onChange={e => {
                             setStateSearch(e.target.value);
@@ -118,7 +118,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                             id="city-input"
                             type="text"
                             title="Search for your city"
-                            placeholder="Search city..."
+                            placeholder="Search city…"
                             value={formData.city || citySearch}
                             onChange={e => {
                                 setCitySearch(e.target.value);

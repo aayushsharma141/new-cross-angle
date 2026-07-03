@@ -1,15 +1,5 @@
-type IdleHandle = number;
 type IdleCallback = () => void;
 
-declare global {
-  interface Window {
-    requestIdleCallback?: (
-      callback: () => void,
-      options?: { timeout: number },
-    ) => IdleHandle;
-    cancelIdleCallback?: (handle: IdleHandle) => void;
-  }
-}
 
 export const runWhenIdle = (
   callback: IdleCallback,

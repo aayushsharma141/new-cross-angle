@@ -166,7 +166,7 @@ export function QuestionsEditor() {
           <Input
             value={newLanguageDesc}
             onChange={(e) => setNewLanguageDesc(e.target.value)}
-            placeholder="Short description..."
+            placeholder="Short description…"
             className="h-8 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
           />
           <Button

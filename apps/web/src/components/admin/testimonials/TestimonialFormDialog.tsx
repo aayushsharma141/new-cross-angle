@@ -62,7 +62,7 @@ export const TestimonialFormDialog = ({ open, onClose, formData, onChange, onSav
         </div>
         <div className="space-y-2">
           <Label htmlFor="content" className="text-[hsl(var(--admin-text-muted))]">Testimonial Content *</Label>
-          <Textarea id="content" value={formData.content} onChange={(e) => onChange({ ...formData, content: e.target.value })} className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] focus:border-[hsl(var(--admin-primary))] min-h-[120px] resize-none" placeholder="Enter the testimonial text..." />
+          <Textarea id="content" value={formData.content} onChange={(e) => onChange({ ...formData, content: e.target.value })} className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] focus:border-[hsl(var(--admin-primary))] min-h-[120px] resize-none" placeholder="Enter the testimonial text…" />
         </div>
         <div className="space-y-2">
           <Label htmlFor="avatar_url" className="text-[hsl(var(--admin-text-muted))]">Avatar Image URL</Label>
@@ -84,7 +84,7 @@ export const TestimonialFormDialog = ({ open, onClose, formData, onChange, onSav
       <DialogFooter className="shrink-0 px-6 py-4 border-t border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))]/30 gap-3">
         <Button type="button" variant="outline" onClick={onClose} className="border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:bg-[hsl(var(--admin-surface))] hover:text-[hsl(var(--admin-text))]">Cancel</Button>
         <Button onClick={onSave} disabled={isSaving} className="bg-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))/90] text-black font-semibold">
-          {isSaving ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>) : isEditing ? "Update Testimonial" : "Create Testimonial"}
+          {isSaving ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving…</>) : isEditing ? "Update Testimonial" : "Create Testimonial"}
         </Button>
       </DialogFooter>
     </DialogContent>

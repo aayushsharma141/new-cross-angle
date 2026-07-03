@@ -12,6 +12,10 @@ jobs:
     environment:
       name: production
       url: ${{ steps.deploy.outputs.url }}
+    env:
+      VERCEL_TOKEN: "${{ secrets.VERCEL_TOKEN }}"
+      VERCEL_ORG_ID: "${{ secrets.VERCEL_ORG_ID }}"
+      VERCEL_PROJECT_ID: "${{ secrets.VERCEL_PROJECT_ID }}"
     steps:
       - uses: actions/checkout@v4
 
@@ -27,9 +31,6 @@ jobs:
       - name: Deploy to Vercel (Production)
         id: deploy
         run: |
-          DEPLOY_URL=$(npx vercel --prod --archive=tgz --token=${{ secrets.VERCEL_TOKEN || '' }} 2>&1 | grep -oP 'https://[^\s]+vercel\.app' | tail -1)
+          DEPLOY_URL=$(npx vercel --prod --archive=tgz --token="$VERCEL_TOKEN" 2>&1 | grep -oP 'https://[^\s]+vercel\.app' | tail -1)
           echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
           echo "✅ Deployed to: $DEPLOY_URL"
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID || '' }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID || '' }}

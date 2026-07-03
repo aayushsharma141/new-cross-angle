@@ -33,7 +33,7 @@ export function EmptyState({
             className
         )}>
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
-                <Icon className="h-10 w-10 text-muted-foreground" />
+                <Icon className="h-10 w-10 text-muted-foreground" aria-hidden="true" />
             </div>
 
             <h3 className="text-lg font-semibold mb-2">{title}</h3>

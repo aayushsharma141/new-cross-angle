@@ -84,8 +84,9 @@ export default function ResultIntelligenceWorkspace({ registry }: Props) {
             <div className="space-y-4 fade-up-2">
                 <AdminFormCard title="ALCS Rules & Explanations" icon={MessageSquare} iconClassName="text-blue-400">
                     <div className="space-y-3">
-                        <label className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">Default Recommendation Text</label>
+                        <label htmlFor="defaultRecommendation" className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">Default Recommendation Text</label>
                         <Textarea 
+                            id="defaultRecommendation"
                             value={rules?.defaultRecommendation || ""}
                             onChange={(e) => {
                                 setRules({ ...rules, defaultRecommendation: e.target.value });
@@ -99,8 +100,9 @@ export default function ResultIntelligenceWorkspace({ registry }: Props) {
                 <AdminFormCard title="Result Templates & CTAs" icon={FileText} iconClassName="text-emerald-400">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
-                            <label className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">Primary CTA Label</label>
+                            <label htmlFor="ctaPrimary" className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">Primary CTA Label</label>
                             <Input 
+                                id="ctaPrimary"
                                 value={templates?.ctaPrimary || ""}
                                 onChange={(e) => {
                                     setTemplates({ ...templates, ctaPrimary: e.target.value });
@@ -110,8 +112,9 @@ export default function ResultIntelligenceWorkspace({ registry }: Props) {
                             />
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">Confidence Messaging</label>
+                            <label htmlFor="confidenceMessage" className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">Confidence Messaging</label>
                             <Input 
+                                id="confidenceMessage"
                                 value={templates?.confidenceMessage || ""}
                                 onChange={(e) => {
                                     setTemplates({ ...templates, confidenceMessage: e.target.value });

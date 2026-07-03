@@ -120,7 +120,7 @@ export default function WorkspaceDuringMeeting({
         <div className="flex-1 flex flex-col gap-2">
           <h2 className="text-sm font-bold text-[hsl(var(--admin-text))] flex items-center gap-2">Live Notes</h2>
           <Textarea 
-            placeholder="Capture live meeting notes here..." 
+            placeholder="Capture live meeting notes here…" 
             className="flex-1 resize-none bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]"
             value={liveNotes}
             onChange={(e) => setLiveNotes(e.target.value)}

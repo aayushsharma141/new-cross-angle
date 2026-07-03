@@ -408,7 +408,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         value={formData.brief}
                                         onChange={(e) => setFormData({ ...formData, brief: e.target.value })}
                                         rows={3}
-                                        placeholder="Project brief..."
+                                        placeholder="Project brief…"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -418,7 +418,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         value={formData.approach}
                                         onChange={(e) => setFormData({ ...formData, approach: e.target.value })}
                                         rows={3}
-                                        placeholder="Design approach..."
+                                        placeholder="Design approach…"
                                     />
                                 </div>
                             </div>

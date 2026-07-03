@@ -226,7 +226,7 @@ export default defineConfig(() => {
     resolve: {
       // Dedupe ensures every package uses the exact same React instance.
       // Without this, hooks break with "Cannot read properties of null (reading 'useState')".
-      dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
+      dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
       alias: {
         '@': path.resolve(__dirname, './src'),
         '@repo/types': path.resolve(__dirname, '../../packages/types/src'),

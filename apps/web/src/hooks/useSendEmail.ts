@@ -27,7 +27,7 @@ export interface SendEmailResult {
 export function useSendEmail() {
   return useMutation<SendEmailResult, Error, SendEmailPayload>({
     mutationFn: async (payload) => {
-      const { data, error } = await invokeEdge<SendEmailResult>("send-lead-email", payload);
+      const { data, error } = await invokeEdge<SendEmailResult>("send-lead-email", payload as unknown as Record<string, unknown>);
       if (error) throw new Error(error.message);
       if (!data?.success) throw new Error(data?.error ?? "Email delivery failed");
       return data;

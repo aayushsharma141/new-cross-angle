@@ -1,0 +1,8 @@
+/* CORE */
+:root {
+  --p-leading-none:     1;
+  --p-leading-tight:    1.1;
+  --p-leading-snug:     1.25;
+  --p-leading-normal:   1.5;
+  --p-leading-relaxed:  1.6;
+}

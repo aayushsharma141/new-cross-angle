@@ -36,6 +36,7 @@ export const config = {
      *  - Files with extensions (.js, .css, .png, etc.)
      */
     "/((?!api|assets|.*\\..*).*)",
+    "/api/supabase/:path*"
   ],
 };
 
@@ -176,6 +177,29 @@ function buildAdminDesktopRequiredHtml(): string {
   </main>
 </body>
 </html>`;
+}
+
+// ─── JWT Authentication at Edge (Cookie-based) ───────────────────────────────
+
+async function verifyAuth(req: Request): Promise<boolean> {
+  const cookieHeader = req.headers.get("cookie") ?? "";
+  const match = cookieHeader.match(/access_token=([^;]+)/);
+  if (!match) return false;
+  
+  const token = match[1];
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return false;
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: SUPABASE_ANON_KEY,
+      },
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 // ─── Supabase REST fetch helpers (zero SDK overhead) ───────────────────────────
@@ -320,15 +344,68 @@ export default async function middleware(req: Request) {
   const urlObj = new URL(req.url);
   const pathname = urlObj.pathname;
 
-  if (isAdminPath(pathname) && isMobileAdminClient(ua)) {
-    return new Response(buildAdminDesktopRequiredHtml(), {
-      status: 403,
-      headers: {
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "no-store",
-        "X-Admin-Mobile-Blocked": "1",
-      },
-    });
+  // ─── Supabase API Proxy ───────────────────────────────────────────────────────
+  if (pathname.startsWith('/api/supabase/')) {
+    const supabasePath = pathname.replace('/api/supabase', '');
+    const targetUrl = `${SUPABASE_URL}${supabasePath}${urlObj.search}`;
+    
+    const proxyHeaders = new Headers(req.headers);
+    
+    // Inject Authorization header from HTTP-only cookie
+    const cookieHeader = req.headers.get("cookie") ?? "";
+    const match = cookieHeader.match(/access_token=([^;]+)/);
+    if (match) {
+      proxyHeaders.set("Authorization", `Bearer ${match[1]}`);
+    }
+    
+    // Ensure apikey is present
+    if (!proxyHeaders.has("apikey") && SUPABASE_ANON_KEY) {
+      proxyHeaders.set("apikey", SUPABASE_ANON_KEY);
+    }
+    
+    // Clean up proxy-specific headers
+    proxyHeaders.delete("host");
+    proxyHeaders.delete("x-forwarded-host");
+    proxyHeaders.delete("x-forwarded-proto");
+    
+    try {
+      const response = await fetch(targetUrl, {
+        method: req.method,
+        headers: proxyHeaders,
+        body: req.method !== 'GET' && req.method !== 'HEAD' ? req.body : undefined,
+        redirect: 'manual'
+      });
+      
+      const resHeaders = new Headers(response.headers);
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: resHeaders
+      });
+    } catch {
+      return new Response(JSON.stringify({ error: "Proxy error" }), { status: 502 });
+    }
+  }
+
+  if (isAdminPath(pathname)) {
+    if (isMobileAdminClient(ua)) {
+      return new Response(buildAdminDesktopRequiredHtml(), {
+        status: 403,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "no-store",
+          "X-Admin-Mobile-Blocked": "1",
+        },
+      });
+    }
+
+    // Secure JWT Cookie Authentication for Admin
+    if (!pathname.startsWith("/admin/auth")) {
+      const isAuthed = await verifyAuth(req);
+      if (!isAuthed) {
+        return Response.redirect(new URL("/admin/auth", req.url));
+      }
+    }
   }
 
   // Pass real users through immediately — zero overhead

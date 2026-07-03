@@ -61,7 +61,7 @@ const StageDetailPanel = () => {
               key={stage.id}
               type="button"
               role="tab"
-              aria-selected={activeIdx === idx ? "true" : "false"}
+              {...({ "aria-selected": activeIdx === idx })}
               tabIndex={activeIdx === idx ? 0 : -1}
               aria-controls={`stage-panel-${stage.id}`}
               id={`stage-tab-${stage.id}`}

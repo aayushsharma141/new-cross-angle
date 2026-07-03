@@ -14,6 +14,9 @@ export enum Stage {
   MiniResult = 12,
   LeadCapture = 13,
   Results = 14,
+  Reflection = 15,
+  EmotionalMapping = 16,
+  PatternPreview = 17,
 }
 
 export interface LifestyleOption {
@@ -87,6 +90,18 @@ export interface UserSignals {
   // Consultation intelligence (computed post-visual)
   consultationIntelligence?: ConsultationIntelligence;
   primaryValue?: 'beauty' | 'practicality' | 'impression' | 'longevity' | 'identity';
+  emotionalGoal?: string;
+  householdSize?: number;
+  childCount?: number;
+  workFromHome?: string | boolean;
+  hasPets?: boolean;
+  propertyAge?: number;
+  city?: string;
+  cityTier?: string;
+  lightingPreference?: string;
+  colorPalette?: string[];
+  budgetValue?: number;
+  acceptedCompromises?: string[];
   reflectionAnswers: { question: string; answer: string }[];
   lifestyleChoices: string[];
   selectedImageIds: number[];

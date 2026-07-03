@@ -39,8 +39,9 @@ export function DataTable<T extends { id?: string | number }>({
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
-      <div className="w-full h-48 flex items-center justify-center">
+      <div className="w-full h-48 flex items-center justify-center" role="status" aria-label="Loading">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        <span className="sr-only">Loading…</span>
       </div>
     );
   }

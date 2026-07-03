@@ -8,7 +8,7 @@
 import { describe, expect, it, vi, expectTypeOf, test } from "vitest";
 import type { AnalyticsEventMap } from "../events";
 import { track } from "../track";
-import type { AnalyticsClient } from "../posthog-client";
+
 
 // ── Type-level tests ──────────────────────────────────────────────────────────
 
@@ -35,7 +35,8 @@ test("cta_clicked payload is typed correctly", () => {
 // ── Runtime tests ─────────────────────────────────────────────────────────────
 
 describe("track() helper", () => {
-  function makeClient(): AnalyticsClient & { track: ReturnType<typeof vi.fn> } {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function makeClient(): any {
     return {
       track: vi.fn(),
       identify: vi.fn(),

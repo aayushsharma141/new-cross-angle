@@ -129,7 +129,7 @@ function SortableItem({
                 domain="estimator"
                 entityType="execution_tiers"
                 damRole="thumbnail"
-                placeholder="Thumbnail..."
+                placeholder="Thumbnail…"
               />
             </div>
             <div className="text-xs text-[hsl(var(--admin-text-muted))] pt-1">

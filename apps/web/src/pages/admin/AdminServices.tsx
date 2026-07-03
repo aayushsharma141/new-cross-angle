@@ -543,7 +543,7 @@ const AdminServices = () => {
                                                 }));
                                             }}
                                             entityId={editingService?.id}
-                                            placeholder="Select hero image..."
+                                            placeholder="Select hero image…"
                                             domain="services"
                                             entityType="services"
                                             damRole="hero"
@@ -598,7 +598,7 @@ const AdminServices = () => {
                         <div className="shrink-0 px-6 py-4 border-t border-[hsl(var(--admin-border))] flex justify-end gap-2 bg-[hsl(var(--admin-surface))] rounded-b-xl">
                             <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="admin-btn-secondary">Cancel</Button>
                             <Button type="submit" disabled={upsertMutation.isPending} className="admin-btn-primary">
-                                {upsertMutation.isPending ? "Saving..." : editingService ? "Update" : "Create"}
+                                {upsertMutation.isPending ? "Saving…" : editingService ? "Update" : "Create"}
                             </Button>
                         </div>
                     </form>

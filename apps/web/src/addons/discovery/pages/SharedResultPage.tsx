@@ -48,10 +48,10 @@ export default function SharedResultPage() {
       .single()
       .then(({ data, error }) => {
         if (error || !data) { setError(true); setLoading(false); return; }
-        const s = data.scores as AestheticScores;
+        const s = data.scores as unknown as AestheticScores;
         setScores(s);
         setArchetype(getArchetype(s));
-        if (data.ai_result) setAiResult(data.ai_result as AIAestheticResult);
+        if (data.ai_result) setAiResult(data.ai_result as unknown as AIAestheticResult);
         setLoading(false);
       });
   }, [slug]);

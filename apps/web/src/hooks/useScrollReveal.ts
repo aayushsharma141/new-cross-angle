@@ -53,7 +53,8 @@ const useScrollReveal = (
                 import("gsap/ScrollTrigger")
             ]);
             
-            const gsap = gsapMod.default || gsapMod;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const gsap = (gsapMod.default || gsapMod) as any;
             const ScrollTrigger = stMod.ScrollTrigger || stMod.default;
             gsap.registerPlugin(ScrollTrigger);
 

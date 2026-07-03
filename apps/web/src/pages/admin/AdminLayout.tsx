@@ -18,6 +18,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { captureException } from "@/lib/sentry";
 import { useToast } from "@/hooks/useToast";
+import { isAppRole } from "@/lib/auth/rbac";
 
 const KpiChip = ({ icon: Icon, label, value, href, variant = "default" }: { icon: LucideIcon, label: string, value: string, href: string, variant?: "default" | "warning" | "success" | "muted" }) => {
     const hasAction = variant === "warning";
@@ -135,7 +136,7 @@ const AdminLayout = (): JSX.Element | null => {
     if (!isAuthenticated) return <Navigate to="/admin/auth" replace />;
 
     // 3. Authenticated but role failed to resolve — show retry screen instead of redirect loop
-    if (role !== "super_admin" && role !== "admin" && role !== "viewer") {
+    if (!isAppRole(role)) {
         return (
             <div className="h-screen flex flex-col items-center justify-center bg-[hsl(var(--admin-background))] admin-theme gap-6 px-6">
                 <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
@@ -165,13 +166,12 @@ const AdminLayout = (): JSX.Element | null => {
         );
     }
 
-    const isAdminHub = location.pathname === "/admin" || location.pathname === "/admin/";
-    const isFullWidth = isAdminHub || location.pathname.startsWith("/admin/crm") || location.pathname.startsWith("/admin/cms") || location.pathname.startsWith("/admin/blog") || location.pathname.startsWith("/admin/estimate") || location.pathname.startsWith("/admin/estimator") || location.pathname.startsWith("/admin/discovery") || location.pathname.startsWith("/admin/dashboard") || location.pathname.startsWith("/admin/system") || location.pathname.startsWith("/admin/user-access");
+    const isFullWidth = location.pathname === "/admin" || location.pathname === "/admin/" || location.pathname.startsWith("/admin/crm") || location.pathname.startsWith("/admin/cms") || location.pathname.startsWith("/admin/blog") || location.pathname.startsWith("/admin/estimate") || location.pathname.startsWith("/admin/estimator") || location.pathname.startsWith("/admin/discovery") || location.pathname.startsWith("/admin/dashboard") || location.pathname.startsWith("/admin/system") || location.pathname.startsWith("/admin/user-access");
     return (
         <div className="h-screen max-h-screen flex flex-col bg-admin-bg admin-theme overflow-hidden">
             <SkipNav targetId="admin-main" />
             {/* Premium Top Navigation */}
-            {isAdminHub && <TopBar />}
+            <TopBar />
 
             {/* Global Maintenance Mode Banner — persists on every admin page */}
             {maintenanceMode && (

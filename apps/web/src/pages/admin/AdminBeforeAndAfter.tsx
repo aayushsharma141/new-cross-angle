@@ -29,7 +29,7 @@ function MediaInput({ value, onChange, label }: { value: string; onChange: (url:
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Image URL..."
+          placeholder="Image URL…"
           className="flex-1 text-xs"
         />
         <CanonicalMediaPicker
@@ -336,13 +336,13 @@ export default function AdminBeforeAndAfter() {
               <div><Label className="text-xs">The Challenge</Label><Textarea value={form.challenge} onChange={(e) => setForm({ ...form, challenge: e.target.value })} rows={2} placeholder="What problem did the client face?" /></div>
               <div>
                 <Label className="text-xs">Design Moves (one per line)</Label>
-                <Textarea value={form.design_moves} onChange={(e) => setForm({ ...form, design_moves: e.target.value })} rows={3} placeholder="Each design decision..." />
+                <Textarea value={form.design_moves} onChange={(e) => setForm({ ...form, design_moves: e.target.value })} rows={3} placeholder="Each design decision…" />
               </div>
-              <div><Label className="text-xs">Outcome</Label><Input value={form.outcome_metric} onChange={(e) => setForm({ ...form, outcome_metric: e.target.value })} placeholder="Completed in 30 days..." /></div>
+              <div><Label className="text-xs">Outcome</Label><Input value={form.outcome_metric} onChange={(e) => setForm({ ...form, outcome_metric: e.target.value })} placeholder="Completed in 30 days…" /></div>
 
               <div className="p-3 rounded-lg border border-dashed border-admin-border">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 block">Client Testimonial (optional)</span>
-                <Textarea value={form.testimonial_quote} onChange={(e) => setForm({ ...form, testimonial_quote: e.target.value })} rows={2} placeholder="Client quote..." className="mb-2" />
+                <Textarea value={form.testimonial_quote} onChange={(e) => setForm({ ...form, testimonial_quote: e.target.value })} rows={2} placeholder="Client quote…" className="mb-2" />
                 <Input value={form.testimonial_client_name} onChange={(e) => setForm({ ...form, testimonial_client_name: e.target.value })} placeholder="Client name" />
               </div>
 

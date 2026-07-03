@@ -1,0 +1,60 @@
+/* CORE */
+:root {
+  /* Stone — Cool architectural neutral */
+  --f-stone-25:  hsl(40 10% 97%);
+  --f-stone-50:  hsl(40 10% 93%);
+  --f-stone-100: hsl(40 8%  86%);
+  --f-stone-200: hsl(38 7%  75%);
+  --f-stone-300: hsl(36 6%  60%);
+  --f-stone-400: hsl(34 5%  47%);
+  --f-stone-500: hsl(32 5%  36%);
+  --f-stone-600: hsl(30 4%  26%);
+  --f-stone-700: hsl(28 4%  18%);
+  --f-stone-800: hsl(26 4%  12%);
+  --f-stone-900: hsl(24 4%  8%);
+  --f-stone-950: hsl(22 5%  5%);
+
+  /* Charcoal — Warm architectural dark */
+  --f-charcoal-50:  hsl(30 6%  92%);
+  --f-charcoal-100: hsl(28 5%  82%);
+  --f-charcoal-200: hsl(26 5%  68%);
+  --f-charcoal-300: hsl(24 4%  52%);
+  --f-charcoal-400: hsl(22 4%  38%);
+  --f-charcoal-500: hsl(20 4%  28%);
+  --f-charcoal-600: hsl(20 4%  20%);
+  --f-charcoal-700: hsl(20 5%  14%);
+  --f-charcoal-800: hsl(18 5%  10%);
+  --f-charcoal-900: hsl(18 6%  7%);
+  --f-charcoal-950: hsl(16 6%  4%);
+
+  /* Bronze — Warm metallic accent */
+  --f-bronze-100: hsl(38 55% 80%);
+  --f-bronze-200: hsl(38 55% 68%);
+  --f-bronze-300: hsl(36 52% 56%);
+  --f-bronze-400: hsl(34 50% 44%);
+  --f-bronze-500: hsl(32 48% 34%);
+
+  /* Linen — Soft neutral for workspace */
+  --f-linen-50:  hsl(42 25% 96%);
+  --f-linen-100: hsl(42 22% 90%);
+  --f-linen-200: hsl(40 18% 82%);
+  --f-linen-300: hsl(38 15% 72%);
+
+  /* Terracotta — Desaturated error/warning */
+  --f-terracotta-300: hsl(14 35% 68%);
+  --f-terracotta-400: hsl(14 38% 52%);
+  --f-terracotta-500: hsl(14 40% 40%);
+
+  /* Sage — Desaturated success */
+  --f-sage-300: hsl(150 18% 62%);
+  --f-sage-400: hsl(150 20% 48%);
+  --f-sage-500: hsl(150 22% 36%);
+
+  /* Shadow */
+  --f-shadow-100: rgba(16, 12, 8, 0.06);
+  --f-shadow-200: rgba(16, 12, 8, 0.12);
+  --f-shadow-300: rgba(16, 12, 8, 0.20);
+  --f-shadow-400: rgba(16, 12, 8, 0.35);
+  --f-shadow-500: rgba(16, 12, 8, 0.55);
+  --f-shadow-600: rgba(16, 12, 8, 0.75);
+}

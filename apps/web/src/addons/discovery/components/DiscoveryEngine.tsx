@@ -407,7 +407,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                     <AnimatePresence mode="wait">
                         {stage === Stage.Welcome && <DiscoveryLanding key="welcome" onStart={handleStart} config={config} />}
                         {stage === Stage.PropertyReality && (
-                            <PropertyReality key="property" onComplete={handlePropertyRealityComplete} intent={currentSignals.intent} />
+                            <PropertyReality key="property" onComplete={handlePropertyRealityComplete} />
                         )}
                         {stage === Stage.Lifestyle && (
                             <LifestyleReflection key="lifestyle" onComplete={handleLifestyleComplete} />
@@ -449,7 +449,6 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                             <AnalysisPhase
                                 key="analysis"
                                 userSignals={currentSignals}
-                                fallbackArchetype={archetype}
                                 onComplete={handleAnalysisComplete}
                             />
                         )}
@@ -466,7 +465,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                                 <div className="w-full h-[60vh] flex items-center justify-center">
                                     <div className="flex flex-col items-center gap-4">
                                         <div className="w-12 h-12 rounded-full border border-[#e8e4dd] border-t-kiro-accent animate-spin" />
-                                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#5a5a5a] font-mono">Loading Results...</p>
+                                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#5a5a5a] font-mono">Loading Results…</p>
                                     </div>
                                 </div>
                             }>

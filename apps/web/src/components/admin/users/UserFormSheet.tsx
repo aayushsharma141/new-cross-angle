@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { supabase, invokeEdge } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/useToast";
 import {
+    APP_ROLES,
     ASSIGNABLE_ROLES,
     AppRole,
     ROLE_DESCRIPTIONS,
@@ -38,7 +39,7 @@ const ACTIVE_STATUSES = ["active", "inactive"] as const;
 const userFormSchema = z.object({
     fullName: z.string().trim().min(2, "Name must be at least 2 characters"),
     email: z.string().email("Enter a valid email address"),
-    role: z.enum(["super_admin", "admin", "viewer"]),
+    role: z.enum(APP_ROLES as unknown as [string, ...string[]]).default("viewer"),
     status: z.enum(ACTIVE_STATUSES).default("active"),
 });
 

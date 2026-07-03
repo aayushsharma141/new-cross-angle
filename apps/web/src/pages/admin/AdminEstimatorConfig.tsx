@@ -209,7 +209,7 @@ export default function AdminEstimatorConfig() {
             <div className="flex items-center gap-2 text-[11px]">
               <div className={cn("w-2 h-2 rounded-full", registry.isLoading ? "bg-amber-500 animate-pulse" : "bg-emerald-500")} />
               <span className="text-[hsl(var(--admin-text-muted))]">
-                {registry.isLoading ? "Syncing..." : "Registry Synced"}
+                {registry.isLoading ? "Syncing…" : "Registry Synced"}
               </span>
             </div>
           </div>

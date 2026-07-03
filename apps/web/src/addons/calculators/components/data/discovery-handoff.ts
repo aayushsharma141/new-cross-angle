@@ -174,8 +174,16 @@ export function buildDiscoveryHandoff(
 
   const emotionalWeights: Record<string, number> = {};
   if (signals.roomEmotionalWeights) {
+    const weightMap: Record<string, number> = {
+      'emotional-restoration': 1.0,
+      'social-identity': 0.8,
+      'family-necessity': 0.9,
+      'daily-utility': 0.7,
+      'cultural-value': 0.7,
+      'aspiration': 0.5,
+    };
     Object.entries(signals.roomEmotionalWeights).forEach(([room, w]) => {
-      emotionalWeights[room] = w.weight ?? 0.5;
+      emotionalWeights[room] = weightMap[w] ?? 0.5;
     });
   }
 
@@ -220,18 +228,18 @@ export function buildDiscoveryHandoff(
     budget: signals.budgetValue || 2000000,
 
     confidence: {
-      emotionalGoal: conflictIntelligence?.confidence.score
-        ? conflictIntelligence.confidence.score / 100
+      emotionalGoal: conflictIntelligence?.confidence.overall
+        ? conflictIntelligence.confidence.overall / 100
         : 0.75,
       budget: signals.budgetBracket ? 0.8 : 0.5,
       rooms: mustHave.length > 0 ? 0.9 : 0.6,
-      overall: conflictIntelligence?.confidence.score
-        ? conflictIntelligence.confidence.score / 100
+      overall: conflictIntelligence?.confidence.overall
+        ? conflictIntelligence.confidence.overall / 100
         : 0.7,
     },
 
     contradictions: conflictIntelligence?.interpretationConflict.detected
-      ? [conflictIntelligence.interpretationConflict.description || "Visual and intent signals diverge"]
+      ? [conflictIntelligence.interpretationConflict.conflictSummary || "Visual and intent signals diverge"]
       : [],
 
     acceptedCompromises: signals.acceptedCompromises || [],

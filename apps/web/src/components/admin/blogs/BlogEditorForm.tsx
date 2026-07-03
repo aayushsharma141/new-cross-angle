@@ -197,7 +197,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
               value={formData.title}
               onChange={(e) => handleTitleChange(e.target.value)}
               required
-              placeholder="Enter a catchy title..."
+              placeholder="Enter a catchy title…"
               className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
             />
           </div>
@@ -340,7 +340,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
               value={formData.excerpt}
               onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
               rows={5}
-              placeholder="Short summary for SEO and previews..."
+              placeholder="Short summary for SEO and previews…"
               className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
             />
           </div>
@@ -383,7 +383,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
                   <Input
                     value={formData.cover_image_url || ""}
                     onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                    placeholder="https://..."
+                    placeholder="https://…"
                     className="mt-1 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
                   />
                 </div>

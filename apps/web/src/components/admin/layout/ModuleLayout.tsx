@@ -2,9 +2,6 @@ import React, { createContext, useContext, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { ArrowLeft } from "lucide-react";
-import { ADMIN_ROUTES } from "@/lib/admin-routes";
-
 interface ModuleTab {
     label: string;
     path: string;
@@ -42,19 +39,6 @@ export const ModuleLayout = ({ title, description, tabs, sidebar, children }: Mo
         <ModuleActionsSlotContext.Provider value={slotEl}>
             <div className="flex-1 bg-[hsl(var(--admin-background))] text-[hsl(var(--admin-text))] h-full min-h-0 flex flex-col lg:grid lg:grid-cols-[260px_1fr] lg:grid-rows-1">
                 
-                {/* Mobile Top Header (Hidden on Desktop) */}
-                <header className="lg:hidden flex-none px-6 h-14 border-b border-[hsl(var(--admin-border))]/40 bg-admin-surface/40 backdrop-blur-md flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Link
-                            to={ADMIN_ROUTES.hub.path}
-                            className="flex items-center gap-2 text-admin-text-muted hover:text-admin-text text-[11px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-md hover:bg-admin-surface/50 border border-admin-border/30 transition-all"
-                        >
-                            <ArrowLeft className="w-3.5 h-3.5" />
-                            <span>Hub</span>
-                        </Link>
-                    </div>
-                    <span className="text-sm font-semibold text-admin-text tracking-wide uppercase">{title}</span>
-                </header>
 
                 {/* --- Grid Layout for Desktop, Flex for Mobile --- */}
                 
@@ -117,17 +101,7 @@ export const ModuleLayout = ({ title, description, tabs, sidebar, children }: Mo
                         </div>
                     )}
 
-                    {/* Back to Hub (Bottom) */}
-                    <div className="mt-6">
-                        <Link
-                            to={ADMIN_ROUTES.hub.path}
-                            className="flex items-center justify-center gap-2 text-admin-text-muted hover:text-admin-text hover:bg-admin-surface/50 border border-admin-border/30 rounded-md px-3 py-2.5 transition-all w-full group"
-                            title="Back to Hub"
-                        >
-                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                            <span className="text-xs font-semibold tracking-wide uppercase">Back to Hub</span>
-                        </Link>
-                    </div>
+
                 </aside>
 
                 {/* Right side area: Top header + Main content */}

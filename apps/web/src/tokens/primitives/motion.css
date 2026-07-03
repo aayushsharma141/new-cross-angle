@@ -1,0 +1,7 @@
+/* CORE */
+:root {
+  --p-motion-fast:   200ms;
+  --p-motion-medium: 400ms;
+  --p-motion-slow:   700ms;
+  --p-motion-ease:   cubic-bezier(0.22, 1, 0.36, 1);
+}

@@ -388,7 +388,7 @@ export default function AdminLeads() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-text-subtle" />
             <input 
               type="text" 
-              placeholder="Search by name, phone, or email..." 
+              placeholder="Search by name, phone, or email…" 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full h-9 bg-admin-surface border border-admin-border rounded-lg pl-9 pr-9 text-[13px] text-admin-text placeholder:text-admin-text-subtle focus:outline-none focus:border-admin-border-subtle focus:ring-1 focus:ring-[hsl(var(--admin-primary)/0.3)] transition-all"

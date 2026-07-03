@@ -130,7 +130,7 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
     },
   });
 
-  const fmt = (v: number | string | undefined | null): string => (v == null ? "..." : typeof v === "number" ? v.toLocaleString() : v);
+  const fmt = (v: number | string | undefined | null): string => (v == null ? "…" : typeof v === "number" ? v.toLocaleString() : v);
 
   return (
     <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
@@ -140,7 +140,7 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
           title="Page Views"
           value={fmt(stats?.views)}
           numericValue={stats?.views}
-          change={stats ? `${stats.viewsTrend > 0 ? "+" : ""}${stats.viewsTrend}% vs previous period` : "..."}
+          change={stats ? `${stats.viewsTrend > 0 ? "+" : ""}${stats.viewsTrend}% vs previous period` : "…"}
           trend={stats?.viewsTrend === 0 ? "neutral" : (stats?.viewsTrend || 0) > 0 ? "up" : "down"}
           icon={Globe}
           variant="gold"

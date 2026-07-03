@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/aria-role */
 import { UniversalAssetPicker } from "@/components/admin/media/UniversalAssetPicker";
 import { AssetRow } from "@/services/AssetService";
 

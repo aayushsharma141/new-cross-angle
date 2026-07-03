@@ -44,6 +44,8 @@ const NoiseOverlay = () => {
 };
 
 export const ShaderBackground = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Component = ShaderGradient as any;
   return (
     <div className="absolute inset-0 z-0 overflow-hidden bg-[#060606]">
       {/* 2. Large radial spotlight behind form */}
@@ -66,7 +68,7 @@ export const ShaderBackground = () => {
         fov={45}
         pointerEvents="none"
       >
-        <ShaderGradient 
+        <Component 
           control="props"
           animate="on"
           axesHelper="off"

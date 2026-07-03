@@ -281,7 +281,7 @@ export function AssetSidebar({
                 <div className="flex">
                     <button
                         role="tab"
-                        aria-selected={tab === "assets" || undefined}
+                        {...({ "aria-selected": tab === "assets" })}
                         aria-controls="panel-assets"
                         onClick={() => setTab("assets")}
                         className={cn(
@@ -295,7 +295,7 @@ export function AssetSidebar({
                     </button>
                     <button
                         role="tab"
-                        aria-selected={tab === "collections" || undefined}
+                        {...({ "aria-selected": tab === "collections" })}
                         aria-controls="panel-collections"
                         onClick={() => setTab("collections")}
                         className={cn(
@@ -309,7 +309,7 @@ export function AssetSidebar({
                     </button>
                     <button
                         role="tab"
-                        aria-selected={tab === "archived" || undefined}
+                        {...({ "aria-selected": tab === "archived" })}
                         aria-controls="panel-archived"
                         onClick={() => setTab("archived")}
                         className={cn(
@@ -352,7 +352,7 @@ export function AssetSidebar({
                                 <Search className="absolute left-2.5 top-1.5 h-4 w-4 text-muted-foreground" />
                                 <input
                                     type="text"
-                                    placeholder="Search assets..."
+                                    placeholder="Search assets…"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full pl-9 pr-3 py-1.5 text-xs bg-muted/50 border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
@@ -817,6 +817,7 @@ function CollectionRow({
                 )}
             >
                 <button 
+                    aria-label={`Select collection: ${collection.name}`}
                     className="flex-1 min-w-0 flex items-center gap-2.5 outline-none"
                     onClick={() => {
                         if (isRenaming) return;
@@ -830,6 +831,7 @@ function CollectionRow({
                                 value={newName}
                                 onChange={(e) => setNewName(e.target.value)}
                                 className="h-6 text-xs px-1.5 py-0 bg-background/50"
+                                // eslint-disable-next-line jsx-a11y/no-autofocus -- Focus is required for inline editing UX
                                 autoFocus
                                 onClick={(e) => e.stopPropagation()}
                                 onKeyDown={(e) => {
@@ -850,7 +852,8 @@ function CollectionRow({
                                 disabled={updateMutation.isPending}
                             />
                         ) : (
-                            <p 
+                            <button 
+                                type="button"
                                 className={cn("text-xs font-medium truncate cursor-text", isActive ? "text-primary" : "text-foreground")}
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -859,7 +862,7 @@ function CollectionRow({
                                 title="Click to rename"
                             >
                                 {collection.name}
-                            </p>
+                            </button>
                         )}
                         <div className="flex items-center gap-1.5 mt-0.5">
                             <span
