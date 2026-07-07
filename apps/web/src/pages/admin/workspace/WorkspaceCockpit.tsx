@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/primitives/card';
+import { Surface, Stack, Text } from "@/components/primitives/foundation";
 import { CheckCircle2, User, Clock, DollarSign } from 'lucide-react';
 
 export default function WorkspaceCockpit({ lead }: { lead: any }) {
@@ -7,40 +7,42 @@ export default function WorkspaceCockpit({ lead }: { lead: any }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">
-        <CardHeader>
-          <CardTitle className="text-[hsl(var(--admin-text))]">{lead.name}</CardTitle>
-          <div className="text-sm text-[hsl(var(--admin-text-muted))]">{lead.email}</div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-2 text-sm text-[hsl(var(--admin-text))]">
-            <User className="w-4 h-4 text-[hsl(var(--admin-primary))]" />
+      <Surface variant="primary" radius="lg" border shadow="sm" className="bg-[var(--s-surface-raised)] border-[var(--s-border-subtle)]">
+        <Stack gap="sm" className="p-6">
+          <Text as="h3" variant="h3" className="leading-none text-[var(--s-text-primary)]">{lead.name}</Text>
+          <div className="text-sm text-[var(--s-text-muted)]">{lead.email}</div>
+        </Stack>
+        <div className="p-6 pt-0 space-y-4">
+          <div className="flex items-center gap-2 text-sm text-[var(--s-text-primary)]">
+            <User className="w-4 h-4 text-[var(--s-accent-primary)]" />
             <span className="font-semibold capitalize">{archetype.replace('_', ' ')}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-[hsl(var(--admin-text))]">
-            <DollarSign className="w-4 h-4 text-[hsl(var(--admin-primary))]" />
+          <div className="flex items-center gap-2 text-sm text-[var(--s-text-primary)]">
+            <DollarSign className="w-4 h-4 text-[var(--s-accent-primary)]" />
             <span>{signals.budget ? `$${signals.budget.toLocaleString()}` : 'No Budget Set'}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-[hsl(var(--admin-text))]">
-            <Clock className="w-4 h-4 text-[hsl(var(--admin-primary))]" />
+          <div className="flex items-center gap-2 text-sm text-[var(--s-text-primary)]">
+            <Clock className="w-4 h-4 text-[var(--s-accent-primary)]" />
             <span>{signals.timeline || 'No Timeline'}</span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </Surface>
 
-      <Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">
-        <CardHeader>
-          <CardTitle className="text-[hsl(var(--admin-text))] text-base">Meeting Checklist</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
+      <Surface variant="primary" radius="lg" border shadow="sm" className="bg-[var(--s-surface-raised)] border-[var(--s-border-subtle)]">
+        <Stack gap="sm" className="p-6">
+          <Text as="h3" variant="h3" className="leading-none text-[var(--s-text-primary)] text-base">Meeting Checklist</Text>
+        </Stack>
+        <div className="p-6 pt-0 space-y-2">
           {['Review Executive Summary', 'Align on Risk Factors', 'Confirm Key Preferences', 'Discuss Phasing Strategy'].map((item, i) => (
-            <div key={i} className="flex items-start gap-2 text-sm text-[hsl(var(--admin-text))]">
+            <div key={i} className="flex items-start gap-2 text-sm text-[var(--s-text-primary)]">
               <CheckCircle2 className="w-4 h-4 mt-0.5 text-gray-500" />
               <span>{item}</span>
             </div>
           ))}
-        </CardContent>
-      </Card>
+        </div>
+      </Surface>
     </div>
   );
 }
+
+

@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/primitives/card';
+import { Surface, Stack, Text } from "@/components/primitives/foundation";
 import { Search } from 'lucide-react';
 import { StrategyBlock } from '@/addons/calculators/components/data/engines/conversation-strategy';
 import { RiskCard } from '@/addons/calculators/components/data/engines/risk-cards';
@@ -27,17 +27,19 @@ export default function WorkspaceEvidencePanel({ _lead, activeBlockId, strategyB
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      <Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] h-full flex flex-col">
-        <CardHeader className="shrink-0">
-          <CardTitle className="flex items-center gap-2 text-[hsl(var(--admin-text))] text-base">
-            <Search className="w-4 h-4 text-[hsl(var(--admin-primary))]" />
+      <Surface variant="primary" radius="lg" border shadow="sm" className="bg-[var(--s-surface-raised)] border-[var(--s-border-subtle)] h-full flex flex-col">
+        <Stack gap="sm" className="p-6 shrink-0">
+          <Text as="h3" variant="h3" className="leading-none flex items-center gap-2 text-[var(--s-text-primary)] text-base">
+            <Search className="w-4 h-4 text-[var(--s-accent-primary)]" />
             Evidence Chain
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-[hsl(var(--admin-text))] whitespace-pre-wrap flex-1 overflow-y-auto">
+          </Text>
+        </Stack>
+        <div className="p-6 pt-0 text-sm text-[var(--s-text-primary)] whitespace-pre-wrap flex-1 overflow-y-auto">
           {evidence}
-        </CardContent>
-      </Card>
+        </div>
+      </Surface>
     </div>
   );
 }
+
+

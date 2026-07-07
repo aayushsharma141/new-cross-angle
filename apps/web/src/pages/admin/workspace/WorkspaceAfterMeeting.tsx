@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/primitives/card';
+import { Surface } from "@/components/primitives/foundation";
 import { Button } from '@/components/ui/primitives/button';
-import { Textarea } from '@/components/ui/primitives/textarea';
+import { Textarea } from "@/components/primitives/interactive";
 import { ClipboardList, Save } from 'lucide-react';
 import { useCreateDecisionEvent } from '@/services/decision-events';
 
@@ -56,76 +56,76 @@ export default function WorkspaceAfterMeeting({ leadId, sessionId, onSessionComp
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-2">
-        <ClipboardList className="w-6 h-6 text-[hsl(var(--admin-primary))]" />
-        <h2 className="text-xl font-bold text-[hsl(var(--admin-text))]">Meeting Debrief</h2>
+        <ClipboardList className="w-6 h-6 text-[var(--s-accent-primary)]" />
+        <h2 className="text-xl font-bold text-[var(--s-text-primary)]">Meeting Debrief</h2>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">
-          <CardContent className="p-4 flex flex-col gap-4">
+        <Surface variant="primary" radius="lg" border shadow="sm" className="bg-[var(--s-surface-raised)] border-[var(--s-border-subtle)]">
+          <div className="p-6 pt-0 p-4 flex flex-col gap-4">
             
             <div className="flex flex-col gap-2">
-              <label htmlFor="outcome" className="text-sm font-bold text-[hsl(var(--admin-text))]">Meeting Outcome / Status</label>
+              <label htmlFor="outcome" className="text-sm font-bold text-[var(--s-text-primary)]">Meeting Outcome / Status</label>
               <select 
                 id="outcome"
                 title="Meeting Outcome"
                 value={outcome}
                 onChange={(e) => setOutcome(e.target.value)}
-                className="flex h-10 w-full items-center justify-between rounded-md border border-[hsl(var(--admin-border))] bg-transparent px-3 py-2 text-sm text-[hsl(var(--admin-text))] ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-10 w-full items-center justify-between rounded-md border border-[var(--s-border-subtle)] bg-transparent px-3 py-2 text-sm text-[var(--s-text-primary)] ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <option value="Pending" className="bg-[hsl(var(--admin-background))] text-[hsl(var(--admin-text))]">Pending</option>
-                <option value="Progressing" className="bg-[hsl(var(--admin-background))] text-[hsl(var(--admin-text))]">Progressing to Proposal</option>
-                <option value="Re-Evaluation" className="bg-[hsl(var(--admin-background))] text-[hsl(var(--admin-text))]">Needs Re-Evaluation</option>
-                <option value="Lost" className="bg-[hsl(var(--admin-background))] text-[hsl(var(--admin-text))]">Lost / Not a fit</option>
+                <option value="Pending" className="bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)]">Pending</option>
+                <option value="Progressing" className="bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)]">Progressing to Proposal</option>
+                <option value="Re-Evaluation" className="bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)]">Needs Re-Evaluation</option>
+                <option value="Lost" className="bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)]">Lost / Not a fit</option>
               </select>
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="objections" className="text-sm font-bold text-[hsl(var(--admin-text))]">Actual Objections Raised</label>
+              <label htmlFor="objections" className="text-sm font-bold text-[var(--s-text-primary)]">Actual Objections Raised</label>
               <Textarea 
                 id="objections"
                 placeholder="What objections did the client actually raise compared to what we predicted?" 
                 value={objections}
                 onChange={(e) => setObjections(e.target.value)}
-                className="resize-none bg-[hsl(var(--admin-background))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]"
+                className="resize-none bg-[var(--s-canvas-primary)] border-[var(--s-border-subtle)] text-[var(--s-text-primary)]"
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="decisions" className="text-sm font-bold text-[hsl(var(--admin-text))]">Client Decisions</label>
+              <label htmlFor="decisions" className="text-sm font-bold text-[var(--s-text-primary)]">Client Decisions</label>
               <Textarea 
                 id="decisions"
                 placeholder="What did the client agree to or decide during the meeting?" 
                 value={decisions}
                 onChange={(e) => setDecisions(e.target.value)}
-                className="resize-none bg-[hsl(var(--admin-background))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]"
+                className="resize-none bg-[var(--s-canvas-primary)] border-[var(--s-border-subtle)] text-[var(--s-text-primary)]"
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="followUps" className="text-sm font-bold text-[hsl(var(--admin-text))]">Follow-up Actions</label>
+              <label htmlFor="followUps" className="text-sm font-bold text-[var(--s-text-primary)]">Follow-up Actions</label>
               <Textarea 
                 id="followUps"
-                placeholder="List follow-up actions (one per line)…" 
+                placeholder="List follow-up actions (one per line)ï¿½" 
                 value={followUps}
                 onChange={(e) => setFollowUps(e.target.value)}
-                className="resize-none bg-[hsl(var(--admin-background))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]"
+                className="resize-none bg-[var(--s-canvas-primary)] border-[var(--s-border-subtle)] text-[var(--s-text-primary)]"
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="notes" className="text-sm font-bold text-[hsl(var(--admin-text))]">Designer Private Notes</label>
+              <label htmlFor="notes" className="text-sm font-bold text-[var(--s-text-primary)]">Designer Private Notes</label>
               <Textarea 
                 id="notes"
-                placeholder="Any other observations or private notes for institutional learning…" 
+                placeholder="Any other observations or private notes for institutional learningï¿½" 
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="resize-none bg-[hsl(var(--admin-background))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]"
+                className="resize-none bg-[var(--s-canvas-primary)] border-[var(--s-border-subtle)] text-[var(--s-text-primary)]"
               />
             </div>
 
-          </CardContent>
-        </Card>
+          </div>
+        </Surface>
 
         <div className="flex justify-end gap-2 items-center">
           {errorMsg && <span className="text-red-500 text-sm mr-2">{errorMsg}</span>}
@@ -139,3 +139,5 @@ export default function WorkspaceAfterMeeting({ leadId, sessionId, onSessionComp
     </div>
   );
 }
+
+

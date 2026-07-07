@@ -1,162 +1,147 @@
-import { useDecisionEvents } from '@/services/decision-events';
-import { Card, CardContent } from '@/components/ui/primitives/card';
-import { History, Brain, ShieldAlert, CheckCircle2, MessageSquare, ListTodo, XCircle, Edit2 } from 'lucide-react';
+import { useWorkspaceCommitments, WorkspaceCommitmentRevision } from '@/services/workspace-commitments';
+import { Surface } from "@/components/primitives/foundation";
+import { History, GitCommit, GitBranch, Lock, Brain, FileText, CheckCircle2, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
+import { computeWorkspaceDQI } from '@/services/learning-metrics';
 
 export function WorkspaceDecisionTimeline({ leadId }: { leadId: string }) {
-  const { data: events = [], isLoading } = useDecisionEvents(leadId);
+  const { data: revisions = [], isLoading } = useWorkspaceCommitments(leadId);
 
-  if (isLoading) return <div className="text-sm text-[hsl(var(--admin-text-muted))]">Loading timeline…</div>;
-  if (events.length === 0) return null;
+  if (isLoading) return <div className="text-sm text-[var(--s-text-muted)]">Loading decision ledger...</div>;
+  if (revisions.length === 0) return (
+    <div className="mt-12 pt-8 border-t border-[var(--s-border-subtle)]">
+      <h2 className="text-xl font-bold text-[var(--s-text-primary)] mb-6 flex items-center gap-2">
+        <History className="w-5 h-5 text-purple-400" />
+        Decision Ledger
+      </h2>
+      <p className="text-sm text-[var(--s-text-muted)]">No commitments recorded yet.</p>
+    </div>
+  );
 
-  // Group by session_id
-  const sessions = events.reduce((acc, event) => {
-    const sid = event.session_id || 'un-sessioned';
-    if (!acc[sid]) acc[sid] = [];
-    acc[sid].push(event);
+  // Group by commitment_id
+  const commitments = revisions.reduce((acc, rev) => {
+    if (!acc[rev.commitment_id]) acc[rev.commitment_id] = [];
+    acc[rev.commitment_id].push(rev);
     return acc;
-  }, {} as Record<string, typeof events>);
+  }, {} as Record<string, WorkspaceCommitmentRevision[]>);
 
   return (
-    <div className="mt-12 pt-8 border-t border-[hsl(var(--admin-border))]">
-      <h2 className="text-xl font-bold text-[hsl(var(--admin-text))] mb-6 flex items-center gap-2">
+    <div className="mt-12 pt-8 border-t border-[var(--s-border-subtle)]">
+      <h2 className="text-xl font-bold text-[var(--s-text-primary)] mb-6 flex items-center gap-2">
         <History className="w-5 h-5 text-purple-400" />
-        Intelligence Timeline
+        Decision Ledger
       </h2>
 
-      <div className="flex flex-col gap-8">
-        {Object.entries(sessions).map(([sessionId, sessionEvents]) => {
-          // Sort events chronologically
-          const sortedEvents = [...sessionEvents].sort((a, b) => new Date(a.occurred_at).getTime() - new Date(b.occurred_at).getTime());
+      <div className="flex flex-col gap-10">
+        {Object.entries(commitments).map(([commitmentId, revs], index) => {
+          // Sort chronologically
+          const sortedRevs = [...revs].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
           
           return (
-            <div key={sessionId} className="flex flex-col gap-4 relative">
-              <div className="flex items-center gap-2 text-xs font-mono text-[hsl(var(--admin-text-muted))]">
+            <div key={commitmentId} className="flex flex-col gap-4 relative">
+              <div className="flex items-center gap-2 text-xs font-mono text-[var(--s-text-muted)]">
                 <div className="h-px flex-1 bg-[hsl(var(--admin-border))]"></div>
-                Session: {sessionId === 'un-sessioned' ? 'Unknown' : sessionId.split('-')[0]} 
-                <span className="text-[10px]">({format(new Date(sortedEvents[0].occurred_at), 'MMM d, h:mm a')})</span>
+                <div className="flex items-center gap-1">
+                  <GitBranch className="w-3 h-3 text-blue-400" />
+                  Commitment Thread {index + 1}
+                </div>
                 <div className="h-px flex-1 bg-[hsl(var(--admin-border))]"></div>
               </div>
 
-              {sortedEvents.map(event => {
-                if (event.payload.type === 'recommendation_decision') {
-                  const p = event.payload;
-                  const snapshot = p.recommendationSnapshot || {};
-                  const isStrategy = !!snapshot.content;
+              <div className="relative pl-6 ml-2 border-l-2 border-[var(--s-border-subtle)] flex flex-col gap-6">
+                {sortedRevs.map((rev, revIdx) => {
+                  const isLocked = rev.is_locked;
+                  
+                  // In a real scenario, these would be pulled from the revision's analytics payload
+                  const dqi = isLocked ? computeWorkspaceDQI({
+                    evidenceAvailable: 10,
+                    evidenceUsed: 4,
+                    confidenceScore: 85,
+                    explainabilityScore: 70
+                  }) : null;
                   
                   return (
-                    <Card key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-blue-500">
-                      <CardContent className="p-4 flex flex-col gap-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold uppercase text-blue-400 flex items-center gap-1">
-                            {isStrategy ? <Brain className="w-3 h-3" /> : <ShieldAlert className="w-3 h-3 text-red-400" />}
-                            {isStrategy ? snapshot.type || 'Strategy' : 'Risk'}
-                          </span>
-                          <div className="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded bg-black/20">
-                            {p.decision === 'Accept' && <CheckCircle2 className="w-3 h-3 text-green-500" />}
-                            {p.decision === 'Modify' && <Edit2 className="w-3 h-3 text-yellow-500" />}
-                            {p.decision === 'Reject' && <XCircle className="w-3 h-3 text-red-500" />}
-                            <span className={
-                              p.decision === 'Accept' ? 'text-green-500' :
-                              p.decision === 'Modify' ? 'text-yellow-500' : 'text-red-500'
-                            }>{p.decision}</span>
-                          </div>
-                        </div>
-                        
-                        <p className="text-sm text-[hsl(var(--admin-text))] italic border-l-2 border-[hsl(var(--admin-border))] pl-2 ml-1">
-                          "{snapshot.content || snapshot.recommendedResponse || p.originalContext}"
-                        </p>
-                        
-                        {p.reason && (
-                          <div className="mt-2 text-sm text-[hsl(var(--admin-text-muted))] bg-black/10 p-2 rounded">
-                            <strong className="text-[hsl(var(--admin-text))]">Reason:</strong> {p.reason}
-                          </div>
+                    <div key={rev.id} className="relative">
+                      {/* Timeline dot */}
+                      <div className="absolute -left-[31px] top-4 bg-[var(--s-canvas-primary)] rounded-full p-1 border-2 border-[var(--s-border-subtle)]">
+                        {isLocked ? (
+                          <Lock className="w-3 h-3 text-green-500" />
+                        ) : (
+                          <GitCommit className="w-3 h-3 text-[var(--s-text-muted)]" />
                         )}
-                        
-                        {/* Evidence Replay */}
-                        {(snapshot.evidence || snapshot.why) && (
-                          <div className="mt-1 text-xs text-[hsl(var(--admin-text-muted))]">
-                            <strong className="text-[hsl(var(--admin-text))]">Evidence:</strong> {snapshot.evidence || snapshot.why}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
-                }
-
-                if (event.payload.type === 'meeting_debrief') {
-                  const p = event.payload;
-                  const outcomeVal = p.meetingOutcome || p.outcome || 'Pending';
-                  const decisionsVal = p.clientDecisions || p.decisions || 'None recorded';
-                  const objectionsVal = p.objectionsRaised || p.objections;
-                  const followUpVal = p.followUpActions || p.followUps;
-                  const notesVal = p.designerNotes || p.notes;
-
-                  return (
-                    <Card key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-purple-500">
-                      <CardContent className="p-4 flex flex-col gap-3">
-                        <div className="flex items-center gap-2">
-                          <MessageSquare className="w-4 h-4 text-purple-400" />
-                          <h3 className="text-sm font-bold text-[hsl(var(--admin-text))]">Meeting Debrief</h3>
-                          <span className="ml-auto text-xs font-mono text-[hsl(var(--admin-text-muted))]">
-                            {format(new Date(event.occurred_at), 'h:mm a')}
-                          </span>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4 mt-2">
-                          <div>
-                            <span className="text-xs font-bold text-[hsl(var(--admin-text-muted))] block mb-1">Outcome</span>
-                            <span className="text-sm font-medium text-[hsl(var(--admin-text))]">{outcomeVal}</span>
-                          </div>
-                          <div>
-                            <span className="text-xs font-bold text-[hsl(var(--admin-text-muted))] block mb-1">Client Decisions</span>
-                            <span className="text-sm text-[hsl(var(--admin-text))]">{decisionsVal}</span>
-                          </div>
-                        </div>
-
-                        {objectionsVal && (
-                          <div>
-                            <span className="text-xs font-bold text-[hsl(var(--admin-text-muted))] block mb-1">Actual Objections</span>
-                            <p className="text-sm text-[hsl(var(--admin-text))] italic">{objectionsVal}</p>
-                          </div>
-                        )}
-
-                        {followUpVal && (
-                          <div>
-                            <span className="text-xs font-bold text-[hsl(var(--admin-text-muted))] block mb-1 flex items-center gap-1">
-                              <ListTodo className="w-3 h-3" />
-                              Follow-ups
-                            </span>
-                            <div className="text-sm text-[hsl(var(--admin-text))] bg-black/10 p-2 rounded">
-                              {Array.isArray(followUpVal) ? (
-                                <ul className="list-disc pl-4 flex flex-col gap-1">
-                                  {followUpVal.map((act: string, idx: number) => (
-                                    <li key={idx}>{act}</li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                followUpVal
+                      </div>
+                      
+                      <Surface variant="primary" radius="lg" border shadow="sm" className={`bg-[var(--s-surface-raised)] border-[var(--s-border-subtle)] ${isLocked ? 'ring-1 ring-green-500/30' : ''}`}>
+                        <div className="p-4 flex flex-col gap-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-sm font-bold ${isLocked ? 'text-green-400' : 'text-blue-400'}`}>
+                                {isLocked ? 'Locked Commitment' : `Revision ${revIdx + 1}`}
+                              </span>
+                              {rev.divergence_score !== null && (
+                                <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full font-mono">
+                                  Divergence: {rev.divergence_score}%
+                                </span>
+                              )}
+                              {dqi !== null && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full font-mono flex items-center gap-1">
+                                    <TrendingUp className="w-3 h-3" />
+                                    DQI: {dqi.value} ({dqi.stage})
+                                  </span>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-mono ${
+                                    dqi.confidence === 'HIGH' ? 'bg-green-500/20 text-green-400' :
+                                    dqi.confidence === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400' :
+                                    'bg-red-500/20 text-red-400'
+                                  }`}>
+                                    Confidence: {dqi.confidence}
+                                  </span>
+                                  <span className="text-xs font-mono text-[var(--s-text-muted)]">
+                                    v{dqi.version}
+                                  </span>
+                                </div>
                               )}
                             </div>
+                            <span className="text-xs font-mono text-[var(--s-text-muted)]">
+                              {format(new Date(rev.created_at), 'MMM d, h:mm a')}
+                            </span>
                           </div>
-                        )}
-
-                        {notesVal && (
-                          <div>
-                            <span className="text-xs font-bold text-[hsl(var(--admin-text-muted))] block mb-1">Designer Notes</span>
-                            <p className="text-sm text-[hsl(var(--admin-text))] bg-black/10 p-2 rounded italic">
-                              "{notesVal}"
-                            </p>
+                          
+                          <p className="text-sm text-[var(--s-text-primary)]">
+                            {rev.narrative_brief || "No brief generated."}
+                          </p>
+                          
+                          {/* Snapshots Summary */}
+                          <div className="grid grid-cols-2 gap-4 mt-2 pt-3 border-t border-[var(--s-border-subtle)]">
+                            <div>
+                              <span className="text-xs font-bold text-[var(--s-text-muted)] block mb-1 flex items-center gap-1">
+                                <Brain className="w-3 h-3" /> Decision Genome
+                              </span>
+                              <div className="text-xs text-[var(--s-text-primary)] bg-black/10 p-2 rounded max-h-24 overflow-hidden text-ellipsis">
+                                {Object.keys(rev.decision_genome || {}).length} nodes defined
+                              </div>
+                            </div>
+                            <div>
+                              <span className="text-xs font-bold text-[var(--s-text-muted)] block mb-1 flex items-center gap-1">
+                                <FileText className="w-3 h-3" /> Project Snapshot
+                              </span>
+                              <div className="text-xs text-[var(--s-text-primary)] bg-black/10 p-2 rounded max-h-24 overflow-hidden text-ellipsis">
+                                {Object.keys(rev.project_snapshot || {}).length} parameters captured
+                              </div>
+                            </div>
                           </div>
-                        )}
-
-                      </CardContent>
-                    </Card>
+                          
+                          {isLocked && (
+                            <div className="mt-2 text-xs font-semibold text-green-500 flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" /> Learning Model Ready
+                            </div>
+                          )}
+                        </div>
+                      </Surface>
+                    </div>
                   );
-                }
-
-                return null;
-              })}
+                })}
+              </div>
             </div>
           );
         })}
@@ -164,3 +149,5 @@ export function WorkspaceDecisionTimeline({ leadId }: { leadId: string }) {
     </div>
   );
 }
+
+

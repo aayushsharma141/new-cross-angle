@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/primitives/card';
+import { Surface } from "@/components/primitives/foundation";
 import { Button } from '@/components/ui/primitives/button';
-import { Input } from '@/components/ui/primitives/input';
-import { Textarea } from '@/components/ui/primitives/textarea';
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { Brain, ShieldAlert, Check, X, Edit2, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useCreateDecisionEvent } from '@/services/decision-events';
 import { StrategyBlock } from '@/addons/calculators/components/data/engines/conversation-strategy';
@@ -75,13 +75,13 @@ export default function WorkspaceDuringMeeting({
   const renderActionButtons = (id: string, textContext: string) => {
     if (activeReasonInput?.id === id) {
       return (
-        <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-[hsl(var(--admin-border))]">
+        <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-[var(--s-border-subtle)]">
           <Input 
             placeholder={`Reason for ${activeReasonInput.decision.toLowerCase()}ing... (optional)`}
             value={reasonText}
             onChange={(e) => setReasonText(e.target.value)}
             disabled={isPending}
-            className="bg-[hsl(var(--admin-background))] text-sm h-8"
+            className="bg-[var(--s-canvas-primary)] text-sm h-8"
             onKeyDown={(e) => {
               if (e.key === 'Enter') submitDecision(id, textContext);
             }}
@@ -100,7 +100,7 @@ export default function WorkspaceDuringMeeting({
     }
 
     return (
-      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[hsl(var(--admin-border))]">
+      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[var(--s-border-subtle)]">
         <Button size="sm" variant="outline" className="h-7 text-xs flex-1 gap-1 border-green-500/30 text-green-500 hover:bg-green-500/10" onClick={(e) => { e.stopPropagation(); handleDecision(id, 'Accept'); }}>
           <Check className="w-3 h-3" /> Accept
         </Button>
@@ -118,10 +118,10 @@ export default function WorkspaceDuringMeeting({
     <div className="flex flex-col gap-6">
       <div className="flex gap-4 h-48">
         <div className="flex-1 flex flex-col gap-2">
-          <h2 className="text-sm font-bold text-[hsl(var(--admin-text))] flex items-center gap-2">Live Notes</h2>
+          <h2 className="text-sm font-bold text-[var(--s-text-primary)] flex items-center gap-2">Live Notes</h2>
           <Textarea 
-            placeholder="Capture live meeting notes here…" 
-            className="flex-1 resize-none bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]"
+            placeholder="Capture live meeting notes hereï¿½" 
+            className="flex-1 resize-none bg-[var(--s-surface-raised)] border-[var(--s-border-subtle)] text-[var(--s-text-primary)]"
             value={liveNotes}
             onChange={(e) => setLiveNotes(e.target.value)}
           />
@@ -129,65 +129,67 @@ export default function WorkspaceDuringMeeting({
       </div>
 
       <div>
-        <h2 className="text-lg font-bold text-[hsl(var(--admin-text))] mb-4 flex items-center gap-2">
+        <h2 className="text-lg font-bold text-[var(--s-text-primary)] mb-4 flex items-center gap-2">
           <Brain className="w-5 h-5 text-blue-400" />
           Active Strategies
         </h2>
         <div className="flex flex-col gap-3">
           {strategyBlocks.map(block => (
-            <Card 
+            <Surface variant="primary" radius="lg" border shadow="sm" 
               key={block.id} 
-              className={`cursor-pointer transition-colors border ${activeBlockId === block.id ? 'border-blue-500 bg-blue-500/10' : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] hover:border-[hsl(var(--admin-primary))]/50'}`}
+              className={`cursor-pointer transition-colors border ${activeBlockId === block.id ? 'border-blue-500 bg-blue-500/10' : 'border-[var(--s-border-subtle)] bg-[var(--s-surface-raised)] hover:border-[hsl(var(--admin-primary))]/50'}`}
               onClick={() => setActiveBlockId(block.id)}
             >
-              <CardContent className="p-4 flex flex-col gap-2">
+              <div className="p-6 pt-0 p-4 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold uppercase text-blue-400 tracking-wider">{block.type}</span>
                 </div>
-                <p className="text-sm text-[hsl(var(--admin-text))] font-medium">{block.content}</p>
+                <p className="text-sm text-[var(--s-text-primary)] font-medium">{block.content}</p>
                 {renderActionButtons(block.id, block.content)}
-              </CardContent>
-            </Card>
+              </div>
+            </Surface>
           ))}
           {strategyBlocks.length === 0 && (
-            <div className="text-sm text-[hsl(var(--admin-text-muted))]">No active strategies available.</div>
+            <div className="text-sm text-[var(--s-text-muted)]">No active strategies available.</div>
           )}
         </div>
       </div>
 
       <div>
-        <h2 className="text-lg font-bold text-[hsl(var(--admin-text))] mb-4 flex items-center gap-2">
+        <h2 className="text-lg font-bold text-[var(--s-text-primary)] mb-4 flex items-center gap-2">
           <ShieldAlert className="w-5 h-5 text-red-400" />
           Active Risks
         </h2>
         <div className="flex flex-col gap-3">
           {riskCards.map(card => (
-            <Card 
+            <Surface variant="primary" radius="lg" border shadow="sm" 
               key={card.id} 
-              className={`cursor-pointer transition-colors border ${activeBlockId === card.id ? 'border-red-500 bg-red-500/10' : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] hover:border-red-500/50'}`}
+              className={`cursor-pointer transition-colors border ${activeBlockId === card.id ? 'border-red-500 bg-red-500/10' : 'border-[var(--s-border-subtle)] bg-[var(--s-surface-raised)] hover:border-red-500/50'}`}
               onClick={() => setActiveBlockId(card.id)}
             >
-              <CardContent className="p-4 flex flex-col gap-3">
+              <div className="p-6 pt-0 p-4 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold text-red-400 flex items-center gap-1">
                     <AlertTriangle className="w-4 h-4" />
                     {card.headline}
                   </span>
                 </div>
-                <p className="text-sm text-[hsl(var(--admin-text))]">{card.recommendedResponse}</p>
-                <div className="pt-2 border-t border-[hsl(var(--admin-border))] flex items-center gap-1 text-xs text-green-400">
+                <p className="text-sm text-[var(--s-text-primary)]">{card.recommendedResponse}</p>
+                <div className="pt-2 border-t border-[var(--s-border-subtle)] flex items-center gap-1 text-xs text-green-400">
                   <CheckCircle2 className="w-3 h-3" />
                   Success: {card.successIndicator}
                 </div>
                 {renderActionButtons(card.id, card.recommendedResponse)}
-              </CardContent>
-            </Card>
+              </div>
+            </Surface>
           ))}
           {riskCards.length === 0 && (
-            <div className="text-sm text-[hsl(var(--admin-text-muted))]">No active risks detected.</div>
+            <div className="text-sm text-[var(--s-text-muted)]">No active risks detected.</div>
           )}
         </div>
       </div>
     </div>
   );
 }
+
+
