@@ -24,6 +24,7 @@ const LocationsPage = lazy(() => import("@/pages/LocationsPage"));
 const LocationPage = lazy(() => import("@/pages/LocationPage"));
 const BlueprintPage = lazy(() => import("@/addons/discovery/pages/BlueprintPage"));
 
+
 export const publicRoutes = (
   <>
     <Route path="/" element={<PageTransition><Index /></PageTransition>} />
@@ -44,6 +45,7 @@ export const publicRoutes = (
     <Route path="/locations" element={<PageTransition><LocationsPage /></PageTransition>} />
     <Route path="/locations/:city" element={<PageTransition><LocationPage /></PageTransition>} />
     <Route path="/system-blueprint" element={<PageTransition><BlueprintPage /></PageTransition>} />
+
     <Route path="/privacy" element={<PageTransition><PrivacyPage /></PageTransition>} />
     <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
     <Route path="/terms" element={<PageTransition><TermsPage /></PageTransition>} />
