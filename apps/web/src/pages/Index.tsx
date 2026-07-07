@@ -7,9 +7,15 @@ import { SITE_CONSTANTS } from "@/lib/constants";
 import { Link } from "react-router-dom";
 import Hero from "@/components/home/Hero";
 import { useEffect, useState } from "react";
+import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
 
 const Index = () => {
   const [revealed, setRevealed] = useState(false);
+  
+  // Instrument focal points for Attention Purity Index
+  const headlineRef = useAttentionTelemetry<HTMLDivElement>("hero-headline");
+  const ctaRef = useAttentionTelemetry<HTMLDivElement>("primary-cta");
+  const featuredRef = useAttentionTelemetry<HTMLDivElement>("featured-project");
 
   useEffect(() => {
     // The Reveal (The Entrance): A slow, curtain-like vertical wipe on initial page load
@@ -64,7 +70,7 @@ const Index = () => {
 
         {/* 20–35% Scroll: Headline (Editorial Asymmetry, staggered right) */}
         <section className="relative w-full px-6 md:px-12 lg:px-24 mt-[25vh] mb-[25vh] max-w-[1600px] mx-auto flex justify-end">
-          <div className="w-full md:w-10/12 lg:w-8/12 pl-0 md:pl-12">
+          <div ref={headlineRef} className="w-full md:w-10/12 lg:w-8/12 pl-0 md:pl-12">
             <span className="text-[10px] tracking-[0.2em] uppercase font-bold text-[var(--s-text-tertiary)] mb-8 block">
               The Philosophy
             </span>
@@ -81,7 +87,7 @@ const Index = () => {
             <p className="font-sans text-[var(--s-text-secondary)] text-lg md:text-xl leading-relaxed max-w-md">
               We treat interior design as an engineering challenge, not just decoration. Enjoy beautiful, highly functional spaces for daily living, delivered through our CrossAngle Predictable Interior System™.
             </p>
-            <div className="pt-4 border-t border-[var(--s-border-subtle)] flex items-center justify-between group">
+            <div ref={ctaRef} className="pt-4 border-t border-[var(--s-border-subtle)] flex items-center justify-between group">
               <Link
                 to="/aesthetic-discovery-engine"
                 className="inline-flex items-center justify-between w-full uppercase tracking-[0.2em] text-[10px] font-bold text-[var(--s-text-primary)] transition-colors duration-[850ms] hover:text-[var(--s-text-secondary)]"
@@ -96,7 +102,7 @@ const Index = () => {
 
         {/* 55–80% Scroll: Featured project (Asymmetric split: Text left bottom, Image right top) */}
         <section className="relative w-full mb-[30vh]">
-          <div className="px-6 md:px-12 lg:px-24 max-w-[1600px] mx-auto flex flex-col-reverse md:flex-row items-end gap-16 md:gap-24">
+          <div ref={featuredRef} className="px-6 md:px-12 lg:px-24 max-w-[1600px] mx-auto flex flex-col-reverse md:flex-row items-end gap-16 md:gap-24">
             <div className="w-full md:w-1/3 pb-0 md:pb-12">
               <span className="text-[10px] tracking-[0.2em] uppercase font-bold text-[var(--s-text-tertiary)] mb-6 block">01 / Featured</span>
               <h3 className="font-display text-4xl md:text-5xl mb-6 text-[var(--s-text-primary)] tracking-tight">The Highland Residence</h3>
