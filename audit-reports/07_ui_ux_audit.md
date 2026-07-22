@@ -1,196 +1,210 @@
-# UI/UX & Visual Audit Report: Crossangle Interior
-**Lead Design Director | Wix Studio, Linear, Framer, and Awwwards-Level Agency Persona**
+# Art Direction & Creative Audit
+**Role:** Editorial Creative Director  
+**Evaluation Standard:** Norm Architects, Vincent Van Duysen, Olson Kundig, Awwwards (Locomotive / Studio Freight)  
+**Overall Premium Authenticity Score:** **47 / 100**  
+**Tier Verdict:** *Intermediate Agency-level (Decorated UI, not Art-Directed)*
 
 ---
 
-## Executive Summary
+## 1. Executive Summary: The Source of the Premium Gap
 
-The **Crossangle Interior** digital experience is structurally sound and technically responsive, but it suffers from a division of visual identity. It currently functions as two distinct websites glued together: a **theatrical, high-contrast dark mode homepage** (Crimson `#C41230` and Gold `#D1AF6E` on Black) and an **airy, organic light-cream estimator/discovery funnel** (Sage Green `#5a705e` and Gold-Brown `#7a5c30` on Cream `#faf8f5`).
+Crossangle Interior currently functions as a **collection of component-centric screens with decorative luxury overlays**, rather than a **single architectural space under a unified creative direction.**
 
-While the developer profile indicates a design-conscious approach, the execution contains significant "design debt"—particularly in mismatched typography systems, arbitrary corner radii, competing floating widgets, and lack of visual restraint. To achieve an Elite, Awwwards-level standard, the application must transition from a "component-driven template" to a **professionally art-directed, minimal, luxurious architectural canvas** that prioritizes whitespace, singular color systems, and strict component rules.
+High-end interior design and premium digital experiences are not built by adding visual effects; they are built by **subtraction, structural silence, and absolute geometric discipline.** The current site fails to feel premium because **there is no Art Direction System governing the interface.** It behaves like a software template trying to "look expensive" through text gradients, glassmorphism, background glows, and saturated crimson pills. 
+
+This audit acts as a creative director's review of the project. It ignores CSS code, Tailwind utilities, and token implementation to focus entirely on the **artistic source of our visual failures.** It diagnoses why the site does not feel like an Awwwards winner yet and outlines the 5-10 foundational artistic decisions that will automatically eliminate hundreds of downstream UI bugs.
 
 ---
 
-## Overall Premium Score: 43 / 100
-*Tier: Intermediate Agency-level*
+## 2. Dimensional Art Direction Audit
 
-This score reflects a project with strong technical foundations (smooth transitions, GSAP horizontal scroll, responsive grids) but critical consistency gaps that prevent a luxury brand feeling.
+### I. Visual DNA
+*   **Current State:** The website is a hybrid of a **SaaS landing page** (even grid layouts, feature badges, ratings, comparison bars), a **gaming portal** (saturated crimson glows, dark-mode gradients), and an **art gallery** (Cormorant Garamond headlines, minimal white text).
+*   **The Diagnosis:** This DNA is **"technologist trying to decorate a portfolio."** It lacks singular focus.
+*   **The Target DNA:** **"The silent monograph of a master architect."** The interface must disappear completely. It must serve as a quiet, physical gallery wall where the photography is the sole hero.
 
-### Scoring Breakdown
-| Category | Score | Evaluative Verdict |
+---
+
+### Brand Tension
+
+To guide all future art direction decisions, Crossangle must deliberately position itself between these opposing visual qualities. Every choice must pull the interface toward the restrained center column rather than the extremes of corporate utility or decorative art:
+
+| Too Corporate | Crossangle (The Center) | Too Editorial |
 | :--- | :--- | :--- |
-| **1. Visual Hierarchy** | 5/10 | Focal points compete; heavy text shadows and loud banners fight with architectural imagery. |
-| **2. Color System** | 4/10 | Direct theme conflict (Dark/Crimson vs Light/Sage-Cream) and lack of luxury palette discipline. |
-| **3. Typography** | 5/10 | Basic system serifs and sans-serifs feel generic; lack of high-end editorial kerning. |
-| **4. Spacing & Rhythm** | 5/10 | Crowded section densities, inconsistent margins, and shifting container widths. |
-| **5. Layout System** | 5/10 | Modular SaaS/landing layout rather than asymmetrical, magazine-style editorial layouts. |
-| **6. Surface Design** | 4/10 | Over-reliance on decorative glass effects, glows, and mismatched shadow styles. |
-| **7. Imagery & Visual Language** | 5/10 | Stock photos have mismatched color temperatures; lack of unified cropping/ratios. |
-| **8. Component Consistency** | 3/10 | Extreme variation in buttons (sharp block vs pill vs rounded-10px) and inputs. |
-| **9. Wix / Framer / Awwwards Benchmarking** | 4/10 | Missing the signature minimalism, typographic confidence, and whitespace discipline. |
-| **10. Design Debt Reduction** | 3/10 | Too many competing corner radii, shadow tokens, and border styles. |
+| Software / Utility | **Architectural Studio** | Art Magazine |
+| Efficient / Fast | **Deliberate** | Slow / Pretentious |
+| Premium / Glossy | **Restrained** | Cold / Sterile |
+| Luxury / Expensive | **Crafted** | Decorative / Trendy |
+| Minimal / Sparse | **Human** | Empty / Void |
 
 ---
 
-## 10-Dimensional Detailed Audit
+### II. Identity Conflicts
 
-### 1. Visual Hierarchy (Score: 5/10)
-* **Focal Point Conflict:** On the Home Hero, the Ken Burns slide animation fights with the heavy white-to-gold header gradient text. The browser does not know whether to look at the cinematic interior render or read the text.
-* **Overpowering Elements:** Floating widgets (WhatsApp button, social bar, page dots, scroll progress) are constantly active on the screen, creating visual noise that distracts from the photography.
-* **Heavy-Handed Details:** The use of heavy text shadows (`text-shadow: 0 10px 38px rgba(0,0,0,0.42)`) feels dated and "development-built" rather than editorial. High-end brands rely on contrast and font-weight instead of text shadows to make elements readable.
+#### Conflict A: The Theatrical Dark Homepage vs. The Cream Estimator
+*   **Root Cause:** The homepage uses deep-black backgrounds, high-contrast white text, and heavy gold/red accents. The Estimator and Style Discovery pages switch to an airy light cream (`#faf8f5`) with sage-green and muted brown accents.
+*   **Visual Consequence:** Extreme contrast shock on navigation. The viewport flashes from 0% light value to 95% light value, exposing completely different border, typography, and accent treatments.
+*   **Psychological Consequence:** The user experiences a fracture in brand identity. It feels like navigating from a boutique design house to a generic, third-party loan calculator or utility tool.
+*   **Art-Direction Correction:** Unify the environment under one lighting state, but do not force the "Dark vs. Light" decision by arbitrary preference yet. Instead, create two art-directed prototypes (Gallery Dark vs. Gallery Light) using identical content. Let evidence decide which lighting condition best serves Crossangle's actual photography and client psychology based on: photography dominance, readability, emotional tone, and user time spent looking at the images. The Estimator must look like the architect's drafting board within whichever gallery lighting environment is selected.
 
----
+#### Conflict B: Saturated Crimson Signals vs. Serene Spatial Photography
+*   **Root Cause:** Saturated Crimson (`#C41230`) is used loudly for buttons, floating widgets, section labels, borders, and glows.
+*   **Visual Consequence:** Saturated red jumps forward to the highest visual plane, flattening the depth of field of the interior design photography behind it.
+*   **Psychological Consequence:** Crimson is the universal indicator of errors, warnings, and digital alerts. It introduces a sense of high-energy urgency that conflicts with the serenity of a luxury home.
+*   **Art-Direction Correction:** Ban primary crimson from UI controls. Limit active indicators to a single physical material accent color—such as weathered copper, raw bronze, or a desaturated terracotta—used strictly for micro-highlights (under 5% of the viewport).
 
-### 2. Color System (Score: 4/10)
-* **Theme Schism:**
-  * **Homepage / About / Services:** Deep black, crimson, and bright gold.
-  * **Estimator / Discovery:** Cream (`#faf8f5`), charcoal (`#1a1a1a`), sage green, and muted brown-gold (`#7a5c30`).
-  * **Impact:** Breaking the color system across pages destroys brand trust. A customer enters a dark, moody studio and is suddenly redirected to a bright green-beige calculator.
-* **Accent Overuse:** Crimson (`#C41230`) and Gold (`#D1AF6E`) are used as primary and secondary accents simultaneously on dark pages. In premium design, one accent must dominate while the other serves as a micro-highlight (e.g. 95% neutral/monochrome, 5% accent).
-* **Surface Inconsistencies:** Multiple dark card background values (`#0d0d0c`, `#0a0a09`, `#100D0A`, `hsl(0 0% 7%)`) fight each other instead of adopting a unified surface token scale.
-
----
-
-### 3. Typography (Score: 5/10)
-* **Font Pairing Deficit:** The sans-serif (Inter/DM Sans) and generic browser serif fail to create a luxury brand feel. Premium editorial sites typically pair a refined display serif (e.g., *Cormorant Garamond*, *Ogg*, *Caslon*) with an ultra-clean geometric sans (e.g., *Plus Jakarta Sans*, *Helvetica Neue*, *Montserrat*).
-* **Line Length:** Some body copy blocks exceed the optimal 60-70 character limit, reducing reading comfort on wide viewports (e.g., in the About page studio profile description).
-* **Kerning and Editorial Contrast:** Uppercase kickers and labels lack consistent letter-spacing. Some use `tracking-[0.38em]`, others use `tracking-[0.2em]`, and others use standard spacing.
+#### Conflict C: Digital Glassmorphism vs. Physical Materiality
+*   **Root Cause:** Standard cards and containers rely on semi-transparent backgrounds with heavy backdrop blurs, inset white borders, and soft glowing dropshadows.
+*   **Visual Consequence:** The interface feels digital, translucent, and synthetic.
+*   **Psychological Consequence:** Glassmorphic containers communicate "software dashboard." They fail to evoke the tactile weight, permanence, and craftsmanship of physical interior design.
+*   **Art-Direction Correction:** All containers must be solid, matte planes (resembling plaster, stone, or charcoal slabs) outlined by hairline-thin, low-contrast borders. Imprint structural weight through solid boundaries rather than digital transparencies.
 
 ---
 
-### 4. Spacing & Rhythm (Score: 5/10)
-* **Shifting Container Widths:** The layout switches between `container-wide` (`max-w-[1600px]`), `max-w-7xl` (`1280px`), and `max-w-[1480px]`. As a result, margins and grid alignments shift horizontally as the user scrolls, creating a disorganized feel.
-* **Lack of Breathing Room:** Vertical section padding is crowded. Sections feel rushed rather than relaxed. Luxury websites use spacious margins (e.g., `py-36` or `12vw` vertical margins) to let high-end photography shine.
-* **Whitespace Balance:** High-density text grids are placed too close to full-bleed images, lacking a gradual transition or negative space buffer.
+### III. Attention Ownership Map
+
+Currently, every view is a conflict of elements screaming for attention:
+*   **Hero Page:** Slide transitions + text metallic gold gradient + glowing crimson button + side scroll dots + ambient background radial gradients.
+*   **Style Discovery:** Rounded-full badges + Lucide icons + photo grids + white buttons.
+*   **Estimator:** Large sliders + step indicators + dense forms.
+
+#### The Current Competing Hierarchy (Non-Premium):
+$$\text{Gold Text Gradient} \longleftrightarrow \text{Crimson CTA Button} \longleftrightarrow \text{Background Radial Glow} \longleftrightarrow \text{Photography}$$
+
+#### The Target Art-Directed Hierarchy:
+$$\text{Photography (85\% Ownership)} \longrightarrow \text{Minimal White Typography} \longrightarrow \text{Silent Text Triggers}$$
+
+*   **Art-Direction Correction:** In every viewport, exactly **one** element must own the primary focus (usually a single piece of photography). Everything else—titles, buttons, navigation—must recede into the canvas.
 
 ---
 
-### 5. Layout System (Score: 5/10)
-* **Template feeling:** The layout is highly component-driven and symmetrical. It uses standard card grids, horizontal sliders, and alternating text/image rows.
-* **Missing Editorial Feeling:** It lacks asymmetrical layouts, full-bleed cinematic image sections, and offset typographic arrangements characteristic of bespoke design agencies.
-* **Repetitive Grids:** The use of simple three-column grids across the portfolio teaser, style discovery teaser, and testimonials feels template-built.
+### IV. Rhythm Map (Compression vs. Silence)
+
+*   **Current State:** The vertical flow is governed by uniform section paddings (`py-24 md:py-32`) and regular card intervals.
+*   **Visual Consequence:** A monotonous scroll pattern. Every screen is packed with equal density, giving the user no visual pauses.
+*   **Psychological Consequence:** The scrolling experience feels like reading a corporate slide deck. The user scrolls past content quickly without absorbing details.
+*   **Art-Direction Correction:** Establish a **Rhythmic Cadence** using the principles of *Visual Silence* (massive negative space), *Compression* (dense clusters of small text/metadata), and *Expansion* (sudden full-bleed imagery):
+    $$\text{Empty Obsidian Space} \longrightarrow \text{Micro-Caption} \longrightarrow \text{Full-Bleed Image} \longrightarrow \text{Dense Architectural Data}$$
 
 ---
 
-### 6. Surface Design (Score: 4/10)
-* **Excessive Glassmorphism:** The glass card styling (`backdrop-filter: blur(24px) saturate(180%)`, inset border, and shadows) is used as a generic wrapper. In high-end design, surfaces are flat, solid, or use simple, precise borders.
-* **Inconsistent Corners:** Corner radii range from completely sharp (`rounded-none`) to soft (`rounded-[10px]`, `rounded-2xl`, `rounded-[3rem]`). This lacks architectural discipline.
-* **Glow Overkill:** Glowing radial shadows (e.g., Crimson and Gold orbs) are placed in backgrounds, creating a gaming or futuristic SaaS feel rather than a physical, tactile architectural studio aesthetic.
+### V. Composition Analysis (Editorial vs. Template)
+
+*   **Current State:** The website is structured around perfect symmetrical grids (3 cards in a row, text perfectly centered, left-aligned columns matching right-aligned columns).
+*   **Visual Consequence:** It looks template-built, mirroring the standard layout of generic web templates.
+*   **Psychological Consequence:** It communicates "volume production" rather than "bespoke craftsmanship."
+*   **Art-Direction Correction:** Shift to **Asymmetric Editorial Composition**. Stagger image cards off the grid lines. Let captions sit offset from the images they describe. Place titles off-center to create visual tension and emulate high-end architectural monographs.
 
 ---
 
-### 7. Imagery & Visual Language (Score: 5/10)
-* **Mismatched Imagery Tone:** Photography includes stock images with highly divergent color grading. Some images have warm orange tones, while others use cool blue concrete finishes.
-* **Aspect Ratios:** Portfolio cards mix vertical aspect ratios (`4/5` and `3/4` layouts) in the same horizontal track, creating vertical shifts that disrupt clean horizontal lines.
+### VI. Material Language Consistency
+
+*   **Current State:** The site uses digital-only design artifacts: glass cards, glowing red backdrops, and metallic text gradients.
+*   **Visual Consequence:** The interface feels fake, flat, and light.
+*   **Psychological Consequence:** It devalues the physical materiality of the interior design studio, which specializes in natural timber, raw stone, and linen.
+*   **Art-Direction Correction:** Every interface element must have a **physical material analogy**:
+    *   *Canvas:* Warm plaster or textured charcoal.
+    *   *Dividers:* Hairline metal seams or shadows.
+    *   *Cards:* Solid matte slabs of stone or slate.
+    *   *Grains:* A subtle noise texture overlay to break digital flat pixels.
 
 ---
 
-### 8. Component Consistency (Score: 3/10)
-* **The Button Mess:**
-  * **Hero:** Sharp corners (`rounded-none`), crimson background, `tracking-[0.2em]`.
-  * **Style Teaser:** Rounded corners (`rounded-full`), white background, `tracking-[0.2em]`.
-  * **Estimator Intro:** Rounded corners (`rounded-full`), green background, `tracking-[0.15em]`.
-  * **Estimator Flow:** Soft corners (`rounded-[10px]`), brown-gold background, standard capitalization.
-  * **Impact:** This is the single clearest indicator of "development-built" code rather than a singular design system. Buttons should share a unified geometry.
-* **Inputs & Badges:** Different input border styles (`border-white/10` vs `border-[#e8e4dd]`) and hover states are used across the public form and the estimator flow.
+### VII. Photography Art Direction
+
+*   **Current State:** Images are cropped arbitrarily and mix cool concrete light with warm sunlight shots in the same grid.
+*   **Visual Consequence:** The visual grid looks disorganized, and the photographic mood is chaotic.
+*   **Psychological Consequence:** The studio's portfolio looks like a curation of other people's work rather than a unified design vision.
+*   **Art-Direction Correction:** Enforce a strict **Photographic Bible**:
+    *   *Light:* Diffused, natural overcast daylight or soft directional morning sun. No harsh flash photography or studio staging.
+    *   *Color:* Desaturated, organic tones. Warm limestone, dry oak, oxidized bronze.
+    *   *Scale:* Alternate between macro close-ups (wood grain, stone joinery) and wide-angle spatial geometry.
 
 ---
 
-### 9. Premium Score & Benchmarking (Score: 4/10)
-* **What Wix Studio / Framer Premium Templates / Awwwards do differently:**
-  * **Extreme Visual Discipline:** They establish one layout grid, one typography scale, and one button styling, maintaining it throughout the entire journey.
-  * **Subtlety:** Backgrounds are solid black, off-black, or warm off-white. They do not use neon glows, text gradients, or complex animations.
-  * **Tactile Aesthetics:** They focus on real materials (high-resolution architectural images, clean hairline dividers, subtle parallax) rather than digital-only effects.
+### VIII. Typography Hierarchy as Architecture
+
+*   **Current State:** Display headlines use Cormorant Garamond, but body text uses DM Sans, which is a round, friendly, circular sans-serif.
+*   **Visual Consequence:** DM Sans has heavy, bubbly geometry that clashes with the delicate, vertical lines of Cormorant Garamond.
+*   **Psychological Consequence:** The body text looks cheap and tech-like, destroying the classical elegance of the display headlines.
+*   **Art-Direction Correction:** Replace the body font with a clean, neutral grotesque typeface (such as Inter or Instrument Sans). Set all small labels in uppercase with wide tracking (`0.15em` to `0.2em`) to mimic stone engravings, and enforce constrained paragraph widths (maximum 65 characters) for a vertical column rhythm.
 
 ---
 
-### 10. Design Debt (Score: 3/10)
-* **Radius Scale Debt:** Over 6 different corner radius values are used in the codebase.
-* **Color System Debt:** Mismatched colors across main routes (pure black/crimson vs cream/sage).
-* **Overlay Debt:** Too many floating widgets fighting for user clicks.
-* **Typographic Debt:** Inconsistent tracking on uppercase elements.
+### IX. Motion Philosophy: Physical Kinetics
+
+*   **Current State:** Floating sidebar links, bouncing arrows, and fast slide animations.
+*   **Visual Consequence:** Constant minor movements that distract the eye.
+*   **Psychological Consequence:** The site feels nervous and dynamic in a cheap way, like an e-commerce sales page.
+*   **Art-Direction Correction:** All animations must behave with **physical weight and gravity**. Moving elements must use slow, decelerating curves. The slide transitions should mimic the movement of solid sliding wall panels—heavy, silent, and deliberate.
 
 ---
 
-## Top 20 Issues Ranked by Impact
+### X. The Emotional Journey
 
-| Rank | Issue | Category | Impact | Effort | Description |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **1** | Color & Theme Divide | Color System | Critical | Medium | Dark mode homepage vs Light cream estimator breaks brand identity. |
-| **2** | Button Style Fragmentation | Component | Critical | Low | Mixing `rounded-none`, `rounded-full`, and `rounded-[10px]` shapes. |
-| **3** | Heavy Heading Text Shadows | Visual | High | Low | Text shadows feel dated and muddy the luxury photography. |
-| **4** | Shifting Container Widths | Spacing | High | Medium | Grid columns shift width horizontally as you scroll. |
-| **5** | Conflicting Accent Colors | Color System | High | Low | Crimson and Gold fighting for dominance on dark pages. |
-| **6** | Inconsistent Corner Radii | Surface | High | Low | Incoherent rounding across cards, buttons, and sections. |
-| **7** | Generic Typographic System | Typography | High | Medium | Default font styles lack premium editorial feel. |
-| **8** | Shifting Background Grays | Color System | High | Low | Mixing `#0d0d0c`, `#0a0a09`, `#100D0A`, and HSL grays. |
-| **9** | Shaded Text Gradients | Visual | Medium | Low | Gradient fills make headers look like a SaaS app, not an architecture studio. |
-| **10** | Floating Widget Overlap | Hierarchy | Medium | Low | WhatsApp, social bar, progress dots, and page scroll occupy the screen. |
-| **11** | Inconsistent Section Padding | Spacing | Medium | Low | Vertical margins feel crowded and vary from 90px to 144px. |
-| **12** | Stock Image Color Mismatch | Imagery | Medium | Low | Unsplashed photography displays contradictory warm/cool filters. |
-| **13** | Shifting Input Border Styles | Component | Medium | Low | Form fields use different borders and radii depending on the route. |
-| **14** | Heavy Glassmorphism | Surface | Medium | Low | Glass cards with saturation and thick borders look over-designed. |
-| **15** | Background Neon Glows | Surface | Medium | Low | Tech-like radial glows detract from organic interior architecture. |
-| **16** | Mismatched Aspect Ratios | Imagery | Medium | Low | Project cards in the horizontal track have uneven heights. |
-| **17** | Missing Editorial Layouts | Layout | Medium | High | Symmetrical layout elements make the site feel like a template. |
-| **18** | Inconsistent Tracking | Typography | Low | Low | Tracking varies from `0.15em` to `0.38em` on uppercase headers. |
-| **19** | Long Line Lengths | Typography | Low | Low | Text blocks span too wide, lowering readability on desktops. |
-| **20** | Inconsistent Star Ratings | Component | Low | Low | Star rating designs differ in glowing and static weights. |
+*   **Current State:** The user enters a dark, intense theater (homepage), is bombarded with glowing highlights and floating widgets, and then gets flashed with a bright beige form interface. The emotional response is **fatigue, distraction, and confusion.**
+*   **Target Emotional State:** **Reverence, assurety, and focus.** The user should enter a silent, architectural sanctuary. The transitions must feel hushed and earned.
+*   **Art-Direction Correction:** Remove all floating pop-ups, simplify theme shifts, and design the navigation to feel like walking through a series of quiet, beautifully lit rooms.
 
 ---
 
-## Actionable Improvement Plan
+### XI. Visual Noise Inventory (The Subtraction Blueprint)
 
-### Phase 1: Quick Wins (High Impact, Low Effort)
-1. **Remove Heading Text Shadows & Gradients:**
-   * Strip out heavy text shadows and gradient fills on all `h1` and `h2` elements. Replace with solid, clean color and increase font-weight / contrast.
-2. **Consolidate Button Geometry:**
-   * Choose a single geometric shape for all primary buttons. For a premium architectural studio, **sharp corners (`rounded-none`)** or **subtle corners (`rounded-[4px]`)** convey a structural, high-end feeling. Eliminate all `rounded-full` buttons.
-3. **Mute background glows:**
-   * Reduce the opacity of background radial colors (e.g. `var(--home-glow-crimson)` and `var(--home-glow-gold)`) by 70% or remove them entirely to focus attention on the core photography.
-4. **Clean up Floating Overlays:**
-   * Restrict floating social bars and section nav dots to the homepage only, or merge them. Ensure they do not load on calculator or discovery pages to declutter the workspace.
+The following digital artifacts must be **completely removed** to allow the visual language to breathe:
 
-### Phase 2: Structural Improvements (Medium Effort)
-1. **Standardize Layout Widths:**
-   * Create a single grid container standard (e.g. `max-w-7xl` or a custom `max-w-[1440px]` with `px-8` side margins) and apply it to the Header, Footer, and all page body sections.
-2. **Harmonize Corner Radii:**
-   * Define three explicit radii values in `index.css`:
-     * `radius-sm`: `2px` (for checkboxes, inputs)
-     * `radius-md`: `6px` (for standard cards)
-     * `radius-lg`: `12px` (for large image cards)
-   * Eliminate all large rounded corners (`rounded-[3rem]`) which look bubbly rather than premium.
-3. **Audit and Grade Photography:**
-   * Pass all Unsplash images through a unified dark/warm color grade filter (e.g., lower saturation, slight warm shift) so the visual language is coherent.
-
-### Phase 3: Design System Improvements (Long-Term)
-1. **Unify the Theme (The Core Schism):**
-   * Transition the entire website to a **disciplined dark system** (deep charcoal backgrounds, warm limestone text, and subtle champagne gold/wine accents) OR a **monochrome light system** (warm linen background, off-black text, and structured dark headers).
-   * Do not mix bright dark pages with cream sage-green calculators.
-2. **Editorial Typography Integration:**
-   * Import a high-end display serif font (e.g. *Cormorant Garamond* via Google Fonts) for all main headings (`h1`, `h2`) and a clean grotesque sans (e.g. *Plus Jakarta Sans*) for body text.
+1.  **Floating Navigation Dots:** Remove. Replace with standard vertical scrolling momentum.
+2.  **Gold Metallic Text Gradients:** Remove. Headlines must be rendered in solid, premium off-white or charcoal.
+3.  **Lucide Sparkle/Star Icons:** Remove. Replace with clean, typographic hierarchy.
+4.  **Saturated Red Button Shadows:** Remove. Replace with soft, neutral ambient shadows.
+5.  **Translucent Glassmorphic Cards:** Remove. Change to solid matte planes.
+6.  **WhatsApp Floating Widget:** Remove. Relocate to the contact section or a clean link in the footer.
+7.  **Saturated Colored Badges:** Remove. Mute all status indicators to low-contrast, architectural tones.
 
 ---
 
-## Prioritized Implementation Roadmap
+### XII. Signature Moments (The Focus Areas)
 
-```mermaid
-gantt
-    title Visual Improvement Roadmap
-    dateFormat  YYYY-MM-DD
-    section Phase 1: Quick Wins
-    Clean shadows & gradients      :active, 2026-07-03, 2d
-    Button geometry unification    :2026-07-05, 2d
-    Mute neon background glows     :2026-07-07, 1d
-    Declutter floating overlays    :2026-07-08, 1d
-    section Phase 2: Structural
-    Standardize grid containers    :2026-07-09, 3d
-    Harmonize corner radii scale  :2026-07-12, 2d
-    Grade stock photography        :2026-07-14, 2d
-    section Phase 3: Design System
-    Unify Dark/Light theme schism  :2026-07-16, 5d
-    Integrate premium serif fonts  :2026-07-21, 3d
-```
+Rather than animating every button, we focus on three signature interactions:
 
-> [!NOTE]
-> All suggested commands for execution will follow once this initial audit is reviewed and aligned. No files have been modified yet.
+1.  **The Reveal (The Entrance):** A slow, vertical curtain-raise on initial load that simulates light slowly illuminating a dark architectural gallery.
+2.  **The Material Hover:** Inspecting a portfolio item should trigger a slow, imperceptible image scale (`1.02` over `1.5s`) while the caption fades in silently.
+3.  **The Workspace Cross-Fade:** Navigating to the Estimator should trigger a slow lighting transition, cross-fading the dramatic gallery shadows into the clean, diffused skylight of a physical drafting table.
+
+---
+
+### XIII. Negative Space Audit
+
+*   **The Landing Hero:** Text blocks are crowded. The description sits too close to the primary buttons.
+    *   *Correction:* Force the description and CTAs to align to the bottom grid line, leaving the top 60% of the screen entirely empty.
+*   **The Portfolio Track:** Cards are placed tightly together.
+    *   *Correction:* Increase horizontal margins between cards to `8vw`. Frame each project card in its own viewport space.
+*   **The Process Steps:** Symmetrical text blocks sit directly below headers.
+    *   *Correction:* Introduce large empty spaces (columns) between the stage description and the timeline graphic to create an editorial offset.
+
+---
+
+### XIV. "Why We Don't Feel Like Wix Studio / Awwwards Yet"
+
+Awwwards agency sites and premium Framer templates do not look premium because they have better shadows; they look premium because they have **courage.**
+
+They have the courage to:
+*   Show an image that takes up 100% of the screen with only three words of text in a corner.
+*   Leave 40% of the screen completely empty.
+*   Use only one font color and one accent color.
+*   Avoid adding floating support widgets, animated arrows, and glowing badges.
+
+Crossangle currently lacks that courage. It attempts to explain too much, highlight too much, and decorate too much.
+
+---
+
+## 3. The 5 Core Art Direction Decisions
+
+To solve this premium gap, we reject component-level fixes and establish these **5 governing decisions**:
+
+1. **Select a Single Lighting Environment:** The entire website (Homepage, Services, Estimator) will inhabit a single lighting state. We decide this environment by evaluating two identical-content prototypes (Gallery Dark vs. Gallery Light) across both a marketing context (**Room 1: Editorial Hero**) and a productivity context (**Room 2: Discovery Welcome**).
+   * *Rubric Weights:* Photography Dominance (20%), Emotional Trust (15%), Reading Comfort (15%), Premium Perception (15%), Brand Fit (15%), Workspace Transition Quality (10%), Time to First Meaningful Action (5%), and Hero Attention Distribution (5%).
+   * *Failure Split Rule:* If Gallery Dark wins for emotion but Gallery Light wins for readability and action, do not average the scores. Record the split and design a hybrid approach rather than committing to a compromised average.
+2. **Enforce Architectural Sharpness:** Establish a sharp geometric rule globally. Corner radius variables are locked to `0px` (Sharp) or `2px` (Tactile). All rounded-full buttons and rounded-2xl cards are banned.
+3. **Photography Owns Attention, Interface Owns Clarity:** Remove all colored radial backgrounds and text gradients. Let high-resolution photography own the attention, while the interface focuses strictly on clarity. Do not suppress useful interactive states, but ensure they remain quiet and functional rather than decorative.
+4. **Introduce Editorial Asymmetry:** Reorganize the grid templates. Introduce staggered image card placements and asymmetrical whitespace gaps.
+5. **Purge the Digital Noise:** Remove floating nav dots, WhatsApp pills, icons from buttons, and decorative badges.

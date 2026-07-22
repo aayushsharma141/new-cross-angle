@@ -189,7 +189,8 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="relative flex flex-col w-full min-h-screen overflow-x-hidden bg-[#faf8f5] text-[#1a1a1a] selection:bg-[#c9a96e]/20"
+      className="relative flex flex-col w-full min-h-screen overflow-x-hidden bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)] selection:bg-[#c9a96e]/20"
+      data-environment="workspace"
     >
       {/* ── SoftAurora Living Background ── */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -277,10 +278,12 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col items-center text-center max-w-5xl w-full"
+              className="w-full max-w-7xl mx-auto"
             >
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-start pt-12 md:pt-24 mb-32">
+                <div className="lg:col-span-8 flex flex-col items-start text-left">
               {/* Eyebrow Label */}
-              <div className="mb-4">
+              <div className="mb-6">
                 <div className="inline-block bg-[#70593a]/10 px-4 py-1.5 rounded-full shadow-sm">
                   <ShinyText
                     text={lang === "hi" ? "Aesthetic Discovery Engine" : "Aesthetic Discovery Engine"}
@@ -294,7 +297,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
               </div>
 
               {/* Main Headline */}
-              <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.12] mb-6 text-[#1a1a1a] max-w-3xl tracking-tight">
+              <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.12] mb-8 text-[var(--s-text-primary)] tracking-tight">
                 {lang === "hi" ? (
                   <>
                     Zyadatar tools poochte hain kya chahiye. <br />
@@ -311,11 +314,11 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
               </h1>
 
               {/* Psychology Subtitle Statement */}
-              <p className="text-lg md:text-xl text-[#3a3a3a] max-w-2xl leading-relaxed mb-4 font-light">
+              <p className="text-lg md:text-xl text-[var(--s-text-secondary)] max-w-2xl leading-relaxed mb-6 font-light">
                 {lang === "hi" ? (
-                  <>Aapka ghar ek design problem nahi hai. Yeh ek <strong className="text-[#1a1a1a] font-semibold">psychology ka sawal</strong> hai.</>
+                  <>Aapka ghar ek design problem nahi hai. Yeh ek <strong className="text-[var(--s-text-primary)] font-semibold">psychology ka sawal</strong> hai.</>
                 ) : (
-                  <>Your home is not a design problem. It's a <strong className="text-[#1a1a1a] font-semibold">psychology question</strong>.</>
+                  <>Your home is not a design problem. It's a <strong className="text-[var(--s-text-primary)] font-semibold">psychology question</strong>.</>
                 )}
               </p>
 
@@ -324,7 +327,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
                   ? "Hum aapke emotional needs, lifestyle patterns aur space reality ko map karte hain — fir use cost estimation aur space layout blueprint me badalte hain."
                   : "We map your emotional needs, lifestyle patterns, and spatial reality — then translate that into a feasibility analysis and investment blueprint."
                 }
-                className="text-sm md:text-base text-[#5a5a5a] max-w-2xl leading-relaxed mb-6 font-light"
+                className="text-sm md:text-base text-[var(--s-text-tertiary)] max-w-2xl leading-relaxed mb-10 font-light"
                 delay={80}
                 animateBy="words"
                 direction="top"
@@ -332,7 +335,7 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
               />
 
               {/* Aesthetic Micro-indicators */}
-              <div className="text-xs md:text-sm font-mono tracking-[0.25em] text-[#70593a] mb-10 flex items-center justify-center gap-2 font-bold uppercase">
+              <div className="text-xs md:text-sm font-mono tracking-[0.25em] text-[#70593a] mb-12 flex items-center gap-2 font-bold uppercase">
                 <span>Open.</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#70593a]/30" />
                 <span>Curated.</span>
@@ -340,13 +343,15 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
                 <span>Alive.</span>
                 <span className="w-1 h-3.5 bg-[#70593a] animate-pulse rounded-full" />
               </div>
+            </div>
 
+            <div className="lg:col-span-4 flex flex-col items-start lg:pt-16 lg:border-l border-[var(--s-border-subtle)] lg:pl-12">
               {/* Premium Dual CTA Actions */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-5 w-full max-w-md mb-16 z-20">
+              <div className="flex flex-col w-full gap-5 mb-12 z-20">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="relative group overflow-hidden w-full sm:w-auto px-10 py-4 bg-[#c9a96e] hover:bg-[#b5955a] text-black font-semibold text-xs font-mono uppercase tracking-[0.2em] transition-all duration-300 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[#80643e] focus-visible:outline-none"
+                  className="relative group overflow-hidden w-full px-10 py-5 bg-[#c9a96e] hover:bg-[#b5955a] text-black font-semibold text-xs font-mono uppercase tracking-[0.2em] transition-all duration-300 rounded-none shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#80643e] focus-visible:outline-none"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     {lang === "hi" ? "Apna Style Discover Karein" : "Discover My Style"}
@@ -358,30 +363,32 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
                 <button
                   type="button"
                   onClick={() => handleStartQuiz("quick")}
-                  className="w-full sm:w-auto px-10 py-4 text-xs font-mono font-bold tracking-[0.25em] uppercase border border-[#70593a] text-[#70593a] hover:bg-[#70593a]/5 transition-all duration-300 rounded-full focus-visible:ring-2 focus-visible:ring-[#70593a] focus-visible:outline-none"
+                  className="w-full px-10 py-4 text-xs font-mono font-bold tracking-[0.25em] uppercase border border-[var(--s-border-subtle)] text-[var(--s-text-secondary)] hover:bg-[var(--s-text-primary)] hover:text-[var(--s-canvas-primary)] transition-all duration-300 rounded-none focus-visible:ring-2 focus-visible:ring-[var(--s-text-primary)] focus-visible:outline-none"
                 >
                   {lang === "hi" ? "Quick Quiz · 3 Min" : "Quick Quiz · 3 Min"}
                 </button>
               </div>
 
               {/* Tally / Social Proof */}
-              <div className="mb-14 flex items-center justify-center gap-3 bg-white/50 backdrop-blur-sm border border-[#e8e4dd] px-6 py-2.5 rounded-full shadow-sm">
-                <div className="flex -space-x-1">
-                  <div className="w-5 h-5 rounded-full bg-[#354f40] border border-white flex items-center justify-center text-[7px] font-bold text-white">C</div>
-                  <div className="w-5 h-5 rounded-full bg-[#80643e] border border-white flex items-center justify-center text-[7px] font-bold text-white">A</div>
-                  <div className="w-5 h-5 rounded-full bg-[#354f40] border border-white flex items-center justify-center text-[7px] font-bold text-white">P</div>
+              <div className="flex flex-col items-start gap-3 bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)] p-6 rounded-none w-full">
+                <div className="flex -space-x-1 mb-2">
+                  <div className="w-6 h-6 rounded-full bg-[#354f40] border border-[var(--s-canvas-primary)] flex items-center justify-center text-[8px] font-bold text-white">C</div>
+                  <div className="w-6 h-6 rounded-full bg-[#80643e] border border-[var(--s-canvas-primary)] flex items-center justify-center text-[8px] font-bold text-white">A</div>
+                  <div className="w-6 h-6 rounded-full bg-[#354f40] border border-[var(--s-canvas-primary)] flex items-center justify-center text-[8px] font-bold text-white">P</div>
                 </div>
-                <span className="text-[11px] font-mono tracking-wide text-[#3a3a3a] font-medium">
-                  <strong className="text-[#1a1a1a]">
-                  <CountUp to={quizCount} duration={2.5} separator="," />+
-                </strong>{" "}
+                <span className="text-xs font-mono tracking-wide text-[var(--s-text-secondary)] font-medium leading-relaxed">
+                  <strong className="text-[var(--s-text-primary)] block text-lg mb-1">
+                    <CountUp to={quizCount} duration={2.5} separator="," />+
+                  </strong>
                   {lang === "hi" ? "homeowners ne discovery complete ki" : "homeowners completed aesthetic discovery"}
                 </span>
               </div>
+            </div>
+          </div>
 
               {/* ── Section 2: Single Row Stats Boxes (Readability Optimized) ── */}
-              <div className="w-full max-w-5xl">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+              <div className="w-full max-w-7xl mx-auto border-t border-[var(--s-border-subtle)] pt-24 mb-24">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 w-full">
                   {[
                     { num: 73, suffix: "%", prefix: "", label: lang === "hi" ? "log naye ghar me shift hone ke baad design mistakes ko regret karte hain." : "of homeowners regret design decisions after moving in." },
                     { num: 2.4, suffix: "L", prefix: "₹", label: lang === "hi" ? "ki average cost aati hai move-in hone ke baad design mistakes ko theek karne me." : "average cost of correcting spatial misalignments post-occupancy." },
@@ -389,12 +396,12 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
                   ].map((item, idx) => (
                     <div
                       key={idx}
-                      className="p-6 md:p-8 bg-white border border-[#e8e4dd]/80 rounded-2xl shadow-sm hover:shadow-md hover:border-[#70593a]/30 transition-all duration-300 text-left group flex flex-col justify-between"
+                      className="p-8 bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)] rounded-none hover:border-[var(--s-text-primary)] transition-all duration-300 text-left group flex flex-col justify-between"
                     >
-                      <h3 className="text-4xl md:text-5xl font-serif italic text-[#70593a] mb-3 group-hover:scale-105 origin-left transition-transform duration-300">
+                      <h3 className="text-5xl md:text-6xl font-serif italic text-[var(--s-text-primary)] mb-6 group-hover:scale-105 origin-left transition-transform duration-300">
                         {item.prefix}<CountUp to={item.num} duration={2.5} />{item.suffix}
                       </h3>
-                      <p className="text-xs md:text-sm text-[#3a3a3a] leading-relaxed font-semibold">
+                      <p className="text-sm text-[var(--s-text-secondary)] leading-relaxed font-light">
                         {item.label}
                       </p>
                     </div>

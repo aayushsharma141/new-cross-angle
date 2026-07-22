@@ -7,11 +7,16 @@ interface ProjectNarrativeSpineProps {
 
 // Chapter tick marks along the spine path — positions as % of total path length
 const CHAPTER_TICKS = [
-  { pct: 0.00, label: "THE DREAM",  stage: 0 },
-  { pct: 0.22, label: "IMMERSE",    stage: 1 },
-  { pct: 0.44, label: "TRANSFORM",  stage: 2 },
-  { pct: 0.66, label: "THE CRAFT",  stage: 3 },
-  { pct: 0.88, label: "OUTCOME",    stage: 4 },
+  { pct: 0.00, label: "ARRIVAL",        stage: 0 },
+  { pct: 0.11, label: "CONTEXT",        stage: 1 },
+  { pct: 0.22, label: "CONSTRAINTS",    stage: 2 },
+  { pct: 0.33, label: "DESIGN",         stage: 3 },
+  { pct: 0.44, label: "MATERIALS",      stage: 4 },
+  { pct: 0.55, label: "PROCESS",        stage: 5 },
+  { pct: 0.66, label: "TRANSFORM",      stage: 6 },
+  { pct: 0.77, label: "OUTCOME",        stage: 7 },
+  { pct: 0.88, label: "REFLECTION",     stage: 8 },
+  { pct: 1.00, label: "NEXT",           stage: 9 },
 ];
 
 export const ProjectNarrativeSpine = ({
@@ -48,7 +53,7 @@ export const ProjectNarrativeSpine = ({
         <motion.line
           x1="1" y1="0"
           x2="1" y2={TOTAL_LEN}
-          stroke="var(--site-gold, #C5A880)"
+          stroke="var(--primary, #C5A880)"
           strokeWidth="1.5"
           strokeDasharray={TOTAL_LEN}
           style={{ strokeDashoffset: strokeDash }}
@@ -79,7 +84,7 @@ export const ProjectNarrativeSpine = ({
                 {isActive && (
                   <motion.div
                     layoutId="spineActiveCrosshair"
-                    className="absolute inset-0 border border-site-gold/30 rounded-full"
+                    className="absolute inset-0 border border-primary/30 rounded-full"
                     transition={{ type: "spring", stiffness: 260, damping: 28 }}
                   />
                 )}
@@ -87,9 +92,9 @@ export const ProjectNarrativeSpine = ({
                   className={[
                     "w-1.5 h-1.5 rounded-full border relative z-10 transition-all duration-700",
                     isActive
-                      ? "bg-site-gold border-site-gold scale-125 shadow-[0_0_8px_2px_rgba(197,168,128,0.6)]"
+                      ? "bg-primary border-primary scale-125 shadow-[0_0_8px_2px_rgba(197,168,128,0.6)]"
                       : isPast
-                      ? "bg-site-gold/40 border-site-gold/40 scale-100"
+                      ? "bg-primary/40 border-primary/40 scale-100"
                       : "bg-neutral-900 border-white/15",
                   ].join(" ")}
                 />
@@ -100,7 +105,7 @@ export const ProjectNarrativeSpine = ({
                 animate={{
                   opacity: isActive ? 1 : 0.3,
                   x: isActive ? 0 : -2,
-                  color: isActive ? "var(--site-gold, #C5A880)" : "rgb(87,83,78)",
+                  color: isActive ? "var(--primary, #C5A880)" : "rgb(87,83,78)",
                 }}
                 transition={{ duration: 0.5 }}
                 className="text-[8px] font-mono tracking-[0.25em] font-medium whitespace-nowrap"

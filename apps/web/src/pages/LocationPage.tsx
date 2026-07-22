@@ -177,13 +177,13 @@ const LocationPage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-4xl"
           >
-            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold flex items-center gap-4 mb-6">
-              <div className="w-12 h-px bg-site-crimson" />
+            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-primary flex items-center gap-4 mb-6">
+              <div className="w-12 h-px bg-primary" />
               Local Service Area
             </span>
             <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.05] tracking-tight text-white mb-8">
               Luxury Interior Design in <br />
-              <em className="italic font-medium text-site-crimson">{formattedCity}</em>.
+              <em className="italic font-medium text-primary">{formattedCity}</em>.
             </h1>
             <p className="text-[1.1rem] text-white/60 font-light leading-relaxed mb-12 max-w-2xl">
               Cross Angle Interior brings global design standards to {formattedCity}. Whether you are looking for turnkey residential execution, sophisticated commercial environments, or bespoke modular kitchens, our team delivers uncompromised excellence right to your doorstep.
@@ -191,7 +191,7 @@ const LocationPage = () => {
             
             <div className="flex flex-col sm:flex-row gap-6">
               <Link to="/estimate">
-                <button className="px-8 py-4 bg-site-crimson text-white text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-site-crimson/90 transition-colors w-full sm:w-auto">
+                <button className="px-8 py-4 bg-primary text-white text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-primary/90 transition-colors w-full sm:w-auto">
                   Start Your Project
                 </button>
               </Link>
@@ -208,7 +208,7 @@ const LocationPage = () => {
         <section className="border-t border-white/5 bg-[#050505] py-24">
           <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
             <div>
-              <div className="flex items-center gap-3 mb-6 text-site-gold">
+              <div className="flex items-center gap-3 mb-6 text-primary">
                 <MapPin className="w-5 h-5" />
                 <span className="text-[11px] uppercase tracking-[0.2em] font-bold">Serving {formattedCity}</span>
               </div>
@@ -240,7 +240,7 @@ const LocationPage = () => {
                   "Dedicated Project Management"
                 ].map((item, idx) => (
                   <li key={idx} className="flex items-center gap-4 text-white/80 text-sm">
-                    <div className="w-1.5 h-1.5 rounded-full bg-site-crimson" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                     {item}
                   </li>
                 ))}
@@ -257,7 +257,7 @@ const LocationPage = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
               <div className="absolute bottom-8 left-8">
                 <div className="text-2xl font-display text-white">{formattedCity} Studio</div>
-                <div className="text-sm font-light text-site-gold mt-1">Accepting New Projects</div>
+                <div className="text-sm font-light text-primary mt-1">Accepting New Projects</div>
               </div>
             </div>
           </div>
@@ -266,11 +266,11 @@ const LocationPage = () => {
         {/* Demographic & Design Insights Section */}
         {locationDetails.demographics && (
           <section className="bg-black py-24 border-t border-white/5 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-site-crimson/5 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
             <div className="max-w-[1400px] mx-auto px-6 relative z-10">
               <div className="mb-16">
-                <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold flex items-center gap-4 mb-4">
-                  <div className="w-12 h-px bg-site-crimson" />
+                <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-primary flex items-center gap-4 mb-4">
+                  <div className="w-12 h-px bg-primary" />
                   Local Market Intelligence
                 </span>
                 <h2 className="font-display text-3xl md:text-5xl text-white tracking-tight">
@@ -280,26 +280,26 @@ const LocationPage = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {/* Insight Cards */}
-                <div className="bg-[#0a0a0a] border border-white/5 p-8 rounded-xl hover:border-site-crimson/30 transition-colors">
-                  <div className="text-site-gold mb-4"><Users className="w-6 h-6" /></div>
+                <div className="bg-[#0a0a0a] border border-white/5 p-8 rounded-xl hover:border-primary/30 transition-colors">
+                  <div className="text-primary mb-4"><Users className="w-6 h-6" /></div>
                   <h3 className="text-sm uppercase tracking-[0.1em] text-white/50 mb-2 font-bold">Population</h3>
                   <p className="text-xl font-display text-white">{locationDetails.demographics.population}</p>
                 </div>
                 
-                <div className="bg-[#0a0a0a] border border-white/5 p-8 rounded-xl hover:border-site-crimson/30 transition-colors">
-                  <div className="text-site-gold mb-4"><Building className="w-6 h-6" /></div>
+                <div className="bg-[#0a0a0a] border border-white/5 p-8 rounded-xl hover:border-primary/30 transition-colors">
+                  <div className="text-primary mb-4"><Building className="w-6 h-6" /></div>
                   <h3 className="text-sm uppercase tracking-[0.1em] text-white/50 mb-2 font-bold">Primary Vibe</h3>
                   <p className="text-xl font-display text-white">{locationDetails.demographics.primaryVibe}</p>
                 </div>
                 
-                <div className="bg-[#0a0a0a] border border-white/5 p-8 rounded-xl hover:border-site-crimson/30 transition-colors">
-                  <div className="text-site-gold mb-4"><Home className="w-6 h-6" /></div>
+                <div className="bg-[#0a0a0a] border border-white/5 p-8 rounded-xl hover:border-primary/30 transition-colors">
+                  <div className="text-primary mb-4"><Home className="w-6 h-6" /></div>
                   <h3 className="text-sm uppercase tracking-[0.1em] text-white/50 mb-2 font-bold">Architectural Trend</h3>
                   <p className="text-xl font-display text-white">{locationDetails.demographics.architecturalTrend}</p>
                 </div>
 
-                <div className="bg-[#0a0a0a] border border-white/5 p-8 rounded-xl hover:border-site-crimson/30 transition-colors">
-                  <div className="text-site-gold mb-4"><ArrowRight className="w-6 h-6" /></div>
+                <div className="bg-[#0a0a0a] border border-white/5 p-8 rounded-xl hover:border-primary/30 transition-colors">
+                  <div className="text-primary mb-4"><ArrowRight className="w-6 h-6" /></div>
                   <h3 className="text-sm uppercase tracking-[0.1em] text-white/50 mb-2 font-bold">Market Demand</h3>
                   <p className="text-sm text-white/80 leading-relaxed">{locationDetails.demographics.marketDemand}</p>
                 </div>

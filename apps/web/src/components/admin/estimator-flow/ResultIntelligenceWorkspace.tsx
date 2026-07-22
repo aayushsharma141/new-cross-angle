@@ -4,8 +4,8 @@ import { AdminSafeAction } from "@/components/admin/shared";
 import { Save, RotateCcw, Loader2, FileText, MessageSquare } from "lucide-react";
 import { icons } from "@/design-system/tokens/icons";
 import { AdminFormCard } from "@/components/admin/shared";
-import { Textarea } from "@/components/ui/primitives/textarea";
-import { Input } from "@/components/ui/primitives/input";
+import { Textarea } from "@/components/primitives/interactive";
+import { Input } from "@/components/primitives/interactive";
 import type { useEstimatorRegistry } from "@/lib/registry/EstimatorRegistry";
 
 interface Props {

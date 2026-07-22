@@ -10,7 +10,8 @@
     "python.testing.unittestEnabled": true,
     "css.lint.unknownAtRules": "ignore",
     "files.associations": {
-        "*.css": "tailwindcss"
+        "*.css": "tailwindcss",
+        "supabase/migrations/**/*.sql": "postgres"
     },
     "tailwindCSS.includeLanguages": {
         "css": "css"
@@ -19,7 +20,7 @@
     "deno.enablePaths": [
         "supabase/functions"
     ],
-    "deno.unstable": true,
+    "deno.unstable": [],
     "deno.lint": true,
     "ralphLoop.defaultMode": "Planning",
     "go.toolsEnvVars": {

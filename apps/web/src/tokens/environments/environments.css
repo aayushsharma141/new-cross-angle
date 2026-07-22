@@ -1,65 +1,47 @@
 /* CORE */
 
-/* DEFAULT / GALLERY */
-[data-environment="gallery"] {
-  --m-wall:      var(--f-charcoal-950);
-  --m-floor:     var(--f-charcoal-950);
-  --m-surface:   var(--f-charcoal-800);
-  --m-panel:     var(--f-charcoal-700);
-  --m-paper:     var(--f-charcoal-900);
-  --m-glass:     color-mix(in srgb, var(--f-charcoal-900) 65%, transparent);
-  --m-metal:     var(--f-bronze-300);
-  --m-fabric:    var(--f-charcoal-800);
-  --m-wood:      var(--f-charcoal-950);
-  --m-shadow:    var(--f-shadow-500);
-  --m-highlight: var(--f-stone-50);
-  --m-line:      color-mix(in srgb, var(--f-stone-50) 8%, transparent);
-  --m-detail:    var(--f-stone-50);
-  --m-subtext:   var(--f-stone-200);
-  --m-caption:   var(--f-stone-400);
-}
-
-/* ENTRANCE */
-[data-environment="entrance"] {
-  --m-wall:      var(--f-charcoal-950);
-  --m-floor:     var(--f-charcoal-950);
-  --m-surface:   var(--f-charcoal-800);
-  --m-panel:     var(--f-charcoal-700);
-  --m-paper:     var(--f-charcoal-900);
-  --m-metal:     var(--f-bronze-300);
-  --m-shadow:    var(--f-shadow-600);
-  --m-detail:    var(--f-stone-25);
-  --m-subtext:   var(--f-stone-100);
-  --m-caption:   var(--f-stone-400);
-}
-
-/* WORKSPACE (The Architect's Drafting Table) */
-[data-environment="workspace"] {
-  --m-wall:      var(--f-stone-25);
-  --m-floor:     var(--f-stone-25);
-  --m-surface:   var(--f-linen-100);
-  --m-panel:     var(--f-linen-200);
-  --m-paper:     var(--f-linen-200);
-  --m-glass:     color-mix(in srgb, var(--f-stone-50) 80%, transparent);
-  --m-metal:     var(--f-charcoal-900);
-  --m-fabric:    var(--f-linen-100);
-  --m-wood:      var(--f-charcoal-950);
+/* FROZEN GLOBAL LIGHTING: GALLERY LIGHT */
+/* The baseline aesthetic for the entire application (limestone, paper, charcoal, bronze). */
+:root, [data-environment="gallery"] {
+  --m-wall:      hsl(40 10% 97%);    /* limestone/warm plaster */
+  --m-floor:     hsl(40 10% 97%);
+  --m-plaster:   hsl(40 10% 95%);
+  --m-surface:   hsl(38 22% 92%);    /* stone-colored surface */
+  --m-slab:      hsl(38 22% 92%);
+  --m-panel:     hsl(38 22% 89%);
+  --m-paper:     hsl(38 22% 94%);
+  --m-glass:     color-mix(in srgb, hsl(40 10% 97%) 80%, transparent);
+  --m-metal:     hsl(43 35% 50%);    /* bronze interaction cue */
+  --m-fabric:    hsl(38 22% 92%);
+  --m-wood:      hsl(0 0% 6%);
   --m-shadow:    var(--f-shadow-100);
-  --m-highlight: var(--f-charcoal-950);
-  --m-line:      color-mix(in srgb, var(--f-charcoal-950) 6%, transparent);
-  --m-detail:    var(--f-charcoal-950);
-  --m-subtext:   var(--f-charcoal-700);
-  --m-caption:   var(--f-charcoal-500);
+  --m-highlight: hsl(0 0% 6%);
+  --m-line:      color-mix(in srgb, hsl(0 0% 6%) 8%, transparent);
+  --m-detail:    hsl(0 0% 6%);       /* charcoal text */
+  --m-subtext:   hsl(0 0% 30%);
+  --m-caption:   hsl(0 0% 50%);
 }
 
-/* CONSULTATION */
+/* ENTRANCE: Maximum design silence */
+/* Surfaces blend into the wall to let photography dictate structure. */
+[data-environment="entrance"] {
+  --m-surface:   var(--m-wall);
+  --m-panel:     var(--m-wall);
+  --m-shadow:    var(--f-shadow-none); /* Quieter chrome */
+}
+
+/* WORKSPACE: Drafting precision */
+/* Crisper surfaces mimicking stacked paper; slightly sharper lines for dense information. */
+[data-environment="workspace"] {
+  --m-surface:   hsl(38 15% 96%);    /* Crisper paper */
+  --m-panel:     hsl(38 15% 93%);
+  --m-line:      color-mix(in srgb, hsl(0 0% 6%) 12%, transparent); /* Stronger grid lines */
+}
+
+/* CONSULTATION: Calmer rhythm */
+/* Slightly warmer, more intimate surfaces. */
 [data-environment="consultation"] {
-  --m-wall:      var(--f-charcoal-900);
-  --m-floor:     var(--f-charcoal-900);
-  --m-surface:   var(--f-charcoal-700);
-  --m-panel:     var(--f-charcoal-800);
-  --m-paper:     var(--f-charcoal-800);
-  --m-metal:     var(--f-bronze-200);
-  --m-shadow:    var(--f-shadow-300);
-  --m-line:      color-mix(in srgb, var(--f-bronze-300) 12%, transparent);
+  --m-surface:   hsl(38 28% 90%);    /* Warmer stone */
+  --m-panel:     hsl(38 28% 87%);
+  --m-metal:     hsl(43 40% 45%);    /* Richer bronze for intimate interaction */
 }

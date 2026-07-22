@@ -1,0 +1,9 @@
+
+    INSERT INTO workspace_commitment_revisions (
+      id, commitment_id, lead_id, project_snapshot, narrative_brief, 
+      is_locked, locked_at, decision_schema_version, decision_genome, workspace_state
+    ) VALUES (
+      '99f577d4-7030-443b-b44c-ca3298f3a8be', '3ddbdea0-4b1c-4097-b790-10829e2c2924', '019008f6-b252-4d58-b8d1-5715b81d89cd', '{"propertyType":"Apartment","bhk":"2 BHK","area":1100,"stage":"Raw","floors":1,"floorNumber":5,"livingRooms":1,"bedrooms":2,"bathrooms":2,"toilets":0,"kitchen":1,"balconies":1,"hasPool":false,"hasGarden":false,"hasGym":false,"hasHomeTheater":false,"hasServantQuarters":false,"hasCoveredParking":true,"cabins":0,"conferenceRooms":0,"hasReception":false,"hasPantry":false,"hasServerRoom":false,"hasTrainingRoom":false,"hasLounge":false,"renovationScope":null,"renovationRooms":[],"renovationPropertyType":null,"state":"Maharashtra","city":"Mumbai","cityTier":"metro","budgetAmount":3000000,"budgetPreset":"Mid-range","selectedService":"Core","executionTier":null,"modularKitchen":true,"wardrobes":2,"falseCeiling":true,"smartHome":false,"customFurniture":false,"premiumLighting":false,"startTiming":"3-4 Months","projectMonths":4,"extraVisits":5,"name":"Client FC001","email":"client-fc001-1783439380741@example.com","phone":"0987654321","bespoke_notes":"Existing plumbing remains, kitchen footprint unchanged, no structural modifications"}', 'Straightforward 2 BHK interior modernization. Mid-range budget. Constraints verified: plumbing and kitchen footprint locked, no structural changes. Recommending core modernization package focusing on surfaces, lighting, and modular components.', 
+      true, NOW(), '1.0', '{}'::jsonb, '{}'::jsonb
+    );
+  

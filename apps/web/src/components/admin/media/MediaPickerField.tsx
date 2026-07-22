@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Button } from "@/components/ui/primitives/button";
 import { Image as ImageIcon, X } from "lucide-react";
 import { UniversalAssetPicker } from "@/components/admin/media/UniversalAssetPicker";

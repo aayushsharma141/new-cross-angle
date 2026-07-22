@@ -1,4 +1,4 @@
-import { User, LogOut, Settings, Clock, TrendingUp } from "lucide-react";
+import { User, LogOut, Settings, Clock, TrendingUp, Activity } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import {
     DropdownMenu,
@@ -142,6 +142,14 @@ export function TopBar() {
                                         onClick={() => navigate(ADMIN_ROUTES.userAccess.path)}
                                     >
                                         <User className="mr-3 h-3.5 w-3.5 text-admin-muted" /> Account management
+                                    </DropdownMenuItem>
+                                )}
+                                {role === 'super_admin' && (
+                                    <DropdownMenuItem
+                                        className="cursor-pointer text-xs py-2 px-3 hover:bg-admin-surface focus:bg-admin-surface"
+                                        onClick={() => navigate('/admin/learning-health')}
+                                    >
+                                        <Activity className="mr-3 h-3.5 w-3.5 text-emerald-400" /> Operational Health
                                     </DropdownMenuItem>
                                 )}
                             </DropdownMenuContent>

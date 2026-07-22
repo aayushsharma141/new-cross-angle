@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminSafeAction, AdminEmptyState, AdminSkeletonCard } from "@/components/admin/shared";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import {
     Dialog,
@@ -417,7 +417,7 @@ export default function AdminProcessSteps() {
                                     <Input
                                         id="image_alt"
                                         name="image_alt"
-                                        placeholder="Describe the image…"
+                                        placeholder="Describe the imageï¿½"
                                         defaultValue={editingStep?.image_alt || ""}
                                         className="admin-input"
                                     />
@@ -430,7 +430,7 @@ export default function AdminProcessSteps() {
                             <Input
                                 id="description"
                                 name="description"
-                                placeholder="Brief summary of the step…"
+                                placeholder="Brief summary of the stepï¿½"
                                 defaultValue={editingStep?.description || ""}
                                 required
                                 className="admin-input"
@@ -442,7 +442,7 @@ export default function AdminProcessSteps() {
                             <Textarea
                                 id="detail"
                                 name="detail"
-                                placeholder="Full details about this process step…"
+                                placeholder="Full details about this process stepï¿½"
                                 defaultValue={editingStep?.detail || ""}
                                 required
                                 className="admin-input min-h-[100px]"
@@ -464,7 +464,7 @@ export default function AdminProcessSteps() {
                                 className="admin-btn-primary"
                             >
                                 {(createMutation.isPending || updateMutation.isPending) ? (
-                                    "Saving…"
+                                    "Savingï¿½"
                                 ) : (
                                     editingStep ? "Update Step" : "Create Step"
                                 )}

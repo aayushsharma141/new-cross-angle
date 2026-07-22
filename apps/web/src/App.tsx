@@ -126,8 +126,8 @@ const AnimatedRoutes = () => {
                     </Routes>
                   </AnimatedContent>
                 </AnimatePresence>
-                <WhatsAppButton />
-                {!location.pathname.startsWith("/estimate") && !location.pathname.startsWith("/discovery") && <FixedSocialBar />}
+                {location.pathname !== "/" && <WhatsAppButton />}
+                {location.pathname !== "/" && !location.pathname.startsWith("/estimate") && !location.pathname.startsWith("/discovery") && <FixedSocialBar />}
               </Suspense>
             </ErrorBoundary>
           </SmoothScroll>

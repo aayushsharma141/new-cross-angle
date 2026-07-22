@@ -4,6 +4,8 @@
 > Agents READ this. Never rewrite it unless Aayush approves.
 > For things that change, use .context/state.md instead.
 
+> **Crossangle exists to increase the quality of professional judgment by making decision-making observable, replayable, and falsifiable.**
+
 ---
 
 ## Project

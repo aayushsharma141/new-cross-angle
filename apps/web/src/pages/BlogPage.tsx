@@ -224,7 +224,7 @@ const BlogPage = () => {
                 background: "linear-gradient(105deg, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.78) 45%, rgba(0,0,0,0.35) 100%)"
               }} />
               {/* Bottom fade for seamless transition into filter bar */}
-              <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-background to-transparent" />
             </div>
 
             <div className="container mx-auto px-4 relative z-10 flex items-end pb-20 blog-hero-content" style={{ minHeight: "72vh" }}>

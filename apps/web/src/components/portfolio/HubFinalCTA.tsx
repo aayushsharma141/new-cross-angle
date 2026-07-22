@@ -37,8 +37,8 @@ const HubFinalCTA = () => {
         >
           <div className="space-y-6">
             <div className="flex items-center justify-center gap-4">
-              <div className="w-12 h-px bg-site-crimson" />
-              <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Your Turn</span>
+              <div className="w-12 h-px bg-primary" />
+              <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">Your Turn</span>
             </div>
             <h2 className="text-4xl font-extralight tracking-tight text-white md:text-7xl">
               Your space is ready for its<br />
@@ -54,7 +54,7 @@ const HubFinalCTA = () => {
             <Link to="/contact-us">
               <Button 
                 size="lg" 
-                className="group h-16 w-full sm:w-auto rounded-none bg-white px-12 text-[11px] uppercase tracking-[0.3em] text-black transition-all hover:bg-site-gold hover:text-white"
+                className="group h-16 w-full sm:w-auto rounded-none bg-white px-12 text-[11px] uppercase tracking-[0.3em] text-black transition-all hover:bg-primary hover:text-white"
               >
                 <Calendar className="mr-3 h-4 w-4" />
                 Book Free Consultation
@@ -76,7 +76,7 @@ const HubFinalCTA = () => {
 
       {/* Decorative Elements */}
       <div className="absolute bottom-10 left-10 flex flex-col gap-4">
-        <div className="h-20 w-[1px] bg-gradient-to-t from-site-gold via-white/10 to-transparent" />
+        <div className="h-20 w-[1px] bg-gradient-to-t from-primary via-white/10 to-transparent" />
         <span className="text-[9px] uppercase tracking-[0.5em] text-white/60 [writing-mode:vertical-lr]">Cross Angle Design</span>
       </div>
     </div>

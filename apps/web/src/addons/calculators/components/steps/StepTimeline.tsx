@@ -148,11 +148,13 @@ export function StepTimeline({ formData, updateField }: Props) {
                                 />
                             </div>
                             <div>
-                                <label htmlFor="est-email" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Email</label>
+                                <label htmlFor="est-email" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Email <span aria-hidden="true" className="text-red-400">*</span></label>
                                 <input
                                     id="est-email"
                                     type="email"
                                     autoComplete="email"
+                                    required
+                                    aria-required="true"
                                     placeholder="your@email.com"
                                     value={formData.email}
                                     onChange={e => updateField("email", e.target.value)}

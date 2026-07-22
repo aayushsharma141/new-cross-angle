@@ -18,7 +18,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/primitives/dropdown-menu';
-import { Badge } from '@/components/ui/primitives/badge';
+import { Badge } from "@/components/primitives/interactive";
 import { ScrollArea } from '@/components/ui/primitives/scroll-area';
 import { cn } from '@/lib/utils';
 import { DataTable } from '@/components/admin/DataTable';
@@ -242,7 +242,7 @@ export function AuditLogTable({
         loading={loading}
         onPaginationChange={onPaginationChange}
         onSearchChange={onSearchChange}
-        searchPlaceholder="Search logs by action, entity, or IP…"
+        searchPlaceholder="Search logs by action, entity, or IPï¿½"
         emptyMessage="No audit logs found"
         pageSizeOptions={[10, 25, 50, 100]}
         initialSearch={search}

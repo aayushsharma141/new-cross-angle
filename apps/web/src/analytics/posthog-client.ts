@@ -40,6 +40,8 @@ export interface AnalyticsClient {
 
 // ── Factory ───────────────────────────────────────────────────────────────────
 
+import { validateAnalyticsEvent } from "./validator";
+
 /**
  * Creates a consent-gated analytics client.
  *
@@ -73,6 +75,14 @@ export function createAnalyticsClient(opts: ClientOptions): AnalyticsClient {
       properties: AnalyticsEventMap[K]
     ): void {
       if (!enabled) return;
+      
+      // Phase 30.5.1: Run runtime schema validation to protect Data Quality
+      const isValid = validateAnalyticsEvent(event, properties as AnalyticsEventMap[K]);
+      if (!isValid) {
+        // Drop the event if it fails validity rules
+        return;
+      }
+      
       opts.posthog.capture(event as string, properties as Record<string, unknown>);
     },
 

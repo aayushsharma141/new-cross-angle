@@ -42,7 +42,7 @@ const ProjectTransformation = ({ project }: ProjectTransformationProps) => {
           transition={{ duration: 0.7 }}
           className="flex items-center gap-4 mb-16"
         >
-          <span className="text-xs font-medium tracking-[0.3em] uppercase text-site-gold">01. Transformation</span>
+          <span className="text-xs font-medium tracking-[0.3em] uppercase text-primary">01. Transformation</span>
           <span className="flex-1 h-px bg-white/10 max-w-xs" />
         </motion.div>
 
@@ -79,7 +79,7 @@ const ProjectTransformation = ({ project }: ProjectTransformationProps) => {
             className="grid md:grid-cols-2 gap-12 md:gap-20 max-w-5xl mx-auto"
           >
             <div>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-site-crimson block mb-4 font-medium">The Challenge</span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-primary block mb-4 font-medium">The Challenge</span>
               <ul className="text-xl md:text-2xl font-serif text-white leading-relaxed space-y-3">
                 {project.challengeShort?.split('•').filter(Boolean).map((item, idx) => (
                   <li key={idx} className="flex gap-4">
@@ -93,11 +93,11 @@ const ProjectTransformation = ({ project }: ProjectTransformationProps) => {
             </div>
 
             <div>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-site-gold block mb-4 font-medium">The Result</span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-primary block mb-4 font-medium">The Result</span>
               <ul className="text-lg text-stone-300 font-light leading-relaxed space-y-3">
                 {project.resultShort?.split('•').filter(Boolean).map((item, idx) => (
                   <li key={idx} className="flex gap-4">
-                    <span className="text-site-gold">•</span>
+                    <span className="text-primary">•</span>
                     <span>{item.trim()}</span>
                   </li>
                 )) || (

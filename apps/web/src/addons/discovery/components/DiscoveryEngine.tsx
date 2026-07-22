@@ -10,20 +10,25 @@ import { normalizeScore } from "../core/normalization";
 import { initialScores, addScores } from "../core/scoring";
 import { initialSignals, resetSession } from "../flow/session";
 import { getNextStage } from "../flow/transitions";
-import { saveSession, loadSession, clearSession } from "../flow/persistence";
+import { saveSession, clearSession } from "../flow/persistence";
 import { startSession, trackQuizStarted, trackQuizCompleted, trackQuizStepViewed, trackQuizStepCompleted } from "../infrastructure/analytics/tracker";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
 import { synthesizeConsultationIntelligence, detectInterpretationConflict } from "../alcs/intelligence";
 import DiscoveryLanding from "./DiscoveryLanding";
-import PropertyReality from "./PropertyReality";
-import LifestyleReflection from "./LifestyleReflection";
-import VisualInstinct from "./VisualInstinct";
+import PhysicalSpace from "./PhysicalSpace";
+import Timeline from "./Timeline";
+import MorningRoutine from "./MorningRoutine";
+import KitchenUsage from "./KitchenUsage";
+import EntertainmentStyle from "./EntertainmentStyle";
 import RoomPriority from "./RoomPriority";
+import VisualInstinct from "./VisualInstinct";
 import ReinterpretationGate from "./ReinterpretationGate";
-import AdjectiveSelection from "./AdjectiveSelection";
+import DesignIdentity from "./DesignIdentity";
+import Atmosphere from "./Atmosphere";
+import Constraints from "./Constraints";
 import PivotQuestion from "./PivotQuestion";
-import MaterialResonance from "./MaterialResonance";
-import LightCalibration from "./LightCalibration";
+import MaterialIdentity from "./MaterialIdentity";
+import LivingPreferences from "./LivingPreferences";
 import BudgetAlignment from "./BudgetAlignment";
 import AnalysisPhase from "./AnalysisPhase";
 import MiniResultPreview from "./MiniResultPreview";
@@ -33,9 +38,8 @@ import ProgressBar from "./ProgressBar";
 import DotPattern from "@/components/magicui/dot-pattern";
 import AnimatedShinyText from "@/components/magicui/animated-shiny-text";
 import DiscoveryProgressSidebar from "./DiscoveryProgressSidebar";
-import LiquidEther from "@/components/ReactBits/LiquidEther";
-
-
+import { WorkspacePanel } from "@/components/patterns/WorkspacePanel";
+import { DiscoveryDossier } from "./DiscoveryDossier";
 
 export interface DiscoveryConfig {
     firmName?: string;
@@ -48,7 +52,6 @@ interface DiscoveryEngineProps {
 }
 
 export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {}) => {
-    const { data: questionsData } = useFlowConfig<unknown>("discovery_questions");
     const { data: visualPromptsData } = useFlowConfig<unknown[]>("discovery_visual_prompts");
 
     const [stage, setStage] = useState<Stage>(Stage.Welcome);
@@ -56,18 +59,10 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
     const [scores, setScores] = useState<AestheticScores>(initialScores);
     const [signals, setSignals] = useState<UserSignals>(initialSignals);
     const [aiResult, setAiResult] = useState<AIAestheticResult | null>(null);
-    const [showWipe, setShowWipe] = useState(false);
     const [sessionId, setSessionId] = useState<string | null>(null);
     const [startTime, setStartTime] = useState<number>(Date.now());
-    const [resumePrompt, setResumePrompt] = useState<boolean>(false);
     const analytics = useAnalytics();
     const analyticsTrack = analytics.track.bind(analytics);
-
-    // Check for saved session on mount
-    useEffect(() => {
-        const saved = loadSession();
-        if (saved) setResumePrompt(true);
-    }, []);
 
     // Persist session on stage change (only during active quiz)
     useEffect(() => {
@@ -81,9 +76,8 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
 
     const archetype = useMemo(() => getArchetype(scores), [scores]);
 
-
     const handleRetake = useCallback(() => {
-            analyticsTrack("cta_clicked", { ctaId: "retake_quiz", destination: "quiz_start" });
+        analyticsTrack("cta_clicked", { ctaId: "retake_quiz", destination: "quiz_start" });
         const defaultSession = resetSession();
         setScores(defaultSession.scores);
         setSignals(defaultSession.signals);
@@ -94,34 +88,13 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
         clearSession();
     }, [analyticsTrack]);
 
-    const handleResume = useCallback(() => {
-        const saved = loadSession();
-        if (saved) {
-            setStage(saved.stage);
-            setMode(saved.mode);
-            setScores(saved.scores);
-            setSignals(saved.signals);
-            setSessionId(saved.sessionId);
-        }
-        setResumePrompt(false);
-    }, []);
-
-    const handleDismissResume = useCallback(() => {
-        clearSession();
-        setResumePrompt(false);
-    }, []);
-
     const transitionToStage = useCallback((nextStage: Stage) => {
         // Preload heavy results component when getting close
-        if (nextStage === Stage.PatternPreview || nextStage === Stage.Analysis) {
+        if (nextStage === Stage.MiniResult || nextStage === Stage.Analysis) {
             import("./ResultsReveal").catch(() => { });
         }
 
-        setShowWipe(true);
-        setTimeout(() => {
-            setStage(nextStage);
-            setTimeout(() => setShowWipe(false), 300);
-        }, 250);
+        setStage(nextStage);
     }, []);
 
     const handleSidebarNavigate = useCallback((targetStage: Stage) => {
@@ -161,19 +134,11 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
         }, [mode, transitionToStage, sessionId, analyticsTrack]
     );
 
-    const handlePropertyRealityComplete = useCallback(
-        (data: { propertyType?: "Apartment" | "Villa" | "Independent Floor" | "Studio"; carpetArea?: number; projectScope?: "Cosmetic Renovation" | "Full Structural Renovation" | "Bare Shell" | "New Build" }) => {
-            if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "PropertyReality");
+    const handleGenericStageComplete = useCallback(
+        (currentStage: Stage, stageName: string, data: Partial<UserSignals>) => {
+            if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, stageName);
             setSignals((prev) => ({ ...prev, ...data }));
-            transitionToStage(getNextStage(Stage.PropertyReality, mode));
-        }, [mode, transitionToStage, sessionId, analyticsTrack]
-    );
-
-    const handleLifestyleComplete = useCallback(
-        (data: { familyStructure?: 'Nuclear' | 'Joint' | 'Pets' | 'Elderly', cookingRole?: 'Daily Ritual' | 'Quick Utility' | 'Hosting', hostingFrequency?: 'Weekly' | 'Monthly' | 'Rarely' }) => {
-            if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "Lifestyle");
-            setSignals((prev) => ({ ...prev, ...data }));
-            transitionToStage(getNextStage(Stage.Lifestyle, mode));
+            transitionToStage(getNextStage(currentStage, mode));
         }, [mode, transitionToStage, sessionId, analyticsTrack]
     );
 
@@ -242,33 +207,6 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
         }, [mode, transitionToStage, sessionId, analyticsTrack]
     );
 
-    const handleAdjectiveComplete = useCallback(
-        (partial: Partial<AestheticScores>, adjectives: string[], freeText: string) => {
-            if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "AdjectiveSelection");
-            updateScores(partial);
-            setSignals((prev) => ({ ...prev, selectedAdjectives: adjectives, freeTextReflection: freeText }));
-            transitionToStage(getNextStage(Stage.AdjectiveSelection, mode));
-        }, [mode, transitionToStage, sessionId, updateScores, analyticsTrack]
-    );
-
-    const handleMaterialComplete = useCallback(
-        (partial: Partial<AestheticScores>, materialName?: string) => {
-            if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "MaterialResonance");
-            updateScores(partial);
-            if (materialName) setSignals((prev) => ({ ...prev, materialChoice: materialName }));
-            transitionToStage(getNextStage(Stage.MaterialResonance, mode));
-        }, [mode, transitionToStage, sessionId, updateScores, analyticsTrack]
-    );
-
-    const handleLightComplete = useCallback(
-        (partial: Partial<AestheticScores>, lightName?: string) => {
-            if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "LightCalibration");
-            updateScores(partial);
-            if (lightName) setSignals((prev) => ({ ...prev, lightPreference: lightName }));
-            transitionToStage(getNextStage(Stage.LightCalibration, mode));
-        }, [mode, transitionToStage, sessionId, updateScores, analyticsTrack]
-    );
-
     const handleBudgetComplete = useCallback(
         (data: { budgetBracket: string; luxuryResolution?: string }) => {
             if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "BudgetAlignment");
@@ -312,207 +250,187 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
 
     const isQuizStage = stage > Stage.Welcome && stage < Stage.Results;
 
-    return (
-        <div className={cn(
-            "min-h-[100dvh] grid font-sans text-[#1a1a1a] relative",
-            isQuizStage ? "grid-cols-1 md:grid-cols-[280px_1fr] bg-[#faf8f5] h-[100dvh] overflow-hidden" : "grid-cols-1 bg-[#faf8f5]"
-        )}>
-            {/* Cinematic wipe overlay */}
-            <AnimatePresence>
-                {showWipe && (
-                    <motion.div
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        exit={{ scaleX: 0 }}
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="fixed inset-0 z-[100] origin-left bg-[#1a1a1a]"
-                    />
-                )}
-            </AnimatePresence>
+    const sidebarContent = isQuizStage ? (
+        <div className="flex flex-col h-full relative z-10">
+            <DiscoveryProgressSidebar
+                currentStage={stage}
+                archetype={stage >= Stage.MiniResult ? archetype.name : undefined}
+                scores={stage >= Stage.MiniResult ? normalizedScores : undefined}
+                onNavigate={handleSidebarNavigate}
+            />
+        </div>
+    ) : null;
 
-            {/* Resume prompt */}
-            <AnimatePresence>
-                {resumePrompt && stage === Stage.Welcome && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        role="alertdialog"
-                        aria-label="Resume previous session"
-                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[90] bg-[#ffffff] border border-[#e8e4dd] backdrop-blur-xl px-6 py-4 rounded-[12px] shadow-[0_8px_40px_rgba(0,0,0,0.12)] flex items-center gap-4"
-                    >
-                        <p className="text-sm text-[#1a1a1a]/70">Continue where you left off?</p>
-                        <button onClick={handleResume} className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider bg-[#8b6f47] text-white rounded-[6px] hover:bg-[#705939] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47]">Resume</button>
-                        <button onClick={handleDismissResume} className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#5a5a5a] hover:text-[#1a1a1a] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] rounded-[6px]">Start Over</button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+    const dossierContent = isQuizStage ? (
+        <DiscoveryDossier signals={currentSignals} stage={stage} />
+    ) : null;
 
-            {/* Morphic Premium Background */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-100">
-                <LiquidEther 
-                    colors={
-                        stage === Stage.Results || stage === Stage.LeadCapture
-                            ? ['#1a1a1a', '#3a3a3a', '#5a5a5a'] // Dark mode colors for results
-                            : ['#c9a96e', '#8b6f47', '#5a705e', '#faf8f5'] // Light luxury palette
-                    }
-                    mouseForce={25}
-                    viscous={25}
-                    isBounce={false}
-                    autoDemo={true}
-                    className="w-full h-full"
-                />
-            </div>
-
-            {/* ── LUXURY PROGRESS SIDEBAR (260px) ── */}
-            {isQuizStage && (
-                <DiscoveryProgressSidebar
-                    currentStage={stage}
-                    archetype={stage >= Stage.PatternPreview ? archetype.name : undefined}
-                    scores={stage >= Stage.PatternPreview ? normalizedScores : undefined}
-                    onNavigate={handleSidebarNavigate}
+    const stageContent = (
+        <>
+            {/* Subtle dot texture */}
+            {!isQuizStage && (
+                <DotPattern
+                    width={20}
+                    height={20}
+                    cx={1}
+                    cy={1}
+                    cr={1}
+                    className="absolute inset-0 -z-10 opacity-20 text-neutral-600 h-full w-full"
                 />
             )}
 
-            {/* ── MAIN CONTENT AREA ── */}
-            <main className={cn(
-                "flex flex-col relative z-10 mx-auto w-full transition-all duration-300",
-                (stage === Stage.Welcome || stage === Stage.Results)
-                    ? "min-h-[100dvh] w-full max-w-none p-0"
-                    : (!isQuizStage)
-                        ? "p-6 sm:p-8 md:px-[56px] md:py-[48px] min-h-[100dvh] max-w-none"
-                        : "h-[100dvh] overflow-hidden max-w-none"
-            )} aria-label="Discovery quiz content">
-                {/* Subtle dot texture */}
-                {!isQuizStage && (
-                    <DotPattern
-                        width={20}
-                        height={20}
-                        cx={1}
-                        cy={1}
-                        cr={1}
-                        className="absolute inset-0 -z-10 opacity-20 text-neutral-600 h-full w-full"
-                    />
-                )}
-
-                {/* Mobile progress bar */}
-                {isQuizStage && (
-                    <div className="lg:hidden absolute top-0 left-0 right-0 z-50">
-                        <ProgressBar currentStage={stage} variant="horizontal" />
-                    </div>
-                )}
-
-                {/* Stage content — fills remaining height, each component manages its own scroll */}
-                <div className="flex-1 min-h-0 relative z-10 h-full">
-                    <AnimatePresence mode="wait">
-                        {stage === Stage.Welcome && <DiscoveryLanding key="welcome" onStart={handleStart} config={config} />}
-                        {stage === Stage.PropertyReality && (
-                            <PropertyReality key="property" onComplete={handlePropertyRealityComplete} />
-                        )}
-                        {stage === Stage.Lifestyle && (
-                            <LifestyleReflection key="lifestyle" onComplete={handleLifestyleComplete} />
-                        )}
-                        {stage === Stage.RoomPriority && (
-                            <RoomPriority key="room-priority" signals={currentSignals} onComplete={handleRoomPriorityComplete} />
-                        )}
-                        {stage === Stage.VisualInstinct && (
-                            <VisualInstinct key="visual" sessionId={sessionId} signals={currentSignals} onComplete={handleVisualComplete} visualPrompts={visualPromptsData as Parameters<typeof VisualInstinct>[0]["visualPrompts"]} />
-                        )}
-                        {stage === Stage.ReinterpretationGate && currentSignals.consultationIntelligence?.interpretationConflict.detected && (
-                            <ReinterpretationGate
-                                key="reinterpretation-gate"
-                                conflict={currentSignals.consultationIntelligence.interpretationConflict}
-                                signals={currentSignals}
-                                onResolve={handleReinterpretationResolve}
-                            />
-                        )}
-                        {stage === Stage.AdjectiveSelection && (
-                            <AdjectiveSelection key="adjectives" sessionId={sessionId} onComplete={handleAdjectiveComplete} questionsData={questionsData as Parameters<typeof AdjectiveSelection>[0]["questionsData"]} />
-                        )}
-                        {stage === Stage.PivotQuestion && (
-                            <PivotQuestion key="pivot" onComplete={handlePivotComplete} />
-                        )}
-                        {stage === Stage.MaterialResonance && (
-                            <MaterialResonance key="material" onComplete={handleMaterialComplete} />
-                        )}
-                        {stage === Stage.LightCalibration && (
-                            <LightCalibration key="light" onComplete={handleLightComplete} />
-                        )}
-                        {stage === Stage.BudgetAlignment && (
-                            <BudgetAlignment
-                                key="budget"
-                                signals={currentSignals}
-                                onComplete={handleBudgetComplete}
-                            />
-                        )}
-                        {stage === Stage.Analysis && (
-                            <AnalysisPhase
-                                key="analysis"
-                                userSignals={currentSignals}
-                                onComplete={handleAnalysisComplete}
-                            />
-                        )}
-                        {stage === Stage.MiniResult && (
-                            <MiniResultPreview
-                                key="mini-result"
-                                archetype={archetype}
-                                scores={normalizedScores}
-                                onComplete={handleMiniResultComplete}
-                            />
-                        )}
-                        {stage === Stage.Results && (
-                            <Suspense fallback={
-                                <div className="w-full h-[60vh] flex items-center justify-center">
-                                    <div className="flex flex-col items-center gap-4">
-                                        <div className="w-12 h-12 rounded-full border border-[#e8e4dd] border-t-kiro-accent animate-spin" />
-                                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#5a5a5a] font-mono">Loading Results�</p>
-                                    </div>
-                                </div>
-                            }>
-                                <ResultsReveal
-                                    key="results"
-                                    scores={normalizedScores}
-                                    archetype={archetype}
-                                    aiResult={aiResult}
-                                    sessionId={sessionId}
-                                    signals={currentSignals}
-                                    onRetake={handleRetake}
-                                    onComplete={() => {
-                                        if (onComplete) onComplete({ scores: normalizedScores, signals: currentSignals, aiResult });
-                                    }}
-                                />
-                            </Suspense>
-                        )}
-                        {stage === Stage.LeadCapture && (
-                            <LeadGatePhase
-                                key="gate"
-                                sessionId={sessionId}
-                                scores={normalizedScores}
-                                archetype={archetype}
-                                signals={currentSignals}
-                                onComplete={handleLeadCaptureComplete}
-                            />
-                        )}
-                    </AnimatePresence>
+            {/* Mobile progress bar */}
+            {isQuizStage && (
+                <div className="lg:hidden absolute top-0 left-0 right-0 z-50">
+                    <ProgressBar currentStage={stage} variant="horizontal" />
                 </div>
+            )}
 
-                {/* Subtle branding — Welcome/Results only */}
-                {(stage === Stage.Welcome || stage === Stage.Results) && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1 }}
-                        className="fixed bottom-12 left-8 z-20 pointer-events-none hidden lg:flex flex-col items-center gap-4"
-                    >
-                        <div className="w-[1px] h-24 bg-gradient-to-t from-foreground/10 to-transparent" />
-                        <div className="writing-vertical-rl rotate-180">
-                            <AnimatedShinyText className="text-[10px] uppercase tracking-[0.6em] font-light">
-                                AESTHETIC DISCOVERY ENGINE / v2.1
-                            </AnimatedShinyText>
-                        </div>
-                    </motion.div>
-                )}
-            </main>
+            {/* Stage content — fills remaining height, each component manages its own scroll */}
+            <div className="flex-1 min-h-0 relative z-10 h-full w-full">
+                <AnimatePresence mode="wait">
+                    {stage === Stage.Welcome && <DiscoveryLanding key="welcome" onStart={handleStart} config={config} />}
+                    {stage === Stage.PhysicalSpace && (
+                        <PhysicalSpace key="physical-space" onComplete={(data) => handleGenericStageComplete(Stage.PhysicalSpace, "PhysicalSpace", data)} />
+                    )}
+                    {stage === Stage.Timeline && (
+                        <Timeline key="timeline" onComplete={(data) => handleGenericStageComplete(Stage.Timeline, "Timeline", data)} />
+                    )}
+                    {stage === Stage.MorningRoutine && (
+                        <MorningRoutine key="morning-routine" onComplete={(data) => handleGenericStageComplete(Stage.MorningRoutine, "MorningRoutine", data)} />
+                    )}
+                    {stage === Stage.KitchenUsage && (
+                        <KitchenUsage key="kitchen-usage" onComplete={(data) => handleGenericStageComplete(Stage.KitchenUsage, "KitchenUsage", data)} />
+                    )}
+                    {stage === Stage.EntertainmentStyle && (
+                        <EntertainmentStyle key="entertainment-style" onComplete={(data) => handleGenericStageComplete(Stage.EntertainmentStyle, "EntertainmentStyle", data)} />
+                    )}
+                    {stage === Stage.RoomPriority && (
+                        <RoomPriority key="room-priority" signals={currentSignals} onComplete={handleRoomPriorityComplete} />
+                    )}
+                    {stage === Stage.VisualInstinct && (
+                        <VisualInstinct key="visual" sessionId={sessionId} signals={currentSignals} onComplete={handleVisualComplete} visualPrompts={visualPromptsData as Parameters<typeof VisualInstinct>[0]["visualPrompts"]} />
+                    )}
+                    {stage === Stage.ReinterpretationGate && currentSignals.consultationIntelligence?.interpretationConflict.detected && (
+                        <ReinterpretationGate
+                            key="reinterpretation-gate"
+                            conflict={currentSignals.consultationIntelligence.interpretationConflict}
+                            signals={currentSignals}
+                            onResolve={handleReinterpretationResolve}
+                        />
+                    )}
+                    {stage === Stage.DesignIdentity && (
+                        <DesignIdentity key="design-identity" onComplete={(data) => handleGenericStageComplete(Stage.DesignIdentity, "DesignIdentity", data)} />
+                    )}
+                    {stage === Stage.Atmosphere && (
+                        <Atmosphere key="atmosphere" onComplete={(data) => handleGenericStageComplete(Stage.Atmosphere, "Atmosphere", data)} />
+                    )}
+                    {stage === Stage.Constraints && (
+                        <Constraints key="constraints" onComplete={(data) => handleGenericStageComplete(Stage.Constraints, "Constraints", data)} />
+                    )}
+                    {stage === Stage.MaterialIdentity && (
+                        <MaterialIdentity key="material-identity" onComplete={(data) => handleGenericStageComplete(Stage.MaterialIdentity, "MaterialIdentity", data)} />
+                    )}
+                    {stage === Stage.LivingPreferences && (
+                        <LivingPreferences key="living-preferences" onComplete={(data) => handleGenericStageComplete(Stage.LivingPreferences, "LivingPreferences", data)} />
+                    )}
+                    {stage === Stage.PivotQuestion && (
+                        <PivotQuestion key="pivot" onComplete={handlePivotComplete} />
+                    )}
+                    {stage === Stage.BudgetAlignment && (
+                        <BudgetAlignment
+                            key="budget"
+                            signals={currentSignals}
+                            onComplete={handleBudgetComplete}
+                        />
+                    )}
+                    {stage === Stage.Analysis && (
+                        <AnalysisPhase
+                            key="analysis"
+                            userSignals={currentSignals}
+                            onComplete={handleAnalysisComplete}
+                        />
+                    )}
+                    {stage === Stage.MiniResult && (
+                        <MiniResultPreview
+                            key="mini-result"
+                            archetype={archetype}
+                            scores={normalizedScores}
+                            onComplete={handleMiniResultComplete}
+                        />
+                    )}
+                    {stage === Stage.Results && (
+                        <Suspense fallback={
+                            <div className="w-full h-[60vh] flex items-center justify-center">
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="w-12 h-12 rounded-full border border-[#e8e4dd] border-t-kiro-accent animate-spin" />
+                                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#5a5a5a] font-mono">Loading Results</p>
+                                </div>
+                            </div>
+                        }>
+                            <ResultsReveal
+                                key="results"
+                                scores={normalizedScores}
+                                archetype={archetype}
+                                aiResult={aiResult}
+                                sessionId={sessionId}
+                                signals={currentSignals}
+                                onRetake={handleRetake}
+                                onComplete={() => {
+                                    if (onComplete) onComplete({ scores: normalizedScores, signals: currentSignals, aiResult });
+                                }}
+                            />
+                        </Suspense>
+                    )}
+                    {stage === Stage.LeadCapture && (
+                        <LeadGatePhase
+                            key="gate"
+                            sessionId={sessionId}
+                            scores={normalizedScores}
+                            archetype={archetype}
+                            signals={currentSignals}
+                            onComplete={handleLeadCaptureComplete}
+                        />
+                    )}
+                </AnimatePresence>
+            </div>
+
+            {/* Subtle branding — Welcome/Results only */}
+            {(stage === Stage.Welcome || stage === Stage.Results) && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1 }}
+                    className="fixed bottom-12 left-8 z-20 pointer-events-none hidden lg:flex flex-col items-center gap-4"
+                >
+                    <div className="w-[1px] h-24 bg-gradient-to-t from-foreground/10 to-transparent" />
+                    <div className="writing-vertical-rl rotate-180">
+                        <AnimatedShinyText className="text-[10px] uppercase tracking-[0.6em] font-light">
+                            AESTHETIC DISCOVERY ENGINE / v2.1
+                        </AnimatedShinyText>
+                    </div>
+                </motion.div>
+            )}
+        </>
+    );
+
+    return (
+        <div className={cn(
+            "min-h-[100dvh] font-sans text-foreground relative",
+            isQuizStage ? "bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)] h-[100dvh] overflow-hidden" : "bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)]"
+        )} data-environment="workspace">
+            {isQuizStage ? (
+                <WorkspacePanel sidebar={sidebarContent} mainContent={stageContent} dossierContent={dossierContent} />
+            ) : (
+                <main className={cn(
+                    "flex flex-col relative z-10 mx-auto w-full transition-all duration-300",
+                    (stage === Stage.Welcome || stage === Stage.Results)
+                        ? "min-h-[100dvh] w-full max-w-none p-0"
+                        : "p-6 sm:p-8 md:px-[56px] md:py-[48px] min-h-[100dvh] max-w-none"
+                )} aria-label="Discovery quiz content">
+                    {stageContent}
+                </main>
+            )}
         </div>
     );
 };

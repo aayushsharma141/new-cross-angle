@@ -47,9 +47,9 @@ const ProjectPalette = () => {
         
         {/* Title */}
         <div className="mb-20 text-center md:text-left">
-          <span className="text-xs font-semibold tracking-[0.35em] uppercase text-site-gold block mb-4">— MATERIAL INTELLIGENCE</span>
+          <span className="text-xs font-semibold tracking-[0.35em] uppercase text-primary block mb-4">— MATERIAL INTELLIGENCE</span>
           <h2 className="text-3xl md:text-5xl text-white tracking-tight font-serif font-normal leading-[1.2]">
-            Material <span className="italic text-site-crimson font-light">Swatches Board</span>
+            Material <span className="italic text-primary font-light">Swatches Board</span>
           </h2>
         </div>
 
@@ -77,7 +77,7 @@ const ProjectPalette = () => {
 
               {/* Swatch Header Info */}
               <div className="p-6 relative z-10 w-full transition-transform duration-500 transform group-hover:-translate-y-48">
-                <span className="text-[9px] uppercase tracking-widest text-site-gold font-mono block mb-1">
+                <span className="text-[9px] uppercase tracking-widest text-primary font-mono block mb-1">
                   {swatch.type}
                 </span>
                 <h3 className="text-white font-serif text-xl font-medium">
@@ -90,7 +90,7 @@ const ProjectPalette = () => {
                 <div className="space-y-4">
                   {/* Why Chosen */}
                   <div className="flex gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-site-gold shrink-0 mt-0.5" />
+                    <Sparkles className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
                     <div>
                       <span className="text-[8px] uppercase tracking-widest text-stone-500 font-bold block">Why Chosen</span>
                       <p className="text-[11px] text-stone-300 font-light leading-snug">{swatch.whyChosen}</p>
@@ -99,7 +99,7 @@ const ProjectPalette = () => {
 
                   {/* Durability */}
                   <div className="flex gap-2">
-                    <Hammer className="w-3.5 h-3.5 text-site-crimson shrink-0 mt-0.5" />
+                    <Hammer className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
                     <div>
                       <span className="text-[8px] uppercase tracking-widest text-stone-500 font-bold block">Durability</span>
                       <p className="text-[11px] text-stone-300 font-light leading-snug">{swatch.durability}</p>

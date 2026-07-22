@@ -1,5 +1,5 @@
 /* CORE */
-:root {
+:root, [data-environment] {
   /* Canvas */
   --s-canvas-primary:   var(--m-wall);
   --s-canvas-secondary: var(--m-plaster);

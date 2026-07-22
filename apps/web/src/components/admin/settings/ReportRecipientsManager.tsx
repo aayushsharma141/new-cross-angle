@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { useToast } from "@/hooks/useToast";
 import { Mail, Plus, Trash2, Send } from "lucide-react";
 import { AdminFormCard } from "@/components/admin/shared";
@@ -108,7 +108,7 @@ export function ReportRecipientsManager() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-[hsl(var(--admin-text-muted))]">Loading…</p>
+        <p className="text-sm text-[hsl(var(--admin-text-muted))]">Loadingï¿½</p>
       ) : recipients.length === 0 ? (
         <div className="text-center py-8 text-sm text-[hsl(var(--admin-text-muted))] border border-dashed border-[hsl(var(--admin-border))] rounded-xl">
           <Mail className="w-8 h-8 mx-auto mb-2 opacity-40" />

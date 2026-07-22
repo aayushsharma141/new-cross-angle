@@ -14,11 +14,11 @@ const ProjectCTA = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <span className="text-[10px] uppercase tracking-[0.3em] text-site-gold block mb-8 font-medium">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-primary block mb-8 font-medium">
             Next Steps
           </span>
           <h2 className="text-4xl md:text-6xl font-serif font-normal tracking-tight mb-8">
-            Planning a <span className="italic text-site-crimson font-light">Similar Home?</span>
+            Planning a <span className="italic text-primary font-light">Similar Home?</span>
           </h2>
           <p className="text-stone-400 text-lg font-light max-w-2xl mx-auto mb-12">
             Every project starts with an honest conversation about your goals, budget, and our Predictable Interior System™.

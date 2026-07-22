@@ -9,8 +9,8 @@ const PATHS = [
     description: "Not sure what you want? Answer a few quick questions and we'll match you with a design direction.",
     cta: "Take Style Quiz",
     href: "/discovery",
-    gradient: "from-site-gold/20 to-transparent",
-    border: "border-site-gold/30 hover:border-site-gold/60",
+    gradient: "from-primary/20 to-transparent",
+    border: "border-primary/30 hover:border-primary/60",
   },
   {
     icon: <Calculator className="w-6 h-6" />,
@@ -18,8 +18,8 @@ const PATHS = [
     description: "Get an instant ballpark estimate for your project based on room type, size, and finish quality tier.",
     cta: "Calculate Now",
     href: "/price-estimator",
-    gradient: "from-site-crimson/20 to-transparent",
-    border: "border-site-crimson/30 hover:border-site-crimson/60",
+    gradient: "from-primary/20 to-transparent",
+    border: "border-primary/30 hover:border-primary/60",
   },
   {
     icon: <PhoneCall className="w-6 h-6" />,
@@ -45,7 +45,7 @@ const PortfolioFinalCTA = () => {
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
-          <span className="text-[10px] font-mono tracking-[0.4em] uppercase text-site-gold block mb-6">
+          <span className="text-[10px] font-mono tracking-[0.4em] uppercase text-primary block mb-6">
             Next Steps
           </span>
           <h2 className="text-4xl md:text-6xl font-serif font-normal text-white tracking-tight mb-4">
@@ -71,16 +71,16 @@ const PortfolioFinalCTA = () => {
               >
                 <div className={`absolute inset-0 bg-gradient-to-b ${path.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
                 <div className="relative z-10 flex flex-col h-full">
-                  <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-site-gold mb-6 group-hover:scale-110 transition-transform duration-500">
+                  <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-500">
                     {path.icon}
                   </div>
-                  <h3 className="text-xl font-serif text-white mb-3 group-hover:text-site-gold transition-colors duration-300">
+                  <h3 className="text-xl font-serif text-white mb-3 group-hover:text-primary transition-colors duration-300">
                     {path.title}
                   </h3>
                   <p className="text-sm text-stone-400 font-light leading-relaxed mb-8 flex-grow">
                     {path.description}
                   </p>
-                  <div className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] font-semibold text-site-gold group-hover:gap-3 transition-all duration-300">
+                  <div className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] font-semibold text-primary group-hover:gap-3 transition-all duration-300">
                     {path.cta}
                     <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                   </div>

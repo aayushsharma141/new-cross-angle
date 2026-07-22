@@ -8,9 +8,9 @@ import {
     Link as LinkIcon, 
     FolderOpen 
 } from "lucide-react";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Textarea } from "@/components/primitives/interactive";
 import { Button } from "@/components/ui/primitives/button";
 import {
     Select,
@@ -84,7 +84,7 @@ export function HeroItemFormFields({
                         <div className="flex gap-2">
                             <Input
                                 ref={urlRef}
-                                placeholder="https://videos.pexels.com/…"
+                                placeholder="https://videos.pexels.com/ï¿½"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
                                 className={`flex-1 ${
@@ -130,7 +130,7 @@ export function HeroItemFormFields({
                         <Label className="text-xs text-zinc-400">Media URL</Label>
                         <div className="flex gap-2">
                             <Input
-                                placeholder="https://…"
+                                placeholder="https://ï¿½"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
                                 className="flex-1 h-9 text-sm"
@@ -250,7 +250,7 @@ export function HeroItemFormFields({
                             <LinkIcon className="w-3.5 h-3.5 text-blue-400" /> CTA Link
                         </Label>
                         <Input
-                            placeholder="/contact or https://…"
+                            placeholder="/contact or https://ï¿½"
                             value={ctaLink}
                             onChange={(e) => setCtaLink(e.target.value)}
                             className={isEdit ? "h-9 text-sm" : ""}

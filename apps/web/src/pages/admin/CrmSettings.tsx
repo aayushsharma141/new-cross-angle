@@ -3,7 +3,7 @@ import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminTabSlider } from "@/components/admin/ui/AdminTabSlider";
 import { Layers, Database, Save, Loader2, GripVertical, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/useToast";

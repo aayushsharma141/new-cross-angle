@@ -1,127 +1,94 @@
-# Project Roadmap
+# Production & Learning Roadmap v1
 
-## Completed Milestones
-- [v2.0 DAM V3 Architecture Redesign](./milestones/v2.0-ROADMAP.md)
-- [v3.0 DAM V3 Workspace](./milestones/v3.0-ROADMAP.md) (shipped 2026-06-24)
-- [v4.0 Discovery & Estimator Operating System](./milestones/v4.0-ROADMAP.md) (shipped 2026-06-25)
+This roadmap documents the transition from **building software** to **producing evidence**. The platform's core operating infrastructure (DAM, CRM, Recommendation Engines, Primitive Layouts) is complete. The system's primary directive is now learning operations and evidence-gathering under the Platform Constitution.
 
 ---
 
-## Current Milestone: v5.0 Lead Intelligence & Recommendation Layer
+## Phase Status Today
 
-**Goal:** Maximize the value flowing through the Discovery → Estimator → CRM pipeline by making recommendations signal-weighted, explainable, and actionable for the sales and design team.
-
-**5 phases** | **8 requirements mapped** | All covered ✓
-
-| # | Phase | Goal | Requirements | Status |
-|---|-------|------|--------------|--------|
-| 18 | Workspace Skeleton (A1) | Implement 3-column responsive layout (Sidebar \| Workspace \| Dossier) and ultra-wide breakpoints. | UX-01 | Done |
-| 19 | Project Dossier Framework (A2) | Mount placeholder cards into Dossier and connect to store state (no intelligence). | UX-01 | Done |
-| 25 | Semantic Token Architecture | Establish three-layer token system (Foundation → Semantic → Lighting States) required by all UI phases. | DLS-01 | Done |
-| 26 | Token Adoption Audit | Build and execute static analysis scripts to measure token adoption and audit code. | DLS-02 | Pending |
-| 27 | Primitive Components | Build primitive visual layout blocks (Box, Stack, Text, etc.) strictly consuming tokens. | DLS-03 | Pending |
-| 28 | Composition Library | Create compound layout modules (Cards, Hero, grids) using primitive components. | DLS-04 | Pending |
-| 29 | Homepage (Entrance) | Redesign and refactor the public homepage strictly using the new Composition library. | DLS-05 | Pending |
-| 20 | Adaptive Step Layouts (B) | Refactor Estimator Steps 1-7 into distinct task-driven layouts obeying "One Primary Decision". | UX-02 | Pending |
-| 21 | Workspace Intelligence (C) | Implement logic for Live Estimate, Confidence, Missing Information, and Project Health. | UX-03 | Pending |
-| 22 | Recommendation Explainability (D) | Build core reasoning engine explaining why packages are recommended. | INTEL-03, INTEL-04 | Pending |
-| 23 | Decision Impact Engine (E) | Expose reasoning as immediate live trade-offs (Financial, Operational, etc.) upon selection. | UX-04 | Pending |
-| 24 | Project Blueprint Generation (F) | Transition active workspace into final, printable/shareable result document. | UX-05 | Pending |
+| Area | Status |
+| :--- | :---: |
+| **Architecture** | ✅ Complete |
+| **Primitive System** | ✅ Complete |
+| **Workspace** | ✅ Complete |
+| **Decision Ledger** | ✅ Complete |
+| **Learning Telemetry** | ✅ Complete |
+| **Replay Chain** | ✅ Validated |
+| **State Reconstruction** | ✅ Validated |
+| **Behavioral Replay** | ⏳ Deferred |
+| **Governance** | ✅ Frozen |
+| **Dataset v1** | ✅ Active |
+| **Product Features** | 🟢 Active |
 
 ---
 
-## Phase Details
+## Track A — Product Evolution (Active)
 
-### Phase 14: Signal-Weighted ALCS
-**Goal:** Wire `sensory.*` and `priorities.emotionalWeights` into the ALCS recommendation engine so that two users with the same archetype but different sensory profiles receive meaningfully different path scores and reasoning text.
-**Requirements:** INTEL-01, INTEL-02
-**Success criteria:**
-1. User A (Natural Light + Organic Textures + Quiet Retreat) and User B (Statement Lighting + Luxury Hosting), same archetype and budget, produce different top-ranked execution paths in `scorePaths()`.
-2. `generateReasoning()` output includes at least one archetype-specific sensory signal (e.g. lighting preference or luxury language).
-3. All existing ALCS engine outputs (`computeLifestyleDensity`, `computePropertySuitability`, etc.) produce identical results to pre-change (no regression).
+Visual foundation (Gallery Light environment) is frozen. We now move to composition and editorial rhythm.
 
-### Phase 15: Recommendation Explainability
-**Goal:** Attach a structured `evidence[]` array to every `AIRecommendationResult` and display it in the CRM Lead Detail drawer so designers can answer "Why did the system recommend this?" without guessing.
-**Requirements:** INTEL-03, INTEL-04
-**Success criteria:**
-1. Every `AIRecommendationResult` object contains an `evidence` array with at least 3 `RecommendationEvidence` entries (signal, score, influence, source, rationale).
-2. The CRM Lead Detail drawer shows a collapsible "Why this recommendation?" section listing each evidence item.
-3. Evidence entries are sourced from sensory, lifestyle, property, and archetype dimensions — not generic.
+| Phase | Goal | Status |
+| :--- | :--- | :---: |
+| **31** | **Editorial Composition** — Kill symmetric SaaS grids, introduce asymmetry and design silence. | 🟢 Active |
+| **32** | **Motion Polish** — Implement intent-centric motion defined in Design Genome. | ❄️ Frozen |
+| **33** | **Visual QA** — Final cross-browser/responsive visual QA and regression checks. | ❄️ Frozen |
 
-### Phase 16: Designer Briefing Card
-**Goal:** Auto-generate a pre-call design brief from the CRM lead record that a designer can read in 5 minutes before calling the lead.
-**Requirements:** INTEL-05
-**Success criteria:**
-1. Any lead with `discovery_archetype` populated shows a "Generate Brief" button in the CRM Lead Detail drawer.
-2. The brief renders: identity (name, archetype, confidence), lifestyle (family, hosting, WFH), spatial intent (hero rooms with weights), sensory language (lighting, textures, luxury mode), sales conversation starters, and watch-for signals.
-3. Brief is printable (or downloadable as text) from the admin panel.
+---
 
-### Phase 17: Project Intelligence Workspace
-**Goal:** Evolve the CRM into a complete workspace where the designer opens one screen before every client meeting, and everything needed to prepare is there. Features include: Conversation Strategy, Objection Predictions, Presentation Sequence, and Proposal Generator.
-**Requirements:** INTEL-06, INTEL-07
-**Status:** ⏸️ **Paused.** Awaiting real-world user feedback from the Phase 16 Designer Brief Product Validation Sprint (recorded in `VALIDATION-SPRINT.md`). This feedback will shape the implementation of the Workspace.
+## Track B — Learning Operations (Active)
 
-### Phase 18: Workspace Skeleton (Phase A1)
-**Goal:** Build the strict 3-column responsive layout (Sidebar | Workspace | Dossier) and establish ultra-wide (1800px+) max-width bounds. No logic or widgets—just plumbing and structure.
-**Requirements:** UX-01
-**Status:** Done
+The active track focuses on running the system in production, collecting signal-weighted evidence, maintaining dataset integrity, and refining the recommendation models.
 
-### Phase 19: Project Dossier Framework (Phase A2)
-**Goal:** Mount placeholder cards (`EstimateCard`, `ProjectHealthCard`, etc.) into the Dossier and connect them to the global state store without adding calculation logic.
-**Requirements:** UX-01
-**Status:** Done
+| Phase | Goal | Status |
+| :--- | :--- | :---: |
+| **L1** | **Production / Learning Mode** — Run live telemetry, feed real client interaction data to CRM and Supabase. | 🟢 Active |
+| **L2** | **Founding Cases (Dataset v1)** — Triage and collect the first set of real client genomes under strict pace of reality governance rules. | 🟢 Active |
+| **L3** | **Dataset Integrity Reviews (DIR)** — Audit saved decision genomes to verify perfect parity between local storage and DB schemas. | 🟢 Active |
+| **L4** | **Operational Investigations (OI)** — Detect and investigate anomalies in the recommendation scoring pipelines. | 🟢 Active |
+| **L5** | **Process Learnings (PL)** — Extract and curate reusable institutional design strategies validated by real designer feedback. | 🟢 Active |
+| **L6** | **Instrument Stability Review (Case 5)** — Perform deep-dive telemetry validation upon reaching 5 founding cases. | 🟡 Planned |
+| **L7** | **Learning Baseline Report v1 (Case 20)** — Synthesize the first baseline recommendation performance report. | 🟡 Planned |
 
-### Phase 26: Token Adoption Audit
-**Goal:** Build and execute static analysis scripts to measure token adoption and audit code.
-**Success criteria:**
-1. Create a static analysis script in the workspace (e.g. `scripts/audit-tokens.ts`) to count raw Hex, HSL, border-radius, and spacing values outside `tokens/`.
-2. Output a structured audit report showing the counts and file locations.
-3. Establish a baseline adoption score (aiming for 100% adoption and 0 hardcoded violations over subsequent phases).
-4. No visual changes are allowed; only architectural correctness improves.
-**Status:** Planned
+---
 
-### Phase 27: Primitive Components
-**Goal:** Build primitive visual layout blocks (Box, Flex, Stack, Text, etc.) strictly consuming tokens.
-**Success criteria:**
-1. Create layout primitives in `apps/web/src/design-system/components/primitives/`.
-2. All components strictly consume semantic and foundation CSS variables without bypassing them.
-**Status:** Planned
+## Phase Details & Success Criteria
 
-### Phase 28: Composition Library
-**Goal:** Create compound layout modules (Cards, Hero, grids) using primitive components.
-**Success criteria:**
-1. Implement composition components in `apps/web/src/design-system/components/compositions/`.
-2. Strictly compose layouts from the primitive component library.
-**Status:** Planned
+### Phase 31: Editorial Composition
 
-### Phase 29: Homepage (Entrance)
-**Goal:** Redesign and refactor the public homepage strictly using the new Composition library.
-**Success criteria:**
-1. Refactor `Index.tsx` to consume composition library modules.
-2. Verify homepage has zero raw styling values.
-**Status:** Planned
+- **Goal:** Transform the UI from a "custom built UI" to a professionally art-directed studio experience.
+- **Success Criteria:**
+  1. No remaining symmetric SaaS grids.
+  2. Editorial asymmetry and "design silence" implemented.
+  3. Photography dictates vertical rhythm.
+  4. Validation through Attention Purity Index (API) >90% on focal points.
 
-### Phase 20: Adaptive Step Layouts (Phase B)
-**Goal:** Refactor Steps 1-7 into their specific, task-driven layouts (Grid, Dashboard, Comparison Matrix). Enforce the "One Primary Decision" rule.
-**Requirements:** UX-02
-**Status:** Planned
+### Phase L1: Production / Learning Mode
 
-### Phase 21: Workspace Intelligence (Phase C)
-**Goal:** Connect logic and store values to populate the Live Estimate, Confidence score, Missing Information prompts, and Project Health dashboard.
-**Requirements:** UX-03
-**Status:** Planned
+- **Goal:** Operate the platform as a continuous learning loop. Ensure client interactions on Discovery/Estimator flows consistently generate telemetry and route recommendations with explainable evidence.
+- **Success Criteria:**
+  1. Live telemetry correctly logs client selections to the Decision Ledger.
+  2. Every recommendation serves a complete evidence chain explaining the top drivers.
 
-### Phase 22: Recommendation Explainability (Phase D)
-**Goal:** Build the core reasoning engine that determines *why* certain packages are recommended (this merges previous Phase 15 goals into the workspace).
-**Requirements:** INTEL-03, INTEL-04
-**Status:** Planned
+### Phase L2: Founding Cases (Dataset v1)
 
-### Phase 23: Decision Impact Engine (Phase E)
-**Goal:** Expose the reasoning from Phase 22 as live trade-offs (Financial, Operational, Lifestyle, Investment) reflecting the immediate impact of user selections.
-**Requirements:** UX-04
-**Status:** Planned
+- **Goal:** Accumulate high-quality client cases. No synthetic data is allowed.
+- **Success Criteria:**
+  1. Capturing and organizing real client journeys as distinct cases.
+  2. Adherence to Terminology Freeze; use existing FC, DIR, OI, and PL schemas.
 
-### Phase 24: Project Blueprint Generation (Phase F)
-**Goal:** Transition the active workspace into a final, printable/shareable project blueprint result document.
-**Requirements:** UX-05
-**Status:** Planned
+### Phase L3: Dataset Integrity Reviews (DIR)
+
+- **Goal:** Keep database structures and JSON genomes perfectly aligned without drift.
+- **Success Criteria:**
+  1. Run automated validation checks showing zero schema validation errors in active client dossiers.
+
+### Phase L4: Operational Investigations (OI)
+
+- **Goal:** Diagnose recommendation outliers or conflicts (e.g., mismatched user sensory profiles vs archetype expectations).
+- **Success Criteria:**
+  1. System highlights design conflicts and reports exact trade-off impact scores.
+
+### Phase L5: Process Learnings (PL)
+
+- **Goal:** Curate recommendations based on explicit human validation.
+- **Success Criteria:**
+  1. Designers approve or modify AI recommendations, and the outcome is logged to compound system intelligence.

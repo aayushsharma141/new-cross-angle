@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/primitives/sheet";
 import { Button } from "@/components/ui/primitives/button";
 import { Label } from "@/components/ui/primitives/label";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { leadSchema, formatZodErrors } from "@/lib/validation/validations";
 import { useState, useEffect, useRef, useCallback } from "react";
 import FocusLock from "react-focus-lock";
@@ -495,7 +495,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                     value={formData.message || formData.notes || ""}
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                     readOnly={isReadOnly}
-                                    placeholder="Add notes, requirements, or copy their initial message here…"
+                                    placeholder="Add notes, requirements, or copy their initial message hereï¿½"
                                     className="min-h-[120px] bg-admin-surface border-admin-border text-[13px] text-admin-text placeholder:text-admin-text-subtle"
                                 />
                             </section>
@@ -582,7 +582,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                                     {sendState === "sending" ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : 
                                                      sendState === "sent" ? <CheckCheck className="w-3.5 h-3.5 mr-1.5" /> : 
                                                      <Send className="w-3.5 h-3.5 mr-1.5" />}
-                                                    {sendState === "sending" ? "Sending…" : sendState === "sent" ? "Sent Successfully" : "Send via CrossAngle"}
+                                                    {sendState === "sending" ? "Sendingï¿½" : sendState === "sent" ? "Sent Successfully" : "Send via CrossAngle"}
                                                 </Button>
                                             </div>
                                         </div>

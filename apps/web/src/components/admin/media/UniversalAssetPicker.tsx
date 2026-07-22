@@ -2,7 +2,7 @@ import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useRef } from "react";
 import { Upload, Loader2, Image as ImageIcon, Search, Check } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/primitives/select";
 import {
@@ -133,7 +133,7 @@ export function UniversalAssetPicker({
                             <div className="relative flex-1 min-w-[200px]">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="Search assets…"
+                                    placeholder="Search assetsï¿½"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="pl-10 h-9"
@@ -255,7 +255,7 @@ export function UniversalAssetPicker({
                                 <div>
                                     <Label className="mb-1.5 block text-xs text-muted-foreground">Title / Alt Text</Label>
                                     <Input 
-                                        placeholder="Describe the image…" 
+                                        placeholder="Describe the imageï¿½" 
                                         value={uploadTitle}
                                         onChange={(e) => setUploadTitle(e.target.value)}
                                     />

@@ -82,7 +82,7 @@ export const ProjectStoryAndTransformation = (_props: ProjectStoryAndTransformat
               data-reveal="quote"
               className="space-y-4"
             >
-              <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-site-gold block">
+              <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-primary block">
                 03 / TRANSFORM
               </span>
               <h2 className="text-3xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
@@ -143,7 +143,7 @@ export const ProjectStoryAndTransformation = (_props: ProjectStoryAndTransformat
         >
           {/* Challenge Box */}
           <div className="space-y-2.5">
-            <span className="text-[9px] uppercase tracking-[0.2em] text-site-crimson font-semibold block">Challenge</span>
+            <span className="text-[9px] uppercase tracking-[0.2em] text-primary font-semibold block">Challenge</span>
             <p className="text-sm font-light text-stone-200 leading-relaxed font-serif">
               {data.challenge}
             </p>
@@ -151,7 +151,7 @@ export const ProjectStoryAndTransformation = (_props: ProjectStoryAndTransformat
 
           {/* Decision Box */}
           <div className="space-y-2.5">
-            <span className="text-[9px] uppercase tracking-[0.2em] text-site-gold font-semibold block">Decision</span>
+            <span className="text-[9px] uppercase tracking-[0.2em] text-primary font-semibold block">Decision</span>
             <p className="text-sm font-light text-stone-200 leading-relaxed font-serif">
               {data.decision}
             </p>

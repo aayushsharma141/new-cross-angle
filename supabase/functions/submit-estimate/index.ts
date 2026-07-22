@@ -173,15 +173,16 @@ Deno.serve(async (req: Request) => {
         const score = scoreLead(formData, pricingConfig);
 
         // Single insert into unified leads table (estimate_leads merged 2026-04-11)
-        const { error: errInsert } = await supabase.from("leads").insert({
+        const { data: insertedLead, error: errInsert } = await supabase.from("leads").insert({
             name: formData.name,
             email: formData.email,
             phone: formData.phone,
             message: `Cost estimate generated. Min: ₹${estimate.total.min.toLocaleString('en-IN')}, Max: ₹${estimate.total.max.toLocaleString('en-IN')}. Area: ${formData.area} sqft, Type: ${formData.propertyType}`,
             lead_source: 'estimator',
+            source: 'estimator',
             city: formData.city,
             budget: formData.budgetAmount?.toString(),
-            service: formData.selectedService,
+            project_type: formData.selectedService,
             score: score.total,
             score_details: score.breakdown,
             // Estimator-specific columns (merged from former estimate_leads table)
@@ -226,15 +227,60 @@ Deno.serve(async (req: Request) => {
             alcs_reasoning: alcsRecommendation?.reasoning ?? null,
             alcs_evidence: alcsRecommendation?.evidence ?? null,
             alcs_primary_drivers: alcsRecommendation?.primaryDrivers ?? null,
-        });
+        }).select().single();
 
         if (errInsert) {
             structuredLog("error", FN, "Lead Insert Error", { error: errInsert.message, details: errInsert.details }, requestId);
             throw errInsert;
         }
 
-        structuredLog("info", FN, "Lead Estimate Processed", { email: formData.email, score: score.total }, requestId);
-        return okResponse(req, { success: true, estimate }, {}, rl, RATE_OPTS.max, requestId);
+        const leadId = (insertedLead as unknown as { id?: string })?.id;
+
+        if (leadId) {
+            // Insert into decision_events to maintain decision/replay chain
+            const { error: decisionErr } = await supabase.from("decision_events").insert({
+                lead_id: leadId,
+                session_id: discoveryContext?.userId || null,
+                event_type: "Proposal",
+                payload: {
+                    clientDecision: "Estimate Generated",
+                    outcome: "Estimator direct submission",
+                    recommendations: [],
+                    metadata: {
+                        totalMin: estimate.total.min,
+                        totalMax: estimate.total.max,
+                    }
+                }
+            });
+
+            if (decisionErr) {
+                console.warn("[Estimator] Failed to generate decision chain event:", decisionErr);
+            }
+
+            const { error: workspaceErr } = await supabase.from("workspace_commitment_revisions").insert({
+                lead_id: leadId,
+                session_id: discoveryContext?.userId || leadId,
+                decision_genome: {
+                    budget: formData.budgetAmount,
+                    area: formData.area,
+                    city: formData.city
+                },
+                project_snapshot: {
+                    totalMin: estimate.total.min,
+                    totalMax: estimate.total.max,
+                },
+                narrative_brief: `Cost estimate generated for ${formData.propertyType}.`,
+                workspace_state: { step: 'estimate_submitted' },
+                is_locked: false
+            });
+
+            if (workspaceErr) {
+                console.warn("[Estimator] Failed to generate workspace commitment revision:", workspaceErr);
+            }
+        }
+
+        structuredLog("info", FN, "Lead Estimate Processed", { email: formData.email, score: score.total, leadId }, requestId);
+        return okResponse(req, { success: true, estimate, leadId }, {}, rl, RATE_OPTS.max, requestId);
 
     } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Internal error";

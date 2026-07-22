@@ -2,8 +2,8 @@ import React from 'react';
 import { useState, useMemo } from "react";
 import { Pencil, Trash2, Briefcase, FileText } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/primitives/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/primitives/tabs";
@@ -543,7 +543,7 @@ const AdminServices = () => {
                                                 }));
                                             }}
                                             entityId={editingService?.id}
-                                            placeholder="Select hero image…"
+                                            placeholder="Select hero imageï¿½"
                                             domain="services"
                                             entityType="services"
                                             damRole="hero"
@@ -598,7 +598,7 @@ const AdminServices = () => {
                         <div className="shrink-0 px-6 py-4 border-t border-[hsl(var(--admin-border))] flex justify-end gap-2 bg-[hsl(var(--admin-surface))] rounded-b-xl">
                             <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="admin-btn-secondary">Cancel</Button>
                             <Button type="submit" disabled={upsertMutation.isPending} className="admin-btn-primary">
-                                {upsertMutation.isPending ? "Saving…" : editingService ? "Update" : "Create"}
+                                {upsertMutation.isPending ? "Savingï¿½" : editingService ? "Update" : "Create"}
                             </Button>
                         </div>
                     </form>

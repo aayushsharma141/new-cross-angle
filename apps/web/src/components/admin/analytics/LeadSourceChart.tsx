@@ -1,5 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
+import { Surface, Stack, Text } from "@/components/primitives/foundation";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -61,12 +61,12 @@ export function LeadSourceChart() {
     });
 
     return (
-        <Card className="col-span-1 border-admin-border bg-admin-card">
-            <CardHeader>
-                <CardTitle className="text-lg font-display text-admin-foreground">Lead Sources</CardTitle>
+        <Surface variant="primary" radius="lg" border shadow="sm" className="col-span-1 border-admin-border bg-admin-card">
+            <Stack gap="sm" className="p-6">
+                <Text as="h3" variant="h3" className="leading-none" className="text-lg font-display text-admin-foreground">Lead Sources</Text>
                 <p className="text-sm text-admin-muted">Acquisition channel distribution</p>
-            </CardHeader>
-            <CardContent>
+            </Stack>
+            <div className="p-6 pt-0">
                 {isLoading ? (
                     <div className="h-[300px] flex items-center justify-center text-admin-muted text-sm">
                         Loading…
@@ -112,7 +112,7 @@ export function LeadSourceChart() {
                         </ResponsiveContainer>
                     </div>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </Surface>
     );
 }

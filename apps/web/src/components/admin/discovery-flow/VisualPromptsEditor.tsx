@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Save, Loader2, Award, Sliders } from "lucide-react";
 import { AdminFormCard } from "@/components/admin/shared";
 import { DiscoveryMediaSlot } from "./DiscoveryMediaSlot";

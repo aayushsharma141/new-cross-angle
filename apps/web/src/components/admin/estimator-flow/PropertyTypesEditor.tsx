@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Save, Plus, Trash2, Pencil, X, Check, GripVertical, Loader2, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
@@ -106,7 +106,7 @@ function SortableItem({
                 domain="estimator"
                 entityType="property_types"
                 damRole="thumbnail"
-                placeholder="Thumbnail…"
+                placeholder="Thumbnailï¿½"
               />
             </div>
             <div className="text-xs text-[hsl(var(--admin-text-muted))] pt-1">

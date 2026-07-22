@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { icons } from "@/design-system/tokens/icons";
 import { Save, RotateCcw, Loader2, MapPin, Paintbrush, HardHat, Plug, BrainCircuit, Target } from "lucide-react";
 import { AdminFormCard, AdminSafeAction } from "@/components/admin/shared";

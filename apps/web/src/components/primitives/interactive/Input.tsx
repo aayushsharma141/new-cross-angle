@@ -1,0 +1,28 @@
+// Genome ID: P010 Input
+import React from 'react';
+import { cn } from '../../../lib/utils';
+
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  invalid?: boolean;
+}
+
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type = 'text', invalid, disabled, ...props }, ref) => {
+    const baseClasses = 'flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors';
+    
+    const validClasses = 'focus-visible:ring-primary';
+    const invalidClasses = 'border-error focus-visible:ring-error text-error placeholder:text-error/70';
+
+    return (
+      <input
+        type={type}
+        className={cn(baseClasses, invalid ? invalidClasses : validClasses, className)}
+        ref={ref}
+        disabled={disabled}
+        aria-invalid={!!invalid}
+        {...props}
+      />
+    );
+  }
+);
+Input.displayName = 'Input';

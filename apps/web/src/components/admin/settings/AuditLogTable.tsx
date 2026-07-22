@@ -9,7 +9,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/primitives/table";
-import { Badge } from "@/components/ui/primitives/badge";
+import { Badge } from "@/components/primitives/interactive";
 import { format } from "date-fns";
 import { Loader2, Activity } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";

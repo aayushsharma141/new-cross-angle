@@ -245,7 +245,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
           href={`https://wa.me/${whatsapp.replace(/\D/g, "")}?text=I%20want%20to%20see%20more%20details%20about%20this%20project.`}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-2 inline-flex items-center gap-2 text-site-gold text-xs uppercase tracking-widest hover:underline"
+          className="mt-2 inline-flex items-center gap-2 text-primary text-xs uppercase tracking-widest hover:underline"
         >
           <MessageCircle className="w-3.5 h-3.5" />
           Request media gallery
@@ -266,7 +266,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
     >
       {/* ── Chapter label (plain language) ── */}
       <div className="flex flex-col items-center text-center mb-10 select-none" aria-hidden="true">
-        <span className="text-[10px] font-mono tracking-[0.4em] text-site-gold uppercase mb-2">
+        <span className="text-[10px] font-mono tracking-[0.4em] text-primary uppercase mb-2">
           02 / IMMERSE
         </span>
         <div className="w-8 h-px bg-white/10" />
@@ -290,7 +290,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
               aria-controls={`panel-${mode}`}
               id={`tab-${mode}`}
               onClick={() => { setActiveMode(mode); setActiveSpot(null); setVideoPlaying(false); }}
-              className="relative flex items-center gap-2 px-4 md:px-5 py-2 text-[9px] font-semibold tracking-[0.2em] uppercase transition-colors duration-300 rounded-full z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
+              className="relative flex items-center gap-2 px-4 md:px-5 py-2 text-[9px] font-semibold tracking-[0.2em] uppercase transition-colors duration-300 rounded-full z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
             >
               {/* Morphing background pill */}
               {activeMode === mode && (
@@ -380,7 +380,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                         type="button"
                         onClick={toggleVideo}
                         aria-label="Play project walkthrough video"
-                        className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:bg-site-gold/90 group-hover:border-site-gold transition-all duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                        className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:bg-primary/90 group-hover:border-primary transition-all duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                       >
                         <Play className="w-8 h-8 text-white group-hover:text-black ml-1 transition-colors" aria-hidden="true" />
                       </button>
@@ -426,7 +426,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                           className="flex items-center gap-2.5 group focus:outline-none"
                           aria-label={`Skip to chapter ${ch.label} at ${ch.time}`}
                         >
-                          <span className="text-[10px] font-mono text-site-gold group-hover:text-white transition-colors">{ch.time}</span>
+                          <span className="text-[10px] font-mono text-primary group-hover:text-white transition-colors">{ch.time}</span>
                           <span className="text-[10px] uppercase tracking-[0.12em] text-stone-300 font-light group-hover:text-white transition-colors">{ch.label}</span>
                         </button>
                         {i < VIDEO_CHAPTERS.length - 1 && <span className="w-5 h-px bg-white/10" />}
@@ -481,14 +481,14 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                     aria-label={`View ${spot.tag} detail: ${spot.title}`}
                     aria-pressed={activeSpot?.id === spot.id}
                     style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
-                    className="absolute z-20 -translate-x-1/2 -translate-y-1/2 focus:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                    className="absolute z-20 -translate-x-1/2 -translate-y-1/2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                   >
                     <div className="relative flex items-center justify-center w-9 h-9 hover:scale-110 active:scale-95 transition-transform duration-200">
                       {!prefersReducedMotion && (
-                        <div className={`absolute inset-0 rounded-full animate-ping ${activeSpot?.id === spot.id ? "bg-site-gold/40" : "bg-white/20"}`} />
+                        <div className={`absolute inset-0 rounded-full animate-ping ${activeSpot?.id === spot.id ? "bg-primary/40" : "bg-white/20"}`} />
                       )}
                       <div className={`absolute inset-1.5 rounded-full flex items-center justify-center shadow-lg font-bold text-[10px] transition-colors duration-300 ${
-                        activeSpot?.id === spot.id ? "bg-site-gold text-black" : "bg-white text-black"
+                        activeSpot?.id === spot.id ? "bg-primary text-black" : "bg-white text-black"
                       }`}>
                         {idx + 1}
                       </div>
@@ -532,7 +532,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                   >
                     {/* Header */}
                     <div className="flex justify-between items-center mb-3">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] font-mono tracking-widest text-site-gold uppercase">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] font-mono tracking-widest text-primary uppercase">
                         <Sparkles className="w-3 h-3" aria-hidden="true" />
                         {activeSpot.tag}
                       </span>
@@ -559,7 +559,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                     {/* Specs — styled list using spans */}
                     <div className="border-t border-white/5 pt-3 space-y-2 text-[10px]" role="list" aria-label="Material specifications">
                       <div role="listitem">
-                        <span className="text-site-gold uppercase tracking-wider font-bold">Material: </span>
+                        <span className="text-primary uppercase tracking-wider font-bold">Material: </span>
                         <span className="text-stone-300 font-light">{activeSpot.swatch.name} <span className="text-stone-500">({activeSpot.swatch.type})</span></span>
                       </div>
                       <div role="listitem">
@@ -583,7 +583,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                       href={quoteLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-4 flex items-center justify-center gap-2 w-full py-2.5 bg-site-gold/10 hover:bg-site-gold/20 border border-site-gold/30 rounded-lg text-site-gold text-[10px] font-semibold uppercase tracking-widest transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-site-gold"
+                      className="mt-4 flex items-center justify-center gap-2 w-full py-2.5 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary text-[10px] font-semibold uppercase tracking-widest transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                     >
                       <MessageCircle className="w-3.5 h-3.5" aria-hidden="true" />
                       Want this in your home?
@@ -671,9 +671,9 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
               aria-label={`View picture ${idx + 1}`}
               aria-current={currentIdx === idx ? "true" : undefined}
               className={[
-                "flex-shrink-0 w-24 md:w-32 aspect-[16/10] overflow-hidden rounded-lg border transition-all duration-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-site-gold",
+                "flex-shrink-0 w-24 md:w-32 aspect-[16/10] overflow-hidden rounded-lg border transition-all duration-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                 currentIdx === idx
-                  ? "border-site-gold shadow-md shadow-site-gold/20 opacity-100 scale-95"
+                  ? "border-primary shadow-md shadow-primary/20 opacity-100 scale-95"
                   : "border-white/10 opacity-70 hover:opacity-95 hover:border-white/25",
               ].join(" ")}
             >

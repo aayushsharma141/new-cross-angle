@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { X, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { useToast } from "@/hooks/useToast";
 import { cn } from "@/lib/utils";
 import { leadService } from "@/services/LeadService";

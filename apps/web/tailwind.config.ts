@@ -45,6 +45,10 @@ export default {
 					DEFAULT: "hsl(var(--accent) / <alpha-value>)",
 					foreground: "hsl(var(--accent-foreground) / <alpha-value>)",
 				},
+				error: {
+					DEFAULT: "hsl(var(--error) / <alpha-value>)",
+					foreground: "hsl(var(--error-foreground) / <alpha-value>)",
+				},
 				muted: {
 					DEFAULT: "hsl(var(--muted) / <alpha-value>)",
 					foreground: "hsl(var(--muted-foreground) / <alpha-value>)",
@@ -62,37 +66,42 @@ export default {
 					border: "hsl(var(--sidebar-border) / <alpha-value>)",
 					ring: "hsl(var(--sidebar-ring) / <alpha-value>)",
 				},
+				/**
+				 * @deprecated [PROTECTED LEGACY] 
+				 * These site tokens are frozen and scheduled for deletion in Phase 30.
+				 * Do not add new usages. Existing usages are allowed only until the owning Room is migrated.
+				 */
 				site: {
-					bg: '#000000',
-					'bg-section': '#080604',
-					'bg-card': '#100D0A',
-					'bg-card-hover': '#1A1614',
-					'bg-light': '#F5F3EF',
-					'bg-input': '#100D0A',
-					crimson: '#C41230',
-					'crimson-light': 'rgba(196, 18, 48, 0.3)',
-					gold: '#D1AF6E',
-					'gold-light': 'rgba(209, 175, 110, 0.3)',
-					stone: '#8B8B8B',
-					text: '#EDEAE6',
-					'text-heading': '#FFFFFF',
-					'text-muted': '#A3A09C',
-					'text-meta': '#6B6B6B',
-					border: 'rgba(237, 234, 230, 0.08)',
-					'border-input': 'rgba(237, 234, 230, 0.1)',
+					bg: "hsl(var(--site-bg) / <alpha-value>)",
+					'bg-section': "hsl(var(--site-bg-section) / <alpha-value>)",
+					'bg-card': "hsl(var(--site-bg-card) / <alpha-value>)",
+					'bg-card-hover': "hsl(var(--site-bg-card-hover) / <alpha-value>)",
+					'bg-light': "hsl(var(--site-bg-light) / <alpha-value>)",
+					'bg-input': "hsl(var(--site-bg-input) / <alpha-value>)",
+					crimson: "hsl(var(--site-crimson) / <alpha-value>)",
+					'crimson-light': "hsl(var(--site-crimson) / 0.3)",
+					gold: "hsl(var(--site-gold) / <alpha-value>)",
+					'gold-light': "hsl(var(--site-gold) / 0.3)",
+					stone: "hsl(var(--site-stone) / <alpha-value>)",
+					text: "hsl(var(--site-text) / <alpha-value>)",
+					'text-heading': "hsl(var(--site-text-heading) / <alpha-value>)",
+					'text-muted': "hsl(var(--site-text-muted) / <alpha-value>)",
+					'text-meta': "hsl(var(--site-text-meta) / <alpha-value>)",
+					border: "hsl(var(--site-border) / <alpha-value>)",
+					'border-input': "hsl(var(--site-border-input) / <alpha-value>)",
 				},
 				kiro: {
-					bg: '#faf8f5',
-					surface: '#ffffff',
-					ink: '#1a1a1a',
-					inkSoft: '#5a5a5a',
-					line: '#e8e4dd',
-					accent: '#7a5c30',
-					accentSoft: '#f3ede2',
-					hard: '#d64545',
-					soft: '#e89c3a',
-					note: '#d4b73a',
-					good: '#4a8a5c'
+					bg: "hsl(var(--kiro-bg) / <alpha-value>)",
+					surface: "hsl(var(--kiro-surface) / <alpha-value>)",
+					ink: "hsl(var(--kiro-ink) / <alpha-value>)",
+					inkSoft: "hsl(var(--kiro-inkSoft) / <alpha-value>)",
+					line: "hsl(var(--kiro-line) / <alpha-value>)",
+					accent: "hsl(var(--kiro-accent) / <alpha-value>)",
+					accentSoft: "hsl(var(--kiro-accentSoft) / <alpha-value>)",
+					hard: "hsl(var(--kiro-hard) / <alpha-value>)",
+					soft: "hsl(var(--kiro-soft) / <alpha-value>)",
+					note: "hsl(var(--kiro-note) / <alpha-value>)",
+					good: "hsl(var(--kiro-good) / <alpha-value>)"
 				},
 				admin: {
 					background: "hsl(var(--admin-background) / <alpha-value>)",
@@ -317,7 +326,8 @@ export default {
 	plugins: [
 		tailwindcssAnimate,
 		typography,
-		function ({ addComponents, addUtilities }) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		function ({ addComponents, addUtilities }: { addComponents: any; addUtilities: any }) {
 			addComponents({
 				".glass": {
 					background: "hsl(0 0% 100% / 0.02)",

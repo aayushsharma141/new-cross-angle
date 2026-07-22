@@ -7,9 +7,9 @@ import {
     Maximize2,
     ImageIcon
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/primitives/card";
+import { Surface } from "@/components/primitives/foundation";
 import { Button } from "@/components/ui/primitives/button";
-import { Checkbox } from "@/components/ui/primitives/checkbox";
+import { Checkbox } from "@/components/primitives/interactive";
 import { getOptimizedUrl } from "@/lib/cdn";
 import { useDraggable } from "@dnd-kit/core";
 
@@ -83,7 +83,7 @@ export const MediaGrid = ({
                 transition={{ delay: index * 0.02 }}
                 className="cursor-grab active:cursor-grabbing"
             >
-                <Card
+                <Surface variant="primary" radius="lg" border shadow="sm"
                     className={`group overflow-hidden relative transition-all duration-300 hover:shadow-[0_20px_50px_rgba(124,58,237,0.1)] border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md ${selectedFiles.has(file.id)
                         ? 'ring-2 ring-[hsl(var(--admin-primary))] border-[hsl(var(--admin-primary)/0.5)] shadow-[0_0_20px_rgba(124,58,237,0.2)]'
                         : 'hover:border-[hsl(var(--admin-primary)/0.3)]'
@@ -123,10 +123,10 @@ export const MediaGrid = ({
                             <p className="text-zinc-400 text-[10px] font-medium truncate opacity-0 group-hover:opacity-100 transition-opacity delay-100 pointer-events-auto">{formatFileSize(file.size)}</p>
                         </div>
                     </div>
-                    <CardContent className="p-3 pointer-events-none">
+                    <div className="p-6 pt-0" className="p-3 pointer-events-none">
                         <p className="text-xs font-medium truncate mb-1" title={file.name}>{file.name}</p>
-                    </CardContent>
-                </Card>
+                    </div>
+                </Surface>
             </motion.div>
         );
     };

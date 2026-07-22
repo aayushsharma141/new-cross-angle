@@ -1,5 +1,5 @@
 // Deno.serve is the native Supabase Edge Function entrypoint - no std/http import needed
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { createClient } from "@supabase/supabase-js";
 import {
     buildCorsHeaders,
     handlePreflight,
@@ -38,32 +38,34 @@ type ProfileState = {
     deleted_at: string | null;
 };
 
-async function getActorRole(adminClient: ReturnType<typeof createClient>, userId: string): Promise<AppRole | null> {
+async function getActorRole(adminClient: any, userId: string): Promise<AppRole | null> {
     const { data, error } = await adminClient
         .from("user_roles")
         .select("role")
         .eq("user_id", userId)
         .maybeSingle();
 
-    if (error || !data?.role || !isAppRole(data.role)) {
+    const role = (data as any)?.role;
+    if (error || !role || !isAppRole(role)) {
         return null;
     }
 
-    return data.role;
+    return role;
 }
 
-async function getTargetRole(adminClient: ReturnType<typeof createClient>, userId: string): Promise<AppRole> {
+async function getTargetRole(adminClient: any, userId: string): Promise<AppRole> {
     const { data } = await adminClient
         .from("user_roles")
         .select("role")
         .eq("user_id", userId)
         .maybeSingle();
 
-    return normalizeRole(data?.role);
+    const role = (data as any)?.role;
+    return normalizeRole(role);
 }
 
 async function getTargetProfile(
-    adminClient: ReturnType<typeof createClient>,
+    adminClient: any,
     userId: string,
 ): Promise<ProfileState> {
     const { data } = await adminClient
@@ -72,15 +74,16 @@ async function getTargetProfile(
         .eq("id", userId)
         .maybeSingle();
 
+    const profile = data as any;
     return {
-        full_name: data?.full_name ?? null,
-        status: data?.status ?? null,
-        deleted_at: data?.deleted_at ?? null,
+        full_name: profile?.full_name ?? null,
+        status: profile?.status ?? null,
+        deleted_at: profile?.deleted_at ?? null,
     };
 }
 
 async function ensureNotLastSuperAdmin(
-    adminClient: ReturnType<typeof createClient>,
+    adminClient: any,
     targetRole: AppRole,
     isRemovingSuperAdminAccess: boolean,
 ): Promise<string | null> {

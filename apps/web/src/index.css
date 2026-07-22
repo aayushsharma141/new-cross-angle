@@ -49,6 +49,10 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
+    /* Terracotta - Muted/desaturated status error */
+    --error: 14 38% 52%;
+    --error-foreground: 40 10% 97%;
+
     /* UI Elements */
     --border: 0 0% 15%;
     --input: 0 0% 12%;
@@ -77,43 +81,68 @@
     --gradient-shine: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 5%) 50%, hsl(0 0% 8%) 100%);
     --shadow-luxury: 0 25px 50px -12px hsl(0 0% 0% / 0.9);
 
-    /* Website Color System Tokens — Strategic Intelligence */
-    --site-bg: #000000;
-    --site-bg-section: #080604;
-    --site-bg-card: #100D0A;
-    --site-bg-card-hover: #1A1614;
-    --site-bg-light: #F5F3EF;
-    --site-bg-input: #100D0A;
-    --site-crimson: #C41230;
-    --site-crimson-90: rgba(196, 18, 48, 0.9);
-    --site-crimson-30: rgba(196, 18, 48, 0.3);
-    --site-crimson-hover: #a30f27;
-    --site-gold: #D1AF6E;
-    --site-gold-90: rgba(209, 175, 110, 0.9);
-    --site-gold-50: rgba(209, 175, 110, 0.5);
-    --site-gold-30: rgba(209, 175, 110, 0.3);
-    --site-gold-10: rgba(209, 175, 110, 0.1);
-    --site-gold-hover: #c9a65d;
-    --site-stone: #8B8B8B;
-    --site-text: #EDEAE6;
-    --site-text-heading: #FFFFFF;
-    --site-text-muted: #A3A09C;
-    --site-text-meta: #6B6B6B;
-    --site-text-90: rgba(237, 234, 230, 0.9);
-    --site-text-80: rgba(237, 234, 230, 0.8);
-    --site-text-70: rgba(237, 234, 230, 0.7);
-    --site-text-60: rgba(237, 234, 230, 0.6);
-    --site-text-50: rgba(237, 234, 230, 0.5);
-    --site-text-40: rgba(237, 234, 230, 0.4);
-    --site-border: rgba(237, 234, 230, 0.08);
-    --site-border-strong: rgba(237, 234, 230, 0.14);
-    --site-border-input: rgba(237, 234, 230, 0.1);
+    /* 
+     * @deprecated [PROTECTED LEGACY] 
+     * Website Color System Tokens — Legacy Compatibility (Mapped to Canonical) 
+     * These tokens are frozen and scheduled for deletion in Phase 30.
+     * Do not add new usages. Existing usages are allowed only until the owning Room is migrated.
+     */
+    --site-bg: var(--background);
+    --site-bg-section: var(--muted);
+    --site-bg-card: var(--card);
+    --site-bg-card-hover: 22 12% 9%;
+    --site-bg-light: 40 25% 95%;
+    --site-bg-input: var(--input);
+    
+    --site-crimson: var(--primary);
+    --site-crimson-hover: var(--primary-hover);
+    --site-crimson-90: hsl(var(--primary) / 0.9);
+    --site-crimson-30: hsl(var(--primary) / 0.3);
+    
+    --site-gold: 40 54% 63%;
+    --site-gold-hover: 41 53% 58%;
+    --site-gold-90: hsl(40 54% 63% / 0.9);
+    --site-gold-50: hsl(40 54% 63% / 0.5);
+    --site-gold-30: hsl(40 54% 63% / 0.3);
+    --site-gold-10: hsl(40 54% 63% / 0.1);
+    
+    --site-stone: 0 0% 55%;
+    
+    --site-text: var(--foreground);
+    --site-text-heading: var(--foreground);
+    --site-text-muted: var(--muted-foreground);
+    --site-text-meta: 0 0% 42%;
+    --site-text-90: hsl(var(--foreground) / 0.9);
+    --site-text-80: hsl(var(--foreground) / 0.8);
+    --site-text-70: hsl(var(--foreground) / 0.7);
+    --site-text-60: hsl(var(--foreground) / 0.6);
+    --site-text-50: hsl(var(--foreground) / 0.5);
+    --site-text-40: hsl(var(--foreground) / 0.4);
+    
+    --site-border: var(--border);
+    --site-border-strong: 0 0% 15%;
+    --site-border-input: var(--input);
+
     --site-overlay-hero: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.75));
-    --site-focus: #D1AF6E;
-    --site-focus-ring: 0 0 0 3px rgba(209, 175, 110, 0.45);
-    --site-success: #22c55e;
-    --site-error: #ef4444;
-    --site-warning: #f59e0b;
+    --site-focus: 40 54% 63%;
+    --site-focus-ring: 0 0 0 3px hsl(40 54% 63% / 0.45);
+    
+    --site-success: 142 71% 45%;
+    --site-error: var(--destructive);
+    --site-warning: 38 92% 50%;
+
+    /* Kiro Sub-brand Tokens */
+    --kiro-bg: 36 33% 97%;
+    --kiro-surface: 0 0% 100%;
+    --kiro-ink: 0 0% 10%;
+    --kiro-inkSoft: 0 0% 35%;
+    --kiro-line: 38 22% 89%;
+    --kiro-accent: 36 43% 33%;
+    --kiro-accentSoft: 38 41% 92%;
+    --kiro-hard: 0 65% 55%;
+    --kiro-soft: 34 78% 57%;
+    --kiro-note: 48 64% 53%;
+    --kiro-good: 137 30% 42%;
 
     /* ── Home page design-system tokens ── */
     --home-glow-crimson: rgba(182, 24, 38, .18);

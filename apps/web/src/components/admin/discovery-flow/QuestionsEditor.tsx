@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Save, Plus, X, Loader2, MessageSquare, Palette } from "lucide-react";
 import { AdminFormCard } from "@/components/admin/shared";
 
@@ -166,7 +166,7 @@ export function QuestionsEditor() {
           <Input
             value={newLanguageDesc}
             onChange={(e) => setNewLanguageDesc(e.target.value)}
-            placeholder="Short description…"
+            placeholder="Short descriptionï¿½"
             className="h-8 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
           />
           <Button

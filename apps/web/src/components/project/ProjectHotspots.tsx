@@ -59,9 +59,9 @@ const ProjectHotspots = () => {
         
         {/* Title */}
         <div className="mb-16">
-          <span className="text-xs font-semibold tracking-[0.35em] uppercase text-site-gold block mb-4">— INTERACTION</span>
+          <span className="text-xs font-semibold tracking-[0.35em] uppercase text-primary block mb-4">— INTERACTION</span>
           <h2 className="text-3xl md:text-5xl font-serif font-normal text-white">
-            Design <span className="italic text-site-crimson font-light">Canvas Details</span>
+            Design <span className="italic text-primary font-light">Canvas Details</span>
           </h2>
         </div>
 
@@ -88,11 +88,11 @@ const ProjectHotspots = () => {
               <div className="relative flex items-center justify-center w-8 h-8">
                 {/* Outer ring */}
                 <div className={`absolute inset-0 rounded-full animate-ping transition-colors duration-500 ${
-                  activeSpot?.id === spot.id ? "bg-site-gold/40" : "bg-white/20"
+                  activeSpot?.id === spot.id ? "bg-primary/40" : "bg-white/20"
                 }`} />
                 {/* Center dot */}
                 <div className={`absolute inset-1.5 rounded-full flex items-center justify-center shadow-lg transition-colors duration-500 ${
-                  activeSpot?.id === spot.id ? "bg-site-gold text-black" : "bg-white text-black"
+                  activeSpot?.id === spot.id ? "bg-primary text-black" : "bg-white text-black"
                 }`}>
                   <span className="text-[10px] font-bold">{idx + 1}</span>
                 </div>
@@ -113,7 +113,7 @@ const ProjectHotspots = () => {
                 {/* Header */}
                 <div>
                   <div className="flex justify-between items-center mb-8">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] font-mono tracking-widest text-site-gold uppercase">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] font-mono tracking-widest text-primary uppercase">
                       <Sparkles className="w-3 h-3" />
                       Detail {activeSpot.id}
                     </span>
@@ -133,7 +133,7 @@ const ProjectHotspots = () => {
                   </div>
 
                   {/* Title & Tag */}
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-site-crimson font-medium block mb-2">{activeSpot.tag}</span>
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-primary font-medium block mb-2">{activeSpot.tag}</span>
                   <h4 className="text-xl font-serif text-white mb-4 leading-snug">{activeSpot.title}</h4>
                   
                   {/* Detailed Description */}

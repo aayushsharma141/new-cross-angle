@@ -41,7 +41,7 @@ export const CursorGlow = () => {
         x: glowX,
         y: glowY,
       }}
-      className="fixed top-0 left-0 w-[300px] h-[300px] rounded-full bg-site-gold/[0.03] blur-[100px] pointer-events-none z-50 mix-blend-screen"
+      className="fixed top-0 left-0 w-[300px] h-[300px] rounded-full bg-primary/[0.03] blur-[100px] pointer-events-none z-50 mix-blend-screen"
     />
   );
 };

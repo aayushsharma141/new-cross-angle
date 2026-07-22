@@ -1,1 +1,0 @@
-{"nodes": [{"id": "checkly_config_ts", "label": "checkly.config.ts", "file_type": "code", "source_file": "checkly.config.ts", "source_location": "L1"}], "edges": [{"source": "checkly_config_ts", "target": "checkly", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "checkly.config.ts", "source_location": "L1", "weight": 1.0}], "raw_calls": []}

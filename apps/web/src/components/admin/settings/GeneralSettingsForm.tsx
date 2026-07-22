@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import {
     Form,
     FormControl,
@@ -15,7 +15,7 @@ import {
     FormMessage,
 } from "@/components/ui/primitives/form";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
-import { Card, CardContent } from "@/components/ui/primitives/card";
+import { Surface } from "@/components/primitives/foundation";
 import { AdminFormCard } from "@/components/admin/shared";
 import { useToast } from "@/hooks/useToast";
 import { auditService } from "@/services/AuditService";
@@ -376,11 +376,11 @@ export function GeneralSettingsForm() {
 
     if (isFetching) {
         return (
-            <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))]">
-                <CardContent className="p-8 flex justify-center items-center">
+            <Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))]">
+                <div className="p-6 pt-0" className="p-8 flex justify-center items-center">
                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                </CardContent>
-            </Card>
+                </div>
+            </Surface>
         );
     }
 
@@ -411,7 +411,7 @@ export function GeneralSettingsForm() {
                                         <FormLabel>Company Description</FormLabel>
                                         <FormControl>
                                             <Textarea
-                                                placeholder="A brief description of your company for SEO…"
+                                                placeholder="A brief description of your company for SEOï¿½"
                                                 className="min-h-[80px]"
                                                 {...field}
                                             />
@@ -503,7 +503,7 @@ export function GeneralSettingsForm() {
                                         <Globe className="w-4 h-4" /> About Video URL
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://www.youtube.com/embed/…" {...field} />
+                                        <Input placeholder="https://www.youtube.com/embed/ï¿½" {...field} />
                                     </FormControl>
                                     <FormDescription>
                                         Embed URL for the About page video (e.g., YouTube embed link)
@@ -548,7 +548,7 @@ export function GeneralSettingsForm() {
                                         <Facebook className="w-4 h-4" /> Facebook
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://facebook.com/…" {...field} />
+                                        <Input placeholder="https://facebook.com/ï¿½" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -563,7 +563,7 @@ export function GeneralSettingsForm() {
                                         <Instagram className="w-4 h-4" /> Instagram
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://instagram.com/…" {...field} />
+                                        <Input placeholder="https://instagram.com/ï¿½" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -578,7 +578,7 @@ export function GeneralSettingsForm() {
                                         <Twitter className="w-4 h-4" /> Twitter (X)
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://twitter.com/…" {...field} />
+                                        <Input placeholder="https://twitter.com/ï¿½" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -593,7 +593,7 @@ export function GeneralSettingsForm() {
                                         <Linkedin className="w-4 h-4" /> LinkedIn
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://linkedin.com/in/…" {...field} />
+                                        <Input placeholder="https://linkedin.com/in/ï¿½" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -608,7 +608,7 @@ export function GeneralSettingsForm() {
                                         <Youtube className="w-4 h-4" /> YouTube
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://youtube.com/@…" {...field} />
+                                        <Input placeholder="https://youtube.com/@ï¿½" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -623,7 +623,7 @@ export function GeneralSettingsForm() {
                                         <PinterestIcon /> Pinterest
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://pinterest.com/…" {...field} />
+                                        <Input placeholder="https://pinterest.com/ï¿½" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

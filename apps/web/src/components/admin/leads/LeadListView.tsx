@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/design-system/components/Table";
-import { Badge } from "@/components/ui/primitives/badge";
+import { Badge } from "@/components/primitives/interactive";
 import { Button } from "@/design-system/components/Button";
 import {
   DropdownMenu,

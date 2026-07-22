@@ -15,7 +15,7 @@ import {
 import { AdminMetricsPanel } from "@/components/admin/shared";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import {
     Table,
     TableBody,
@@ -24,7 +24,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/design-system/components/Table";
-import { Badge } from "@/components/ui/primitives/badge";
+import { Badge } from "@/components/primitives/interactive";
 
 /* ───────────── Types ───────────── */
 interface ArticleRow {
@@ -172,7 +172,7 @@ export default function AdminBlogPerformance() {
                 <div className="relative flex-1 max-w-sm">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
                     <Input
-                        placeholder="Search articles�"
+                        placeholder="Search articles�"
                         className="pl-10 bg-[hsl(var(--admin-background))] border-[hsl(var(--admin-border))] focus:border-[hsl(var(--admin-primary))]/50 rounded-xl text-[hsl(var(--admin-text))]"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}

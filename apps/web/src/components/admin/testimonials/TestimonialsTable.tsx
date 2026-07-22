@@ -2,8 +2,8 @@ import { Star, Pencil, Trash2, CheckSquare, X, MoreVertical } from "lucide-react
 import { cn } from "@/lib/utils";
 import { Image } from "@/components/ui/enhanced/image";
 import { Button } from "@/components/ui/primitives/button";
-import { Badge } from "@/components/ui/primitives/badge";
-import { Checkbox } from "@/components/ui/primitives/checkbox";
+import { Badge } from "@/components/primitives/interactive";
+import { Checkbox } from "@/components/primitives/interactive";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/primitives/dropdown-menu";

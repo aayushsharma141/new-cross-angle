@@ -51,9 +51,9 @@ const ProjectDocumentation = () => {
     <section className="py-24 md:py-32 bg-neutral-950 text-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 md:px-12 mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
         <div>
-          <span className="text-[10px] font-semibold tracking-[0.35em] uppercase text-site-gold block mb-4">04 / THE CRAFT</span>
+          <span className="text-[10px] font-semibold tracking-[0.35em] uppercase text-primary block mb-4">04 / THE CRAFT</span>
           <h2 className="text-3xl md:text-5xl font-serif font-normal text-white">
-            Project <span className="italic text-site-crimson font-light">Documentation</span>
+            Project <span className="italic text-primary font-light">Documentation</span>
           </h2>
         </div>
 
@@ -63,8 +63,8 @@ const ProjectDocumentation = () => {
             <div key={idx} className="flex items-center gap-2 shrink-0">
               <button 
                 onClick={() => scrollToStep(idx)}
-                className={`text-[10px] font-mono tracking-wider transition-colors duration-500 hover:text-site-gold focus:outline-none focus-visible:ring-1 focus-visible:ring-site-gold rounded ${
-                activeStep === idx ? "text-site-gold font-bold" : "text-stone-500"
+                className={`text-[10px] font-mono tracking-wider transition-colors duration-500 hover:text-primary focus:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded ${
+                activeStep === idx ? "text-primary font-bold" : "text-stone-500"
               }`}>
                 {step.phase.split('.')[1].trim()}
               </button>
@@ -107,7 +107,7 @@ const ProjectDocumentation = () => {
             {/* Visual Swatch Image */}
             <div className="aspect-[16/9] overflow-hidden bg-neutral-900 mb-6 relative border border-white/5 rounded-lg group shadow-lg">
               <img src={step.img} alt={step.name} className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-700" loading="lazy" />
-              <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase text-site-gold border border-white/10 flex items-center gap-1.5 shadow-md">
+              <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase text-primary border border-white/10 flex items-center gap-1.5 shadow-md">
                 <Flag className="w-3 h-3" />
                 {step.phase}
               </div>

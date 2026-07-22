@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Loader2, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,21 +55,40 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
             // Strip large computed objects not needed in DB
             const { ...signalsForDB } = signals as UserSignals & { consultationIntelligence?: unknown };
 
+            // Generate Project Snapshot
+            const project_snapshot = {
+                budgetBracket: signalsForDB.budgetBracket || 'Unknown',
+                projectScope: signalsForDB.projectScope || 'Unknown',
+                propertyType: signalsForDB.propertyType || 'Unknown',
+                confidence: signalsForDB.consultationIntelligence?.confidence?.overall || 0,
+                realism: signalsForDB.consultationIntelligence?.confidence?.realism || 'Unknown',
+                suitability: signalsForDB.consultationIntelligence?.propertySuitability?.tier || 'Unknown',
+            };
+
+            // Generate a simple narrative brief
+            const narrative_brief = `Client seeks a ${signalsForDB.projectScope || 'project'} for a ${signalsForDB.propertyType || 'property'}. Primary value: ${signalsForDB.primaryValue || 'beauty'}. Budget bracket: ${signalsForDB.budgetBracket || 'not specified'}.`;
+
             const payload = {
                 name,
                 email,
                 phone,
                 session_id: sessionId,
-                consent: true,
-                results: {
-                    archetype: archetype.name,
-                    scores: scores,
-                    project_type: signals.reflectionAnswers?.find(a => a.question.includes('space'))?.answer || 'residential',
+                decision_genome: signalsForDB,
+                project_snapshot,
+                narrative_brief,
+                workspace_state: {
+                    stage: "LeadCapture",
+                    intentVisualConflict: signalsForDB.intentVisualConflict
                 },
-                raw_data: signalsForDB
+                versioning: {
+                    decisionSchemaVersion: "1.0.0",
+                    genomeVersion: "1.0.0",
+                    recommendationEngineVersion: "1.0.0",
+                    designSystemVersion: "2.0.0"
+                }
             };
 
-            const { data, error } = await supabase.functions.invoke("submit-discovery-lead", {
+            const { data, error } = await supabase.functions.invoke("submit-workspace-commitment", {
                 body: payload,
             });
 

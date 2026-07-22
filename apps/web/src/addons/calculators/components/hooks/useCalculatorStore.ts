@@ -14,8 +14,8 @@ import type { OrchestratorOutput } from "../data/engines";
 import type { DiscoveryHandoff, EstimatorResponse } from "../data/discovery-handoff";
 import type { ExecutionBlueprint } from "../data/engines/types";
 import { supabase } from "@/lib/supabase";
-import type { AnalyticsClient } from "@/analytics/posthog-client";
 import { track } from "@/analytics/track";
+import { useAnalytics } from "@/analytics/AnalyticsProvider";
 
 const TOTAL_STEPS = 8; // 0..6 = input steps, 7 = results
 const ESTIMATOR_DRAFT_KEY = "interior-estimator-draft";
@@ -168,7 +168,8 @@ function loadDraft(): {
     return { data, step, appliedDiscovery, displayName, rationale, prefillSnapshot, discoveryHandoff };
 }
 
-export function useCalculatorStore(analytics?: AnalyticsClient) {
+export function useCalculatorStore() {
+    const analytics = useAnalytics();
     const draftResult = useMemo(() => loadDraft(), []);
     const [formData, setFormData] = useState<CalculatorFormData>(draftResult.data);
     const [discoveryApplied, setDiscoveryApplied] = useState(draftResult.appliedDiscovery);
@@ -339,7 +340,7 @@ export function useCalculatorStore(analytics?: AnalyticsClient) {
             case 3: return formData.budgetAmount > 0;
             case 4: return !!formData.selectedService && (formData.selectedService !== "C5" || !!formData.executionTier);
             case 5: return true; // add-ons are optional
-            case 6: return !!formData.name && !!formData.phone;
+            case 6: return !!formData.name && !!formData.email && !!formData.phone;
             default: return false;
         }
     }, [currentStep, formData]);
@@ -355,7 +356,7 @@ export function useCalculatorStore(analytics?: AnalyticsClient) {
             case 4: return formData.selectedService === "C5" && !formData.executionTier
                 ? "Select an execution tier for Full Scope"
                 : "Select a service to continue";
-            case 6: return !formData.name ? "Enter your name" : "Enter your phone number";
+            case 6: return !formData.name ? "Enter your name" : !formData.email ? "Enter your email" : "Enter your phone number";
             default: return "";
         }
     }, [canProceed, currentStep, formData]);
@@ -428,6 +429,19 @@ export function useCalculatorStore(analytics?: AnalyticsClient) {
                     alcsRecommendation: alcsPipeline?.blueprint.recommendation ?? undefined,
                 }
             });
+
+            if (error) {
+                console.error("Submission failed:", error);
+            } else {
+                // Dual-write tracking event using the proper Learning Engine wrapper
+                track(analytics, "contact_form_submitted", {
+                    leadSource: "estimator",
+                    email: formData.email,
+                    leadId: data?.leadId,
+                    sessionId: discoveryHandoff?.userId ?? crypto.randomUUID(),
+                    correlationId: data?.leadId,
+                });
+            }
 
             if (error) {
                 console.error("Edge Function error:", error);

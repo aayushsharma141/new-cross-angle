@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/primitives/button";
 import { Skeleton } from "@/components/ui/primitives/skeleton";
-import { Card, CardContent } from "@/components/ui/primitives/card";
+import { Surface } from "@/components/primitives/foundation";
 import {
     BarChart,
     Bar,
@@ -173,12 +173,12 @@ export default function AdminBlogOverview() {
             <div className="space-y-8 animate-in fade-in duration-700">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[1, 2, 3, 4].map((i) => (
-                        <Card key={i} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">
-                            <CardContent className="p-6 space-y-3">
+                        <Surface variant="primary" radius="lg" border shadow="sm" key={i} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">
+                            <div className="p-6 pt-0" className="p-6 space-y-3">
                                 <Skeleton className="h-3 w-20 bg-[hsl(var(--admin-border))]" />
                                 <Skeleton className="h-8 w-24 bg-[hsl(var(--admin-border))]" />
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </Surface>
                     ))}
                 </div>
                 <Skeleton className="h-[300px] w-full bg-[hsl(var(--admin-border))]/30 rounded-2xl" />

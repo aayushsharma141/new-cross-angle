@@ -103,7 +103,7 @@ export const ProjectArchiveCard = ({ project, spanClass }: ProjectArchiveCardPro
         {/* Content details overlay */}
         <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 z-20 flex flex-col justify-end h-full">
           <div className="space-y-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-            <span className="text-[9px] font-bold tracking-[0.25em] text-site-gold uppercase block">
+            <span className="text-[9px] font-bold tracking-[0.25em] text-primary uppercase block">
               {project.category}
             </span>
             <h4 className="text-xl md:text-2xl font-serif font-light text-[#FAFAFA] tracking-tight leading-tight">
@@ -128,7 +128,7 @@ export const ProjectArchiveCard = ({ project, spanClass }: ProjectArchiveCardPro
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="absolute inset-[1px] bg-white/[0.04] backdrop-blur-xl flex items-center justify-center z-30"
             >
-              <span className="text-[10px] font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-5 py-2.5 bg-[#0B0B0B]/35 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
+              <span className="text-[10px] font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-5 py-2.5 bg-background/35 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
                 View Story →
               </span>
             </motion.div>

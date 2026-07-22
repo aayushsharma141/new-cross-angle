@@ -4,10 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { icons } from '@/design-system/tokens/icons';
 import { Loader2, Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
-import { Input } from '@/components/ui/primitives/input';
-import { Textarea } from '@/components/ui/primitives/textarea';
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { Label } from '@/components/ui/primitives/label';
-import { Card, CardContent } from '@/components/ui/primitives/card';
+import { Surface } from "@/components/primitives/foundation";
 import { useToast } from '@/hooks/useToast';
 import { MediaPicker } from '@/components/admin/media/MediaPicker';
 import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
@@ -534,7 +534,7 @@ const AdminGallery = () => {
                     {/* Items Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {items?.map(item => (
-                            <Card key={item.id} className="overflow-hidden bg-zinc-900/50 border-zinc-800 group transition-all duration-300 hover:border-zinc-700">
+                            <Surface variant="primary" radius="lg" border shadow="sm" key={item.id} className="overflow-hidden bg-zinc-900/50 border-zinc-800 group transition-all duration-300 hover:border-zinc-700">
                                 <div className="aspect-video relative overflow-hidden">
                                     <Image
                                         src={item.image_url}
@@ -560,7 +560,7 @@ const AdminGallery = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <CardContent className="p-4 relative">
+                                <div className="p-6 pt-0" className="p-4 relative">
                                     <h3 className="font-medium text-white truncate text-base mb-1">{item.title}</h3>
                                     <div className="flex items-center justify-between">
                                         {item.category && (
@@ -570,8 +570,8 @@ const AdminGallery = () => {
                                             <p className="text-xs text-zinc-500 flex items-center gap-1">{item.location}</p>
                                         )}
                                     </div>
-                                </CardContent>
-                            </Card>
+                                </div>
+                            </Surface>
                         ))}
                     </div>
 

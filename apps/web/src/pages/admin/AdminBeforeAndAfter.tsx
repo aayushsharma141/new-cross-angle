@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, ArrowUp, ArrowDown, ImageIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { Image } from "@/components/ui/enhanced/image";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import { Switch } from "@/components/ui/primitives/switch";
 import {
@@ -13,7 +13,7 @@ import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/primitives/badge";
+import { Badge } from "@/components/primitives/interactive";
 import { Compare } from "@/components/ui/enhanced/compare";
 import { MediaPicker as CanonicalMediaPicker } from "@/components/admin/media/MediaPicker";
 import { AdminSafeAction } from "@/components/admin/shared";
@@ -29,7 +29,7 @@ function MediaInput({ value, onChange, label }: { value: string; onChange: (url:
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Image URL…"
+          placeholder="Image URLï¿½"
           className="flex-1 text-xs"
         />
         <CanonicalMediaPicker
@@ -336,13 +336,13 @@ export default function AdminBeforeAndAfter() {
               <div><Label className="text-xs">The Challenge</Label><Textarea value={form.challenge} onChange={(e) => setForm({ ...form, challenge: e.target.value })} rows={2} placeholder="What problem did the client face?" /></div>
               <div>
                 <Label className="text-xs">Design Moves (one per line)</Label>
-                <Textarea value={form.design_moves} onChange={(e) => setForm({ ...form, design_moves: e.target.value })} rows={3} placeholder="Each design decision…" />
+                <Textarea value={form.design_moves} onChange={(e) => setForm({ ...form, design_moves: e.target.value })} rows={3} placeholder="Each design decisionï¿½" />
               </div>
-              <div><Label className="text-xs">Outcome</Label><Input value={form.outcome_metric} onChange={(e) => setForm({ ...form, outcome_metric: e.target.value })} placeholder="Completed in 30 days…" /></div>
+              <div><Label className="text-xs">Outcome</Label><Input value={form.outcome_metric} onChange={(e) => setForm({ ...form, outcome_metric: e.target.value })} placeholder="Completed in 30 daysï¿½" /></div>
 
               <div className="p-3 rounded-lg border border-dashed border-admin-border">
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 block">Client Testimonial (optional)</span>
-                <Textarea value={form.testimonial_quote} onChange={(e) => setForm({ ...form, testimonial_quote: e.target.value })} rows={2} placeholder="Client quote…" className="mb-2" />
+                <Textarea value={form.testimonial_quote} onChange={(e) => setForm({ ...form, testimonial_quote: e.target.value })} rows={2} placeholder="Client quoteï¿½" className="mb-2" />
                 <Input value={form.testimonial_client_name} onChange={(e) => setForm({ ...form, testimonial_client_name: e.target.value })} placeholder="Client name" />
               </div>
 

@@ -1,4 +1,5 @@
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { Link } from "@/components/primitives/interactive";
 
 const WhatsAppIcon = () => (
   <svg
@@ -27,10 +28,13 @@ const WhatsAppButton = () => {
   }
 
   return (
-    <a
+    <Link
+      as="a"
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
+      variant="inherit"
+      underline="none"
       className="fixed right-5 z-[999] group md:hidden"
       style={{ bottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }}
       aria-label="Chat on WhatsApp"
@@ -47,7 +51,7 @@ const WhatsAppButton = () => {
           <div className="absolute left-full top-1/2 -translate-y-1/2 border-8 border-transparent border-l-foreground" />
         </div>
       </div>
-    </a>
+    </Link>
   );
 };
 

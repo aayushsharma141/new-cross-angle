@@ -64,13 +64,13 @@ const ProjectCard = ({
           <div className="space-y-3 pt-2 pb-1 border-y border-white/[0.05] my-2">
             {project.challengeShort && (
               <div>
-                <span className="text-[10px] uppercase tracking-[0.2em] text-site-crimson block mb-1">Challenge</span>
+                <span className="text-[10px] uppercase tracking-[0.2em] text-primary block mb-1">Challenge</span>
                 <p className="text-sm text-white/60 leading-relaxed font-light">{project.challengeShort}</p>
               </div>
             )}
             {project.resultShort && (
               <div>
-                <span className="text-[10px] uppercase tracking-[0.2em] text-site-gold block mb-1">Result</span>
+                <span className="text-[10px] uppercase tracking-[0.2em] text-amber-500 block mb-1">Result</span>
                 <p className="text-sm text-white/90 leading-relaxed">{project.resultShort}</p>
               </div>
             )}
@@ -264,15 +264,15 @@ const Portfolio = () => {
               {/* Problem / Solution / Outcome Storytelling */}
               <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto text-left border-t border-white/10 pt-8 px-4">
                 <div>
-                  <h4 className="text-site-crimson font-mono text-[10px] uppercase tracking-[0.2em] mb-3">The Problem</h4>
+                  <h4 className="text-primary font-mono text-[10px] uppercase tracking-[0.2em] mb-3">The Problem</h4>
                   <p className="text-white/70 text-xs leading-relaxed line-clamp-4">{filteredProjects[currentImageIndex]?.brief}</p>
                 </div>
                 <div>
-                  <h4 className="text-site-crimson font-mono text-[10px] uppercase tracking-[0.2em] mb-3">The Solution</h4>
+                  <h4 className="text-primary font-mono text-[10px] uppercase tracking-[0.2em] mb-3">The Solution</h4>
                   <p className="text-white/70 text-xs leading-relaxed line-clamp-4">{filteredProjects[currentImageIndex]?.approach}</p>
                 </div>
                 <div>
-                  <h4 className="text-site-crimson font-mono text-[10px] uppercase tracking-[0.2em] mb-3">The Outcome</h4>
+                  <h4 className="text-primary font-mono text-[10px] uppercase tracking-[0.2em] mb-3">The Outcome</h4>
                   <p className="text-white/70 text-xs leading-relaxed italic border-l-2 border-white/20 pl-3">"{filteredProjects[currentImageIndex]?.testimonial?.quote || 'A flawlessly executed space delivered on time and within budget.'}"</p>
                 </div>
               </div>

@@ -4,9 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
-import { Checkbox } from "@/components/ui/primitives/checkbox";
+import { Checkbox } from "@/components/primitives/interactive";
 import { useToast } from "@/hooks/useToast";
 import {
   Eye,

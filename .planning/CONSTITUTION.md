@@ -127,4 +127,33 @@ If the answer is no — no matter how impressive it seems — it does not belong
 
 ---
 
+## Artifact Governance Rule
+
+Every new artifact added to `.planning/` or `design-history/` must explicitly answer one of two questions in its metadata:
+
+1. What new evidence does this introduce?
+2. What existing evidence does this reinterpret?
+
+If an artifact answers neither, it does not belong in the repository.
+
+---
+
+## Dataset Execution Rules
+
+These rules govern the collection and evaluation of Dataset v1. They enforce the transition from architecture to empirical operation.
+
+### Rule 1 — The Pace of Reality
+
+> **Founding Cases enter Dataset v1 only when ordinary production work naturally arrives. The pace of learning is determined by reality, not by the team's desire for more data.**
+
+Do not manufacture synthetic cases to advance the dataset. The queue belongs to reality.
+
+### Rule 2 — Terminology Freeze
+
+> **If something new appears, first ask: "Can this be expressed using an existing FC, DIR, OI, or PL artifact?"**
+
+Avoid inventing new labels unless absolutely necessary. Only create a new artifact type if the current vocabulary genuinely cannot represent the observation. This keeps the institution stable while the dataset grows.
+
+---
+
 *This document is permanent. Changes require explicit team consensus and must never be made in response to short-term engineering convenience or product pressure.*

@@ -8,8 +8,8 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { changePasswordSchema } from "@/lib/auth/auth-validation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/primitives/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/primitives/card";
-import { Input } from "@/components/ui/primitives/input";
+import { Surface, Stack, Text } from "@/components/primitives/foundation";
+import { Input } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import { Progress } from "@/components/ui/primitives/progress";
 import {
@@ -19,7 +19,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/primitives/dialog";
-import { Badge } from "@/components/ui/primitives/badge";
+import { Badge } from "@/components/primitives/interactive";
 
 
 const TIMEOUT_OPTIONS = [
@@ -160,14 +160,14 @@ export default function AdminUserAccessSecurity(): JSX.Element {
       
       {/* ── Account Information ── */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
-          <CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+        <Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
+          <Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><User className="text-primary h-5 w-5" /></div>
-              <div><CardTitle className="text-lg font-serif">Account Information</CardTitle><CardDescription className="text-zinc-500">Your personal executive profile details.</CardDescription></div>
+              <div><Text as="h3" variant="h3" className="leading-none" className="text-lg font-serif">Account Information</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Your personal executive profile details.</Text></div>
             </div>
-          </CardHeader>
-          <CardContent className="p-6">
+          </Stack>
+          <div className="p-6 pt-0" className="p-6">
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-1">
                 <Label className="text-muted-foreground text-xs uppercase tracking-wider">Email Address</Label>
@@ -180,22 +180,22 @@ export default function AdminUserAccessSecurity(): JSX.Element {
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </Surface>
       </motion.div>
 
       {/* ── Global Security Settings ── */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* 2FA Card */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden h-full">
-            <CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+          <Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden h-full">
+            <Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><KeyRound className="text-primary h-5 w-5" /></div>
-                <div><CardTitle className="text-lg font-serif">Two-Factor Authentication</CardTitle><CardDescription className="text-zinc-500">Enforce 2FA for all administrative accounts.</CardDescription></div>
+                <div><Text as="h3" variant="h3" className="leading-none" className="text-lg font-serif">Two-Factor Authentication</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Enforce 2FA for all administrative accounts.</Text></div>
               </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
+            </Stack>
+            <div className="p-6 pt-0" className="p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-zinc-400">Status</span>
                 <Badge variant={is2FAEnforced ? "default" : "secondary"} className={is2FAEnforced ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : ""}>
@@ -216,20 +216,20 @@ export default function AdminUserAccessSecurity(): JSX.Element {
                 {is2FALoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 {is2FAEnforced ? "Disable 2FA Requirement" : "Enforce Globally"}
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </Surface>
         </motion.div>
 
         {/* Session Timeout Card */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-          <Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden h-full">
-            <CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+          <Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden h-full">
+            <Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><Clock className="text-primary h-5 w-5" /></div>
-                <div><CardTitle className="text-lg font-serif">Session Timeout</CardTitle><CardDescription className="text-zinc-500">Automatically log out inactive users.</CardDescription></div>
+                <div><Text as="h3" variant="h3" className="leading-none" className="text-lg font-serif">Session Timeout</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Automatically log out inactive users.</Text></div>
               </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
+            </Stack>
+            <div className="p-6 pt-0" className="p-6 space-y-4">
               <p className="text-sm text-zinc-400">
                 Inactive sessions expire after <span className="text-zinc-200 font-semibold">{sessionTimeout} minutes</span>.
               </p>
@@ -239,21 +239,21 @@ export default function AdminUserAccessSecurity(): JSX.Element {
               <Button variant="outline" onClick={() => { setSelectedTimeout(sessionTimeout); setShowTimeoutDialog(true); }} className="w-full">
                 Configure
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </Surface>
         </motion.div>
       </div>
 
       {/* ── Password Change ── */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-        <Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
-          <CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+        <Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
+          <Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><Shield className="text-primary h-5 w-5" /></div>
-              <div><CardTitle className="text-lg font-serif">Security Protocol</CardTitle><CardDescription className="text-zinc-500">Update your access credentials to maintain unit integrity.</CardDescription></div>
+              <div><Text as="h3" variant="h3" className="leading-none" className="text-lg font-serif">Security Protocol</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Update your access credentials to maintain unit integrity.</Text></div>
             </div>
-          </CardHeader>
-          <CardContent className="p-6">
+          </Stack>
+          <div className="p-6 pt-0" className="p-6">
             <form onSubmit={handleChangePassword} className="space-y-6 max-w-md">
               <div className="space-y-2">
                 <Label htmlFor="currentPassword">Current Password</Label>
@@ -297,12 +297,12 @@ export default function AdminUserAccessSecurity(): JSX.Element {
               </div>
               <div className="pt-2">
                 <Button type="submit" disabled={isPasswordLoading} className="rounded-xl shadow-lg shadow-primary/20">
-                  {isPasswordLoading ? (<><Loader2 className="w-4 h-4 animate-spin mr-2" />Processing�</>) : "Update Protocol"}
+                  {isPasswordLoading ? (<><Loader2 className="w-4 h-4 animate-spin mr-2" />Processing�</>) : "Update Protocol"}
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </Surface>
       </motion.div>
 
       {/* ── 2FA Confirmation Dialog ── */}

@@ -30,7 +30,7 @@ const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md
           className={cn(
             sz,
             i < rating
-              ? "fill-site-gold text-site-gold drop-shadow-[0_0_5px_rgba(209,175,110,0.7)]"
+              ? "fill-amber-500 text-amber-500 drop-shadow-[0_0_5px_rgba(245,158,11,0.7)]"
               : "fill-white/10 text-white/10"
           )}
         />
@@ -69,11 +69,11 @@ const TestimonialCard = ({
         "relative p-6 md:p-8 rounded-2xl border flex flex-col group overflow-hidden transition-all duration-500",
         "w-[300px] md:w-[380px] shrink-0 select-none",
         "h-auto min-h-[280px] md:min-h-[320px]",
-        "bg-[#0d0d0c] border-white/[0.06] hover:border-site-gold/20 hover:shadow-[0_12px_40px_rgba(209,175,110,0.06)]"
+        "bg-[#0d0d0c] border-white/[0.06] hover:border-primary/20 hover:shadow-[0_12px_40px_hsla(var(--primary),0.06)]"
       )}
     >
       <Quote
-        className="absolute -top-1 right-4 w-16 h-16 transition-all duration-500 pointer-events-none opacity-[0.03] text-white group-hover:opacity-10 group-hover:text-site-gold"
+        className="absolute -top-1 right-4 w-16 h-16 transition-all duration-500 pointer-events-none opacity-[0.03] text-white group-hover:opacity-10 group-hover:text-primary"
       />
 
       {/* Stars */}
@@ -96,7 +96,7 @@ const TestimonialCard = ({
               e.stopPropagation();
               setIsExpanded(!isExpanded);
             }}
-            className="text-site-gold/80 hover:text-site-gold text-[0.75rem] md:text-[0.8rem] font-medium tracking-widest uppercase mt-3 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-site-gold rounded px-1 -mx-1"
+            className="text-primary/80 hover:text-primary text-[0.75rem] md:text-[0.8rem] font-medium tracking-widest uppercase mt-3 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded px-1 -mx-1"
           >
             {isExpanded ? "Read less" : "Read more…"}
           </button>
@@ -115,8 +115,8 @@ const TestimonialCard = ({
             height={80}
           />
         ) : (
-          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 border transition-colors duration-300 bg-white/[0.05] border-white/10 group-hover:bg-site-gold/15 group-hover:border-site-gold/30">
-            <span className="font-bold font-serif text-sm text-white/60 group-hover:text-site-gold transition-colors duration-300">
+          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 border transition-colors duration-300 bg-white/[0.05] border-white/10 group-hover:bg-primary/15 group-hover:border-primary/30">
+            <span className="font-bold font-serif text-sm text-white/60 group-hover:text-primary transition-colors duration-300">
               {item.author_name.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -240,7 +240,7 @@ const Testimonials = () => {
     <section id="testimonials" className="py-section-y relative overflow-hidden">
       <div className="absolute inset-0 bg-[#080807]" />
       {/* Top rule */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-site-gold/25 to-transparent" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
       {/* Bottom rule */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
@@ -250,8 +250,8 @@ const Testimonials = () => {
         <div className="text-center mb-16">
           {/* Eyebrow */}
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+            <div className="w-12 h-px bg-primary" />
+            <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">
               Client Reviews
             </span>
           </div>
@@ -259,7 +259,7 @@ const Testimonials = () => {
           {/* Heading */}
           <h2 className="font-display text-[clamp(2.4rem,6vw,4.5rem)] leading-[0.95] tracking-[-0.02em] text-white mb-6">
             What Our{" "}
-            <em className="not-italic text-site-gold">Clients</em>{" "}
+            <em className="not-italic text-primary">Clients</em>{" "}
             Say
           </h2>
 
@@ -267,7 +267,7 @@ const Testimonials = () => {
           {!isLoading && testimonials.length > 0 && (
             <div className="flex items-center justify-center gap-2.5 mt-4">
               <StarRating rating={5} size="md" />
-              <span className="text-site-gold font-bold text-lg font-display">{avgRating}</span>
+              <span className="text-primary font-bold text-lg font-display">{avgRating}</span>
               <span className="text-white/20">·</span>
               <span className="text-white/60 text-sm">
                 {testimonials.length} verified review{testimonials.length !== 1 ? "s" : ""}
@@ -283,7 +283,7 @@ const Testimonials = () => {
           onMouseLeave={() => setIsPaused(false)}
         >
           {/* Glow behind the carousel */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-site-gold/5 blur-[100px] rounded-full pointer-events-none hidden md:block" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-primary/5 blur-[100px] rounded-full pointer-events-none hidden md:block" />
 
           {isLoading ? (
             <div className="flex overflow-hidden gap-5 md:gap-6 px-4 md:px-8">

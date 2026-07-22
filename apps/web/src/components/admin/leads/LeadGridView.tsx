@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Card } from "@/design-system/components/Card";
-import { Badge } from "@/components/ui/primitives/badge";
+import { Badge } from "@/components/primitives/interactive";
 import { Button } from "@/design-system/components/Button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/primitives/dropdown-menu";
 import { MoreHorizontal, Eye, Mail, Phone, Flame, Thermometer, Snowflake, Trash2, MapPin, Brain } from "lucide-react";

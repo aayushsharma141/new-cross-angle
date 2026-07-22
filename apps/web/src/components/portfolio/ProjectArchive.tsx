@@ -55,15 +55,15 @@ export const ProjectArchive = () => {
   };
 
   return (
-    <section className="relative py-24 px-6 bg-[#0B0B0B]" id="archive">
+    <section className="relative py-24 px-6 bg-background" id="archive">
       <div className="max-w-7xl mx-auto space-y-16">
         
         {/* Header section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-px bg-site-gold/50" />
-              <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+              <div className="w-12 h-px bg-primary/50" />
+              <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">
                 03 / THE ARCHIVE
               </span>
             </div>
@@ -85,7 +85,7 @@ export const ProjectArchive = () => {
                 {activeCategory === cat && (
                   <motion.div
                     layoutId="activeTabUnderline"
-                    className="absolute bottom-[-9px] left-0 w-full h-[2px] bg-site-gold"
+                    className="absolute bottom-[-9px] left-0 w-full h-[2px] bg-primary"
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   />
                 )}

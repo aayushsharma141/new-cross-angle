@@ -1,7 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import { Heart, Share2 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -11,33 +10,6 @@ import { useGallery, useGalleryCategories } from "@/hooks/useGallery";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
 import GalleryLightbox from "@/components/gallery/GalleryLightbox";
-
-function distributeIntoColumns<T>(items: T[], columns: number): T[][] {
-  const cols: T[][] = Array.from({ length: columns }, () => []);
-  items.forEach((item, i) => cols[i % columns].push(item));
-  return cols;
-}
-
-function useColumnCount(): number {
-  const [cols, setCols] = useState(4);
-  useEffect(() => {
-    const mqMd = window.matchMedia("(max-width: 767px)");
-    const mqLg = window.matchMedia("(max-width: 1023px)");
-    const update = () => {
-      if (mqMd.matches) setCols(2);
-      else if (mqLg.matches) setCols(3);
-      else setCols(4);
-    };
-    update();
-    mqMd.addEventListener("change", update);
-    mqLg.addEventListener("change", update);
-    return () => {
-      mqMd.removeEventListener("change", update);
-      mqLg.removeEventListener("change", update);
-    };
-  }, []);
-  return cols;
-}
 
 function useSavedItems(urlBoardIds: string[]) {
   const [saved, setSaved] = useState<string[]>(() => {
@@ -88,7 +60,6 @@ const GalleryPage = () => {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
-  // Sync URL param → active category on mount / navigation
   useEffect(() => {
     if (urlCategory) {
       setActiveCategory(urlCategory);
@@ -121,13 +92,12 @@ const GalleryPage = () => {
     return ["All", "Saved", ...cats];
   }, [categories]);
 
-  const { saved, toggleSave } = useSavedItems(urlBoardIds);
+  const { saved } = useSavedItems(urlBoardIds);
   const { toast } = useToast();
 
   useEffect(() => {
     if (urlBoard && urlBoardIds.length > 0) {
       toast({ title: "Inspiration Board Loaded", description: `Imported items from shared link.`, duration: 3000 });
-      // Clean up the URL so it doesn't keep importing
       const params = new URLSearchParams(searchParams);
       params.delete("board");
       setSearchParams(params, { replace: true });
@@ -139,12 +109,6 @@ const GalleryPage = () => {
     : activeCategory === "Saved"
     ? items.filter(i => saved.includes(i.id))
     : items.filter((i) => i.category === activeCategory);
-
-  const columnCount = useColumnCount();
-  const masonryColumns = useMemo(
-    () => distributeIntoColumns(filtered.map((item, i) => ({ item, idx: i })), columnCount),
-    [filtered, columnCount]
-  );
 
   const openLightbox = useCallback((idx: number) => setLightboxIndex(idx), []);
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
@@ -161,7 +125,6 @@ const GalleryPage = () => {
 
   const handleCategoryChange = (cat: string) => {
     setActiveCategory(cat);
-    // Sync URL param — clear it when "All" or "Saved"
     if (cat === "All" || cat === "Saved") {
       setSearchParams({}, { replace: true });
     } else {
@@ -169,10 +132,8 @@ const GalleryPage = () => {
     }
   };
 
-  // Featured image for hero (first item or first in active category)
   const heroItem = filtered[0];
 
-  // Lightbox items shaped for GalleryLightbox
   const lightboxItems = useMemo(
     () =>
       filtered.map((item) => ({
@@ -189,24 +150,18 @@ const GalleryPage = () => {
 
   return (
     <>
-      <h1 className="sr-only">Gallery | Cross Angle Interior</h1>
       <Helmet>
-        <title>Gallery | Cross Angle Interior — Spaces We've Crafted</title>
-        <meta name="description" content="Explore our curated gallery of interior spaces — kitchens, bedrooms, living rooms, and commercial interiors crafted with precision." />
-        <meta property="og:title" content="Gallery | Cross Angle Interior — Spaces We've Crafted" />
-        <meta property="og:description" content="Explore our curated gallery of interior spaces — kitchens, bedrooms, living rooms, and commercial interiors crafted with precision." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://crossangleinterior.com/gallery" />
-        <link rel="canonical" href="https://crossangleinterior.com/gallery" />
+        <title>Gallery | Crossangle Interior</title>
       </Helmet>
 
-            <Navbar />
+      <Navbar />
 
-      <main id="main-content" className="min-h-screen bg-[#060606] text-white">
-        {/* ═══ HERO — Full-bleed featured image ═══ */}
-        <section ref={heroRef} className="relative h-[85vh] overflow-hidden">
+      <main id="main-content" className="min-h-screen bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)]" data-environment="gallery">
+        
+        {/* 0–20% Scroll: Hero photography (Design Silence) */}
+        <section ref={heroRef} className="relative w-full h-[70vh] md:h-[85vh] lg:h-[95vh] overflow-hidden bg-[var(--s-canvas-primary)]">
           {heroItem && (
-            <motion.div className="absolute inset-0" style={{ scale: heroScale }}>
+            <motion.div className="absolute inset-4 md:inset-8 lg:inset-12 overflow-hidden bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)]" style={{ scale: heroScale }}>
               <Image
                 src={heroItem.image}
                 alt={heroItem.title}
@@ -217,67 +172,42 @@ const GalleryPage = () => {
               />
             </motion.div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#060606] via-[#060606]/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#060606]/60 to-transparent" />
 
           <motion.div
-            className="absolute bottom-0 left-0 right-0 p-8 md:p-16"
+            className="absolute bottom-16 md:bottom-24 lg:bottom-32 left-8 md:left-16 lg:left-24"
             style={{ opacity: heroOpacity }}
           >
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="flex items-center gap-4"
-            >
-              <div className="w-12 h-px bg-site-crimson" />
-              <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Our Gallery</span>
-            </motion.div>
+            <span className="text-[10px] tracking-[0.2em] uppercase font-bold text-[var(--s-text-tertiary)] mb-4 block">Archive</span>
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
-              className="font-display text-5xl md:text-7xl lg:text-8xl font-light mt-3 leading-[0.95] tracking-[-0.03em]"
+              className="font-display text-5xl md:text-7xl lg:text-8xl text-[var(--s-text-primary)] tracking-tight"
+              style={{ letterSpacing: "-0.03em" }}
             >
               Spaces We've<br />
-              <span className="italic text-white/80">Crafted</span>
+              <span className="text-[var(--s-text-secondary)]">Crafted.</span>
             </motion.h1>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="mt-4 text-white/50 text-sm md:text-base max-w-md"
-            >
-              {items.length} projects across {categoryList.length - 2} categories — each one a story of transformation.
-            </motion.p>
           </motion.div>
         </section>
 
-        {/* ═══ CATEGORY NAVIGATION ═══ */}
-        <section className="sticky top-[72px] z-30 bg-[#060606]/95 backdrop-blur-xl border-b border-white/5">
-          <div className="container mx-auto px-4 py-4 overflow-x-auto scrollbar-hide">
-            <div className="flex items-center gap-1 min-w-max">
+        {/* 20–35% Scroll: Category Navigation (Asymmetric sticky) */}
+        <section className="sticky top-[72px] z-30 bg-[var(--s-canvas-primary)]/90 backdrop-blur-xl border-b border-[var(--s-border-subtle)]">
+          <div className="container mx-auto px-6 md:px-12 py-6 overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-6 min-w-max">
               {categoryList.map((cat) => {
-                const count =
-                  cat === "All"
-                    ? items.length
-                    : cat === "Saved"
-                    ? saved.length
-                    : items.filter((i) => i.category === cat).length;
+                const count = cat === "All" ? items.length : cat === "Saved" ? saved.length : items.filter((i) => i.category === cat).length;
                 const isActive = activeCategory === cat;
                 return (
                   <button
                     key={cat}
                     onClick={() => handleCategoryChange(cat)}
                     className={cn(
-                      "px-5 py-2 text-[11px] uppercase tracking-[0.2em] font-medium rounded-full transition-all duration-300 whitespace-nowrap",
+                      "text-[10px] uppercase tracking-[0.15em] font-bold transition-all duration-300 whitespace-nowrap",
                       isActive
-                        ? "bg-site-crimson text-white"
-                        : "text-white/60 hover:text-white/70 hover:bg-white/5"
+                        ? "text-[var(--s-text-primary)] border-b border-[var(--s-text-primary)] pb-1"
+                        : "text-[var(--s-text-tertiary)] hover:text-[var(--s-text-secondary)] pb-1"
                     )}
                   >
                     {cat}
-                    <span className={cn("ml-2 text-[9px]", isActive ? "text-white/70" : "text-white/20")}>
+                    <span className={cn("ml-2 text-[9px] font-medium", isActive ? "text-[var(--s-text-secondary)]" : "text-[var(--s-text-tertiary)]")}>
                       {count}
                     </span>
                   </button>
@@ -287,182 +217,86 @@ const GalleryPage = () => {
           </div>
         </section>
 
-        {/* ═══ GALLERY GRID — Staggered masonry ═══ */}
-        {isLoading ? (
-          <div className="container mx-auto px-4 py-20">
-            <div className="columns-2 md:columns-3 lg:columns-4 gap-2">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`skeleton-shimmer rounded-sm mb-2 break-inside-avoid ${
-                    i % 4 === 0
-                      ? "aspect-[3/4]"
-                      : i % 4 === 1
-                      ? "aspect-square"
-                      : i % 4 === 2
-                      ? "aspect-[4/5]"
-                      : "aspect-[3/4]"
-                  }`}
-                  style={{ animationDelay: `${Math.min(i * 50, 450)}ms` }}
-                />
-              ))}
+        {/* 35–80% Scroll: Asymmetric Gallery Grid */}
+        <section className="px-6 md:px-12 lg:px-24 py-[15vh] max-w-[1600px] mx-auto flex flex-col gap-[15vh]">
+          {isLoading ? (
+            <div className="w-full flex justify-center py-20">
+              <span className="text-[var(--s-text-tertiary)] text-xs tracking-widest uppercase">Loading...</span>
             </div>
-          </div>
-        ) : (
-          <>
-            {/* ═══ STYLE QUIZ PROMO ═══ */}
-            <div className="container mx-auto px-4 mt-8 mb-4 flex flex-col gap-4">
-              <div className="bg-site-crimson/10 border border-site-crimson/20 rounded-md p-4 md:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="text-center sm:text-left">
-                  <h3 className="text-white text-sm md:text-base font-medium">Not sure what your exact style is?</h3>
-                  <p className="text-white/60 text-xs md:text-sm mt-1">Discover your design DNA in 3 minutes.</p>
-                </div>
-                <Link to="/aesthetic-discovery-engine">
-                  <button className="px-6 py-2.5 bg-site-crimson text-white text-[10px] uppercase tracking-[0.2em] font-semibold rounded hover:bg-site-crimson/90 transition-colors whitespace-nowrap">
-                    Take the Quiz
-                  </button>
-                </Link>
-              </div>
-
-              {activeCategory === "Saved" && saved.length > 0 && (
-                <div className="flex justify-between items-center bg-white/5 border border-white/10 rounded-md p-4 mt-2">
-                  <h3 className="text-white font-medium text-sm">Your Inspiration Board ({saved.length} items)</h3>
-                  <button 
-                    onClick={() => {
-                      const url = `${window.location.origin}/gallery?category=Saved&board=${saved.join(",")}`;
-                      navigator.clipboard.writeText(url);
-                      toast({ title: "Link Copied!", description: "Share your inspiration board with anyone.", duration: 3000 });
-                    }}
-                    className="px-4 py-2 border border-white/20 rounded-full text-xs text-white hover:bg-white/10 flex items-center gap-2 transition"
+          ) : (
+            <AnimatePresence mode="wait">
+              {filtered.map((item, idx) => {
+                // Editorial asymmetry: alternating alignment
+                const alignLeft = idx % 2 === 0;
+                
+                return (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-10%" }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className={`flex flex-col ${alignLeft ? 'md:items-start' : 'md:items-end'} w-full`}
                   >
-                    <Share2 className="w-3 h-3" /> Share Board
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <section className="container mx-auto px-2 md:px-4 py-4">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeCategory}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex gap-2"
-                  style={{ alignItems: 'flex-start' as const }}
-                >
-                  {masonryColumns.map((col, ci) => (
-                    <div key={ci} className="flex-1 flex flex-col gap-2">
-                      {col.map(({ item, idx }) => (
-                        <motion.div
-                          key={item.id}
-                          initial={{ opacity: 0, y: 30 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true, margin: "-50px" }}
-                          transition={{ duration: 0.5, delay: Math.min(idx * 0.04, 0.25) }}
-                          className="group relative overflow-hidden cursor-pointer rounded-sm"
-                          onClick={() => openLightbox(idx)}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`View ${item.title}`}
-                          onKeyDown={(e) => { if (e.key === "Enter") openLightbox(idx); }}
-                        >
-                          <div className={cn(
-                            "relative overflow-hidden",
-                            idx === 0 ? "aspect-[3/4]" : idx % 7 === 1 ? "aspect-square" : idx % 7 === 3 ? "aspect-[4/5]" : "aspect-[3/4]"
-                          )}>
-                            <Image
-                              src={item.image}
-                              alt={item.title}
-                              className="w-full h-full pointer-events-none"
-                              imageClassName="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
-                              draggable={false}
-                              loading="lazy"
-                            />
-                            {/* Hover overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                            {/* Heart Save Icon */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleSave(item.id);
-                                if (!saved.includes(item.id)) {
-                                  toast({ title: "Saved", description: "Image added to your Inspiration Board.", duration: 2500 });
-                                }
-                              }}
-                              className="absolute top-3 left-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
-                              aria-label="Save to moodboard"
-                            >
-                              <Heart className={cn("w-4 h-4 transition-colors", saved.includes(item.id) ? "fill-site-crimson text-site-crimson" : "text-white")} />
-                            </button>
-
-                            <div className="absolute inset-0 flex flex-col justify-end p-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-400">
-                              <span className="text-[9px] uppercase tracking-[0.3em] text-site-crimson font-medium">{item.category}</span>
-                              <h3 className="text-sm font-medium text-white mt-1 line-clamp-2">{item.title}</h3>
-                              {item.location && (
-                                <span className="text-[10px] text-white/50 mt-0.5">{item.location}{item.year ? ` · ${item.year}` : ""}</span>
-                              )}
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
+                    <div className={`w-full md:w-8/12 lg:w-7/12 flex flex-col ${alignLeft ? 'items-start' : 'items-end'}`}>
+                      <div 
+                        className="w-full aspect-[4/5] md:aspect-[3/2] relative cursor-pointer overflow-hidden bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)]"
+                        onClick={() => openLightbox(idx)}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`View ${item.title}`}
+                        onKeyDown={(e) => { if (e.key === "Enter") openLightbox(idx); }}
+                      >
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full h-full pointer-events-none"
+                          imageClassName="object-cover transition-transform duration-[1200ms] ease-out hover:scale-[1.02]"
+                          loading="lazy"
+                          draggable={false}
+                        />
+                      </div>
+                      
+                      <div className={`mt-8 max-w-sm ${alignLeft ? 'text-left' : 'text-right'}`}>
+                        <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--s-text-tertiary)] mb-4 block">
+                          {String(idx + 1).padStart(2, '0')} / {item.category}
+                        </span>
+                        <h3 className="font-display text-2xl md:text-3xl text-[var(--s-text-primary)] tracking-tight">
+                          {item.title}
+                        </h3>
+                        {item.location && (
+                          <p className="font-sans text-[var(--s-text-secondary)] text-xs mt-3 leading-relaxed">
+                            {item.location}{item.year ? ` · ${item.year}` : ""}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  ))}
-                </motion.div>
-              </AnimatePresence>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          )}
 
-              {filtered.length === 0 && (
-                <div className="text-center py-24">
-                  {activeCategory === "Saved" ? (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                      <Heart className="w-12 h-12 text-white/10 mx-auto mb-4" />
-                      <h3 className="text-white text-lg font-medium mb-2">Your Inspiration Board is empty</h3>
-                      <p className="text-white/60 text-sm mb-6">Tap the heart icon on any image to save it here.</p>
-                      <button onClick={() => handleCategoryChange("All")} className="px-6 py-2 border border-white/10 text-white/70 text-xs uppercase tracking-widest rounded-full hover:bg-white/5 transition-colors">
-                        Explore Gallery
-                      </button>
-                    </motion.div>
-                  ) : (
-                    <p className="text-white/60 text-sm">No projects in this category yet.</p>
-                  )}
-                </div>
-              )}
-            </section>
-          </>
-        )}
-
-        {/* ═══ CTA SECTION ═══ */}
-        <section className="py-24 md:py-32 border-t border-white/5">
-          <div className="container mx-auto px-4 text-center max-w-2xl">
-            <div className="flex items-center justify-center gap-4">
-              <div className="w-12 h-px bg-site-crimson" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-site-gold">Inspired?</span>
+          {filtered.length === 0 && !isLoading && (
+            <div className="text-center py-24">
+              <p className="text-[var(--s-text-secondary)] text-sm uppercase tracking-widest">No projects found.</p>
             </div>
-            <h2 className="font-display text-3xl md:text-5xl font-light mt-4 mb-6">
-              Let's create your <span className="italic">space</span>.
-            </h2>
-            <p className="text-white/50 text-sm mb-10 max-w-md mx-auto">
-              Every project in this gallery started with a single conversation. Yours could be next.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/estimate">
-                <button className="px-8 py-3.5 bg-site-crimson text-white text-xs uppercase tracking-[0.2em] font-semibold rounded-full hover:bg-site-crimson/90 transition-colors">
-                  Get Free Estimate
-                </button>
-              </Link>
-              <Link to="/contact-us">
-                <button className="px-8 py-3.5 border border-white/15 text-white/60 text-xs uppercase tracking-[0.2em] rounded-full hover:border-white/30 hover:text-white transition-all">
-                  Book Consultation
-                </button>
-              </Link>
-            </div>
-          </div>
+          )}
         </section>
+
+        {/* 80–100% Scroll: CTA Transition */}
+        <section className="relative w-full px-6 md:px-12 lg:px-24 pb-[15vh] max-w-[1600px] mx-auto flex flex-col items-center justify-center text-center">
+          <span className="text-[10px] tracking-[0.2em] uppercase font-bold text-[var(--s-text-tertiary)] mb-8 block">Inspired?</span>
+          <h2 className="font-display text-5xl md:text-7xl mb-12 text-[var(--s-text-primary)] tracking-tight" style={{ letterSpacing: "-0.02em" }}>
+            Let's create your <span className="text-[var(--s-text-secondary)]">space.</span>
+          </h2>
+          <Link to="/contact-us" className="inline-block text-xs uppercase tracking-[0.2em] font-bold border-b border-[var(--s-text-primary)] pb-1 text-[var(--s-text-primary)] transition-opacity hover:opacity-70">
+            Book Consultation
+          </Link>
+        </section>
+
       </main>
 
-      {/* ═══ GALLERY LIGHTBOX — upgraded component ═══ */}
       <GalleryLightbox
         isOpen={lightboxIndex !== null}
         currentIndex={lightboxIndex ?? 0}

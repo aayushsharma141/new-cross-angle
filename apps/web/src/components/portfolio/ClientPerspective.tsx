@@ -38,14 +38,14 @@ export const ClientPerspective = () => {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[50vh] flex items-center justify-center bg-[#0B0B0B] py-20 px-6 overflow-hidden border-t border-white/5 select-none"
+      className="relative min-h-[50vh] flex items-center justify-center bg-background py-20 px-6 overflow-hidden border-t border-white/5 select-none"
     >
       <div className="max-w-3xl mx-auto text-center space-y-10 relative z-10">
 
         {/* Eyebrow */}
         <div className="flex items-center justify-center gap-4">
-          <div className="w-12 h-px bg-site-gold/40" />
-          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+          <div className="w-12 h-px bg-primary/40" />
+          <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">
             05 / CLIENT PERSPECTIVE
           </span>
         </div>
@@ -96,7 +96,7 @@ export const ClientPerspective = () => {
           <span className="text-sm font-semibold tracking-widest text-[#FAFAFA] uppercase block">
             {author}
           </span>
-          <span className="text-[10px] font-mono tracking-[0.2em] text-site-gold uppercase block">
+          <span className="text-[10px] font-mono tracking-[0.2em] text-primary uppercase block">
             {projectName}
           </span>
           {/* Real metadata — makes the quote feel grounded */}

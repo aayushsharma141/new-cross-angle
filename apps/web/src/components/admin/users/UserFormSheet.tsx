@@ -16,7 +16,7 @@ import {
 } from "@/lib/auth/rbac";
 import type { Database } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import {
     Select,
     SelectContent,

@@ -64,9 +64,9 @@ const ServicesPage = () => {
         <Navbar />
         <main id="main-content" className="min-h-screen flex flex-col items-center justify-center bg-[#000000] text-[#EDEDED] p-6">
           <div className="max-w-md text-center space-y-6">
-            <h2 className="font-serif text-3xl text-site-crimson">Failed to load services</h2>
+            <h2 className="font-serif text-3xl text-primary">Failed to load services</h2>
             <p className="text-white/60 font-light">There was a network error loading our design domains. Please check your connection and try again.</p>
-            <Button onClick={() => refetch()} className="bg-site-crimson text-white hover:bg-site-crimson/90 px-8 py-4 rounded-full text-xs uppercase tracking-widest font-semibold">
+            <Button onClick={() => refetch()} className="bg-primary text-white hover:bg-primary/90 px-8 py-4 rounded-full text-xs uppercase tracking-widest font-semibold">
               Retry Connection
             </Button>
           </div>
@@ -122,8 +122,8 @@ const ServicesPage = () => {
                   viewport={{ once: true }}
                   className="flex items-center gap-4 mb-6"
                 >
-                  <div className="w-12 h-px bg-site-crimson" />
-                  <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">Domain I</span>
+                  <div className="w-12 h-px bg-primary" />
+                  <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-primary">Domain I</span>
                 </motion.div>
                 <motion.h2
                   initial={{ opacity: 0, y: 30 }}
@@ -132,7 +132,7 @@ const ServicesPage = () => {
                   className="font-serif font-bold text-[clamp(2.5rem,6vw,5rem)] leading-[1.05] tracking-tight text-white"
                 >
                   Residential<br />
-                  <em className="italic font-light text-site-crimson underline underline-offset-[12px] decoration-white/10 decoration-[4px]">Design</em>
+                  <em className="italic font-light text-primary underline underline-offset-[12px] decoration-white/10 decoration-[4px]">Design</em>
                 </motion.h2>
               </div>
               <motion.p
@@ -198,8 +198,8 @@ const ServicesPage = () => {
                   viewport={{ once: true }}
                   className="flex items-center gap-4 mb-6"
                 >
-                  <div className="w-12 h-px bg-site-crimson" />
-                  <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">Domain II</span>
+                  <div className="w-12 h-px bg-primary" />
+                  <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-primary">Domain II</span>
                 </motion.div>
                 <motion.h2
                   initial={{ opacity: 0, y: 30 }}
@@ -208,7 +208,7 @@ const ServicesPage = () => {
                   className="font-serif font-bold text-[clamp(2.5rem,6vw,5rem)] leading-[1.05] tracking-tight text-white"
                 >
                   <span className="whitespace-nowrap">Office &amp; Commercial</span><br />
-                  <em className="italic font-light text-site-crimson underline underline-offset-[12px] decoration-white/10 decoration-[4px]">Interiors</em>
+                  <em className="italic font-light text-primary underline underline-offset-[12px] decoration-white/10 decoration-[4px]">Interiors</em>
                 </motion.h2>
               </div>
               <motion.p
@@ -263,8 +263,8 @@ const ServicesPage = () => {
               viewport={{ once: true }}
               className="flex justify-center items-center gap-4 mb-8"
             >
-              <div className="w-12 h-px bg-site-crimson" />
-              <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">Domain III</span>
+              <div className="w-12 h-px bg-primary" />
+              <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-primary">Domain III</span>
             </motion.div>
             <motion.h2
               initial={{ opacity: 0, y: 30 }}
@@ -273,7 +273,7 @@ const ServicesPage = () => {
               className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.1] tracking-tight text-white mb-16"
             >
               Specialized Services &<br />
-              <em className="italic text-site-crimson font-light">Custom Building.</em>
+              <em className="italic text-primary font-light">Custom Building.</em>
             </motion.h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">

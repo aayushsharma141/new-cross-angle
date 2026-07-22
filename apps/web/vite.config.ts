@@ -194,6 +194,24 @@ export default defineConfig(() => {
           target: process.env.VITE_SUPABASE_URL || 'https://iuuivmwqodefdrrrewol.supabase.co',
           changeOrigin: true,
           rewrite: (p) => p.replace(/^\/api\/supabase/, ''),
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq, req) => {
+              // Inject Authorization header from HTTP-only cookie to match production middleware.ts
+              const cookieHeader = req.headers.cookie || '';
+              const match = cookieHeader.match(/access_token=([^;]+)/);
+              if (match) {
+                proxyReq.setHeader('Authorization', `Bearer ${match[1]}`);
+              }
+              // Ensure apikey is present
+              const anonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+              if (!proxyReq.hasHeader('apikey') && anonKey) {
+                proxyReq.setHeader('apikey', anonKey);
+              }
+            });
+            proxy.on('error', (err) => {
+              console.error('[supabase proxy]', err.message);
+            });
+          }
         },
       },
     },

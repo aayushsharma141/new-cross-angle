@@ -158,7 +158,7 @@ const StepNode = ({
     <motion.button
       type="button"
       onClick={() => onSelect(index)}
-      className="relative flex flex-1 flex-col items-center gap-0 outline-none focus-visible:ring-1 focus-visible:ring-site-crimson/60 rounded-sm"
+      className="relative flex flex-1 flex-col items-center gap-0 outline-none focus-visible:ring-1 focus-visible:ring-primary/60 rounded-sm"
       style={{ opacity }}
       aria-current={isActive ? "step" : undefined}
       aria-label={`View ${step.title} stage`}
@@ -266,7 +266,7 @@ const Process = () => {
     <section
       ref={containerRef}
       id="process"
-      className="relative h-[500vh] bg-site-bg text-white"
+      className="relative h-[500vh] bg-background text-white"
       aria-label="How we work process section"
     >
       {/* ✦ CAD Blueprint flowing lines backdrop */}
@@ -284,8 +284,8 @@ const Process = () => {
                 transition={{ duration: 0.6 }}
                 className="flex items-center gap-4 mb-6"
               >
-                <div className="w-12 h-px bg-site-crimson" />
-                <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Signature Methodology</span>
+                <div className="w-12 h-px bg-primary" />
+                <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">Signature Methodology</span>
               </motion.div>
               <motion.h2
                 initial={{ opacity: 0, y: 16 }}
@@ -294,7 +294,7 @@ const Process = () => {
                 className="mt-3 font-serif text-[clamp(2.8rem,5.5vw,5.2rem)] font-bold leading-[1.1] tracking-tight text-white"
               >
                 The Predictable <br />
-                <em className="text-site-crimson italic font-light serif">Interior System™</em>
+                <em className="text-primary italic font-light serif">Interior System™</em>
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 12 }}
@@ -365,7 +365,7 @@ const Process = () => {
                         {activeStep.kicker}
                       </span>
                       <span className="h-px w-6 bg-white/20"></span>
-                      <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-site-crimson/90">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary/90">
                         {activeStep.subtitle}
                       </span>
                     </motion.div>
@@ -403,14 +403,14 @@ const Process = () => {
                         visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
                         exit: { opacity: 0, x: -8, transition: { duration: 0.4 } },
                       }}
-                      className="relative mt-5 flex items-start gap-3 rounded-r-xl bg-site-crimson/10 px-4 py-3 backdrop-blur-sm"
+                      className="relative mt-5 flex items-start gap-3 rounded-r-xl bg-primary/10 px-4 py-3 backdrop-blur-sm"
                     >
                       <motion.div
                         variants={{
                           hidden: { scaleY: 0 },
                           visible: { scaleY: 1, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.2 } },
                         }}
-                        className="absolute left-0 top-0 bottom-0 w-[3px] bg-site-crimson origin-top rounded-full"
+                        className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary origin-top rounded-full"
                       />
                       <p className="text-sm font-medium leading-[1.7] text-white/90 md:text-[0.95rem]">
                         {activeStep.description}
@@ -433,12 +433,12 @@ const Process = () => {
               <div className="absolute left-0 right-0 h-[2px] rounded-full bg-white/10" />
               {/* Animated fill line — precisely fills between nodes */}
               <motion.div
-                className="absolute left-0 right-0 h-[2px] origin-left rounded-full bg-site-crimson"
+                className="absolute left-0 right-0 h-[2px] origin-left rounded-full bg-primary"
                 style={{ scaleX: lineScaleX }}
               />
               {/* Glowing head dot tracking the progress */}
               <motion.div
-                className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-site-crimson shadow-[0_0_12px_4px_rgba(196,18,48,0.7)]"
+                className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary shadow-[0_0_12px_4px_rgba(196,18,48,0.7)]"
                 style={{
                   left: useTransform(lineScaleX, [0, 1], ["0%", "100%"]),
                 }}

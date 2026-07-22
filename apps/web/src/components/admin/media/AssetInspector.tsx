@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/primitives/button";
 import { ScrollArea } from "@/components/ui/primitives/scroll-area";
 import { Separator } from "@/components/ui/primitives/separator";
-import { Badge } from "@/components/ui/primitives/badge";
+import { Badge } from "@/components/primitives/interactive";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/primitives/select";
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/useToast";

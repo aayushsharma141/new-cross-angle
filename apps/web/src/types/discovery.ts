@@ -1,22 +1,24 @@
 export enum Stage {
   Welcome = 0,
-  PropertyReality = 1,
-  Lifestyle = 2,
-  RoomPriority = 3,
-  VisualInstinct = 4,
-  ReinterpretationGate = 5,
-  AdjectiveSelection = 6,
-  PivotQuestion = 7,
-  MaterialResonance = 8,
-  LightCalibration = 9,
-  BudgetAlignment = 10,
-  Analysis = 11,
-  MiniResult = 12,
-  LeadCapture = 13,
-  Results = 14,
-  Reflection = 15,
-  EmotionalMapping = 16,
-  PatternPreview = 17,
+  PhysicalSpace = 1,
+  Timeline = 2,
+  MorningRoutine = 3,
+  KitchenUsage = 4,
+  EntertainmentStyle = 5,
+  RoomPriority = 6,
+  VisualInstinct = 7,
+  ReinterpretationGate = 8,
+  DesignIdentity = 9,
+  Atmosphere = 10,
+  Constraints = 11,
+  MaterialIdentity = 12,
+  LivingPreferences = 13,
+  PivotQuestion = 14,
+  BudgetAlignment = 15,
+  Analysis = 16,
+  MiniResult = 17,
+  LeadCapture = 18,
+  Results = 19,
 }
 
 export interface LifestyleOption {
@@ -75,6 +77,8 @@ export interface UserSignals {
   propertyType?: 'Apartment' | 'Villa' | 'Independent Floor' | 'Studio';
   carpetArea?: number;
   projectScope?: 'Cosmetic Renovation' | 'Full Structural Renovation' | 'Bare Shell' | 'New Build';
+  possessionStatus?: 'Ready to Move' | 'Under Construction' | 'Living There Currently';
+  morningRoutine?: 'Slow & Peaceful' | 'Chaotic Family Rush' | 'Early & Active';
   familyStructure?: 'Nuclear' | 'Joint' | 'Pets' | 'Elderly';
   cookingRole?: 'Daily Ritual' | 'Quick Utility' | 'Hosting';
   hostingFrequency?: 'Weekly' | 'Monthly' | 'Rarely';
@@ -108,6 +112,9 @@ export interface UserSignals {
   selectedImageTags: Partial<AestheticScores>[];
   selectedAdjectives: string[];
   freeTextReflection: string;
+  designIdentity?: string[];
+  atmosphere?: string[];
+  constraints?: string[];
   sliderValues: { label: string; value: number }[];
   materialChoice: string;
   lightPreference: string;

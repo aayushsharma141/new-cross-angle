@@ -43,13 +43,13 @@ const OurProcessPage = () => {
               animate={{ opacity: 1, y: 0 }}
               className="max-w-4xl"
             >
-              <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold flex items-center gap-4 mb-6">
-                <div className="w-12 h-px bg-site-crimson" />
+              <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-primary flex items-center gap-4 mb-6">
+                <div className="w-12 h-px bg-primary" />
                 How We Work
               </span>
               <h1 className="font-display text-[clamp(2.8rem,8vw,6rem)] leading-[1.05] tracking-tight text-white mb-6">
                 From Your First Idea <br className="hidden sm:block" />
-                <span className="italic font-medium text-site-crimson">to Your Finished Space</span>
+                <span className="italic font-medium text-primary">to Your Finished Space</span>
               </h1>
               <p className="text-[1.1rem] text-white/60 font-light leading-relaxed max-w-2xl mb-12">
                 A contractually-guaranteed 5-stage system that eliminates guesswork, protects your budget, 

@@ -75,8 +75,8 @@ const SpaceNavigator = () => {
     <div className="w-full overflow-hidden" ref={containerRef}>
       <div className="container mx-auto px-6 mb-16 text-center">
         <div className="flex items-center justify-center gap-4 mb-4">
-          <div className="w-12 h-px bg-site-crimson" />
-          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Choose Your World</span>
+          <div className="w-12 h-px bg-primary" />
+          <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">Choose Your World</span>
         </div>
         <h2 className="text-3xl font-light tracking-tight text-white md:text-5xl mb-6">Space-Based Exploration</h2>
         <p className="mx-auto max-w-md text-sm font-light leading-relaxed text-white/50 mb-0">
@@ -128,7 +128,7 @@ const SpaceNavigator = () => {
                 
                 {/* Text Content */}
                 <div className="absolute inset-x-0 bottom-0 p-10 transform-gpu transition-all duration-500">
-                  <span className="mb-2 block text-[9px] uppercase tracking-[0.3em] text-site-gold opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                  <span className="mb-2 block text-[9px] uppercase tracking-[0.3em] text-primary opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
                     Explore This Space
                   </span>
                   <p className="mb-1 text-sm font-light text-white/60 group-hover:text-white transition-colors duration-300">

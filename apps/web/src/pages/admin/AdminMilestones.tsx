@@ -4,8 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DataTable } from "@/components/admin/ui/DataTable";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import {
     Dialog,
@@ -294,7 +294,7 @@ export default function AdminMilestones() {
                                 <Textarea
                                     id="event"
                                     name="event"
-                                    placeholder="Describe the milestone event…"
+                                    placeholder="Describe the milestone eventï¿½"
                                     defaultValue={editingMilestone?.event || ""}
                                     required
                                     className="min-h-[100px]"

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/primitives/card";
+import { Surface } from "@/components/primitives/foundation";
 import {
   TrendingUp,
   TrendingDown,
@@ -70,14 +70,14 @@ export function InsightCard({ insight, onDismiss, className }: InsightCardProps)
   const Icon = config.icon;
 
   return (
-    <Card
+    <Surface variant="primary" radius="lg" border shadow="sm"
       className={cn(
         "border-l-4 bg-card/80 hover:bg-card transition-colors group",
         config.border,
         className
       )}
     >
-      <CardContent className="p-4 space-y-2">
+      <div className="p-6 pt-0" className="p-4 space-y-2">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
             <div className={cn("p-2 rounded-lg shrink-0 mt-0.5", config.bg)}>
@@ -132,7 +132,7 @@ export function InsightCard({ insight, onDismiss, className }: InsightCardProps)
             {insight.timestamp}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </Surface>
   );
 }

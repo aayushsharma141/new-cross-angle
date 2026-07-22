@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import {
   Save, Plus, Trash2, Pencil, ChevronDown, ChevronRight,
   Loader2, Users, X, Check, Image as ImageIcon
@@ -215,7 +215,7 @@ function ArchetypeCard({
                 value={item.ctaDescription || ""}
                 onChange={(e) => onUpdate("ctaDescription", e.target.value)}
                 className="h-7 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
-                placeholder="Brief text prompting estimator transition…"
+                placeholder="Brief text prompting estimator transitionï¿½"
               />
             </div>
           </div>
@@ -244,7 +244,7 @@ function ArchetypeCard({
                 domain="discovery"
                 entityType="archetypes"
                 damRole="hero"
-                placeholder="Select hero image…"
+                placeholder="Select hero imageï¿½"
               />
             </div>
             <div className="space-y-1">
@@ -264,7 +264,7 @@ function ArchetypeCard({
                 domain="discovery"
                 entityType="archetypes"
                 damRole="moodboard"
-                placeholder="Select moodboard image…"
+                placeholder="Select moodboard imageï¿½"
               />
             </div>
           </div>

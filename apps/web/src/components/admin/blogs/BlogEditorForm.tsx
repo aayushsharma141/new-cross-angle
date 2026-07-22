@@ -2,8 +2,8 @@ import React from 'react';
 import { useState, useEffect } from "react";
 import { Loader2, RotateCcw, Trash2, Star, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import { Switch } from "@/components/ui/primitives/switch";
 import { RichTextEditor } from "@/components/admin/blogs/RichTextEditor";
@@ -197,7 +197,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
               value={formData.title}
               onChange={(e) => handleTitleChange(e.target.value)}
               required
-              placeholder="Enter a catchy title…"
+              placeholder="Enter a catchy titleï¿½"
               className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
             />
           </div>
@@ -340,7 +340,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
               value={formData.excerpt}
               onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
               rows={5}
-              placeholder="Short summary for SEO and previews…"
+              placeholder="Short summary for SEO and previewsï¿½"
               className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
             />
           </div>
@@ -383,7 +383,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
                   <Input
                     value={formData.cover_image_url || ""}
                     onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                    placeholder="https://…"
+                    placeholder="https://ï¿½"
                     className="mt-1 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
                   />
                 </div>

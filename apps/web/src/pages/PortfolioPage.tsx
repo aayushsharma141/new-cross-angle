@@ -3,9 +3,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FixedSocialBar from "@/components/layout/FixedSocialBar";
 import ScrollProgress from "@/components/layout/ScrollProgress";
-import { GrainOverlay } from "@/components/portfolio/GrainOverlay";
-import { MeshGradientBg } from "@/components/portfolio/MeshGradientBg";
-import { CursorGlow } from "@/components/portfolio/CursorGlow";
+
 import HubHero from "@/components/portfolio/HubHero";
 import Philosophy from "@/components/portfolio/Philosophy";
 import { FeaturedProjectStory } from "@/components/portfolio/FeaturedProjectStory";
@@ -59,16 +57,12 @@ const PortfolioPage = () => {
         <link rel="canonical" href="https://crossangleinterior.com/portfolio" />
       </Helmet>
 
-      {/* Global Interactive and Texture Layers */}
-      <GrainOverlay />
-      <CursorGlow />
+
       <ScrollProgress />
       <Navbar />
       <FixedSocialBar />
 
-      <main id="main-content" className="relative bg-[#0B0B0B] text-white overflow-hidden w-full min-h-screen">
-        {/* Subtle global mesh gradients in the background */}
-        <MeshGradientBg />
+      <main id="main-content" className="relative bg-background text-foreground overflow-hidden w-full min-h-screen">
 
         {/* 1. Hero Section */}
         <HubHero />
@@ -77,7 +71,7 @@ const PortfolioPage = () => {
         <Philosophy />
 
         {/* 3. Featured Project Stories (Alternating Views) */}
-        <div className="relative space-y-12 bg-[#0B0B0B] z-10">
+        <div className="relative space-y-12 bg-background z-10">
           {storiesData.map((story, idx) => (
             <FeaturedProjectStory
               key={story.slug}

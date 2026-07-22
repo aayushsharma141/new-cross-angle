@@ -92,13 +92,13 @@ const PillarCard = ({ title, subtitle, description, image, num }: PillarCardProp
           alt={title}
           className="w-full h-full object-cover grayscale brightness-50 group-hover:grayscale-0 group-hover:brightness-[0.85] transition-all duration-1000"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0B] via-transparent to-black/30 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-black/30 pointer-events-none" />
       </div>
 
       {/* Glass Caption Panel */}
-      <div className="absolute bottom-6 left-6 right-6 z-20 bg-[#0B0B0B]/60 backdrop-blur-xl border border-white/10 p-6 rounded-xl conic-border-content space-y-3">
+      <div className="absolute bottom-6 left-6 right-6 z-20 bg-background/60 backdrop-blur-xl border border-white/10 p-6 rounded-xl conic-border-content space-y-3">
         <div className="flex justify-between items-baseline">
-          <span className="text-[10px] font-bold tracking-[0.3em] text-site-gold uppercase">{subtitle}</span>
+          <span className="text-[10px] font-bold tracking-[0.3em] text-primary uppercase">{subtitle}</span>
           <span className="text-xs font-mono text-white/30">{num}</span>
         </div>
         <h4 className="text-xl md:text-2xl font-serif font-light text-[#FAFAFA] tracking-tight leading-none">
@@ -121,7 +121,7 @@ const PillarCard = ({ title, subtitle, description, image, num }: PillarCardProp
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             className="absolute inset-[1px] bg-white/[0.03] backdrop-blur-xl flex items-center justify-center z-30"
           >
-            <span className="text-[10px] font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-5 py-2.5 bg-[#0B0B0B]/35 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
+            <span className="text-[10px] font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-5 py-2.5 bg-background/35 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
               Explore Concept →
             </span>
           </motion.div>
@@ -173,15 +173,15 @@ export const DesignPerspective = () => {
   ];
 
   return (
-    <div ref={containerRef} className="relative h-[250vh] bg-[#0B0B0B]">
+    <div ref={containerRef} className="relative h-[250vh] bg-background">
       {/* Sticky container */}
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center select-none">
         
         {/* Title layer */}
         <div className="max-w-7xl mx-auto w-full px-6 md:px-12 mb-10 shrink-0">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-px bg-site-gold/50" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+            <div className="w-12 h-px bg-primary/50" />
+            <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">
               04 / PHILOSOPHY IN FORM
             </span>
           </div>

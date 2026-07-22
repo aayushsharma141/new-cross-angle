@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
+import { Surface, Stack, Text } from "@/components/primitives/foundation";
 import { cn } from "@/lib/utils";
 
 interface FunnelLayer {
@@ -25,12 +25,12 @@ export function FunnelWidget({
     isLoading = false
 }: FunnelWidgetProps) {
     return (
-        <Card className={cn("border-admin-border bg-admin-card analytics-glass analytics-card-glow", className)}>
-            <CardHeader>
-                <CardTitle className="text-lg font-display text-admin-foreground">{title}</CardTitle>
+        <Surface variant="primary" radius="lg" border shadow="sm" className={cn("border-admin-border bg-admin-card analytics-glass analytics-card-glow", className)}>
+            <Stack gap="sm" className="p-6">
+                <Text as="h3" variant="h3" className="leading-none" className="text-lg font-display text-admin-foreground">{title}</Text>
                 {description && <p className="text-sm text-admin-muted">{description}</p>}
-            </CardHeader>
-            <CardContent>
+            </Stack>
+            <div className="p-6 pt-0">
                 {isLoading ? (
                     <div className="h-[300px] flex items-center justify-center text-admin-muted text-sm italic">
                         Processing Analytics…
@@ -64,7 +64,7 @@ export function FunnelWidget({
                         ))}
                     </div>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </Surface>
     );
 }

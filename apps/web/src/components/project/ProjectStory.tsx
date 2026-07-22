@@ -53,9 +53,9 @@ const ProjectStory = ({ brief, approach }: ProjectStoryProps) => {
         
         {/* Chapter Header */}
         <div className="mb-20">
-          <span className="text-xs font-semibold tracking-[0.35em] uppercase text-site-gold block mb-4">— CHAPTER 02</span>
+          <span className="text-xs font-semibold tracking-[0.35em] uppercase text-primary block mb-4">— CHAPTER 02</span>
           <h2 className="text-3xl md:text-5xl font-serif font-normal text-white">
-            The <span className="italic text-site-crimson font-light">Challenge & Narrative</span>
+            The <span className="italic text-primary font-light">Challenge & Narrative</span>
           </h2>
         </div>
 
@@ -64,7 +64,7 @@ const ProjectStory = ({ brief, approach }: ProjectStoryProps) => {
           
           {/* Left: Dramatic quote/thesis (BIG) */}
           <div className="lg:col-span-5 space-y-6">
-            <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-site-gold block">
+            <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-primary block">
               {story.thesis}
             </span>
             <motion.blockquote 
@@ -89,7 +89,7 @@ const ProjectStory = ({ brief, approach }: ProjectStoryProps) => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="space-y-4"
             >
-              <span className="text-[10px] font-mono tracking-widest text-site-crimson uppercase block">
+              <span className="text-[10px] font-mono tracking-widest text-primary uppercase block">
                 The Friction
               </span>
               <p className="text-stone-300">
@@ -105,7 +105,7 @@ const ProjectStory = ({ brief, approach }: ProjectStoryProps) => {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="space-y-4"
             >
-              <span className="text-[10px] font-mono tracking-widest text-site-gold uppercase block">
+              <span className="text-[10px] font-mono tracking-widest text-primary uppercase block">
                 The Breakthrough
               </span>
               <p className="text-stone-300">

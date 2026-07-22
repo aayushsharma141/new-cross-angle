@@ -8,7 +8,7 @@ import {
     BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
+import { Surface, Stack, Text } from "@/components/primitives/foundation";
 import { AdminMetricsPanel } from "@/components/admin/shared";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import {
@@ -149,14 +149,14 @@ export default function AdminBlogEngagement() {
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-8 fade-up-2">
                 {/* Daily Events Bar Chart */}
-                <Card className="lg:col-span-3 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">
-                    <CardHeader>
-                        <CardTitle className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">
+                <Surface variant="primary" radius="lg" border shadow="sm" className="lg:col-span-3 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">
+                    <Stack gap="sm" className="p-6">
+                        <Text as="h3" variant="h3" className="leading-none" className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">
                             <BarChart3 className="text-[hsl(var(--admin-primary))] w-4 h-4" />
                             Daily Engagement (Last 30 Days)
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="h-[300px]">
+                        </Text>
+                    </Stack>
+                    <div className="p-6 pt-0" className="h-[300px]">
                         {dailyEvents.length === 0 ? (
                             <div className="flex items-center justify-center h-full text-[hsl(var(--admin-text-muted))] text-sm">
                                 No engagement data captured yet.
@@ -180,18 +180,18 @@ export default function AdminBlogEngagement() {
                                 </BarChart>
                             </ResponsiveContainer>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+                </Surface>
 
                 {/* Event Type Breakdown Pie */}
-                <Card className="lg:col-span-2 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">
-                    <CardHeader>
-                        <CardTitle className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">
+                <Surface variant="primary" radius="lg" border shadow="sm" className="lg:col-span-2 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">
+                    <Stack gap="sm" className="p-6">
+                        <Text as="h3" variant="h3" className="leading-none" className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">
                             <Tag className="text-[hsl(var(--admin-primary))] w-4 h-4" />
                             Event Breakdown
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
+                        </Text>
+                    </Stack>
+                    <div className="p-6 pt-0">
                         {eventBreakdown.length === 0 ? (
                             <div className="flex items-center justify-center h-[260px] text-[hsl(var(--admin-text-muted))] text-sm">
                                 No events recorded yet.
@@ -243,8 +243,8 @@ export default function AdminBlogEngagement() {
                                 </div>
                             </>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+                </Surface>
             </div>
         </div>
     );

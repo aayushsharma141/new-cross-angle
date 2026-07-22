@@ -171,7 +171,7 @@ const ProjectGallery = ({ title }: ProjectGalleryProps) => {
             viewport={{ once: true }}
             transition={{ duration: 1 }}
           >
-            <span className="text-[10px] font-mono tracking-[0.3em] text-site-gold uppercase block mb-3">01 / IMMERSIVE VIEW</span>
+            <span className="text-[10px] font-mono tracking-[0.3em] text-primary uppercase block mb-3">01 / IMMERSIVE VIEW</span>
             <p className="text-2xl md:text-3xl font-serif text-white leading-relaxed drop-shadow-lg font-light">
               &ldquo;A sanctuary of clean lines and soft ambient reflections.&rdquo;
             </p>
@@ -182,9 +182,9 @@ const ProjectGallery = ({ title }: ProjectGalleryProps) => {
       {/* 2. RHYTHM PEAK 02: Staggered Detail Cards (TINY/SMALL details) */}
       <div className="py-24 max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
         <div className="md:col-span-5 space-y-6">
-          <span className="text-xs font-semibold tracking-[0.35em] uppercase text-site-gold block">— THE GRAIN & DETAILS</span>
+          <span className="text-xs font-semibold tracking-[0.35em] uppercase text-primary block">— THE GRAIN & DETAILS</span>
           <h3 className="text-2xl md:text-4xl font-serif text-white font-normal">
-            Visualizing <span className="italic text-site-crimson font-light">Tactility</span>
+            Visualizing <span className="italic text-primary font-light">Tactility</span>
           </h3>
           <p className="text-stone-400 font-light text-sm leading-relaxed max-w-md">
             True luxury resides in the details. We design shadowlines and grain transitions to feel completely natural yet visually calculated.
@@ -206,7 +206,7 @@ const ProjectGallery = ({ title }: ProjectGalleryProps) => {
             >
               <img src={detail.img} alt={detail.label} className="w-full h-full object-cover opacity-75 hover:opacity-100 transition-opacity duration-500" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent p-6 flex flex-col justify-end">
-                <span className="text-[9px] font-mono text-site-gold block mb-1">{detail.label}</span>
+                <span className="text-[9px] font-mono text-primary block mb-1">{detail.label}</span>
                 <p className="text-xs text-stone-300 font-light leading-snug">{detail.desc}</p>
               </div>
             </motion.div>
@@ -223,9 +223,9 @@ const ProjectGallery = ({ title }: ProjectGalleryProps) => {
           
           <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <span className="text-xs font-semibold tracking-[0.35em] uppercase text-site-gold block mb-4">— INTERACTIVE PLAYBOOK</span>
+              <span className="text-xs font-semibold tracking-[0.35em] uppercase text-primary block mb-4">— INTERACTIVE PLAYBOOK</span>
               <h3 className="text-2xl md:text-4xl font-serif text-white">
-                Walkthrough <span className="italic text-site-crimson font-light">Journey</span>
+                Walkthrough <span className="italic text-primary font-light">Journey</span>
               </h3>
             </div>
 
@@ -370,7 +370,7 @@ const ProjectGallery = ({ title }: ProjectGalleryProps) => {
                     key={idx}
                     onClick={() => setCurrentIdx(idx)}
                     className={`flex-shrink-0 w-32 md:w-44 aspect-[16/10] overflow-hidden rounded-lg border transition-all duration-500 relative group/thumb ${
-                      currentIdx === idx ? "border-site-gold scale-95 shadow-lg shadow-site-gold/15 opacity-100" : "border-white/10 opacity-50 hover:opacity-90 hover:border-white/20"
+                      currentIdx === idx ? "border-primary scale-95 shadow-lg shadow-primary/15 opacity-100" : "border-white/10 opacity-50 hover:opacity-90 hover:border-white/20"
                     }`}
                     aria-label={`View Slide ${idx + 1} ${isVideoNode ? '(Video)' : '(Photo)'}`}
                   >
@@ -380,7 +380,7 @@ const ProjectGallery = ({ title }: ProjectGalleryProps) => {
                     </div>
                     {isVideoNode && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/thumb:bg-black/45 transition-colors">
-                        <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/25 flex items-center justify-center group-hover/thumb:bg-site-gold/90 group-hover/thumb:border-site-gold transition-all duration-300">
+                        <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/25 flex items-center justify-center group-hover/thumb:bg-primary/90 group-hover/thumb:border-primary transition-all duration-300">
                           <Play className="w-3.5 h-3.5 text-white group-hover/thumb:text-black ml-0.5" />
                         </div>
                       </div>

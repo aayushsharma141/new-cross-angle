@@ -13,9 +13,9 @@ const Index = () => {
   const [revealed, setRevealed] = useState(false);
   
   // Instrument focal points for Attention Purity Index
-  const headlineRef = useAttentionTelemetry<HTMLDivElement>("hero-headline");
-  const ctaRef = useAttentionTelemetry<HTMLDivElement>("primary-cta");
-  const featuredRef = useAttentionTelemetry<HTMLDivElement>("featured-project");
+  const headlineRef = useAttentionTelemetry<HTMLDivElement>("entrance", "hero-headline", 2);
+  const ctaRef = useAttentionTelemetry<HTMLDivElement>("entrance", "primary-cta", 3);
+  const featuredRef = useAttentionTelemetry<HTMLDivElement>("entrance", "featured-project", 4);
 
   useEffect(() => {
     // The Reveal (The Entrance): A slow, curtain-like vertical wipe on initial page load

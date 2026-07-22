@@ -7,9 +7,9 @@ import { canManageRole, normalizeRole, ROLE_LABELS } from "@/lib/auth/rbac";
 import { EmptyState } from "@/components/admin/EmptyState";
 import type { AdminUserRecord } from "@/components/admin/users/UserFormSheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/primitives/avatar";
-import { Badge } from "@/components/ui/primitives/badge";
+import { Badge } from "@/components/primitives/interactive";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/primitives/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/primitives/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/primitives/dropdown-menu";
@@ -67,7 +67,7 @@ export const UsersTable = ({
     <div className="flex flex-col gap-3 rounded-2xl border border-zinc-800/50 bg-zinc-900/40 p-4 backdrop-blur-md lg:flex-row lg:items-center">
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-        <Input placeholder="Search by name or email…" className="rounded-xl border-zinc-800 bg-black/30 pl-10" value={search} onChange={(e) => onSearchChange(e.target.value)} />
+        <Input placeholder="Search by name or emailï¿½" className="rounded-xl border-zinc-800 bg-black/30 pl-10" value={search} onChange={(e) => onSearchChange(e.target.value)} />
       </div>
       <Select value={roleFilter} onValueChange={(v) => onRoleFilterChange(v as FilterRole)}>
         <SelectTrigger className="w-full rounded-xl border-zinc-800 bg-black/30 lg:w-[180px]"><SelectValue placeholder="Filter by role" /></SelectTrigger>

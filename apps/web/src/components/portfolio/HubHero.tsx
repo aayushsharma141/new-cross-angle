@@ -44,7 +44,7 @@ export const HubHero = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[100dvh] bg-[#0B0B0B] text-white flex flex-col justify-center items-center overflow-hidden z-10"
+      className="relative w-full h-[100dvh] bg-background text-white flex flex-col justify-center items-center overflow-hidden z-10"
     >
       {/* Parallax cover background image */}
       <motion.div
@@ -57,7 +57,7 @@ export const HubHero = () => {
           className="w-full h-full object-cover brightness-[0.35]"
         />
         {/* Subtle vignette shade gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-[#0B0B0B]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-background" />
       </motion.div>
 
       {/* Main Text Content (Centered layout as requested) */}
@@ -65,8 +65,8 @@ export const HubHero = () => {
         <div className="space-y-4">
           {/* Eyebrow marker */}
           <div className="flex items-center justify-center gap-4">
-            <div className="w-12 h-px bg-site-gold/40" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+            <div className="w-12 h-px bg-primary/40" />
+            <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">
               01 / ARCHIVE
             </span>
           </div>
@@ -109,7 +109,7 @@ export const HubHero = () => {
         >
           <MagneticLink
             to="#philosophy"
-            className="text-xs font-semibold tracking-[0.3em] text-site-gold hover:text-white uppercase transition-colors duration-300 py-3 px-6"
+            className="text-xs font-semibold tracking-[0.3em] text-primary hover:text-white uppercase transition-colors duration-300 py-3 px-6"
             onClick={(e) => {
               e.preventDefault();
               document.getElementById("philosophy")?.scrollIntoView({ behavior: "smooth" });

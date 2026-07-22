@@ -12,7 +12,18 @@
 - Implemented Archive & Governance workflows using soft deletion and usage checks to protect integrity of the usage graph.
 - Delivered Search & Intelligence workflows including client-side duplicate grouping, tags index, and faceted search UI.
 
-## Current Milestone: v4.0 Discovery & Estimator Operating System
+## Current Milestone: v5.0 Lead Intelligence & Recommendation Layer
+
+**Goal:** Maximize the value flowing through the Discovery → Estimator → CRM pipeline by making recommendations signal-weighted, explainable, and actionable for the sales and design team.
+
+**Target features:**
+- **Semantic Token Architecture & Adoption Audit**: Complete primitive style system and migrate global CSS.
+- **Room Migration**: Port Entrance, Gallery, and Workspace to the primitive layout block system.
+- **Workspace Intelligence & Recommendation Engine**: Signal-weighted paths, confidence scoring, explainability evidence ledger, and real-time decision trade-off impact.
+- **Production Readiness Audit**: Final visual and structural quality check.
+
+<details>
+<summary>Archive: v4.0 Discovery & Estimator Operating System</summary>
 
 **Goal:** Connect Discovery and Estimator systems into a single configurable visual operating system and lead-qualification funnel.
 
@@ -20,6 +31,8 @@
 - **Discovery Workspace V2**: Full admin configuration system for Archetypes, Visual Prompts, Reflections, Moodboards, Lifestyle Scenarios, Result Pages, and CTA Assets.
 - **Estimator Workspace**: Configuration engine for Property Types, Packages, Addons, Pricing Logic, Visual Assets, and Result Templates.
 - **Discovery → Estimator Handoff**: Automated transfer of user style archetype, budget indicators, and design preferences to pre-fill the Estimator questionnaire.
+
+</details>
 
 <details>
 <summary>Archive: v3.0 DAM V3 Workspace</summary>

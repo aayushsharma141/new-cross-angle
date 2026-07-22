@@ -22,7 +22,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
 
 // Primitives
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import {
   Dialog,
@@ -522,7 +522,7 @@ const AdminSettings = () => {
       <Dialog open={showIntegrationDialog} onOpenChange={setShowIntegrationDialog}>
         <DialogContent className="bg-admin-card border-admin-border text-admin-text max-w-md p-6">
           <DialogHeader>
-            <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-site-gold mb-2 border border-white/10">
+            <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-primary mb-2 border border-white/10">
               <Server className="w-6 h-6 text-[hsl(var(--admin-primary))]" />
             </div>
             <DialogTitle className="text-xl font-serif text-[hsl(var(--admin-text))]">

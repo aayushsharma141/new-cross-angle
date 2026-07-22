@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Save, Plus, Trash2, ChevronDown, ChevronRight, Loader2, Search } from "lucide-react";
 import type { CityTier } from "@/addons/calculators/components/data/types";
 

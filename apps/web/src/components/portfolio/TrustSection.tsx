@@ -38,7 +38,7 @@ const TrustSection = () => {
   if (isLoading) {
     return (
       <div className="container px-6 flex justify-center items-center h-48">
-        <div className="w-8 h-8 rounded-full border-t-2 border-site-gold animate-spin" />
+        <div className="w-8 h-8 rounded-full border-t-2 border-primary animate-spin" />
       </div>
     );
   }
@@ -53,8 +53,8 @@ const TrustSection = () => {
     <div className="container mx-auto px-6 py-24 border-t border-white/5">
       <div className="mb-16 text-center">
         <div className="flex items-center justify-center gap-4 mb-6">
-          <div className="w-12 h-px bg-site-crimson" />
-          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Client Stories</span>
+          <div className="w-12 h-px bg-primary" />
+          <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">Client Stories</span>
         </div>
         <h2 className="text-3xl font-light tracking-tight text-white md:text-5xl italic">
           Trusted by Homeowners & Businesses
@@ -65,7 +65,7 @@ const TrustSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8 items-center bg-white/[0.02] border border-white/5 rounded-2xl p-6 md:p-12 overflow-hidden relative">
           
           {/* Subtle Background Elements */}
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-site-gold/10 blur-[100px] pointer-events-none rounded-full" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 blur-[100px] pointer-events-none rounded-full" />
           
           {/* Image Side */}
           <div className="md:col-span-2 relative h-64 md:h-96 rounded-xl overflow-hidden order-2 md:order-1">
@@ -88,7 +88,7 @@ const TrustSection = () => {
           <div className="md:col-span-3 order-1 md:order-2 flex flex-col justify-center h-full">
             <div className="flex gap-1 mb-6">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-site-gold text-site-gold" />
+                <Star key={i} className="w-4 h-4 fill-primary text-primary" />
               ))}
             </div>
 
@@ -109,7 +109,7 @@ const TrustSection = () => {
                     <p className="text-sm font-bold uppercase tracking-[0.2em] text-white">
                       {activeTestimonial.author}
                     </p>
-                    <p className="text-[10px] uppercase tracking-[0.3em] text-site-gold">
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-primary">
                       {activeTestimonial.role}
                     </p>
                   </div>
@@ -137,7 +137,7 @@ const TrustSection = () => {
                     aria-label={`Go to testimonial ${i + 1}`}
                     className={cn(
                       "w-2 h-2 rounded-full transition-all duration-300",
-                      activeIndex === i ? "bg-site-gold w-6" : "bg-white/20 hover:bg-white/50"
+                      activeIndex === i ? "bg-primary w-6" : "bg-white/20 hover:bg-white/50"
                     )}
                   />
                 ))}

@@ -3,7 +3,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { ExternalLink, MoreHorizontal, Mail, Phone, MapPin, Calendar, Tag, ArrowUpDown, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
-import { Checkbox } from '@/components/ui/primitives/checkbox';
+import { Checkbox } from "@/components/primitives/interactive";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/primitives/dialog';
-import { Badge } from '@/components/ui/primitives/badge';
+import { Badge } from "@/components/primitives/interactive";
 import { DataTable } from '@/components/admin/DataTable';
 import type { Lead } from '@/repositories/interfaces/LeadRepository';
 import { CRM_STAGE_BADGE_CLASSES, CRM_TEMPERATURES } from '@/lib/crm';
@@ -285,7 +285,7 @@ export function LeadTable({
       loading={loading}
       onPaginationChange={onPaginationChange}
       onSearchChange={onSearchChange}
-      searchPlaceholder="Search leads by name, email, or phone…"
+      searchPlaceholder="Search leads by name, email, or phoneï¿½"
       emptyMessage="No leads found"
       pageSizeOptions={[10, 25, 50]}
     />

@@ -2,8 +2,8 @@ import React from 'react';
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import {
     Dialog,
@@ -408,7 +408,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         value={formData.brief}
                                         onChange={(e) => setFormData({ ...formData, brief: e.target.value })}
                                         rows={3}
-                                        placeholder="Project brief…"
+                                        placeholder="Project briefï¿½"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -418,7 +418,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         value={formData.approach}
                                         onChange={(e) => setFormData({ ...formData, approach: e.target.value })}
                                         rows={3}
-                                        placeholder="Design approach…"
+                                        placeholder="Design approachï¿½"
                                     />
                                 </div>
                             </div>

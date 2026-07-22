@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Save, Plus, Trash2, X, Loader2, GripVertical } from "lucide-react";
 import {
   DndContext,
@@ -231,7 +231,7 @@ export function DetailsEditor() {
           ))}
         </div>
         <div className="flex gap-2">
-          <Input value={newRoom} onChange={(e) => setNewRoom(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addRoom()} placeholder="Add room name…" className="h-7 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
+          <Input value={newRoom} onChange={(e) => setNewRoom(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addRoom()} placeholder="Add room nameï¿½" className="h-7 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
           <Button variant="outline" size="sm" onClick={addRoom} className="h-7 text-xs"><Plus className="w-3 h-3" /></Button>
         </div>
       </section>

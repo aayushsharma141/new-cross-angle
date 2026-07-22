@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Link, useLocation } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
+import { Link } from "@/components/primitives/interactive";
 import { useDynamicCTA } from "@/hooks/useDynamicCTA";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { MapPin, Mail, Phone, Plus, Minus, Instagram, Youtube, Linkedin, Twitter, Facebook } from "lucide-react";
@@ -404,8 +405,11 @@ export default function Footer() {
                         {row.map((city, cIndex, arr) => (
                           <React.Fragment key={city.id}>
                             <Link
+                              as={RouterLink}
                               to={`/locations/${city.id}`}
                               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                              variant="inherit"
+                              underline="none"
                               className="text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans whitespace-nowrap"
                             >
                               {city.name}
@@ -439,8 +443,11 @@ export default function Footer() {
               ].map(({ key, name, path }) => (
                 <Link
                   key={key}
+                  as={RouterLink}
                   to={path}
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  variant="inherit"
+                  underline="none"
                   className="block mb-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans"
                 >
                   {name}
@@ -472,8 +479,8 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between py-5 gap-3 text-[10px] md:text-[11px] text-white/40 uppercase tracking-[0.2em] font-sans">
           <span className="text-white/60 font-medium tracking-[0.2em]">© {new Date().getFullYear()} Cross Angle Interior. All Rights Reserved.</span>
           <div className="flex items-center gap-6">
-            <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors duration-200">Privacy Policy</Link>
-            <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="hover:text-white transition-colors duration-200">Terms</Link>
+            <Link as={RouterLink} to="/privacy" onClick={() => window.scrollTo(0, 0)} variant="inherit" underline="none" className="hover:text-white transition-colors duration-200">Privacy Policy</Link>
+            <Link as={RouterLink} to="/terms" onClick={() => window.scrollTo(0, 0)} variant="inherit" underline="none" className="hover:text-white transition-colors duration-200">Terms</Link>
           </div>
         </div>
       </div>

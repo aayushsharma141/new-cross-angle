@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/primitives/button";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Textarea } from "@/components/primitives/interactive";
 import { ShieldAlert, Plus, CheckCircle2, CircleDot } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -77,7 +77,7 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
     }
   };
 
-  if (loading) return <div className="p-4 text-xs text-[hsl(var(--admin-text-muted))]">Loading objections…</div>;
+  if (loading) return <div className="p-4 text-xs text-[hsl(var(--admin-text-muted))]">Loading objectionsï¿½</div>;
 
   return (
     <div className="flex flex-col gap-4">

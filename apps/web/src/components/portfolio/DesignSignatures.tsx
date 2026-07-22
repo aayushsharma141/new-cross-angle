@@ -103,11 +103,11 @@ const SignaturePanel = ({
           <span className="font-mono text-[9px] tracking-[0.35em] uppercase text-white/25">
             {item.num}
           </span>
-          <div className="w-8 h-px bg-site-gold/35" />
-          <span className="font-bold text-[10px] tracking-[0.28em] uppercase text-site-gold">
+          <div className="w-8 h-px bg-primary/35" />
+          <span className="font-bold text-[10px] tracking-[0.28em] uppercase text-primary">
             {item.label}
           </span>
-          <div className="w-8 h-px bg-site-gold/35" />
+          <div className="w-8 h-px bg-primary/35" />
         </div>
 
         {/* Quote */}
@@ -136,14 +136,14 @@ const SignaturePanel = ({
 export const DesignSignatures = () => {
   return (
     <section
-      className="bg-[#0A0A0A] relative"
+      className="bg-background relative"
       aria-label="Design Signatures"
     >
       {/* Section eyebrow header */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 pt-24 pb-6">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-px bg-site-gold/40" />
-          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+          <div className="w-12 h-px bg-primary/40" />
+          <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">
             05 / DESIGN SIGNATURES
           </span>
         </div>

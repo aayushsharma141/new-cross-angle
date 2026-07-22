@@ -112,13 +112,13 @@ const LocationsPage = () => {
                             animate={{ opacity: 1, y: 0 }}
                             className="max-w-4xl"
                         >
-                            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold flex items-center gap-4 mb-6">
-                                <div className="w-12 h-px bg-site-crimson" />
+                            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-primary flex items-center gap-4 mb-6">
+                                <div className="w-12 h-px bg-primary" />
                                 Service Areas
                             </span>
                             <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.05] tracking-tight text-white mb-8">
                                 Luxury Interior Design <br className="hidden sm:block" />
-                                <em className="italic font-medium text-site-crimson">Across India</em>
+                                <em className="italic font-medium text-primary">Across India</em>
                             </h1>
                             <p className="text-[1.1rem] text-white/60 font-light leading-relaxed max-w-2xl mb-12">
                                 From metro hubs to emerging cities — we bring premium turnkey interior solutions
@@ -128,7 +128,7 @@ const LocationsPage = () => {
                             </p>
 
                             <Link to="/estimate">
-                                <button className="px-8 py-4 bg-site-crimson text-white text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-site-crimson/90 transition-colors">
+                                <button className="px-8 py-4 bg-primary text-white text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-primary/90 transition-colors">
                                     Estimate Your Project
                                 </button>
                             </Link>
@@ -148,7 +148,7 @@ const LocationsPage = () => {
                             const Icon = stat.icon;
                             return (
                                 <div key={i} className="text-center">
-                                    <Icon className="w-5 h-5 mx-auto mb-3 text-site-gold/60" />
+                                    <Icon className="w-5 h-5 mx-auto mb-3 text-primary/60" />
                                     <div className="text-2xl md:text-3xl font-display text-white mb-1">
                                         {typeof stat.value === "number" ? `${stat.value}+` : stat.value}
                                     </div>
@@ -168,7 +168,7 @@ const LocationsPage = () => {
                             {stateGroups.map((group) => (
                                 <div key={group.state}>
                                     <h2 className="font-display text-xl text-white mb-6 flex items-center gap-3">
-                                        <div className="w-1 h-6 bg-site-crimson rounded-full" />
+                                        <div className="w-1 h-6 bg-primary rounded-full" />
                                         {group.state}
                                     </h2>
                                     <ul className="space-y-3">
@@ -203,7 +203,7 @@ const LocationsPage = () => {
                 <section className="border-t border-white/5 bg-[#050505] py-16">
                     <div className="max-w-[1400px] mx-auto px-6">
                         <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-white/50">
-                            <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-site-gold mr-4">
+                            <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary mr-4">
                                 City Classification
                             </span>
                             {Object.entries(tierConfig).map(([key, cfg]) => (
@@ -230,7 +230,7 @@ const LocationsPage = () => {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Link
                                 to="/contact-us"
-                                className="inline-flex items-center gap-3 bg-site-crimson text-white px-8 py-4 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-site-crimson/90 transition-colors"
+                                className="inline-flex items-center gap-3 bg-primary text-white px-8 py-4 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-primary/90 transition-colors"
                             >
                                 Contact Us <ArrowRight className="w-4 h-4" />
                             </Link>

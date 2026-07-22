@@ -87,7 +87,7 @@ const ProjectGrid = () => {
   if (isLoading) {
     return (
       <div className="container mx-auto py-24 flex justify-center">
-        <div className="w-8 h-8 rounded-full border-t-2 border-site-gold animate-spin" />
+        <div className="w-8 h-8 rounded-full border-t-2 border-primary animate-spin" />
       </div>
     );
   }
@@ -97,9 +97,9 @@ const ProjectGrid = () => {
       <div className="container mx-auto py-24 px-6">
         <div className="flex flex-col items-center justify-center py-20 text-center border border-white/5 bg-white/[0.02]">
           <div className="relative mb-6">
-            <div className="absolute inset-0 rounded-3xl bg-site-crimson/10 blur-2xl scale-150" />
+            <div className="absolute inset-0 rounded-3xl bg-primary/10 blur-2xl scale-150" />
             <div className="relative w-16 h-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center">
-              <AlertCircle className="w-7 h-7 text-site-crimson/70" />
+              <AlertCircle className="w-7 h-7 text-primary/70" />
             </div>
           </div>
           <h3 className="text-xl font-light text-white mb-3">Could not load projects</h3>
@@ -122,8 +122,8 @@ const ProjectGrid = () => {
     <div className="container mx-auto py-24 px-6" id="all-projects">
       <div className="mb-16 text-center">
         <div className="flex items-center justify-center gap-4 mb-6">
-          <div className="w-12 h-px bg-site-crimson" />
-          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">The Archives</span>
+          <div className="w-12 h-px bg-primary" />
+          <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">The Archives</span>
         </div>
         <h2 className="text-4xl font-extralight tracking-tight text-white md:text-5xl italic mb-4">
           Featured Projects
@@ -147,18 +147,18 @@ const ProjectGrid = () => {
               "group relative flex flex-col items-start text-left p-6 overflow-hidden transition-all duration-500",
               "border min-h-[160px]",
               activeStyle === style.id
-                ? "border-site-gold bg-white/5"
+                ? "border-primary bg-white/5"
                 : "border-white/5 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
             )}
           >
             {activeStyle === style.id && (
               <motion.div
                 layoutId="styleActive"
-                className="absolute left-0 top-0 bottom-0 w-0.5 bg-site-gold"
+                className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary"
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
             )}
-            <span className="text-xs font-medium text-site-gold uppercase tracking-[0.2em] mb-2">
+            <span className="text-xs font-medium text-primary uppercase tracking-[0.2em] mb-2">
               Style
             </span>
             <h3 className={cn(
@@ -203,7 +203,7 @@ const ProjectGrid = () => {
               className={cn(
                 "px-5 py-2 text-[10px] uppercase tracking-[0.2em] font-medium rounded-full transition-all duration-300",
                 activeType === type
-                  ? "bg-site-crimson text-white"
+                  ? "bg-primary text-white"
                   : "border border-white/10 text-white/60 hover:text-white hover:border-white/30"
               )}
             >
@@ -247,17 +247,17 @@ const ProjectGrid = () => {
               <div className="p-6 relative">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-xl font-light text-white mb-1 group-hover:text-site-gold transition-colors">{project.title}</h3>
+                    <h3 className="text-xl font-light text-white mb-1 group-hover:text-primary transition-colors">{project.title}</h3>
                     <p className="text-xs text-white/50">{project.location}</p>
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-site-crimson transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary transition-colors">
                     <ArrowUpRight className="w-4 h-4 text-white" />
                   </div>
                 </div>
                 <p className="text-sm text-white/60 line-clamp-2 mb-4 font-light">
                   {project.brief || project.approach}
                 </p>
-                <div className="text-[10px] uppercase tracking-widest text-site-gold font-medium">
+                <div className="text-[10px] uppercase tracking-widest text-primary font-medium">
                   {project.style}
                 </div>
               </div>
@@ -274,9 +274,9 @@ const ProjectGrid = () => {
           className="flex flex-col items-center justify-center py-28 text-center"
         >
           <div className="relative mb-8">
-            <div className="absolute inset-0 rounded-3xl bg-site-gold/10 blur-2xl scale-150" />
+            <div className="absolute inset-0 rounded-3xl bg-primary/10 blur-2xl scale-150" />
             <div className="relative w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center">
-              <Building2 className="w-9 h-9 text-site-gold/60" />
+              <Building2 className="w-9 h-9 text-primary/60" />
             </div>
           </div>
 
@@ -305,7 +305,7 @@ const ProjectGrid = () => {
             </button>
             <Link
               to="/contact-us"
-              className="px-5 py-2.5 text-[10px] uppercase tracking-[0.2em] font-medium bg-site-crimson text-white rounded-full hover:bg-site-crimson/90 transition-all duration-300 flex items-center gap-2"
+              className="px-5 py-2.5 text-[10px] uppercase tracking-[0.2em] font-medium bg-primary text-white rounded-full hover:bg-primary/90 transition-all duration-300 flex items-center gap-2"
             >
               Discuss Your Project
               <ArrowUpRight className="w-3 h-3" />

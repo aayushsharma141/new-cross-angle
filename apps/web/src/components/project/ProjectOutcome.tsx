@@ -60,10 +60,10 @@ function StatCard({ prefix, suffix, end, label, durationMs = 1800, prefixBefore,
         className="text-4xl md:text-6xl font-serif text-white tracking-tight"
         aria-label={`${prefix ?? ""}${end}${suffix ?? ""}`}
       >
-        {prefixBefore && <span className="text-site-gold mr-0.5">{prefix}</span>}
+        {prefixBefore && <span className="text-primary mr-0.5">{prefix}</span>}
         {count}
-        {suffix && <span className="text-site-gold">{suffix}</span>}
-        {!prefixBefore && prefix && <span className="text-site-gold">{prefix}</span>}
+        {suffix && <span className="text-primary">{suffix}</span>}
+        {!prefixBefore && prefix && <span className="text-primary">{prefix}</span>}
       </motion.div>
       <motion.div
         initial={{ opacity: 0 }}
@@ -99,9 +99,9 @@ const ProjectOutcome = ({ area, duration }: ProjectOutcomeProps) => {
 
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <div className="text-center mb-20">
-          <span className="text-[10px] font-mono tracking-[0.4em] uppercase text-site-gold block mb-4">05 / OUTCOME</span>
+          <span className="text-[10px] font-mono tracking-[0.4em] uppercase text-primary block mb-4">05 / OUTCOME</span>
           <h2 className="text-3xl md:text-5xl text-white tracking-tight font-serif font-normal leading-[1.1]">
-            By the <em className="italic text-site-crimson font-light">Numbers</em>
+            By the <em className="italic text-primary font-light">Numbers</em>
           </h2>
         </div>
 

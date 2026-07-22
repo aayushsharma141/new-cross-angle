@@ -1,6 +1,6 @@
 # Token Adoption Audit Report
 
-**Generated:** 2026-07-03
+**Generated:** 2026-07-05
 **Target Workspace:** `apps/web/src` (excluding `src/tokens`)
 
 ---
@@ -11,12 +11,12 @@ This report measures the baseline adoption of the design token system across the
 
 | Metric | Current Count / Value | Goal | Status |
 | :--- | :---: | :---: | :---: |
-| Raw hex values outside `tokens/` | **2218** | 0 | ⚠️ Pending Refactor |
-| Raw `hsl()` / `rgb()` outside `tokens/` | **2752** | 0 | ⚠️ Pending Refactor |
-| Arbitrary `border-radius` values | **940** | 0 | ⚠️ Pending Refactor |
-| Hardcoded spacing values | **8175** | 0 | ⚠️ Pending Refactor |
-| Components using semantic tokens | **13.4%** | 100% | ⚠️ Pending Refactor |
-| Components bypassing token system | **374** | 0 | ⚠️ Pending Refactor |
+| Raw hex values outside `tokens/` | **2190** | 0 | ⚠️ Pending Refactor |
+| Raw `hsl()` / `rgb()` outside `tokens/` | **2749** | 0 | ⚠️ Pending Refactor |
+| Arbitrary `border-radius` values | **938** | 0 | ⚠️ Pending Refactor |
+| Hardcoded spacing values | **8310** | 0 | ⚠️ Pending Refactor |
+| Components using semantic tokens | **14.4%** | 100% | ⚠️ Pending Refactor |
+| Components bypassing token system | **387** | 0 | ⚠️ Pending Refactor |
 | Deprecated tokens still referenced | **0** | 0 | ✅ Passed |
 
 ---
@@ -3937,6 +3937,9 @@ This report measures the baseline adoption of the design token system across the
 
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
+| 29 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 33 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0">` |
+| 33 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0">` |
 | 39 | `Hardcoded Spacing` | `gap-4` in `<div className="w-full flex flex-col gap-4 py-2">` |
 | 39 | `Hardcoded Spacing` | `py-2` in `<div className="w-full flex flex-col gap-4 py-2">` |
 | 42 | `Hardcoded Spacing` | `mb-1` in `<div className="flex items-center justify-between mb-1">` |
@@ -3958,6 +3961,9 @@ This report measures the baseline adoption of the design token system across the
 | 19 | `Raw HSL/RGB Color` | `hsl(var(--admin-success)` in `won: "hsl(var(--admin-success))",` |
 | 20 | `Raw HSL/RGB Color` | `hsl(var(--admin-error)` in `lost: "hsl(var(--admin-error))"` |
 | 49 | `Raw HSL/RGB Color` | `hsl(var(--admin-foreground)` in `color: COLORS[s] ?? "hsl(var(--admin-foreground))",` |
+| 57 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 61 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0">` |
+| 61 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0">` |
 | 67 | `Raw HSL/RGB Color` | `hsl(var(--admin-surface)` in `<div className="h-[300px] flex flex-col items-center justify-center text-center p-6 border border-dashed border-admin-border/50 rounded-xl bg-[hsl(var(--admin-surface))]/30">` |
 | 67 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="h-[300px] flex flex-col items-center justify-center text-center p-6 border border-dashed border-admin-border/50 rounded-xl bg-[hsl(var(--admin-surface))]/30">` |
 | 67 | `Hardcoded Spacing` | `p-6` in `<div className="h-[300px] flex flex-col items-center justify-center text-center p-6 border border-dashed border-admin-border/50 rounded-xl bg-[hsl(var(--admin-surface))]/30">` |
@@ -3993,6 +3999,9 @@ This report measures the baseline adoption of the design token system across the
 | 15 | `Raw HSL/RGB Color` | `hsl(var(--admin-warning)` in `referral: "hsl(var(--admin-warning))",` |
 | 16 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-subtle)` in `other: "hsl(var(--admin-text-subtle))",` |
 | 58 | `Raw Hex Color` | `#888` in `color: SOURCE_COLORS[key] ?? "#888",` |
+| 65 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 69 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0">` |
+| 69 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0">` |
 | 97 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `backgroundColor: "hsl(var(--admin-card))",` |
 | 98 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `border: "1px solid hsl(var(--admin-border))",` |
 | 99 | `Raw HSL/RGB Color` | `hsl(var(--admin-foreground)` in `color: "hsl(var(--admin-foreground))",` |
@@ -4174,6 +4183,9 @@ This report measures the baseline adoption of the design token system across the
 | 11 | `Raw HSL/RGB Color` | `hsl(var(--admin-success)` in `live: "hsl(var(--admin-success))",` |
 | 12 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `archived: "hsl(var(--admin-primary))",` |
 | 39 | `Raw HSL/RGB Color` | `hsl(var(--admin-foreground)` in `color: STATUS_COLORS[name] ?? "hsl(var(--admin-foreground))",` |
+| 51 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 55 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0">` |
+| 55 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0">` |
 | 61 | `Raw HSL/RGB Color` | `hsl(var(--admin-surface)` in `<div className="h-[300px] flex flex-col items-center justify-center text-center p-6 border border-dashed border-admin-border/50 rounded-xl bg-[hsl(var(--admin-surface))]/30">` |
 | 61 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="h-[300px] flex flex-col items-center justify-center text-center p-6 border border-dashed border-admin-border/50 rounded-xl bg-[hsl(var(--admin-surface))]/30">` |
 | 61 | `Hardcoded Spacing` | `p-6` in `<div className="h-[300px] flex flex-col items-center justify-center text-center p-6 border border-dashed border-admin-border/50 rounded-xl bg-[hsl(var(--admin-surface))]/30">` |
@@ -5873,8 +5885,10 @@ This report measures the baseline adoption of the design token system across the
 
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
-| 80 | `Hardcoded Spacing` | `p-4` in `<CardContent className="p-4 space-y-2">` |
-| 80 | `Hardcoded Spacing` | `space-y-2` in `<CardContent className="p-4 space-y-2">` |
+| 80 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-4 space-y-2">` |
+| 80 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-4 space-y-2">` |
+| 80 | `Hardcoded Spacing` | `p-4` in `<div className="p-6 pt-0" className="p-4 space-y-2">` |
+| 80 | `Hardcoded Spacing` | `space-y-2` in `<div className="p-6 pt-0" className="p-4 space-y-2">` |
 | 81 | `Hardcoded Spacing` | `gap-3` in `<div className="flex items-start justify-between gap-3">` |
 | 82 | `Hardcoded Spacing` | `gap-3` in `<div className="flex items-start gap-3">` |
 | 83 | `Arbitrary Border Radius` | `rounded-lg` in `<div className={cn("p-2 rounded-lg shrink-0 mt-0.5", config.bg)}>` |
@@ -6626,8 +6640,10 @@ This report measures the baseline adoption of the design token system across the
 
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
-| 52 | `Hardcoded Spacing` | `p-6` in `<CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-3 h-full min-h-[140px]">` |
-| 52 | `Hardcoded Spacing` | `space-y-3` in `<CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-3 h-full min-h-[140px]">` |
+| 52 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6 flex flex-col items-center justify-center text-center space-y-3 h-full min-h-[140px]">` |
+| 52 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-6 flex flex-col items-center justify-center text-center space-y-3 h-full min-h-[140px]">` |
+| 52 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6 flex flex-col items-center justify-center text-center space-y-3 h-full min-h-[140px]">` |
+| 52 | `Hardcoded Spacing` | `space-y-3` in `<div className="p-6 pt-0" className="p-6 flex flex-col items-center justify-center text-center space-y-3 h-full min-h-[140px]">` |
 | 58 | `Hardcoded Spacing` | `px-2` in `<span className="font-medium text-sm truncate w-full px-2">{folder.name}</span>` |
 | 70 | `Hardcoded Spacing` | `mr-2` in `<Edit2 className="w-4 h-4 mr-2" /> Rename` |
 | 73 | `Hardcoded Spacing` | `mr-2` in `<Trash2 className="w-4 h-4 mr-2" /> Delete` |
@@ -6655,7 +6671,9 @@ This report measures the baseline adoption of the design token system across the
 | 110 | `Hardcoded Spacing` | `mb-2` in `<div className="flex items-center justify-center gap-2 mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-300 pointer-events-auto">` |
 | 111 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `<Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-zinc-900/90 hover:bg-[hsl(var(--admin-primary))] hover:text-white text-zinc-300 border border-zinc-800 shadow-xl transition-all" onClick={(e) => { e.stopPropagation(); onPreview(file); }} title="Preview" aria-label={`Preview ${file.name}`}>` |
 | 114 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `<Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-zinc-900/90 hover:bg-[hsl(var(--admin-primary))] hover:text-white text-zinc-300 border border-zinc-800 shadow-xl transition-all" onClick={(e) => { e.stopPropagation(); onCopyUrl(file.url); }} title="Copy URL" aria-label={`Copy URL for ${file.name}`}>` |
-| 126 | `Hardcoded Spacing` | `p-3` in `<CardContent className="p-3 pointer-events-none">` |
+| 126 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-3 pointer-events-none">` |
+| 126 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-3 pointer-events-none">` |
+| 126 | `Hardcoded Spacing` | `p-3` in `<div className="p-6 pt-0" className="p-3 pointer-events-none">` |
 | 127 | `Hardcoded Spacing` | `mb-1` in `<p className="text-xs font-medium truncate mb-1" title={file.name}>{file.name}</p>` |
 | 136 | `Hardcoded Spacing` | `gap-4` in `<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">` |
 | 146 | `Hardcoded Spacing` | `space-y-2` in `<div className="space-y-2">` |
@@ -6897,9 +6915,11 @@ This report measures the baseline adoption of the design token system across the
 | 159 | `Hardcoded Spacing` | `gap-2` in `<div key={field.id} className="flex items-start gap-2">` |
 | 197 | `Hardcoded Spacing` | `pt-2` in `<div className="pt-2">` |
 | 203 | `Hardcoded Spacing` | `gap-1` in `className="gap-1"` |
-| 379 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))]">` |
-| 379 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))]">` |
-| 380 | `Hardcoded Spacing` | `p-8` in `<CardContent className="p-8 flex justify-center items-center">` |
+| 379 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))]">` |
+| 379 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))]">` |
+| 380 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-8 flex justify-center items-center">` |
+| 380 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-8 flex justify-center items-center">` |
+| 380 | `Hardcoded Spacing` | `p-8` in `<div className="p-6 pt-0" className="p-8 flex justify-center items-center">` |
 | 389 | `Hardcoded Spacing` | `space-y-4` in `<form id="general-settings-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">` |
 | 390 | `Hardcoded Spacing` | `gap-4` in `<div className="grid lg:grid-cols-2 gap-4">` |
 | 391 | `Hardcoded Spacing` | `gap-4` in `<AdminFormCard title="General Information" icon={Globe} iconClassName="text-blue-500" contentClassName="grid gap-4 sm:grid-cols-2">` |
@@ -7061,19 +7081,22 @@ This report measures the baseline adoption of the design token system across the
 
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
-| 19 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card className={cn("border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden", className)}>` |
-| 19 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card className={cn("border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden", className)}>` |
-| 20 | `Raw HSL/RGB Color` | `hsl(var(--admin-surface)` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5 flex flex-row items-center justify-between space-y-0">` |
-| 20 | `Raw HSL/RGB Color` | `hsl(var(--admin-border-subtle)` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5 flex flex-row items-center justify-between space-y-0">` |
-| 20 | `Hardcoded Spacing` | `py-3` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5 flex flex-row items-center justify-between space-y-0">` |
-| 20 | `Hardcoded Spacing` | `px-5` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5 flex flex-row items-center justify-between space-y-0">` |
-| 20 | `Hardcoded Spacing` | `space-y-0` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5 flex flex-row items-center justify-between space-y-0">` |
+| 19 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" className={cn("border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden", className)}>` |
+| 19 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" className={cn("border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden", className)}>` |
+| 20 | `Raw HSL/RGB Color` | `hsl(var(--admin-surface)` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5 flex flex-row items-center justify-between space-y-0">` |
+| 20 | `Raw HSL/RGB Color` | `hsl(var(--admin-border-subtle)` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5 flex flex-row items-center justify-between space-y-0">` |
+| 20 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5 flex flex-row items-center justify-between space-y-0">` |
+| 20 | `Hardcoded Spacing` | `py-3` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5 flex flex-row items-center justify-between space-y-0">` |
+| 20 | `Hardcoded Spacing` | `px-5` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5 flex flex-row items-center justify-between space-y-0">` |
+| 20 | `Hardcoded Spacing` | `space-y-0` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5 flex flex-row items-center justify-between space-y-0">` |
 | 21 | `Hardcoded Spacing` | `space-y-1` in `<div className="flex flex-col space-y-1">` |
 | 22 | `Hardcoded Spacing` | `gap-2` in `<div className="flex items-center gap-2">` |
 | 23 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `{Icon && <Icon className={cn("text-[hsl(var(--admin-primary))] h-4 w-4", iconClassName)} />}` |
-| 24 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<CardTitle className="text-sm font-bold text-[hsl(var(--admin-text))] flex items-center">{title}</CardTitle>` |
-| 26 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `{description && <CardDescription className="text-xs text-[hsl(var(--admin-text-muted))]">{description}</CardDescription>}` |
-| 30 | `Hardcoded Spacing` | `p-5` in `<CardContent className={cn("p-5", contentClassName)}>` |
+| 24 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<Text as="h3" variant="h3" className="leading-none" className="text-sm font-bold text-[hsl(var(--admin-text))] flex items-center">{title}</Text>` |
+| 26 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `{description && <Text as="p" variant="caption" color="muted" className="text-xs text-[hsl(var(--admin-text-muted))]">{description}</Text>}` |
+| 30 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className={cn("p-5", contentClassName)}>` |
+| 30 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className={cn("p-5", contentClassName)}>` |
+| 30 | `Hardcoded Spacing` | `p-5` in `<div className="p-6 pt-0" className={cn("p-5", contentClassName)}>` |
 
 
 ### [AdminMetricsPanel.tsx](apps/web/src/components/admin/shared/AdminMetricsPanel.tsx)
@@ -7465,11 +7488,17 @@ This report measures the baseline adoption of the design token system across the
 | :---: | :--- | :--- |
 | 24 | `Hardcoded Spacing` | `space-y-6` in `<div className="space-y-6">` |
 | 25 | `Hardcoded Spacing` | `gap-4` in `<div className="grid gap-4 lg:grid-cols-3">` |
-| 29 | `Hardcoded Spacing` | `gap-2` in `<CardTitle className="flex items-center gap-2 font-serif text-2xl"><Shield className="h-5 w-5 text-primary" />{ROLE_LABELS[role]}</CardTitle>` |
-| 32 | `Hardcoded Spacing` | `space-y-3` in `<CardContent className="space-y-3 text-sm text-zinc-300">` |
+| 28 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 29 | `Hardcoded Spacing` | `gap-2` in `<Text as="h3" variant="h3" className="leading-none" className="flex items-center gap-2 font-serif text-2xl"><Shield className="h-5 w-5 text-primary" />{ROLE_LABELS[role]}</Text>` |
+| 32 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="space-y-3 text-sm text-zinc-300">` |
+| 32 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="space-y-3 text-sm text-zinc-300">` |
+| 32 | `Hardcoded Spacing` | `space-y-3` in `<div className="p-6 pt-0" className="space-y-3 text-sm text-zinc-300">` |
 | 34 | `Hardcoded Spacing` | `gap-2` in `<div key={capability} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span>{capability}</span></div>` |
 | 34 | `Hardcoded Spacing` | `mt-0.5` in `<div key={capability} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span>{capability}</span></div>` |
-| 45 | `Hardcoded Spacing` | `gap-3` in `<CardContent className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">` |
+| 41 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 45 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">` |
+| 45 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">` |
+| 45 | `Hardcoded Spacing` | `gap-3` in `<div className="p-6 pt-0" className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">` |
 | 46 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="rounded-xl border border-zinc-800 bg-black/20 p-4">Super admins can create and manage every role, but they still cannot remove the last remaining super admin.</div>` |
 | 46 | `Hardcoded Spacing` | `p-4` in `<div className="rounded-xl border border-zinc-800 bg-black/20 p-4">Super admins can create and manage every role, but they still cannot remove the last remaining super admin.</div>` |
 | 47 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="rounded-xl border border-zinc-800 bg-black/20 p-4">Admins can only create and manage viewer accounts. They cannot edit admins or super admins.</div>` |
@@ -7486,14 +7515,17 @@ This report measures the baseline adoption of the design token system across the
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
 | 79 | `Hardcoded Spacing` | `space-y-6` in `<div className="space-y-6">` |
-| 81 | `Arbitrary Border Radius` | `rounded-2xl` in `<Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">` |
-| 82 | `Hardcoded Spacing` | `pb-4` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
-| 82 | `Hardcoded Spacing` | `px-6` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
-| 82 | `Hardcoded Spacing` | `pt-6` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 81 | `Arbitrary Border Radius` | `rounded-2xl` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">` |
+| 82 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 82 | `Hardcoded Spacing` | `pb-4` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 82 | `Hardcoded Spacing` | `px-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 82 | `Hardcoded Spacing` | `pt-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
 | 83 | `Hardcoded Spacing` | `gap-4` in `<div className="flex items-center gap-4">` |
 | 84 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><User className="text-primary h-5 w-5" /></div>` |
 | 84 | `Hardcoded Spacing` | `p-3` in `<div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><User className="text-primary h-5 w-5" /></div>` |
-| 88 | `Hardcoded Spacing` | `p-6` in `<CardContent className="p-6">` |
+| 88 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6">` |
+| 88 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-6">` |
+| 88 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6">` |
 | 89 | `Hardcoded Spacing` | `gap-6` in `<div className="grid gap-6 md:grid-cols-2">` |
 | 90 | `Hardcoded Spacing` | `space-y-1` in `<div className="space-y-1">` |
 | 92 | `Hardcoded Spacing` | `gap-2` in `<div className="flex items-center gap-2 font-medium text-lg">{userEmail}{userEmail && <CheckCircle2 className="h-4 w-4 text-green-500" />}</div>` |
@@ -7503,14 +7535,17 @@ This report measures the baseline adoption of the design token system across the
 | 97 | `Hardcoded Spacing` | `gap-1.5` in `<div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary capitalize"><Shield size={12} />{userRole \|\| "User"}</div>` |
 | 97 | `Hardcoded Spacing` | `px-2.5` in `<div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary capitalize"><Shield size={12} />{userRole \|\| "User"}</div>` |
 | 97 | `Hardcoded Spacing` | `py-0.5` in `<div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary capitalize"><Shield size={12} />{userRole \|\| "User"}</div>` |
-| 106 | `Arbitrary Border Radius` | `rounded-2xl` in `<Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">` |
-| 107 | `Hardcoded Spacing` | `pb-4` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
-| 107 | `Hardcoded Spacing` | `px-6` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
-| 107 | `Hardcoded Spacing` | `pt-6` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 106 | `Arbitrary Border Radius` | `rounded-2xl` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">` |
+| 107 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 107 | `Hardcoded Spacing` | `pb-4` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 107 | `Hardcoded Spacing` | `px-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 107 | `Hardcoded Spacing` | `pt-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
 | 108 | `Hardcoded Spacing` | `gap-4` in `<div className="flex items-center gap-4">` |
 | 109 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><Shield className="text-primary h-5 w-5" /></div>` |
 | 109 | `Hardcoded Spacing` | `p-3` in `<div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><Shield className="text-primary h-5 w-5" /></div>` |
-| 113 | `Hardcoded Spacing` | `p-6` in `<CardContent className="p-6">` |
+| 113 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6">` |
+| 113 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-6">` |
+| 113 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6">` |
 | 114 | `Hardcoded Spacing` | `space-y-6` in `<form onSubmit={handleChangePassword} className="space-y-6 max-w-md">` |
 | 115 | `Hardcoded Spacing` | `space-y-2` in `<div className="space-y-2">` |
 | 121 | `Hardcoded Spacing` | `gap-1` in `{passwordErrors.currentPassword && <p className="text-sm text-destructive flex items-center gap-1"><X className="h-3 w-3" /> {passwordErrors.currentPassword}</p>}` |
@@ -8498,91 +8533,91 @@ This report measures the baseline adoption of the design token system across the
 
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
-| 44 | `Raw Hex Color` | `#C41230` in `className="absolute rounded-full border border-[#C41230]/30 bg-[#C41230]/20"` |
-| 44 | `Raw Hex Color` | `#C41230` in `className="absolute rounded-full border border-[#C41230]/30 bg-[#C41230]/20"` |
-| 80 | `Hardcoded Spacing` | `mt-2.5` in `<div className="mt-2.5 text-[12px] font-['Space_Mono'] text-white/50">` |
-| 186 | `Hardcoded Spacing` | `p-0` in `className={`flex-1 min-w-[150px] p-0 ${className}`}` |
-| 198 | `Hardcoded Spacing` | `mb-0` in `className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0"` |
-| 198 | `Hardcoded Spacing` | `mb-5` in `className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0"` |
-| 198 | `Hardcoded Spacing` | `py-3` in `className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0"` |
-| 198 | `Hardcoded Spacing` | `py-0` in `className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0"` |
-| 211 | `Hardcoded Spacing` | `mt-5` in `className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[500px] mt-5 opacity-100' : 'max-h-0 opacity-0 md:max-h-[1000px] md:opacity-100 md:mt-0'}`}` |
-| 211 | `Hardcoded Spacing` | `mt-0` in `className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[500px] mt-5 opacity-100' : 'max-h-0 opacity-0 md:max-h-[1000px] md:opacity-100 md:mt-0'}`}` |
-| 241 | `Hardcoded Spacing` | `gap-3` in `className="inline-flex items-center gap-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans group"` |
-| 243 | `Raw Hex Color` | `#C41230` in `<span className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#C41230]/10 group-hover:border-[#C41230]/20 transition-all duration-200">` |
-| 243 | `Raw Hex Color` | `#C41230` in `<span className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#C41230]/10 group-hover:border-[#C41230]/20 transition-all duration-200">` |
-| 243 | `Arbitrary Border Radius` | `rounded-lg` in `<span className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#C41230]/10 group-hover:border-[#C41230]/20 transition-all duration-200">` |
-| 255 | `Raw Hex Color` | `#000` in `background: "radial-gradient(circle at 72% 28%, rgba(196,18,48,0.06), transparent 40%), radial-gradient(circle at 18% 82%, rgba(128,0,18,0.04), transparent 35%), #000"` |
-| 255 | `Raw HSL/RGB Color` | `rgba(196,18,48,0.06)` in `background: "radial-gradient(circle at 72% 28%, rgba(196,18,48,0.06), transparent 40%), radial-gradient(circle at 18% 82%, rgba(128,0,18,0.04), transparent 35%), #000"` |
-| 255 | `Raw HSL/RGB Color` | `rgba(128,0,18,0.04)` in `background: "radial-gradient(circle at 72% 28%, rgba(196,18,48,0.06), transparent 40%), radial-gradient(circle at 18% 82%, rgba(128,0,18,0.04), transparent 35%), #000"` |
-| 265 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.2)` in `border: 1px solid rgba(255,255,255,0.2);` |
-| 275 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.2)` in `background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);` |
-| 279 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.5)` in `.footer-cta:hover { border-color: rgba(255,255,255,0.5); }` |
-| 291 | `Raw Hex Color` | `#020202` in `<div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-[#020202] via-[#020202]/70 to-transparent z-10 pointer-events-none" />` |
-| 291 | `Raw Hex Color` | `#020202` in `<div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-[#020202] via-[#020202]/70 to-transparent z-10 pointer-events-none" />` |
-| 294 | `Hardcoded Spacing` | `px-4` in `<div ref={heroRef} className="pt-[100px] pb-[64px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col items-center justify-center text-center gap-8 overflow-hidden">` |
-| 294 | `Hardcoded Spacing` | `px-6` in `<div ref={heroRef} className="pt-[100px] pb-[64px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col items-center justify-center text-center gap-8 overflow-hidden">` |
-| 294 | `Hardcoded Spacing` | `px-10` in `<div ref={heroRef} className="pt-[100px] pb-[64px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col items-center justify-center text-center gap-8 overflow-hidden">` |
-| 294 | `Hardcoded Spacing` | `gap-8` in `<div ref={heroRef} className="pt-[100px] pb-[64px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col items-center justify-center text-center gap-8 overflow-hidden">` |
-| 296 | `Raw Hex Color` | `#C41230` in `<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#C41230]/[0.06] rounded-full blur-[100px] pointer-events-none z-0" />` |
-| 304 | `Raw Hex Color` | `#D4AF37` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
-| 304 | `Raw Hex Color` | `#D4AF37` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
-| 304 | `Raw Hex Color` | `#D4AF37` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
-| 304 | `Hardcoded Spacing` | `gap-2` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
-| 304 | `Hardcoded Spacing` | `px-3.5` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
-| 304 | `Hardcoded Spacing` | `py-1.5` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
-| 304 | `Hardcoded Spacing` | `mb-2` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
-| 306 | `Raw Hex Color` | `#D4AF37` in `<span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />` |
-| 312 | `Hardcoded Spacing` | `mb-2` in `className="font-serif leading-[1.1] text-[clamp(2.2rem,4.2vw,4.5rem)] tracking-tight text-white mb-2 text-center whitespace-normal md:whitespace-nowrap"` |
-| 319 | `Raw Hex Color` | `#C41230` in `<span className="text-[#C41230] italic font-medium">{footerCopy.headlineHighlight}</span>` |
-| 324 | `Hardcoded Spacing` | `gap-6` in `className="flex flex-col items-center gap-6 w-full relative z-10 mt-2"` |
-| 324 | `Hardcoded Spacing` | `mt-2` in `className="flex flex-col items-center gap-6 w-full relative z-10 mt-2"` |
-| 337 | `Hardcoded Spacing` | `px-4` in `<div ref={gridRef} className="w-full relative z-20 border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10">` |
-| 337 | `Hardcoded Spacing` | `px-6` in `<div ref={gridRef} className="w-full relative z-20 border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10">` |
-| 337 | `Hardcoded Spacing` | `px-10` in `<div ref={gridRef} className="w-full relative z-20 border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10">` |
-| 338 | `Hardcoded Spacing` | `py-12` in `<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 py-12 md:py-14 divide-y md:divide-y-0 md:divide-x divide-white/[0.06]">` |
-| 338 | `Hardcoded Spacing` | `py-14` in `<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 py-12 md:py-14 divide-y md:divide-y-0 md:divide-x divide-white/[0.06]">` |
-| 341 | `Hardcoded Spacing` | `pr-0` in `<FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="pr-0 md:pr-10 pb-8 md:pb-0">` |
-| 341 | `Hardcoded Spacing` | `pr-10` in `<FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="pr-0 md:pr-10 pb-8 md:pb-0">` |
-| 341 | `Hardcoded Spacing` | `pb-8` in `<FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="pr-0 md:pr-10 pb-8 md:pb-0">` |
-| 341 | `Hardcoded Spacing` | `pb-0` in `<FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="pr-0 md:pr-10 pb-8 md:pb-0">` |
-| 342 | `Hardcoded Spacing` | `mb-5` in `<p className="text-white/50 text-[12px] leading-relaxed font-sans mb-5 max-w-[220px]">` |
-| 347 | `Raw Hex Color` | `#C41230` in `className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans mb-3 group"` |
-| 347 | `Hardcoded Spacing` | `gap-2.5` in `className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans mb-3 group"` |
-| 347 | `Hardcoded Spacing` | `mb-3` in `className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans mb-3 group"` |
-| 349 | `Raw Hex Color` | `#C41230` in `<Mail className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-[#C41230] transition-colors" />` |
-| 355 | `Raw Hex Color` | `#C41230` in `className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans group"` |
-| 355 | `Hardcoded Spacing` | `gap-2.5` in `className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans group"` |
-| 357 | `Raw Hex Color` | `#C41230` in `<Phone className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-[#C41230] transition-colors" />` |
-| 365 | `Hardcoded Spacing` | `px-0` in `<FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1} className="px-0 md:px-10 py-8 md:py-0">` |
-| 365 | `Hardcoded Spacing` | `px-10` in `<FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1} className="px-0 md:px-10 py-8 md:py-0">` |
-| 365 | `Hardcoded Spacing` | `py-8` in `<FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1} className="px-0 md:px-10 py-8 md:py-0">` |
-| 365 | `Hardcoded Spacing` | `py-0` in `<FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1} className="px-0 md:px-10 py-8 md:py-0">` |
-| 366 | `Hardcoded Spacing` | `gap-5` in `<div className="flex flex-col gap-5 mb-5">` |
-| 366 | `Hardcoded Spacing` | `mb-5` in `<div className="flex flex-col gap-5 mb-5">` |
-| 367 | `Hardcoded Spacing` | `gap-2.5` in `<div className="flex items-start gap-2.5">` |
-| 368 | `Raw Hex Color` | `#C41230` in `<MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#C41230]" />` |
-| 368 | `Hardcoded Spacing` | `mt-0.5` in `<MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#C41230]" />` |
-| 374 | `Hardcoded Spacing` | `mt-0.5` in `<p className="text-[13px] text-white/50 font-sans mt-0.5">Jamshedpur, Jharkhand 831012, India</p>` |
-| 380 | `Hardcoded Spacing` | `mb-3` in `<p className="font-sans text-[11px] tracking-[0.3em] text-white/50 mb-3">SERVICING REGIONS</p>` |
-| 381 | `Hardcoded Spacing` | `gap-2.5` in `<div className="flex flex-col gap-2.5">` |
-| 427 | `Hardcoded Spacing` | `px-0` in `<FooterSection title="NAVIGATE" id="navigate" openSection={openSection} toggleSection={toggleSection} delay={0.2} className="px-0 md:px-10 py-8 md:py-0">` |
-| 427 | `Hardcoded Spacing` | `px-10` in `<FooterSection title="NAVIGATE" id="navigate" openSection={openSection} toggleSection={toggleSection} delay={0.2} className="px-0 md:px-10 py-8 md:py-0">` |
-| 427 | `Hardcoded Spacing` | `py-8` in `<FooterSection title="NAVIGATE" id="navigate" openSection={openSection} toggleSection={toggleSection} delay={0.2} className="px-0 md:px-10 py-8 md:py-0">` |
-| 427 | `Hardcoded Spacing` | `py-0` in `<FooterSection title="NAVIGATE" id="navigate" openSection={openSection} toggleSection={toggleSection} delay={0.2} className="px-0 md:px-10 py-8 md:py-0">` |
-| 444 | `Hardcoded Spacing` | `mb-3` in `className="block mb-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans"` |
-| 453 | `Hardcoded Spacing` | `pl-0` in `<FooterSection title="CONNECT" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.3} className="pl-0 md:pl-10 pt-8 md:pt-0">` |
-| 453 | `Hardcoded Spacing` | `pl-10` in `<FooterSection title="CONNECT" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.3} className="pl-0 md:pl-10 pt-8 md:pt-0">` |
-| 453 | `Hardcoded Spacing` | `pt-8` in `<FooterSection title="CONNECT" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.3} className="pl-0 md:pl-10 pt-8 md:pt-0">` |
-| 453 | `Hardcoded Spacing` | `pt-0` in `<FooterSection title="CONNECT" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.3} className="pl-0 md:pl-10 pt-8 md:pt-0">` |
-| 454 | `Hardcoded Spacing` | `mb-5` in `<p className="text-white/50 text-[12px] font-sans mb-5">Follow us on social media</p>` |
-| 455 | `Hardcoded Spacing` | `gap-2.5` in `<div className="flex flex-col gap-2.5">` |
-| 471 | `Hardcoded Spacing` | `px-4` in `<div className="border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-10 w-full">` |
-| 471 | `Hardcoded Spacing` | `px-6` in `<div className="border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-10 w-full">` |
-| 471 | `Hardcoded Spacing` | `px-10` in `<div className="border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-10 w-full">` |
-| 472 | `Hardcoded Spacing` | `py-5` in `<div className="flex flex-col md:flex-row items-center justify-between py-5 gap-3 text-[10px] md:text-[11px] text-white/40 uppercase tracking-[0.2em] font-sans">` |
-| 472 | `Hardcoded Spacing` | `gap-3` in `<div className="flex flex-col md:flex-row items-center justify-between py-5 gap-3 text-[10px] md:text-[11px] text-white/40 uppercase tracking-[0.2em] font-sans">` |
-| 474 | `Hardcoded Spacing` | `gap-6` in `<div className="flex items-center gap-6">` |
+| 45 | `Raw Hex Color` | `#C41230` in `className="absolute rounded-full border border-[#C41230]/30 bg-[#C41230]/20"` |
+| 45 | `Raw Hex Color` | `#C41230` in `className="absolute rounded-full border border-[#C41230]/30 bg-[#C41230]/20"` |
+| 81 | `Hardcoded Spacing` | `mt-2.5` in `<div className="mt-2.5 text-[12px] font-['Space_Mono'] text-white/50">` |
+| 187 | `Hardcoded Spacing` | `p-0` in `className={`flex-1 min-w-[150px] p-0 ${className}`}` |
+| 199 | `Hardcoded Spacing` | `mb-0` in `className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0"` |
+| 199 | `Hardcoded Spacing` | `mb-5` in `className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0"` |
+| 199 | `Hardcoded Spacing` | `py-3` in `className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0"` |
+| 199 | `Hardcoded Spacing` | `py-0` in `className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0"` |
+| 212 | `Hardcoded Spacing` | `mt-5` in `className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[500px] mt-5 opacity-100' : 'max-h-0 opacity-0 md:max-h-[1000px] md:opacity-100 md:mt-0'}`}` |
+| 212 | `Hardcoded Spacing` | `mt-0` in `className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[500px] mt-5 opacity-100' : 'max-h-0 opacity-0 md:max-h-[1000px] md:opacity-100 md:mt-0'}`}` |
+| 242 | `Hardcoded Spacing` | `gap-3` in `className="inline-flex items-center gap-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans group"` |
+| 244 | `Raw Hex Color` | `#C41230` in `<span className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#C41230]/10 group-hover:border-[#C41230]/20 transition-all duration-200">` |
+| 244 | `Raw Hex Color` | `#C41230` in `<span className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#C41230]/10 group-hover:border-[#C41230]/20 transition-all duration-200">` |
+| 244 | `Arbitrary Border Radius` | `rounded-lg` in `<span className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#C41230]/10 group-hover:border-[#C41230]/20 transition-all duration-200">` |
+| 256 | `Raw Hex Color` | `#000` in `background: "radial-gradient(circle at 72% 28%, rgba(196,18,48,0.06), transparent 40%), radial-gradient(circle at 18% 82%, rgba(128,0,18,0.04), transparent 35%), #000"` |
+| 256 | `Raw HSL/RGB Color` | `rgba(196,18,48,0.06)` in `background: "radial-gradient(circle at 72% 28%, rgba(196,18,48,0.06), transparent 40%), radial-gradient(circle at 18% 82%, rgba(128,0,18,0.04), transparent 35%), #000"` |
+| 256 | `Raw HSL/RGB Color` | `rgba(128,0,18,0.04)` in `background: "radial-gradient(circle at 72% 28%, rgba(196,18,48,0.06), transparent 40%), radial-gradient(circle at 18% 82%, rgba(128,0,18,0.04), transparent 35%), #000"` |
+| 266 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.2)` in `border: 1px solid rgba(255,255,255,0.2);` |
+| 276 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.2)` in `background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);` |
+| 280 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.5)` in `.footer-cta:hover { border-color: rgba(255,255,255,0.5); }` |
+| 292 | `Raw Hex Color` | `#020202` in `<div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-[#020202] via-[#020202]/70 to-transparent z-10 pointer-events-none" />` |
+| 292 | `Raw Hex Color` | `#020202` in `<div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-[#020202] via-[#020202]/70 to-transparent z-10 pointer-events-none" />` |
+| 295 | `Hardcoded Spacing` | `px-4` in `<div ref={heroRef} className="pt-[100px] pb-[64px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col items-center justify-center text-center gap-8 overflow-hidden">` |
+| 295 | `Hardcoded Spacing` | `px-6` in `<div ref={heroRef} className="pt-[100px] pb-[64px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col items-center justify-center text-center gap-8 overflow-hidden">` |
+| 295 | `Hardcoded Spacing` | `px-10` in `<div ref={heroRef} className="pt-[100px] pb-[64px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col items-center justify-center text-center gap-8 overflow-hidden">` |
+| 295 | `Hardcoded Spacing` | `gap-8` in `<div ref={heroRef} className="pt-[100px] pb-[64px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col items-center justify-center text-center gap-8 overflow-hidden">` |
+| 297 | `Raw Hex Color` | `#C41230` in `<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#C41230]/[0.06] rounded-full blur-[100px] pointer-events-none z-0" />` |
+| 305 | `Raw Hex Color` | `#D4AF37` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
+| 305 | `Raw Hex Color` | `#D4AF37` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
+| 305 | `Raw Hex Color` | `#D4AF37` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
+| 305 | `Hardcoded Spacing` | `gap-2` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
+| 305 | `Hardcoded Spacing` | `px-3.5` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
+| 305 | `Hardcoded Spacing` | `py-1.5` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
+| 305 | `Hardcoded Spacing` | `mb-2` in `className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"` |
+| 307 | `Raw Hex Color` | `#D4AF37` in `<span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />` |
+| 313 | `Hardcoded Spacing` | `mb-2` in `className="font-serif leading-[1.1] text-[clamp(2.2rem,4.2vw,4.5rem)] tracking-tight text-white mb-2 text-center whitespace-normal md:whitespace-nowrap"` |
+| 320 | `Raw Hex Color` | `#C41230` in `<span className="text-[#C41230] italic font-medium">{footerCopy.headlineHighlight}</span>` |
+| 325 | `Hardcoded Spacing` | `gap-6` in `className="flex flex-col items-center gap-6 w-full relative z-10 mt-2"` |
+| 325 | `Hardcoded Spacing` | `mt-2` in `className="flex flex-col items-center gap-6 w-full relative z-10 mt-2"` |
+| 338 | `Hardcoded Spacing` | `px-4` in `<div ref={gridRef} className="w-full relative z-20 border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10">` |
+| 338 | `Hardcoded Spacing` | `px-6` in `<div ref={gridRef} className="w-full relative z-20 border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10">` |
+| 338 | `Hardcoded Spacing` | `px-10` in `<div ref={gridRef} className="w-full relative z-20 border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10">` |
+| 339 | `Hardcoded Spacing` | `py-12` in `<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 py-12 md:py-14 divide-y md:divide-y-0 md:divide-x divide-white/[0.06]">` |
+| 339 | `Hardcoded Spacing` | `py-14` in `<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 py-12 md:py-14 divide-y md:divide-y-0 md:divide-x divide-white/[0.06]">` |
+| 342 | `Hardcoded Spacing` | `pr-0` in `<FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="pr-0 md:pr-10 pb-8 md:pb-0">` |
+| 342 | `Hardcoded Spacing` | `pr-10` in `<FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="pr-0 md:pr-10 pb-8 md:pb-0">` |
+| 342 | `Hardcoded Spacing` | `pb-8` in `<FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="pr-0 md:pr-10 pb-8 md:pb-0">` |
+| 342 | `Hardcoded Spacing` | `pb-0` in `<FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="pr-0 md:pr-10 pb-8 md:pb-0">` |
+| 343 | `Hardcoded Spacing` | `mb-5` in `<p className="text-white/50 text-[12px] leading-relaxed font-sans mb-5 max-w-[220px]">` |
+| 348 | `Raw Hex Color` | `#C41230` in `className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans mb-3 group"` |
+| 348 | `Hardcoded Spacing` | `gap-2.5` in `className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans mb-3 group"` |
+| 348 | `Hardcoded Spacing` | `mb-3` in `className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans mb-3 group"` |
+| 350 | `Raw Hex Color` | `#C41230` in `<Mail className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-[#C41230] transition-colors" />` |
+| 356 | `Raw Hex Color` | `#C41230` in `className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans group"` |
+| 356 | `Hardcoded Spacing` | `gap-2.5` in `className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans group"` |
+| 358 | `Raw Hex Color` | `#C41230` in `<Phone className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-[#C41230] transition-colors" />` |
+| 366 | `Hardcoded Spacing` | `px-0` in `<FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1} className="px-0 md:px-10 py-8 md:py-0">` |
+| 366 | `Hardcoded Spacing` | `px-10` in `<FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1} className="px-0 md:px-10 py-8 md:py-0">` |
+| 366 | `Hardcoded Spacing` | `py-8` in `<FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1} className="px-0 md:px-10 py-8 md:py-0">` |
+| 366 | `Hardcoded Spacing` | `py-0` in `<FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1} className="px-0 md:px-10 py-8 md:py-0">` |
+| 367 | `Hardcoded Spacing` | `gap-5` in `<div className="flex flex-col gap-5 mb-5">` |
+| 367 | `Hardcoded Spacing` | `mb-5` in `<div className="flex flex-col gap-5 mb-5">` |
+| 368 | `Hardcoded Spacing` | `gap-2.5` in `<div className="flex items-start gap-2.5">` |
+| 369 | `Raw Hex Color` | `#C41230` in `<MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#C41230]" />` |
+| 369 | `Hardcoded Spacing` | `mt-0.5` in `<MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#C41230]" />` |
+| 375 | `Hardcoded Spacing` | `mt-0.5` in `<p className="text-[13px] text-white/50 font-sans mt-0.5">Jamshedpur, Jharkhand 831012, India</p>` |
+| 381 | `Hardcoded Spacing` | `mb-3` in `<p className="font-sans text-[11px] tracking-[0.3em] text-white/50 mb-3">SERVICING REGIONS</p>` |
+| 382 | `Hardcoded Spacing` | `gap-2.5` in `<div className="flex flex-col gap-2.5">` |
+| 431 | `Hardcoded Spacing` | `px-0` in `<FooterSection title="NAVIGATE" id="navigate" openSection={openSection} toggleSection={toggleSection} delay={0.2} className="px-0 md:px-10 py-8 md:py-0">` |
+| 431 | `Hardcoded Spacing` | `px-10` in `<FooterSection title="NAVIGATE" id="navigate" openSection={openSection} toggleSection={toggleSection} delay={0.2} className="px-0 md:px-10 py-8 md:py-0">` |
+| 431 | `Hardcoded Spacing` | `py-8` in `<FooterSection title="NAVIGATE" id="navigate" openSection={openSection} toggleSection={toggleSection} delay={0.2} className="px-0 md:px-10 py-8 md:py-0">` |
+| 431 | `Hardcoded Spacing` | `py-0` in `<FooterSection title="NAVIGATE" id="navigate" openSection={openSection} toggleSection={toggleSection} delay={0.2} className="px-0 md:px-10 py-8 md:py-0">` |
+| 451 | `Hardcoded Spacing` | `mb-3` in `className="block mb-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans"` |
+| 460 | `Hardcoded Spacing` | `pl-0` in `<FooterSection title="CONNECT" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.3} className="pl-0 md:pl-10 pt-8 md:pt-0">` |
+| 460 | `Hardcoded Spacing` | `pl-10` in `<FooterSection title="CONNECT" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.3} className="pl-0 md:pl-10 pt-8 md:pt-0">` |
+| 460 | `Hardcoded Spacing` | `pt-8` in `<FooterSection title="CONNECT" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.3} className="pl-0 md:pl-10 pt-8 md:pt-0">` |
+| 460 | `Hardcoded Spacing` | `pt-0` in `<FooterSection title="CONNECT" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.3} className="pl-0 md:pl-10 pt-8 md:pt-0">` |
+| 461 | `Hardcoded Spacing` | `mb-5` in `<p className="text-white/50 text-[12px] font-sans mb-5">Follow us on social media</p>` |
+| 462 | `Hardcoded Spacing` | `gap-2.5` in `<div className="flex flex-col gap-2.5">` |
+| 478 | `Hardcoded Spacing` | `px-4` in `<div className="border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-10 w-full">` |
+| 478 | `Hardcoded Spacing` | `px-6` in `<div className="border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-10 w-full">` |
+| 478 | `Hardcoded Spacing` | `px-10` in `<div className="border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-10 w-full">` |
+| 479 | `Hardcoded Spacing` | `py-5` in `<div className="flex flex-col md:flex-row items-center justify-between py-5 gap-3 text-[10px] md:text-[11px] text-white/40 uppercase tracking-[0.2em] font-sans">` |
+| 479 | `Hardcoded Spacing` | `gap-3` in `<div className="flex flex-col md:flex-row items-center justify-between py-5 gap-3 text-[10px] md:text-[11px] text-white/40 uppercase tracking-[0.2em] font-sans">` |
+| 481 | `Hardcoded Spacing` | `gap-6` in `<div className="flex items-center gap-6">` |
 
 
 ### [LegalFooter.tsx](apps/web/src/components/layout/LegalFooter.tsx)
@@ -8604,54 +8639,34 @@ This report measures the baseline adoption of the design token system across the
 
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
-| 13 | `Raw Hex Color` | `#D1AF6E` in `const GOLD = "text-[#D1AF6E]";` |
-| 14 | `Raw Hex Color` | `#D1AF6E` in `const GOLD_BG = "bg-[#D1AF6E]/10";` |
-| 73 | `Arbitrary Border Radius` | `rounded-md` in `className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded-md focus:text-sm focus:font-medium"` |
-| 73 | `Hardcoded Spacing` | `px-4` in `className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded-md focus:text-sm focus:font-medium"` |
-| 73 | `Hardcoded Spacing` | `py-2` in `className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-white focus:text-black focus:rounded-md focus:text-sm focus:font-medium"` |
-| 81 | `Hardcoded Spacing` | `py-4` in `? "bg-transparent py-4 md:py-5"` |
-| 81 | `Hardcoded Spacing` | `py-5` in `? "bg-transparent py-4 md:py-5"` |
-| 82 | `Hardcoded Spacing` | `py-2` in `: "bg-background/95 backdrop-blur-xl shadow-xl py-2 md:py-2.5 border-b border-border/40"` |
-| 82 | `Hardcoded Spacing` | `py-2.5` in `: "bg-background/95 backdrop-blur-xl shadow-xl py-2 md:py-2.5 border-b border-border/40"` |
-| 85 | `Hardcoded Spacing` | `px-4` in `<nav className="container-wide mx-auto px-4 sm:px-6 lg:px-10" aria-label="Main navigation">` |
-| 85 | `Hardcoded Spacing` | `px-6` in `<nav className="container-wide mx-auto px-4 sm:px-6 lg:px-10" aria-label="Main navigation">` |
-| 85 | `Hardcoded Spacing` | `px-10` in `<nav className="container-wide mx-auto px-4 sm:px-6 lg:px-10" aria-label="Main navigation">` |
-| 87 | `Hardcoded Spacing` | `gap-2` in `"flex justify-between items-center relative gap-2 sm:gap-4 transition-all duration-500",` |
-| 87 | `Hardcoded Spacing` | `gap-4` in `"flex justify-between items-center relative gap-2 sm:gap-4 transition-all duration-500",` |
-| 92 | `Hardcoded Spacing` | `gap-2` in `<Link to="/" className="flex items-center gap-2 sm:gap-3 z-10 shrink-0 group min-w-0">` |
-| 92 | `Hardcoded Spacing` | `gap-3` in `<Link to="/" className="flex items-center gap-2 sm:gap-3 z-10 shrink-0 group min-w-0">` |
-| 104 | `Hardcoded Spacing` | `gap-1` in `className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0"` |
-| 104 | `Hardcoded Spacing` | `gap-1.5` in `className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0"` |
-| 114 | `Hardcoded Spacing` | `px-1` in `className="px-1"` |
-| 120 | `Hardcoded Spacing` | `px-4` in `className="flex items-center px-4"` |
-| 127 | `Raw Hex Color` | `#D1AF6E` in `"relative font-medium transition-all duration-300 hover:text-[#D1AF6E] group flex items-center gap-1.5 whitespace-nowrap",` |
-| 127 | `Hardcoded Spacing` | `gap-1.5` in `"relative font-medium transition-all duration-300 hover:text-[#D1AF6E] group flex items-center gap-1.5 whitespace-nowrap",` |
-| 151 | `Hardcoded Spacing` | `gap-4` in `<div className="flex items-center justify-end gap-4 z-10">` |
-| 158 | `Raw Hex Color` | `#b5132b` in `<div className="absolute -inset-1 rounded-full bg-gradient-to-r from-site-crimson via-[#b5132b] to-site-crimson blur-md opacity-30 group-hover:opacity-60 transition-opacity duration-500 animate-[pulse_3s_ease-in-out_infinite]" />` |
-| 159 | `Raw Hex Color` | `#b5132b` in `<Button className="relative px-7 py-2.5 rounded-full font-semibold bg-gradient-to-r from-site-crimson to-[#b5132b] text-white border border-white/20 shadow-[0_4px_20px_rgba(227,24,55,0.4)] hover:shadow-[0_6px_30px_rgba(227,24,55,0.6)] transition-all duration-300 overflow-hidden group/btn flex items-center gap-2">` |
-| 159 | `Hardcoded Spacing` | `px-7` in `<Button className="relative px-7 py-2.5 rounded-full font-semibold bg-gradient-to-r from-site-crimson to-[#b5132b] text-white border border-white/20 shadow-[0_4px_20px_rgba(227,24,55,0.4)] hover:shadow-[0_6px_30px_rgba(227,24,55,0.6)] transition-all duration-300 overflow-hidden group/btn flex items-center gap-2">` |
-| 159 | `Hardcoded Spacing` | `py-2.5` in `<Button className="relative px-7 py-2.5 rounded-full font-semibold bg-gradient-to-r from-site-crimson to-[#b5132b] text-white border border-white/20 shadow-[0_4px_20px_rgba(227,24,55,0.4)] hover:shadow-[0_6px_30px_rgba(227,24,55,0.6)] transition-all duration-300 overflow-hidden group/btn flex items-center gap-2">` |
-| 159 | `Hardcoded Spacing` | `gap-2` in `<Button className="relative px-7 py-2.5 rounded-full font-semibold bg-gradient-to-r from-site-crimson to-[#b5132b] text-white border border-white/20 shadow-[0_4px_20px_rgba(227,24,55,0.4)] hover:shadow-[0_6px_30px_rgba(227,24,55,0.6)] transition-all duration-300 overflow-hidden group/btn flex items-center gap-2">` |
-| 172 | `Hardcoded Spacing` | `ml-1` in `className="relative w-4 h-4 ml-1 transition-transform duration-300 ease-out group-hover/btn:translate-x-1"` |
+| 70 | `Arbitrary Border Radius` | `rounded-md` in `className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:rounded-md focus:text-sm focus:font-medium"` |
+| 70 | `Hardcoded Spacing` | `px-4` in `className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:rounded-md focus:text-sm focus:font-medium"` |
+| 70 | `Hardcoded Spacing` | `py-2` in `className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:rounded-md focus:text-sm focus:font-medium"` |
+| 80 | `Hardcoded Spacing` | `py-4` in `showTransparent ? "py-4 md:py-5" : "py-2 md:py-2.5"` |
+| 80 | `Hardcoded Spacing` | `py-5` in `showTransparent ? "py-4 md:py-5" : "py-2 md:py-2.5"` |
+| 80 | `Hardcoded Spacing` | `py-2` in `showTransparent ? "py-4 md:py-5" : "py-2 md:py-2.5"` |
+| 80 | `Hardcoded Spacing` | `py-2.5` in `showTransparent ? "py-4 md:py-5" : "py-2 md:py-2.5"` |
+| 90 | `Hardcoded Spacing` | `gap-2` in `<Link as={RouterLink} to="/" underline="none" variant="inherit" className="flex items-center gap-2 sm:gap-3 z-10 shrink-0 group min-w-0">` |
+| 90 | `Hardcoded Spacing` | `gap-3` in `<Link as={RouterLink} to="/" underline="none" variant="inherit" className="flex items-center gap-2 sm:gap-3 z-10 shrink-0 group min-w-0">` |
+| 102 | `Hardcoded Spacing` | `gap-1` in `className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0"` |
+| 102 | `Hardcoded Spacing` | `gap-1.5` in `className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0"` |
+| 112 | `Hardcoded Spacing` | `px-1` in `className="px-1"` |
+| 118 | `Hardcoded Spacing` | `px-4` in `className="flex items-center px-4"` |
+| 128 | `Hardcoded Spacing` | `gap-1.5` in `"relative font-medium transition-all duration-300 group flex items-center gap-1.5 whitespace-nowrap",` |
+| 159 | `Hardcoded Spacing` | `px-7` in `<Button variant="primary" className="rounded-full shadow-lg px-7">` |
+| 171 | `Hardcoded Spacing` | `ml-1` in `className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1"` |
 | 183 | `Arbitrary Border Radius` | `rounded-xl` in `"lg:hidden p-2.5 rounded-xl transition-colors",` |
 | 183 | `Hardcoded Spacing` | `p-2.5` in `"lg:hidden p-2.5 rounded-xl transition-colors",` |
 | 204 | `Hardcoded Spacing` | `mt-4` in `className="lg:hidden overflow-hidden mt-4"` |
-| 207 | `Arbitrary Border Radius` | `rounded-2xl` in `<div className="bg-background/98 backdrop-blur-xl rounded-2xl p-5 border border-border/50 shadow-2xl">` |
-| 207 | `Hardcoded Spacing` | `p-5` in `<div className="bg-background/98 backdrop-blur-xl rounded-2xl p-5 border border-border/50 shadow-2xl">` |
+| 207 | `Hardcoded Spacing` | `p-5` in `<Surface variant="glass" border radius="lg" shadow="xl" className="p-5">` |
 | 208 | `Hardcoded Spacing` | `gap-1` in `<div className="flex flex-col gap-1">` |
-| 219 | `Arbitrary Border Radius` | `rounded-xl` in `"transition-colors duration-200 font-medium text-base py-2.5 px-4 rounded-xl block",` |
-| 219 | `Hardcoded Spacing` | `py-2.5` in `"transition-colors duration-200 font-medium text-base py-2.5 px-4 rounded-xl block",` |
-| 219 | `Hardcoded Spacing` | `px-4` in `"transition-colors duration-200 font-medium text-base py-2.5 px-4 rounded-xl block",` |
-| 222 | `Raw Hex Color` | `#D1AF6E` in `: "text-foreground hover:text-[#D1AF6E] hover:bg-accent/50",` |
-| 232 | `Hardcoded Spacing` | `mt-4` in `<div className="mt-4 pt-4 border-t border-border/50">` |
-| 232 | `Hardcoded Spacing` | `pt-4` in `<div className="mt-4 pt-4 border-t border-border/50">` |
-| 238 | `Raw Hex Color` | `#b5132b` in `<div className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-site-crimson to-[#b5132b] blur-sm opacity-50" />` |
-| 238 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-site-crimson to-[#b5132b] blur-sm opacity-50" />` |
-| 239 | `Raw Hex Color` | `#b5132b` in `<Button className="relative w-full py-4 rounded-xl font-semibold bg-gradient-to-r from-site-crimson to-[#b5132b] text-white border border-white/20 shadow-[0_4px_20px_rgba(227,24,55,0.35)] overflow-hidden group/btn flex items-center justify-center gap-2">` |
-| 239 | `Arbitrary Border Radius` | `rounded-xl` in `<Button className="relative w-full py-4 rounded-xl font-semibold bg-gradient-to-r from-site-crimson to-[#b5132b] text-white border border-white/20 shadow-[0_4px_20px_rgba(227,24,55,0.35)] overflow-hidden group/btn flex items-center justify-center gap-2">` |
-| 239 | `Hardcoded Spacing` | `py-4` in `<Button className="relative w-full py-4 rounded-xl font-semibold bg-gradient-to-r from-site-crimson to-[#b5132b] text-white border border-white/20 shadow-[0_4px_20px_rgba(227,24,55,0.35)] overflow-hidden group/btn flex items-center justify-center gap-2">` |
-| 239 | `Hardcoded Spacing` | `gap-2` in `<Button className="relative w-full py-4 rounded-xl font-semibold bg-gradient-to-r from-site-crimson to-[#b5132b] text-white border border-white/20 shadow-[0_4px_20px_rgba(227,24,55,0.35)] overflow-hidden group/btn flex items-center justify-center gap-2">` |
-| 252 | `Hardcoded Spacing` | `ml-1` in `className="relative w-4 h-4 ml-1 transition-transform duration-300 ease-out group-hover/btn:translate-x-1"` |
+| 222 | `Arbitrary Border Radius` | `rounded-xl` in `"font-medium text-base py-2.5 px-4 rounded-xl block",` |
+| 222 | `Hardcoded Spacing` | `py-2.5` in `"font-medium text-base py-2.5 px-4 rounded-xl block",` |
+| 222 | `Hardcoded Spacing` | `px-4` in `"font-medium text-base py-2.5 px-4 rounded-xl block",` |
+| 233 | `Hardcoded Spacing` | `mt-4` in `<div className="mt-4 pt-4 border-t border-border/50">` |
+| 233 | `Hardcoded Spacing` | `pt-4` in `<div className="mt-4 pt-4 border-t border-border/50">` |
+| 239 | `Arbitrary Border Radius` | `rounded-xl` in `<Button variant="primary" className="w-full py-4 rounded-xl shadow-lg">` |
+| 239 | `Hardcoded Spacing` | `py-4` in `<Button variant="primary" className="w-full py-4 rounded-xl shadow-lg">` |
 
 
 ### [SectionNavDots.tsx](apps/web/src/components/layout/SectionNavDots.tsx)
@@ -8670,23 +8685,16 @@ This report measures the baseline adoption of the design token system across the
 
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
-| 33 | `Hardcoded Spacing` | `pt-6` in `className="absolute top-full left-0 pt-6 w-[800px] z-50 cursor-default"` |
-| 35 | `Raw Hex Color` | `#050505` in `<div className="bg-[#050505]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 overflow-hidden">` |
-| 35 | `Arbitrary Border Radius` | `rounded-2xl` in `<div className="bg-[#050505]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 overflow-hidden">` |
-| 35 | `Hardcoded Spacing` | `p-8` in `<div className="bg-[#050505]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 overflow-hidden">` |
-| 40 | `Hardcoded Spacing` | `gap-8` in `<div className="relative z-10 grid grid-cols-3 gap-8">` |
-| 45 | `Hardcoded Spacing` | `space-y-4` in `<div key={cat.id} className="space-y-4">` |
-| 46 | `Hardcoded Spacing` | `pb-2` in `<h3 className="font-serif text-site-gold border-b border-white/10 pb-2 text-lg">` |
-| 51 | `Hardcoded Spacing` | `space-y-3` in `<ul className="space-y-3">` |
-| 58 | `Hardcoded Spacing` | `gap-3` in `className="group flex items-center gap-3 text-white/70 hover:text-white transition-colors"` |
-| 61 | `Arbitrary Border Radius` | `rounded-md` in `<div className="p-1.5 rounded-md bg-white/5 group-hover:bg-site-crimson/20 group-hover:text-site-crimson transition-colors">` |
-| 61 | `Hardcoded Spacing` | `p-1.5` in `<div className="p-1.5 rounded-md bg-white/5 group-hover:bg-site-crimson/20 group-hover:text-site-crimson transition-colors">` |
-| 82 | `Hardcoded Spacing` | `py-2` in `<div className="text-xs text-white/40 italic py-2">` |
-| 91 | `Hardcoded Spacing` | `mt-8` in `<div className="relative z-10 mt-8 pt-6 border-t border-white/10 flex items-center justify-between">` |
-| 91 | `Hardcoded Spacing` | `pt-6` in `<div className="relative z-10 mt-8 pt-6 border-t border-white/10 flex items-center justify-between">` |
-| 93 | `Hardcoded Spacing` | `mb-1` in `<h4 className="text-white font-medium mb-1">Not sure where to start?</h4>` |
-| 98 | `Hardcoded Spacing` | `px-5` in `className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/10"` |
-| 98 | `Hardcoded Spacing` | `py-2.5` in `className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/10"` |
+| 35 | `Hardcoded Spacing` | `pt-6` in `className="absolute top-full left-0 pt-6 w-[800px] z-50 cursor-default"` |
+| 37 | `Hardcoded Spacing` | `p-8` in `<Surface variant="glass" border radius="lg" shadow="xl" className="p-8 overflow-hidden relative bg-background/95">` |
+| 48 | `Hardcoded Spacing` | `pb-2` in `<h3 className="font-serif text-primary border-b border-border pb-2 text-lg">` |
+| 63 | `Hardcoded Spacing` | `gap-3` in `className="group flex items-center gap-3 transition-colors"` |
+| 66 | `Arbitrary Border Radius` | `rounded-md` in `<div className="p-1.5 rounded-md bg-muted group-hover:bg-primary/20 group-hover:text-primary transition-colors">` |
+| 66 | `Hardcoded Spacing` | `p-1.5` in `<div className="p-1.5 rounded-md bg-muted group-hover:bg-primary/20 group-hover:text-primary transition-colors">` |
+| 90 | `Hardcoded Spacing` | `py-2` in `<Text variant="caption" color="muted" className="italic py-2">` |
+| 99 | `Hardcoded Spacing` | `mt-8` in `<div className="relative z-10 mt-8 pt-6 border-t border-border flex items-center justify-between">` |
+| 99 | `Hardcoded Spacing` | `pt-6` in `<div className="relative z-10 mt-8 pt-6 border-t border-border flex items-center justify-between">` |
+| 101 | `Hardcoded Spacing` | `mb-1` in `<Text variant="body" className="font-medium mb-1">Not sure where to start?</Text>` |
 
 
 ### [WhatsAppButton.tsx](apps/web/src/components/layout/WhatsAppButton.tsx)
@@ -8694,12 +8702,12 @@ This report measures the baseline adoption of the design token system across the
 
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
-| 13 | `Raw Hex Color` | `#25D366` in `<path fill="#25D366" d="M7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592" />` |
-| 39 | `Raw Hex Color` | `#25D366` in `<div className="absolute inset-0 bg-[#25D366] rounded-full animate-ping opacity-30" />` |
-| 45 | `Arbitrary Border Radius` | `rounded-lg` in `<div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-foreground text-background px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">` |
-| 45 | `Hardcoded Spacing` | `mr-3` in `<div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-foreground text-background px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">` |
-| 45 | `Hardcoded Spacing` | `px-3` in `<div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-foreground text-background px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">` |
-| 45 | `Hardcoded Spacing` | `py-2` in `<div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-foreground text-background px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">` |
+| 14 | `Raw Hex Color` | `#25D366` in `<path fill="#25D366" d="M7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592" />` |
+| 43 | `Raw Hex Color` | `#25D366` in `<div className="absolute inset-0 bg-[#25D366] rounded-full animate-ping opacity-30" />` |
+| 49 | `Arbitrary Border Radius` | `rounded-lg` in `<div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-foreground text-background px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">` |
+| 49 | `Hardcoded Spacing` | `mr-3` in `<div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-foreground text-background px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">` |
+| 49 | `Hardcoded Spacing` | `px-3` in `<div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-foreground text-background px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">` |
+| 49 | `Hardcoded Spacing` | `py-2` in `<div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-foreground text-background px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">` |
 
 
 ### [animated-beam.tsx](apps/web/src/components/magicui/animated-beam.tsx)
@@ -8727,6 +8735,60 @@ This report measures the baseline adoption of the design token system across the
 | 68 | `Hardcoded Spacing` | `py-1.5` in `"rounded-2xl px-4 py-1.5 text-sm font-medium shadow-[inset_0_-8px_10px_#ffffff1f]",` |
 | 69 | `Raw Hex Color` | `#ffffff3f` in `"transform-gpu transition-all duration-300 ease-in-out group-hover:shadow-[inset_0_-6px_10px_#ffffff3f]",` |
 | 70 | `Raw Hex Color` | `#ffffff3f` in `"group-active:shadow-[inset_0_-10px_10px_#ffffff3f]",` |
+
+
+### [DossierLayout.tsx](apps/web/src/components/patterns/DossierLayout.tsx)
+*Path:* `apps/web/src/components/patterns/DossierLayout.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 22 | `Hardcoded Spacing` | `p-4` in `<Surface variant="primary" radius="md" shadow="sm" border className="p-4">` |
+
+
+### [EditorialHero.tsx](apps/web/src/components/patterns/EditorialHero.tsx)
+*Path:* `apps/web/src/components/patterns/EditorialHero.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 21 | `Hardcoded Spacing` | `py-24` in `<Container size="lg" className="py-24">` |
+
+
+### [EditorialSplit.tsx](apps/web/src/components/patterns/EditorialSplit.tsx)
+*Path:* `apps/web/src/components/patterns/EditorialSplit.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 21 | `Hardcoded Spacing` | `py-16` in `<Container size="lg" className="py-16">` |
+| 28 | `Hardcoded Spacing` | `mt-4` in `<div className="mt-4">` |
+
+
+### [FormLayout.tsx](apps/web/src/components/patterns/FormLayout.tsx)
+*Path:* `apps/web/src/components/patterns/FormLayout.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 19 | `Hardcoded Spacing` | `py-16` in `<Container size="sm" className="py-16">` |
+| 20 | `Hardcoded Spacing` | `p-8` in `<Surface variant="primary" radius="lg" shadow="md" border className="p-8">` |
+| 30 | `Hardcoded Spacing` | `mt-4` in `<Cluster justify="end" className="mt-4">` |
+
+
+### [GalleryStack.tsx](apps/web/src/components/patterns/GalleryStack.tsx)
+*Path:* `apps/web/src/components/patterns/GalleryStack.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 18 | `Hardcoded Spacing` | `py-16` in `<Container size="lg" className="py-16">` |
+
+
+### [WorkspacePanel.tsx](apps/web/src/components/patterns/WorkspacePanel.tsx)
+*Path:* `apps/web/src/components/patterns/WorkspacePanel.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 21 | `Hardcoded Spacing` | `p-4` in `<Surface variant="secondary" radius="none" className="col-span-3 p-4 h-full border-r border-border overflow-y-auto">` |
+| 26 | `Hardcoded Spacing` | `p-8` in `<Surface variant="primary" radius="none" className={dossierContent ? "col-span-6 p-8 h-full overflow-y-auto" : "col-span-9 p-8 h-full overflow-y-auto"}>` |
+| 26 | `Hardcoded Spacing` | `p-8` in `<Surface variant="primary" radius="none" className={dossierContent ? "col-span-6 p-8 h-full overflow-y-auto" : "col-span-9 p-8 h-full overflow-y-auto"}>` |
+| 32 | `Hardcoded Spacing` | `p-4` in `<Surface variant="secondary" radius="none" className="col-span-3 p-4 h-full border-l border-border overflow-y-auto">` |
 
 
 ### [LazySection.tsx](apps/web/src/components/performance/LazySection.tsx)
@@ -9247,6 +9309,150 @@ This report measures the baseline adoption of the design token system across the
 | 121 | `Hardcoded Spacing` | `gap-4` in `<div className="flex items-center gap-4 mt-12">` |
 | 121 | `Hardcoded Spacing` | `mt-12` in `<div className="flex items-center gap-4 mt-12">` |
 | 129 | `Hardcoded Spacing` | `gap-2` in `<div className="flex gap-2">` |
+
+
+### [Cluster.tsx](apps/web/src/components/primitives/foundation/Cluster.tsx)
+*Path:* `apps/web/src/components/primitives/foundation/Cluster.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 16 | `Hardcoded Spacing` | `gap-0` in `none: 'gap-0',` |
+| 17 | `Hardcoded Spacing` | `gap-1` in `xs: 'gap-1',` |
+| 18 | `Hardcoded Spacing` | `gap-2` in `sm: 'gap-2',` |
+| 19 | `Hardcoded Spacing` | `gap-4` in `md: 'gap-4',` |
+| 20 | `Hardcoded Spacing` | `gap-6` in `lg: 'gap-6',` |
+| 21 | `Hardcoded Spacing` | `gap-8` in `xl: 'gap-8',` |
+
+
+### [Container.tsx](apps/web/src/components/primitives/foundation/Container.tsx)
+*Path:* `apps/web/src/components/primitives/foundation/Container.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 23 | `Hardcoded Spacing` | `px-4` in `className={cn('mx-auto w-full px-4 sm:px-6 lg:px-8', sizeClasses[size], className)}` |
+| 23 | `Hardcoded Spacing` | `px-6` in `className={cn('mx-auto w-full px-4 sm:px-6 lg:px-8', sizeClasses[size], className)}` |
+| 23 | `Hardcoded Spacing` | `px-8` in `className={cn('mx-auto w-full px-4 sm:px-6 lg:px-8', sizeClasses[size], className)}` |
+
+
+### [Grid.tsx](apps/web/src/components/primitives/foundation/Grid.tsx)
+*Path:* `apps/web/src/components/primitives/foundation/Grid.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 24 | `Hardcoded Spacing` | `gap-0` in `none: 'gap-0',` |
+| 25 | `Hardcoded Spacing` | `gap-1` in `xs: 'gap-1',` |
+| 26 | `Hardcoded Spacing` | `gap-2` in `sm: 'gap-2',` |
+| 27 | `Hardcoded Spacing` | `gap-4` in `md: 'gap-4',` |
+| 28 | `Hardcoded Spacing` | `gap-6` in `lg: 'gap-6',` |
+| 29 | `Hardcoded Spacing` | `gap-8` in `xl: 'gap-8',` |
+| 30 | `Hardcoded Spacing` | `gap-12` in `'2xl': 'gap-12',` |
+
+
+### [Stack.tsx](apps/web/src/components/primitives/foundation/Stack.tsx)
+*Path:* `apps/web/src/components/primitives/foundation/Stack.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 15 | `Hardcoded Spacing` | `gap-0` in `none: 'gap-0',` |
+| 16 | `Hardcoded Spacing` | `gap-1` in `xs: 'gap-1',` |
+| 17 | `Hardcoded Spacing` | `gap-2` in `sm: 'gap-2',` |
+| 18 | `Hardcoded Spacing` | `gap-4` in `md: 'gap-4',` |
+| 19 | `Hardcoded Spacing` | `gap-6` in `lg: 'gap-6',` |
+| 20 | `Hardcoded Spacing` | `gap-8` in `xl: 'gap-8',` |
+| 21 | `Hardcoded Spacing` | `gap-12` in `'2xl': 'gap-12',` |
+
+
+### [Surface.tsx](apps/web/src/components/primitives/foundation/Surface.tsx)
+*Path:* `apps/web/src/components/primitives/foundation/Surface.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 33 | `Arbitrary Border Radius` | `rounded-sm` in `sm: 'rounded-sm',` |
+| 34 | `Arbitrary Border Radius` | `rounded-md` in `md: 'rounded-md',` |
+| 35 | `Arbitrary Border Radius` | `rounded-lg` in `lg: 'rounded-lg',` |
+
+
+### [PrimitiveValidation.tsx](apps/web/src/components/primitives/foundation/__tests__/PrimitiveValidation.tsx)
+*Path:* `apps/web/src/components/primitives/foundation/__tests__/PrimitiveValidation.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 7 | `Hardcoded Spacing` | `py-24` in `<Container size="lg" className="py-24">` |
+| 13 | `Hardcoded Spacing` | `px-6` in `<Surface variant="secondary" radius="md" className="px-6 py-3 cursor-pointer">` |
+| 13 | `Hardcoded Spacing` | `py-3` in `<Surface variant="secondary" radius="md" className="px-6 py-3 cursor-pointer">` |
+| 16 | `Hardcoded Spacing` | `px-6` in `<Surface variant="transparent" border radius="md" className="px-6 py-3 cursor-pointer">` |
+| 16 | `Hardcoded Spacing` | `py-3` in `<Surface variant="transparent" border radius="md" className="px-6 py-3 cursor-pointer">` |
+| 28 | `Hardcoded Spacing` | `py-16` in `<Container size="lg" className="py-16">` |
+| 45 | `Hardcoded Spacing` | `py-16` in `<Container size="lg" className="py-16">` |
+| 66 | `Hardcoded Spacing` | `p-4` in `<Surface variant="secondary" radius="none" className="col-span-3 p-4 h-full">` |
+| 79 | `Hardcoded Spacing` | `p-8` in `<Surface variant="primary" radius="none" className="col-span-6 p-8 h-full">` |
+| 87 | `Hardcoded Spacing` | `p-4` in `<Surface variant="secondary" radius="none" border className="col-span-3 p-4 h-full">` |
+| 91 | `Hardcoded Spacing` | `p-4` in `<Surface variant="primary" radius="md" shadow="sm" border className="p-4">` |
+| 106 | `Hardcoded Spacing` | `py-16` in `<Container size="sm" className="py-16">` |
+| 107 | `Hardcoded Spacing` | `p-8` in `<Surface variant="primary" radius="lg" shadow="md" border className="p-8">` |
+| 126 | `Hardcoded Spacing` | `px-4` in `<Surface variant="primary" radius="md" border className="px-4 py-2 cursor-pointer">` |
+| 126 | `Hardcoded Spacing` | `py-2` in `<Surface variant="primary" radius="md" border className="px-4 py-2 cursor-pointer">` |
+| 138 | `Hardcoded Spacing` | `py-12` in `<Stack gap="2xl" className="py-12 bg-neutral-100 dark:bg-neutral-900">` |
+
+
+### [Badge.tsx](apps/web/src/components/primitives/interactive/Badge.tsx)
+*Path:* `apps/web/src/components/primitives/interactive/Badge.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 18 | `Hardcoded Spacing` | `px-2.5` in `const baseClasses = 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2';` |
+| 18 | `Hardcoded Spacing` | `py-0.5` in `const baseClasses = 'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2';` |
+
+
+### [Button.tsx](apps/web/src/components/primitives/interactive/Button.tsx)
+*Path:* `apps/web/src/components/primitives/interactive/Button.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 23 | `Hardcoded Spacing` | `px-3` in `sm: 'h-8 px-3 text-xs',` |
+| 24 | `Hardcoded Spacing` | `px-4` in `md: 'h-10 px-4 py-2 text-sm',` |
+| 24 | `Hardcoded Spacing` | `py-2` in `md: 'h-10 px-4 py-2 text-sm',` |
+| 25 | `Hardcoded Spacing` | `px-8` in `lg: 'h-11 px-8 text-base',` |
+| 29 | `Arbitrary Border Radius` | `rounded-md` in `const baseClasses = 'inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';` |
+| 40 | `Hardcoded Spacing` | `ml-1` in `<svg className="animate-spin -ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">` |
+
+
+### [Checkbox.tsx](apps/web/src/components/primitives/interactive/Checkbox.tsx)
+*Path:* `apps/web/src/components/primitives/interactive/Checkbox.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 13 | `Arbitrary Border Radius` | `rounded-sm` in `const baseClasses = 'peer h-4 w-4 shrink-0 rounded-sm border border-input bg-transparent ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-primary accent-primary transition-colors';` |
+
+
+### [Input.tsx](apps/web/src/components/primitives/interactive/Input.tsx)
+*Path:* `apps/web/src/components/primitives/interactive/Input.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 11 | `Arbitrary Border Radius` | `rounded-md` in `const baseClasses = 'flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors';` |
+| 11 | `Hardcoded Spacing` | `px-3` in `const baseClasses = 'flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors';` |
+| 11 | `Hardcoded Spacing` | `py-2` in `const baseClasses = 'flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors';` |
+
+
+### [Select.tsx](apps/web/src/components/primitives/interactive/Select.tsx)
+*Path:* `apps/web/src/components/primitives/interactive/Select.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 11 | `Arbitrary Border Radius` | `rounded-md` in `const baseClasses = 'flex h-10 w-full appearance-none items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors';` |
+| 11 | `Hardcoded Spacing` | `px-3` in `const baseClasses = 'flex h-10 w-full appearance-none items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors';` |
+| 11 | `Hardcoded Spacing` | `py-2` in `const baseClasses = 'flex h-10 w-full appearance-none items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors';` |
+
+
+### [Textarea.tsx](apps/web/src/components/primitives/interactive/Textarea.tsx)
+*Path:* `apps/web/src/components/primitives/interactive/Textarea.tsx`
+
+| Line | Violation Type | Matching Snippet |
+| :---: | :--- | :--- |
+| 11 | `Arbitrary Border Radius` | `rounded-md` in `const baseClasses = 'flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors';` |
+| 11 | `Hardcoded Spacing` | `px-3` in `const baseClasses = 'flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors';` |
+| 11 | `Hardcoded Spacing` | `py-2` in `const baseClasses = 'flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors';` |
 
 
 ### [ProcessCaseStudy.tsx](apps/web/src/components/process/ProcessCaseStudy.tsx)
@@ -11261,15 +11467,6 @@ This report measures the baseline adoption of the design token system across the
 | 31 | `Hardcoded Spacing` | `mb-1` in `<h5 ref={ref} className={cn("mb-1 font-medium leading-none tracking-tight", className)} {...props}>{children}</h5>` |
 
 
-### [badge.tsx](apps/web/src/components/ui/primitives/badge.tsx)
-*Path:* `apps/web/src/components/ui/primitives/badge.tsx`
-
-| Line | Violation Type | Matching Snippet |
-| :---: | :--- | :--- |
-| 7 | `Hardcoded Spacing` | `px-2.5` in `"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",` |
-| 7 | `Hardcoded Spacing` | `py-0.5` in `"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",` |
-
-
 ### [breadcrumb.tsx](apps/web/src/components/ui/primitives/breadcrumb.tsx)
 *Path:* `apps/web/src/components/ui/primitives/breadcrumb.tsx`
 
@@ -11315,39 +11512,15 @@ This report measures the baseline adoption of the design token system across the
 | 32 | `Hardcoded Spacing` | `p-0` in `day: cn(buttonVariants({ variant: "ghost" }), "h-9 w-9 p-0 font-normal aria-selected:opacity-100"),` |
 
 
-### [card.tsx](apps/web/src/components/ui/primitives/card.tsx)
-*Path:* `apps/web/src/components/ui/primitives/card.tsx`
-
-| Line | Violation Type | Matching Snippet |
-| :---: | :--- | :--- |
-| 6 | `Arbitrary Border Radius` | `rounded-lg` in `<div ref={ref} className={cn("rounded-lg border bg-card text-card-foreground shadow-sm", className)} {...props} />` |
-| 12 | `Hardcoded Spacing` | `space-y-1.5` in `<div ref={ref} className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />` |
-| 12 | `Hardcoded Spacing` | `p-6` in `<div ref={ref} className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />` |
-| 32 | `Hardcoded Spacing` | `p-6` in `({ className, ...props }, ref) => <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />,` |
-| 32 | `Hardcoded Spacing` | `pt-0` in `({ className, ...props }, ref) => <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />,` |
-| 38 | `Hardcoded Spacing` | `p-6` in `<div ref={ref} className={cn("flex items-center p-6 pt-0", className)} {...props} />` |
-| 38 | `Hardcoded Spacing` | `pt-0` in `<div ref={ref} className={cn("flex items-center p-6 pt-0", className)} {...props} />` |
-
-
-### [checkbox.tsx](apps/web/src/components/ui/primitives/checkbox.tsx)
-*Path:* `apps/web/src/components/ui/primitives/checkbox.tsx`
-
-| Line | Violation Type | Matching Snippet |
-| :---: | :--- | :--- |
-| 14 | `Arbitrary Border Radius` | `rounded-sm` in `"peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",` |
-
-
 ### [dialog.tsx](apps/web/src/components/ui/primitives/dialog.tsx)
 *Path:* `apps/web/src/components/ui/primitives/dialog.tsx`
 
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
-| 42 | `Arbitrary Border Radius` | `rounded-lg` in `"fixed left-[50%] top-[50%] z-[100] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",` |
-| 42 | `Hardcoded Spacing` | `gap-4` in `"fixed left-[50%] top-[50%] z-[100] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",` |
-| 44 | `Hardcoded Spacing` | `p-6` in `!flexCol && "p-6",` |
-| 51 | `Arbitrary Border Radius` | `rounded-sm` in `<DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-accent data-[state=open]:text-muted-foreground hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">` |
-| 62 | `Hardcoded Spacing` | `space-y-1.5` in `<div className={cn("flex flex-col space-y-1.5 text-center sm:text-left shrink-0", className)} {...props} />` |
-| 67 | `Hardcoded Spacing` | `space-x-2` in `<div className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 shrink-0", className)} {...props} />` |
+| 52 | `Hardcoded Spacing` | `gap-4` in `"fixed left-[50%] top-[50%] z-[100] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",` |
+| 54 | `Hardcoded Spacing` | `p-6` in `!flexCol && "p-6",` |
+| 61 | `Arbitrary Border Radius` | `rounded-sm` in `<DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-accent data-[state=open]:text-muted-foreground hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">` |
+| 78 | `Hardcoded Spacing` | `space-x-2` in `<div className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 shrink-0", className)} {...props} />` |
 
 
 ### [dropdown-menu.tsx](apps/web/src/components/ui/primitives/dropdown-menu.tsx)
@@ -11390,16 +11563,6 @@ This report measures the baseline adoption of the design token system across the
 | 68 | `Hardcoded Spacing` | `space-y-2` in `<div ref={ref} className={cn("space-y-2", className)} {...props} />` |
 
 
-### [input.tsx](apps/web/src/components/ui/primitives/input.tsx)
-*Path:* `apps/web/src/components/ui/primitives/input.tsx`
-
-| Line | Violation Type | Matching Snippet |
-| :---: | :--- | :--- |
-| 11 | `Arbitrary Border Radius` | `rounded-md` in `"flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-base text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-white placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm transition-all duration-300",` |
-| 11 | `Hardcoded Spacing` | `px-3` in `"flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-base text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-white placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm transition-all duration-300",` |
-| 11 | `Hardcoded Spacing` | `py-2` in `"flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-base text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-white placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm transition-all duration-300",` |
-
-
 ### [popover.tsx](apps/web/src/components/ui/primitives/popover.tsx)
 *Path:* `apps/web/src/components/ui/primitives/popover.tsx`
 
@@ -11422,22 +11585,20 @@ This report measures the baseline adoption of the design token system across the
 
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
-| 20 | `Arbitrary Border Radius` | `rounded-md` in `"flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",` |
-| 20 | `Hardcoded Spacing` | `px-3` in `"flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",` |
-| 20 | `Hardcoded Spacing` | `py-2` in `"flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",` |
-| 39 | `Hardcoded Spacing` | `py-1` in `className={cn("flex cursor-default items-center justify-center py-1", className)}` |
-| 53 | `Hardcoded Spacing` | `py-1` in `className={cn("flex cursor-default items-center justify-center py-1", className)}` |
-| 69 | `Arbitrary Border Radius` | `rounded-md` in `"relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",` |
-| 80 | `Hardcoded Spacing` | `p-1` in `"p-1",` |
-| 97 | `Hardcoded Spacing` | `py-1.5` in `<SelectPrimitive.Label ref={ref} className={cn("py-1.5 pl-8 pr-2 text-sm font-semibold", className)} {...props} />` |
-| 97 | `Hardcoded Spacing` | `pl-8` in `<SelectPrimitive.Label ref={ref} className={cn("py-1.5 pl-8 pr-2 text-sm font-semibold", className)} {...props} />` |
-| 97 | `Hardcoded Spacing` | `pr-2` in `<SelectPrimitive.Label ref={ref} className={cn("py-1.5 pl-8 pr-2 text-sm font-semibold", className)} {...props} />` |
-| 108 | `Arbitrary Border Radius` | `rounded-sm` in `"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-accent focus:text-accent-foreground",` |
-| 108 | `Hardcoded Spacing` | `py-1.5` in `"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-accent focus:text-accent-foreground",` |
-| 108 | `Hardcoded Spacing` | `pl-8` in `"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-accent focus:text-accent-foreground",` |
-| 108 | `Hardcoded Spacing` | `pr-2` in `"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-accent focus:text-accent-foreground",` |
-| 128 | `Hardcoded Spacing` | `mx-1` in `<SelectPrimitive.Separator ref={ref} className={cn("-mx-1 my-1 h-px bg-muted", className)} {...props} />` |
-| 128 | `Hardcoded Spacing` | `my-1` in `<SelectPrimitive.Separator ref={ref} className={cn("-mx-1 my-1 h-px bg-muted", className)} {...props} />` |
+| 26 | `Hardcoded Spacing` | `px-3` in `"flex h-10 w-full items-center justify-between px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",` |
+| 26 | `Hardcoded Spacing` | `py-2` in `"flex h-10 w-full items-center justify-between px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",` |
+| 46 | `Hardcoded Spacing` | `py-1` in `className={cn("flex cursor-default items-center justify-center py-1", className)}` |
+| 60 | `Hardcoded Spacing` | `py-1` in `className={cn("flex cursor-default items-center justify-center py-1", className)}` |
+| 90 | `Hardcoded Spacing` | `p-1` in `"p-1",` |
+| 109 | `Hardcoded Spacing` | `py-1.5` in `<Text ref={ref} variant="label" className={cn("py-1.5 pl-8 pr-2 block", className)} {...(props)} />` |
+| 109 | `Hardcoded Spacing` | `pl-8` in `<Text ref={ref} variant="label" className={cn("py-1.5 pl-8 pr-2 block", className)} {...(props)} />` |
+| 109 | `Hardcoded Spacing` | `pr-2` in `<Text ref={ref} variant="label" className={cn("py-1.5 pl-8 pr-2 block", className)} {...(props)} />` |
+| 121 | `Arbitrary Border Radius` | `rounded-sm` in `"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-accent focus:text-accent-foreground",` |
+| 121 | `Hardcoded Spacing` | `py-1.5` in `"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-accent focus:text-accent-foreground",` |
+| 121 | `Hardcoded Spacing` | `pl-8` in `"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-accent focus:text-accent-foreground",` |
+| 121 | `Hardcoded Spacing` | `pr-2` in `"relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-accent focus:text-accent-foreground",` |
+| 142 | `Hardcoded Spacing` | `mx-1` in `<Surface variant="muted" radius="none" ref={ref} className={cn("-mx-1 my-1 h-px", className)} {...(props)} />` |
+| 142 | `Hardcoded Spacing` | `my-1` in `<Surface variant="muted" radius="none" ref={ref} className={cn("-mx-1 my-1 h-px", className)} {...(props)} />` |
 
 
 ### [sheet.tsx](apps/web/src/components/ui/primitives/sheet.tsx)
@@ -11445,10 +11606,9 @@ This report measures the baseline adoption of the design token system across the
 
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
-| 32 | `Hardcoded Spacing` | `gap-4` in `"fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",` |
-| 71 | `Arbitrary Border Radius` | `rounded-sm` in `<SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">` |
-| 82 | `Hardcoded Spacing` | `space-y-2` in `<div className={cn("flex flex-col space-y-2 text-center sm:text-left", className)} {...props} />` |
-| 87 | `Hardcoded Spacing` | `space-x-2` in `<div className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)} {...props} />` |
+| 37 | `Hardcoded Spacing` | `gap-4` in `"fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",` |
+| 78 | `Arbitrary Border Radius` | `rounded-sm` in `<SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">` |
+| 95 | `Hardcoded Spacing` | `space-x-2` in `<div className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)} {...props} />` |
 
 
 ### [skeleton.tsx](apps/web/src/components/ui/primitives/skeleton.tsx)
@@ -11493,11 +11653,11 @@ This report measures the baseline adoption of the design token system across the
 
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
-| 49 | `Hardcoded Spacing` | `px-4` in `"h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",` |
-| 49 | `Hardcoded Spacing` | `pr-0` in `"h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",` |
-| 60 | `Hardcoded Spacing` | `p-4` in `<td ref={ref} className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)} {...props} />` |
-| 60 | `Hardcoded Spacing` | `pr-0` in `<td ref={ref} className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)} {...props} />` |
-| 67 | `Hardcoded Spacing` | `mt-4` in `<caption ref={ref} className={cn("mt-4 text-sm text-muted-foreground", className)} {...props} />` |
+| 54 | `Hardcoded Spacing` | `px-4` in `"h-12 px-4 text-left align-middle [&:has([role=checkbox])]:pr-0",` |
+| 54 | `Hardcoded Spacing` | `pr-0` in `"h-12 px-4 text-left align-middle [&:has([role=checkbox])]:pr-0",` |
+| 65 | `Hardcoded Spacing` | `p-4` in `<Text as="td" variant="body" ref={ref} className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)} {...(props)} />` |
+| 65 | `Hardcoded Spacing` | `pr-0` in `<Text as="td" variant="body" ref={ref} className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)} {...(props)} />` |
+| 72 | `Hardcoded Spacing` | `mt-4` in `<Text as="caption" variant="caption" color="muted" ref={ref} className={cn("mt-4", className)} {...(props)} />` |
 
 
 ### [tabs.tsx](apps/web/src/components/ui/primitives/tabs.tsx)
@@ -11511,16 +11671,6 @@ This report measures the baseline adoption of the design token system across the
 | 30 | `Hardcoded Spacing` | `px-3` in `"inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",` |
 | 30 | `Hardcoded Spacing` | `py-1.5` in `"inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",` |
 | 45 | `Hardcoded Spacing` | `mt-2` in `"mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",` |
-
-
-### [textarea.tsx](apps/web/src/components/ui/primitives/textarea.tsx)
-*Path:* `apps/web/src/components/ui/primitives/textarea.tsx`
-
-| Line | Violation Type | Matching Snippet |
-| :---: | :--- | :--- |
-| 11 | `Arbitrary Border Radius` | `rounded-md` in `"flex min-h-[80px] w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white ring-offset-background placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300",` |
-| 11 | `Hardcoded Spacing` | `px-3` in `"flex min-h-[80px] w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white ring-offset-background placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300",` |
-| 11 | `Hardcoded Spacing` | `py-2` in `"flex min-h-[80px] w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white ring-offset-background placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-site-gold focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300",` |
 
 
 ### [toast.tsx](apps/web/src/components/ui/primitives/toast.tsx)
@@ -11697,168 +11847,146 @@ This report measures the baseline adoption of the design token system across the
 | 77 | `Raw HSL/RGB Color` | `hsl(0 0% 5%)` in `--gradient-shine: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 5%) 50%, hsl(0 0% 8%) 100%);` |
 | 77 | `Raw HSL/RGB Color` | `hsl(0 0% 8%)` in `--gradient-shine: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 5%) 50%, hsl(0 0% 8%) 100%);` |
 | 78 | `Raw HSL/RGB Color` | `hsl(0 0% 0% / 0.9)` in `--shadow-luxury: 0 25px 50px -12px hsl(0 0% 0% / 0.9);` |
-| 81 | `Raw Hex Color` | `#000000` in `--site-bg: #000000;` |
-| 82 | `Raw Hex Color` | `#080604` in `--site-bg-section: #080604;` |
-| 83 | `Raw Hex Color` | `#100D0A` in `--site-bg-card: #100D0A;` |
-| 84 | `Raw Hex Color` | `#1A1614` in `--site-bg-card-hover: #1A1614;` |
-| 85 | `Raw Hex Color` | `#F5F3EF` in `--site-bg-light: #F5F3EF;` |
-| 86 | `Raw Hex Color` | `#100D0A` in `--site-bg-input: #100D0A;` |
-| 87 | `Raw Hex Color` | `#C41230` in `--site-crimson: #C41230;` |
-| 88 | `Raw HSL/RGB Color` | `rgba(196, 18, 48, 0.9)` in `--site-crimson-90: rgba(196, 18, 48, 0.9);` |
-| 89 | `Raw HSL/RGB Color` | `rgba(196, 18, 48, 0.3)` in `--site-crimson-30: rgba(196, 18, 48, 0.3);` |
-| 90 | `Raw Hex Color` | `#a30f27` in `--site-crimson-hover: #a30f27;` |
-| 91 | `Raw Hex Color` | `#D1AF6E` in `--site-gold: #D1AF6E;` |
-| 92 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.9)` in `--site-gold-90: rgba(209, 175, 110, 0.9);` |
-| 93 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.5)` in `--site-gold-50: rgba(209, 175, 110, 0.5);` |
-| 94 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.3)` in `--site-gold-30: rgba(209, 175, 110, 0.3);` |
-| 95 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.1)` in `--site-gold-10: rgba(209, 175, 110, 0.1);` |
-| 96 | `Raw Hex Color` | `#c9a65d` in `--site-gold-hover: #c9a65d;` |
-| 97 | `Raw Hex Color` | `#8B8B8B` in `--site-stone: #8B8B8B;` |
-| 98 | `Raw Hex Color` | `#EDEAE6` in `--site-text: #EDEAE6;` |
-| 99 | `Raw Hex Color` | `#FFFFFF` in `--site-text-heading: #FFFFFF;` |
-| 100 | `Raw Hex Color` | `#A3A09C` in `--site-text-muted: #A3A09C;` |
-| 101 | `Raw Hex Color` | `#6B6B6B` in `--site-text-meta: #6B6B6B;` |
-| 102 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.9)` in `--site-text-90: rgba(237, 234, 230, 0.9);` |
-| 103 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.8)` in `--site-text-80: rgba(237, 234, 230, 0.8);` |
-| 104 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.7)` in `--site-text-70: rgba(237, 234, 230, 0.7);` |
-| 105 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.6)` in `--site-text-60: rgba(237, 234, 230, 0.6);` |
-| 106 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.5)` in `--site-text-50: rgba(237, 234, 230, 0.5);` |
-| 107 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.4)` in `--site-text-40: rgba(237, 234, 230, 0.4);` |
-| 108 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.08)` in `--site-border: rgba(237, 234, 230, 0.08);` |
-| 109 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.14)` in `--site-border-strong: rgba(237, 234, 230, 0.14);` |
-| 110 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.1)` in `--site-border-input: rgba(237, 234, 230, 0.1);` |
-| 111 | `Raw HSL/RGB Color` | `rgba(0, 0, 0, 0.65)` in `--site-overlay-hero: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.75));` |
-| 111 | `Raw HSL/RGB Color` | `rgba(0, 0, 0, 0.75)` in `--site-overlay-hero: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.75));` |
-| 112 | `Raw Hex Color` | `#D1AF6E` in `--site-focus: #D1AF6E;` |
-| 113 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.45)` in `--site-focus-ring: 0 0 0 3px rgba(209, 175, 110, 0.45);` |
-| 114 | `Raw Hex Color` | `#22c55e` in `--site-success: #22c55e;` |
-| 115 | `Raw Hex Color` | `#ef4444` in `--site-error: #ef4444;` |
-| 116 | `Raw Hex Color` | `#f59e0b` in `--site-warning: #f59e0b;` |
-| 119 | `Raw HSL/RGB Color` | `rgba(182, 24, 38, .18)` in `--home-glow-crimson: rgba(182, 24, 38, .18);` |
-| 120 | `Raw HSL/RGB Color` | `rgba(255, 215, 0, .08)` in `--home-glow-gold: rgba(255, 215, 0, .08);` |
-| 121 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, .08)` in `--home-border-soft: rgba(255, 255, 255, .08);` |
-| 122 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, .14)` in `--home-border-strong: rgba(255, 255, 255, .14);` |
-| 123 | `Raw HSL/RGB Color` | `rgba(0, 0, 0, .45)` in `--home-shadow: 0 32px 80px rgba(0, 0, 0, .45);` |
-| 332 | `Hardcoded Spacing` | `margin-top: 0.875em;` in `margin-top: 0.875em;` |
-| 358 | `Hardcoded Spacing` | `margin-top: 0;` in `margin-top: 0;` |
-| 359 | `Hardcoded Spacing` | `margin-bottom: 0;` in `margin-bottom: 0;` |
-| 398 | `Raw HSL/RGB Color` | `hsl(0 0% 100% / 0.04)` in `background: hsl(0 0% 100% / 0.04);` |
-| 401 | `Raw HSL/RGB Color` | `hsl(0 0% 100% / 0.08)` in `border: 1px solid hsl(0 0% 100% / 0.08);` |
-| 402 | `Raw HSL/RGB Color` | `hsl(0 0% 0% / 0.4)` in `box-shadow: 0 8px 32px hsl(0 0% 0% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.06);` |
-| 402 | `Raw HSL/RGB Color` | `hsl(0 0% 100% / 0.06)` in `box-shadow: 0 8px 32px hsl(0 0% 0% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.06);` |
-| 406 | `Raw HSL/RGB Color` | `hsl(0 0% 100% / 0.08)` in `border: 1px solid hsl(0 0% 100% / 0.08);` |
-| 410 | `Raw HSL/RGB Color` | `hsl(43 85% 52%)` in `border-top: 2px solid hsl(43 85% 52%);` |
-| 411 | `Raw HSL/RGB Color` | `hsl(0 0% 11%)` in `background: linear-gradient(160deg, hsl(0 0% 11%) 0%, hsl(0 0% 9%) 100%);` |
-| 411 | `Raw HSL/RGB Color` | `hsl(0 0% 9%)` in `background: linear-gradient(160deg, hsl(0 0% 11%) 0%, hsl(0 0% 9%) 100%);` |
-| 417 | `Raw HSL/RGB Color` | `hsl(43 85% 52%)` in `color: hsl(43 85% 52%);` |
-| 418 | `Raw HSL/RGB Color` | `hsl(43 85% 52% / 0.4)` in `text-shadow: 0 0 20px hsl(43 85% 52% / 0.4);` |
-| 423 | `Raw HSL/RGB Color` | `hsl(352 78% 31%)` in `background-color: hsl(352 78% 31%);` |
-| 427 | `Raw HSL/RGB Color` | `hsl(352 78% 26%)` in `background-color: hsl(352 78% 26%);` |
-| 431 | `Raw HSL/RGB Color` | `hsl(352 78% 31%)` in `color: hsl(352 78% 31%);` |
-| 435 | `Raw HSL/RGB Color` | `hsl(350 74% 44%)` in `color: hsl(350 74% 44%);` |
-| 439 | `Raw HSL/RGB Color` | `hsl(352 78% 31%)` in `border-color: hsl(352 78% 31%);` |
-| 444 | `Raw HSL/RGB Color` | `hsl(46 70% 47%)` in `color: hsl(46 70% 47%);` |
-| 448 | `Raw HSL/RGB Color` | `hsl(46 70% 47%)` in `border-color: hsl(46 70% 47%);` |
-| 453 | `Raw HSL/RGB Color` | `hsl(180 58% 27%)` in `color: hsl(180 58% 27%);` |
-| 457 | `Raw HSL/RGB Color` | `hsl(180 58% 27%)` in `border-color: hsl(180 58% 27%);` |
-| 462 | `Raw HSL/RGB Color` | `hsl(352 78% 28%)` in `background: linear-gradient(135deg, hsl(352 78% 28%) 0%, hsl(352 78% 22%) 100%);` |
-| 462 | `Raw HSL/RGB Color` | `hsl(352 78% 22%)` in `background: linear-gradient(135deg, hsl(352 78% 28%) 0%, hsl(352 78% 22%) 100%);` |
-| 463 | `Raw HSL/RGB Color` | `hsl(352 78% 38% / 0.4)` in `border: 1px solid hsl(352 78% 38% / 0.4);` |
-| 464 | `Raw HSL/RGB Color` | `hsl(352 78% 28% / 0.25)` in `box-shadow: 0 0 20px hsl(352 78% 28% / 0.25), inset 0 1px 0 hsl(0 0% 100% / 0.06);` |
-| 464 | `Raw HSL/RGB Color` | `hsl(0 0% 100% / 0.06)` in `box-shadow: 0 0 20px hsl(352 78% 28% / 0.25), inset 0 1px 0 hsl(0 0% 100% / 0.06);` |
-| 465 | `Raw HSL/RGB Color` | `hsl(36 20% 95%)` in `color: hsl(36 20% 95%);` |
-| 474 | `Raw HSL/RGB Color` | `hsl(352 80% 22%)` in `background: linear-gradient(135deg, hsl(352 80% 22%) 0%, hsl(352 82% 18%) 100%);` |
-| 474 | `Raw HSL/RGB Color` | `hsl(352 82% 18%)` in `background: linear-gradient(135deg, hsl(352 80% 22%) 0%, hsl(352 82% 18%) 100%);` |
-| 475 | `Raw HSL/RGB Color` | `hsl(352 78% 28% / 0.4)` in `box-shadow: 0 0 25px hsl(352 78% 28% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.06);` |
-| 475 | `Raw HSL/RGB Color` | `hsl(0 0% 100% / 0.06)` in `box-shadow: 0 0 25px hsl(352 78% 28% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.06);` |
-| 479 | `Raw HSL/RGB Color` | `hsl(352 82% 18%)` in `background: hsl(352 82% 18%);` |
-| 484 | `Raw HSL/RGB Color` | `hsl(var(--focus-ring)` in `--tw-ring-color: hsl(var(--focus-ring));` |
-| 488 | `Raw HSL/RGB Color` | `hsl(43 85% 52%)` in `background: linear-gradient(135deg, hsl(43 85% 52%) 0%, hsl(38 90% 44%) 100%);` |
-| 488 | `Raw HSL/RGB Color` | `hsl(38 90% 44%)` in `background: linear-gradient(135deg, hsl(43 85% 52%) 0%, hsl(38 90% 44%) 100%);` |
-| 489 | `Raw HSL/RGB Color` | `hsl(43 85% 52% / 0.3)` in `box-shadow: 0 0 24px hsl(43 85% 52% / 0.3);` |
-| 490 | `Raw HSL/RGB Color` | `hsl(0 0% 8%)` in `color: hsl(0 0% 8%);` |
-| 500 | `Raw HSL/RGB Color` | `hsl(var(--admin-gold)` in `border-color: hsl(var(--admin-gold) / 0.3);` |
-| 505 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.03)` in `background: linear-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));` |
-| 505 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.01)` in `background: linear-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));` |
-| 508 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.06)` in `border: 1px solid rgba(255, 255, 255, 0.06);` |
-| 523 | `Raw HSL/RGB Color` | `rgba(212, 175, 55, 0.08)` in `background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(212, 175, 55, 0.08) 0%, transparent 70%);` |
-| 534 | `Raw HSL/RGB Color` | `rgba(212, 175, 55, 0.05)` in `box-shadow: 0 0 40px -10px rgba(212, 175, 55, 0.05);` |
-| 540 | `Hardcoded Spacing` | `margin-left: auto;` in `margin-left: auto;` |
-| 541 | `Hardcoded Spacing` | `margin-right: auto;` in `margin-right: auto;` |
-| 542 | `Hardcoded Spacing` | `padding-left: 1.5rem;` in `padding-left: 1.5rem;` |
-| 543 | `Hardcoded Spacing` | `padding-right: 1.5rem;` in `padding-right: 1.5rem;` |
-| 567 | `Raw HSL/RGB Color` | `hsl(var(--foreground)` in `background-image: linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px);` |
-| 567 | `Raw HSL/RGB Color` | `hsl(var(--foreground)` in `background-image: linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px);` |
-| 607 | `Hardcoded Spacing` | `gap: 12px;` in `gap: 12px;` |
-| 620 | `Arbitrary Border Radius` | `border-radius: 50%;` in `border-radius: 50%;` |
-| 655 | `Raw HSL/RGB Color` | `rgba(10, 10, 10, 0.65)` in `background: rgba(10, 10, 10, 0.65);` |
-| 658 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.12)` in `border: 1px solid rgba(255, 255, 255, 0.12);` |
-| 659 | `Raw HSL/RGB Color` | `rgba(0, 0, 0, 0.8)` in `box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.8),` |
-| 660 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.15)` in `inset 0 1px 1px rgba(255, 255, 255, 0.15);` |
-| 666 | `Raw HSL/RGB Color` | `rgba(15, 15, 15, 0.75)` in `background: rgba(15, 15, 15, 0.75);` |
-| 667 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.4)` in `border-color: rgba(209, 175, 110, 0.4);` |
-| 668 | `Raw HSL/RGB Color` | `rgba(0, 0, 0, 0.9)` in `box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.9),` |
-| 669 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.1)` in `0 0 20px rgba(209, 175, 110, 0.1);` |
-| 764 | `Raw Hex Color` | `#C41230` in `#C41230 0%,` |
-| 765 | `Raw Hex Color` | `#C41230` in `#C41230 40%,` |
-| 766 | `Raw Hex Color` | `#D1AF6E` in `#D1AF6E 48%,` |
-| 767 | `Raw Hex Color` | `#D1AF6E` in `#D1AF6E 52%,` |
-| 768 | `Raw Hex Color` | `#C41230` in `#C41230 60%,` |
-| 769 | `Raw Hex Color` | `#C41230` in `#C41230 100%` |
-| 800 | `Raw Hex Color` | `#010101` in `linear-gradient(180deg, #010101, #050505 28%, #030303);` |
-| 800 | `Raw Hex Color` | `#050505` in `linear-gradient(180deg, #010101, #050505 28%, #030303);` |
-| 800 | `Raw Hex Color` | `#030303` in `linear-gradient(180deg, #010101, #050505 28%, #030303);` |
-| 813 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.03)` in `background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.03) 85%, transparent 100%);` |
-| 813 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.1)` in `background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.03) 85%, transparent 100%);` |
-| 813 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.03)` in `background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.03) 85%, transparent 100%);` |
-| 827 | `Hardcoded Spacing` | `gap: 1rem;` in `gap: 1rem;` |
-| 844 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.74)` in `color: rgba(237, 234, 230, 0.74);` |
-| 850 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.06)` in `background: linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(5,5,5,0.78);` |
-| 850 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.02)` in `background: linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(5,5,5,0.78);` |
-| 850 | `Raw HSL/RGB Color` | `rgba(5,5,5,0.78)` in `background: linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(5,5,5,0.78);` |
-| 857 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.04)` in `background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.016)), rgba(5,5,5,0.56);` |
-| 857 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.016)` in `background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.016)), rgba(5,5,5,0.56);` |
-| 857 | `Raw HSL/RGB Color` | `rgba(5,5,5,0.56)` in `background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.016)), rgba(5,5,5,0.56);` |
-| 858 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.06)` in `border: 1px solid rgba(255,255,255,0.06);` |
-| 867 | `Hardcoded Spacing` | `gap: 0.45rem;` in `gap: 0.45rem;` |
-| 868 | `Hardcoded Spacing` | `padding: 0.55rem 0.85rem;` in `padding: 0.55rem 0.85rem;` |
-| 869 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.08)` in `border: 1px solid rgba(255,255,255,0.08);` |
-| 870 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.03)` in `background: rgba(255,255,255,0.03);` |
-| 871 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.72)` in `color: rgba(237, 234, 230, 0.72);` |
-| 880 | `Raw HSL/RGB Color` | `rgba(237,234,230,0.74)` in `.hero-body-text{max-width:35rem;color:rgba(237,234,230,0.74);line-height:1.8;}` |
-| 881 | `Hardcoded Spacing` | `gap:.45rem;` in `.hero-trust-chip{display:inline-flex;align-items:center;gap:.45rem;}` |
-| 897 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.16)` in `background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.16) 50%, transparent 80%);` |
-| 911 | `Hardcoded Spacing` | `padding: 0.75rem 1.25rem;` in `padding: 0.75rem 1.25rem;` |
-| 912 | `Raw HSL/RGB Color` | `hsl(var(--primary)` in `background: hsl(var(--primary));` |
-| 913 | `Raw HSL/RGB Color` | `hsl(var(--primary-foreground)` in `color: hsl(var(--primary-foreground));` |
-| 933 | `Raw HSL/RGB Color` | `hsl(var(--ring)` in `outline: 2px solid hsl(var(--ring));` |
-| 935 | `Arbitrary Border Radius` | `border-radius: 2px;` in `border-radius: 2px;` |
-| 945 | `Raw HSL/RGB Color` | `hsl(var(--admin-gold)` in `outline: 2px solid hsl(var(--admin-gold));` |
-| 947 | `Raw HSL/RGB Color` | `hsl(var(--admin-gold)` in `box-shadow: 0 0 0 4px hsl(var(--admin-gold) / 0.18);` |
-| 967 | `Raw Hex Color` | `#040404` in `body { background: #040404 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }` |
-| 989 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.16)` in `background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.16) 50%, transparent 80%);` |
-| 1003 | `Hardcoded Spacing` | `padding: 0.75rem 1.25rem;` in `padding: 0.75rem 1.25rem;` |
-| 1004 | `Raw HSL/RGB Color` | `hsl(var(--primary)` in `background: hsl(var(--primary));` |
-| 1005 | `Raw HSL/RGB Color` | `hsl(var(--primary-foreground)` in `color: hsl(var(--primary-foreground));` |
-| 1025 | `Raw HSL/RGB Color` | `hsl(var(--ring)` in `outline: 2px solid hsl(var(--ring));` |
-| 1027 | `Arbitrary Border Radius` | `border-radius: 2px;` in `border-radius: 2px;` |
-| 1037 | `Raw HSL/RGB Color` | `hsl(var(--admin-gold)` in `outline: 2px solid hsl(var(--admin-gold));` |
-| 1039 | `Raw HSL/RGB Color` | `hsl(var(--admin-gold)` in `box-shadow: 0 0 0 4px hsl(var(--admin-gold) / 0.18);` |
-| 1059 | `Raw Hex Color` | `#040404` in `body { background: #040404 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }` |
-| 1085 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.08)` in `background: rgba(255, 255, 255, 0.08) !important;` |
-| 1094 | `Raw HSL/RGB Color` | `hsl(43 74% 49% / 0.4)` in `scrollbar-color: hsl(43 74% 49% / 0.4) transparent;` |
-| 1107 | `Raw HSL/RGB Color` | `hsl(43 74% 49% / 0.3)` in `background: hsl(43 74% 49% / 0.3);` |
-| 1108 | `Arbitrary Border Radius` | `border-radius: 9999px;` in `border-radius: 9999px;` |
-| 1112 | `Raw HSL/RGB Color` | `hsl(43 74% 49% / 0.6)` in `background: hsl(43 74% 49% / 0.6);` |
-| 1119 | `Raw Hex Color` | `#050505` in `tuned to CrossAngle's #050505 dark background.` |
-| 1131 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.06)` in `background: rgba(255, 255, 255, 0.06);` |
-| 1142 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.13)` in `rgba(209, 175, 110, 0.13) 30%,` |
-| 1143 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.10)` in `rgba(255, 255, 255, 0.10) 45%,` |
-| 1144 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.13)` in `rgba(209, 175, 110, 0.13) 60%,` |
-| 1155 | `Raw HSL/RGB Color` | `hsl(0 0% 12%)` in `background: hsl(0 0% 12%);` |
-| 1166 | `Raw HSL/RGB Color` | `hsl(350 60% 22% / 0.35)` in `hsl(350 60% 22% / 0.35) 30%,` |
-| 1167 | `Raw HSL/RGB Color` | `hsl(0 0% 16%)` in `hsl(0 0% 16%) 45%,` |
-| 1168 | `Raw HSL/RGB Color` | `hsl(350 60% 22% / 0.35)` in `hsl(350 60% 22% / 0.35) 60%,` |
+| 90 | `Raw HSL/RGB Color` | `hsl(var(--primary)` in `--site-crimson-90: hsl(var(--primary) / 0.9);` |
+| 91 | `Raw HSL/RGB Color` | `hsl(var(--primary)` in `--site-crimson-30: hsl(var(--primary) / 0.3);` |
+| 95 | `Raw HSL/RGB Color` | `hsl(40 54% 63% / 0.9)` in `--site-gold-90: hsl(40 54% 63% / 0.9);` |
+| 96 | `Raw HSL/RGB Color` | `hsl(40 54% 63% / 0.5)` in `--site-gold-50: hsl(40 54% 63% / 0.5);` |
+| 97 | `Raw HSL/RGB Color` | `hsl(40 54% 63% / 0.3)` in `--site-gold-30: hsl(40 54% 63% / 0.3);` |
+| 98 | `Raw HSL/RGB Color` | `hsl(40 54% 63% / 0.1)` in `--site-gold-10: hsl(40 54% 63% / 0.1);` |
+| 106 | `Raw HSL/RGB Color` | `hsl(var(--foreground)` in `--site-text-90: hsl(var(--foreground) / 0.9);` |
+| 107 | `Raw HSL/RGB Color` | `hsl(var(--foreground)` in `--site-text-80: hsl(var(--foreground) / 0.8);` |
+| 108 | `Raw HSL/RGB Color` | `hsl(var(--foreground)` in `--site-text-70: hsl(var(--foreground) / 0.7);` |
+| 109 | `Raw HSL/RGB Color` | `hsl(var(--foreground)` in `--site-text-60: hsl(var(--foreground) / 0.6);` |
+| 110 | `Raw HSL/RGB Color` | `hsl(var(--foreground)` in `--site-text-50: hsl(var(--foreground) / 0.5);` |
+| 111 | `Raw HSL/RGB Color` | `hsl(var(--foreground)` in `--site-text-40: hsl(var(--foreground) / 0.4);` |
+| 117 | `Raw HSL/RGB Color` | `rgba(0, 0, 0, 0.65)` in `--site-overlay-hero: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.75));` |
+| 117 | `Raw HSL/RGB Color` | `rgba(0, 0, 0, 0.75)` in `--site-overlay-hero: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.75));` |
+| 119 | `Raw HSL/RGB Color` | `hsl(40 54% 63% / 0.45)` in `--site-focus-ring: 0 0 0 3px hsl(40 54% 63% / 0.45);` |
+| 139 | `Raw HSL/RGB Color` | `rgba(182, 24, 38, .18)` in `--home-glow-crimson: rgba(182, 24, 38, .18);` |
+| 140 | `Raw HSL/RGB Color` | `rgba(255, 215, 0, .08)` in `--home-glow-gold: rgba(255, 215, 0, .08);` |
+| 141 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, .08)` in `--home-border-soft: rgba(255, 255, 255, .08);` |
+| 142 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, .14)` in `--home-border-strong: rgba(255, 255, 255, .14);` |
+| 143 | `Raw HSL/RGB Color` | `rgba(0, 0, 0, .45)` in `--home-shadow: 0 32px 80px rgba(0, 0, 0, .45);` |
+| 352 | `Hardcoded Spacing` | `margin-top: 0.875em;` in `margin-top: 0.875em;` |
+| 378 | `Hardcoded Spacing` | `margin-top: 0;` in `margin-top: 0;` |
+| 379 | `Hardcoded Spacing` | `margin-bottom: 0;` in `margin-bottom: 0;` |
+| 418 | `Raw HSL/RGB Color` | `hsl(0 0% 100% / 0.04)` in `background: hsl(0 0% 100% / 0.04);` |
+| 421 | `Raw HSL/RGB Color` | `hsl(0 0% 100% / 0.08)` in `border: 1px solid hsl(0 0% 100% / 0.08);` |
+| 422 | `Raw HSL/RGB Color` | `hsl(0 0% 0% / 0.4)` in `box-shadow: 0 8px 32px hsl(0 0% 0% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.06);` |
+| 422 | `Raw HSL/RGB Color` | `hsl(0 0% 100% / 0.06)` in `box-shadow: 0 8px 32px hsl(0 0% 0% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.06);` |
+| 426 | `Raw HSL/RGB Color` | `hsl(0 0% 100% / 0.08)` in `border: 1px solid hsl(0 0% 100% / 0.08);` |
+| 430 | `Raw HSL/RGB Color` | `hsl(43 85% 52%)` in `border-top: 2px solid hsl(43 85% 52%);` |
+| 431 | `Raw HSL/RGB Color` | `hsl(0 0% 11%)` in `background: linear-gradient(160deg, hsl(0 0% 11%) 0%, hsl(0 0% 9%) 100%);` |
+| 431 | `Raw HSL/RGB Color` | `hsl(0 0% 9%)` in `background: linear-gradient(160deg, hsl(0 0% 11%) 0%, hsl(0 0% 9%) 100%);` |
+| 437 | `Raw HSL/RGB Color` | `hsl(43 85% 52%)` in `color: hsl(43 85% 52%);` |
+| 438 | `Raw HSL/RGB Color` | `hsl(43 85% 52% / 0.4)` in `text-shadow: 0 0 20px hsl(43 85% 52% / 0.4);` |
+| 443 | `Raw HSL/RGB Color` | `hsl(352 78% 31%)` in `background-color: hsl(352 78% 31%);` |
+| 447 | `Raw HSL/RGB Color` | `hsl(352 78% 26%)` in `background-color: hsl(352 78% 26%);` |
+| 451 | `Raw HSL/RGB Color` | `hsl(352 78% 31%)` in `color: hsl(352 78% 31%);` |
+| 455 | `Raw HSL/RGB Color` | `hsl(350 74% 44%)` in `color: hsl(350 74% 44%);` |
+| 459 | `Raw HSL/RGB Color` | `hsl(352 78% 31%)` in `border-color: hsl(352 78% 31%);` |
+| 464 | `Raw HSL/RGB Color` | `hsl(46 70% 47%)` in `color: hsl(46 70% 47%);` |
+| 468 | `Raw HSL/RGB Color` | `hsl(46 70% 47%)` in `border-color: hsl(46 70% 47%);` |
+| 473 | `Raw HSL/RGB Color` | `hsl(180 58% 27%)` in `color: hsl(180 58% 27%);` |
+| 477 | `Raw HSL/RGB Color` | `hsl(180 58% 27%)` in `border-color: hsl(180 58% 27%);` |
+| 482 | `Raw HSL/RGB Color` | `hsl(352 78% 28%)` in `background: linear-gradient(135deg, hsl(352 78% 28%) 0%, hsl(352 78% 22%) 100%);` |
+| 482 | `Raw HSL/RGB Color` | `hsl(352 78% 22%)` in `background: linear-gradient(135deg, hsl(352 78% 28%) 0%, hsl(352 78% 22%) 100%);` |
+| 483 | `Raw HSL/RGB Color` | `hsl(352 78% 38% / 0.4)` in `border: 1px solid hsl(352 78% 38% / 0.4);` |
+| 484 | `Raw HSL/RGB Color` | `hsl(352 78% 28% / 0.25)` in `box-shadow: 0 0 20px hsl(352 78% 28% / 0.25), inset 0 1px 0 hsl(0 0% 100% / 0.06);` |
+| 484 | `Raw HSL/RGB Color` | `hsl(0 0% 100% / 0.06)` in `box-shadow: 0 0 20px hsl(352 78% 28% / 0.25), inset 0 1px 0 hsl(0 0% 100% / 0.06);` |
+| 485 | `Raw HSL/RGB Color` | `hsl(36 20% 95%)` in `color: hsl(36 20% 95%);` |
+| 494 | `Raw HSL/RGB Color` | `hsl(352 80% 22%)` in `background: linear-gradient(135deg, hsl(352 80% 22%) 0%, hsl(352 82% 18%) 100%);` |
+| 494 | `Raw HSL/RGB Color` | `hsl(352 82% 18%)` in `background: linear-gradient(135deg, hsl(352 80% 22%) 0%, hsl(352 82% 18%) 100%);` |
+| 495 | `Raw HSL/RGB Color` | `hsl(352 78% 28% / 0.4)` in `box-shadow: 0 0 25px hsl(352 78% 28% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.06);` |
+| 495 | `Raw HSL/RGB Color` | `hsl(0 0% 100% / 0.06)` in `box-shadow: 0 0 25px hsl(352 78% 28% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.06);` |
+| 499 | `Raw HSL/RGB Color` | `hsl(352 82% 18%)` in `background: hsl(352 82% 18%);` |
+| 504 | `Raw HSL/RGB Color` | `hsl(var(--focus-ring)` in `--tw-ring-color: hsl(var(--focus-ring));` |
+| 508 | `Raw HSL/RGB Color` | `hsl(43 85% 52%)` in `background: linear-gradient(135deg, hsl(43 85% 52%) 0%, hsl(38 90% 44%) 100%);` |
+| 508 | `Raw HSL/RGB Color` | `hsl(38 90% 44%)` in `background: linear-gradient(135deg, hsl(43 85% 52%) 0%, hsl(38 90% 44%) 100%);` |
+| 509 | `Raw HSL/RGB Color` | `hsl(43 85% 52% / 0.3)` in `box-shadow: 0 0 24px hsl(43 85% 52% / 0.3);` |
+| 510 | `Raw HSL/RGB Color` | `hsl(0 0% 8%)` in `color: hsl(0 0% 8%);` |
+| 520 | `Raw HSL/RGB Color` | `hsl(var(--admin-gold)` in `border-color: hsl(var(--admin-gold) / 0.3);` |
+| 525 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.03)` in `background: linear-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));` |
+| 525 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.01)` in `background: linear-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));` |
+| 528 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.06)` in `border: 1px solid rgba(255, 255, 255, 0.06);` |
+| 543 | `Raw HSL/RGB Color` | `rgba(212, 175, 55, 0.08)` in `background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(212, 175, 55, 0.08) 0%, transparent 70%);` |
+| 554 | `Raw HSL/RGB Color` | `rgba(212, 175, 55, 0.05)` in `box-shadow: 0 0 40px -10px rgba(212, 175, 55, 0.05);` |
+| 560 | `Hardcoded Spacing` | `margin-left: auto;` in `margin-left: auto;` |
+| 561 | `Hardcoded Spacing` | `margin-right: auto;` in `margin-right: auto;` |
+| 562 | `Hardcoded Spacing` | `padding-left: 1.5rem;` in `padding-left: 1.5rem;` |
+| 563 | `Hardcoded Spacing` | `padding-right: 1.5rem;` in `padding-right: 1.5rem;` |
+| 587 | `Raw HSL/RGB Color` | `hsl(var(--foreground)` in `background-image: linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px);` |
+| 587 | `Raw HSL/RGB Color` | `hsl(var(--foreground)` in `background-image: linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px);` |
+| 627 | `Hardcoded Spacing` | `gap: 12px;` in `gap: 12px;` |
+| 640 | `Arbitrary Border Radius` | `border-radius: 50%;` in `border-radius: 50%;` |
+| 675 | `Raw HSL/RGB Color` | `rgba(10, 10, 10, 0.65)` in `background: rgba(10, 10, 10, 0.65);` |
+| 678 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.12)` in `border: 1px solid rgba(255, 255, 255, 0.12);` |
+| 679 | `Raw HSL/RGB Color` | `rgba(0, 0, 0, 0.8)` in `box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.8),` |
+| 680 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.15)` in `inset 0 1px 1px rgba(255, 255, 255, 0.15);` |
+| 686 | `Raw HSL/RGB Color` | `rgba(15, 15, 15, 0.75)` in `background: rgba(15, 15, 15, 0.75);` |
+| 687 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.4)` in `border-color: rgba(209, 175, 110, 0.4);` |
+| 688 | `Raw HSL/RGB Color` | `rgba(0, 0, 0, 0.9)` in `box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.9),` |
+| 689 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.1)` in `0 0 20px rgba(209, 175, 110, 0.1);` |
+| 784 | `Raw Hex Color` | `#C41230` in `#C41230 0%,` |
+| 785 | `Raw Hex Color` | `#C41230` in `#C41230 40%,` |
+| 786 | `Raw Hex Color` | `#D1AF6E` in `#D1AF6E 48%,` |
+| 787 | `Raw Hex Color` | `#D1AF6E` in `#D1AF6E 52%,` |
+| 788 | `Raw Hex Color` | `#C41230` in `#C41230 60%,` |
+| 789 | `Raw Hex Color` | `#C41230` in `#C41230 100%` |
+| 820 | `Raw Hex Color` | `#010101` in `linear-gradient(180deg, #010101, #050505 28%, #030303);` |
+| 820 | `Raw Hex Color` | `#050505` in `linear-gradient(180deg, #010101, #050505 28%, #030303);` |
+| 820 | `Raw Hex Color` | `#030303` in `linear-gradient(180deg, #010101, #050505 28%, #030303);` |
+| 833 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.03)` in `background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.03) 85%, transparent 100%);` |
+| 833 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.1)` in `background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.03) 85%, transparent 100%);` |
+| 833 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.03)` in `background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.03) 85%, transparent 100%);` |
+| 847 | `Hardcoded Spacing` | `gap: 1rem;` in `gap: 1rem;` |
+| 864 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.74)` in `color: rgba(237, 234, 230, 0.74);` |
+| 870 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.06)` in `background: linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(5,5,5,0.78);` |
+| 870 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.02)` in `background: linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(5,5,5,0.78);` |
+| 870 | `Raw HSL/RGB Color` | `rgba(5,5,5,0.78)` in `background: linear-gradient(rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(5,5,5,0.78);` |
+| 877 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.04)` in `background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.016)), rgba(5,5,5,0.56);` |
+| 877 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.016)` in `background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.016)), rgba(5,5,5,0.56);` |
+| 877 | `Raw HSL/RGB Color` | `rgba(5,5,5,0.56)` in `background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.016)), rgba(5,5,5,0.56);` |
+| 878 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.06)` in `border: 1px solid rgba(255,255,255,0.06);` |
+| 887 | `Hardcoded Spacing` | `gap: 0.45rem;` in `gap: 0.45rem;` |
+| 888 | `Hardcoded Spacing` | `padding: 0.55rem 0.85rem;` in `padding: 0.55rem 0.85rem;` |
+| 889 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.08)` in `border: 1px solid rgba(255,255,255,0.08);` |
+| 890 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.03)` in `background: rgba(255,255,255,0.03);` |
+| 891 | `Raw HSL/RGB Color` | `rgba(237, 234, 230, 0.72)` in `color: rgba(237, 234, 230, 0.72);` |
+| 900 | `Raw HSL/RGB Color` | `rgba(237,234,230,0.74)` in `.hero-body-text{max-width:35rem;color:rgba(237,234,230,0.74);line-height:1.8;}` |
+| 901 | `Hardcoded Spacing` | `gap:.45rem;` in `.hero-trust-chip{display:inline-flex;align-items:center;gap:.45rem;}` |
+| 917 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.16)` in `background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.16) 50%, transparent 80%);` |
+| 931 | `Hardcoded Spacing` | `padding: 0.75rem 1.25rem;` in `padding: 0.75rem 1.25rem;` |
+| 932 | `Raw HSL/RGB Color` | `hsl(var(--primary)` in `background: hsl(var(--primary));` |
+| 933 | `Raw HSL/RGB Color` | `hsl(var(--primary-foreground)` in `color: hsl(var(--primary-foreground));` |
+| 953 | `Raw HSL/RGB Color` | `hsl(var(--ring)` in `outline: 2px solid hsl(var(--ring));` |
+| 955 | `Arbitrary Border Radius` | `border-radius: 2px;` in `border-radius: 2px;` |
+| 965 | `Raw HSL/RGB Color` | `hsl(var(--admin-gold)` in `outline: 2px solid hsl(var(--admin-gold));` |
+| 967 | `Raw HSL/RGB Color` | `hsl(var(--admin-gold)` in `box-shadow: 0 0 0 4px hsl(var(--admin-gold) / 0.18);` |
+| 987 | `Raw Hex Color` | `#040404` in `body { background: #040404 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }` |
+| 1009 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.16)` in `background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.16) 50%, transparent 80%);` |
+| 1023 | `Hardcoded Spacing` | `padding: 0.75rem 1.25rem;` in `padding: 0.75rem 1.25rem;` |
+| 1024 | `Raw HSL/RGB Color` | `hsl(var(--primary)` in `background: hsl(var(--primary));` |
+| 1025 | `Raw HSL/RGB Color` | `hsl(var(--primary-foreground)` in `color: hsl(var(--primary-foreground));` |
+| 1045 | `Raw HSL/RGB Color` | `hsl(var(--ring)` in `outline: 2px solid hsl(var(--ring));` |
+| 1047 | `Arbitrary Border Radius` | `border-radius: 2px;` in `border-radius: 2px;` |
+| 1057 | `Raw HSL/RGB Color` | `hsl(var(--admin-gold)` in `outline: 2px solid hsl(var(--admin-gold));` |
+| 1059 | `Raw HSL/RGB Color` | `hsl(var(--admin-gold)` in `box-shadow: 0 0 0 4px hsl(var(--admin-gold) / 0.18);` |
+| 1079 | `Raw Hex Color` | `#040404` in `body { background: #040404 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }` |
+| 1105 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.08)` in `background: rgba(255, 255, 255, 0.08) !important;` |
+| 1114 | `Raw HSL/RGB Color` | `hsl(43 74% 49% / 0.4)` in `scrollbar-color: hsl(43 74% 49% / 0.4) transparent;` |
+| 1127 | `Raw HSL/RGB Color` | `hsl(43 74% 49% / 0.3)` in `background: hsl(43 74% 49% / 0.3);` |
+| 1128 | `Arbitrary Border Radius` | `border-radius: 9999px;` in `border-radius: 9999px;` |
+| 1132 | `Raw HSL/RGB Color` | `hsl(43 74% 49% / 0.6)` in `background: hsl(43 74% 49% / 0.6);` |
+| 1139 | `Raw Hex Color` | `#050505` in `tuned to CrossAngle's #050505 dark background.` |
+| 1151 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.06)` in `background: rgba(255, 255, 255, 0.06);` |
+| 1162 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.13)` in `rgba(209, 175, 110, 0.13) 30%,` |
+| 1163 | `Raw HSL/RGB Color` | `rgba(255, 255, 255, 0.10)` in `rgba(255, 255, 255, 0.10) 45%,` |
+| 1164 | `Raw HSL/RGB Color` | `rgba(209, 175, 110, 0.13)` in `rgba(209, 175, 110, 0.13) 60%,` |
+| 1175 | `Raw HSL/RGB Color` | `hsl(0 0% 12%)` in `background: hsl(0 0% 12%);` |
+| 1186 | `Raw HSL/RGB Color` | `hsl(350 60% 22% / 0.35)` in `hsl(350 60% 22% / 0.35) 30%,` |
+| 1187 | `Raw HSL/RGB Color` | `hsl(0 0% 16%)` in `hsl(0 0% 16%) 45%,` |
+| 1188 | `Raw HSL/RGB Color` | `hsl(350 60% 22% / 0.35)` in `hsl(350 60% 22% / 0.35) 60%,` |
 
 
 ### [kpis.ts](apps/web/src/lib/crm/kpis.ts)
@@ -11983,29 +12111,35 @@ This report measures the baseline adoption of the design token system across the
 | 174 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `<TabsTrigger value="entities" className="data-[state=active]:bg-[hsl(var(--admin-primary))] data-[state=active]:text-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text-muted))]">By Entity</TabsTrigger>` |
 | 177 | `Hardcoded Spacing` | `space-y-4` in `<TabsContent value="all" className="space-y-4 mt-4">` |
 | 177 | `Hardcoded Spacing` | `mt-4` in `<TabsContent value="all" className="space-y-4 mt-4">` |
-| 178 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">` |
-| 178 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">` |
-| 179 | `Raw HSL/RGB Color` | `hsl(var(--admin-surface)` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
-| 179 | `Raw HSL/RGB Color` | `hsl(var(--admin-border-subtle)` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
-| 179 | `Hardcoded Spacing` | `py-3` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
-| 179 | `Hardcoded Spacing` | `px-5` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
-| 181 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<CardTitle className="text-sm font-bold text-[hsl(var(--admin-text))]">Audit Log</CardTitle>` |
+| 178 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">` |
+| 178 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">` |
+| 179 | `Raw HSL/RGB Color` | `hsl(var(--admin-surface)` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 179 | `Raw HSL/RGB Color` | `hsl(var(--admin-border-subtle)` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 179 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 179 | `Hardcoded Spacing` | `py-3` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 179 | `Hardcoded Spacing` | `px-5` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 181 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<Text as="h3" variant="h3" className="leading-none" className="text-sm font-bold text-[hsl(var(--admin-text))]">Audit Log</Text>` |
 | 182 | `Hardcoded Spacing` | `gap-2` in `<div className="flex gap-2">` |
-| 195 | `Hardcoded Spacing` | `p-0` in `<CardContent className="p-0 sm:p-0">` |
-| 195 | `Hardcoded Spacing` | `p-0` in `<CardContent className="p-0 sm:p-0">` |
+| 195 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-0 sm:p-0">` |
+| 195 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-0 sm:p-0">` |
+| 195 | `Hardcoded Spacing` | `p-0` in `<div className="p-6 pt-0" className="p-0 sm:p-0">` |
+| 195 | `Hardcoded Spacing` | `p-0` in `<div className="p-6 pt-0" className="p-0 sm:p-0">` |
 | 196 | `Raw HSL/RGB Color` | `hsl(var(--admin-border-subtle)` in `<div className="px-5 py-4 border-b border-[hsl(var(--admin-border-subtle))]">` |
 | 196 | `Hardcoded Spacing` | `px-5` in `<div className="px-5 py-4 border-b border-[hsl(var(--admin-border-subtle))]">` |
 | 196 | `Hardcoded Spacing` | `py-4` in `<div className="px-5 py-4 border-b border-[hsl(var(--admin-border-subtle))]">` |
 | 226 | `Hardcoded Spacing` | `space-y-4` in `<TabsContent value="actions" className="space-y-4 mt-4">` |
 | 226 | `Hardcoded Spacing` | `mt-4` in `<TabsContent value="actions" className="space-y-4 mt-4">` |
-| 227 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">` |
-| 227 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">` |
-| 228 | `Raw HSL/RGB Color` | `hsl(var(--admin-surface)` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
-| 228 | `Raw HSL/RGB Color` | `hsl(var(--admin-border-subtle)` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
-| 228 | `Hardcoded Spacing` | `py-3` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
-| 228 | `Hardcoded Spacing` | `px-5` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
-| 229 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<CardTitle className="text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Action Type</CardTitle>` |
-| 231 | `Hardcoded Spacing` | `p-5` in `<CardContent className="p-5">` |
+| 227 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">` |
+| 227 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">` |
+| 228 | `Raw HSL/RGB Color` | `hsl(var(--admin-surface)` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 228 | `Raw HSL/RGB Color` | `hsl(var(--admin-border-subtle)` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 228 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 228 | `Hardcoded Spacing` | `py-3` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 228 | `Hardcoded Spacing` | `px-5` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 229 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<Text as="h3" variant="h3" className="leading-none" className="text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Action Type</Text>` |
+| 231 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-5">` |
+| 231 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-5">` |
+| 231 | `Hardcoded Spacing` | `p-5` in `<div className="p-6 pt-0" className="p-5">` |
 | 232 | `Hardcoded Spacing` | `gap-4` in `<div className="grid grid-cols-2 md:grid-cols-4 gap-4">` |
 | 240 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `className="rounded-xl border border-[hsl(var(--admin-border))] p-4 cursor-pointer hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200"` |
 | 240 | `Raw HSL/RGB Color` | `hsl(var(--admin-surface-hover)` in `className="rounded-xl border border-[hsl(var(--admin-border))] p-4 cursor-pointer hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200"` |
@@ -12019,14 +12153,17 @@ This report measures the baseline adoption of the design token system across the
 | 256 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `<p className="text-xs text-[hsl(var(--admin-text-muted))]">occurrences</p>` |
 | 265 | `Hardcoded Spacing` | `space-y-4` in `<TabsContent value="entities" className="space-y-4 mt-4">` |
 | 265 | `Hardcoded Spacing` | `mt-4` in `<TabsContent value="entities" className="space-y-4 mt-4">` |
-| 266 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">` |
-| 266 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">` |
-| 267 | `Raw HSL/RGB Color` | `hsl(var(--admin-surface)` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
-| 267 | `Raw HSL/RGB Color` | `hsl(var(--admin-border-subtle)` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
-| 267 | `Hardcoded Spacing` | `py-3` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
-| 267 | `Hardcoded Spacing` | `px-5` in `<CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
-| 268 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<CardTitle className="text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Entity Type</CardTitle>` |
-| 270 | `Hardcoded Spacing` | `p-5` in `<CardContent className="p-5">` |
+| 266 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">` |
+| 266 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">` |
+| 267 | `Raw HSL/RGB Color` | `hsl(var(--admin-surface)` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 267 | `Raw HSL/RGB Color` | `hsl(var(--admin-border-subtle)` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 267 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 267 | `Hardcoded Spacing` | `py-3` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 267 | `Hardcoded Spacing` | `px-5` in `<Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">` |
+| 268 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<Text as="h3" variant="h3" className="leading-none" className="text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Entity Type</Text>` |
+| 270 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-5">` |
+| 270 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-5">` |
+| 270 | `Hardcoded Spacing` | `p-5` in `<div className="p-6 pt-0" className="p-5">` |
 | 271 | `Hardcoded Spacing` | `gap-4` in `<div className="grid grid-cols-2 md:grid-cols-5 gap-4">` |
 | 277 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `className="rounded-xl border border-[hsl(var(--admin-border))] p-4 cursor-pointer hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200"` |
 | 277 | `Raw HSL/RGB Color` | `hsl(var(--admin-surface-hover)` in `className="rounded-xl border border-[hsl(var(--admin-border))] p-4 cursor-pointer hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200"` |
@@ -12265,12 +12402,15 @@ This report measures the baseline adoption of the design token system across the
 | 133 | `Hardcoded Spacing` | `gap-2` in `<Button variant="outline" size="sm" onClick={loadData} disabled={refreshing} className="gap-2 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))]">` |
 | 150 | `Hardcoded Spacing` | `gap-6` in `<div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-8 fade-up-2">` |
 | 150 | `Hardcoded Spacing` | `mt-8` in `<div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-8 fade-up-2">` |
-| 152 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card className="lg:col-span-3 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">` |
-| 152 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card className="lg:col-span-3 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">` |
-| 152 | `Arbitrary Border Radius` | `rounded-xl` in `<Card className="lg:col-span-3 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">` |
-| 154 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<CardTitle className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">` |
-| 154 | `Hardcoded Spacing` | `gap-2` in `<CardTitle className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">` |
+| 152 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="lg:col-span-3 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">` |
+| 152 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="lg:col-span-3 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">` |
+| 152 | `Arbitrary Border Radius` | `rounded-xl` in `<Surface variant="primary" radius="lg" border shadow="sm" className="lg:col-span-3 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">` |
+| 153 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 154 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<Text as="h3" variant="h3" className="leading-none" className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">` |
+| 154 | `Hardcoded Spacing` | `gap-2` in `<Text as="h3" variant="h3" className="leading-none" className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">` |
 | 155 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `<BarChart3 className="text-[hsl(var(--admin-primary))] w-4 h-4" />` |
+| 159 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="h-[300px]">` |
+| 159 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="h-[300px]">` |
 | 161 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `<div className="flex items-center justify-center h-full text-[hsl(var(--admin-text-muted))] text-sm">` |
 | 167 | `Raw HSL/RGB Color` | `rgba(255,255,255,0.03)` in `<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />` |
 | 168 | `Raw Hex Color` | `#666` in `<XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 10 }} />` |
@@ -12279,12 +12419,15 @@ This report measures the baseline adoption of the design token system across the
 | 173 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `border: "1px solid hsl(var(--admin-border))",` |
 | 176 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `color: "hsl(var(--admin-text))",` |
 | 179 | `Raw Hex Color` | `#C6A15B` in `<Bar dataKey="count" fill="#C6A15B" radius={[4, 4, 0, 0]} />` |
-| 187 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card className="lg:col-span-2 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">` |
-| 187 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card className="lg:col-span-2 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">` |
-| 187 | `Arbitrary Border Radius` | `rounded-xl` in `<Card className="lg:col-span-2 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">` |
-| 189 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<CardTitle className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">` |
-| 189 | `Hardcoded Spacing` | `gap-2` in `<CardTitle className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">` |
+| 187 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="lg:col-span-2 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">` |
+| 187 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="lg:col-span-2 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">` |
+| 187 | `Arbitrary Border Radius` | `rounded-xl` in `<Surface variant="primary" radius="lg" border shadow="sm" className="lg:col-span-2 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">` |
+| 188 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 189 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<Text as="h3" variant="h3" className="leading-none" className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">` |
+| 189 | `Hardcoded Spacing` | `gap-2` in `<Text as="h3" variant="h3" className="leading-none" className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">` |
 | 190 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `<Tag className="text-[hsl(var(--admin-primary))] w-4 h-4" />` |
+| 194 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0">` |
+| 194 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0">` |
 | 196 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `<div className="flex items-center justify-center h-[260px] text-[hsl(var(--admin-text-muted))] text-sm">` |
 | 220 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `background: "hsl(var(--admin-card))",` |
 | 221 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `border: "1px solid hsl(var(--admin-border))",` |
@@ -12309,10 +12452,12 @@ This report measures the baseline adoption of the design token system across the
 | 169 | `Raw HSL/RGB Color` | `hsl(30,80%,55%)` in `const COLORS = ["hsl(43,74%,49%)", "hsl(200,70%,50%)", "hsl(150,60%,45%)", "hsl(280,60%,55%)", "hsl(350,65%,50%)", "hsl(30,80%,55%)"];` |
 | 173 | `Hardcoded Spacing` | `space-y-8` in `<div className="space-y-8 animate-in fade-in duration-700">` |
 | 174 | `Hardcoded Spacing` | `gap-6` in `<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">` |
-| 176 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card key={i} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
-| 176 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card key={i} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
-| 177 | `Hardcoded Spacing` | `p-6` in `<CardContent className="p-6 space-y-3">` |
-| 177 | `Hardcoded Spacing` | `space-y-3` in `<CardContent className="p-6 space-y-3">` |
+| 176 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" key={i} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
+| 176 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" key={i} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
+| 177 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6 space-y-3">` |
+| 177 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-6 space-y-3">` |
+| 177 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6 space-y-3">` |
+| 177 | `Hardcoded Spacing` | `space-y-3` in `<div className="p-6 pt-0" className="p-6 space-y-3">` |
 | 178 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Skeleton className="h-3 w-20 bg-[hsl(var(--admin-border))]" />` |
 | 179 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Skeleton className="h-8 w-24 bg-[hsl(var(--admin-border))]" />` |
 | 184 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Skeleton className="h-[300px] w-full bg-[hsl(var(--admin-border))]/30 rounded-2xl" />` |
@@ -13092,7 +13237,9 @@ This report measures the baseline adoption of the design token system across the
 | 557 | `Hardcoded Spacing` | `px-2` in `<div className="bg-zinc-900/80 backdrop-blur-sm text-xs font-mono px-2 py-1 rounded text-zinc-400 border border-zinc-800/50 flex items-center gap-1">` |
 | 557 | `Hardcoded Spacing` | `py-1` in `<div className="bg-zinc-900/80 backdrop-blur-sm text-xs font-mono px-2 py-1 rounded text-zinc-400 border border-zinc-800/50 flex items-center gap-1">` |
 | 557 | `Hardcoded Spacing` | `gap-1` in `<div className="bg-zinc-900/80 backdrop-blur-sm text-xs font-mono px-2 py-1 rounded text-zinc-400 border border-zinc-800/50 flex items-center gap-1">` |
-| 563 | `Hardcoded Spacing` | `p-4` in `<CardContent className="p-4 relative">` |
+| 563 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-4 relative">` |
+| 563 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-4 relative">` |
+| 563 | `Hardcoded Spacing` | `p-4` in `<div className="p-6 pt-0" className="p-4 relative">` |
 | 564 | `Hardcoded Spacing` | `mb-1` in `<h3 className="font-medium text-white truncate text-base mb-1">{item.title}</h3>` |
 | 567 | `Hardcoded Spacing` | `px-2` in `<span className="text-xs font-medium text-zinc-400 bg-zinc-800/50 px-2 py-0.5 rounded-full">{item.category.name}</span>` |
 | 567 | `Hardcoded Spacing` | `py-0.5` in `<span className="text-xs font-medium text-zinc-400 bg-zinc-800/50 px-2 py-0.5 rounded-full">{item.category.name}</span>` |
@@ -14432,12 +14579,18 @@ This report measures the baseline adoption of the design token system across the
 | :---: | :--- | :--- |
 | 94 | `Hardcoded Spacing` | `space-y-6` in `<div className="w-full space-y-6 animate-in fade-in duration-700">` |
 | 97 | `Hardcoded Spacing` | `gap-4` in `<div className="grid gap-4 lg:grid-cols-3">` |
-| 101 | `Hardcoded Spacing` | `gap-2` in `<CardTitle className="flex items-center gap-2 font-serif text-2xl">` |
+| 100 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 101 | `Hardcoded Spacing` | `gap-2` in `<Text as="h3" variant="h3" className="leading-none" className="flex items-center gap-2 font-serif text-2xl">` |
 | 104 | `Hardcoded Spacing` | `gap-1` in `<span className="ml-auto text-sm font-normal text-zinc-400 flex items-center gap-1">` |
-| 117 | `Hardcoded Spacing` | `space-y-3` in `<CardContent className="space-y-3 text-sm text-zinc-300">` |
+| 117 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="space-y-3 text-sm text-zinc-300">` |
+| 117 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="space-y-3 text-sm text-zinc-300">` |
+| 117 | `Hardcoded Spacing` | `space-y-3` in `<div className="p-6 pt-0" className="space-y-3 text-sm text-zinc-300">` |
 | 119 | `Hardcoded Spacing` | `gap-2` in `<div key={capability} className="flex items-start gap-2">` |
 | 120 | `Hardcoded Spacing` | `mt-0.5` in `<CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />` |
-| 132 | `Hardcoded Spacing` | `gap-2` in `<CardTitle className="font-serif text-2xl flex items-center gap-2">` |
+| 131 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 132 | `Hardcoded Spacing` | `gap-2` in `<Text as="h3" variant="h3" className="leading-none" className="font-serif text-2xl flex items-center gap-2">` |
+| 140 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="overflow-x-auto">` |
+| 140 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="overflow-x-auto">` |
 | 144 | `Hardcoded Spacing` | `py-3` in `<th className="text-left py-3 px-4 text-zinc-400 font-medium">Resource</th>` |
 | 144 | `Hardcoded Spacing` | `px-4` in `<th className="text-left py-3 px-4 text-zinc-400 font-medium">Resource</th>` |
 | 145 | `Hardcoded Spacing` | `py-3` in `<th className="text-left py-3 px-4 text-zinc-400 font-medium">Action</th>` |
@@ -14453,7 +14606,10 @@ This report measures the baseline adoption of the design token system across the
 | 175 | `Hardcoded Spacing` | `gap-1.5` in `<div className="flex items-center gap-1.5">` |
 | 187 | `Hardcoded Spacing` | `py-3` in `<td key={role} className="text-center py-3 px-4">` |
 | 187 | `Hardcoded Spacing` | `px-4` in `<td key={role} className="text-center py-3 px-4">` |
-| 216 | `Hardcoded Spacing` | `gap-3` in `<CardContent className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">` |
+| 210 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 216 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">` |
+| 216 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">` |
+| 216 | `Hardcoded Spacing` | `gap-3` in `<div className="p-6 pt-0" className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">` |
 | 217 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="rounded-xl border border-zinc-800 bg-black/20 p-4">` |
 | 217 | `Hardcoded Spacing` | `p-4` in `<div className="rounded-xl border border-zinc-800 bg-black/20 p-4">` |
 | 220 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="rounded-xl border border-zinc-800 bg-black/20 p-4">` |
@@ -14470,14 +14626,17 @@ This report measures the baseline adoption of the design token system across the
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
 | 159 | `Hardcoded Spacing` | `space-y-6` in `<div className="w-full space-y-6 animate-in fade-in duration-700">` |
-| 163 | `Arbitrary Border Radius` | `rounded-2xl` in `<Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">` |
-| 164 | `Hardcoded Spacing` | `pb-4` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
-| 164 | `Hardcoded Spacing` | `px-6` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
-| 164 | `Hardcoded Spacing` | `pt-6` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 163 | `Arbitrary Border Radius` | `rounded-2xl` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">` |
+| 164 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 164 | `Hardcoded Spacing` | `pb-4` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 164 | `Hardcoded Spacing` | `px-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 164 | `Hardcoded Spacing` | `pt-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
 | 165 | `Hardcoded Spacing` | `gap-4` in `<div className="flex items-center gap-4">` |
 | 166 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><User className="text-primary h-5 w-5" /></div>` |
 | 166 | `Hardcoded Spacing` | `p-3` in `<div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><User className="text-primary h-5 w-5" /></div>` |
-| 170 | `Hardcoded Spacing` | `p-6` in `<CardContent className="p-6">` |
+| 170 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6">` |
+| 170 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-6">` |
+| 170 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6">` |
 | 171 | `Hardcoded Spacing` | `gap-6` in `<div className="grid gap-6 md:grid-cols-2">` |
 | 172 | `Hardcoded Spacing` | `space-y-1` in `<div className="space-y-1">` |
 | 174 | `Hardcoded Spacing` | `gap-2` in `<div className="flex items-center gap-2 font-medium text-lg">{userEmail}{userEmail && <CheckCircle2 className="h-4 w-4 text-green-500" />}</div>` |
@@ -14488,33 +14647,42 @@ This report measures the baseline adoption of the design token system across the
 | 179 | `Hardcoded Spacing` | `px-2.5` in `<div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary capitalize"><Shield size={12} />{userRole \|\| "User"}</div>` |
 | 179 | `Hardcoded Spacing` | `py-0.5` in `<div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary capitalize"><Shield size={12} />{userRole \|\| "User"}</div>` |
 | 188 | `Hardcoded Spacing` | `gap-6` in `<div className="grid gap-6 md:grid-cols-2">` |
-| 191 | `Arbitrary Border Radius` | `rounded-2xl` in `<Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden h-full">` |
-| 192 | `Hardcoded Spacing` | `pb-4` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
-| 192 | `Hardcoded Spacing` | `px-6` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
-| 192 | `Hardcoded Spacing` | `pt-6` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 191 | `Arbitrary Border Radius` | `rounded-2xl` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden h-full">` |
+| 192 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 192 | `Hardcoded Spacing` | `pb-4` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 192 | `Hardcoded Spacing` | `px-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 192 | `Hardcoded Spacing` | `pt-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
 | 193 | `Hardcoded Spacing` | `gap-4` in `<div className="flex items-center gap-4">` |
 | 194 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><KeyRound className="text-primary h-5 w-5" /></div>` |
 | 194 | `Hardcoded Spacing` | `p-3` in `<div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><KeyRound className="text-primary h-5 w-5" /></div>` |
-| 198 | `Hardcoded Spacing` | `p-6` in `<CardContent className="p-6 space-y-4">` |
-| 198 | `Hardcoded Spacing` | `space-y-4` in `<CardContent className="p-6 space-y-4">` |
+| 198 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6 space-y-4">` |
+| 198 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-6 space-y-4">` |
+| 198 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6 space-y-4">` |
+| 198 | `Hardcoded Spacing` | `space-y-4` in `<div className="p-6 pt-0" className="p-6 space-y-4">` |
 | 216 | `Hardcoded Spacing` | `mr-2` in `{is2FALoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}` |
-| 225 | `Arbitrary Border Radius` | `rounded-2xl` in `<Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden h-full">` |
-| 226 | `Hardcoded Spacing` | `pb-4` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
-| 226 | `Hardcoded Spacing` | `px-6` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
-| 226 | `Hardcoded Spacing` | `pt-6` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 225 | `Arbitrary Border Radius` | `rounded-2xl` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden h-full">` |
+| 226 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 226 | `Hardcoded Spacing` | `pb-4` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 226 | `Hardcoded Spacing` | `px-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 226 | `Hardcoded Spacing` | `pt-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
 | 227 | `Hardcoded Spacing` | `gap-4` in `<div className="flex items-center gap-4">` |
 | 228 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><Clock className="text-primary h-5 w-5" /></div>` |
 | 228 | `Hardcoded Spacing` | `p-3` in `<div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><Clock className="text-primary h-5 w-5" /></div>` |
-| 232 | `Hardcoded Spacing` | `p-6` in `<CardContent className="p-6 space-y-4">` |
-| 232 | `Hardcoded Spacing` | `space-y-4` in `<CardContent className="p-6 space-y-4">` |
-| 249 | `Arbitrary Border Radius` | `rounded-2xl` in `<Card className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">` |
-| 250 | `Hardcoded Spacing` | `pb-4` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
-| 250 | `Hardcoded Spacing` | `px-6` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
-| 250 | `Hardcoded Spacing` | `pt-6` in `<CardHeader className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 232 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6 space-y-4">` |
+| 232 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-6 space-y-4">` |
+| 232 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6 space-y-4">` |
+| 232 | `Hardcoded Spacing` | `space-y-4` in `<div className="p-6 pt-0" className="p-6 space-y-4">` |
+| 249 | `Arbitrary Border Radius` | `rounded-2xl` in `<Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">` |
+| 250 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 250 | `Hardcoded Spacing` | `pb-4` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 250 | `Hardcoded Spacing` | `px-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
+| 250 | `Hardcoded Spacing` | `pt-6` in `<Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">` |
 | 251 | `Hardcoded Spacing` | `gap-4` in `<div className="flex items-center gap-4">` |
 | 252 | `Arbitrary Border Radius` | `rounded-xl` in `<div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><Shield className="text-primary h-5 w-5" /></div>` |
 | 252 | `Hardcoded Spacing` | `p-3` in `<div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><Shield className="text-primary h-5 w-5" /></div>` |
-| 256 | `Hardcoded Spacing` | `p-6` in `<CardContent className="p-6">` |
+| 256 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6">` |
+| 256 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-6">` |
+| 256 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-6">` |
 | 257 | `Hardcoded Spacing` | `space-y-6` in `<form onSubmit={handleChangePassword} className="space-y-6 max-w-md">` |
 | 258 | `Hardcoded Spacing` | `space-y-2` in `<div className="space-y-2">` |
 | 264 | `Hardcoded Spacing` | `gap-1` in `{passwordErrors.currentPassword && <p className="text-sm text-destructive flex items-center gap-1"><X className="h-3 w-3" /> {passwordErrors.currentPassword}</p>}` |
@@ -15384,10 +15552,12 @@ This report measures the baseline adoption of the design token system across the
 | 102 | `Hardcoded Spacing` | `mb-4` in `<h2 className="text-lg font-bold text-[hsl(var(--admin-text))] mb-4 flex items-center gap-2">` |
 | 102 | `Hardcoded Spacing` | `gap-2` in `<h2 className="text-lg font-bold text-[hsl(var(--admin-text))] mb-4 flex items-center gap-2">` |
 | 103 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `<Sparkles className="w-5 h-5 text-[hsl(var(--admin-primary))]" />` |
-| 106 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
-| 106 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
-| 107 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<CardContent className="p-4 text-sm text-[hsl(var(--admin-text))] whitespace-pre-wrap leading-relaxed">` |
-| 107 | `Hardcoded Spacing` | `p-4` in `<CardContent className="p-4 text-sm text-[hsl(var(--admin-text))] whitespace-pre-wrap leading-relaxed">` |
+| 106 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
+| 106 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
+| 107 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<div className="p-6 pt-0" className="p-4 text-sm text-[hsl(var(--admin-text))] whitespace-pre-wrap leading-relaxed">` |
+| 107 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-4 text-sm text-[hsl(var(--admin-text))] whitespace-pre-wrap leading-relaxed">` |
+| 107 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-4 text-sm text-[hsl(var(--admin-text))] whitespace-pre-wrap leading-relaxed">` |
+| 107 | `Hardcoded Spacing` | `p-4` in `<div className="p-6 pt-0" className="p-4 text-sm text-[hsl(var(--admin-text))] whitespace-pre-wrap leading-relaxed">` |
 | 116 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<h2 className="text-lg font-bold text-[hsl(var(--admin-text))] mb-4 flex items-center gap-2">` |
 | 116 | `Hardcoded Spacing` | `mb-4` in `<h2 className="text-lg font-bold text-[hsl(var(--admin-text))] mb-4 flex items-center gap-2">` |
 | 116 | `Hardcoded Spacing` | `gap-2` in `<h2 className="text-lg font-bold text-[hsl(var(--admin-text))] mb-4 flex items-center gap-2">` |
@@ -15395,8 +15565,10 @@ This report measures the baseline adoption of the design token system across the
 | 124 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `className={`cursor-pointer transition-colors border ${activeBlockId === block.id ? 'border-blue-500 bg-blue-500/10' : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] hover:border-[hsl(var(--admin-primary))]/50'}`}` |
 | 124 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `className={`cursor-pointer transition-colors border ${activeBlockId === block.id ? 'border-blue-500 bg-blue-500/10' : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] hover:border-[hsl(var(--admin-primary))]/50'}`}` |
 | 124 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `className={`cursor-pointer transition-colors border ${activeBlockId === block.id ? 'border-blue-500 bg-blue-500/10' : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] hover:border-[hsl(var(--admin-primary))]/50'}`}` |
-| 127 | `Hardcoded Spacing` | `p-4` in `<CardContent className="p-4 flex flex-col gap-2">` |
-| 127 | `Hardcoded Spacing` | `gap-2` in `<CardContent className="p-4 flex flex-col gap-2">` |
+| 127 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-2">` |
+| 127 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-2">` |
+| 127 | `Hardcoded Spacing` | `p-4` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-2">` |
+| 127 | `Hardcoded Spacing` | `gap-2` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-2">` |
 | 130 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `<span className="text-xs text-[hsl(var(--admin-text-muted))]">Confidence: {block.confidence}</span>` |
 | 132 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<p className="text-sm text-[hsl(var(--admin-text))] font-medium">{block.content}</p>` |
 | 137 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `<div className="text-sm text-[hsl(var(--admin-text-muted))]">No strategy data available.</div>` |
@@ -15406,8 +15578,10 @@ This report measures the baseline adoption of the design token system across the
 | 148 | `Hardcoded Spacing` | `gap-3` in `<div className="flex flex-col gap-3">` |
 | 152 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `className={`cursor-pointer transition-colors border ${activeBlockId === card.id ? 'border-red-500 bg-red-500/10' : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] hover:border-red-500/50'}`}` |
 | 152 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `className={`cursor-pointer transition-colors border ${activeBlockId === card.id ? 'border-red-500 bg-red-500/10' : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] hover:border-red-500/50'}`}` |
-| 155 | `Hardcoded Spacing` | `p-4` in `<CardContent className="p-4 flex flex-col gap-3">` |
-| 155 | `Hardcoded Spacing` | `gap-3` in `<CardContent className="p-4 flex flex-col gap-3">` |
+| 155 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-3">` |
+| 155 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-3">` |
+| 155 | `Hardcoded Spacing` | `p-4` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-3">` |
+| 155 | `Hardcoded Spacing` | `gap-3` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-3">` |
 | 157 | `Hardcoded Spacing` | `gap-1` in `<span className="text-sm font-bold text-red-400 flex items-center gap-1">` |
 | 161 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `<span className="text-xs text-[hsl(var(--admin-text-muted))]">Confidence: {card.confidence}</span>` |
 | 163 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<p className="text-sm text-[hsl(var(--admin-text))]">{card.recommendedResponse}</p>` |
@@ -15429,10 +15603,12 @@ This report measures the baseline adoption of the design token system across the
 | 59 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `<ClipboardList className="w-6 h-6 text-[hsl(var(--admin-primary))]" />` |
 | 60 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<h2 className="text-xl font-bold text-[hsl(var(--admin-text))]">Meeting Debrief</h2>` |
 | 63 | `Hardcoded Spacing` | `gap-4` in `<form onSubmit={handleSubmit} className="flex flex-col gap-4">` |
-| 64 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
-| 64 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
-| 65 | `Hardcoded Spacing` | `p-4` in `<CardContent className="p-4 flex flex-col gap-4">` |
-| 65 | `Hardcoded Spacing` | `gap-4` in `<CardContent className="p-4 flex flex-col gap-4">` |
+| 64 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
+| 64 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
+| 65 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-4">` |
+| 65 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-4">` |
+| 65 | `Hardcoded Spacing` | `p-4` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-4">` |
+| 65 | `Hardcoded Spacing` | `gap-4` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-4">` |
 | 67 | `Hardcoded Spacing` | `gap-2` in `<div className="flex flex-col gap-2">` |
 | 68 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<label htmlFor="outcome" className="text-sm font-bold text-[hsl(var(--admin-text))]">Meeting Outcome / Status</label>` |
 | 74 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `className="flex h-10 w-full items-center justify-between rounded-md border border-[hsl(var(--admin-border))] bg-transparent px-3 py-2 text-sm text-[hsl(var(--admin-text))] ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"` |
@@ -15480,11 +15656,14 @@ This report measures the baseline adoption of the design token system across the
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
 | 9 | `Hardcoded Spacing` | `gap-4` in `<div className="flex flex-col gap-4">` |
-| 10 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
-| 10 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
-| 12 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<CardTitle className="text-[hsl(var(--admin-text))]">{lead.name}</CardTitle>` |
+| 10 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
+| 10 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
+| 11 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 12 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<Text as="h3" variant="h3" className="leading-none" className="text-[hsl(var(--admin-text))]">{lead.name}</Text>` |
 | 13 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `<div className="text-sm text-[hsl(var(--admin-text-muted))]">{lead.email}</div>` |
-| 15 | `Hardcoded Spacing` | `space-y-4` in `<CardContent className="space-y-4">` |
+| 15 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="space-y-4">` |
+| 15 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="space-y-4">` |
+| 15 | `Hardcoded Spacing` | `space-y-4` in `<div className="p-6 pt-0" className="space-y-4">` |
 | 16 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<div className="flex items-center gap-2 text-sm text-[hsl(var(--admin-text))]">` |
 | 16 | `Hardcoded Spacing` | `gap-2` in `<div className="flex items-center gap-2 text-sm text-[hsl(var(--admin-text))]">` |
 | 17 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `<User className="w-4 h-4 text-[hsl(var(--admin-primary))]" />` |
@@ -15494,10 +15673,13 @@ This report measures the baseline adoption of the design token system across the
 | 24 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<div className="flex items-center gap-2 text-sm text-[hsl(var(--admin-text))]">` |
 | 24 | `Hardcoded Spacing` | `gap-2` in `<div className="flex items-center gap-2 text-sm text-[hsl(var(--admin-text))]">` |
 | 25 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `<Clock className="w-4 h-4 text-[hsl(var(--admin-primary))]" />` |
-| 31 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
-| 31 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
-| 33 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<CardTitle className="text-[hsl(var(--admin-text))] text-base">Meeting Checklist</CardTitle>` |
-| 35 | `Hardcoded Spacing` | `space-y-2` in `<CardContent className="space-y-2">` |
+| 31 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
+| 31 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">` |
+| 32 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6">` |
+| 33 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<Text as="h3" variant="h3" className="leading-none" className="text-[hsl(var(--admin-text))] text-base">Meeting Checklist</Text>` |
+| 35 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="space-y-2">` |
+| 35 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="space-y-2">` |
+| 35 | `Hardcoded Spacing` | `space-y-2` in `<div className="p-6 pt-0" className="space-y-2">` |
 | 37 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<div key={i} className="flex items-start gap-2 text-sm text-[hsl(var(--admin-text))]">` |
 | 37 | `Hardcoded Spacing` | `gap-2` in `<div key={i} className="flex items-start gap-2 text-sm text-[hsl(var(--admin-text))]">` |
 | 38 | `Hardcoded Spacing` | `mt-0.5` in `<CheckCircle2 className="w-4 h-4 mt-0.5 text-gray-500" />` |
@@ -15521,11 +15703,13 @@ This report measures the baseline adoption of the design token system across the
 | 34 | `Hardcoded Spacing` | `gap-2` in `<div className="flex items-center gap-2 text-xs font-mono text-[hsl(var(--admin-text-muted))]">` |
 | 35 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<div className="h-px flex-1 bg-[hsl(var(--admin-border))]"></div>` |
 | 38 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<div className="h-px flex-1 bg-[hsl(var(--admin-border))]"></div>` |
-| 48 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-blue-500">` |
-| 48 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-blue-500">` |
-| 48 | `Hardcoded Spacing` | `ml-4` in `<Card key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-blue-500">` |
-| 49 | `Hardcoded Spacing` | `p-4` in `<CardContent className="p-4 flex flex-col gap-2">` |
-| 49 | `Hardcoded Spacing` | `gap-2` in `<CardContent className="p-4 flex flex-col gap-2">` |
+| 48 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-blue-500">` |
+| 48 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-blue-500">` |
+| 48 | `Hardcoded Spacing` | `ml-4` in `<Surface variant="primary" radius="lg" border shadow="sm" key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-blue-500">` |
+| 49 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-2">` |
+| 49 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-2">` |
+| 49 | `Hardcoded Spacing` | `p-4` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-2">` |
+| 49 | `Hardcoded Spacing` | `gap-2` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-2">` |
 | 51 | `Hardcoded Spacing` | `gap-1` in `<span className="text-xs font-bold uppercase text-blue-400 flex items-center gap-1">` |
 | 55 | `Hardcoded Spacing` | `gap-1` in `<div className="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded bg-black/20">` |
 | 55 | `Hardcoded Spacing` | `px-2` in `<div className="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded bg-black/20">` |
@@ -15541,11 +15725,13 @@ This report measures the baseline adoption of the design token system across the
 | 78 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `<div className="mt-1 text-xs text-[hsl(var(--admin-text-muted))]">` |
 | 78 | `Hardcoded Spacing` | `mt-1` in `<div className="mt-1 text-xs text-[hsl(var(--admin-text-muted))]">` |
 | 79 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<strong className="text-[hsl(var(--admin-text))]">Evidence:</strong> {snapshot.evidence \|\| snapshot.why}` |
-| 96 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-purple-500">` |
-| 96 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-purple-500">` |
-| 96 | `Hardcoded Spacing` | `ml-4` in `<Card key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-purple-500">` |
-| 97 | `Hardcoded Spacing` | `p-4` in `<CardContent className="p-4 flex flex-col gap-3">` |
-| 97 | `Hardcoded Spacing` | `gap-3` in `<CardContent className="p-4 flex flex-col gap-3">` |
+| 96 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-purple-500">` |
+| 96 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-purple-500">` |
+| 96 | `Hardcoded Spacing` | `ml-4` in `<Surface variant="primary" radius="lg" border shadow="sm" key={event.id} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] ml-4 border-l-4 border-l-purple-500">` |
+| 97 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-3">` |
+| 97 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-3">` |
+| 97 | `Hardcoded Spacing` | `p-4` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-3">` |
+| 97 | `Hardcoded Spacing` | `gap-3` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-3">` |
 | 98 | `Hardcoded Spacing` | `gap-2` in `<div className="flex items-center gap-2">` |
 | 100 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<h3 className="text-sm font-bold text-[hsl(var(--admin-text))]">Meeting Debrief</h3>` |
 | 101 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `<span className="ml-auto text-xs font-mono text-[hsl(var(--admin-text-muted))]">` |
@@ -15606,8 +15792,10 @@ This report measures the baseline adoption of the design token system across the
 | 140 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `className={`cursor-pointer transition-colors border ${activeBlockId === block.id ? 'border-blue-500 bg-blue-500/10' : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] hover:border-[hsl(var(--admin-primary))]/50'}`}` |
 | 140 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `className={`cursor-pointer transition-colors border ${activeBlockId === block.id ? 'border-blue-500 bg-blue-500/10' : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] hover:border-[hsl(var(--admin-primary))]/50'}`}` |
 | 140 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `className={`cursor-pointer transition-colors border ${activeBlockId === block.id ? 'border-blue-500 bg-blue-500/10' : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] hover:border-[hsl(var(--admin-primary))]/50'}`}` |
-| 143 | `Hardcoded Spacing` | `p-4` in `<CardContent className="p-4 flex flex-col gap-2">` |
-| 143 | `Hardcoded Spacing` | `gap-2` in `<CardContent className="p-4 flex flex-col gap-2">` |
+| 143 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-2">` |
+| 143 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-2">` |
+| 143 | `Hardcoded Spacing` | `p-4` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-2">` |
+| 143 | `Hardcoded Spacing` | `gap-2` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-2">` |
 | 147 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<p className="text-sm text-[hsl(var(--admin-text))] font-medium">{block.content}</p>` |
 | 153 | `Raw HSL/RGB Color` | `hsl(var(--admin-text-muted)` in `<div className="text-sm text-[hsl(var(--admin-text-muted))]">No active strategies available.</div>` |
 | 159 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<h2 className="text-lg font-bold text-[hsl(var(--admin-text))] mb-4 flex items-center gap-2">` |
@@ -15616,8 +15804,10 @@ This report measures the baseline adoption of the design token system across the
 | 163 | `Hardcoded Spacing` | `gap-3` in `<div className="flex flex-col gap-3">` |
 | 167 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `className={`cursor-pointer transition-colors border ${activeBlockId === card.id ? 'border-red-500 bg-red-500/10' : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] hover:border-red-500/50'}`}` |
 | 167 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `className={`cursor-pointer transition-colors border ${activeBlockId === card.id ? 'border-red-500 bg-red-500/10' : 'border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] hover:border-red-500/50'}`}` |
-| 170 | `Hardcoded Spacing` | `p-4` in `<CardContent className="p-4 flex flex-col gap-3">` |
-| 170 | `Hardcoded Spacing` | `gap-3` in `<CardContent className="p-4 flex flex-col gap-3">` |
+| 170 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-3">` |
+| 170 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-3">` |
+| 170 | `Hardcoded Spacing` | `p-4` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-3">` |
+| 170 | `Hardcoded Spacing` | `gap-3` in `<div className="p-6 pt-0" className="p-4 flex flex-col gap-3">` |
 | 172 | `Hardcoded Spacing` | `gap-1` in `<span className="text-sm font-bold text-red-400 flex items-center gap-1">` |
 | 177 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<p className="text-sm text-[hsl(var(--admin-text))]">{card.recommendedResponse}</p>` |
 | 178 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<div className="pt-2 border-t border-[hsl(var(--admin-border))] flex items-center gap-1 text-xs text-green-400">` |
@@ -15632,12 +15822,15 @@ This report measures the baseline adoption of the design token system across the
 | Line | Violation Type | Matching Snippet |
 | :---: | :--- | :--- |
 | 29 | `Hardcoded Spacing` | `gap-4` in `<div className="flex flex-col gap-4 h-full">` |
-| 30 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] h-full flex flex-col">` |
-| 30 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Card className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] h-full flex flex-col">` |
-| 32 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<CardTitle className="flex items-center gap-2 text-[hsl(var(--admin-text))] text-base">` |
-| 32 | `Hardcoded Spacing` | `gap-2` in `<CardTitle className="flex items-center gap-2 text-[hsl(var(--admin-text))] text-base">` |
+| 30 | `Raw HSL/RGB Color` | `hsl(var(--admin-card)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] h-full flex flex-col">` |
+| 30 | `Raw HSL/RGB Color` | `hsl(var(--admin-border)` in `<Surface variant="primary" radius="lg" border shadow="sm" className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] h-full flex flex-col">` |
+| 31 | `Hardcoded Spacing` | `p-6` in `<Stack gap="sm" className="p-6" className="shrink-0">` |
+| 32 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<Text as="h3" variant="h3" className="leading-none" className="flex items-center gap-2 text-[hsl(var(--admin-text))] text-base">` |
+| 32 | `Hardcoded Spacing` | `gap-2` in `<Text as="h3" variant="h3" className="leading-none" className="flex items-center gap-2 text-[hsl(var(--admin-text))] text-base">` |
 | 33 | `Raw HSL/RGB Color` | `hsl(var(--admin-primary)` in `<Search className="w-4 h-4 text-[hsl(var(--admin-primary))]" />` |
-| 37 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<CardContent className="text-sm text-[hsl(var(--admin-text))] whitespace-pre-wrap flex-1 overflow-y-auto">` |
+| 37 | `Raw HSL/RGB Color` | `hsl(var(--admin-text)` in `<div className="p-6 pt-0" className="text-sm text-[hsl(var(--admin-text))] whitespace-pre-wrap flex-1 overflow-y-auto">` |
+| 37 | `Hardcoded Spacing` | `p-6` in `<div className="p-6 pt-0" className="text-sm text-[hsl(var(--admin-text))] whitespace-pre-wrap flex-1 overflow-y-auto">` |
+| 37 | `Hardcoded Spacing` | `pt-0` in `<div className="p-6 pt-0" className="text-sm text-[hsl(var(--admin-text))] whitespace-pre-wrap flex-1 overflow-y-auto">` |
 
 
 ### [BlogDetailPage.tsx](apps/web/src/pages/BlogDetailPage.tsx)

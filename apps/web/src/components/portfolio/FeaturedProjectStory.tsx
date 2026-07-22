@@ -98,7 +98,7 @@ export const FeaturedProjectStory = ({
   const contentElement = (
     <div className="flex flex-col justify-center h-full p-8 md:p-12 lg:p-16 space-y-6 select-none">
       <div className="space-y-2">
-        <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-site-gold">
+        <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-primary">
           {category}
         </span>
         <h3 className="text-3xl md:text-5xl font-serif font-light text-[#FAFAFA] tracking-tight leading-tight">
@@ -116,7 +116,7 @@ export const FeaturedProjectStory = ({
         <span className="block text-[10px] font-mono text-white/25 tracking-[0.2em]">
           [{String(index + 1).padStart(2, "0")}]
         </span>
-        <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.25em] font-semibold text-site-gold uppercase group-hover:text-white transition-colors duration-300">
+        <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.25em] font-semibold text-primary uppercase group-hover:text-white transition-colors duration-300">
           View Story <span className="transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300">→</span>
         </span>
       </div>
@@ -185,9 +185,9 @@ export const FeaturedProjectStory = ({
                         animate="hover"
                         exit="exit"
                         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute inset-0 bg-[#0B0B0B]/30 backdrop-blur-[2px] flex items-center justify-center z-30"
+                        className="absolute inset-0 bg-background/30 backdrop-blur-[2px] flex items-center justify-center z-30"
                       >
-                        <span className="text-xs font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-6 py-3 bg-[#0B0B0B]/40 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
+                        <span className="text-xs font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-6 py-3 bg-background/40 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
                           View Story →
                         </span>
                       </motion.div>
@@ -200,7 +200,7 @@ export const FeaturedProjectStory = ({
             {/* Text Column */}
             <div className="lg:col-span-5">
               <div className="conic-border rounded-2xl overflow-hidden p-[1px]">
-                <div className="bg-[#0B0B0B]/80 backdrop-blur-xl border border-white/10 rounded-2xl h-full conic-border-content">
+                <div className="bg-background/80 backdrop-blur-xl border border-white/10 rounded-2xl h-full conic-border-content">
                   {contentElement}
                 </div>
               </div>
@@ -213,7 +213,7 @@ export const FeaturedProjectStory = ({
             {/* Text Column (on left) */}
             <div className="lg:col-span-5 order-2 lg:order-1">
               <div className="conic-border rounded-2xl overflow-hidden p-[1px]">
-                <div className="bg-[#0B0B0B]/80 backdrop-blur-xl border border-white/10 rounded-2xl h-full conic-border-content">
+                <div className="bg-background/80 backdrop-blur-xl border border-white/10 rounded-2xl h-full conic-border-content">
                   {contentElement}
                 </div>
               </div>
@@ -247,9 +247,9 @@ export const FeaturedProjectStory = ({
                         animate="hover"
                         exit="exit"
                         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute inset-0 bg-[#0B0B0B]/30 backdrop-blur-[2px] flex items-center justify-center z-30"
+                        className="absolute inset-0 bg-background/30 backdrop-blur-[2px] flex items-center justify-center z-30"
                       >
-                        <span className="text-xs font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-6 py-3 bg-[#0B0B0B]/40 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
+                        <span className="text-xs font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-6 py-3 bg-background/40 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
                           View Story →
                         </span>
                       </motion.div>
@@ -286,7 +286,7 @@ export const FeaturedProjectStory = ({
                 {/* Text Overlay */}
                 <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 lg:p-16 z-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
                   <div className="space-y-4 max-w-xl">
-                    <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-site-gold">
+                    <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-primary">
                       {category}
                     </span>
                     <h3 className="text-3xl md:text-5xl font-serif font-light text-[#FAFAFA] tracking-tight leading-none">
@@ -306,7 +306,7 @@ export const FeaturedProjectStory = ({
                       <span className="block text-[10px] font-mono text-white/25 tracking-[0.2em]">
                         [{String(index + 1).padStart(2, "0")}]
                       </span>
-                      <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.25em] font-semibold text-site-gold uppercase">
+                      <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.25em] font-semibold text-primary uppercase">
                         View Story <span>→</span>
                       </span>
                     </div>
@@ -322,9 +322,9 @@ export const FeaturedProjectStory = ({
                       animate="hover"
                       exit="exit"
                       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                      className="absolute inset-0 bg-[#0B0B0B]/30 backdrop-blur-[2px] flex items-center justify-center z-30"
+                      className="absolute inset-0 bg-background/30 backdrop-blur-[2px] flex items-center justify-center z-30"
                     >
-                      <span className="text-xs font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-6 py-3 bg-[#0B0B0B]/40 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
+                      <span className="text-xs font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-6 py-3 bg-background/40 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
                         View Story →
                       </span>
                     </motion.div>

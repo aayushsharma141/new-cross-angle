@@ -1,6 +1,6 @@
 
 import { Bar, ComposedChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives/card";
+import { Surface, Stack, Text } from "@/components/primitives/foundation";
 
 import { Lightbulb } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -47,12 +47,12 @@ export function ProjectPipelineChart() {
     });
 
     return (
-        <Card className="col-span-1 md:col-span-2 lg:col-span-2 border-admin-border bg-admin-card">
-            <CardHeader>
-                <CardTitle className="text-lg font-display text-admin-foreground">Project Pipeline</CardTitle>
+        <Surface variant="primary" radius="lg" border shadow="sm" className="col-span-1 md:col-span-2 lg:col-span-2 border-admin-border bg-admin-card">
+            <Stack gap="sm" className="p-6">
+                <Text as="h3" variant="h3" className="leading-none" className="text-lg font-display text-admin-foreground">Project Pipeline</Text>
                 <p className="text-sm text-admin-muted">Active projects by status</p>
-            </CardHeader>
-            <CardContent>
+            </Stack>
+            <div className="p-6 pt-0">
                 {isLoading ? (
                     <div className="h-[300px] flex items-center justify-center text-admin-muted text-sm">
                         Loading…
@@ -103,7 +103,7 @@ export function ProjectPipelineChart() {
                         </ResponsiveContainer>
                     </div>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </Surface>
     );
 }

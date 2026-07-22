@@ -16,7 +16,7 @@ export const TrustLayer = () => {
   const repeatedItems = [...marqueeText, ...marqueeText, ...marqueeText, ...marqueeText];
 
   return (
-    <section className="relative py-8 border-y border-white/5 bg-[#0B0B0B] overflow-hidden select-none">
+    <section className="relative py-8 border-y border-white/5 bg-background overflow-hidden select-none">
       <style>{`
         @keyframes marquee {
           0% { transform: translateX(0); }

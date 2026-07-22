@@ -62,7 +62,7 @@ export const MagneticLink = ({ children, to, className = "", onClick }: Magnetic
           className={`relative group inline-flex items-center justify-center ${className}`}
         >
           {children}
-          <span className="absolute bottom-0 left-0 w-full h-[1px] bg-site-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+          <span className="absolute bottom-0 left-0 w-full h-[1px] bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
         </a>
       ) : (
         <Link
@@ -71,7 +71,7 @@ export const MagneticLink = ({ children, to, className = "", onClick }: Magnetic
           className={`relative group inline-flex items-center justify-center ${className}`}
         >
           {children}
-          <span className="absolute bottom-0 left-0 w-full h-[1px] bg-site-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+          <span className="absolute bottom-0 left-0 w-full h-[1px] bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
         </Link>
       )}
     </motion.div>

@@ -15,6 +15,7 @@ import { useAnalytics } from "@/analytics/AnalyticsProvider";
 import { track } from "@/analytics/track";
 import { useToast } from "@/hooks/useToast";
 import { EstimatorBackground } from "@/addons/_shared/components/backgrounds/EstimatorBackground";
+import { WorkspacePanel } from "@/components/patterns/WorkspacePanel";
 import { ECOSYSTEM_COPY } from "@/addons/_shared/ecosystemCopy";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import logoIcon from "@/assets/logo-icon.png";
@@ -121,36 +122,14 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
     const progress = Math.round((currentStep / STEP_LABELS.length) * 100);
     const stepInfo = STEP_DESCRIPTIONS[currentStep] ?? STEP_DESCRIPTIONS[0];
 
-
-    return (
-        <div className="h-[100dvh] grid grid-cols-1 md:grid-cols-[280px_1fr] bg-[#faf8f5] font-sans text-[#1a1a1a] relative overflow-hidden">
-            {/* Ambient background decoration — always visible */}
-            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
-                {/* Top-right warm orb */}
-                <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-[#7a5c30]/[0.04] blur-[120px]" />
-                {/* Bottom-left cool orb */}
-                <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-[#7a5c30]/[0.03] blur-[80px]" />
-                {/* Very subtle dot texture across the main panel */}
-                <div className="absolute inset-0 opacity-[0.018]" style={{ backgroundImage: 'radial-gradient(circle, #1a1a1a 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-            </div>
-            {/* Animated background for results page */}
-            {showResults && (
-                <div className="absolute inset-0 z-0 pointer-events-none">
-                    <EstimatorBackground />
-                </div>
-            )}
-
-            {/* Sidebar */}
-            <aside aria-label="Estimator progress" className="hidden md:flex flex-col bg-white border-r border-[#e8e4dd]/80 sticky top-0 h-[100dvh] overflow-y-auto z-20 shadow-[4px_0_24px_rgba(0,0,0,0.04)]">
-                {/* Sidebar top gradient accent */}
-                <div className="absolute top-0 inset-x-0 h-[140px] bg-gradient-to-b from-[#7a5c30]/[0.04] to-transparent pointer-events-none" aria-hidden="true" />
-                <div className="relative z-10 p-8 flex flex-col h-full">
-                <a href="/" className="flex items-center gap-2 mb-8 group hover:opacity-75 transition-opacity focus-visible:ring-2 focus-visible:ring-[#7a5c30] focus-visible:outline-none focus-visible:ring-offset-2 rounded-lg" aria-label="Return to CrossAngle Home">
-                    <img src={logoUrl} alt="CrossAngle Logo" className="h-5 w-auto shrink-0 animate-in fade-in duration-300" />
-                    <h1 className="text-[14px] tracking-[0.08em] uppercase text-[#7a5c30] font-semibold font-label m-0">
-                        Cost Estimator
-                    </h1>
-                </a>
+    const sidebarContent = (
+        <div className="flex flex-col h-full relative z-10 p-6 md:p-8">
+            <a href="/" className="flex items-center gap-2 mb-8 group hover:opacity-75 transition-opacity focus-visible:ring-2 focus-visible:ring-[#7a5c30] focus-visible:outline-none focus-visible:ring-offset-2 rounded-lg" aria-label="Return to CrossAngle Home">
+                <img src={logoUrl} alt="CrossAngle Logo" className="h-5 w-auto shrink-0 animate-in fade-in duration-300" />
+                <h1 className="text-[14px] tracking-[0.08em] uppercase text-foreground font-semibold font-label m-0">
+                    Digital Studio
+                </h1>
+            </a>
                 
                 {discoveryApplied && (
                     <div role="status" aria-live="polite" className="mb-8 p-4 bg-site-gold-light rounded-[10px] border-l-[3px] border-[#7a5c30] text-[13px] relative bg-[#7a5c30]/[0.06] border border-[#7a5c30]/20">
@@ -242,11 +221,25 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                         You can leave and return anytime.
                     </p>
                 </div>
-                </div>{/* end inner z-10 wrapper */}
-            </aside>
+        </div>
+    );
 
-            {/* Main Content */}
-            <main className="p-6 pb-0 md:px-8 md:pt-8 md:pb-0 lg:px-12 lg:pt-12 lg:pb-0 w-full max-w-[1200px] mx-auto h-[100dvh] flex flex-col relative z-10 overflow-hidden" aria-label="Estimator form">
+    const mainContent = (
+        <div className="p-6 pb-0 md:px-8 md:pt-8 md:pb-0 lg:px-12 lg:pt-12 lg:pb-0 w-full mx-auto h-[100dvh] flex flex-col relative z-10 overflow-hidden font-sans text-foreground" aria-label="Estimator form">
+            {/* Ambient background decoration — always visible */}
+            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+                <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-[#7a5c30]/[0.04] blur-[120px]" />
+                <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-[#7a5c30]/[0.03] blur-[80px]" />
+                <div className="absolute inset-0 opacity-[0.018]" style={{ backgroundImage: 'radial-gradient(circle, #1a1a1a 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+            </div>
+            {/* Animated background for results page */}
+            {showResults && (
+                <div className="absolute inset-0 z-0 pointer-events-none">
+                    <EstimatorBackground />
+                </div>
+            )}
+            
+            <div className="relative z-10 flex-1 flex flex-col min-h-0 overflow-y-auto pr-2 pb-8">
                 {showResults ? (
                     <div className="flex-1 flex flex-col min-h-0 overflow-y-auto pr-2 pb-8">
                         <StepResults
@@ -389,7 +382,20 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                     </div>
                 </>
                 )}
-            </main>
+            </div>
         </div>
+    );
+
+    const dossierContent = (
+        <div className="flex flex-col p-6 md:p-8 h-full relative z-10">
+            <h3 className="text-[12px] font-mono tracking-wider uppercase text-muted-foreground mb-4">Workspace Dossier</h3>
+            <p className="text-[14px] text-muted-foreground leading-relaxed">
+                Live context and intelligent recommendations will appear here.
+            </p>
+        </div>
+    );
+
+    return (
+        <WorkspacePanel sidebar={sidebarContent} mainContent={mainContent} dossierContent={dossierContent} />
     );
 }

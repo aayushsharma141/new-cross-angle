@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/primitives/badge";
+import { Badge } from "@/components/primitives/interactive";
 
 export type ContentStatus = "draft" | "published" | "archived" | "review";
 

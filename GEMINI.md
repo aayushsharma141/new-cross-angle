@@ -16,6 +16,17 @@ Rules:
   3. Ask the user if they want to build on top of the current layout, toggle features from previous design checkpoints, or perform a custom overhaul.
   4. Never overwrite previous design features without verifying the design history log and creating a new git checkpoint tag (e.g. `checkpoint/v5-...`).
 
+## Three-Layer Token Architecture Rules
+
+- Do NOT map Lighting States directly into CSS variables. Keep the token architecture decoupled into three distinct layers:
+  1. **Foundation Tokens (Raw Materials):** Only these may contain actual color HSL values (e.g. `stone-50`, `charcoal-900`).
+  2. **Semantic Tokens:** Components may ONLY consume semantic tokens (e.g. `canvas-primary`, `border-subtle`). Never reference Foundation tokens in components.
+  3. **Lighting States (Environments):** Remap semantic tokens under environment triggers (e.g., `gallery`, `workspace`). Lighting States do NOT define colors directly.
+- After the token architecture is frozen, do not add new tokens casually. Require that every new token answers:
+  - Can an existing semantic token be reused?
+  - Is this a true design concept or just a page-specific need?
+  - Would this token still make sense if the website were redesigned in five years?
+
 ## Automatic Skill Routing Rules
 
 - At the start of ANY conversation or when given a new task, check the Available Skills list to identify if any skills are relevant.

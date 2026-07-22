@@ -49,8 +49,8 @@ const InspirationGallery = () => {
       <div className="container mx-auto mb-16 px-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Inspiration Gallery</span>
+            <div className="w-12 h-px bg-primary" />
+            <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">Inspiration Gallery</span>
           </div>
           <h2 className="text-3xl font-light tracking-tight text-white md:text-5xl italic">
             Feel The Mood

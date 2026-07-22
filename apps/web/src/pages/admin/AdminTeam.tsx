@@ -4,8 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DataTable } from "@/components/admin/ui/DataTable";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import {
     Dialog,
@@ -265,7 +265,7 @@ export default function AdminTeam() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="bio">Bio</Label>
-                                <Textarea id="bio" name="bio" defaultValue={editingMember?.bio || ""} placeholder="A short, visionary biography…" rows={3} />
+                                <Textarea id="bio" name="bio" defaultValue={editingMember?.bio || ""} placeholder="A short, visionary biographyï¿½" rows={3} />
                             </div>
                             <div className="space-y-2">
                                 <Label>Profile Image</Label>

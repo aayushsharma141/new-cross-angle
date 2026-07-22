@@ -38,7 +38,7 @@ export const Philosophy = () => {
     <div
       ref={containerRef}
       id="philosophy"
-      className="relative min-h-[100vh] bg-[#0B0B0B] text-white flex items-center justify-center py-36 px-6 overflow-hidden z-10 select-none"
+      className="relative min-h-[100vh] bg-background text-white flex items-center justify-center py-36 px-6 overflow-hidden z-10 select-none"
     >
       {/* Background crossfade elements */}
       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -59,14 +59,14 @@ export const Philosophy = () => {
         />
 
         {/* Ambient Darkener overlay */}
-        <div className="absolute inset-0 bg-[#0B0B0B]/85" />
+        <div className="absolute inset-0 bg-background/85" />
       </div>
 
       {/* Main Philosophy Content */}
       <div className="relative z-10 max-w-[700px] w-full text-center space-y-12">
         <div className="flex items-center justify-center gap-4">
-          <div className="w-12 h-px bg-site-gold/40" />
-          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+          <div className="w-12 h-px bg-primary/40" />
+          <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">
             02 / PHILOSOPHY
           </span>
         </div>

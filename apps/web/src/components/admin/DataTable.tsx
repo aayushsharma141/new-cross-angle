@@ -13,7 +13,7 @@ import {
 import { ArrowLeft, ArrowRight, ChevronsLeft, ChevronsRight, Search, SlidersHorizontal, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/primitives/button';
-import { Input } from '@/components/ui/primitives/input';
+import { Input } from "@/components/primitives/interactive";
 import {
   Select,
   SelectContent,

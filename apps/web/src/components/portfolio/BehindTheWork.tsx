@@ -46,12 +46,12 @@ const EditorialCard = ({
         />
         {/* Gradient to blend into text side */}
         <div
-          className={`absolute inset-0 bg-gradient-to-${isReversed ? "l" : "r"} from-transparent to-[#0B0B0B]/80 pointer-events-none`}
+          className={`absolute inset-0 bg-gradient-to-${isReversed ? "l" : "r"} from-transparent to-background/80 pointer-events-none`}
         />
       </div>
 
       {/* Text (40% of card) */}
-      <div className="relative w-full lg:w-[40%] bg-[#0B0B0B] flex flex-col justify-center p-8 md:p-12 space-y-5 border-t lg:border-t-0 border-white/5">
+      <div className="relative w-full lg:w-[40%] bg-background flex flex-col justify-center p-8 md:p-12 space-y-5 border-t lg:border-t-0 border-white/5">
         {/* Number */}
         <span className="text-[10px] font-mono text-white/25 tracking-[0.3em]">{num}</span>
 
@@ -72,7 +72,7 @@ const EditorialCard = ({
           </span>
           <Link
             to={`/portfolio/${projectSlug}`}
-            className="text-[10px] font-semibold tracking-[0.25em] text-site-gold uppercase hover:text-white transition-colors duration-300 inline-flex items-center gap-1.5"
+            className="text-[10px] font-semibold tracking-[0.25em] text-primary uppercase hover:text-white transition-colors duration-300 inline-flex items-center gap-1.5"
           >
             {projectName}
             <span className="transform translate-x-0 hover:translate-x-0.5 transition-transform duration-300">
@@ -133,7 +133,7 @@ export const BehindTheWork = () => {
   ];
 
   return (
-    <section className="relative bg-[#0B0B0B] py-24 px-6 overflow-hidden select-none">
+    <section className="relative bg-background py-24 px-6 overflow-hidden select-none">
       {/* Section header */}
       <motion.div
         ref={headerRef}
@@ -143,8 +143,8 @@ export const BehindTheWork = () => {
         className="max-w-6xl mx-auto w-full mb-20"
       >
         <div className="flex items-center gap-4 mb-5">
-          <div className="w-12 h-px bg-site-gold/40" />
-          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+          <div className="w-12 h-px bg-primary/40" />
+          <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">
             04 / BEHIND THE WORK
           </span>
         </div>

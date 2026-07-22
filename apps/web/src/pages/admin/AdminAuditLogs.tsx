@@ -2,9 +2,9 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
-import { Badge } from '@/components/ui/primitives/badge';
+import { Badge } from "@/components/primitives/interactive";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/primitives/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/primitives/card';
+import { Surface, Stack, Text } from "@/components/primitives/foundation";
 import { AuditLogTable, AuditLogFilters } from '@/components/admin/logs/AuditLogTable';
 import { AdminMetricsPanel } from '@/components/admin/shared/AdminMetricsPanel';
 import { auditService } from '@/services/AuditService';
@@ -175,10 +175,10 @@ export default function AdminAuditLogs() {
           </TabsList>
 
           <TabsContent value="all" className="space-y-4 mt-4">
-            <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
-              <CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
+            <Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
+              <Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-bold text-[hsl(var(--admin-text))]">Audit Log</CardTitle>
+                  <Text as="h3" variant="h3" className="leading-none" className="text-sm font-bold text-[hsl(var(--admin-text))]">Audit Log</Text>
                   <div className="flex gap-2">
                     <AuditLogFilters
                       users={users}
@@ -191,8 +191,8 @@ export default function AdminAuditLogs() {
                     />
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="p-0 sm:p-0">
+              </Stack>
+              <div className="p-6 pt-0" className="p-0 sm:p-0">
                 <div className="px-5 py-4 border-b border-[hsl(var(--admin-border-subtle))]">
                   <AuditLogTable
                     logs={logsData?.data || []}
@@ -219,16 +219,16 @@ export default function AdminAuditLogs() {
                     selectedUser={selectedUser}
                   />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </Surface>
           </TabsContent>
 
           <TabsContent value="actions" className="space-y-4 mt-4">
-            <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
-              <CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
-                <CardTitle className="text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Action Type</CardTitle>
-              </CardHeader>
-              <CardContent className="p-5">
+            <Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
+              <Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
+                <Text as="h3" variant="h3" className="leading-none" className="text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Action Type</Text>
+              </Stack>
+              <div className="p-6 pt-0" className="p-5">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {Object.entries(statsData?.byAction || {}).map(([action, count]) => {
                     const colors = ACTION_COLORS[action as AuditAction];
@@ -258,16 +258,16 @@ export default function AdminAuditLogs() {
                     );
                   })}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </Surface>
           </TabsContent>
 
           <TabsContent value="entities" className="space-y-4 mt-4">
-            <Card className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
-              <CardHeader className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
-                <CardTitle className="text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Entity Type</CardTitle>
-              </CardHeader>
-              <CardContent className="p-5">
+            <Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
+              <Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
+                <Text as="h3" variant="h3" className="leading-none" className="text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Entity Type</Text>
+              </Stack>
+              <div className="p-6 pt-0" className="p-5">
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   {Object.entries(statsData?.byEntity || {}).map(([entity, count]) => (
                     <div
@@ -287,8 +287,8 @@ export default function AdminAuditLogs() {
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </Surface>
           </TabsContent>
         </Tabs>
       </div>

@@ -112,7 +112,7 @@ const ReadingProgressBar = ({ totalMinutes }: { totalMinutes: number }) => {
                 style={{ background: "rgba(255,255,255,0.04)" }}
             >
                 <motion.div
-                    className="h-full origin-left bg-gradient-to-r from-site-crimson to-site-gold"
+                    className="h-full origin-left bg-gradient-to-r from-primary to-primary"
                     style={{
                         width: `${progress}%`
                     }}
@@ -218,7 +218,7 @@ const TableOfContents = ({ items, activeId }: { items: TocItem[]; activeId: stri
                                 item.level === 3 ? "pl-5" : "pl-3.5"
                             } ${
                                 activeId === item.id
-                                    ? "text-white/90 border-site-crimson font-medium"
+                                    ? "text-white/90 border-primary font-medium"
                                     : "text-white/35 border-transparent hover:text-white/60 hover:border-white/10"
                             }`}
                         >
@@ -271,8 +271,8 @@ const InArticleLeadCTA = () => {
                     ✕
                 </button>
                 <div className="flex items-center gap-2.5 mb-3">
-                    <Calculator className="w-5 h-5 text-site-crimson" />
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-site-crimson">
+                    <Calculator className="w-5 h-5 text-primary" />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
                         Free Tool
                     </span>
                 </div>
@@ -285,7 +285,7 @@ const InArticleLeadCTA = () => {
                 <Link
                     to="/estimate"
                     onClick={() => trackCtaClick("", "in_article_estimator")}
-                    className="block w-full text-center py-2.5 rounded-full text-[12px] font-semibold transition-all duration-200 hover:opacity-90 bg-site-crimson text-white"
+                    className="block w-full text-center py-2.5 rounded-full text-[12px] font-semibold transition-all duration-200 hover:opacity-90 bg-primary text-white"
                 >
                     Get Free Estimate →
                 </Link>
@@ -479,7 +479,7 @@ const BlogDetailPage = () => {
                     <p className="mb-8 text-white/40">The article you're looking for doesn't exist or may have been moved.</p>
                     <Link
                         to="/blog"
-                        className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-[13px] font-semibold bg-site-crimson text-white"
+                        className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-[13px] font-semibold bg-primary text-white"
                     >
                         <ArrowLeft className="w-4 h-4" /> Back to Articles
                     </Link>
@@ -520,7 +520,7 @@ const BlogDetailPage = () => {
                             {/* Category badge */}
                             {post.category && (
                                 <span
-                                    className="inline-block text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-6 bg-site-crimson/20 text-site-crimson border border-site-crimson/30"
+                                    className="inline-block text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-6 bg-primary/20 text-primary border border-primary/30"
                                 >
                                     {post.category}
                                 </span>
@@ -539,7 +539,7 @@ const BlogDetailPage = () => {
                                 {/* Author avatar */}
                                 <div className="flex items-center gap-3">
                                     <div
-                                        className="w-9 h-9 rounded-full flex items-center justify-center font-serif font-bold text-sm text-white shrink-0 bg-site-crimson/25 border-[1.5px] border-site-crimson/35"
+                                        className="w-9 h-9 rounded-full flex items-center justify-center font-serif font-bold text-sm text-white shrink-0 bg-primary/25 border-[1.5px] border-primary/35"
                                     >
                                         {authorInitial}
                                     </div>
@@ -620,7 +620,7 @@ const BlogDetailPage = () => {
                                     <button
                                         onClick={() => handleShare()}
                                         title="Copy article link"
-                                        className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 border hover:border-site-crimson/40 hover:bg-site-crimson/10 hover:text-site-crimson"
+                                        className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 border hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
                                         style={{ background: "#0c0c0c", borderColor: "#1e1e1e", color: "#666" }}
                                     >
                                         <LinkIcon className="w-4 h-4" />
@@ -687,7 +687,7 @@ const BlogDetailPage = () => {
                             style={{ background: "#0c0c0c", borderColor: "#1e1e1e" }}
                         >
                             <div
-                                className="w-14 h-14 rounded-full shrink-0 flex items-center justify-center font-serif font-bold text-xl text-white bg-site-crimson/20 border-[1.5px] border-site-crimson/40"
+                                className="w-14 h-14 rounded-full shrink-0 flex items-center justify-center font-serif font-bold text-xl text-white bg-primary/20 border-[1.5px] border-primary/40"
                             >
                                 {authorInitial}
                             </div>
@@ -721,7 +721,7 @@ const BlogDetailPage = () => {
                                 </button>
                                 <button
                                     onClick={() => handleShare()}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-medium transition-all duration-200 border hover:border-site-crimson/40 hover:text-site-crimson hover:bg-site-crimson/5"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-medium transition-all duration-200 border hover:border-primary/40 hover:text-primary hover:bg-primary/5"
                                     style={{ borderColor: "#2a2a2a", color: "#888" }}
                                 >
                                     <LinkIcon className="w-3.5 h-3.5" /> Copy Link
@@ -731,7 +731,7 @@ const BlogDetailPage = () => {
 
                         {/* ── Consultation CTA ── */}
                         <div
-                            className="mt-16 text-center py-12 px-8 rounded-2xl border border-site-crimson/25 bg-gradient-to-br from-site-crimson/10 to-[#0a0a0a]"
+                            className="mt-16 text-center py-12 px-8 rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 to-[#0a0a0a]"
                         >
                             <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/30 font-sans mb-4 block">Ready to transform?</span>
                             <h3 className="font-serif text-2xl font-bold mb-3 text-white">Inspired by this article?</h3>
@@ -740,7 +740,7 @@ const BlogDetailPage = () => {
                             </p>
                             <Link to="/contact-us" onClick={handleCtaClick}>
                                 <button
-                                    className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-[13px] font-bold uppercase tracking-widest transition-all duration-300 hover:shadow-[0_8px_32px_rgba(196,18,48,0.3)] bg-site-crimson text-white"
+                                    className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-[13px] font-bold uppercase tracking-widest transition-all duration-300 hover:shadow-[0_8px_32px_rgba(196,18,48,0.3)] bg-primary text-white"
                                 >
                                     Request Consultation
                                 </button>

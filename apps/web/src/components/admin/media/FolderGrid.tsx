@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from "framer-motion";
 import { useDroppable } from "@dnd-kit/core";
 import { Folder, MoreVertical, Edit2, Trash2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/primitives/card";
+import { Surface } from "@/components/primitives/foundation";
 import { Button } from "@/components/ui/primitives/button";
 import {
   DropdownMenu,
@@ -42,14 +42,14 @@ const FolderItem = ({ folder, onNavigate, onRename, onDelete, isReadOnly }: Fold
       animate={{ opacity: 1, scale: 1 }}
       className="h-full"
     >
-      <Card
+      <Surface variant="primary" radius="lg" border shadow="sm"
         role="button"
         tabIndex={0}
         className={`group overflow-hidden relative cursor-pointer hover:shadow-lg border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md transition-all h-full ${isOver ? 'border-admin-primary bg-admin-primary/20 ring-2 ring-admin-primary' : 'hover:border-admin-primary/50 hover:bg-admin-card'}`}
         onClick={() => onNavigate(folder)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNavigate(folder); } }}
       >
-        <CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-3 h-full min-h-[140px]">
+        <div className="p-6 pt-0" className="p-6 flex flex-col items-center justify-center text-center space-y-3 h-full min-h-[140px]">
           <Folder 
             className={`w-14 h-14 shrink-0 transition-transform duration-300 ${isOver ? 'text-white scale-110' : 'text-admin-primary group-hover:scale-110'}`} 
             fill="currentColor" 
@@ -76,8 +76,8 @@ const FolderItem = ({ folder, onNavigate, onRename, onDelete, isReadOnly }: Fold
               </DropdownMenu>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </Surface>
     </motion.div>
   );
 };

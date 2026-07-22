@@ -67,16 +67,16 @@ export const BeforeAfterShowcase = () => {
     <section className="py-section-y bg-[#060504] relative overflow-hidden">
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/3 -left-32 w-[40rem] h-[40rem] bg-site-crimson/4 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/4 -right-32 w-[40rem] h-[40rem] bg-site-gold/4 rounded-full blur-[150px]" />
+        <div className="absolute top-1/3 -left-32 w-[40rem] h-[40rem] bg-primary/4 rounded-full blur-[150px]" />
+        <div className="absolute bottom-1/4 -right-32 w-[40rem] h-[40rem] bg-primary/4 rounded-full blur-[150px]" />
       </div>
 
       <div className="container mx-auto relative z-10">
         {/* Section Header */}
         <div className="max-w-3xl mb-14">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+            <div className="w-12 h-px bg-primary" />
+            <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">
               Real Transformations
             </span>
           </div>
@@ -121,7 +121,7 @@ export const BeforeAfterShowcase = () => {
               <div className="absolute bottom-4 left-4 px-3 py-1.5 bg-black/70 backdrop-blur-sm rounded-full text-[10px] uppercase tracking-wider text-white/80 font-medium">
                 Before
               </div>
-              <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-black/70 backdrop-blur-sm rounded-full text-[10px] uppercase tracking-wider text-site-gold font-medium">
+              <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-black/70 backdrop-blur-sm rounded-full text-[10px] uppercase tracking-wider text-primary font-medium">
                 After
               </div>
             </div>
@@ -139,7 +139,7 @@ export const BeforeAfterShowcase = () => {
                     className={cn(
                       "relative flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden transition-all duration-300",
                       activeIndex === index
-                        ? "ring-2 ring-site-gold ring-offset-1 ring-offset-[#060504]"
+                        ? "ring-2 ring-primary ring-offset-1 ring-offset-[#060504]"
                         : "opacity-40 grayscale hover:opacity-80 hover:grayscale-0"
                     )}
                   >
@@ -207,8 +207,8 @@ export const BeforeAfterShowcase = () => {
                 {/* Challenge */}
                 <div className="mb-6 pb-6 border-b border-white/5">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-px bg-site-crimson" />
-                    <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">The Challenge</span>
+                    <div className="w-12 h-px bg-primary" />
+                    <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">The Challenge</span>
                   </div>
                   <p className="text-white/60 text-sm leading-relaxed">{current.challenge}</p>
                 </div>
@@ -216,13 +216,13 @@ export const BeforeAfterShowcase = () => {
                 {/* Design Moves */}
                 <div className="mb-6 pb-6 border-b border-white/5">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-px bg-site-crimson" />
-                    <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Our Design Moves</span>
+                    <div className="w-12 h-px bg-primary" />
+                    <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">Our Design Moves</span>
                   </div>
                   <ul className="space-y-2">
                     {current.designMoves.slice(0, 3).map((move, i) => (
                       <li key={i} className="flex gap-3 text-sm text-white/55 leading-relaxed">
-                        <span className="text-site-gold/70 font-mono text-xs mt-0.5 shrink-0">0{i + 1}</span>
+                        <span className="text-primary/70 font-mono text-xs mt-0.5 shrink-0">0{i + 1}</span>
                         <span>{move}</span>
                       </li>
                     ))}
@@ -233,7 +233,7 @@ export const BeforeAfterShowcase = () => {
                 {current.testimonial && (
                   <div className="mb-6 relative">
                     <Quote className="absolute -top-2 -left-1 w-8 h-8 text-white/5" />
-                    <p className="text-white/70 text-sm italic leading-relaxed pl-4 border-l-2 border-site-gold/30">
+                    <p className="text-white/70 text-sm italic leading-relaxed pl-4 border-l-2 border-primary/30">
                       "{current.testimonial.quote.length > 120
                         ? current.testimonial.quote.slice(0, 120) + "…"
                         : current.testimonial.quote}"
@@ -248,7 +248,7 @@ export const BeforeAfterShowcase = () => {
                 <div className="mt-auto pt-4">
                   <a
                     href="/contact-us"
-                    className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-bold text-site-gold hover:text-white transition-colors duration-300 group"
+                    className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-bold text-primary hover:text-white transition-colors duration-300 group"
                   >
                     <span>Get a Similar Transformation</span>
                     <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
