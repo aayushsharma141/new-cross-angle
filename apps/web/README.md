@@ -14,22 +14,22 @@ The app is bundled as part of a monorepo at `c:\Users\aayus\Desktop\main` and li
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| UI Framework | React 18 (Vite + SWC) |
-| Routing | React Router v6 |
-| Styling | Tailwind CSS v3 + `tailwind-merge` + `class-variance-authority` |
-| Animations | Framer Motion, GSAP, Lenis (smooth scroll) |
-| UI Components | Radix UI primitives + shadcn/ui patterns |
-| Data & Backend | Supabase (Postgres + Edge Functions + Auth) |
-| State / Data Fetching | TanStack Query (React Query) |
-| Forms | React Hook Form + Zod |
-| Rich Text | Tiptap v3 (blog editor) |
-| Charts | Recharts |
-| Maps | Mapbox GL |
-| 3D | Three.js |
-| Error Monitoring | Sentry |
-| SEO | React Helmet Async |
+| Layer                 | Technology                                                      |
+| --------------------- | --------------------------------------------------------------- |
+| UI Framework          | React 18 (Vite + SWC)                                           |
+| Routing               | React Router v6                                                 |
+| Styling               | Tailwind CSS v3 + `tailwind-merge` + `class-variance-authority` |
+| Animations            | Framer Motion, GSAP, Lenis (smooth scroll)                      |
+| UI Components         | Radix UI primitives + shadcn/ui patterns                        |
+| Data & Backend        | Supabase (Postgres + Edge Functions + Auth)                     |
+| State / Data Fetching | TanStack Query (React Query)                                    |
+| Forms                 | React Hook Form + Zod                                           |
+| Rich Text             | Tiptap v3 (blog editor)                                         |
+| Charts                | Recharts                                                        |
+| Maps                  | Mapbox GL                                                       |
+| 3D                    | Three.js                                                        |
+| Error Monitoring      | Sentry                                                          |
+| SEO                   | React Helmet Async                                              |
 
 ---
 
@@ -118,12 +118,12 @@ Admin routes are under `/admin/*` and are auth-gated (`/admin/auth`).
 
 ## Lead Capture Touchpoints
 
-| Source Label | Visitor Entry Point | Data Destination |
-|---|---|---|
-| `website_contact` | `/contact-us` form | Supabase `leads` table via `process-lead` edge function |
-| `welcome_popup` | Homepage popup (5s delay) | Supabase `leads` table |
-| `estimator` | `/estimate` multi-step calculator | Supabase `leads` + estimator-specific tables |
-| `discovery_engine` | `/style-quiz` multi-stage quiz | Supabase `leads` + discovery analytics |
+| Source Label       | Visitor Entry Point               | Data Destination                                        |
+| ------------------ | --------------------------------- | ------------------------------------------------------- |
+| `website_contact`  | `/contact-us` form                | Supabase `leads` table via `process-lead` edge function |
+| `welcome_popup`    | Homepage popup (5s delay)         | Supabase `leads` table                                  |
+| `estimator`        | `/estimate` multi-step calculator | Supabase `leads` + estimator-specific tables            |
+| `discovery_engine` | `/style-quiz` multi-stage quiz    | Supabase `leads` + discovery analytics                  |
 
 ---
 
@@ -133,20 +133,20 @@ The app is backed by Supabase: Postgres database, Auth, Storage, and Edge Functi
 
 ### Key Database Tables
 
-| Table | Purpose |
-|---|---|
-| `leads` | All leads from contact form, popup, estimator, and quiz |
-| `projects` | Portfolio projects shown in the gallery |
-| `services` | Service entries powering `/services` category grids |
-| `blogs` | Blog articles |
-| `testimonials` | Client reviews shown on the homepage |
-| `team_members` | Team profiles shown on About page |
-| `hero_media` | Homepage hero slides and video |
+| Table          | Purpose                                                 |
+| -------------- | ------------------------------------------------------- |
+| `leads`        | All leads from contact form, popup, estimator, and quiz |
+| `projects`     | Portfolio projects shown in the gallery                 |
+| `services`     | Service entries powering `/services` category grids     |
+| `blogs`        | Blog articles                                           |
+| `testimonials` | Client reviews shown on the homepage                    |
+| `team_members` | Team profiles shown on About page                       |
+| `hero_media`   | Homepage hero slides and video                          |
 
 ### Edge Functions (`supabase/functions/`)
 
-| Function | Purpose |
-|---|---|
+| Function       | Purpose                                                                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `process-lead` | Handles contact form submissions: validates, rate-limits, notifies via WhatsApp (Twilio), syncs to Google Sheets, and stores the lead in Supabase |
 
 > **Note:** The `process-lead` function includes a clearly marked hook for adding an optional AI acknowledgment message (e.g. via Google Gemini or OpenAI). This is not active by default — no external AI service is required.
@@ -178,6 +178,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 For Sentry release tracking (optional):
+
 ```
 SENTRY_AUTH_TOKEN=...
 SENTRY_ORG=...
@@ -206,16 +207,16 @@ The admin console is bundled inside the same app and is accessible at `/admin/au
 
 ### Admin Modules
 
-| Module | Route | Purpose |
-|---|---|---|
-| Intelligence Hub | `/admin/dashboard` | KPI overview and lead monitoring |
-| CMS | `/admin/cms/*` | Portfolio, blog, services, testimonials, team, media management |
-| CRM | `/admin/crm/leads` | Lead pipeline, filtering, status tracking |
-| CRM Users | `/admin/crm/users` | User and permissions management |
-| Discovery Engine | `/admin/discovery/analytics` | Style quiz performance and generated leads |
-| Estimator Engine | `/admin/estimator/leads` | Estimator leads and pricing rate management |
-| Blog Analytics | `/admin/blog/overview` | Blog article performance and engagement |
-| System Config | `/admin/system/settings` | Global site settings |
+| Module           | Route                        | Purpose                                                         |
+| ---------------- | ---------------------------- | --------------------------------------------------------------- |
+| Intelligence Hub | `/admin/dashboard`           | KPI overview and lead monitoring                                |
+| CMS              | `/admin/cms/*`               | Portfolio, blog, services, testimonials, team, media management |
+| CRM              | `/admin/crm/leads`           | Lead pipeline, filtering, status tracking                       |
+| CRM Users        | `/admin/crm/users`           | User and permissions management                                 |
+| Discovery Engine | `/admin/discovery/analytics` | Style quiz performance and generated leads                      |
+| Estimator Engine | `/admin/estimator/leads`     | Estimator leads and pricing rate management                     |
+| Blog Analytics   | `/admin/blog/overview`       | Blog article performance and engagement                         |
+| System Config    | `/admin/system/settings`     | Global site settings                                            |
 
 ---
 
@@ -224,7 +225,7 @@ The admin console is bundled inside the same app and is accessible at `/admin/au
 - **Typography:** Inter (UI), Playfair Display (editorial headings)
 - **Color theme:** Dark premium with gold/amber accents
 - **UI style:** Glassmorphism cards, subtle hover states, cinematic scroll animations
-- **Brand statement:** *"We don't design interiors. We design how they feel."*
+- **Brand statement:** _"We don't design interiors. We design how they feel."_
 - **Studio presence:** Jamshedpur, Jharkhand, India
 - **Contact:** `hello@crossangle.com` | `+91 7909041132`
 
@@ -249,13 +250,13 @@ Asian Paints · Hafele · Godrej · Philips · Hettich · Jaquar
 
 ## Scripts Reference
 
-| Script | Command | Description |
-|---|---|---|
-| Dev server | `npm run dev` | Starts Vite on port 8080 |
-| Build | `npm run build` | Production bundle |
-| Post-build | auto | Runs `scripts/copy-indexes.js` for SPA routing |
-| Preview | `npm run preview` | Serves the production build locally |
-| Lint | `npm run lint` | ESLint check |
+| Script     | Command           | Description                                    |
+| ---------- | ----------------- | ---------------------------------------------- |
+| Dev server | `npm run dev`     | Starts Vite on port 8080                       |
+| Build      | `npm run build`   | Production bundle                              |
+| Post-build | auto              | Runs `scripts/copy-indexes.js` for SPA routing |
+| Preview    | `npm run preview` | Serves the production build locally            |
+| Lint       | `npm run lint`    | ESLint check                                   |
 
 ---
 
