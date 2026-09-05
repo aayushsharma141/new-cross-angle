@@ -1,5 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
+import { trace } from "@opentelemetry/api";
 
+const tracer = trace.getTracer("AssetService");
 export interface AssetRow {
   id: string;
   collection_id?: string | null;
@@ -49,92 +51,111 @@ export const AssetService = {
         role?: string;
         tags?: string[];
         recent?: boolean;
+        timeoutMs?: number;
     }
   ): Promise<AssetRow[]> {
-    let query = supabase
-      .from("assets")
-      .select(`
-        *,
-        asset_versions (
-          id,
-          url,
-          version_number,
-          file_id,
-          size_bytes
-        ),
-        asset_usages (count),
-        asset_tag_links (tag_id)
-      `)
-      .order("updated_at", { ascending: false });
+    return tracer.startActiveSpan("AssetService.getAssets", async (span) => {
+      const startTime = performance.now();
+      try {
+        const timeoutController = new AbortController();
+        const timeoutId = setTimeout(() => timeoutController.abort('Request timeout'), opts?.timeoutMs || 5000);
 
-    // By default, exclude archived assets from normal views unless overridden
-    if (!opts?.showArchived && !opts?.status) {
-      query = query.neq("status", "archived");
-    }
+        let query = supabase
+          .from("assets")
+          .select(`
+            *,
+            asset_versions (
+              id,
+              url,
+              version_number,
+              file_id,
+              size_bytes
+            ),
+            asset_usages (count),
+            asset_tag_links (tag_id)
+          `)
+          .order("updated_at", { ascending: false });
 
-    if (opts?.status) {
-      query = query.eq("status", opts.status);
-    }
-
-    if (collectionId) {
-      query = query.eq("collection_id", collectionId);
-    }
-
-    if (opts?.searchQuery) {
-      query = query.ilike("title", `%${opts.searchQuery}%`);
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
-    
-    let results = data as unknown as AssetRow[];
-    
-    if (opts?.unused) {
-        results = results.filter(a => !a.asset_usages || a.asset_usages.length === 0 || a.asset_usages[0].count === 0);
-    }
-
-    // Domain/role filtering: these values live on asset_usages, not assets themselves.
-    // Fetch matching usage records if a domain or role filter is requested.
-    if (opts?.domain || opts?.role) {
-        let usageQuery = supabase
-            .from("asset_usages")
-            .select("asset_id, entity_type, role, domain");
-
-        if (opts.domain) {
-            usageQuery = usageQuery.ilike("domain", opts.domain);
+        if (!opts?.showArchived && !opts?.status) {
+          query = query.neq("status", "archived");
         }
-        if (opts.role) {
-            usageQuery = usageQuery.eq("role", opts.role);
+        if (opts?.status) {
+          query = query.eq("status", opts.status);
+        }
+        if (collectionId) {
+          query = query.eq("collection_id", collectionId);
+        }
+        if (opts?.searchQuery) {
+          query = query.ilike("title", `%${opts.searchQuery}%`);
+          span.setAttribute("search.query", opts.searchQuery);
         }
 
-        const { data: usageData, error: usageError } = await usageQuery;
-        if (usageError) throw usageError;
+        const { data, error } = await query.abortSignal(timeoutController.signal);
+        clearTimeout(timeoutId);
+        
+        if (error) {
+          if (error.message.includes('AbortError') || error.message.includes('Request timeout')) {
+            throw new Error('Supabase request timed out');
+          }
+          throw error;
+        }
+        
+        let results = data as unknown as AssetRow[];
+        
+        if (opts?.unused) {
+            results = results.filter(a => !a.asset_usages || a.asset_usages.length === 0 || a.asset_usages[0].count === 0);
+        }
 
-        const matchingAssetIds = new Set((usageData || []).map(u => u.asset_id));
-        results = results.filter(a => matchingAssetIds.has(a.id));
-    }
+        if (opts?.domain || opts?.role) {
+            let usageQuery = supabase
+                .from("asset_usages")
+                .select("asset_id, entity_type, role, domain");
 
-    // Tags filtering
-    if (opts?.tags && opts.tags.length > 0) {
-      const { data: tagLinks, error: tagLinksError } = await supabase
-        .from('asset_tag_links')
-        .select('asset_id')
-        .in('tag_id', opts.tags);
+            if (opts.domain) usageQuery = usageQuery.ilike("domain", opts.domain);
+            if (opts.role) usageQuery = usageQuery.eq("role", opts.role);
 
-      if (tagLinksError) throw tagLinksError;
-      
-      const matchedAssetIds = new Set((tagLinks || []).map(l => l.asset_id));
-      results = results.filter(a => matchedAssetIds.has(a.id));
-    }
+            const { data: usageData, error: usageError } = await usageQuery;
+            if (usageError) throw usageError;
 
-    if (opts?.recent) {
-        // Last 7 days
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        results = results.filter(a => new Date(a.created_at) >= sevenDaysAgo);
-    }
+            const matchingAssetIds = new Set((usageData || []).map(u => u.asset_id));
+            results = results.filter(a => matchingAssetIds.has(a.id));
+        }
 
-    return results;
+        if (opts?.tags && opts.tags.length > 0) {
+          const { data: tagLinks, error: tagLinksError } = await supabase
+            .from('asset_tag_links')
+            .select('asset_id')
+            .in('tag_id', opts.tags);
+
+          if (tagLinksError) throw tagLinksError;
+          
+          const matchedAssetIds = new Set((tagLinks || []).map(l => l.asset_id));
+          results = results.filter(a => matchedAssetIds.has(a.id));
+        }
+
+        if (opts?.recent) {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            results = results.filter(a => new Date(a.created_at) >= sevenDaysAgo);
+        }
+
+        const duration = performance.now() - startTime;
+        span.setAttribute("search.duration_ms", duration);
+        span.setAttribute("search.results_count", results.length);
+
+        if (opts?.searchQuery && duration > 500) {
+          console.warn(`⚠️ SLO VIOLATION: Search took ${Math.round(duration)}ms (Target: < 500ms)`);
+          span.setAttribute("slo.violation", true);
+        }
+
+        span.end();
+        return results;
+      } catch (err: any) {
+        span.recordException(err);
+        span.end();
+        throw err;
+      }
+    });
   },
 
   async getTags(): Promise<AssetTagRow[]> {

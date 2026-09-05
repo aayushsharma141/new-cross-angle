@@ -176,7 +176,7 @@ export default function BlueprintPage() {
   const getCategoryIcon = (categoryName: string) => {
     switch (categoryName) {
       case 'Core Standards & Specs':
-        return <Cpu className="w-3.5 h-3.5 text-[#C41230]" />;
+        return <Cpu className="w-3.5 h-3.5 text-[#D4AF37]" />;
       case 'Design History Logs':
         return <Sparkles className="w-3.5 h-3.5 text-yellow-500" />;
       case 'Engineering Audits':
@@ -192,7 +192,7 @@ export default function BlueprintPage() {
     <div className="blueprint-page-wrapper bg-[#040404] text-[#E0E0E0] min-h-screen" ref={containerRef}>
       {/* Live scroll progress bar — replaces the JS-driven #progress div */}
       <div
-        style={{ position: 'fixed', top: 0, left: 0, height: 2, width: `${scrollProgress}%`, background: 'linear-gradient(90deg,#C41230,#D1AF6E)', zIndex: 9997, transition: 'width 0.1s linear', boxShadow: '0 0 12px #C41230' }}
+        style={{ position: 'fixed', top: 0, left: 0, height: 2, width: `${scrollProgress}%`, background: 'linear-gradient(90deg,#D4AF37,#D1AF6E)', zIndex: 9997, transition: 'width 0.1s linear', boxShadow: '0 0 12px #D4AF37' }}
       />
 
       {/*  HEADER  */}
@@ -206,7 +206,7 @@ export default function BlueprintPage() {
             <button 
               type="button"
               onClick={() => { setActiveTab('blueprint'); setSelectedDocId(null); }}
-              className={`text-xs tracking-widest uppercase py-2 border-b-2 transition-all cursor-pointer font-mono ${activeTab === 'blueprint' ? 'text-white border-[#C41230]' : 'text-neutral-500 border-transparent hover:text-neutral-200'}`}
+              className={`text-xs tracking-widest uppercase py-2 border-b-2 transition-all cursor-pointer font-mono ${activeTab === 'blueprint' ? 'text-white border-[#D4AF37]' : 'text-neutral-500 border-transparent hover:text-neutral-200'}`}
             >
               System Blueprint
             </button>
@@ -215,7 +215,7 @@ export default function BlueprintPage() {
             <button 
               type="button"
               onClick={() => setActiveTab('docs')}
-              className={`text-xs tracking-widest uppercase py-2 border-b-2 transition-all cursor-pointer font-mono ${activeTab === 'docs' ? 'text-white border-[#C41230]' : 'text-neutral-500 border-transparent hover:text-neutral-200'}`}
+              className={`text-xs tracking-widest uppercase py-2 border-b-2 transition-all cursor-pointer font-mono ${activeTab === 'docs' ? 'text-white border-[#D4AF37]' : 'text-neutral-500 border-transparent hover:text-neutral-200'}`}
             >
               Documentation Workspace
             </button>
@@ -224,7 +224,7 @@ export default function BlueprintPage() {
             <button 
               type="button"
               onClick={() => { setActiveTab('proposal'); setSelectedDocId(null); }}
-              className={`text-xs tracking-widest uppercase py-2 border-b-2 transition-all cursor-pointer font-mono ${activeTab === 'proposal' ? 'text-white border-[#C41230]' : 'text-neutral-500 border-transparent hover:text-neutral-200'}`}
+              className={`text-xs tracking-widest uppercase py-2 border-b-2 transition-all cursor-pointer font-mono ${activeTab === 'proposal' ? 'text-white border-[#D4AF37]' : 'text-neutral-500 border-transparent hover:text-neutral-200'}`}
             >
               Design Proposal
             </button>
@@ -237,7 +237,7 @@ export default function BlueprintPage() {
         <>
           {/*  ═══════════ COVER ═══════════  */}
           <section id="cover" className="relative border-b border-neutral-900 overflow-hidden">
-            <Squares strokeColor="rgba(196, 18, 48, 0.08)" squareSize={12} className="absolute inset-0 pointer-events-none opacity-40" />
+            <Squares strokeColor="rgba(212,175,55, 0.08)" squareSize={12} className="absolute inset-0 pointer-events-none opacity-40" />
             <div className="cover-inner relative z-10">
               <div className="cover-left">
                 <div className="doc-meta">Interactive Architecture Dashboard — 2026</div>
@@ -256,7 +256,7 @@ export default function BlueprintPage() {
                   <button 
                     type="button"
                     onClick={() => setActiveTab('docs')}
-                    className="px-6 py-3 bg-[#C41230] text-white font-medium text-xs tracking-wider uppercase hover:bg-red-700 transition-all flex items-center gap-2 cursor-pointer"
+                    className="px-6 py-3 bg-[#D4AF37] text-white font-medium text-xs tracking-wider uppercase hover:bg-red-700 transition-all flex items-center gap-2 cursor-pointer"
                   >
                     Open Document Portal <ArrowRight className="w-3.5 h-3.5" />
                   </button>
@@ -281,7 +281,7 @@ export default function BlueprintPage() {
                     { label: 'COMPILED FILES', value: String(docsRegistry.length), color: 'text-white' },
                     { label: 'SECURITY AUDIT', value: 'PASS', color: 'text-green-500' },
                     { label: 'UX METRICS', value: 'PREM', color: 'text-yellow-500' },
-                    { label: 'ADDONS MOUNTED', value: '04', color: 'text-[#C41230]' },
+                    { label: 'ADDONS MOUNTED', value: '04', color: 'text-[#D4AF37]' },
                   ].map(s => (
                     <div key={s.label} className="bg-neutral-950/60 border border-neutral-900 rounded-lg p-4">
                       <p className="text-[9px] font-mono text-neutral-500 tracking-wider mb-1">{s.label}</p>
@@ -309,13 +309,13 @@ export default function BlueprintPage() {
                   </div>
                   <div className="stat-cell">
                     <span className="text-[10px] text-neutral-500 font-mono tracking-wider">ADDONS MOUNTED</span>
-                    <div className="stat-num text-[#C41230] mt-2">04</div>
+                    <div className="stat-num text-[#D4AF37] mt-2">04</div>
                     <div className="stat-label">Decoupled Engines</div>
                   </div>
                 </div>
                 <div className="p-8 flex flex-col justify-center">
                   <div className="border border-neutral-900 bg-neutral-900/10 p-6 rounded-lg">
-                    <h4 className="text-xs font-mono tracking-widest text-[#C41230] uppercase mb-4 flex items-center gap-2">
+                    <h4 className="text-xs font-mono tracking-widest text-[#D4AF37] uppercase mb-4 flex items-center gap-2">
                       <Terminal className="w-3.5 h-3.5" /> Quick Documentation Index
                     </h4>
                     <div className="space-y-3 font-mono text-xs">
@@ -346,13 +346,13 @@ export default function BlueprintPage() {
           <section id="journey-timeline" className="py-24 md:py-32 pt-32 md:pt-40 px-[4vw] max-w-[1600px] mx-auto border-b border-neutral-900">
             {/* Section header */}
             <div className="text-center mb-20">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C41230]/30 bg-[#C41230]/10 text-[#C41230] text-[10px] tracking-[0.2em] uppercase mb-8 font-mono shadow-[0_0_20px_rgba(196,18,48,0.15)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#C41230] animate-pulse"></span>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#D4AF37] text-[10px] tracking-[0.2em] uppercase mb-8 font-mono shadow-[0_0_20px_rgba(212,175,55,0.15)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"></span>
                 Scratch to Live · Full Architecture
               </div>
               <h2 className="font-serif text-5xl md:text-7xl text-white tracking-tight leading-[1.1] mb-6">
                 The ₹10 Lakh<br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-400 to-[#C41230] italic font-light">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-400 to-[#D4AF37] italic font-light">
                   Architectural Timeline
                 </span>
               </h2>
@@ -364,7 +364,7 @@ export default function BlueprintPage() {
             {/* ── Vertical timeline — all phases rendered together ── */}
             <div className="relative">
               {/* Vertical connecting line — centered on 40px node (left-5 = 20px) */}
-              <div className="absolute left-5 md:left-6 top-0 bottom-0 w-px bg-gradient-to-b from-[#C41230]/60 via-neutral-800 to-transparent pointer-events-none" />
+              <div className="absolute left-5 md:left-6 top-0 bottom-0 w-px bg-gradient-to-b from-[#D4AF37]/60 via-neutral-800 to-transparent pointer-events-none" />
 
               <div className="space-y-0">
 
@@ -372,14 +372,14 @@ export default function BlueprintPage() {
                 <div className="relative pl-12 md:pl-16 pb-16">
                   {/* Timeline node */}
                   <div className="absolute left-0 top-1 flex flex-col items-center">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#C41230] border-4 border-[#040404] flex items-center justify-center shadow-[0_0_20px_rgba(196,18,48,0.5)] z-10">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#D4AF37] border-4 border-[#040404] flex items-center justify-center shadow-[0_0_20px_rgba(212,175,55,0.5)] z-10">
                       <Database className="w-4 h-4 text-white" />
                     </div>
                   </div>
 
                   {/* Phase label bar */}
                   <div className="flex flex-wrap items-center gap-3 mb-4">
-                    <span className="font-mono text-[10px] text-[#C41230] tracking-[0.25em] uppercase">Phase 01</span>
+                    <span className="font-mono text-[10px] text-[#D4AF37] tracking-[0.25em] uppercase">Phase 01</span>
                     <span className="px-2 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-[9px] font-mono text-neutral-400 tracking-wider">DB & RLS</span>
                     <span className="px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded text-[9px] font-mono text-green-400 flex items-center gap-1">
                       <CheckCircle className="w-2.5 h-2.5" /> Complete
@@ -398,7 +398,7 @@ export default function BlueprintPage() {
                       <div className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest mb-3">SELECT DATABASE TABLE</div>
                       {(['profiles', 'inquiries', 'estimates', 'projects'] as const).map(table => (
                         <button key={table} type="button" onClick={() => setSelectedDbTable(table)}
-                          className={`w-full flex items-center justify-between p-3 rounded-xl border text-xs font-mono transition-all ${selectedDbTable === table ? "bg-[#C41230]/10 border-[#C41230]/30 text-white font-bold" : "bg-neutral-900/40 border-neutral-900 text-neutral-400 hover:text-neutral-200"}`}>
+                          className={`w-full flex items-center justify-between p-3 rounded-xl border text-xs font-mono transition-all ${selectedDbTable === table ? "bg-[#D4AF37]/10 border-[#D4AF37]/30 text-white font-bold" : "bg-neutral-900/40 border-neutral-900 text-neutral-400 hover:text-neutral-200"}`}>
                           <span>↳ {table}</span>
                           <ChevronRight className="w-3.5 h-3.5" />
                         </button>
@@ -418,7 +418,7 @@ export default function BlueprintPage() {
                     {/* Schema detail */}
                     <div className="bg-black border border-neutral-900 rounded-2xl p-5 font-mono text-xs">
                       <div className="flex justify-between items-center border-b border-neutral-900 pb-3 mb-3">
-                        <span className="text-[#C41230] font-bold">TABLE: {selectedDbTable}</span>
+                        <span className="text-[#D4AF37] font-bold">TABLE: {selectedDbTable}</span>
                         <span className="text-[10px] text-neutral-500">RLS ENABLED</span>
                       </div>
                       <div className="space-y-3 text-left">
@@ -428,7 +428,7 @@ export default function BlueprintPage() {
                         {selectedDbTable === 'projects' && (<><div className="flex justify-between"><span className="text-neutral-300">id (uuid)</span><span className="text-neutral-500 text-[10px]">PRIMARY KEY</span></div><div className="flex justify-between"><span className="text-neutral-300">title (text)</span><span className="text-neutral-500 text-[10px]">PUBLIC VIEW</span></div><div className="flex justify-between"><span className="text-neutral-300">budget (numeric)</span>{authRole === 'admin' ? <span className="text-green-400 text-[10px] animate-pulse">₹45,00,000</span> : <span className="text-red-500 text-[10px]">🔒 [Redacted]</span>}</div></>)}
                       </div>
                       <div className="border-t border-neutral-900 pt-3 mt-4">
-                        <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-[#C41230]" /> ACTIVE POLICY</div>
+                        <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1 flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" /> ACTIVE POLICY</div>
                         <p className="text-[10px] text-neutral-400 leading-relaxed font-sans">
                           {selectedDbTable === 'profiles' && "CREATE POLICY public_profile_select ON profiles FOR SELECT USING (true);"}
                           {selectedDbTable === 'inquiries' && "CREATE POLICY admin_inquiry_select ON inquiries FOR SELECT TO authenticated USING (auth.role() = 'authenticated_crm');"}
@@ -443,13 +443,13 @@ export default function BlueprintPage() {
                 {/* ─── PHASE 02: PUBLIC PORTAL ─── */}
                 <div className="relative pl-12 md:pl-16 pb-16">
                   <div className="absolute left-0 top-1 flex flex-col items-center">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-neutral-900 border-4 border-[#040404] border-l-[#C41230] flex items-center justify-center shadow-[0_0_16px_rgba(196,18,48,0.3)] z-10">
-                      <Sparkles className="w-4 h-4 text-[#C41230]" />
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-neutral-900 border-4 border-[#040404] border-l-[#D4AF37] flex items-center justify-center shadow-[0_0_16px_rgba(212,175,55,0.3)] z-10">
+                      <Sparkles className="w-4 h-4 text-[#D4AF37]" />
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3 mb-4">
-                    <span className="font-mono text-[10px] text-[#C41230] tracking-[0.25em] uppercase">Phase 02</span>
+                    <span className="font-mono text-[10px] text-[#D4AF37] tracking-[0.25em] uppercase">Phase 02</span>
                     <span className="px-2 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-[9px] font-mono text-neutral-400 tracking-wider">UX & Stagger</span>
                     <span className="px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded text-[9px] font-mono text-green-400 flex items-center gap-1">
                       <CheckCircle className="w-2.5 h-2.5" /> Complete
@@ -470,7 +470,7 @@ export default function BlueprintPage() {
                       </div>
                       <div className="border border-neutral-900 rounded-xl p-4 space-y-3 bg-black/40 min-h-[140px] flex flex-col justify-center">
                         <div className={`flex justify-between items-center py-2 px-3 bg-neutral-900/80 border border-neutral-800 rounded-lg transition-all duration-500 ${staggerStep >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#C41230]"></span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span>
                           <div className="flex gap-2"><span className="w-8 h-1 bg-neutral-800 rounded"></span><span className="w-8 h-1 bg-neutral-800 rounded"></span></div>
                         </div>
                         <div className="space-y-1.5">
@@ -480,15 +480,15 @@ export default function BlueprintPage() {
                         <div className={`space-y-1 transition-all duration-500 ${staggerStep >= 3 ? 'opacity-100' : 'opacity-0 translate-y-3'}`}>
                           <div className="h-1.5 bg-neutral-800 rounded w-full"></div><div className="h-1.5 bg-neutral-800 rounded w-5/6"></div>
                         </div>
-                        <div className={`h-6 bg-[#C41230] rounded w-24 transition-all duration-500 ${staggerStep >= 4 ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}></div>
+                        <div className={`h-6 bg-[#D4AF37] rounded w-24 transition-all duration-500 ${staggerStep >= 4 ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}></div>
                       </div>
                       <button type="button" onClick={() => { setStaggerSimActive(false); setTimeout(() => setStaggerSimActive(true), 100); }}
-                        className="w-full py-2 bg-[#C41230] hover:bg-red-700 text-xs text-white font-mono uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-2">
+                        className="w-full py-2 bg-[#D4AF37] hover:bg-red-700 text-xs text-white font-mono uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-2">
                         <Play className="w-3.5 h-3.5" /> Trigger Entrance Stagger
                       </button>
                     </div>
                     <div className="bg-black border border-neutral-900 rounded-2xl p-5 font-mono text-xs">
-                      <div className="flex items-center gap-1.5 text-neutral-500 uppercase tracking-widest text-[10px] mb-3"><Terminal className="w-4 h-4 text-[#C41230]" /> Motion Code</div>
+                      <div className="flex items-center gap-1.5 text-neutral-500 uppercase tracking-widest text-[10px] mb-3"><Terminal className="w-4 h-4 text-[#D4AF37]" /> Motion Code</div>
                       <pre className="text-neutral-400 text-[10px] leading-relaxed overflow-x-auto whitespace-pre bg-[#020202]/70 p-3 rounded border border-neutral-900 text-left">{`const container = {
   hidden: { opacity: 0 },
   show: {
@@ -517,13 +517,13 @@ const item = {
                 {/* ─── PHASE 03: ADMIN CRM ─── */}
                 <div className="relative pl-12 md:pl-16 pb-16">
                   <div className="absolute left-0 top-1 flex flex-col items-center">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-neutral-900 border-4 border-[#040404] border-l-[#C41230] flex items-center justify-center shadow-[0_0_16px_rgba(196,18,48,0.3)] z-10">
-                      <Cpu className="w-4 h-4 text-[#C41230]" />
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-neutral-900 border-4 border-[#040404] border-l-[#D4AF37] flex items-center justify-center shadow-[0_0_16px_rgba(212,175,55,0.3)] z-10">
+                      <Cpu className="w-4 h-4 text-[#D4AF37]" />
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3 mb-4">
-                    <span className="font-mono text-[10px] text-[#C41230] tracking-[0.25em] uppercase">Phase 03</span>
+                    <span className="font-mono text-[10px] text-[#D4AF37] tracking-[0.25em] uppercase">Phase 03</span>
                     <span className="px-2 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-[9px] font-mono text-neutral-400 tracking-wider">CRM & Kanban</span>
                     <span className="px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded text-[9px] font-mono text-green-400 flex items-center gap-1">
                       <CheckCircle className="w-2.5 h-2.5" /> Complete
@@ -548,9 +548,9 @@ const item = {
                             <span className="text-[9px] font-mono text-neutral-600 text-center uppercase tracking-wider">{step}</span>
                             <div className="h-20 bg-neutral-900/50 rounded border border-neutral-900 p-1 flex flex-col justify-start">
                               {crmLeadStage === idx && (
-                                <div className="bg-[#C41230]/20 border border-[#C41230]/40 rounded p-1 text-[9px] font-mono text-white animate-bounce">
+                                <div className="bg-[#D4AF37]/20 border border-[#D4AF37]/40 rounded p-1 text-[9px] font-mono text-white animate-bounce">
                                   <div className="font-bold truncate">A. Sharma</div>
-                                  <div className="text-[#C41230] font-bold">₹12.4L</div>
+                                  <div className="text-[#D4AF37] font-bold">₹12.4L</div>
                                 </div>
                               )}
                             </div>
@@ -561,17 +561,17 @@ const item = {
                         <button type="button" disabled={crmLeadStage === 0} onClick={() => setCrmLeadStage(p => Math.max(0, p - 1))}
                           className="flex-1 px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-[10px] text-neutral-400 font-mono rounded border border-neutral-800 disabled:opacity-40 disabled:pointer-events-none transition-colors">← Prev</button>
                         <button type="button" disabled={crmLeadStage === 3} onClick={() => setCrmLeadStage(p => Math.min(3, p + 1))}
-                          className="flex-1 px-3 py-1.5 bg-[#C41230] hover:bg-red-700 text-[10px] text-white font-mono rounded transition-colors">Advance →</button>
+                          className="flex-1 px-3 py-1.5 bg-[#D4AF37] hover:bg-red-700 text-[10px] text-white font-mono rounded transition-colors">Advance →</button>
                       </div>
                     </div>
                     <div className="bg-black border border-neutral-900 rounded-2xl p-5 font-mono text-xs flex flex-col gap-3">
-                      <div className="flex items-center gap-1.5 text-neutral-500 uppercase tracking-widest text-[10px]"><RefreshCw className="w-3.5 h-3.5 text-[#C41230] animate-spin" style={{animationDuration:'4s'}} /> Realtime Event Stream</div>
+                      <div className="flex items-center gap-1.5 text-neutral-500 uppercase tracking-widest text-[10px]"><RefreshCw className="w-3.5 h-3.5 text-[#D4AF37] animate-spin" style={{animationDuration:'4s'}} /> Realtime Event Stream</div>
                       <div className="bg-[#020202]/70 p-3 rounded border border-neutral-900 text-[10px] text-neutral-400 space-y-1.5 min-h-[100px] text-left">
                         <div className="text-neutral-600">-- postgres channels payload listener:</div>
                         <div>
                           {crmLeadStage === 0 && <span className="text-green-400 font-bold">INSERT → inquiries (status: 'inbox')</span>}
-                          {crmLeadStage === 1 && <span className="text-[#C41230] font-bold">UPDATE → status = 'call'</span>}
-                          {crmLeadStage === 2 && <span className="text-[#C41230] font-bold">UPDATE → status = 'proposal'</span>}
+                          {crmLeadStage === 1 && <span className="text-[#D4AF37] font-bold">UPDATE → status = 'call'</span>}
+                          {crmLeadStage === 2 && <span className="text-[#D4AF37] font-bold">UPDATE → status = 'proposal'</span>}
                           {crmLeadStage === 3 && <span className="text-green-400 font-bold">COMMIT → status = 'signed' ✓</span>}
                         </div>
                         <div className="text-neutral-600">{`updated_at: ${new Date().toISOString().split('T')[0]}`}</div>
@@ -590,7 +590,7 @@ const item = {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3 mb-4">
-                    <span className="font-mono text-[10px] text-[#C41230] tracking-[0.25em] uppercase">Phase 04</span>
+                    <span className="font-mono text-[10px] text-[#D4AF37] tracking-[0.25em] uppercase">Phase 04</span>
                     <span className="px-2 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-[9px] font-mono text-neutral-400 tracking-wider">Launch & Perf</span>
                     <span className="px-2 py-0.5 bg-yellow-500/10 border border-yellow-500/20 rounded text-[9px] font-mono text-yellow-400 flex items-center gap-1">
                       <Activity className="w-2.5 h-2.5" /> Live
@@ -650,7 +650,7 @@ const item = {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3 mb-4">
-                    <span className="font-mono text-[10px] text-[#C41230] tracking-[0.25em] uppercase">Phase 05</span>
+                    <span className="font-mono text-[10px] text-[#D4AF37] tracking-[0.25em] uppercase">Phase 05</span>
                     <span className="px-2 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-[9px] font-mono text-neutral-400 tracking-wider">DS & Tokens</span>
                     <span className="px-2 py-0.5 bg-[#D1AF6E]/10 border border-[#D1AF6E]/20 rounded text-[9px] font-mono text-[#D1AF6E] flex items-center gap-1">
                       <RefreshCw className="w-2.5 h-2.5" /> Ongoing
@@ -667,7 +667,7 @@ const item = {
                     <div className="bg-neutral-950 border border-neutral-900 rounded-2xl p-5 space-y-3">
                       <div className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest mb-1">COLOR TOKEN PALETTE</div>
                       {[
-                        { token: '--site-crimson', hex: '#C41230', label: 'Primary Action' },
+                        { token: '--site-crimson', hex: '#D4AF37', label: 'Primary Action' },
                         { token: '--site-gold', hex: '#D1AF6E', label: 'Accent / Luxury' },
                         { token: '--site-bg', hex: '#040404', label: 'Base Background' },
                         { token: '--site-bg-card', hex: '#0a0a0a', label: 'Card Surface' },
@@ -676,7 +676,7 @@ const item = {
                       ].map(c => (
                         <div key={c.token} className="flex items-center gap-3 font-mono text-xs">
                           <div className="w-6 h-6 rounded border border-neutral-800 flex-shrink-0" style={{ background: c.hex }} />
-                          <span className="text-[#C41230] text-[10px] w-32 truncate">{c.token}</span>
+                          <span className="text-[#D4AF37] text-[10px] w-32 truncate">{c.token}</span>
                           <span className="text-neutral-500 text-[10px]">{c.label}</span>
                         </div>
                       ))}
@@ -686,12 +686,12 @@ const item = {
                       <div className="space-y-2 border-b border-neutral-900 pb-4">
                         <div><p className="font-serif text-2xl text-white leading-none">Display Serif</p><span className="text-[9px] font-mono text-neutral-600">Cormorant Garamond — H1 / Display</span></div>
                         <div><p className="font-sans font-bold text-sm text-white uppercase tracking-[0.2em]">Syne Bold</p><span className="text-[9px] font-mono text-neutral-600">Syne 800 — Section Labels</span></div>
-                        <div><p className="font-mono text-xs text-[#C41230]">DM Mono — Code & Kickers</p><span className="text-[9px] font-mono text-neutral-600">DM Mono — Metadata / Tags</span></div>
+                        <div><p className="font-mono text-xs text-[#D4AF37]">DM Mono — Code & Kickers</p><span className="text-[9px] font-mono text-neutral-600">DM Mono — Metadata / Tags</span></div>
                         <div><p className="text-sm text-neutral-300">Inter — Body copy at 1rem / 1.75</p><span className="text-[9px] font-mono text-neutral-600">Inter — Paragraphs</span></div>
                       </div>
                       <div className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">COMPONENT TOKENS</div>
                       <div className="flex flex-wrap gap-2">
-                        <span className="px-3 py-1 bg-[#C41230] text-white text-[10px] font-bold uppercase tracking-wider">Primary CTA</span>
+                        <span className="px-3 py-1 bg-[#D4AF37] text-white text-[10px] font-bold uppercase tracking-wider">Primary CTA</span>
                         <span className="px-3 py-1 border border-neutral-700 text-neutral-300 text-[10px] font-bold uppercase tracking-wider">Secondary</span>
                         <span className="px-2.5 py-0.5 rounded-full border border-[#D1AF6E]/30 text-[#D1AF6E] text-[9px] font-mono">Tag / Chip</span>
                         <span className="px-2.5 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-mono rounded">Status: Active</span>
@@ -750,7 +750,7 @@ const item = {
                   <div className="p-8 bg-[#0f0f0f] border border-white/[0.07] relative overflow-hidden">
                     <div className="font-mono text-[9px] tracking-[0.2em] uppercase text-[#7A7671] mb-5">Color Palette</div>
                     <div className="flex gap-2 mb-4">
-                      {['#080808','#0F0F0F','#C41230','#D1AF6E','#BFA27A','#F0EDE8'].map(hex => (
+                      {['#080808','#0F0F0F','#D4AF37','#D1AF6E','#BFA27A','#F0EDE8'].map(hex => (
                         <div key={hex} className="w-10 h-10 rounded-sm transition-transform hover:scale-110 cursor-default" style={{ background: hex }} />
                       ))}
                     </div>
@@ -943,7 +943,7 @@ const item = {
         <section className="pt-20 pb-16 px-4 md:px-10 lg:px-14 bg-[#040404] min-h-screen" id="docs-workspace">
           <div className="max-w-[1600px] w-full mx-auto">
             <div id="docs-workspace-title" className="mb-8 border-b border-neutral-900 pb-6 pt-2">
-              <div className="flex items-center gap-2 text-xs font-mono text-[#C41230] uppercase tracking-widest mb-3">
+              <div className="flex items-center gap-2 text-xs font-mono text-[#D4AF37] uppercase tracking-widest mb-3">
                 <BookOpen className="w-3.5 h-3.5" /> Project Truth Engine
               </div>
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -961,7 +961,7 @@ const item = {
                     placeholder="Search docs… (⌘K)"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2.5 bg-neutral-950 border border-neutral-900 rounded text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#C41230] transition-colors font-mono"
+                    className="w-full pl-9 pr-4 py-2.5 bg-neutral-950 border border-neutral-900 rounded text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#D4AF37] transition-colors font-mono"
                   />
                 </div>
               </div>
@@ -999,7 +999,7 @@ const item = {
                         >
                           <div className="flex items-center gap-2">
                             {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-neutral-500" /> : <ChevronRight className="w-3.5 h-3.5 text-neutral-500" />}
-                            {isExpanded ? <FolderOpen className="w-3.5 h-3.5 text-[#C41230]" /> : <Folder className="w-3.5 h-3.5 text-[#C41230]" />}
+                            {isExpanded ? <FolderOpen className="w-3.5 h-3.5 text-[#D4AF37]" /> : <Folder className="w-3.5 h-3.5 text-[#D4AF37]" />}
                             <span className="truncate">{catName}</span>
                           </div>
                           <span className="text-[9px] bg-neutral-900 border border-neutral-800 text-neutral-500 px-1.5 py-0.5 rounded font-mono">
@@ -1022,7 +1022,7 @@ const item = {
                                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedDocId(doc.id); } }}
                                   className={`doc-row flex items-center justify-between py-1.5 px-2 rounded cursor-pointer transition-all border ${
                                     isSelected 
-                                      ? 'bg-[#C41230]/10 border-[#C41230]/30 text-white font-semibold' 
+                                      ? 'bg-[#D4AF37]/10 border-[#D4AF37]/30 text-white font-semibold' 
                                       : 'border-transparent text-neutral-400 hover:bg-neutral-900/60 hover:text-neutral-200'
                                   }`}
                                 >
@@ -1060,7 +1060,7 @@ const item = {
                         <span className="terminal-dot dot-green"></span>
                         <button 
                           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                          className="text-neutral-500 hover:text-[#C41230] transition-colors ml-4 flex items-center gap-1 cursor-pointer"
+                          className="text-neutral-500 hover:text-[#D4AF37] transition-colors ml-4 flex items-center gap-1 cursor-pointer"
                           title={isSidebarOpen ? "Expand Reading Space" : "Show Explorer"}
                         >
                           {isSidebarOpen ? <Maximize2 className="w-3.5 h-3.5" /> : <Minimize2 className="w-3.5 h-3.5" />}
@@ -1110,7 +1110,7 @@ const item = {
                       <div className="scorecard-metric p-4 rounded-lg">
                         <div className="flex justify-between items-start mb-2">
                           <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-wider">LCP Latency</span>
-                          <Activity className="w-3.5 h-3.5 text-[#C41230]" />
+                          <Activity className="w-3.5 h-3.5 text-[#D4AF37]" />
                         </div>
                         <div className="text-2xl font-bold font-serif text-white flex items-baseline gap-1">
                           99 <span className="text-xs text-neutral-500">/100</span>
@@ -1156,7 +1156,7 @@ const item = {
                     {/* Repository Tree Blueprint Map */}
                     <div className="border border-neutral-900 rounded-lg p-6 bg-neutral-950/40">
                       <h3 className="text-sm font-serif text-white mb-4 flex items-center gap-2">
-                        <Terminal className="w-4 h-4 text-[#C41230]" /> CrossAngle Monorepo Structure
+                        <Terminal className="w-4 h-4 text-[#D4AF37]" /> CrossAngle Monorepo Structure
                       </h3>
                       <div className="font-mono text-xs text-neutral-400 space-y-2 border-l border-neutral-900 pl-4 ml-1">
                         <div>
@@ -1206,7 +1206,7 @@ const item = {
                             setSelectedDocId('10_improvement_roadmap_md');
                             setExpandedFolders(prev => ({ ...prev, 'Engineering Audits': true }));
                           }}
-                          className="px-4 py-2 bg-[#C41230]/15 hover:bg-[#C41230]/25 border border-[#C41230]/30 hover:border-[#C41230]/50 text-white rounded font-mono text-xs cursor-pointer transition-colors"
+                          className="px-4 py-2 bg-[#D4AF37]/15 hover:bg-[#D4AF37]/25 border border-[#D4AF37]/30 hover:border-[#D4AF37]/50 text-white rounded font-mono text-xs cursor-pointer transition-colors"
                         >
                           Open Improvement Roadmap
                         </button>
@@ -1338,7 +1338,7 @@ function parseMarkdownToReact(content: string) {
       );
     } else if (line.startsWith('#### ')) {
       elements.push(
-        <h4 key={`h4-${i}`} className="text-sm font-mono text-[#C41230] mt-4 mb-2 uppercase tracking-wider">
+        <h4 key={`h4-${i}`} className="text-sm font-mono text-[#D4AF37] mt-4 mb-2 uppercase tracking-wider">
           {parseInline(line.substring(5))}
         </h4>
       );
@@ -1369,7 +1369,7 @@ function parseMarkdownToReact(content: string) {
     // Blockquote
     else if (line.trim().startsWith('>')) {
       elements.push(
-        <blockquote key={`bq-${i}`} className="border-l-2 border-[#C41230] pl-4 my-4 italic text-neutral-400 text-sm">
+        <blockquote key={`bq-${i}`} className="border-l-2 border-[#D4AF37] pl-4 my-4 italic text-neutral-400 text-sm">
           {parseInline(line.trim().substring(1).trim())}
         </blockquote>
       );
@@ -1435,7 +1435,7 @@ function parseInline(text: string): React.ReactNode[] {
       tokens.push(<strong key={keyIdx++} className="font-bold text-white">{matchObj[2]}</strong>);
       remaining = matchObj[3];
     } else if (type === 'code') {
-      tokens.push(<code key={keyIdx++} className="px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-800 font-mono text-xs text-[#C41230]">{matchObj[2]}</code>);
+      tokens.push(<code key={keyIdx++} className="px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-800 font-mono text-xs text-[#D4AF37]">{matchObj[2]}</code>);
       remaining = matchObj[3];
     } else if (type === 'link') {
       const url: string = matchObj[3];
@@ -1453,7 +1453,7 @@ function parseInline(text: string): React.ReactNode[] {
               const ev = new CustomEvent('navigate-doc', { detail: fileId });
               window.dispatchEvent(ev);
             }}
-            className="text-[#C41230] hover:underline transition-all font-mono text-xs font-semibold cursor-pointer inline flex-wrap text-left bg-transparent border-0 p-0"
+            className="text-[#D4AF37] hover:underline transition-all font-mono text-xs font-semibold cursor-pointer inline flex-wrap text-left bg-transparent border-0 p-0"
           >
             {matchObj[2]} <ExternalLink className="w-2.5 h-2.5 inline ml-0.5 opacity-60" />
           </button>
@@ -1465,7 +1465,7 @@ function parseInline(text: string): React.ReactNode[] {
             href={url} 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="text-[#C41230] hover:underline transition-all font-semibold inline"
+            className="text-[#D4AF37] hover:underline transition-all font-semibold inline"
           >
             {matchObj[2]} <ExternalLink className="w-2.5 h-2.5 inline ml-0.5 opacity-60" />
           </a>

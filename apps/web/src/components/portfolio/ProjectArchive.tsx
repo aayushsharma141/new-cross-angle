@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { ProjectArchiveCard } from "./ProjectArchiveCard";
@@ -8,6 +8,7 @@ import { ProjectArchiveCard } from "./ProjectArchiveCard";
 const categories = ["All", "Residential", "Commercial", "Hospitality", "Workspace", "Retail"];
 
 export const ProjectArchive = () => {
+  const shouldReduceMotion = useReducedMotion();
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
     queryFn: api.getProjects
@@ -55,7 +56,7 @@ export const ProjectArchive = () => {
   };
 
   return (
-    <section className="relative py-24 px-6 bg-background" id="archive">
+    <section className="relative py-[14vh] md:py-[18vh] px-6 bg-background" id="archive">
       <div className="max-w-7xl mx-auto space-y-16">
         
         {/* Header section */}
@@ -63,11 +64,14 @@ export const ProjectArchive = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-px bg-primary/50" />
-              <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">
+              <span className="text-primary font-bold uppercase tracking-[0.25em] text-[10px]">
                 03 / THE ARCHIVE
               </span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-serif font-light text-[#FAFAFA] tracking-tight leading-tight">
+            <h2 
+              className="text-4xl md:text-5xl lg:text-6xl font-display font-normal text-[#FAFAFA] leading-tight"
+              style={{ letterSpacing: "-0.03em" }}
+            >
               Project <span className="italic text-stone-400 font-light">Collection</span>
             </h2>
           </div>
@@ -78,15 +82,20 @@ export const ProjectArchive = () => {
               <button
                 key={cat}
                 onClick={() => handleCategoryChange(cat)}
-                className={`relative px-4 py-2 text-[10px] font-semibold tracking-widest uppercase transition-colors duration-300 whitespace-nowrap
-                  ${activeCategory === cat ? "text-[#FAFAFA]" : "text-white/40 hover:text-white"}`}
+                className={`relative px-4 py-2 text-[10px] font-bold tracking-[0.25em] uppercase transition-colors duration-300 whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60 rounded-sm
+                  ${activeCategory === cat ? "text-[#FAFAFA]" : "text-white/40 hover:text-primary"}`}
               >
                 {cat}
                 {activeCategory === cat && (
                   <motion.div
                     layoutId="activeTabUnderline"
                     className="absolute bottom-[-9px] left-0 w-full h-[2px] bg-primary"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    transition={{
+                      type: shouldReduceMotion ? "tween" : "spring",
+                      stiffness: 300,
+                      damping: 30,
+                      duration: shouldReduceMotion ? 0.01 : undefined,
+                    }}
                   />
                 )}
               </button>

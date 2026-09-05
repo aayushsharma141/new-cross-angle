@@ -1,0 +1,18 @@
+{
+  "date": "2026-08-08T09:18:58.407Z",
+  "archScore": 48,
+  "godFiles": 24,
+  "coveragePct": 0,
+  "security": {
+    "info": 0,
+    "low": 2,
+    "moderate": 23,
+    "high": 10,
+    "critical": 0,
+    "total": 35
+  },
+  "bundleSuccess": true,
+  "licensePass": true,
+  "lintSuccess": false,
+  "knipSuccess": false
+}

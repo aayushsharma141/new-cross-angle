@@ -1,5 +1,5 @@
 import { Activity, Database, AlertCircle, RefreshCw, BarChart2, Bug, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 

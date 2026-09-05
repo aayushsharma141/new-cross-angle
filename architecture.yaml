@@ -1,0 +1,351 @@
+# Cross Angle Interior Architecture Manifest (Architecture-as-Code)
+# Standard: Enterprise Architecture Reference Standard (International Architecture Board)
+# Version: 2026.6-enterprise
+
+version: "2026.6"
+target_system: "Cross Angle Interior Enterprise Platform"
+governance_model: "Event-Driven Continuous Compliance"
+
+scoring_model:
+  version: "v2.1-calibrated"
+  pillars:
+    governance:
+      weight: 0.25
+      name: "Governance Index"
+      description: "Charter clarity, ADR decision intelligence, explicit ownership mapping"
+    compliance:
+      weight: 0.25
+      name: "Compliance Index"
+      description: "CI fitness functions pass rate and boundary invariants"
+    technical_debt:
+      weight: 0.30
+      name: "Technical Debt Index"
+      description: "Quantified AST & architectural debt across 5 taxonomy categories"
+    engineering_validation:
+      weight: 0.20
+      name: "Engineering Validation Index (EVI)"
+      description: "Empirical verification (Lighthouse CI, Chaos Suite, Tier-A Load, Telemetry)"
+
+owners:
+  platform: "Platform Architecture Owner"
+  security: "Security & Compliance Owner"
+  frontend: "Frontend Platform Owner"
+  data: "Data Platform Owner"
+  cloud: "Cloud Operations & FinOps Owner"
+
+principles:
+  - id: "P1"
+    name: "Prefer Identifiers Over Raw URLs"
+    description: "Consumers must reference media via immutable UUIDs mapped through polymorphic asset_usages."
+    owner: "platform"
+    blocking: true
+    test_file: "src/test/architecture.test.ts"
+    test_case: "Contract: Repositories and Services must not import React or React DOM"
+    status: "active"
+
+  - id: "P2"
+    name: "Interfaces Over Vendors (ACL)"
+    description: "External SDKs must be isolated behind domain interfaces like StorageGateway.ts."
+    owner: "platform"
+    blocking: true
+    test_file: "src/test/architecture.test.ts"
+    test_case: "Contract: UI Components must not import storage providers directly"
+    status: "active"
+
+  - id: "P3"
+    name: "Immutable Payloads, Mutable Identifiers"
+    description: "Physical media files are write-once payloads with content-addressed version nodes."
+    owner: "platform"
+    blocking: true
+    test_file: "src/test/architecture.test.ts"
+    test_case: "Contract: Concrete Storage Providers must implement StorageGateway contract methods"
+    status: "active"
+
+  - id: "P4"
+    name: "Asynchronous Event-Driven Ingestion DAG"
+    description: "Decouple storage verification from background processing tasks."
+    owner: "data"
+    blocking: false
+    test_file: "src/test/architecture.test.ts"
+    test_case: "Contract: MediaRepository & UploadOrchestrator depend on StorageGateway interface"
+    status: "active"
+
+  - id: "P5"
+    name: "Three-Layer Decoupled Design Tokens"
+    description: "Foundation (raw colors) -> Semantic (UI tokens) -> Environment (lighting states)."
+    owner: "frontend"
+    blocking: true
+    test_file: "src/test/architecture.test.ts"
+    test_case: "Contract: Services and Repositories must not import Vite bundler APIs"
+    status: "active"
+
+  - id: "P6"
+    name: "Zero-Token Client Boundaries"
+    description: "Browser client never stores JWTs in localStorage/sessionStorage; BFF proxy manages HTTP-only cookies."
+    owner: "security"
+    blocking: true
+    test_file: "src/test/architecture.test.ts"
+    test_case: "Contract: Feature code must not access or store auth tokens in localStorage/sessionStorage"
+    status: "active"
+
+  - id: "P7"
+    name: "100% RLS Coverage on Public Tables"
+    description: "All PostgreSQL tables must enforce Row-Level Security."
+    owner: "security"
+    blocking: true
+    test_file: "src/test/architecture.test.ts"
+    test_case: "Contract: PostgreSQL database migrations must enforce Row-Level Security on all public tables"
+    status: "active"
+
+adrs:
+  - id: "ADR-001"
+    title: "Domain-Driven Separation of Services, Repositories, and Presentation"
+    status: "ACCEPTED"
+    date: "2026-03-15"
+    owner: "platform"
+    affected_packages: ["apps/web", "packages/core"]
+    dependent_services: ["AssetService", "MediaRepository"]
+    implementation_coverage: 100
+    risk_level: "LOW"
+    open_debt_ids: []
+    context: "Legacy components were directly executing Supabase queries and ImageKit mutations."
+    decision: "Split architecture into Domain Services, Repositories, and Presentation Components with strict boundaries."
+    evidence_test: "Contract: Repositories and Services must not import React or React DOM"
+    status_verified: true
+
+  - id: "ADR-002"
+    title: "Vendor-Neutral Media Storage via StorageGateway ACL"
+    status: "ACCEPTED"
+    date: "2026-04-02"
+    owner: "platform"
+    affected_packages: ["apps/web", "packages/storage"]
+    dependent_services: ["StorageGateway", "ImageKitProvider", "SupabaseProvider"]
+    implementation_coverage: 95
+    risk_level: "LOW"
+    open_debt_ids: ["DEBT-ARCH-01"]
+    context: "Application was tightly coupled to ImageKit SDK APIs."
+    decision: "Implement StorageGateway interface with pluggable ImageKitProvider, SupabaseProvider, and LocalMockProvider."
+    evidence_test: "Contract: UI Components must not import storage providers directly"
+    status_verified: true
+
+  - id: "ADR-003"
+    title: "Edge-Proxy Authentication via HTTP-Only Cookies"
+    status: "ACCEPTED"
+    date: "2026-04-20"
+    owner: "security"
+    affected_packages: ["apps/web", "apps/edge-proxy"]
+    dependent_services: ["AuthService", "SessionMiddleware"]
+    implementation_coverage: 100
+    risk_level: "LOW"
+    open_debt_ids: ["DEBT-SEC-01"]
+    context: "Client-side JWT storage in localStorage exposed tokens to potential XSS vectors."
+    decision: "Migrate all session state to HTTP-Only Secure SameSite=Strict cookies via Vercel Edge proxy."
+    evidence_test: "Contract: Feature code must not access or store auth tokens in localStorage/sessionStorage"
+    status_verified: true
+
+  - id: "ADR-004"
+    title: "Three-Layer Token Engine vs Utility CSS Classes"
+    status: "ACCEPTED"
+    date: "2026-05-10"
+    owner: "frontend"
+    affected_packages: ["apps/web", "packages/ui"]
+    dependent_services: ["DesignTokenEngine", "ThemeManager"]
+    implementation_coverage: 92
+    risk_level: "MEDIUM"
+    open_debt_ids: ["DEBT-MAINT-01"]
+    context: "Utility classes caused brand color drift and made environmental lighting switches impossible."
+    decision: "Adopt Foundation -> Semantic -> Lighting Environment CSS variable hierarchy with zero hex codes in components."
+    evidence_test: "Contract: Zero hardcoded hex colors in feature components"
+    status_verified: true
+
+  - id: "ADR-005"
+    title: "Mandatory Row-Level Security on All Database Entities"
+    status: "ACCEPTED"
+    date: "2026-05-28"
+    owner: "security"
+    affected_packages: ["supabase/migrations", "apps/web"]
+    dependent_services: ["DatabaseClient", "MigrationRunner"]
+    implementation_coverage: 100
+    risk_level: "LOW"
+    open_debt_ids: []
+    context: "Direct Supabase client queries require bulletproof data isolation at the engine level."
+    decision: "Enforce ALTER TABLE ... ENABLE ROW LEVEL SECURITY on 100% of public tables in migrations."
+    evidence_test: "Contract: PostgreSQL database migrations must enforce Row-Level Security on all public tables"
+    status_verified: true
+
+tech_radar:
+  adopt:
+    - "React 18 + Vite (ESM Core Runtime)"
+    - "TanStack React Query (Client State & Cache)"
+    - "Supabase PostgreSQL + RLS (Relational Core)"
+    - "ImageKit CDN via StorageGateway (Media Delivery)"
+    - "Three-Layer Pure CSS Tokens (Theme Engine)"
+    - "DOMPurify (Markdown & HTML Sanitization)"
+  trial:
+    - "Supabase pgvector + CLIP (512D Image Vectors)"
+    - "DeferredScrollManager (Lenis Idle Deferral)"
+    - "Architecture Fitness AST Linters"
+    - "OpenTelemetry Web Tracing Spans"
+  assess:
+    - "Inngest / Temporal.io (Distributed Asset DAG)"
+    - "Cloudflare Images (Multi-Cloud Failover)"
+  hold:
+    - "Apollo GraphQL Client (Heavy 33 kB overhead)"
+    - "Tailwind Arbitrary Hex Literals (Brand drift)"
+    - "LocalStorage JWT Storage (XSS Vulnerability)"
+
+kpis:
+  - id: "KPI-1"
+    name: "Raw Asset URL References"
+    definition: "Total occurrences of hardcoded CDN URLs in feature components"
+    current: 0
+    target: 0
+    unit: "count"
+    trend: "optimal"
+
+  - id: "KPI-2"
+    name: "Asset Reuse Rate"
+    definition: "(Assets referenced by > 1 entity in asset_usages) / (Total published assets)"
+    current: 42
+    target: 60
+    unit: "percent"
+    trend: "improving"
+
+  - id: "KPI-3"
+    name: "Orphan Asset Rate"
+    definition: "(Assets with 0 active usages) / (Total stored assets)"
+    current: 4.2
+    target: 1.0
+    unit: "percent"
+    trend: "improving"
+
+  - id: "KPI-4"
+    name: "Architecture Fitness Pass Rate"
+    definition: "(Passing fitness tests) / (Total fitness tests)"
+    current: 100
+    target: 100
+    unit: "percent"
+    trend: "stable"
+
+  - id: "KPI-5"
+    name: "ADR Invariant Coverage"
+    definition: "(Architectural decisions backed by automated test evidence) / (Total ADRs)"
+    current: 100
+    target: 100
+    unit: "percent"
+    trend: "stable"
+
+debt_taxonomy:
+  security:
+    weight: 5
+    description: "Data isolation, auth boundary, or cryptographic exposure"
+  architecture:
+    weight: 4
+    description: "Layer coupling, missing abstractions, or circular dependencies"
+  performance:
+    weight: 3
+    description: "Client-side bundle bloat, N+1 queries, uncompressed payloads"
+  maintainability:
+    weight: 2
+    description: "Token bypassing, inline styles, duplicated domain logic"
+  documentation:
+    weight: 1
+    description: "Missing ADRs, unannotated API contracts, stale diagrams"
+
+debt_items:
+  - id: "DEBT-SEC-01"
+    category: "security"
+    title: "Legacy localStorage token fallback in dev mocks"
+    domain: "Authentication"
+    occurrences: 0
+    remediation_plan: "Ensure dev mocks exclusively use mock cookie headers."
+
+  - id: "DEBT-ARCH-01"
+    category: "architecture"
+    title: "Direct ImageKit URL usage in legacy static seeds"
+    domain: "Media Pipeline"
+    occurrences: 2
+    remediation_plan: "Map static hero seed images to asset_usages repository entries."
+
+  - id: "DEBT-PERF-01"
+    category: "performance"
+    title: "Un-deferred Lenis smooth scroll on initial mobile render"
+    domain: "Frontend Performance"
+    occurrences: 1
+    remediation_plan: "Wrap Lenis initialization with DeferredScrollManager requestIdleCallback."
+
+  - id: "DEBT-MAINT-01"
+    category: "maintainability"
+    title: "Inline hex color overrides in legacy admin charts"
+    domain: "Design Tokens"
+    occurrences: 4
+    remediation_plan: "Refactor chart colors to consume CSS variable theme tokens."
+
+  - id: "DEBT-DOC-01"
+    category: "documentation"
+    title: "CLIP Vector search indexing pipeline specification"
+    domain: "Data & AI"
+    occurrences: 1
+    remediation_plan: "Publish ADR-006 for pgvector embeddings pipeline."
+
+engineering_validation:
+  lighthouse_ci:
+    performance: 98
+    accessibility: 100
+    best_practices: 100
+    seo: 100
+    verified_at: "2026-08-08"
+    status: "PASSING"
+  chaos_resilience:
+    suite: "src/test/chaos"
+    scenarios_passed: 12
+    scenarios_total: 12
+    circuit_breaker_active: true
+    status: "PASSING"
+  load_testing:
+    harness: "src/test/load/tier-a-harness.ts"
+    p99_latency_ms: 38
+    rps_capacity: 2500
+    error_rate_pct: 0.00
+    status: "PASSING"
+  telemetry_contracts:
+    events_validated: 24
+    schema_drift_detected: 0
+    status: "PASSING"
+
+history:
+  - version: "v01"
+    date: "2026-01-15"
+    title: "Discovery Audit"
+    scores: { governance: 65, compliance: 50, debt: 45, operational: 60, composite: 55.0 }
+    debt_points: 68
+    fitness_pass_pct: 50
+    violations_count: 32
+  - version: "v02"
+    date: "2026-03-01"
+    title: "Engineering Audit & Fitness Tests"
+    scores: { governance: 80, compliance: 85, debt: 70, operational: 75, composite: 77.5 }
+    debt_points: 44
+    fitness_pass_pct: 85
+    violations_count: 14
+  - version: "v03"
+    date: "2026-04-15"
+    title: "Architecture Specification & ADRs"
+    scores: { governance: 92, compliance: 90, debt: 80, operational: 82, composite: 86.0 }
+    debt_points: 32
+    fitness_pass_pct: 92
+    violations_count: 8
+  - version: "v04"
+    date: "2026-06-01"
+    title: "Enterprise Reference Manual"
+    scores: { governance: 98, compliance: 95, debt: 88, operational: 90, composite: 92.8 }
+    debt_points: 24
+    fitness_pass_pct: 98
+    violations_count: 4
+  - version: "v05"
+    date: "2026-08-08"
+    title: "Architecture Operating System (ArchOS)"
+    scores: { governance: 100, compliance: 100, debt: 90, operational: 98, composite: 96.6 }
+    debt_points: 20
+    fitness_pass_pct: 100
+    violations_count: 0

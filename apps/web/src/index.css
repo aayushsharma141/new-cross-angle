@@ -18,35 +18,35 @@
     /* Pure White */
 
     /* Cards */
-    --card: 0 0% 7%;
+    --card: 0 0% 5%;
     /* Dark Gray */
     --card-foreground: 0 0% 90%;
 
     --popover: 0 0% 5%;
     --popover-foreground: 0 0% 95%;
 
-    /* Brand Primary (Crimson) */
-    --primary: 350 83% 44%;
-    /* #C41230 - Site Crimson */
-    --primary-foreground: 0 0% 100%;
+    /* Brand Primary (Antique Gold) */
+    --primary: 46 65% 52%;
+    /* #D4AF37 - Site Gold */
+    --primary-foreground: 0 0% 0%;
 
     /* Interaction States */
-    --primary-hover: 350 83% 36%;
-    --primary-active: 350 83% 30%;
+    --primary-hover: 46 65% 45%;
+    --primary-active: 46 65% 40%;
 
-    /* Secondary */
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 95%;
+    /* Secondary (Maroon) */
+    --secondary: 0 100% 20%;
+    --secondary-foreground: 0 0% 98%;
 
     /* Muted & Subtle */
     --muted: 0 0% 10%;
     --muted-foreground: 0 0% 68%;  /* raised from 65% → 4.5:1 AA contrast */
 
-    /* Accent (Crimson) */
-    --accent: 350 83% 44%;
+    /* Accent (Darker Maroon) */
+    --accent: 0 100% 15%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 100% 30%;
     --destructive-foreground: 0 0% 98%;
 
     /* Terracotta - Muted/desaturated status error */
@@ -56,13 +56,13 @@
     /* UI Elements */
     --border: 0 0% 15%;
     --input: 0 0% 12%;
-    --ring: 350 83% 44%;
+    --ring: 46 65% 52%;
 
     --radius: 0.5rem;
     /* Slightly sharper corners for modern look */
 
     /* Focus Ring */
-    --focus-ring: 43 90% 55% / 0.55;
+    --focus-ring: 46 65% 52% / 0.55;
 
     /* Sidebar (Admin) */
     --sidebar-background: 0 0% 2%;
@@ -75,8 +75,9 @@
     --sidebar-ring: 43 90% 55%;
 
     /* Gradients */
-    --gradient-wine: linear-gradient(135deg, hsl(350 83% 44%) 0%, hsl(350 90% 30%) 100%);
-    --gradient-crimson: linear-gradient(90deg, hsl(350 83% 44%) 0%, hsl(350 83% 34%) 100%);
+    --gradient-wine: linear-gradient(135deg, hsl(0 100% 20%) 0%, hsl(0 80% 30%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(46 65% 45%) 0%, hsl(50 75% 60%) 50%, hsl(46 65% 45%) 100%);
+    --gradient-crimson: linear-gradient(90deg, hsl(0 100% 30%) 0%, hsl(0 100% 20%) 100%);
     --gradient-obsidian: linear-gradient(180deg, hsl(0 0% 10%) 0%, hsl(0 0% 0%) 100%);
     --gradient-shine: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 5%) 50%, hsl(0 0% 8%) 100%);
     --shadow-luxury: 0 25px 50px -12px hsl(0 0% 0% / 0.9);
@@ -99,12 +100,12 @@
     --site-crimson-90: hsl(var(--primary) / 0.9);
     --site-crimson-30: hsl(var(--primary) / 0.3);
     
-    --site-gold: 40 54% 63%;
-    --site-gold-hover: 41 53% 58%;
-    --site-gold-90: hsl(40 54% 63% / 0.9);
-    --site-gold-50: hsl(40 54% 63% / 0.5);
-    --site-gold-30: hsl(40 54% 63% / 0.3);
-    --site-gold-10: hsl(40 54% 63% / 0.1);
+    --site-gold: 38 51% 57%;
+    --site-gold-hover: 38 50% 52%;
+    --site-gold-90: hsl(38 51% 57% / 0.9);
+    --site-gold-50: hsl(38 51% 57% / 0.5);
+    --site-gold-30: hsl(38 51% 57% / 0.3);
+    --site-gold-10: hsl(38 51% 57% / 0.1);
     
     --site-stone: 0 0% 55%;
     
@@ -145,8 +146,8 @@
     --kiro-good: 137 30% 42%;
 
     /* ── Home page design-system tokens ── */
-    --home-glow-crimson: rgba(182, 24, 38, .18);
-    --home-glow-gold: rgba(255, 215, 0, .08);
+    --home-glow-crimson: rgba(77, 0, 0, .18); /* Switched to Maroon */
+    --home-glow-gold: rgba(212, 175, 55, .15);
     --home-border-soft: rgba(255, 255, 255, .08);
     --home-border-strong: rgba(255, 255, 255, .14);
     --home-shadow: 0 32px 80px rgba(0, 0, 0, .45);
@@ -184,8 +185,8 @@
     --foreground: 0 0% 5%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 5%;
-    --primary: 355 85% 42%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 46 65% 52%;
+    --primary-foreground: 0 0% 0%;
     --muted: 0 0% 92%;
     --muted-foreground: 0 0% 40%;
     --border: 0 0% 85%;
@@ -314,6 +315,7 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
   }
 
   a, button, select, input, [role="button"] {
@@ -449,23 +451,23 @@
 
   /* Brand Colors Direct Access */
   .bg-brand {
-    background-color: hsl(352 78% 31%);
+    background-color: hsl(46 65% 52%);
   }
 
   .bg-brand-hover {
-    background-color: hsl(352 78% 26%);
+    background-color: hsl(46 65% 45%);
   }
 
   .text-brand {
-    color: hsl(352 78% 31%);
+    color: hsl(46 65% 52%);
   }
 
   .text-brand-highlight {
-    color: hsl(350 74% 44%);
+    color: hsl(46 65% 65%);
   }
 
   .border-brand {
-    border-color: hsl(352 78% 31%);
+    border-color: hsl(46 65% 52%);
   }
 
   /* Gold Accent (use sparingly) */
@@ -488,10 +490,10 @@
 
   /* WCAG-Safe Button Hover Pattern */
   .btn-brand {
-    background: linear-gradient(135deg, hsl(352 78% 28%) 0%, hsl(352 78% 22%) 100%);
-    border: 1px solid hsl(352 78% 38% / 0.4);
-    box-shadow: 0 0 20px hsl(352 78% 28% / 0.25), inset 0 1px 0 hsl(0 0% 100% / 0.06);
-    color: hsl(36 20% 95%);
+    background: linear-gradient(135deg, hsl(46 65% 48%) 0%, hsl(46 65% 40%) 100%);
+    border: 1px solid hsl(46 65% 58% / 0.4);
+    box-shadow: 0 0 20px hsl(46 65% 48% / 0.25), inset 0 1px 0 hsl(0 0% 100% / 0.06);
+    color: hsl(0 0% 0%);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     font-size: 0.75rem;
@@ -500,12 +502,12 @@
   }
 
   .btn-brand:hover {
-    background: linear-gradient(135deg, hsl(352 80% 22%) 0%, hsl(352 82% 18%) 100%);
-    box-shadow: 0 0 25px hsl(352 78% 28% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.06);
+    background: linear-gradient(135deg, hsl(46 65% 52%) 0%, hsl(46 65% 45%) 100%);
+    box-shadow: 0 0 25px hsl(46 65% 48% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.06);
   }
 
   .btn-brand:active {
-    background: hsl(352 82% 18%);
+    background: hsl(46 65% 45%);
   }
 
   .btn-brand:focus {
@@ -681,12 +683,12 @@ em,
 
 /* Elite Navbar Pill Style */
 .navbar-pill {
-  background: rgba(10, 10, 10, 0.65);
-  -webkit-backdrop-filter: blur(20px) saturate(200%);
-  backdrop-filter: blur(20px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.8),
-              inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  background: rgba(10, 10, 10, 0.45);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6),
+              inset 0 1px 1px rgba(255, 255, 255, 0.10);
   transform: translateY(0);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -790,12 +792,12 @@ em,
 .logo-metallic-text {
   background: linear-gradient(
     110deg,
-    #C41230 0%,
-    #C41230 40%,
+    #8C7A5E 0%,
+    #8C7A5E 40%,
     #D1AF6E 48%,
     #D1AF6E 52%,
-    #C41230 60%,
-    #C41230 100%
+    #8C7A5E 60%,
+    #8C7A5E 100%
   );
   background-size: 200% auto;
   color: transparent;
@@ -823,10 +825,10 @@ em,
 .home-shell {
   position: relative;
   isolation: isolate;
-  background:
+  background-color: var(--s-canvas-primary);
+  background-image:
     radial-gradient(circle at 15% 12%, var(--home-glow-crimson) 0%, transparent 32%),
-    radial-gradient(circle at 85% 18%, var(--home-glow-gold) 0%, transparent 24%),
-    linear-gradient(180deg, #010101, #050505 28%, #030303);
+    radial-gradient(circle at 85% 18%, var(--home-glow-gold) 0%, transparent 24%);
 }
 
 .home-section-frame {
@@ -870,7 +872,7 @@ em,
 /* ── Body text ── */
 .home-body {
   max-width: 40rem;
-  color: rgba(237, 234, 230, 0.74);
+  color: rgba(237, 234, 230, 0.78);
   line-height: 1.8;
 }
 
@@ -913,103 +915,14 @@ em,
 .hero-title{}
 .hero-title-accent{display:block;}
 
-/* ── Button sweep / shine effect ── */
 .home-button-sweep {
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
 }
-.home-button-sweep::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.16) 50%, transparent 80%);
-  transform: translate(-160%);
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 0;
-}
-.home-button-sweep:hover::before {
-  transform: translate(160%);
-}
-
-.skip-nav {
-  position: absolute;
-  top: -100%;
-  left: 0;
-  z-index: 9999;
-  padding: 0.75rem 1.25rem;
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  font-weight: 600;
-  font-size: 0.875rem;
-  letter-spacing: 0.02em;
-  border-bottom-right-radius: 0.375rem;
-  transition: top 0.15s ease;
-  text-decoration: none;
-  outline: none;
-}
-
-.skip-nav:focus {
-  top: 0;
-}
-
-/* ════════════════════════════════════╗
- *  WCAG 2.1 Focus-Visible Styles     ║
- *  Replaces outline:none patterns    ║
- * ════════════════════════════════════╝ */
-
-:focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-  border-radius: 2px;
-}
-
-/* Remove focus ring for mouse users (only for keyboard navigation) */
-:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* Interactive elements get a gold glow on keyboard focus (admin theme) */
-.admin-theme :focus-visible {
-  outline: 2px solid hsl(var(--admin-gold));
-  outline-offset: 3px;
-  box-shadow: 0 0 0 4px hsl(var(--admin-gold) / 0.18);
-}
-
-/* ════════════════════════════════════╗
- *  Fluid Type Scale Utilities        ║
- * ════════════════════════════════════╝ */
-
-.text-fluid-sm  { font-size: clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem); }
-.text-fluid-base{ font-size: clamp(0.875rem, 0.8rem  + 0.375vw, 1rem);    }
-.text-fluid-lg  { font-size: clamp(1rem,     0.9rem  + 0.5vw,  1.125rem); }
-.text-fluid-xl  { font-size: clamp(1.125rem, 1rem    + 0.625vw,1.25rem);  }
-.text-fluid-2xl { font-size: clamp(1.25rem,  1.1rem  + 0.75vw, 1.5rem);  }
-.text-fluid-3xl { font-size: clamp(1.5rem,   1.25rem + 1.25vw, 1.875rem);}
-.text-fluid-4xl { font-size: clamp(1.875rem, 1.5rem  + 1.875vw,2.25rem); }
-.text-fluid-5xl { font-size: clamp(2.25rem,  1.75rem + 2.5vw,  3rem);    }
-
-/* ═══════════════════════════════════════════════════════════════
-   PRINT STYLES — Style Quiz Blueprint PDF Export
-   ═══════════════════════════════════════════════════════════════ */
-@media print {
-  body { background: #040404 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .discovery-addon-container { overflow: visible !important; height: auto !important; }
-  /* Hide non-essential elements */
-  nav, footer, .fixed, [class*="sticky"], [class*="scroll-hint"],
-  button, a[href="/contact-us"], a[href="/portfolio"] { display: none !important; }
-  /* Show all sections */
-  section { break-inside: avoid; page-break-inside: avoid; }
-  /* Ensure colors print */
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  line-height: 1.8;
-}
-
-/* ── Button sweep / shine effect ── */
-.home-button-sweep {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
+.home-button-sweep:active {
+  transform: scale(0.97);
 }
 .home-button-sweep::before {
   content: "";

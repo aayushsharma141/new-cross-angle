@@ -28,7 +28,7 @@ const deliverables = [
 ];
 
 const ServicesDeliverables = () => (
-  <section className="relative bg-[#060606] py-24 lg:py-36 px-6 overflow-hidden border-b border-white/[0.04]">
+  <section className="relative bg-[var(--s-canvas-secondary)] py-24 lg:py-36 px-6 overflow-hidden border-b border-[var(--s-border-subtle)]">
     {/* Faint diagonal accent */}
     <div
       className="absolute inset-0 pointer-events-none opacity-[0.018]"
@@ -47,8 +47,8 @@ const ServicesDeliverables = () => (
         viewport={{ once: true }}
         className="flex items-center gap-4 mb-7"
       >
-        <div className="w-10 h-px bg-site-crimson" />
-        <span className="font-bold text-[9px] uppercase tracking-[0.45em] text-site-gold">
+        <div className="w-10 h-px bg-primary" />
+        <span className="font-bold text-[9px] uppercase tracking-[0.45em] text-primary">
           Everything Included
         </span>
       </motion.div>
@@ -61,7 +61,7 @@ const ServicesDeliverables = () => (
           className="font-serif font-normal text-[clamp(2rem,3.8vw,3.2rem)] leading-[1.1] tracking-tight text-white"
         >
           What You're{" "}
-          <em className="italic text-site-crimson font-light underline underline-offset-[10px] decoration-white/10 decoration-[3px]">
+          <em className="italic text-primary font-light underline underline-offset-[10px] decoration-white/10 decoration-[3px]">
             Actually Paying For
           </em>
         </motion.h2>
@@ -78,7 +78,7 @@ const ServicesDeliverables = () => (
       </div>
 
       {/* Deliverables grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-white/[0.05] border border-white/[0.05] overflow-hidden">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-white/[0.05] border border-[var(--s-border-subtle)] overflow-hidden">
         {deliverables.map((item, i) => {
           const Icon = item.icon;
           return (
@@ -88,13 +88,13 @@ const ServicesDeliverables = () => (
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.04 }}
-              className="group bg-[#060606] hover:bg-[#0b0b0b] transition-colors duration-400 p-8 lg:p-10 flex flex-col gap-4"
+              className="group bg-[var(--s-canvas-secondary)] hover:bg-[var(--s-canvas-primary)] transition-colors duration-400 p-8 lg:p-10 flex flex-col gap-4"
             >
-              <div className="w-10 h-10 flex items-center justify-center border border-white/[0.07] group-hover:border-site-gold/30 transition-colors duration-400">
-                <Icon className="w-5 h-5 text-white/30 group-hover:text-site-gold transition-colors duration-400" strokeWidth={1.25} />
+              <div className="w-10 h-10 flex items-center justify-center border border-white/[0.07] group-hover:border-primary/30 transition-colors duration-400">
+                <Icon className="w-5 h-5 text-white/30 group-hover:text-primary transition-colors duration-400" strokeWidth={1.25} />
               </div>
               <div>
-                <div className="text-[0.9rem] text-white font-medium mb-1.5 group-hover:text-site-gold transition-colors duration-300">
+                <div className="text-[0.9rem] text-white font-medium mb-1.5 group-hover:text-primary transition-colors duration-300">
                   {item.label}
                 </div>
                 <div className="text-[0.82rem] text-white/40 font-light leading-relaxed">
@@ -111,12 +111,12 @@ const ServicesDeliverables = () => (
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: deliverables.length * 0.04 }}
-          className="bg-site-crimson/[0.07] hover:bg-site-crimson/[0.11] transition-colors duration-400 p-8 lg:p-10 flex flex-col justify-center gap-3 border-l border-site-crimson/10"
+          className="bg-primary/[0.07] hover:bg-primary/[0.11] transition-colors duration-400 p-8 lg:p-10 flex flex-col justify-center gap-3 border-l border-primary/10"
         >
           <div className="text-[0.82rem] text-white/40 font-light uppercase tracking-[0.2em] mb-1">Scope guarantee</div>
           <div className="font-serif text-[1.25rem] text-white font-light leading-snug">
             Every line item is{" "}
-            <em className="italic text-site-crimson">locked in your BOQ</em>{" "}
+            <em className="italic text-primary">locked in your BOQ</em>{" "}
             before work starts.
           </div>
         </motion.div>

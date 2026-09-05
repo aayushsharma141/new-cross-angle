@@ -38,7 +38,7 @@ const BlogCard = ({
 }) => (
   <motion.article
     variants={cardVar}
-    className={`group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0d0c0b] transition-all duration-500 hover:border-site-gold/20 hover:shadow-[0_20px_60px_rgba(0,0,0,0.6)] ${
+    className={`group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0d0c0b] transition-all duration-500 hover:border-kiro-accent/20 hover:shadow-[0_20px_60px_rgba(0,0,0,0.6)] ${
       featured ? "md:row-span-2" : ""
     }`}
   >
@@ -69,7 +69,7 @@ const BlogCard = ({
 
       {/* Category badge */}
       {post.category && (
-        <span className="absolute top-4 left-4 text-[9px] font-bold uppercase tracking-[0.22em] px-2.5 py-1 rounded-full bg-site-crimson/90 text-white backdrop-blur-sm">
+        <span className="absolute top-4 left-4 text-[9px] font-bold uppercase tracking-[0.22em] px-2.5 py-1 rounded-full bg-kiro-accent/90 text-white backdrop-blur-sm">
           {post.category}
         </span>
       )}
@@ -89,7 +89,7 @@ const BlogCard = ({
       {/* Title */}
       <Link to={`/blog/${post.slug || post.id}`}>
         <h3
-          className={`font-display font-semibold text-white leading-snug group-hover:text-site-gold transition-colors duration-300 line-clamp-2 mb-3 ${
+          className={`font-display font-semibold text-white leading-snug group-hover:text-kiro-accent transition-colors duration-300 line-clamp-2 mb-3 ${
             featured ? "text-xl md:text-2xl" : "text-base md:text-lg"
           }`}
         >
@@ -108,7 +108,7 @@ const BlogCard = ({
       <div className="mt-auto pt-4 border-t border-white/[0.05]">
         <Link
           to={`/blog/${post.slug || post.id}`}
-          className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-site-gold/70 hover:text-site-gold transition-colors duration-300 group/link"
+          className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-kiro-accent/70 hover:text-kiro-accent transition-colors duration-300 group/link"
         >
           Read Article
           <ArrowRight className="w-3 h-3 transition-transform duration-300 group-hover/link:translate-x-1" />
@@ -186,14 +186,14 @@ const HomeBlog = () => {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
           <div>
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-px bg-site-crimson" />
-              <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+              <div className="w-12 h-px bg-kiro-accent" />
+              <span className="text-kiro-accent font-bold uppercase tracking-[0.3em] text-[10px]">
                 Design Intelligence
               </span>
             </div>
             <h2 className="font-display text-[clamp(2rem,4.5vw,3.8rem)] font-semibold leading-[0.95] tracking-[-0.02em] text-white">
               From Our{" "}
-              <em className="not-italic text-site-gold">Studio Journal</em>
+              <em className="not-italic text-kiro-accent">Studio Journal</em>
             </h2>
             <p className="text-white/40 text-sm leading-relaxed mt-3 max-w-sm">
               Expert insights on materials, space planning, and the craft of
@@ -203,10 +203,10 @@ const HomeBlog = () => {
 
           <Link
             to="/blog"
-            className="inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.22em] text-white/50 hover:text-site-gold transition-colors duration-300 group flex-shrink-0"
+            className="inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.22em] text-white/50 hover:text-kiro-accent transition-colors duration-300 group flex-shrink-0"
           >
             View All Articles
-            <span className="w-8 h-8 rounded-full border border-white/10 group-hover:border-site-gold/40 flex items-center justify-center group-hover:bg-site-gold/5 transition-all duration-300">
+            <span className="w-8 h-8 rounded-full border border-white/10 group-hover:border-kiro-accent/40 flex items-center justify-center group-hover:bg-kiro-accent/5 transition-all duration-300">
               <ArrowRight className="w-3.5 h-3.5" />
             </span>
           </Link>

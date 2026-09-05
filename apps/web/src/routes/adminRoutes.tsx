@@ -44,6 +44,7 @@ const CrmAnalytics = lazy(() => import("@/pages/admin/CrmAnalytics"));
 const CrmSettings = lazy(() => import("@/pages/admin/CrmSettings"));
 const AdminLeadWorkspace = lazy(() => import("@/pages/admin/workspace/AdminLeadWorkspace"));
 const LearningHealthDashboard = lazy(() => import("@/pages/admin/workspace/LearningHealthDashboard"));
+const AdminArchitecturePortal = lazy(() => import("@/pages/admin/AdminArchitecturePortal"));
 
 // ─── Role Sets ────────────────────────────────────────────────────────────────
 // Kept as named constants so the intent is readable at a glance.
@@ -129,9 +130,11 @@ export const adminRoutes = (
           <Route path="audit-logs"      element={<AdminAuditLogs />} />
         </Route>
 
-        {/* ── Operational Health: super_admin only ──────────────────────────── */}
+        {/* ── Operational Health & Architecture OS: super_admin / admin ───── */}
         <Route path="learning-health" element={<RoleGuard allowedRoles={SUPER_ONLY}><LearningHealthDashboard /></RoleGuard>} />
+        <Route path="architecture"    element={<RoleGuard allowedRoles={ADMIN_ONLY}><AdminArchitecturePortal /></RoleGuard>} />
       </Route>
+
     </Route>
   </>
 );

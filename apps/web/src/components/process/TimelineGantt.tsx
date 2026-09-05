@@ -37,12 +37,12 @@ const TimelineGantt = () => {
           className="text-center mb-16"
         >
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">Timeline</span>
-            <div className="w-12 h-px bg-site-crimson" />
+            <div className="w-12 h-px bg-kiro-accent" />
+            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-kiro-accent">Timeline</span>
+            <div className="w-12 h-px bg-kiro-accent" />
           </div>
           <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] leading-[1.05] tracking-tight text-white">
-            What Your Timeline <span className="italic font-medium text-site-crimson">Looks Like</span>
+            What Your Timeline <span className="italic font-medium text-kiro-accent">Looks Like</span>
           </h2>
           <p className="text-[1rem] text-white/60 font-light mt-4 max-w-[50ch] mx-auto">
             A typical residential project spans 8 weeks from consultation to handover. Every phase has defined milestones so you always know what&apos;s next.
@@ -124,8 +124,8 @@ const TimelineGantt = () => {
                 transition={{ delay: i * 0.1 }}
                 className="text-center"
               >
-                <div className="w-2 h-2 rounded-full bg-site-gold mx-auto mb-2 shadow-[0_0_8px_rgba(197,168,128,0.5)]" />
-                <div className="text-[8px] font-mono text-site-gold tracking-wider mb-1">{weeks[m.week - 1]}</div>
+                <div className="w-2 h-2 rounded-full bg-kiro-accent mx-auto mb-2 shadow-[0_0_8px_rgba(197,168,128,0.5)]" />
+                <div className="text-[8px] font-mono text-kiro-accent tracking-wider mb-1">{weeks[m.week - 1]}</div>
                 <div className="text-[9px] text-stone-400 font-light leading-snug">{m.label}</div>
               </motion.div>
             ))}
@@ -140,7 +140,7 @@ const TimelineGantt = () => {
               href="https://wa.me/917909041132"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-site-gold hover:underline"
+              className="text-kiro-accent hover:underline"
             >
               Get a personalized timeline estimate
             </a>

@@ -56,8 +56,8 @@ const Services = () => {
         {/* Left Column: Interactive List */}
         <div className="w-full md:w-1/2 flex flex-col justify-center">
           <div className="reveal-elem flex items-center gap-4 mb-6">
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Services</span>
+            <div className="w-12 h-px bg-kiro-accent" />
+            <span className="text-kiro-accent font-bold uppercase tracking-[0.3em] text-[10px]">Services</span>
           </div>
           <h2 className="reveal-elem font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-bold text-white mb-6 leading-[1.1] tracking-tight flex flex-col">
             <FallingText text="Engineered Interiors." delay={30} duration={0.6} />
@@ -68,7 +68,7 @@ const Services = () => {
 
           {/* Neighborhood / area served callout */}
           <p className="reveal-elem text-white/35 text-xs tracking-[0.2em] uppercase font-medium mb-12 flex items-center gap-2">
-            <span className="inline-block w-4 h-px bg-site-crimson/60 flex-shrink-0" />
+            <span className="inline-block w-4 h-px bg-kiro-accent/60 flex-shrink-0" />
             Serving Jamshedpur · Kolkata · Mango · Bistupur · Sakchi · Adityapur
           </p>
 
@@ -84,14 +84,14 @@ const Services = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-6">
-                      <span className={cn("text-xs font-mono tracking-widest uppercase transition-colors duration-500", isHovered ? "text-site-crimson" : "text-white/40")}>
+                      <span className={cn("text-xs font-mono tracking-widest uppercase transition-colors duration-500", isHovered ? "text-kiro-accent" : "text-white/40")}>
                         0{index + 1}
                       </span>
                       <h3 className={cn("font-display text-[clamp(1.5rem,3vw,2.5rem)] transition-all duration-500 transform", isHovered ? "text-white translate-x-4" : "text-white/40")}>
                         {serviceItem.title}
                       </h3>
                     </div>
-                    <ArrowRight className={cn("w-6 h-6 transition-all duration-500 transform", isHovered ? "text-site-crimson -translate-x-2 opacity-100" : "text-white/20 -translate-x-8 opacity-0")} />
+                    <ArrowRight className={cn("w-6 h-6 transition-all duration-500 transform", isHovered ? "text-kiro-accent -translate-x-2 opacity-100" : "text-white/20 -translate-x-8 opacity-0")} />
                   </div>
                   
                   {/* Subtle active underline indicator */}
@@ -105,10 +105,10 @@ const Services = () => {
             <Link to="/services" className="inline-block group">
               <Button className="pl-0 pr-8 !h-auto py-4 bg-transparent hover:bg-transparent text-white border-none shadow-none group relative overflow-hidden transition-all duration-500">
                 <span className="relative z-10 font-bold uppercase tracking-[0.2em] text-xs">Explore All Services</span>
-                <div className="ml-4 w-10 h-10 border border-site-crimson/30 rounded-none flex items-center justify-center group-hover:bg-site-crimson group-hover:border-site-crimson transition-all duration-500 inline-flex group-hover:translate-x-2">
-                  <ArrowRight className="w-4 h-4 text-site-crimson group-hover:text-white transition-colors" />
+                <div className="ml-4 w-10 h-10 border border-kiro-accent/30 rounded-none flex items-center justify-center group-hover:bg-kiro-accent group-hover:border-kiro-accent transition-all duration-500 inline-flex group-hover:translate-x-2">
+                  <ArrowRight className="w-4 h-4 text-kiro-accent group-hover:text-white transition-colors" />
                 </div>
-                <div className="absolute bottom-4 left-0 w-0 h-px bg-site-crimson group-hover:w-[calc(100%-48px)] transition-all duration-700 delay-100" />
+                <div className="absolute bottom-4 left-0 w-0 h-px bg-kiro-accent group-hover:w-[calc(100%-48px)] transition-all duration-700 delay-100" />
               </Button>
             </Link>
           </div>

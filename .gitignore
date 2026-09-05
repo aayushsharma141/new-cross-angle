@@ -11,6 +11,10 @@ coverage
 .vercel
 .env*.local
 
+# Cryptographic Keys & Secrets
+*.key
+private.key
+
 # Supabase
 supabase/functions/node_modules/
 
@@ -22,6 +26,7 @@ test-results/
 
 # Generated outputs
 graphify-out/
+audit-reports/
 *.cpuprofile
 *.log
 
@@ -31,4 +36,9 @@ graphify-out/
 .gemini/
 .agents/
 .claude/
+.brain/
+.codex/
+.rules/
+/ECC/
+debug-artifacts/
 skills-lock.json

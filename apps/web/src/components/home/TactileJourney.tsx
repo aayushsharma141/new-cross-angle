@@ -75,7 +75,7 @@ export const TactileJourney = () => {
         </span>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
           <h2 className="font-display text-[clamp(2.5rem,4vw,4.5rem)] leading-[1] tracking-[-0.02em] text-white max-w-2xl">
-            Spaces designed around <span className="text-site-gold italic">feeling</span>, not just function.
+            Spaces designed around <span className="text-kiro-accent italic">feeling</span>, not just function.
           </h2>
           <p className="text-white/50 text-sm md:text-base max-w-sm leading-relaxed mb-2">
             Swipe through our curated moods. Hover to reveal the textures and lighting that define each atmosphere.
@@ -113,7 +113,7 @@ export const TactileJourney = () => {
               {/* Content */}
               <div className="absolute inset-0 p-8 flex flex-col justify-end transition-transform duration-500 translate-y-4 group-hover:translate-y-0">
                 <div className="overflow-hidden mb-2">
-                  <span className="block text-site-gold text-xs tracking-[0.2em] uppercase font-medium transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                  <span className="block text-kiro-accent text-xs tracking-[0.2em] uppercase font-medium transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
                     Mood 0{i + 1}
                   </span>
                 </div>
@@ -125,7 +125,7 @@ export const TactileJourney = () => {
                 </p>
                 
                 <div className="mt-8 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200 translate-y-4 group-hover:translate-y-0">
-                  <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white group-hover:bg-site-gold group-hover:border-site-gold group-hover:text-black transition-colors duration-300">
+                  <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white group-hover:bg-kiro-accent group-hover:border-kiro-accent group-hover:text-black transition-colors duration-300">
                     <ArrowRight size={16} />
                   </div>
                   <span className="text-xs uppercase tracking-widest text-white/50 group-hover:text-white transition-colors">

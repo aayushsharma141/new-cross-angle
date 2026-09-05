@@ -28,25 +28,25 @@ const DiscoveryVisual = () => (
     transition={{ duration: 0.4, ease: "easeOut" }}
     className="relative w-full aspect-square md:aspect-[4/3] rounded-3xl border border-white/10 bg-[#0a0a0a]/80 overflow-hidden backdrop-blur-xl p-6 md:p-8 flex flex-col shadow-2xl shadow-black/50"
   >
-    <div className="absolute -top-20 -right-20 w-64 h-64 bg-site-gold/10 blur-[80px] rounded-full pointer-events-none" />
+    <div className="absolute -top-20 -right-20 w-64 h-64 bg-kiro-accent/10 blur-[80px] rounded-full pointer-events-none" />
     
     <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-6 relative z-10">
       <div className="flex items-center gap-3">
         <div className="p-2 bg-white/5 rounded-lg border border-white/5">
-          <Fingerprint className="w-5 h-5 text-site-gold" />
+          <Fingerprint className="w-5 h-5 text-kiro-accent" />
         </div>
         <span className="text-white/90 font-medium text-sm tracking-wide">Spatial DNA Profile</span>
       </div>
-      <div className="flex items-center gap-2 bg-site-gold/10 px-3 py-1.5 rounded-full border border-site-gold/20">
-        <Sparkles className="w-3 h-3 text-site-gold" />
-        <span className="text-[10px] text-site-gold uppercase tracking-widest font-bold">100% Match</span>
+      <div className="flex items-center gap-2 bg-kiro-accent/10 px-3 py-1.5 rounded-full border border-kiro-accent/20">
+        <Sparkles className="w-3 h-3 text-kiro-accent" />
+        <span className="text-[10px] text-kiro-accent uppercase tracking-widest font-bold">100% Match</span>
       </div>
     </div>
 
     <div className="flex-1 flex flex-col justify-center space-y-8 relative z-10">
       <div>
         <span className="block text-[10px] text-white/40 uppercase tracking-[0.2em] mb-2">Design Archetype</span>
-        <div className="text-2xl md:text-3xl font-serif text-white tracking-tight">Modern <span className="italic text-site-gold">Minimalist</span></div>
+        <div className="text-2xl md:text-3xl font-serif text-white tracking-tight">Modern <span className="italic text-kiro-accent">Minimalist</span></div>
       </div>
       
       <div>
@@ -97,12 +97,12 @@ const EstimatorVisual = () => (
     transition={{ duration: 0.4, ease: "easeOut" }}
     className="relative w-full aspect-square md:aspect-[4/3] rounded-3xl border border-white/10 bg-[#0a0a0a]/80 overflow-hidden backdrop-blur-xl p-6 md:p-8 flex flex-col shadow-2xl shadow-black/50"
   >
-    <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-site-crimson/10 blur-[80px] rounded-full pointer-events-none" />
+    <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-kiro-accent/10 blur-[80px] rounded-full pointer-events-none" />
     
     <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-6 relative z-10">
       <div className="flex items-center gap-3">
         <div className="p-2 bg-white/5 rounded-lg border border-white/5">
-          <Calculator className="w-5 h-5 text-site-crimson" />
+          <Calculator className="w-5 h-5 text-kiro-accent" />
         </div>
         <span className="text-white/90 font-medium text-sm tracking-wide">Investment Projection</span>
       </div>
@@ -124,7 +124,7 @@ const EstimatorVisual = () => (
         </div>
       </div>
 
-      <div className="bg-white/[0.02] border border-site-gold/20 p-5 md:p-6 rounded-2xl relative overflow-hidden mt-2">
+      <div className="bg-white/[0.02] border border-kiro-accent/20 p-5 md:p-6 rounded-2xl relative overflow-hidden mt-2">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-site-gold/20 via-site-gold to-site-crimson" />
         <span className="block text-[9px] md:text-[10px] text-white/40 uppercase tracking-[0.2em] mb-3">Calibrated Investment Range</span>
         <motion.div 
@@ -135,7 +135,7 @@ const EstimatorVisual = () => (
         >
           <span className="text-3xl md:text-5xl font-serif text-white tracking-tight">₹45L</span>
           <span className="text-white/30 text-xl md:text-2xl">—</span>
-          <span className="text-3xl md:text-5xl font-serif text-site-gold tracking-tight">₹60L</span>
+          <span className="text-3xl md:text-5xl font-serif text-kiro-accent tracking-tight">₹60L</span>
         </motion.div>
         
         <div className="flex items-center gap-4 mt-6 pt-5 border-t border-white/5">
@@ -332,14 +332,14 @@ function EngineBlock({ engine }: { engine: Engine }) {
             className="flex items-center gap-3 mb-6"
           >
             <div className="border border-white/10 bg-white/[0.03] backdrop-blur-xl rounded-full p-2 flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.05)]">
-              <span className="text-site-crimson">{engine.icon}</span>
+              <span className="text-kiro-accent">{engine.icon}</span>
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-px bg-site-crimson" />
+                <div className="w-8 h-px bg-kiro-accent" />
                 <span
                   style={{ fontFamily: "'DM Sans', sans-serif" }}
-                  className="text-[9px] font-bold tracking-[0.3em] uppercase text-site-gold"
+                  className="text-[9px] font-bold tracking-[0.3em] uppercase text-kiro-accent"
                 >
                   [ {engine.system} ]
                 </span>
@@ -415,8 +415,8 @@ function EngineBlock({ engine }: { engine: Engine }) {
                     transition={{ delay: 0.2 + idx * 0.1 }}
                     className="flex items-start gap-3"
                   >
-                    <div className="mt-1 p-[3px] rounded-full bg-white/[0.03] border border-white/10 group-hover:border-site-gold/30 transition-colors">
-                      <Sparkles className="w-2 h-2 text-site-gold/70" />
+                    <div className="mt-1 p-[3px] rounded-full bg-white/[0.03] border border-white/10 group-hover:border-kiro-accent/30 transition-colors">
+                      <Sparkles className="w-2 h-2 text-kiro-accent/70" />
                     </div>
                     <span className="text-[0.85rem] text-[#EDEDED]/80 leading-relaxed font-light">{useCase}</span>
                   </motion.div>
@@ -430,7 +430,7 @@ function EngineBlock({ engine }: { engine: Engine }) {
             <motion.div variants={fadeUp} className="w-full sm:w-auto">
               <Link
                 to={engine.primaryCta.href}
-                className="group relative flex items-center justify-center gap-3 px-6 py-3 bg-site-crimson text-white transition-all duration-500 hover:shadow-[0_0_30px_rgba(196,30,58,0.3)] border border-site-crimson rounded-full overflow-hidden w-full"
+                className="home-button-sweep group relative flex items-center justify-center gap-3 px-6 py-3 bg-kiro-accent text-white transition-all duration-500 hover:shadow-[0_0_30px_rgba(196,30,58,0.3)] border border-kiro-accent rounded-full overflow-hidden w-full"
               >
                 <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 pointer-events-none" />
                 <span
@@ -451,19 +451,19 @@ function EngineBlock({ engine }: { engine: Engine }) {
                 {engine.secondaryCta.modalContent ? (
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="group flex items-center justify-center gap-2 text-white/60 hover:text-site-gold transition-colors duration-300 w-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-site-gold rounded p-1"
+                    className="group flex items-center justify-center gap-2 text-white/60 hover:text-kiro-accent transition-colors duration-300 w-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-kiro-accent rounded p-1"
                     style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: 500 }}
                   >
-                    <span className="w-6 h-px bg-white/20 group-hover:bg-site-gold transition-colors duration-300" />
+                    <span className="w-6 h-px bg-white/20 group-hover:bg-kiro-accent transition-colors duration-300" />
                     <span className="tracking-[0.1em] uppercase">{engine.secondaryCta.label}</span>
                   </button>
                 ) : engine.secondaryCta.href ? (
                   <Link
                     to={engine.secondaryCta.href}
-                    className="group flex items-center justify-center gap-2 text-white/60 hover:text-site-gold transition-colors duration-300 w-full"
+                    className="group flex items-center justify-center gap-2 text-white/60 hover:text-kiro-accent transition-colors duration-300 w-full"
                     style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", fontWeight: 500 }}
                   >
-                    <span className="w-6 h-px bg-white/20 group-hover:bg-site-gold transition-colors duration-300" />
+                    <span className="w-6 h-px bg-white/20 group-hover:bg-kiro-accent transition-colors duration-300" />
                     <span className="tracking-[0.1em] uppercase">{engine.secondaryCta.label}</span>
                   </Link>
                 ) : null}

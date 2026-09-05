@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -10,6 +10,8 @@ import { useGallery, useGalleryCategories } from "@/hooks/useGallery";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
 import GalleryLightbox from "@/components/gallery/GalleryLightbox";
+import GalleryStackedSlider from "@/components/gallery/GalleryStackedSlider";
+import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
 
 function useSavedItems(urlBoardIds: string[]) {
   const [saved, setSaved] = useState<string[]>(() => {
@@ -59,6 +61,10 @@ const GalleryPage = () => {
   const [activeCategory, setActiveCategory] = useState(urlCategory || (urlBoard ? "Saved" : "All"));
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+
+  const heroTelemetryRef = useAttentionTelemetry<HTMLDivElement>("gallery", "hero-image", 1);
+  const categoriesRef = useAttentionTelemetry<HTMLDivElement>("gallery", "category-nav", 2);
+  const gridRef = useAttentionTelemetry<HTMLDivElement>("gallery", "project-grid", 3);
 
   useEffect(() => {
     if (urlCategory) {
@@ -156,12 +162,13 @@ const GalleryPage = () => {
 
       <Navbar />
 
-      <main id="main-content" className="min-h-screen bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)]" data-environment="gallery">
+      <main id="main-content" className="home-shell min-h-screen relative w-full pb-[10vh]" data-environment="gallery">
+        <div className="absolute inset-0 pointer-events-none home-noise z-0" />
         
         {/* 0–20% Scroll: Hero photography (Design Silence) */}
-        <section ref={heroRef} className="relative w-full h-[70vh] md:h-[85vh] lg:h-[95vh] overflow-hidden bg-[var(--s-canvas-primary)]">
+        <section ref={heroRef} className="relative z-10 w-full h-[70vh] md:h-[85vh] lg:h-[95vh] overflow-hidden bg-transparent">
           {heroItem && (
-            <motion.div className="absolute inset-4 md:inset-8 lg:inset-12 overflow-hidden bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)]" style={{ scale: heroScale }}>
+            <motion.div ref={heroTelemetryRef} className="absolute inset-4 md:inset-8 lg:inset-12 overflow-hidden home-panel" style={{ scale: heroScale }}>
               <Image
                 src={heroItem.image}
                 alt={heroItem.title}
@@ -177,7 +184,7 @@ const GalleryPage = () => {
             className="absolute bottom-16 md:bottom-24 lg:bottom-32 left-8 md:left-16 lg:left-24"
             style={{ opacity: heroOpacity }}
           >
-            <span className="text-[10px] tracking-[0.2em] uppercase font-bold text-[var(--s-text-tertiary)] mb-4 block">Archive</span>
+            <span className="home-kicker mb-4 block">Archive</span>
             <motion.h1
               className="font-display text-5xl md:text-7xl lg:text-8xl text-[var(--s-text-primary)] tracking-tight"
               style={{ letterSpacing: "-0.03em" }}
@@ -189,7 +196,7 @@ const GalleryPage = () => {
         </section>
 
         {/* 20–35% Scroll: Category Navigation (Asymmetric sticky) */}
-        <section className="sticky top-[72px] z-30 bg-[var(--s-canvas-primary)]/90 backdrop-blur-xl border-b border-[var(--s-border-subtle)]">
+        <section ref={categoriesRef} className="sticky top-[72px] z-30 bg-[var(--s-canvas-primary)]/90 backdrop-blur-xl border-b border-[var(--s-border-subtle)]">
           <div className="container mx-auto px-6 md:px-12 py-6 overflow-x-auto scrollbar-hide">
             <div className="flex items-center gap-6 min-w-max">
               {categoryList.map((cat) => {
@@ -218,79 +225,29 @@ const GalleryPage = () => {
         </section>
 
         {/* 35–80% Scroll: Asymmetric Gallery Grid */}
-        <section className="px-6 md:px-12 lg:px-24 py-[15vh] max-w-[1600px] mx-auto flex flex-col gap-[15vh]">
+        <section ref={gridRef} className="home-section-frame relative z-10 w-full px-6 md:px-12 lg:px-24 mb-[30vh] mt-[15vh] max-w-[1600px] mx-auto flex flex-col gap-[30vh]">
           {isLoading ? (
             <div className="w-full flex justify-center py-20">
-              <span className="text-[var(--s-text-tertiary)] text-xs tracking-widest uppercase">Loading...</span>
+              <span className="home-kicker">Loading...</span>
             </div>
           ) : (
-            <AnimatePresence mode="wait">
-              {filtered.map((item, idx) => {
-                // Editorial asymmetry: alternating alignment
-                const alignLeft = idx % 2 === 0;
-                
-                return (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-10%" }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className={`flex flex-col ${alignLeft ? 'md:items-start' : 'md:items-end'} w-full`}
-                  >
-                    <div className={`w-full md:w-8/12 lg:w-7/12 flex flex-col ${alignLeft ? 'items-start' : 'items-end'}`}>
-                      <div 
-                        className="w-full aspect-[4/5] md:aspect-[3/2] relative cursor-pointer overflow-hidden bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)]"
-                        onClick={() => openLightbox(idx)}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={`View ${item.title}`}
-                        onKeyDown={(e) => { if (e.key === "Enter") openLightbox(idx); }}
-                      >
-                        <Image
-                          src={item.image}
-                          alt={item.title}
-                          className="w-full h-full pointer-events-none"
-                          imageClassName="object-cover transition-transform duration-[1200ms] ease-out hover:scale-[1.02]"
-                          loading="lazy"
-                          draggable={false}
-                        />
-                      </div>
-                      
-                      <div className={`mt-8 max-w-sm ${alignLeft ? 'text-left' : 'text-right'}`}>
-                        <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--s-text-tertiary)] mb-4 block">
-                          {String(idx + 1).padStart(2, '0')} / {item.category}
-                        </span>
-                        <h3 className="font-display text-2xl md:text-3xl text-[var(--s-text-primary)] tracking-tight">
-                          {item.title}
-                        </h3>
-                        {item.location && (
-                          <p className="font-sans text-[var(--s-text-secondary)] text-xs mt-3 leading-relaxed">
-                            {item.location}{item.year ? ` · ${item.year}` : ""}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
+            <GalleryStackedSlider items={filtered} onImageClick={openLightbox} />
           )}
 
           {filtered.length === 0 && !isLoading && (
             <div className="text-center py-24">
-              <p className="text-[var(--s-text-secondary)] text-sm uppercase tracking-widest">No projects found.</p>
+              <p className="home-body text-sm uppercase tracking-widest">No projects found.</p>
             </div>
           )}
         </section>
 
         {/* 80–100% Scroll: CTA Transition */}
-        <section className="relative w-full px-6 md:px-12 lg:px-24 pb-[15vh] max-w-[1600px] mx-auto flex flex-col items-center justify-center text-center">
-          <span className="text-[10px] tracking-[0.2em] uppercase font-bold text-[var(--s-text-tertiary)] mb-8 block">Inspired?</span>
+        <section className="home-section-frame relative w-full px-6 md:px-12 lg:px-24 mb-[20vh] max-w-[1600px] mx-auto flex flex-col items-center justify-center text-center">
+          <span className="home-kicker mb-8 block">Inspired?</span>
           <h2 className="font-display text-5xl md:text-7xl mb-12 text-[var(--s-text-primary)] tracking-tight" style={{ letterSpacing: "-0.02em" }}>
             Let's create your <span className="text-[var(--s-text-secondary)]">space.</span>
           </h2>
-          <Link to="/contact-us" className="inline-block text-xs uppercase tracking-[0.2em] font-bold border-b border-[var(--s-text-primary)] pb-1 text-[var(--s-text-primary)] transition-opacity hover:opacity-70">
+          <Link to="/contact-us" className="home-button-sweep inline-block text-[10px] uppercase tracking-[0.2em] font-bold border-b border-[#D1AF6E] pb-2 text-[var(--s-text-primary)]">
             Book Consultation
           </Link>
         </section>

@@ -86,16 +86,16 @@ const ValueCard = ({ icon: Icon, title, description, index }: ValueCardProps) =>
       onMouseLeave={handleMouseLeave}
       className="relative group cursor-pointer perspective-1000"
     >
-      <div className="relative h-full p-8 md:p-10 rounded-[2.5rem] bg-gradient-to-br from-white/[0.03] to-white/[0.01] backdrop-blur-3xl border border-white/5 shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_20px_50px_rgba(209,175,110,0.12)] hover:border-site-gold/30 transition-all duration-700 overflow-hidden group-hover:bg-gradient-to-br group-hover:from-white/[0.06] group-hover:to-white/[0.02]">
+      <div className="relative h-full p-8 md:p-10 rounded-[2.5rem] bg-[var(--s-canvas-secondary)] backdrop-blur-3xl border border-[var(--s-border-subtle)] shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_20px_50px_rgba(209,175,110,0.12)] hover:border-primary/40 transition-all duration-700 overflow-hidden">
         {/* Internal reflection */}
         <div className="absolute inset-0 rounded-[2.5rem] ring-1 ring-inset ring-white/5 pointer-events-none" />
         
         {/* Architectural corner accents */}
-        <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-site-crimson/0 group-hover:border-site-crimson/40 rounded-tr-[2.5rem] transition-all duration-700 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-site-gold/0 group-hover:border-site-gold/40 rounded-bl-[2.5rem] transition-all duration-700 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-primary/0 group-hover:border-primary/40 rounded-tr-[2.5rem] transition-all duration-700 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-primary/0 group-hover:border-primary/40 rounded-bl-[2.5rem] transition-all duration-700 pointer-events-none" />
 
         {/* Huge Number */}
-        <div className="absolute -bottom-6 -right-2 text-[140px] leading-none font-serif font-bold text-white/[0.02] pointer-events-none select-none group-hover:text-site-gold/[0.04] transition-colors duration-700 z-0">
+        <div className="absolute -bottom-6 -right-2 text-[140px] leading-none font-serif font-bold text-white/[0.02] pointer-events-none select-none group-hover:text-primary/[0.04] transition-colors duration-700 z-0">
           0{index + 1}
         </div>
 
@@ -111,21 +111,21 @@ const ValueCard = ({ icon: Icon, title, description, index }: ValueCardProps) =>
 
         {/* Icon */}
         <motion.div
-          className="relative z-10 w-14 h-14 rounded-2xl bg-black/50 border border-white/10 group-hover:border-site-crimson/40 group-hover:bg-site-crimson/10 flex items-center justify-center mb-8 transition-all duration-700 shadow-inner group-hover:shadow-[0_0_20px_rgba(217,43,43,0.2)]"
+          className="relative z-10 w-14 h-14 rounded-2xl bg-black/50 border border-[var(--s-border-subtle)] group-hover:border-primary/40 group-hover:bg-primary/10 flex items-center justify-center mb-8 transition-all duration-700 shadow-inner group-hover:shadow-[0_0_20px_rgba(209,175,110,0.2)]"
           whileHover={{ scale: 1.1, rotate: 5 }}
         >
-          <Icon className="w-7 h-7 text-muted-foreground group-hover:text-site-crimson transition-colors duration-500" />
+          <Icon className="w-7 h-7 text-white/50 group-hover:text-primary transition-colors duration-500" />
         </motion.div>
 
         {/* Content */}
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-4 h-[1px] bg-site-gold/40 group-hover:w-8 group-hover:bg-site-gold transition-all duration-500" />
-            <h3 className="font-serif text-lg font-semibold text-white group-hover:text-site-gold transition-colors duration-300">
+            <div className="w-4 h-[1px] bg-primary/40 group-hover:w-8 group-hover:bg-primary transition-all duration-500" />
+            <h3 className="font-serif text-lg font-semibold text-white group-hover:text-primary transition-colors duration-300">
               {title}
             </h3>
           </div>
-          <p className="text-muted-foreground text-sm leading-relaxed group-hover:text-white/90 transition-colors duration-300">
+          <p className="text-white/60 text-sm leading-relaxed group-hover:text-white/90 transition-colors duration-300 font-light">
             {description}
           </p>
         </div>
@@ -136,10 +136,10 @@ const ValueCard = ({ icon: Icon, title, description, index }: ValueCardProps) =>
 
 const AboutValues = () => {
   return (
-    <section className="relative py-24 md:py-32 bg-background overflow-hidden">
+    <section className="relative py-24 md:py-32 bg-[var(--s-canvas-primary)] overflow-hidden border-b border-[var(--s-border-subtle)]">
       {/* Background elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 -right-1/4 w-1/2 h-1/2 bg-site-gold/5 rounded-full blur-[120px]" />
+        <div className="absolute top-1/4 -right-1/4 w-1/2 h-1/2 bg-primary/5 rounded-full blur-[120px]" />
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
       </div>
@@ -153,14 +153,14 @@ const AboutValues = () => {
           transition={{ duration: 0.6 }}
           className="max-w-3xl mx-auto text-center mb-12 md:mb-20 px-4"
         >
-          <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-site-crimson mb-4 flex items-center justify-center gap-2">
-            <span className="inline-block w-5 h-[2px] bg-site-crimson" /> Our Principles
+          <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary mb-4 flex items-center justify-center gap-2">
+            <span className="inline-block w-5 h-[2px] bg-primary" /> Our Principles
           </span>
           <h2 className="font-serif font-bold text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-tight text-white mb-5">
             Designed for aesthetics.<br />
-            <span className="text-site-crimson font-medium">Built for everyday use.</span>
+            <span className="text-primary italic font-light">Built for everyday use.</span>
           </h2>
-          <p className="text-[clamp(0.85rem,0.95vw,0.95rem)] text-muted-foreground leading-[1.8] max-w-[44ch] mx-auto">
+          <p className="text-[clamp(0.85rem,0.95vw,0.95rem)] text-white/60 font-light leading-[1.8] max-w-[44ch] mx-auto">
             Every project is delivered fully executed — not just designed.
             Our principles drive every decision from brief to final handover.
           </p>

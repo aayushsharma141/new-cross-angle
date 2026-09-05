@@ -28,6 +28,32 @@ jobs:
       - name: Type Check
         run: npm run typecheck --workspace=web
 
+  quality-gates:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Security audit (high severity)
+        run: npm audit --audit-level=high --workspace=apps/web
+        continue-on-error: true  # Report but don't block until all remaining highs are resolved
+
+      - name: No console.log in production source
+        run: node apps/web/scripts/checks/no-console-log.js
+
+      - name: Architectural layer enforcement (dependency-cruiser)
+        run: npm run arch:check --workspace=apps/web
+        continue-on-error: true  # Enforce once baseline violations are resolved
+
   build:
     name: Build
     runs-on: ubuntu-latest

@@ -4,12 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet-async";
 import {
   motion,
-  useScroll,
-  useTransform,
-  useSpring,
   AnimatePresence,
 } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -18,7 +15,10 @@ import Footer from "@/components/layout/Footer";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import ProjectHero from "@/components/project/ProjectHero";
 import ProjectClientExperience from "@/components/project/ProjectClientExperience";
-import ProjectNarrativeSpine from "@/components/project/ProjectNarrativeSpine";
+import ProjectExperienceCanvas from "@/components/project/ProjectExperienceCanvas";
+import ProjectDocumentation from "@/components/project/ProjectDocumentation";
+import ProjectStoryAndTransformation from "@/components/project/ProjectStoryAndTransformation";
+import ProjectOutcome from "@/components/project/ProjectOutcome";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -46,51 +46,8 @@ const ProjectPage = () => {
 
   const isLoading = isProjectLoading || isListLoading;
   const currentIndex = projects.findIndex((p) => p.slug === slug);
-
-  // ── Scroll state ──────────────────────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  const [activeStage, setActiveStage] = useState(0);
   const [showMicroBar, setShowMicroBar] = useState(false);
-
-  // Smooth spring for spine draw
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 60,
-    damping: 20,
-  });
-  const journeyHeight = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
-
-  // Stage detection via IntersectionObserver to respect actual section heights
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = (entry.target as HTMLElement).dataset.chapter;
-            if (id === "arrival") setActiveStage(0);
-            else if (id === "context") setActiveStage(1);
-            else if (id === "constraints") setActiveStage(2);
-            else if (id === "design") setActiveStage(3);
-            else if (id === "materials") setActiveStage(4);
-            else if (id === "process") setActiveStage(5);
-            else if (id === "transformation") setActiveStage(6);
-            else if (id === "outcome") setActiveStage(7);
-            else if (id === "reflection") setActiveStage(8);
-          }
-        });
-      },
-      { rootMargin: "-20% 0px -60% 0px" },
-    );
-
-    const chapters = document.querySelectorAll("[data-chapter]");
-    chapters.forEach((c) => observer.observe(c));
-
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     const onScroll = () => setShowMicroBar(window.scrollY > 600);
@@ -257,8 +214,19 @@ const ProjectPage = () => {
     );
   }
 
+  const prevProject =
+    currentIndex > 0
+      ? projects[currentIndex - 1]
+      : projects.length > 1
+        ? projects[projects.length - 1]
+        : null;
+
   const nextProject =
-    currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
+    currentIndex >= 0 && currentIndex < projects.length - 1
+      ? projects[currentIndex + 1]
+      : projects.length > 1
+        ? projects[0]
+        : null;
 
   const relatedProjects = projects
     .filter((p) => p.id !== project.id && p.type === project.type)
@@ -283,12 +251,6 @@ const ProjectPage = () => {
 
       <Navbar />
 
-      {/* ── Persistent Narrative Spine ──────────────────────────────────── */}
-      <ProjectNarrativeSpine
-        scrollYProgress={smoothProgress}
-        activeStage={activeStage}
-      />
-
       {/* ── Floating Micro-bar ──────────────────────────────────────────── */}
       <AnimatePresence>
         {showMicroBar && (
@@ -297,24 +259,56 @@ const ProjectPage = () => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -100, opacity: 0 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed top-16 left-0 right-0 bg-[var(--s-canvas-primary)]/90 backdrop-blur-xl border-b border-[var(--s-border-subtle)] z-45 py-4 hidden md:block"
+            className="fixed top-[84px] left-0 right-0 bg-[var(--s-canvas-primary)]/95 backdrop-blur-xl border-b border-[var(--s-border-subtle)] z-40 py-3.5 hidden md:block shadow-lg"
           >
             <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center text-xs">
-              <span className="font-display text-[var(--s-text-primary)] text-sm tracking-wide">
-                {project.title}
-              </span>
-              <div className="flex gap-8 text-[10px] tracking-widest text-[var(--s-text-tertiary)] uppercase font-bold">
-                <div className="flex items-center gap-2">
-                  <span>Area:</span>
-                  <span className="text-[var(--s-text-secondary)]">{project.area}</span>
+              <div className="flex items-center gap-6">
+                <Link to="/portfolio" className="text-[11px] font-semibold uppercase tracking-widest text-[var(--s-text-secondary)] hover:text-[var(--s-text-primary)] transition-colors flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-sm px-1 -ml-1">
+                  <span>← Back</span>
+                </Link>
+                <div className="w-px h-4 bg-[var(--s-border-subtle)]" aria-hidden="true" />
+                <span className="font-display text-[var(--s-text-primary)] text-sm tracking-wide font-semibold">
+                  {project.title}
+                </span>
+              </div>
+              <div className="flex items-center gap-8">
+                <div className="hidden lg:flex gap-8 text-[12px] tracking-widest text-[var(--s-text-secondary)] uppercase font-semibold">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[var(--s-text-tertiary)] font-normal">Area:</span>
+                    <span className="text-[var(--s-text-primary)]">{project.area}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[var(--s-text-tertiary)] font-normal">Timeline:</span>
+                    <span className="text-[var(--s-text-primary)]">{project.duration}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[var(--s-text-tertiary)] font-normal">Location:</span>
+                    <span className="text-[var(--s-text-primary)]">{project.location}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span>Timeline:</span>
-                  <span className="text-[var(--s-text-secondary)]">{project.duration}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span>Location:</span>
-                  <span className="text-[var(--s-text-secondary)]">{project.location}</span>
+                <div className="flex items-center gap-2 border-l border-[var(--s-border-subtle)] pl-4">
+                  {prevProject && (
+                    <Link
+                      to={`/portfolio/${prevProject.slug}`}
+                      className="text-[11px] font-semibold uppercase tracking-wider text-[var(--s-text-secondary)] hover:text-[var(--s-text-primary)] transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-primary rounded-sm px-2 py-1"
+                      aria-label={`Previous project: ${prevProject.title}`}
+                      title={`Previous: ${prevProject.title}`}
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" aria-hidden="true" />
+                      <span className="hidden sm:inline">Prev</span>
+                    </Link>
+                  )}
+                  {nextProject && (
+                    <Link
+                      to={`/portfolio/${nextProject.slug}`}
+                      className="text-[11px] font-semibold uppercase tracking-wider text-[var(--s-text-secondary)] hover:text-[var(--s-text-primary)] transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-primary rounded-sm px-2 py-1"
+                      aria-label={`Next project: ${nextProject.title}`}
+                      title={`Next: ${nextProject.title}`}
+                    >
+                      <span className="hidden sm:inline">Next</span>
+                      <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
@@ -329,17 +323,6 @@ const ProjectPage = () => {
         id="main-content"
         data-environment="gallery"
       >
-        {/* Blueprint thread overlay — subtle ghost behind spine */}
-        <div
-          className="absolute left-6 md:left-12 lg:left-16 top-0 bottom-0 w-[1px] bg-[var(--s-border-subtle)] pointer-events-none z-10 hidden lg:block"
-          aria-hidden="true"
-        >
-          <motion.div
-            className="absolute top-0 left-0 right-0 bg-[var(--s-text-tertiary)] origin-top opacity-50"
-            style={{ height: journeyHeight }}
-          />
-        </div>
-
         {/* 1. ARRIVAL */}
         <div data-chapter="arrival">
           <ProjectHero
@@ -356,20 +339,26 @@ const ProjectPage = () => {
         </div>
 
         {/* 2 & 3. CONTEXT & CONSTRAINTS */}
-        <div className="py-24 md:py-32 bg-[var(--s-surface-raised)] relative">
+        <div id="context-section" className="py-20 md:py-32 bg-[var(--s-surface-raised)] relative border-b border-[var(--s-border-subtle)] scroll-mt-24">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-24 relative z-10">
             {/* Context - Asymmetric left emphasis */}
             <div data-chapter="context" className="md:col-span-8 flex flex-col justify-center pb-8 md:pb-0">
-              <h2 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--s-text-tertiary)] mb-8">The Context</h2>
-              <p className="text-2xl md:text-3xl lg:text-4xl font-display text-[var(--s-text-primary)] leading-[1.4] tracking-tight">
+              <h2 className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[var(--s-text-secondary)] mb-6 flex items-center gap-2">
+                <span className="w-6 h-px bg-primary" aria-hidden="true" />
+                The Context
+              </h2>
+              <p className="text-2xl md:text-3xl lg:text-4xl font-display text-[var(--s-text-primary)] leading-[1.35] tracking-tight font-light">
                 {project.brief ||
                   "Every space begins with a distinct reality. The client needed a complete paradigm shift—moving from a fragmented layout to a cohesive, breathable environment."}
               </p>
             </div>
             {/* Constraints - Asymmetric right detail */}
             <div data-chapter="constraints" className="md:col-span-4 flex flex-col justify-center border-t md:border-t-0 md:border-l border-[var(--s-border-subtle)] pt-8 md:pt-0 md:pl-12">
-              <h2 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--s-text-tertiary)] mb-6">The Constraints</h2>
-              <div className="font-sans font-light text-[var(--s-text-secondary)] leading-relaxed text-sm md:text-base">
+              <h2 className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[var(--s-text-secondary)] mb-6 flex items-center gap-2">
+                <span className="w-6 h-px bg-primary" aria-hidden="true" />
+                The Constraints
+              </h2>
+              <div className="font-sans font-normal text-[var(--s-text-secondary)] leading-relaxed text-sm md:text-base">
                 <p>
                   {project.approach ||
                     "Strict structural limitations, unmovable load-bearing elements, and an aggressive timeline forced us to rely on inventive zoning rather than simple demolition."}
@@ -380,38 +369,44 @@ const ProjectPage = () => {
         </div>
 
         {/* 4. DESIGN THINKING */}
-        <div data-chapter="design" className="py-24 md:py-32">
+        <div data-chapter="design" className="py-20 md:py-32">
           <ErrorBoundary>
             <ProjectExperienceCanvas whatsapp={whatsapp} />
           </ErrorBoundary>
         </div>
 
         {/* 5. MATERIAL DECISIONS */}
-        <div data-chapter="materials" className="py-[15vh] relative px-6 md:px-12 lg:px-24 max-w-[1600px] mx-auto">
-          <div className="flex flex-col md:flex-row items-end gap-16 lg:gap-24">
-            <div className="w-full md:w-5/12 pb-0 md:pb-12">
-              <h2 className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--s-text-tertiary)] mb-6">
+        <div data-chapter="materials" className="py-20 md:py-32 relative px-6 md:px-12 lg:px-24 max-w-[1600px] mx-auto border-t border-[var(--s-border-subtle)]">
+          <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20">
+            <div className="w-full md:w-5/12">
+              <h2 className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[var(--s-text-secondary)] mb-6 flex items-center gap-2">
+                <span className="w-6 h-px bg-primary" aria-hidden="true" />
                 Material Decisions
               </h2>
-              <p className="text-xl lg:text-2xl font-display text-[var(--s-text-primary)] leading-[1.4] mb-8">
-                Tactile choices that define the atmosphere. We selected raw,
-                authentic finishes that age gracefully over time.
+              <p className="text-2xl lg:text-3xl font-display text-[var(--s-text-primary)] leading-[1.35] mb-6 font-light">
+                Tactile choices that define the atmosphere. We selected raw, authentic finishes that age gracefully over time.
               </p>
-              <p className="text-sm text-[var(--s-text-secondary)] font-sans max-w-sm">
+              <p className="text-sm text-[var(--s-text-secondary)] font-sans max-w-sm leading-relaxed">
                 Focusing on texture rather than ornament, each surface is intentional and resilient.
               </p>
             </div>
-            {project.gallery && project.gallery.length > 0 && (
-              <div className="w-full md:w-7/12">
-                <div className="relative aspect-[4/5] md:aspect-[3/2] w-full overflow-hidden bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)] group">
-                  <img
-                    src={project.gallery[0]}
-                    alt="Material detail"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] ease-out hover:scale-[1.02]"
-                  />
-                </div>
+            <div className="w-full md:w-7/12">
+              <div className="relative aspect-[16/10] md:aspect-[3/2] w-full overflow-hidden bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)] rounded-xl group shadow-xl">
+                <img
+                  src={
+                    project.gallery && project.gallery.length > 0
+                      ? typeof project.gallery[0] === 'string'
+                        ? project.gallery[0]
+                        : (project.gallery[0]?.images?.[0] || project.heroImage)
+                      : project.heroImage
+                  }
+                  alt={`${project.title} material detail`}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.03]"
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
-            )}
+            </div>
           </div>
         </div>
 
@@ -448,60 +443,69 @@ const ProjectPage = () => {
           </div>
         )}
 
-        {/* 10. NEXT PROJECT */}
-        <div data-chapter="next" className="border-t border-[var(--s-border-subtle)]">
-          {nextProject ? (
+        {/* 10. NEXT PROJECT & RETURN TO GALLERY */}
+        <div data-chapter="next" className="border-t border-[var(--s-border-subtle)] flex flex-col">
+          {nextProject && (
             <Link 
               to={`/portfolio/${nextProject.slug}`}
-              className="relative block w-full h-[60vh] min-h-[400px] overflow-hidden group cursor-pointer" 
+              className="relative block w-full h-[55vh] min-h-[380px] overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary" 
+              aria-label={`View next project: ${nextProject.title}`}
             >
               {/* Background image */}
               <div className="absolute inset-0 z-0 bg-[var(--s-canvas-primary)]">
                 <img 
                   src={nextProject.heroImage} 
                   alt={nextProject.title} 
-                  className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-all duration-[1.5s] ease-out" 
+                  className="w-full h-full object-cover opacity-60 group-hover:opacity-85 transition-all duration-[1.2s] ease-out" 
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               
               <div className="relative z-10 max-w-7xl mx-auto px-6 h-full flex flex-col items-center justify-center text-center">
-                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-white mb-6">Continue the Journey</p>
-                <h3 className="font-display text-4xl md:text-6xl lg:text-7xl text-white mb-8 tracking-tight">{nextProject.title}</h3>
-                <div className="w-12 h-12 rounded-full border border-white/40 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-colors">
-                  <ChevronRight className="w-5 h-5 ml-0.5" />
+                <p className="text-xs uppercase tracking-[0.25em] font-semibold text-white/90 mb-4 flex items-center gap-2">
+                  <span className="w-6 h-px bg-primary" aria-hidden="true" />
+                  Continue the Journey
+                  <span className="w-6 h-px bg-primary" aria-hidden="true" />
+                </p>
+                <h3 className="font-display text-4xl md:text-6xl lg:text-7xl text-white mb-8 tracking-tight font-light">{nextProject.title}</h3>
+                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/40 px-6 py-3 rounded-full group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-xl">
+                  <span className="text-[11px] uppercase tracking-[0.25em] font-bold">View Project</span>
+                  <ChevronRight className="w-4 h-4 -mr-1" aria-hidden="true" />
                 </div>
               </div>
             </Link>
-          ) : (
-            <div className="max-w-6xl mx-auto px-6 py-12 flex justify-center">
-              <Link
-                to="/portfolio"
-                className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--s-text-tertiary)] hover:text-[var(--s-text-primary)] transition-colors"
-              >
-                Return to Gallery
-              </Link>
-            </div>
           )}
+
+          <div className="max-w-6xl mx-auto px-6 py-16 flex justify-center w-full bg-[var(--s-surface-raised)] border-b border-[var(--s-border-subtle)]">
+            <Link
+              to="/portfolio"
+              className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[var(--s-text-primary)] hover:bg-[var(--s-text-primary)] hover:text-[var(--s-canvas-primary)] transition-colors cursor-pointer px-8 py-4 border-2 border-[var(--s-text-primary)] rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              Return to Gallery
+            </Link>
+          </div>
         </div>
 
         {/* Related Projects */}
         {relatedProjects.length > 0 && (
-          <section className="py-[15vh] border-t border-[var(--s-border-subtle)] px-6 md:px-12 lg:px-24 max-w-[1600px] mx-auto">
+          <section className="py-20 md:py-32 border-t border-[var(--s-border-subtle)] px-6 md:px-12 lg:px-24 max-w-[1600px] mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               className="mb-12"
             >
-              <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--s-text-tertiary)] mb-4">
-                — Continue Exploring
+              <p className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[var(--s-text-secondary)] mb-3 flex items-center gap-2">
+                <span className="w-6 h-px bg-primary" aria-hidden="true" />
+                Continue Exploring
               </p>
-              <h2 className="font-display text-3xl md:text-4xl text-[var(--s-text-primary)] tracking-tight">
+              <h2 className="font-display text-3xl md:text-4xl text-[var(--s-text-primary)] tracking-tight font-light">
                 Related Projects
               </h2>
             </motion.div>
             <div
-              className={`grid gap-12 ${
+              className={`grid gap-8 md:gap-12 ${
                 relatedProjects.length === 1
                   ? "md:grid-cols-1 max-w-2xl"
                   : relatedProjects.length === 2
@@ -512,28 +516,27 @@ const ProjectPage = () => {
               {relatedProjects.map((rp, index) => (
                 <motion.div
                   key={rp.id}
-                  initial={{ opacity: 0, y: 40 }}
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
                 >
-                  <Link to={`/portfolio/${rp.slug}`} className="group block">
-                    <div className="aspect-[4/5] overflow-hidden mb-6 relative bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)]">
-                      <motion.div
-                        className="w-full h-full"
-                      >
+                  <Link to={`/portfolio/${rp.slug}`} className="group block focus:outline-none focus:ring-2 focus:ring-primary rounded-xl">
+                    <div className="aspect-[4/5] overflow-hidden mb-5 relative bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)] rounded-xl shadow-md">
+                      <div className="w-full h-full">
                         <img
                           src={rp.heroImage}
                           alt={rp.title}
-                          className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.02]"
+                          className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.03]"
                           loading="lazy"
+                          decoding="async"
                         />
-                      </motion.div>
+                      </div>
                     </div>
-                    <h3 className="font-display text-xl text-[var(--s-text-primary)] group-hover:opacity-70 transition-opacity mb-2">
+                    <h3 className="font-display text-xl text-[var(--s-text-primary)] group-hover:text-primary transition-colors mb-1.5 font-normal">
                       {rp.title}
                     </h3>
-                    <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-[var(--s-text-secondary)]">
+                    <p className="text-[11px] uppercase tracking-[0.15em] font-semibold text-[var(--s-text-secondary)]">
                       {rp.location}
                     </p>
                   </Link>

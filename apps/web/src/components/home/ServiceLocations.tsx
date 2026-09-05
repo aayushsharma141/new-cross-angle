@@ -45,7 +45,7 @@ export default function ServiceLocations() {
     <section className="py-section-y relative overflow-hidden bg-[#020202] text-white">
       {/* Background elements */}
       <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url(/noise.svg)' }} />
-      <div className="absolute -top-[300px] right-[10%] w-[600px] h-[600px] bg-[#C41230]/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute -top-[300px] right-[10%] w-[600px] h-[600px] bg-[#D4AF37]/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="container-wide mx-auto relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
@@ -57,7 +57,7 @@ export default function ServiceLocations() {
               transition={{ duration: 0.8 }}
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-white/70 text-[10px] font-medium tracking-[0.2em] uppercase mb-6"
             >
-              <MapPin className="w-3 h-3 text-[#C41230]" />
+              <MapPin className="w-3 h-3 text-[#D4AF37]" />
               Service Areas
             </motion.div>
             
@@ -69,7 +69,7 @@ export default function ServiceLocations() {
               className="text-3xl md:text-5xl lg:text-6xl font-serif leading-[1.1] tracking-tight"
             >
               Designing across <br />
-              <span className="text-[#C41230] italic">prime locations.</span>
+              <span className="text-[#D4AF37] italic">prime locations.</span>
             </motion.h2>
           </div>
           
@@ -112,7 +112,7 @@ export default function ServiceLocations() {
                   </p>
                   <Link 
                     to={`/locations/${loc.slug}`}
-                    className="inline-flex items-center gap-2 text-xs font-sans tracking-[0.2em] uppercase text-white hover:text-[#C41230] transition-colors opacity-0 group-hover:opacity-100"
+                    className="inline-flex items-center gap-2 text-xs font-sans tracking-[0.2em] uppercase text-white hover:text-[#D4AF37] transition-colors opacity-0 group-hover:opacity-100"
                     onClick={() => window.scrollTo(0, 0)}
                   >
                     View Location

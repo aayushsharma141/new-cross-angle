@@ -51,11 +51,10 @@ const ContactPage = () => {
 
             <Navbar />
 
-      <main id="main-content" className="min-h-screen relative overflow-hidden bg-[#050505]">
+      <main id="main-content" className="min-h-screen relative overflow-hidden bg-[var(--s-canvas-primary)]">
         <ShaderBackground />
         <div className="relative z-10 pointer-events-none">
           <div className="pointer-events-auto">
-          
 
           {/* Primary contact section — form + bypass + contact info */}
           <CTAContact />
@@ -65,7 +64,7 @@ const ContactPage = () => {
             fallback={
               <div className="px-4 pb-16 md:pb-20">
                 <div className="container mx-auto max-w-7xl">
-                  <div className="home-panel skeleton-shimmer rounded-[24px]" style={{ height: "clamp(280px, 38vw, 440px)" }} />
+                  <div className="home-panel skeleton-shimmer rounded-[24px] bg-[var(--s-canvas-secondary)] border border-[var(--s-border-subtle)]" style={{ height: "clamp(280px, 38vw, 440px)" }} />
                 </div>
               </div>
             }

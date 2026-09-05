@@ -55,7 +55,7 @@ export function LeadFunnelChart() {
     return (
         <Surface variant="primary" radius="lg" border shadow="sm" className="col-span-1 border-admin-border bg-admin-card">
             <Stack gap="sm" className="p-6">
-                <Text as="h3" variant="h3" className="leading-none" className="text-lg font-display text-admin-foreground">Lead Funnel</Text>
+                <Text as="h3" variant="h3" className="leading-none text-lg font-display text-admin-foreground">Lead Funnel</Text>
                 <p className="text-sm text-admin-muted">Leads by acquisition stage</p>
             </Stack>
             <div className="p-6 pt-0">

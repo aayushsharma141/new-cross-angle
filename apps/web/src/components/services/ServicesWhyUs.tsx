@@ -36,8 +36,8 @@ const comparisonRows = [
 
 const ServicesWhyUs = () => {
   return (
-    <section className="relative bg-black py-24 lg:py-48 overflow-hidden px-6">
-      <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-site-crimson/[0.03] to-transparent pointer-events-none" />
+    <section className="relative bg-[var(--s-canvas-primary)] py-24 lg:py-36 overflow-hidden px-6">
+      <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary/[0.02] to-transparent pointer-events-none" />
 
       <div className="max-w-[1400px] mx-auto">
         {/* Header */}
@@ -47,18 +47,18 @@ const ServicesWhyUs = () => {
           viewport={{ once: true }}
           className="flex items-center gap-4 mb-8"
         >
-          <div className="w-12 h-px bg-site-crimson" />
-          <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">The Distinction</span>
+          <div className="w-12 h-px bg-primary" />
+          <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-primary">The Distinction</span>
         </motion.div>
 
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="font-display font-normal text-[clamp(2.2rem,3.8vw,3.8rem)] leading-[1.1] tracking-tight text-white mb-4"
+          className="font-serif font-normal text-[clamp(2.2rem,3.8vw,3.8rem)] leading-[1.1] tracking-tight text-white mb-4"
         >
           Others promise.{" "}
-          <span className="italic text-site-crimson font-medium">We deliver.</span>
+          <span className="italic text-primary font-light">We deliver.</span>
         </motion.h2>
 
         <motion.p
@@ -66,7 +66,7 @@ const ServicesWhyUs = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="text-[1.15rem] text-white/60 font-light leading-relaxed max-w-[48ch] mb-16"
+          className="text-[1.05rem] text-white/60 font-light leading-relaxed max-w-[48ch] mb-16"
         >
           See how the CrossAngle interior experience compares to working with traditional firms.
         </motion.p>
@@ -80,7 +80,7 @@ const ServicesWhyUs = () => {
             className="w-full border-collapse"
           >
             <thead>
-              <tr className="border-b border-white/10">
+              <tr className="border-b border-[var(--s-border-subtle)]">
                 <th className="text-left py-5 pr-6 text-[11px] font-bold uppercase tracking-[0.2em] text-white/40 w-[30%]">
                   Aspect
                 </th>
@@ -92,10 +92,10 @@ const ServicesWhyUs = () => {
                     Other Firms
                   </div>
                 </th>
-                <th className="text-left py-5 px-6 text-[11px] font-bold uppercase tracking-[0.2em] text-site-crimson w-[35%]">
+                <th className="text-left py-5 px-6 text-[11px] font-bold uppercase tracking-[0.2em] text-primary w-[35%]">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-site-crimson/10 border border-site-crimson/30 flex items-center justify-center">
-                      <Check className="w-3 h-3 text-site-crimson" />
+                    <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
+                      <Check className="w-3 h-3 text-primary" />
                     </div>
                     CrossAngle
                   </div>
@@ -110,7 +110,7 @@ const ServicesWhyUs = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.1 * i }}
-                  className="border-b border-white/[0.04] group hover:bg-white/[0.02] transition-colors"
+                  className="border-b border-[var(--s-border-subtle)] group hover:bg-white/[0.02] transition-colors"
                 >
                   <td className="py-5 pr-6 text-[0.95rem] text-white font-medium">
                     {row.label}
@@ -118,7 +118,7 @@ const ServicesWhyUs = () => {
                   <td className="py-5 px-6 text-[0.9rem] text-white/40 font-light">
                     {row.others}
                   </td>
-                  <td className="py-5 px-6 text-[0.9rem] text-white/90 font-light group-hover:text-site-gold transition-colors">
+                  <td className="py-5 px-6 text-[0.9rem] text-white/90 font-light group-hover:text-primary transition-colors">
                     {row.us}
                   </td>
                 </motion.tr>
@@ -133,12 +133,12 @@ const ServicesWhyUs = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.8 }}
-          className="mt-12 pt-8 border-t border-white/5 flex items-center justify-between"
+          className="mt-12 pt-8 border-t border-[var(--s-border-subtle)] flex items-center justify-between"
         >
           <span className="text-[10px] uppercase tracking-[0.3em] text-white/30 font-mono">
             Clear scope. Clear pricing. Clear delivery.
           </span>
-          <div className="w-8 h-px bg-site-crimson/50" />
+          <div className="w-8 h-px bg-primary/50" />
         </motion.div>
       </div>
     </section>

@@ -16,6 +16,7 @@ function runCommand(command: string) {
     return { success: true, output };
   } catch (err: unknown) {
     const error = err as Error & { stdout?: Buffer | string };
+    console.debug(`[DEBUG] Command failed: ${command}`, error.message);
     return { success: false, output: typeof error.stdout === 'string' ? error.stdout : error.stdout?.toString() || error.message };
   }
 }
@@ -63,13 +64,18 @@ async function generateReport() {
     if (auditData.metadata && auditData.metadata.vulnerabilities) {
       vulns = auditData.metadata.vulnerabilities;
     }
-  } catch { /* ignore */ }
+  } catch (err) { console.debug('[DEBUG] Failed to parse audit results:', err); }
 
   // 4. SBOM & License Audit
   console.log('Generating SBOM...');
   runCommand('npx cyclonedx-npm --output-format JSON --output-file bom.json');
   const licenseResult = runCommand('npx license-checker --summary');
   const licensePass = !licenseResult.output.includes('AGPL') && !licenseResult.output.includes('GPL');
+  
+  if (!licensePass) {
+    console.error('❌ LICENSING ERROR: Toxic copyleft licenses (GPL/AGPL) detected! Build blocked.');
+    process.exit(1);
+  }
 
   // 5. Bundle Budget
   const bundleResult = runCommand('node scripts/checks/bundle-budget.js');
@@ -114,7 +120,7 @@ async function generateReport() {
   if (fs.existsSync(latestJsonPath)) {
     try {
       prevMetrics = JSON.parse(fs.readFileSync(latestJsonPath, 'utf-8'));
-    } catch { /* ignore */ }
+    } catch (err) { console.debug('[DEBUG] Failed to parse previous metrics:', err); }
   }
 
   const dateStr = new Date().toISOString().split('T')[0];

@@ -150,43 +150,25 @@ export const Navbar = () => {
             {/* Right CTA / Mobile Toggle */}
             <Cluster gap="md" className="z-10 justify-end" wrap={false}>
               <div className="hidden lg:block">
-                <motion.div
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="relative group"
+                <RouterLink
+                  to="/estimate"
+                  className="home-button-sweep inline-flex items-center gap-2 px-6 py-2.5 bg-white/5 border border-white/10 text-[#FAFAFA] hover:text-[#D1AF6E] font-semibold text-[10px] uppercase tracking-[0.2em] hover:border-[#D1AF6E] rounded-sm transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D1AF6E] motion-reduce:transition-none group"
                 >
-                  <Link as={RouterLink} to="/estimate" underline="none">
-                    <Button variant="primary" className="rounded-full shadow-lg px-7">
-                      <span className="relative">Get Free Estimate</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1"
-                      >
-                        <path d="M5 12h14" />
-                        <path d="m12 5 7 7-7 7" />
-                      </svg>
-                    </Button>
-                  </Link>
-                </motion.div>
+                  <span>Get Estimate</span>
+                  <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1" aria-hidden="true">→</span>
+                </RouterLink>
               </div>
 
               <button
                 className={cn(
-                  "lg:hidden p-2.5 rounded-xl transition-colors",
+                  "lg:hidden p-2.5 min-w-[48px] min-h-[48px] inline-flex items-center justify-center rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D1AF6E] focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   showTransparent
                     ? "text-primary-foreground hover:bg-primary-foreground/10"
                     : "text-foreground hover:bg-accent"
                 )}
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label={isOpen ? "Close menu" : "Open menu"}
+                aria-expanded={isOpen}
               >
                 {isOpen ? <X size={26} /> : <Menu size={26} />}
               </button>

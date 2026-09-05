@@ -40,15 +40,15 @@ const InteractiveMap: React.FC<InteractiveMapProps> = () => {
         {/* Slim header */}
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="home-kicker mb-3 mx-auto justify-center">Find Us</div>
-          <h2 className="font-serif text-2xl font-medium text-white/90">
+          <h2 className="font-serif text-2xl font-normal text-white">
             Our studio in{" "}
-            <span className="text-[#d1af6e]">Mango, Jamshedpur</span>
+            <span className="text-primary italic font-light">Mango, Jamshedpur</span>
           </h2>
         </div>
 
         {/* Map container — compact rounded card */}
         <div
-          className="relative w-full overflow-hidden rounded-[24px] border border-white/[0.06]"
+          className="relative w-full overflow-hidden rounded-[24px] border border-[var(--s-border-subtle)]"
           style={{ height: "clamp(280px, 38vw, 440px)" }}
         >
           {/* Skeleton shimmer */}
@@ -57,7 +57,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = () => {
             style={{ opacity: isLoaded ? 0 : 1, pointerEvents: isLoaded ? "none" : "auto" }}
             aria-hidden="true"
           >
-            <div className="h-full w-full bg-[#0d0d0d] relative overflow-hidden rounded-[24px]">
+            <div className="h-full w-full bg-[var(--s-canvas-secondary)] relative overflow-hidden rounded-[24px]">
               <div
                 className="absolute inset-0"
                 style={{
@@ -68,9 +68,9 @@ const InteractiveMap: React.FC<InteractiveMapProps> = () => {
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="relative flex h-10 w-10 items-center justify-center rounded-full border border-[#d1af6e]/20 bg-[#d1af6e]/5">
-                    <div className="absolute inset-0 rounded-full border border-[#d1af6e]/25" style={{ animation: "mapPing 1.8s ease-out infinite" }} />
-                    <MapPin className="h-4 w-4 text-[#d1af6e]/60" />
+                  <div className="relative flex h-10 w-10 items-center justify-center rounded-full border border-primary/20 bg-primary/5">
+                    <div className="absolute inset-0 rounded-full border border-primary/25" style={{ animation: "mapPing 1.8s ease-out infinite" }} />
+                    <MapPin className="h-4 w-4 text-primary/60" />
                   </div>
                   {shouldLoad && <p className="text-[11px] uppercase tracking-[0.2em] text-white/50">Loading map…</p>}
                 </div>
@@ -101,20 +101,20 @@ const InteractiveMap: React.FC<InteractiveMapProps> = () => {
           )}
 
           {/* Edge masks */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-12" style={{ background: "linear-gradient(to right, var(--site-bg, #080808) 0%, transparent 100%)" }} />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-12" style={{ background: "linear-gradient(to left, var(--site-bg, #080808) 0%, transparent 100%)" }} />
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-12" style={{ background: "linear-gradient(to bottom, var(--site-bg, #080808) 0%, transparent 100%)" }} />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-12" style={{ background: "linear-gradient(to top, var(--site-bg, #080808) 0%, transparent 100%)" }} />
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-12" style={{ background: "linear-gradient(to right, var(--s-canvas-primary, #080808) 0%, transparent 100%)" }} />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-12" style={{ background: "linear-gradient(to left, var(--s-canvas-primary, #080808) 0%, transparent 100%)" }} />
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-12" style={{ background: "linear-gradient(to bottom, var(--s-canvas-primary, #080808) 0%, transparent 100%)" }} />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-12" style={{ background: "linear-gradient(to top, var(--s-canvas-primary, #080808) 0%, transparent 100%)" }} />
 
           {/* Floating mini info card */}
           <div className="pointer-events-none absolute inset-0 z-30 flex items-end justify-start p-4 md:p-6">
-            <div className="pointer-events-auto w-fit max-w-xs rounded-[16px] border border-white/8 bg-black/75 px-4 py-3.5 backdrop-blur-2xl shadow-[0_16px_40px_rgba(0,0,0,0.6)]">
+            <div className="pointer-events-auto w-fit max-w-xs rounded-[16px] border border-[var(--s-border-subtle)] bg-[var(--s-canvas-secondary)]/90 px-4 py-3.5 backdrop-blur-2xl shadow-[0_16px_40px_rgba(0,0,0,0.6)]">
               <div className="flex items-center gap-2 mb-2.5">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] border border-[#d1af6e]/20 bg-[#d1af6e]/8">
-                  <MapPin className="h-3 w-3 text-[#d1af6e]" />
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] border border-primary/20 bg-primary/10">
+                  <MapPin className="h-3 w-3 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d1af6e]">Studio</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Studio</p>
                   <p className="text-sm font-semibold text-white leading-tight">Cross Angle Interior</p>
                 </div>
               </div>
@@ -129,14 +129,14 @@ const InteractiveMap: React.FC<InteractiveMapProps> = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-3 w-3 shrink-0 text-white/40" />
-                  <a href={`tel:${String(phone).replace(/\s/g, "")}`} className="text-[12px] text-white/70 hover:text-[#d1af6e] transition-colors">{String(phone)}</a>
+                  <a href={`tel:${String(phone).replace(/\s/g, "")}`} className="text-[12px] text-white/70 hover:text-primary transition-colors">{String(phone)}</a>
                 </div>
               </div>
               <a
                 href="https://www.google.com/maps/place/Cross+Angle+Interior/@22.8027,86.2047,15z?cid=13776842535355950153"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-[10px] border border-white/8 bg-white/5 py-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-white/80 transition-all hover:bg-[#d1af6e]/10 hover:border-[#d1af6e]/25 hover:text-[#d1af6e]"
+                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-[10px] border border-[var(--s-border-subtle)] bg-white/5 py-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-white/80 transition-all hover:bg-primary/10 hover:border-primary/25 hover:text-primary"
               >
                 Open in Maps <ExternalLink className="h-2.5 w-2.5" />
               </a>

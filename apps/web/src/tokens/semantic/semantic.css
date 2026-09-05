@@ -11,6 +11,9 @@
   --s-surface-overlay:   var(--m-glass);
 
   /* Text */
+  --s-text-primary: var(--m-detail);
+  --s-text-secondary: var(--m-subtext);
+  --s-text-tertiary: var(--m-caption);
   --s-text-display: var(--m-detail);
   --s-text-heading: var(--m-detail);
   --s-text-body:    var(--m-subtext);

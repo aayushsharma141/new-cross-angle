@@ -21,6 +21,11 @@ export enum Stage {
   Results = 19,
 }
 
+export interface DiscoveryConfig {
+  firmName?: string;
+  availableModes?: ("quick" | "deep" | "both")[];
+}
+
 export interface LifestyleOption {
   label: string;
   description: string;

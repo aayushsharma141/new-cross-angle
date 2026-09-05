@@ -14,9 +14,9 @@ const archetypes = [
       "Vendor coordination included",
       "Move-in ready in 90–120 days",
     ],
-    accentClass: "text-site-gold border-site-gold/30 hover:border-site-gold/60",
+    accentClass: "text-kiro-accent border-kiro-accent/30 hover:border-kiro-accent/60",
     glowClass: "from-site-gold/8",
-    dotClass: "bg-site-gold",
+    dotClass: "bg-kiro-accent",
     href: "/services/residential",
   },
   {
@@ -30,9 +30,9 @@ const archetypes = [
       "Minimal daily disruption",
       "Structural + aesthetic upgrade",
     ],
-    accentClass: "text-site-crimson border-site-crimson/30 hover:border-site-crimson/55",
+    accentClass: "text-kiro-accent border-kiro-accent/30 hover:border-kiro-accent/55",
     glowClass: "from-site-crimson/7",
-    dotClass: "bg-site-crimson",
+    dotClass: "bg-kiro-accent",
     href: "/services/residential",
   },
   {
@@ -69,8 +69,8 @@ const ServiceArchetypes = () => (
         viewport={{ once: true }}
         className="flex items-center gap-4 mb-7"
       >
-        <div className="w-10 h-px bg-site-crimson" />
-        <span className="font-bold text-[9px] uppercase tracking-[0.45em] text-site-gold">
+        <div className="w-10 h-px bg-kiro-accent" />
+        <span className="font-bold text-[9px] uppercase tracking-[0.45em] text-kiro-accent">
           Who We Work Best With
         </span>
       </motion.div>
@@ -84,7 +84,7 @@ const ServiceArchetypes = () => (
           className="font-serif font-normal text-[clamp(2rem,3.8vw,3.2rem)] leading-[1.1] tracking-tight text-white"
         >
           Find Your{" "}
-          <em className="italic text-site-crimson font-light underline underline-offset-[10px] decoration-white/10 decoration-[3px]">
+          <em className="italic text-kiro-accent font-light underline underline-offset-[10px] decoration-white/10 decoration-[3px]">
             Situation
           </em>
         </motion.h2>

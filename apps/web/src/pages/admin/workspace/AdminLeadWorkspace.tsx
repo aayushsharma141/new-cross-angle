@@ -133,13 +133,13 @@ export default function AdminLeadWorkspace() {
     }
   };
 
-  const handleUnlockCommitment = async (commitmentId: string, revisionId: string) => {
+  const _handleUnlockCommitment = async (commitmentId: string, revisionId: string) => {
     if (!lead) return;
     analytics.track("workspace.commitment.unlocked", { leadId: lead.id, commitmentId, revisionId });
     // In real implementation: update DB record
   };
 
-  const handleArchiveCommitment = async (commitmentId: string) => {
+  const _handleArchiveCommitment = async (commitmentId: string) => {
     if (!lead) return;
     analytics.track("workspace.commitment.archived", { leadId: lead.id, commitmentId });
     // In real implementation: update DB record

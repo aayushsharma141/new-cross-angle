@@ -10,7 +10,7 @@ export const LogoAnimation = ({ className = "", size = 300 }: LogoAnimationProps
         <div className={`relative flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
             {/* Glow Effect */}
             <div
-                className="absolute inset-0 rounded-full bg-site-crimson/10 blur-[60px] animate-pulse"
+                className="absolute inset-0 rounded-full bg-kiro-accent/10 blur-[60px] animate-pulse"
                 style={{ transform: 'scale(0.8)' }}
             />
 
@@ -18,7 +18,7 @@ export const LogoAnimation = ({ className = "", size = 300 }: LogoAnimationProps
             {[0.7, 0.85, 1].map((scale, i) => (
                 <motion.div
                     key={i}
-                    className="absolute inset-0 border border-site-crimson/15 rounded-full"
+                    className="absolute inset-0 border border-kiro-accent/15 rounded-full"
                     initial={{ scale: scale, opacity: 0 }}
                     animate={{
                         scale: [scale, scale * 1.05, scale],
@@ -34,7 +34,7 @@ export const LogoAnimation = ({ className = "", size = 300 }: LogoAnimationProps
 
             {/* Orbiting Dot */}
             <motion.div
-                className="absolute w-1.5 h-1.5 bg-site-crimson rounded-full shadow-[0_0_10px_#C41230]"
+                className="absolute w-1.5 h-1.5 bg-kiro-accent rounded-full shadow-[0_0_10px_#D4AF37]"
                 animate={{
                     rotate: 360,
                     x: [140, 160, 140], // Radius variance

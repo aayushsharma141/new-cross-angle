@@ -212,6 +212,18 @@ export interface AnalyticsEventMap {
   "analytics.session.started": { designerId?: string };
   "analytics.session.ended": { designerId?: string; durationMs: number };
 
+  // ── Attention Telemetry (Purity Index) ────────────────────────────────────
+  attention_telemetry: {
+    room: string;
+    focalPoint: string;
+    firstVisibleAt: number;
+    dwellMs: number;
+    firstInteraction: boolean;
+    intendedOrder: number;
+    observedOrder: number;
+    sequenceAccuracy: number;
+  };
+
   // ── Phase 30.5.1 Outcome Layer ────────────────────────────────────────────
   "outcome.client_accepted": { leadId: string; proposalId: string };
   "outcome.client_rejected": { leadId: string; proposalId: string; reason?: string };

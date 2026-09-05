@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import React, { useRef, useState, useEffect } from "react";
+import { motion, useScroll, useTransform, useSpring, AnimatePresence, useReducedMotion } from "framer-motion";
 
 interface PillarCardProps {
   title: string;
@@ -10,6 +10,7 @@ interface PillarCardProps {
 }
 
 const PillarCard = ({ title, subtitle, description, image, num }: PillarCardProps) => {
+  const shouldReduceMotion = useReducedMotion();
   const [hoverDirection, setHoverDirection] = useState<"left" | "right" | "top" | "bottom">("left");
   const [isHovered, setIsHovered] = useState(false);
 
@@ -47,29 +48,32 @@ const PillarCard = ({ title, subtitle, description, image, num }: PillarCardProp
 
   const overlayVariants = {
     initial: (dir: string) => {
+      if (shouldReduceMotion) return { opacity: 0 };
       switch (dir) {
-        case "left": return { x: "-100%", y: 0 };
-        case "right": return { x: "100%", y: 0 };
-        case "top": return { x: 0, y: "-100%" };
-        case "bottom": return { x: 0, y: "100%" };
-        default: return { x: 0, y: 0 };
+        case "left": return { x: "-100%", y: 0, opacity: 1 };
+        case "right": return { x: "100%", y: 0, opacity: 1 };
+        case "top": return { x: 0, y: "-100%", opacity: 1 };
+        case "bottom": return { x: 0, y: "100%", opacity: 1 };
+        default: return { x: 0, y: 0, opacity: 1 };
       }
     },
-    hover: { x: 0, y: 0 },
+    hover: { x: 0, y: 0, opacity: 1 },
     exit: (dir: string) => {
+      if (shouldReduceMotion) return { opacity: 0 };
       switch (dir) {
-        case "left": return { x: "-100%", y: 0 };
-        case "right": return { x: "100%", y: 0 };
-        case "top": return { x: 0, y: "-100%" };
-        case "bottom": return { x: 0, y: "100%" };
-        default: return { x: 0, y: 0 };
+        case "left": return { x: "-100%", y: 0, opacity: 1 };
+        case "right": return { x: "100%", y: 0, opacity: 1 };
+        case "top": return { x: 0, y: "-100%", opacity: 1 };
+        case "bottom": return { x: 0, y: "100%", opacity: 1 };
+        default: return { x: 0, y: 0, opacity: 1 };
       }
     },
   };
 
   return (
     <div
-      className="relative w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[32vw] h-[60vh] md:h-[65vh] rounded-2xl overflow-hidden group shrink-0 border border-white/5 bg-white/[0.02]"
+      tabIndex={0}
+      className="relative w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[32vw] h-[60vh] md:h-[65vh] rounded-2xl overflow-hidden group shrink-0 border border-white/5 bg-white/[0.02] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60 cursor-pointer"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -79,7 +83,7 @@ const PillarCard = ({ title, subtitle, description, image, num }: PillarCardProp
           <div
             className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[conic-gradient(from_0deg,transparent_40%,#D1AF6E_50%,transparent_60%)] pointer-events-none"
             style={{
-              animation: "rotateConic 24s linear infinite",
+              animation: shouldReduceMotion ? "none" : "rotateConic 24s linear infinite",
             }}
           />
         </div>
@@ -89,8 +93,10 @@ const PillarCard = ({ title, subtitle, description, image, num }: PillarCardProp
       <div className="absolute inset-[1px] overflow-hidden rounded-2xl bg-neutral-950 z-0">
         <img
           src={image}
-          alt={title}
-          className="w-full h-full object-cover grayscale brightness-50 group-hover:grayscale-0 group-hover:brightness-[0.85] transition-all duration-1000"
+          alt={`${title} - ${subtitle} interior design perspective`}
+          loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover grayscale brightness-50 group-hover:grayscale-0 group-hover:brightness-[0.85] transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-black/30 pointer-events-none" />
       </div>
@@ -98,18 +104,21 @@ const PillarCard = ({ title, subtitle, description, image, num }: PillarCardProp
       {/* Glass Caption Panel */}
       <div className="absolute bottom-6 left-6 right-6 z-20 bg-background/60 backdrop-blur-xl border border-white/10 p-6 rounded-xl conic-border-content space-y-3">
         <div className="flex justify-between items-baseline">
-          <span className="text-[10px] font-bold tracking-[0.3em] text-primary uppercase">{subtitle}</span>
-          <span className="text-xs font-mono text-white/30">{num}</span>
+          <span className="text-[10px] font-bold tracking-[0.25em] text-primary uppercase">{subtitle}</span>
+          <span className="text-xs font-mono tracking-[0.2em] text-white/40">{num}</span>
         </div>
-        <h4 className="text-xl md:text-2xl font-serif font-light text-[#FAFAFA] tracking-tight leading-none">
+        <h4 
+          className="text-xl md:text-2xl font-display font-normal text-[#FAFAFA] leading-tight"
+          style={{ letterSpacing: "-0.02em" }}
+        >
           {title}
         </h4>
-        <p className="text-xs text-white/60 font-light leading-relaxed">
+        <p className="text-xs text-white/75 font-normal leading-relaxed max-w-[38ch]">
           {description}
         </p>
       </div>
 
-      {/* Directional Hover overlay containing ONLY View Story (or in this case, "Explore Concept →") */}
+      {/* Directional Hover overlay */}
       <AnimatePresence custom={hoverDirection}>
         {isHovered && (
           <motion.div
@@ -118,11 +127,11 @@ const PillarCard = ({ title, subtitle, description, image, num }: PillarCardProp
             initial="initial"
             animate="hover"
             exit="exit"
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: shouldReduceMotion ? 0.01 : 0.45, ease: [0.22, 1, 0.36, 1] }}
             className="absolute inset-[1px] bg-white/[0.03] backdrop-blur-xl flex items-center justify-center z-30"
           >
-            <span className="text-[10px] font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-5 py-2.5 bg-background/35 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
-              Explore Concept →
+            <span className="inline-flex items-center gap-2 text-[10px] font-bold tracking-[0.25em] text-white uppercase border border-white/20 px-5 py-2.5 bg-background/50 hover:bg-primary hover:text-black hover:border-primary transition-all duration-300">
+              Explore Concept <span className="transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300">→</span>
             </span>
           </motion.div>
         )}
@@ -133,13 +142,63 @@ const PillarCard = ({ title, subtitle, description, image, num }: PillarCardProp
 
 export const DesignPerspective = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const shouldReduceMotion = useReducedMotion();
+  const [maxTranslate, setMaxTranslate] = useState(0);
+
+  useEffect(() => {
+    let rafId: number | null = null;
+
+    const calculateTranslate = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      rafId = requestAnimationFrame(() => {
+        if (trackRef.current) {
+          const trackWidth = trackRef.current.scrollWidth;
+          const viewportWidth = window.innerWidth;
+          const overflow = Math.max(0, trackWidth - viewportWidth);
+          setMaxTranslate(overflow);
+        }
+      });
+    };
+
+    calculateTranslate();
+    window.addEventListener("resize", calculateTranslate, { passive: true });
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined" && trackRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        calculateTranslate();
+      });
+      resizeObserver.observe(trackRef.current);
+    }
+
+    return () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+      window.removeEventListener("resize", calculateTranslate);
+      resizeObserver?.disconnect();
+    };
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
+    offset: ["start start", "end end"],
   });
 
-  // Slide translation for horizontal scroll
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-52%"]);
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: shouldReduceMotion ? 400 : 120,
+    damping: shouldReduceMotion ? 40 : 26,
+    mass: 0.1,
+    restDelta: 0.001,
+  });
+
+  // Dynamic pixel-measured horizontal translation
+  const x = useTransform(smoothProgress, (latest) =>
+    shouldReduceMotion ? 0 : -latest * maxTranslate
+  );
 
   const pillars = [
     {
@@ -173,7 +232,7 @@ export const DesignPerspective = () => {
   ];
 
   return (
-    <div ref={containerRef} className="relative h-[250vh] bg-background">
+    <div ref={containerRef} className="relative h-[250vh] bg-background my-[10vh]">
       {/* Sticky container */}
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center select-none">
         
@@ -181,11 +240,14 @@ export const DesignPerspective = () => {
         <div className="max-w-7xl mx-auto w-full px-6 md:px-12 mb-10 shrink-0">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-px bg-primary/50" />
-            <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">
+            <span className="text-primary font-bold uppercase tracking-[0.25em] text-[10px]">
               04 / PHILOSOPHY IN FORM
             </span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-serif font-light text-[#FAFAFA] tracking-tight leading-tight">
+          <h2 
+            className="text-4xl md:text-5xl lg:text-6xl font-display font-normal text-[#FAFAFA] leading-tight"
+            style={{ letterSpacing: "-0.03em" }}
+          >
             Design <span className="italic text-stone-400 font-light">Perspective</span>
           </h2>
         </div>
@@ -193,6 +255,7 @@ export const DesignPerspective = () => {
         {/* Sliding Card Container */}
         <div className="w-full flex items-center overflow-hidden relative">
           <motion.div
+            ref={trackRef}
             style={{ x }}
             className="flex gap-8 px-6 md:px-12 lg:px-28 w-fit"
           >

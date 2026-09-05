@@ -21,7 +21,7 @@ const MetricItem = ({ metric, idx }: { metric: { label: string; value: string; s
         {isNumeric ? (
           <>
             {metric.value.startsWith("<") && (
-              <span className="text-site-gold text-[clamp(1rem,2vw,1.8rem)] mr-1">&lt;</span>
+              <span className="text-kiro-accent text-[clamp(1rem,2vw,1.8rem)] mr-1">&lt;</span>
             )}
             {count}
             {metric.suffix || (metric.value.includes("+") ? "+" : metric.value.includes("★") ? "★" : "")}

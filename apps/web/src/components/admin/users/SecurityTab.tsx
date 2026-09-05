@@ -79,13 +79,13 @@ export const SecurityTab = () => {
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
-          <Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+          <Stack gap="sm" className="p-6 bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><User className="text-primary h-5 w-5" /></div>
-              <div><Text as="h3" variant="h3" className="leading-none" className="text-lg font-serif">Account Information</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Your personal executive profile details.</Text></div>
+              <div><Text as="h3" variant="h3" className="leading-none text-lg font-serif">Account Information</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Your personal executive profile details.</Text></div>
             </div>
           </Stack>
-          <div className="p-6 pt-0" className="p-6">
+          <div className="p-6 pt-0">
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-1">
                 <Label className="text-muted-foreground text-xs uppercase tracking-wider">Email Address</Label>
@@ -104,13 +104,13 @@ export const SecurityTab = () => {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
-          <Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+          <Stack gap="sm" className="p-6 bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><Shield className="text-primary h-5 w-5" /></div>
-              <div><Text as="h3" variant="h3" className="leading-none" className="text-lg font-serif">Security Protocol</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Update your access credentials to maintain unit integrity.</Text></div>
+              <div><Text as="h3" variant="h3" className="leading-none text-lg font-serif">Security Protocol</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Update your access credentials to maintain unit integrity.</Text></div>
             </div>
           </Stack>
-          <div className="p-6 pt-0" className="p-6">
+          <div className="p-6 pt-0">
             <form onSubmit={handleChangePassword} className="space-y-6 max-w-md">
               <div className="space-y-2">
                 <Label htmlFor="currentPassword">Current Password</Label>

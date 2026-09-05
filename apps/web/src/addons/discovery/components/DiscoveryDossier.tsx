@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+﻿import React, { useMemo } from 'react';
 import { UserSignals, Stage } from '@/types/discovery';
 import { calculateEstimate } from '@/addons/calculators/components/data/calculation-engine';
 import { DEFAULT_PRICING_CONFIG } from '@/addons/calculators/components/data/pricing-config';
+import { formatCurrency } from '@/addons/calculators/components/data/format-utils';
 import { CalculatorFormData } from '@/addons/calculators/components/data/types';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -93,14 +94,6 @@ export function DiscoveryDossier({ signals, stage: _stage }: DiscoveryDossierPro
         if (!estimatorData) return null;
         return calculateEstimate(estimatorData, DEFAULT_PRICING_CONFIG);
     }, [estimatorData]);
-
-    const formatCurrency = (value: number) => {
-        return new Intl.NumberFormat("en-IN", {
-            style: "currency",
-            currency: "INR",
-            maximumFractionDigits: 0,
-        }).format(value);
-    };
 
     return (
         <div className="flex flex-col h-full relative z-10 p-6 md:p-8 bg-transparent">

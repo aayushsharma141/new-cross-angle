@@ -6,12 +6,12 @@ import { z } from "zod";
 const blogStatusValues = ["draft", "published", "archived"] as const;
 
 export const blogPostSchema = z.object({
-    title: z.string().min(3, "Title must be at least 3 characters"),
-    slug: z.string().min(3, "Slug must be at least 3 characters")
+    title: z.string().min(3, "Title must be at least 3 characters").max(150, "Title is too long"),
+    slug: z.string().min(3, "Slug must be at least 3 characters").max(150, "Slug is too long")
         .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens"),
-    excerpt: z.string().optional().default(""),
-    content: z.string().optional().default(""),
-    cover_image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+    excerpt: z.string().max(500, "Excerpt is too long").optional().default(""),
+    content: z.string().max(50000, "Content is too long").optional().default(""),
+    cover_image: z.string().url("Must be a valid URL").max(1000).optional().or(z.literal("")),
     is_published: z.boolean().default(false),
     status: z.enum(blogStatusValues).default("draft"),
 });
@@ -22,29 +22,29 @@ export type BlogPostFormData = z.infer<typeof blogPostSchema>;
 // SERVICE VALIDATION
 // ==========================================
 export const serviceFeatureSchema = z.object({
-    title: z.string().min(1, "Feature title is required"),
-    description: z.string().optional(),
+    title: z.string().min(1, "Feature title is required").max(150),
+    description: z.string().max(1000).optional(),
 });
 
 export const processStepSchema = z.object({
-    title: z.string().min(1, "Step title is required"),
-    description: z.string().optional(),
+    title: z.string().min(1, "Step title is required").max(150),
+    description: z.string().max(1000).optional(),
 });
 
 export const faqItemSchema = z.object({
-    question: z.string().min(5, "Question must be at least 5 characters"),
-    answer: z.string().min(10, "Answer must be at least 10 characters"),
+    question: z.string().min(5, "Question must be at least 5 characters").max(300),
+    answer: z.string().min(10, "Answer must be at least 10 characters").max(2000),
 });
 
 export const serviceSchema = z.object({
-    title: z.string().min(3, "Title must be at least 3 characters"),
-    slug: z.string().min(3, "Slug must be at least 3 characters")
+    title: z.string().min(3, "Title must be at least 3 characters").max(150),
+    slug: z.string().min(3, "Slug must be at least 3 characters").max(150)
         .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens"),
-    description: z.string().optional().default(""),
-    hero_image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-    category_id: z.string().min(1, "Category is required"),
-    icon: z.string().optional(),
-    tag: z.string().optional(),
+    description: z.string().max(5000).optional().default(""),
+    hero_image: z.string().url("Must be a valid URL").max(1000).optional().or(z.literal("")),
+    category_id: z.string().min(1, "Category is required").max(100),
+    icon: z.string().max(100).optional(),
+    tag: z.string().max(100).optional(),
     features: z.array(serviceFeatureSchema).default([]),
     process_steps: z.array(processStepSchema).default([]),
     faq: z.array(faqItemSchema).default([]),
@@ -58,22 +58,22 @@ export type ServiceFormData = z.infer<typeof serviceSchema>;
 const portfolioStatusValues = ["draft", "live"] as const;
 
 export const portfolioSchema = z.object({
-    title: z.string().min(3, "Title must be at least 3 characters"),
-    slug: z.string().min(3, "Slug must be at least 3 characters")
+    title: z.string().min(3, "Title must be at least 3 characters").max(150),
+    slug: z.string().min(3, "Slug must be at least 3 characters").max(150)
         .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens"),
-    short_description: z.string().optional().default(""),
-    category_id: z.string().optional().default(""),
-    client_name: z.string().optional().default(""),
-    location: z.string().optional().default(""),
-    area: z.string().optional().default(""),
-    budget: z.string().optional().default(""),
-    duration: z.string().optional().default(""),
-    style: z.string().optional().default(""),
+    short_description: z.string().max(500).optional().default(""),
+    category_id: z.string().max(100).optional().default(""),
+    client_name: z.string().max(150).optional().default(""),
+    location: z.string().max(150).optional().default(""),
+    area: z.string().max(100).optional().default(""),
+    budget: z.string().max(100).optional().default(""),
+    duration: z.string().max(100).optional().default(""),
+    style: z.string().max(100).optional().default(""),
     year_completed: z.number().int().min(1900).max(2100).default(new Date().getFullYear()),
-    cover_image_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-    brief: z.string().optional().default(""),
-    approach: z.string().optional().default(""),
-    video_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+    cover_image_url: z.string().url("Must be a valid URL").max(1000).optional().or(z.literal("")),
+    brief: z.string().max(2000).optional().default(""),
+    approach: z.string().max(5000).optional().default(""),
+    video_url: z.string().url("Must be a valid URL").max(1000).optional().or(z.literal("")),
     is_featured: z.boolean().default(false),
     status: z.enum(portfolioStatusValues).default("draft"),
 });
@@ -84,12 +84,12 @@ export type PortfolioFormData = z.infer<typeof portfolioSchema>;
 // TESTIMONIAL VALIDATION
 // ==========================================
 export const testimonialSchema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    role: z.string().optional().default(""),
-    content: z.string().min(10, "Review must be at least 10 characters"),
+    name: z.string().min(2, "Name must be at least 2 characters").max(100),
+    role: z.string().max(100).optional().default(""),
+    content: z.string().min(10, "Review must be at least 10 characters").max(2000),
     rating: z.number().int().min(1, "Rating must be 1-5").max(5, "Rating must be 1-5").default(5),
-    avatar_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-    city: z.string().optional().default(""),
+    avatar_url: z.string().url("Must be a valid URL").max(1000).optional().or(z.literal("")),
+    city: z.string().max(100).optional().default(""),
     active: z.boolean().default(true),
 });
 
@@ -130,26 +130,26 @@ export const lossReasonOptions = [
 export type LossReason = typeof lossReasonOptions[number];
 
 export const leadSchema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    phone: z.string().optional().nullable(),
-    message: z.string().optional().nullable(),
-    service: z.string().optional().nullable(),
+    name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name is too long"),
+    email: z.string().email("Invalid email address").max(100, "Email is too long"),
+    phone: z.string().regex(/^\+?[0-9\s-]{7,20}$/, "Invalid phone format").optional().nullable(),
+    message: z.string().max(2000, "Message is too long").optional().nullable(),
+    service: z.string().max(100).optional().nullable(),
     status: z.enum(leadStatusOptions).default("new"),
     loss_reason: z.enum(lossReasonOptions).optional().nullable(),
-    source: z.string().nullish().transform(v => v ?? "contact_form"),
-    notes: z.string().optional().nullable(),
+    source: z.string().max(50).nullish().transform(v => v ?? "contact_form"),
+    notes: z.string().max(5000).optional().nullable(),
     // Qualification parameters
-    city: z.string().optional().nullable(),
-    budget: z.string().optional().nullable(),
-    scope: z.string().optional().nullable(),
-    timeline: z.string().optional().nullable(),
+    city: z.string().max(100).optional().nullable(),
+    budget: z.string().max(50).optional().nullable(),
+    scope: z.string().max(100).optional().nullable(),
+    timeline: z.string().max(50).optional().nullable(),
     // CRM intelligence fields
-    next_step: z.string().optional().nullable(),
-    sub_status: z.string().optional().nullable(),
+    next_step: z.string().max(200).optional().nullable(),
+    sub_status: z.string().max(50).optional().nullable(),
     forecast_category: z.enum(forecastCategoryOptions).optional().nullable(),
-    assigned_to: z.string().optional().nullable(),
-    budget_value_inr: z.number().optional().nullable(),
+    assigned_to: z.string().max(50).optional().nullable(),
+    budget_value_inr: z.number().max(9999999999).optional().nullable(),
 });
 
 export type LeadFormData = z.infer<typeof leadSchema>;

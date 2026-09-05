@@ -174,7 +174,7 @@ export default function AdminBlogOverview() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[1, 2, 3, 4].map((i) => (
                         <Surface variant="primary" radius="lg" border shadow="sm" key={i} className="bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]">
-                            <div className="p-6 pt-0" className="p-6 space-y-3">
+                            <div className="p-6 pt-0 space-y-3">
                                 <Skeleton className="h-3 w-20 bg-[hsl(var(--admin-border))]" />
                                 <Skeleton className="h-8 w-24 bg-[hsl(var(--admin-border))]" />
                             </div>

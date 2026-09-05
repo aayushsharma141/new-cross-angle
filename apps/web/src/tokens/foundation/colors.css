@@ -50,6 +50,20 @@
   --f-sage-400: hsl(150 20% 48%);
   --f-sage-500: hsl(150 22% 36%);
 
+  /* Gold — Premium Accent */
+  --f-gold-300: hsl(46 65% 65%);
+  --f-gold-400: hsl(46 65% 58%);
+  --f-gold-500: hsl(46 65% 52%);
+  --f-gold-600: hsl(46 65% 42%);
+  --f-gold-700: hsl(46 65% 32%);
+
+  /* Maroon — Deep Luxury Accent */
+  --f-maroon-300: hsl(0 80% 40%);
+  --f-maroon-400: hsl(0 90% 30%);
+  --f-maroon-500: hsl(0 100% 20%);
+  --f-maroon-600: hsl(0 100% 15%);
+  --f-maroon-700: hsl(0 100% 10%);
+
   /* Shadow */
   --f-shadow-100: rgba(16, 12, 8, 0.06);
   --f-shadow-200: rgba(16, 12, 8, 0.12);

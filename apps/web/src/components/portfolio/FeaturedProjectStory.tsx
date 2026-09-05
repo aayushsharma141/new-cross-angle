@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 interface FeaturedProjectStoryProps {
@@ -24,6 +24,7 @@ export const FeaturedProjectStory = ({
   index,
 }: FeaturedProjectStoryProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const shouldReduceMotion = useReducedMotion();
   const [hoverDirection, setHoverDirection] = useState<"left" | "right" | "top" | "bottom">("left");
   const [isHovered, setIsHovered] = useState(false);
 
@@ -33,7 +34,8 @@ export const FeaturedProjectStory = ({
     offset: ["start end", "end start"],
   });
 
-  const imageY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+  const imageYTransform = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+  const imageY = shouldReduceMotion ? "0%" : imageYTransform;
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
@@ -98,25 +100,28 @@ export const FeaturedProjectStory = ({
   const contentElement = (
     <div className="flex flex-col justify-center h-full p-8 md:p-12 lg:p-16 space-y-6 select-none">
       <div className="space-y-2">
-        <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-primary">
+        <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-primary">
           {category}
         </span>
-        <h3 className="text-3xl md:text-5xl font-serif font-light text-[#FAFAFA] tracking-tight leading-tight">
+        <h3 
+          className="text-3xl md:text-5xl font-display font-normal text-[#FAFAFA] leading-tight"
+          style={{ letterSpacing: "-0.03em" }}
+        >
           {title}
         </h3>
       </div>
-      <p className="text-sm md:text-base text-white/65 font-light leading-relaxed max-w-md">
+      <p className="text-sm md:text-base text-white/80 font-normal leading-relaxed max-w-[42ch]">
         {narrative}
       </p>
-      <div className="flex gap-6 text-[10px] font-mono tracking-widest text-white/40 uppercase">
+      <div className="flex gap-6 text-[10px] font-mono tracking-[0.2em] text-white/50 uppercase">
         <span>{location}</span>
         <span>{area}</span>
       </div>
       <div className="pt-4 space-y-1.5">
-        <span className="block text-[10px] font-mono text-white/25 tracking-[0.2em]">
+        <span className="block text-[10px] font-mono text-white/30 tracking-[0.2em]">
           [{String(index + 1).padStart(2, "0")}]
         </span>
-        <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.25em] font-semibold text-primary uppercase group-hover:text-white transition-colors duration-300">
+        <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.25em] font-bold text-primary uppercase group-hover:text-white transition-colors duration-300">
           View Story <span className="transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300">→</span>
         </span>
       </div>
@@ -126,7 +131,7 @@ export const FeaturedProjectStory = ({
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[90vh] md:min-h-screen flex items-center justify-center py-20 px-6 overflow-hidden"
+      className="relative min-h-[85vh] md:min-h-[90vh] flex items-center justify-center py-[10vh] md:py-[12vh] px-6 overflow-hidden"
     >
       <style>{`
         @keyframes rotateConic {
@@ -164,15 +169,17 @@ export const FeaturedProjectStory = ({
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
-                <Link to={`/portfolio/${slug}`}>
+                <Link to={`/portfolio/${slug}`} className="block w-full h-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60 rounded-2xl">
                   <motion.div
                     className="absolute -top-[10%] left-0 w-full h-[120%]"
                     style={{ y: imageY }}
                   >
                     <img
                       src={coverImage}
-                      alt={title}
-                      className="w-full h-full object-cover brightness-90 group-hover:brightness-100 transition-all duration-1000 group-hover:scale-[1.03]"
+                      alt={`${title} - ${category} luxury interior project`}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover brightness-90 group-hover:brightness-100 transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02]"
                     />
                   </motion.div>
 
@@ -184,11 +191,11 @@ export const FeaturedProjectStory = ({
                         initial="initial"
                         animate="hover"
                         exit="exit"
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                         className="absolute inset-0 bg-background/30 backdrop-blur-[2px] flex items-center justify-center z-30"
                       >
-                        <span className="text-xs font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-6 py-3 bg-background/40 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
-                          View Story →
+                        <span className="home-button-sweep inline-flex items-center gap-2 text-xs font-bold tracking-[0.25em] text-white uppercase border border-white/20 px-6 py-3 bg-background/50 hover:bg-primary hover:text-black hover:border-primary transition-all duration-300 rounded-sm">
+                          View Story <span className="transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300">→</span>
                         </span>
                       </motion.div>
                     )}
@@ -199,11 +206,13 @@ export const FeaturedProjectStory = ({
 
             {/* Text Column */}
             <div className="lg:col-span-5">
-              <div className="conic-border rounded-2xl overflow-hidden p-[1px]">
-                <div className="bg-background/80 backdrop-blur-xl border border-white/10 rounded-2xl h-full conic-border-content">
-                  {contentElement}
+              <Link to={`/portfolio/${slug}`} className="block h-full group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60 rounded-2xl">
+                <div className="conic-border rounded-2xl overflow-hidden p-[1px] h-full">
+                  <div className="bg-background/80 backdrop-blur-xl border border-white/10 rounded-2xl h-full conic-border-content">
+                    {contentElement}
+                  </div>
                 </div>
-              </div>
+              </Link>
             </div>
           </>
         )}
@@ -212,11 +221,13 @@ export const FeaturedProjectStory = ({
           <>
             {/* Text Column (on left) */}
             <div className="lg:col-span-5 order-2 lg:order-1">
-              <div className="conic-border rounded-2xl overflow-hidden p-[1px]">
-                <div className="bg-background/80 backdrop-blur-xl border border-white/10 rounded-2xl h-full conic-border-content">
-                  {contentElement}
+              <Link to={`/portfolio/${slug}`} className="block h-full group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60 rounded-2xl">
+                <div className="conic-border rounded-2xl overflow-hidden p-[1px] h-full">
+                  <div className="bg-background/80 backdrop-blur-xl border border-white/10 rounded-2xl h-full conic-border-content">
+                    {contentElement}
+                  </div>
                 </div>
-              </div>
+              </Link>
             </div>
 
             {/* Image Column (on right) */}
@@ -226,15 +237,17 @@ export const FeaturedProjectStory = ({
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
-                <Link to={`/portfolio/${slug}`}>
+                <Link to={`/portfolio/${slug}`} className="block w-full h-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60 rounded-2xl">
                   <motion.div
                     className="absolute -top-[10%] left-0 w-full h-[120%]"
                     style={{ y: imageY }}
                   >
                     <img
                       src={coverImage}
-                      alt={title}
-                      className="w-full h-full object-cover brightness-90 group-hover:brightness-100 transition-all duration-1000 group-hover:scale-[1.03]"
+                      alt={`${title} - ${category} luxury interior project`}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover brightness-90 group-hover:brightness-100 transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02]"
                     />
                   </motion.div>
 
@@ -246,11 +259,11 @@ export const FeaturedProjectStory = ({
                         initial="initial"
                         animate="hover"
                         exit="exit"
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                         className="absolute inset-0 bg-background/30 backdrop-blur-[2px] flex items-center justify-center z-30"
                       >
-                        <span className="text-xs font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-6 py-3 bg-background/40 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
-                          View Story →
+                        <span className="home-button-sweep inline-flex items-center gap-2 text-xs font-bold tracking-[0.25em] text-white uppercase border border-white/20 px-6 py-3 bg-background/50 hover:bg-primary hover:text-black hover:border-primary transition-all duration-300 rounded-sm">
+                          View Story <span className="transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300">→</span>
                         </span>
                       </motion.div>
                     )}
@@ -268,15 +281,17 @@ export const FeaturedProjectStory = ({
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              <Link to={`/portfolio/${slug}`}>
+              <Link to={`/portfolio/${slug}`} className="block w-full h-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60 rounded-2xl">
                 <motion.div
                   className="absolute -top-[10%] left-0 w-full h-[120%]"
                   style={{ y: imageY }}
                 >
                   <img
                     src={coverImage}
-                    alt={title}
-                    className="w-full h-full object-cover brightness-75 group-hover:brightness-90 transition-all duration-1000 group-hover:scale-[1.03]"
+                    alt={`${title} - ${category} luxury interior project`}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover brightness-75 group-hover:brightness-90 transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02]"
                   />
                 </motion.div>
 
@@ -286,28 +301,31 @@ export const FeaturedProjectStory = ({
                 {/* Text Overlay */}
                 <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 lg:p-16 z-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
                   <div className="space-y-4 max-w-xl">
-                    <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-primary">
+                    <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-primary">
                       {category}
                     </span>
-                    <h3 className="text-3xl md:text-5xl font-serif font-light text-[#FAFAFA] tracking-tight leading-none">
+                    <h3 
+                      className="text-3xl md:text-5xl font-display font-normal text-[#FAFAFA] leading-none"
+                      style={{ letterSpacing: "-0.03em" }}
+                    >
                       {title}
                     </h3>
-                    <p className="text-sm text-white/65 font-light leading-relaxed">
+                    <p className="text-sm text-white/80 font-normal leading-relaxed max-w-[42ch]">
                       {narrative}
                     </p>
                   </div>
 
                   <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
-                    <div className="flex gap-4 text-[10px] font-mono tracking-widest text-white/50 uppercase">
+                    <div className="flex gap-4 text-[10px] font-mono tracking-[0.2em] text-white/50 uppercase">
                       <span>{location}</span>
                       <span>{area}</span>
                     </div>
                     <div className="space-y-1">
-                      <span className="block text-[10px] font-mono text-white/25 tracking-[0.2em]">
+                      <span className="block text-[10px] font-mono text-white/30 tracking-[0.2em]">
                         [{String(index + 1).padStart(2, "0")}]
                       </span>
-                      <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.25em] font-semibold text-primary uppercase">
-                        View Story <span>→</span>
+                      <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.25em] font-bold text-primary uppercase group-hover:text-white transition-colors duration-300">
+                        View Story <span className="transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300">→</span>
                       </span>
                     </div>
                   </div>
@@ -321,11 +339,11 @@ export const FeaturedProjectStory = ({
                       initial="initial"
                       animate="hover"
                       exit="exit"
-                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                       className="absolute inset-0 bg-background/30 backdrop-blur-[2px] flex items-center justify-center z-30"
                     >
-                      <span className="text-xs font-semibold tracking-[0.3em] text-white uppercase border border-white/20 px-6 py-3 bg-background/40 hover:bg-[#FAFAFA] hover:text-black transition-colors duration-300">
-                        View Story →
+                      <span className="home-button-sweep inline-flex items-center gap-2 text-xs font-bold tracking-[0.25em] text-white uppercase border border-white/20 px-6 py-3 bg-background/50 hover:bg-primary hover:text-black hover:border-primary transition-all duration-300 rounded-sm">
+                        View Story <span className="transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300">→</span>
                       </span>
                     </motion.div>
                   )}

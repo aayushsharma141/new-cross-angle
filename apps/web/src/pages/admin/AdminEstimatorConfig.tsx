@@ -1,9 +1,10 @@
-import { useState, Suspense, lazy, useEffect } from "react";
+ï»¿import { useState, Suspense, lazy, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Home, Wrench, Sparkles, IndianRupee, Loader2, Package, Eye, FileText, ImageIcon, Settings2 } from "lucide-react";
 import { useEstimatorRegistry } from "@/lib/registry/EstimatorRegistry";
 import { Separator } from "@/components/ui/primitives/separator";
 import { calculateEstimate } from "@/addons/calculators/components/data/calculation-engine";
+import { formatCurrency } from "@/addons/calculators/components/data/format-utils";
 import type { CalculatorFormData } from "@/addons/calculators/components/data/types";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 
@@ -83,8 +84,6 @@ export default function AdminEstimatorConfig() {
   // Live simulation compute
   const estimate = calculateEstimate(mockLeadData, registry.pricingRates.data);
 
-  const formatCurrency = (val: number) =>
-    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
 
   return (
     <div
@@ -209,7 +208,7 @@ export default function AdminEstimatorConfig() {
             <div className="flex items-center gap-2 text-[11px]">
               <div className={cn("w-2 h-2 rounded-full", registry.isLoading ? "bg-amber-500 animate-pulse" : "bg-emerald-500")} />
               <span className="text-[hsl(var(--admin-text-muted))]">
-                {registry.isLoading ? "Syncing…" : "Registry Synced"}
+                {registry.isLoading ? "Syncingï¿½" : "Registry Synced"}
               </span>
             </div>
           </div>

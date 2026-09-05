@@ -108,7 +108,7 @@ const AnimatedRoutes = () => {
           </AdminDeviceGate>
         </ErrorBoundary>
       ) : settings?.maintenance_mode_active ? (
-        <div className="min-h-screen flex items-center justify-center bg-site-bg-dark text-white p-6 text-center">
+        <div className="min-h-screen flex items-center justify-center bg-kiro-bg-dark text-white p-6 text-center">
           <div className="max-w-md">
             <h1 className="text-4xl font-serif mb-4 tracking-tight">System Update</h1>
             <p className="text-site-gray">Our digital experience is currently undergoing scheduled maintenance. Please check back shortly.</p>
@@ -127,7 +127,7 @@ const AnimatedRoutes = () => {
                   </AnimatedContent>
                 </AnimatePresence>
                 {location.pathname !== "/" && <WhatsAppButton />}
-                {location.pathname !== "/" && !location.pathname.startsWith("/estimate") && !location.pathname.startsWith("/discovery") && <FixedSocialBar />}
+                {["/", "/about-us", "/our-process", "/services", "/portfolio", "/gallery", "/blog", "/contact-us", "/locations"].includes(location.pathname) && location.pathname !== "/" && <FixedSocialBar />}
               </Suspense>
             </ErrorBoundary>
           </SmoothScroll>

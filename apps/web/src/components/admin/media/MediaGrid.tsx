@@ -123,7 +123,7 @@ export const MediaGrid = ({
                             <p className="text-zinc-400 text-[10px] font-medium truncate opacity-0 group-hover:opacity-100 transition-opacity delay-100 pointer-events-auto">{formatFileSize(file.size)}</p>
                         </div>
                     </div>
-                    <div className="p-6 pt-0" className="p-3 pointer-events-none">
+                    <div className="p-6 pt-0 p-3 pointer-events-none">
                         <p className="text-xs font-medium truncate mb-1" title={file.name}>{file.name}</p>
                     </div>
                 </Surface>

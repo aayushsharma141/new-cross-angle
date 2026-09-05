@@ -183,7 +183,7 @@ const ProjectGrid = () => {
               key={space.id || "all"}
               onClick={() => handleSpaceSelect(space.id)}
               className={cn(
-                "px-5 py-2.5 text-[10px] uppercase tracking-[0.2em] font-medium rounded-full transition-all duration-300",
+                "px-5 py-2.5 min-h-[44px] inline-flex items-center justify-center text-[10px] uppercase tracking-[0.2em] font-medium rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 activeSpace === space.id
                   ? "bg-white text-black"
                   : "border border-white/10 text-white/50 hover:text-white hover:border-white/30"
@@ -201,7 +201,7 @@ const ProjectGrid = () => {
               key={type}
               onClick={() => setActiveType(type)}
               className={cn(
-                "px-5 py-2 text-[10px] uppercase tracking-[0.2em] font-medium rounded-full transition-all duration-300",
+                "px-5 py-2.5 min-h-[44px] inline-flex items-center justify-center text-[10px] uppercase tracking-[0.2em] font-medium rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 activeType === type
                   ? "bg-primary text-white"
                   : "border border-white/10 text-white/60 hover:text-white hover:border-white/30"

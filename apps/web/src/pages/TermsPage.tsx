@@ -37,7 +37,7 @@ const Section = ({
     variants={fadeUp}
     className={`rounded-2xl p-8 backdrop-blur-sm border ${
       highlight
-        ? "bg-[#C41230]/5 border-[#C41230]/20"
+        ? "bg-[#D4AF37]/5 border-[#D4AF37]/20"
         : "bg-white/[0.03] border-white/[0.07]"
     }`}
   >
@@ -179,7 +179,7 @@ const TermsPage = () => {
               <p className="text-sm text-white/65 mb-5">Unless otherwise agreed in writing, the standard payment schedule is:</p>
               <div className="space-y-3">
                 {[
-                  { pct: "10%", label: "Booking Fee", desc: "To initiate the design phase. Non-refundable.", color: "border-[#C41230]/30 bg-[#C41230]/5" },
+                  { pct: "10%", label: "Booking Fee", desc: "To initiate the design phase. Non-refundable.", color: "border-[#D4AF37]/30 bg-[#D4AF37]/5" },
                   { pct: "40%", label: "Design Sign-off", desc: "Payable before material procurement and factory production begins.", color: "border-[#d1af6e]/20 bg-[#d1af6e]/5" },
                   { pct: "45%", label: "Site Execution", desc: "Payable in stages as work progresses on-site.", color: "border-white/10 bg-white/[0.03]" },
                   { pct: "5%", label: "Final Handover", desc: "Payable upon completion of the final snag list and before handover of keys.", color: "border-emerald-500/20 bg-emerald-500/5" },
@@ -253,7 +253,7 @@ const TermsPage = () => {
           <p className="text-center text-xs text-white/30 mt-12">
             These Terms are effective as of <strong className="text-white/50">June 01, 2026</strong>.
             For our data practices, see our{" "}
-            <Link to="/privacy" className="text-[#C41230] hover:text-white transition-colors underline underline-offset-2">
+            <Link to="/privacy" className="text-[#D4AF37] hover:text-white transition-colors underline underline-offset-2">
               Privacy Policy
             </Link>.
           </p>

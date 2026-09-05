@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0",
+  "evidenceId": "EV-21fba70-2026-08-08T1128-v1.0",
+  "generator": "antigravity-release-pipeline@1.0",
+  "timestamp": "2026-08-08T11:28:13.266Z",
+  "status": "PASSED",
+  "releaseDecision": "PROMOTE",
+  "policyReference": "docs/policies/release-policy.json",
+  "provenance": {
+    "gitSha": "21fba7076a27e08841e71107450a2e6e9024fabe",
+    "gitBranch": "feature/dam-v3-milestone-planning",
+    "nodeVersion": "v24.18.0",
+    "platform": "win32",
+    "arch": "x64",
+    "cpus": 32,
+    "hostname": "Digital-Epic"
+  },
+  "results": {
+    "durationMs": 10979,
+    "totalStages": 6,
+    "stageResults": {
+      "GATE-01": {
+        "status": "PASSED",
+        "durationMs": 40
+      },
+      "GATE-02": {
+        "status": "PASSED",
+        "durationMs": 1667
+      },
+      "GATE-03": {
+        "status": "PASSED",
+        "durationMs": 4386
+      },
+      "GATE-04": {
+        "status": "PASSED",
+        "durationMs": 2517
+      },
+      "GATE-05": {
+        "status": "PASSED",
+        "durationMs": 49
+      },
+      "GATE-06": {
+        "status": "PASSED",
+        "durationMs": 2320
+      }
+    },
+    "userJourney": {
+      "transaction": "Upload -> Pipeline DAG -> Search Index -> Retrieve -> Delete",
+      "status": "PASSED"
+    },
+    "operationalGates": {
+      "Liveness": "ALIVE",
+      "Readiness": "READY",
+      "Health": "HEALTHY",
+      "Availability": "SLO_ACHIEVED"
+    },
+    "subsystemHealth": {
+      "API": "OK",
+      "Upload": "OK",
+      "Search": "OK",
+      "Pipeline": "OK",
+      "Telemetry": "OK",
+      "Storage": "OK",
+      "Worker": "OK",
+      "Queue": "OK"
+    }
+  }
+}

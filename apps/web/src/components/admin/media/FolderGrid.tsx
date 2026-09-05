@@ -49,7 +49,7 @@ const FolderItem = ({ folder, onNavigate, onRename, onDelete, isReadOnly }: Fold
         onClick={() => onNavigate(folder)}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNavigate(folder); } }}
       >
-        <div className="p-6 pt-0" className="p-6 flex flex-col items-center justify-center text-center space-y-3 h-full min-h-[140px]">
+        <div className="p-6 pt-0 flex flex-col items-center justify-center text-center space-y-3 h-full min-h-[140px]">
           <Folder 
             className={`w-14 h-14 shrink-0 transition-transform duration-300 ${isOver ? 'text-white scale-110' : 'text-admin-primary group-hover:scale-110'}`} 
             fill="currentColor" 

@@ -560,7 +560,7 @@ const AdminGallery = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="p-6 pt-0" className="p-4 relative">
+                                <div className="p-6 pt-0 p-4 relative">
                                     <h3 className="font-medium text-white truncate text-base mb-1">{item.title}</h3>
                                     <div className="flex items-center justify-between">
                                         {item.category && (

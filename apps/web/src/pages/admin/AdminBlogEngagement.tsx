@@ -151,12 +151,12 @@ export default function AdminBlogEngagement() {
                 {/* Daily Events Bar Chart */}
                 <Surface variant="primary" radius="lg" border shadow="sm" className="lg:col-span-3 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">
                     <Stack gap="sm" className="p-6">
-                        <Text as="h3" variant="h3" className="leading-none" className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">
+                        <Text as="h3" variant="h3" className="leading-none text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">
                             <BarChart3 className="text-[hsl(var(--admin-primary))] w-4 h-4" />
                             Daily Engagement (Last 30 Days)
                         </Text>
                     </Stack>
-                    <div className="p-6 pt-0" className="h-[300px]">
+                    <div className="p-6 pt-0 h-[300px]">
                         {dailyEvents.length === 0 ? (
                             <div className="flex items-center justify-center h-full text-[hsl(var(--admin-text-muted))] text-sm">
                                 No engagement data captured yet.
@@ -186,7 +186,7 @@ export default function AdminBlogEngagement() {
                 {/* Event Type Breakdown Pie */}
                 <Surface variant="primary" radius="lg" border shadow="sm" className="lg:col-span-2 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] rounded-xl">
                     <Stack gap="sm" className="p-6">
-                        <Text as="h3" variant="h3" className="leading-none" className="text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">
+                        <Text as="h3" variant="h3" className="leading-none text-sm font-semibold text-[hsl(var(--admin-text))] flex items-center gap-2">
                             <Tag className="text-[hsl(var(--admin-primary))] w-4 h-4" />
                             Event Breakdown
                         </Text>

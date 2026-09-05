@@ -247,7 +247,7 @@ const AboutHero = ({
   return (
     <section
       ref={containerRef}
-      className="relative w-full min-h-[100vh] bg-black flex items-center pt-24 pb-16 overflow-hidden"
+      className="relative w-full min-h-[100vh] bg-[var(--s-canvas-primary)] flex items-center pt-24 pb-16 overflow-hidden"
     >
       {/* Subtle bg watermark — very low opacity */}
       <div className="absolute inset-0 pointer-events-none select-none overflow-hidden flex flex-col justify-around opacity-[0.018]">
@@ -287,8 +287,8 @@ const AboutHero = ({
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="flex items-center gap-4"
           >
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">About The Studio</span>
+            <div className="w-12 h-px bg-primary" />
+            <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">About The Studio</span>
           </motion.div>
 
           {/* H1 */}
@@ -297,11 +297,11 @@ const AboutHero = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           >
-            <h1 className="font-sans text-[clamp(2.4rem,4.8vw,5.2rem)] font-normal text-white leading-[1.08] tracking-tight">
+            <h1 className="font-serif text-[clamp(2.4rem,4.8vw,5.2rem)] font-normal text-white leading-[1.08] tracking-tight">
               We Design. We Execute.
               <br />
               We Deliver{" "}
-              <span className="text-[#FF2A2A] font-semibold"> Turnkey </span> Interiors.
+              <span className="text-primary italic font-light">Turnkey</span> Interiors.
             </h1>
           </motion.div>
 
@@ -310,7 +310,7 @@ const AboutHero = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="text-[clamp(0.9rem,1.05vw,1.1rem)] leading-[1.8] text-white/60 max-w-[48ch]"
+            className="text-[clamp(0.9rem,1.05vw,1.1rem)] leading-[1.8] text-white/70 max-w-[48ch]"
           >
             For over 15 years, we've delivered fully managed interior projects —
             combining design intelligence, execution precision, and
@@ -322,7 +322,7 @@ const AboutHero = ({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="text-[clamp(0.85rem,0.95vw,1rem)] text-site-gold italic font-medium"
+            className="text-[clamp(0.85rem,0.95vw,1rem)] text-primary italic font-light"
           >
             Every project is delivered as a complete, ready-to-live environment.
           </motion.p>
@@ -337,13 +337,13 @@ const AboutHero = ({
             {stats.map((stat, i) => (
               <div
                 key={i}
-                className={`flex flex-col gap-1.5 pr-8 ${i < stats.length - 1 ? "border-r border-white/10 mr-8" : ""
+                className={`flex flex-col gap-1.5 pr-8 ${i < stats.length - 1 ? "border-r border-[var(--s-border-subtle)] mr-8" : ""
                   }`}
               >
                 <span className="text-[clamp(1.6rem,2.4vw,2.6rem)] font-bold text-white leading-none tracking-tight">
                   {stat.value}
                 </span>
-                <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-white/45">
+                <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-white/50">
                   {stat.label}
                 </span>
               </div>
@@ -361,10 +361,10 @@ const AboutHero = ({
               ([
                 "Residential, Commercial & Hospitality",
                 "End-to-End Turnkey — No Sub-Contracting",
-                "Jamshedpur's Most-Referenced Interior Studio",
+                "Jamshedpur's Premier Referenced Interior Studio",
               ]).map((point, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-[6px] h-[6px] rounded-full bg-[#FF2A2A] shadow-[0_0_8px_rgba(255,42,42,0.9)] shrink-0" />
+                  <div className="w-[6px] h-[6px] rounded-full bg-primary shadow-[0_0_8px_rgba(209,175,110,0.6)] shrink-0" />
                   {point}
                 </div>
               ))
@@ -383,12 +383,12 @@ const AboutHero = ({
                      flex flex-col gap-4 z-20 group mb-16 lg:mb-0"
         >
           {/* Premium Background Glow Effect behind video */}
-          <div className="absolute -inset-10 bg-[radial-gradient(circle_at_center,rgba(232,27,57,0.16),transparent_65%)] rounded-full blur-[80px] opacity-75 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0" />
+          <div className="absolute -inset-10 bg-[radial-gradient(circle_at_center,rgba(209,175,110,0.12),transparent_65%)] rounded-full blur-[80px] opacity-75 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0" />
 
           {/* "Hear From The Founder" label */}
           <div className="flex items-center gap-3 relative z-10">
-            <div className="w-5 h-[2px] bg-[#FF2A2A] shadow-[0_0_6px_rgba(255,42,42,0.5)]" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/50">
+            <div className="w-5 h-[2px] bg-primary shadow-[0_0_6px_rgba(209,175,110,0.5)]" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/60">
               Hear From The Founder
             </span>
           </div>
@@ -397,13 +397,13 @@ const AboutHero = ({
           <motion.div
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex-1 overflow-hidden rounded-3xl border border-white/10 bg-black/40 backdrop-blur-md
-                       shadow-[0_24px_60px_rgba(0,0,0,0.8),0_0_40px_rgba(232,27,57,0.06)]
+            className="relative flex-1 overflow-hidden rounded-3xl border border-[var(--s-border-subtle)] bg-[var(--s-canvas-secondary)] backdrop-blur-md
+                       shadow-[0_24px_60px_rgba(0,0,0,0.8),0_0_40px_rgba(209,175,110,0.06)]
                        group transition-all duration-500 z-10"
           >
-            {/* Red glow on hover */}
+            {/* Accent glow on hover */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
-                            shadow-[inset_0_0_0_1px_rgba(255,42,42,0.2)] pointer-events-none z-20 rounded-3xl" />
+                            shadow-[inset_0_0_0_1px_rgba(209,175,110,0.3)] pointer-events-none z-20 rounded-3xl" />
 
             <div className="aspect-video lg:absolute lg:inset-0 lg:w-full lg:h-full overflow-hidden rounded-3xl">
               <iframe
@@ -417,7 +417,7 @@ const AboutHero = ({
           </motion.div>
 
           {/* Below-video caption */}
-          <p className="text-[9px] uppercase tracking-[0.22em] text-[#555555] leading-relaxed relative z-10">
+          <p className="text-[9px] uppercase tracking-[0.22em] text-white/50 leading-relaxed relative z-10">
             How we approach turnkey interiors — from concept to final handover.
           </p>
         </motion.div>
@@ -435,7 +435,7 @@ const AboutHero = ({
           transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
           className="w-6 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-white/25"
         />
-        <span className="text-[8px] uppercase tracking-[0.3em] text-white/20">
+        <span className="text-[8px] uppercase tracking-[0.3em] text-white/30">
           Scroll to Explore
         </span>
       </motion.div>

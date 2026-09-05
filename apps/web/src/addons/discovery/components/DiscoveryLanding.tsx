@@ -10,8 +10,7 @@ import CountUp from "@/components/ReactBits/CountUp";
 
 import BlurText from "@/components/ReactBits/BlurText";
 import ShinyText from "@/components/ReactBits/ShinyText";
-import type { DiscoveryConfig } from "./DiscoveryEngine";
-
+import type { DiscoveryConfig } from "@/types/discovery";
 
 
 /* ─── Intent Options (from WelcomeScreen) ─────────────────── */

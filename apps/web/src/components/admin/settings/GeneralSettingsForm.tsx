@@ -377,7 +377,7 @@ export function GeneralSettingsForm() {
     if (isFetching) {
         return (
             <Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))]">
-                <div className="p-6 pt-0" className="p-8 flex justify-center items-center">
+                <div className="p-6 pt-0 p-8 flex justify-center items-center">
                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
             </Surface>

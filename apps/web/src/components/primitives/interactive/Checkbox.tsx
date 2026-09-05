@@ -29,12 +29,12 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     if (!label) return input;
 
     return (
-      <Cluster gap="sm" align="center">
+      <label className="inline-flex items-center gap-3 cursor-pointer min-h-[44px] py-1.5 select-none">
         {input}
         <Text variant="body" className={cn("text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", invalid && "text-error")}>
           {label}
         </Text>
-      </Cluster>
+      </label>
     );
   }
 );

@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from "react
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-import { Stage, AestheticScores, UserSignals, AIAestheticResult } from "@/types/discovery";
+import { Stage, AestheticScores, UserSignals, AIAestheticResult, DiscoveryConfig } from "@/types/discovery";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { visualImages } from "@/constants/discovery";
 import { getArchetype } from "../core/archetype";
@@ -41,10 +41,7 @@ import DiscoveryProgressSidebar from "./DiscoveryProgressSidebar";
 import { WorkspacePanel } from "@/components/patterns/WorkspacePanel";
 import { DiscoveryDossier } from "./DiscoveryDossier";
 
-export interface DiscoveryConfig {
-    firmName?: string;
-    availableModes?: ("quick" | "deep" | "both")[];
-}
+
 
 interface DiscoveryEngineProps {
     config?: DiscoveryConfig;

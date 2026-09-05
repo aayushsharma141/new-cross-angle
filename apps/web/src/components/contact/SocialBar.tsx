@@ -64,9 +64,9 @@ const SocialBar = () => {
       <div className="container mx-auto max-w-5xl">
         {/* Thin separator line */}
         <div className="mb-10 flex items-center gap-4">
-          <div className="h-px flex-1 bg-white/[0.05]" />
-          <span className="text-[9px] font-bold uppercase tracking-[0.25em] text-white/25">Follow Our Work</span>
-          <div className="h-px flex-1 bg-white/[0.05]" />
+          <div className="h-px flex-1 bg-[var(--s-border-subtle)]" />
+          <span className="text-[9px] font-bold uppercase tracking-[0.25em] text-white/30">Follow Our Work</span>
+          <div className="h-px flex-1 bg-[var(--s-border-subtle)]" />
         </div>
 
         {/* Slim social pill strip */}
@@ -78,9 +78,9 @@ const SocialBar = () => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Visit our ${social.name}`}
-              className={`contact-social-link group flex items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 backdrop-blur-sm transition-all duration-300 ${social.hoverClass}`}
+              className={`contact-social-link group flex items-center gap-2.5 rounded-full border border-[var(--s-border-subtle)] bg-[var(--s-canvas-secondary)] px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50 backdrop-blur-sm transition-all duration-300 ${social.hoverClass}`}
             >
-              <span className={`text-white/30 transition-colors ${social.iconHoverClass}`}>
+              <span className={`text-white/40 transition-colors ${social.iconHoverClass}`}>
                 {social.icon}
               </span>
               {social.name}
@@ -89,7 +89,7 @@ const SocialBar = () => {
         </div>
 
         {/* Micro caption */}
-        <p className="mt-6 text-center text-[10px] text-white/20 leading-relaxed">
+        <p className="mt-6 text-center text-[11px] text-white/40 leading-relaxed font-light">
           Daily site moments, moodboards, walkthroughs &amp; studio updates.
         </p>
       </div>

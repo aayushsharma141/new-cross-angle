@@ -63,7 +63,7 @@ export function LeadSourceChart() {
     return (
         <Surface variant="primary" radius="lg" border shadow="sm" className="col-span-1 border-admin-border bg-admin-card">
             <Stack gap="sm" className="p-6">
-                <Text as="h3" variant="h3" className="leading-none" className="text-lg font-display text-admin-foreground">Lead Sources</Text>
+                <Text as="h3" variant="h3" className="leading-none text-lg font-display text-admin-foreground">Lead Sources</Text>
                 <p className="text-sm text-admin-muted">Acquisition channel distribution</p>
             </Stack>
             <div className="p-6 pt-0">

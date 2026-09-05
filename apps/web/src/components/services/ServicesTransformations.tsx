@@ -25,8 +25,8 @@ const ServicesTransformations = () => {
           viewport={{ once: true }}
           className="flex items-center gap-4 mb-7"
         >
-          <div className="w-10 h-px bg-site-crimson" />
-          <span className="font-bold text-[9px] uppercase tracking-[0.45em] text-site-gold">
+          <div className="w-10 h-px bg-kiro-accent" />
+          <span className="font-bold text-[9px] uppercase tracking-[0.45em] text-kiro-accent">
             Recent Transformations
           </span>
         </motion.div>
@@ -39,7 +39,7 @@ const ServicesTransformations = () => {
             className="font-serif font-normal text-[clamp(2rem,3.8vw,3.2rem)] leading-[1.1] tracking-tight text-white"
           >
             Projects We're{" "}
-            <em className="italic text-site-crimson font-light underline underline-offset-[10px] decoration-white/10 decoration-[3px]">
+            <em className="italic text-kiro-accent font-light underline underline-offset-[10px] decoration-white/10 decoration-[3px]">
               Proud Of
             </em>
           </motion.h2>
@@ -108,23 +108,23 @@ const ServicesTransformations = () => {
                   )}
 
                   {/* Title */}
-                  <h3 className="font-serif text-[1.2rem] text-white font-light leading-snug mb-3 group-hover:text-site-gold transition-colors duration-300">
+                  <h3 className="font-serif text-[1.2rem] text-white font-light leading-snug mb-3 group-hover:text-kiro-accent transition-colors duration-300">
                     {project.title}
                   </h3>
 
                   {/* Challenge -> Solution -> Outcome */}
                   <div className="space-y-6 flex-1 mt-4">
                     <div className="border-l-[3px] border-white/10 pl-5">
-                      <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-site-gold/60 block mb-2">Challenge</span>
+                      <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-kiro-accent/60 block mb-2">Challenge</span>
                       <p className="text-[1.15rem] md:text-[1.25rem] font-serif text-white/80 leading-snug line-clamp-2">{project.challengeShort || project.brief || "Spatial constraints and outdated layout requiring modernization."}</p>
                     </div>
                     <div className="border-l-[3px] border-white/10 pl-5">
-                      <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-site-gold/60 block mb-2">Solution</span>
+                      <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-kiro-accent/60 block mb-2">Solution</span>
                       <p className="text-[1.15rem] md:text-[1.25rem] font-serif text-white/80 leading-snug line-clamp-2">{project.approach || "Custom modular systems, smart lighting, and optimized workflow."}</p>
                     </div>
-                    <div className="border-l-[3px] border-site-gold pl-5 bg-site-gold/[0.03] py-3 mt-4 -ml-px relative">
+                    <div className="border-l-[3px] border-kiro-accent pl-5 bg-kiro-accent/[0.03] py-3 mt-4 -ml-px relative">
                       <div className="absolute inset-0 bg-gradient-to-r from-site-gold/[0.05] to-transparent pointer-events-none" />
-                      <span className="relative z-10 text-[11px] uppercase tracking-[0.2em] font-bold text-site-gold block mb-2">Outcome</span>
+                      <span className="relative z-10 text-[11px] uppercase tracking-[0.2em] font-bold text-kiro-accent block mb-2">Outcome</span>
                       <p className="relative z-10 text-[1.25rem] md:text-[1.4rem] font-serif italic text-white font-medium leading-snug line-clamp-2">{project.resultShort || "Maximized spatial efficiency and delivered a premium luxury aesthetic."}</p>
                     </div>
                   </div>
@@ -139,7 +139,7 @@ const ServicesTransformations = () => {
                         <span className="text-[0.75rem] text-white/35 font-light">{project.duration}</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[0.75rem] text-site-gold opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-medium">
+                    <div className="flex items-center gap-1.5 text-[0.75rem] text-kiro-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-medium">
                       View Project
                       <ArrowRight className="w-3 h-3" />
                     </div>

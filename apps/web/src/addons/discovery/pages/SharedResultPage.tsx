@@ -70,8 +70,8 @@ export default function SharedResultPage() {
       <Helmet>
         <title>Loading Aesthetic Blueprint… | Cross Angle Interior</title>
       </Helmet>
-      <main id="main-content" className="min-h-screen bg-site-bg flex items-center justify-center">
-        <div className="w-10 h-10 border border-site-border border-t-site-gold rounded-full animate-spin" />
+      <main id="main-content" className="min-h-screen bg-kiro-bg flex items-center justify-center">
+        <div className="w-10 h-10 border border-kiro-line border-t-site-gold rounded-full animate-spin" />
       </main>
     </>
   );
@@ -82,7 +82,7 @@ export default function SharedResultPage() {
         <title>Aesthetic Blueprint Not Found | Cross Angle Interior</title>
         <meta name="robots" content="noindex" />
       </Helmet>
-      <main id="main-content" className="min-h-screen bg-site-bg flex flex-col items-center justify-center gap-4 text-white">
+      <main id="main-content" className="min-h-screen bg-kiro-bg flex flex-col items-center justify-center gap-4 text-white">
         <p className="text-lg">Result not found</p>
         <a href="/aesthetic-discovery-engine" className="text-[#c9a96e] underline text-sm">Discover your aesthetic yourself →</a>
       </main>
@@ -90,7 +90,7 @@ export default function SharedResultPage() {
   );
 
   return (
-    <main id="main-content" className="min-h-screen bg-site-bg">
+    <main id="main-content" className="min-h-screen bg-kiro-bg">
       <Helmet>
         {/* Primary */}
         <title>{displayName} — Aesthetic Discovery Engine | Cross Angle Interior</title>
@@ -136,7 +136,7 @@ export default function SharedResultPage() {
 
       <Suspense fallback={
         <div className="min-h-screen flex items-center justify-center">
-          <div className="w-10 h-10 border border-site-border border-t-site-gold rounded-full animate-spin" />
+          <div className="w-10 h-10 border border-kiro-line border-t-site-gold rounded-full animate-spin" />
         </div>
       }>
         <ResultsReveal

@@ -1,5 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { cn } from '@/lib/utils';
 import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
 import { Badge } from "@/components/primitives/interactive";
@@ -7,130 +6,30 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/primit
 import { Surface, Stack, Text } from "@/components/primitives/foundation";
 import { AuditLogTable, AuditLogFilters } from '@/components/admin/logs/AuditLogTable';
 import { AdminMetricsPanel } from '@/components/admin/shared/AdminMetricsPanel';
-import { auditService } from '@/services/AuditService';
 import type { AuditAction, AuditEntityType } from '@/types/audit';
 import { ACTION_COLORS, ENTITY_LABELS } from '@/types/audit';
-import { useToast } from '@/hooks/useToast';
 import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
+import { useAuditLogs } from './_hooks/useAuditLogs';
 
 export default function AdminAuditLogs() {
-  const { toast } = useToast();
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  // Derived states
-  const activeTab = searchParams.get('tab') === 'actions'
-    ? 'actions'
-    : searchParams.get('tab') === 'entities'
-      ? 'entities'
-      : 'all';
-
-  const page = parseInt(searchParams.get('page') || '1', 10) || 1;
-  const pageSize = parseInt(searchParams.get('pageSize') || '25', 10) || 25;
-  const search = searchParams.get('q') || '';
-  const selectedAction = (searchParams.get('action') as AuditAction) || null;
-  const selectedEntity = (searchParams.get('entity') as AuditEntityType) || null;
-  const selectedUser = searchParams.get('user') || null;
-
-  const updateParams = (updates: Record<string, string | null>) => {
-    const nextParams = new URLSearchParams(searchParams);
-    let filterOrSearchChanged = false;
-    for (const [key, value] of Object.entries(updates)) {
-      if (['q', 'action', 'entity', 'user'].includes(key)) {
-        const currentValue = searchParams.get(key);
-        if ((currentValue || '') !== (value || '')) {
-          filterOrSearchChanged = true;
-        }
-      }
-      if (value === null || value === '') {
-        nextParams.delete(key);
-      } else {
-        nextParams.set(key, value);
-      }
-    }
-    if (filterOrSearchChanged) {
-      nextParams.delete('page');
-    }
-    setSearchParams(nextParams, { replace: true });
-  };
-
-  const handleTabChange = (nextTab: string) => {
-    updateParams({ tab: nextTab === 'all' ? null : nextTab });
-  };
-
-  const { data: logsData, isLoading, refetch } = useQuery({
-    queryKey: ['audit_logs', page, pageSize, search, selectedAction, selectedEntity, selectedUser],
-    queryFn: () =>
-      auditService.getLogsPaginated({
-        page,
-        pageSize,
-        search: search || undefined,
-        action: selectedAction || undefined,
-        entityType: selectedEntity || undefined,
-        userId: selectedUser || undefined,
-      }),
-  });
-
-  const { data: statsData } = useQuery({
-    queryKey: ['audit_stats'],
-    queryFn: () => auditService.getStats(168),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const { data: users = [] } = useQuery({
-    queryKey: ['audit_users'],
-    queryFn: () => auditService.getUniqueUsers(),
-    staleTime: 10 * 60 * 1000,
-  });
-
-  const handleExport = async (format: 'csv' | 'json') => {
-    try {
-      const content = await auditService.exportLogs(
-        {
-          search: search || undefined,
-          action: selectedAction || undefined,
-          entityType: selectedEntity || undefined,
-          userId: selectedUser || undefined,
-        },
-        format
-      );
-
-      const blob = new Blob([content], {
-        type: format === 'csv' ? 'text/csv' : 'application/json',
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `audit-logs-${format === 'csv' ? 'export' : 'export'}.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast({
-        title: 'Export successful',
-        description: `Downloaded ${logsData?.total || 0} log entries as ${format.toUpperCase()}`,
-      });
-    } catch {
-      toast({
-        title: 'Export failed',
-        description: 'Could not export logs. Please try again.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handlePaginationChange = (newPage: number, newPageSize: number) => {
-    if (newPageSize !== pageSize) {
-      updateParams({
-        pageSize: newPageSize.toString(),
-        page: '1',
-      });
-    } else {
-      updateParams({
-        page: newPage.toString(),
-      });
-    }
-  };
+  const {
+    activeTab,
+    page,
+    pageSize,
+    search,
+    selectedAction,
+    selectedEntity,
+    selectedUser,
+    logsData,
+    isLoading,
+    statsData,
+    users,
+    handleTabChange,
+    handleExport,
+    handlePaginationChange,
+    updateParams,
+    refetch,
+  } = useAuditLogs();
 
   return (
     <div className="flex flex-col space-y-4">
@@ -176,9 +75,9 @@ export default function AdminAuditLogs() {
 
           <TabsContent value="all" className="space-y-4 mt-4">
             <Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
-              <Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
+              <Stack gap="sm" className="p-6 bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
                 <div className="flex items-center justify-between">
-                  <Text as="h3" variant="h3" className="leading-none" className="text-sm font-bold text-[hsl(var(--admin-text))]">Audit Log</Text>
+                  <Text as="h3" variant="h3" className="leading-none text-sm font-bold text-[hsl(var(--admin-text))]">Audit Log</Text>
                   <div className="flex gap-2">
                     <AuditLogFilters
                       users={users}
@@ -192,7 +91,7 @@ export default function AdminAuditLogs() {
                   </div>
                 </div>
               </Stack>
-              <div className="p-6 pt-0" className="p-0 sm:p-0">
+              <div className="p-6 pt-0 p-0 sm:p-0">
                 <div className="px-5 py-4 border-b border-[hsl(var(--admin-border-subtle))]">
                   <AuditLogTable
                     logs={logsData?.data || []}
@@ -225,10 +124,10 @@ export default function AdminAuditLogs() {
 
           <TabsContent value="actions" className="space-y-4 mt-4">
             <Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
-              <Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
-                <Text as="h3" variant="h3" className="leading-none" className="text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Action Type</Text>
+              <Stack gap="sm" className="p-6 bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
+                <Text as="h3" variant="h3" className="leading-none text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Action Type</Text>
               </Stack>
-              <div className="p-6 pt-0" className="p-5">
+              <div className="p-6 pt-0 p-5">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {Object.entries(statsData?.byAction || {}).map(([action, count]) => {
                     const colors = ACTION_COLORS[action as AuditAction];
@@ -264,10 +163,10 @@ export default function AdminAuditLogs() {
 
           <TabsContent value="entities" className="space-y-4 mt-4">
             <Surface variant="primary" radius="lg" border shadow="sm" className="border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] shadow-sm overflow-hidden">
-              <Stack gap="sm" className="p-6" className="bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
-                <Text as="h3" variant="h3" className="leading-none" className="text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Entity Type</Text>
+              <Stack gap="sm" className="p-6 bg-[hsl(var(--admin-surface))] border-b border-[hsl(var(--admin-border-subtle))] py-3 px-5">
+                <Text as="h3" variant="h3" className="leading-none text-sm font-bold text-[hsl(var(--admin-text))]">Activity by Entity Type</Text>
               </Stack>
-              <div className="p-6 pt-0" className="p-5">
+              <div className="p-6 pt-0 p-5">
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   {Object.entries(statsData?.byEntity || {}).map(([entity, count]) => (
                     <div
@@ -301,8 +200,4 @@ function getTopKey(obj: Record<string, number> | undefined): string | undefined 
   const entries = Object.entries(obj);
   if (entries.length === 0) return undefined;
   return entries.reduce((a, b) => (b[1] > a[1] ? b : a))[0];
-}
-
-function cn(...classes: (string | undefined | null | false)[]): string {
-  return classes.filter(Boolean).join(' ');
 }

@@ -96,13 +96,18 @@ const ProjectHero = ({ heroImage, title, category, tagline, brief }: ProjectHero
           transition={{ duration: 1, ease: "easeOut", delay: 0.9 }}
         >
           <button
-            onClick={() => document.getElementById("walkthrough")?.scrollIntoView({ behavior: "smooth" })}
-            className="group flex items-center gap-4 border border-white/20 rounded-full px-6 py-3 hover:bg-white/10 transition-colors w-fit cursor-pointer"
+            type="button"
+            aria-label="Scroll down to project experience"
+            onClick={() => {
+              const el = document.getElementById("context-section") || document.getElementById("walkthrough") || document.querySelector('[data-chapter="context"]');
+              el?.scrollIntoView({ behavior: "smooth" });
+            }}
+            className="group flex items-center gap-4 border border-white/25 rounded-full px-6 py-3 hover:bg-white/10 hover:border-white/40 transition-all w-fit cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black"
           >
-            <span className="text-[10px] font-medium tracking-[0.25em] uppercase text-white">
-              Watch Walkthrough
+            <span className="text-[10px] font-semibold tracking-[0.25em] uppercase text-white">
+              Explore Experience
             </span>
-            <ArrowDown className="w-4 h-4 text-white group-hover:translate-y-1 transition-transform duration-500" />
+            <ArrowDown className="w-4 h-4 text-white group-hover:translate-y-1 transition-transform duration-500" aria-hidden="true" />
           </button>
         </motion.div>
       </motion.div>

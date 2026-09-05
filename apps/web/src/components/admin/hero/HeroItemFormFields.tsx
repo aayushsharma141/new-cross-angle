@@ -79,7 +79,7 @@ export function HeroItemFormFields({
                     {/* Media URL */}
                     <div className={spacingClass}>
                         <Label className="text-zinc-300">
-                            Media URL <span className="text-site-crimson">*</span>
+                            Media URL <span className="text-kiro-accent">*</span>
                         </Label>
                         <div className="flex gap-2">
                             <Input

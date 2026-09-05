@@ -15,12 +15,27 @@ export default {
 				xs: "400px",
 			},
 			fontFamily: {
-				display: ["'Cormorant Garamond'", "serif", ...fontFamily.serif],
-				sans: ["'DM Sans'", "system-ui", "sans-serif", ...fontFamily.sans],
+				display: ["var(--font-display)", "serif", ...fontFamily.serif],
+				sans: ["var(--font-sans)", "system-ui", "sans-serif", ...fontFamily.sans],
 				label: ["'Montserrat'", "sans-serif"],
 				mono: ["'JetBrains Mono'", "ui-monospace", "monospace", ...fontFamily.mono],
 			},
 			colors: {
+				// Foundation V1.0 Tokens
+				canvas: {
+					primary: "hsl(var(--canvas-primary) / <alpha-value>)",
+					secondary: "hsl(var(--canvas-secondary) / <alpha-value>)",
+				},
+				surface: {
+					card: "hsl(var(--surface-card) / <alpha-value>)",
+				},
+				content: {
+					primary: "hsl(var(--text-primary) / <alpha-value>)",
+					secondary: "hsl(var(--text-secondary) / <alpha-value>)",
+				},
+				subtle: "hsl(var(--border-subtle) / <alpha-value>)",
+				copper: "hsl(var(--accent-copper) / <alpha-value>)",
+				
 				background: "hsl(var(--background) / <alpha-value>)",
 				foreground: "hsl(var(--foreground) / <alpha-value>)",
 				card: {
@@ -66,30 +81,7 @@ export default {
 					border: "hsl(var(--sidebar-border) / <alpha-value>)",
 					ring: "hsl(var(--sidebar-ring) / <alpha-value>)",
 				},
-				/**
-				 * @deprecated [PROTECTED LEGACY] 
-				 * These site tokens are frozen and scheduled for deletion in Phase 30.
-				 * Do not add new usages. Existing usages are allowed only until the owning Room is migrated.
-				 */
-				site: {
-					bg: "hsl(var(--site-bg) / <alpha-value>)",
-					'bg-section': "hsl(var(--site-bg-section) / <alpha-value>)",
-					'bg-card': "hsl(var(--site-bg-card) / <alpha-value>)",
-					'bg-card-hover': "hsl(var(--site-bg-card-hover) / <alpha-value>)",
-					'bg-light': "hsl(var(--site-bg-light) / <alpha-value>)",
-					'bg-input': "hsl(var(--site-bg-input) / <alpha-value>)",
-					crimson: "hsl(var(--site-crimson) / <alpha-value>)",
-					'crimson-light': "hsl(var(--site-crimson) / 0.3)",
-					gold: "hsl(var(--site-gold) / <alpha-value>)",
-					'gold-light': "hsl(var(--site-gold) / 0.3)",
-					stone: "hsl(var(--site-stone) / <alpha-value>)",
-					text: "hsl(var(--site-text) / <alpha-value>)",
-					'text-heading': "hsl(var(--site-text-heading) / <alpha-value>)",
-					'text-muted': "hsl(var(--site-text-muted) / <alpha-value>)",
-					'text-meta': "hsl(var(--site-text-meta) / <alpha-value>)",
-					border: "hsl(var(--site-border) / <alpha-value>)",
-					'border-input': "hsl(var(--site-border-input) / <alpha-value>)",
-				},
+
 				kiro: {
 					bg: "hsl(var(--kiro-bg) / <alpha-value>)",
 					surface: "hsl(var(--kiro-surface) / <alpha-value>)",
@@ -147,10 +139,31 @@ export default {
 					stone: "hsl(var(--admin-stone) / <alpha-value>)",
 				},
 			},
+			fontSize: {
+				"hero": "var(--text-hero)",
+				"display-xl": "var(--text-display-xl)",
+				"display-lg": "var(--text-display-lg)",
+				"display-md": "var(--text-display-md)",
+				"heading-xl": "var(--text-heading-xl)",
+				"heading-lg": "var(--text-heading-lg)",
+				"heading-md": "var(--text-heading-md)",
+				"body-lg": "var(--text-body-lg)",
+				"body": "var(--text-body)",
+				"caption": "var(--text-caption)",
+				"micro": "var(--text-micro)",
+			},
+			lineHeight: {
+				"tightest": "var(--leading-tightest)",
+				"tighter": "var(--leading-tighter)",
+				"tight": "var(--leading-tight)",
+				"relaxed": "var(--leading-relaxed)",
+				"loose": "var(--leading-loose)",
+			},
 			borderRadius: {
+				none: "var(--radius-none)",
+				sm: "var(--radius-sm)",
+				md: "var(--radius-md)",
 				lg: "var(--radius)",
-				md: "calc(var(--radius) - 2px)",
-				sm: "calc(var(--radius) - 4px)",
 				xl: "calc(var(--radius) + 4px)",
 				"2xl": "calc(var(--radius) + 8px)",
 			},
@@ -181,10 +194,13 @@ export default {
 				"grid-lg": "80px 80px",
 			},
 			letterSpacing: {
+				"tighter": "var(--tracking-tighter)",
+				"tight": "var(--tracking-tight)",
+				"normal": "var(--tracking-normal)",
+				"wide": "var(--tracking-wide)",
+				"widest": "var(--tracking-widest)",
 				"label": "0.10em",
 				"btn": "0.08em",
-				"wide-xl": "0.15em",
-				"tight-display": "-0.02em",
 			},
 			backdropBlur: {
 				xs: "4px",
@@ -192,6 +208,13 @@ export default {
 				md: "12px",
 				lg: "24px",
 				xl: "40px",
+			},
+			transitionDuration: {
+				"850": "850ms",
+				"1200": "1200ms",
+				"1500": "1500ms",
+				"2000": "2000ms",
+				"3000": "3000ms",
 			},
 			keyframes: {
 				"fade-in": {
@@ -288,8 +311,6 @@ export default {
 			},
 			animation: {
 				"fade-in": "fade-in 0.4s ease forwards",
-				'site-fade-in': 'fadeIn 0.6s ease-out',
-				'site-slide-up': 'slideUp 0.5s ease-out',
 				"glow-pulse": "glow-pulse 2.5s ease-in-out infinite",
 				"shimmer": "shimmer 2.5s linear infinite",
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -315,11 +336,27 @@ export default {
 			transitionTimingFunction: {
 				"luxury": "cubic-bezier(0.25, 0.1, 0.25, 1.0)",
 				"spring": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+				"physical": "var(--ease-physical)",
 			},
 			transitionDuration: {
 				"250": "250ms",
 				"400": "400ms",
 				"600": "600ms",
+				"micro": "var(--duration-micro)",
+				"macro": "var(--duration-macro)",
+				"slow": "var(--duration-slow)",
+			},
+			zIndex: {
+				"below": "var(--z-below)",
+				"base": "var(--z-base)",
+				"above": "var(--z-above)",
+				"nav": "var(--z-nav)",
+				"overlay": "var(--z-overlay)",
+				"modal": "var(--z-modal)",
+			},
+			maxWidth: {
+				"reading": "var(--max-w-reading)",
+				"standard": "var(--max-w-standard)",
 			},
 		},
 	},

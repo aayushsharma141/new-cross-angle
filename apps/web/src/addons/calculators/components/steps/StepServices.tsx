@@ -108,7 +108,7 @@ export function StepServices({ formData, updateField }: Props) {
 
                                     {/* Expanded details */}
                                     {expanded && (
-                                        <div id={`svc-details-${svc.id}`} className="border-t border-[#1a1a1a]/[0.06] bg-site-bg/20 p-5 grid grid-cols-1 sm:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <div id={`svc-details-${svc.id}`} className="border-t border-[#1a1a1a]/[0.06] bg-kiro-bg/20 p-5 grid grid-cols-1 sm:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-2 duration-300">
                                             {/* Includes */}
                                             <div>
                                                 <div className="text-[#7a5c30] text-[12px] font-black uppercase tracking-wide mb-3 flex items-center gap-2">

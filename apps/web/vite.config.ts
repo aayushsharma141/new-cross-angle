@@ -42,8 +42,8 @@ function vercelApiPlugin(): Plugin {
     apply: 'serve',
     configureServer(server: ViteDevServer) {
       server.middlewares.use(async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
-        const url = req.url ?? '';
-
+        const rawUrl = req.url ?? '';
+        const url = rawUrl.replace(/^https?:\/\/[^/]+/, '');
         // Only intercept /api/auth/* — let Vite proxy handle /api/supabase/*
         if (!url.startsWith('/api/auth/')) return next();
 

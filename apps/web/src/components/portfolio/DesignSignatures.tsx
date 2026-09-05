@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 
 interface SignatureItem {
   label: string;
@@ -56,6 +56,7 @@ const SignaturePanel = ({
   item: SignatureItem;
   index: number;
 }) => {
+  const shouldReduceMotion = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-10%" });
 
@@ -89,22 +90,22 @@ const SignaturePanel = ({
 
       {/* Content */}
       <motion.div
-        initial={{ opacity: 0, y: 36 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 36 }}
+        initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 36 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: shouldReduceMotion ? 0 : 36 }}
         transition={{
-          duration: 1.1,
-          ease: [0.16, 1, 0.3, 1],
-          delay: 0.1,
+          duration: shouldReduceMotion ? 0.01 : 1.4,
+          ease: [0.22, 1, 0.36, 1],
+          delay: shouldReduceMotion ? 0 : 0.1,
         }}
         className="relative z-10 max-w-2xl mx-auto px-8 py-16 space-y-7"
       >
         {/* Eyebrow */}
         <div className="flex items-center justify-center gap-4">
-          <span className="font-mono text-[9px] tracking-[0.35em] uppercase text-white/25">
+          <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-white/35">
             {item.num}
           </span>
           <div className="w-8 h-px bg-primary/35" />
-          <span className="font-bold text-[10px] tracking-[0.28em] uppercase text-primary">
+          <span className="font-bold text-[10px] tracking-[0.25em] uppercase text-primary">
             {item.label}
           </span>
           <div className="w-8 h-px bg-primary/35" />
@@ -112,18 +113,20 @@ const SignaturePanel = ({
 
         {/* Quote */}
         <blockquote
-          className="font-serif font-light text-[#FAFAFA] leading-[1.35] tracking-tight"
-          style={{ fontSize: "clamp(26px, 3.5vw, 44px)" }}
+          className="font-display font-normal text-[#FAFAFA] leading-[1.35]"
+          style={{ 
+            fontSize: "clamp(26px, 3.5vw, 44px)",
+            letterSpacing: "-0.02em"
+          }}
         >
           &ldquo;{item.quote}&rdquo;
         </blockquote>
 
         {/* Subtext */}
         <p
-          className="font-light text-white/40 leading-relaxed mx-auto"
+          className="font-normal text-white/70 leading-relaxed mx-auto max-w-[42ch]"
           style={{
             fontSize: "clamp(13px, 1.4vw, 15px)",
-            maxWidth: "420px",
           }}
         >
           {item.subtext}
@@ -140,14 +143,17 @@ export const DesignSignatures = () => {
       aria-label="Design Signatures"
     >
       {/* Section eyebrow header */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-24 pb-6">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-[16vh] pb-10">
         <div className="flex items-center gap-4">
           <div className="w-12 h-px bg-primary/40" />
-          <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">
+          <span className="text-primary font-bold uppercase tracking-[0.25em] text-[10px]">
             05 / DESIGN SIGNATURES
           </span>
         </div>
-        <h2 className="mt-6 text-4xl md:text-5xl font-serif font-light text-[#FAFAFA] tracking-tight leading-tight max-w-md">
+        <h2 
+          className="mt-6 text-4xl md:text-5xl lg:text-6xl font-display font-normal text-[#FAFAFA] leading-tight max-w-lg"
+          style={{ letterSpacing: "-0.03em" }}
+        >
           Four Pillars of{" "}
           <span className="italic text-stone-400 font-light">Quiet</span>{" "}
           Design

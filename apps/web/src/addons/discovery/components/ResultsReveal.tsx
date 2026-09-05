@@ -77,7 +77,7 @@ const ScoreBar: React.FC<{ label: string; value: number; delay: number }> = ({ l
           whileInView={{ width: `${(value / 10) * 100}%` }}
           viewport={{ once: true }}
           transition={{ duration: 1, delay, ease: "easeOut" }}
-          className="h-full bg-site-crimson"
+          className="h-full bg-kiro-accent"
         />
       </div>
     </div>
@@ -281,7 +281,7 @@ const CognitiveProfile: React.FC<{ scores: AestheticScores }> = ({ scores }) => 
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="border border-site-border rounded-none cursor-pointer overflow-hidden transition-all duration-300"
+                className="border border-kiro-line rounded-none cursor-pointer overflow-hidden transition-all duration-300"
                 style={{
                   background: isOpen ? 'rgba(227, 83, 54,0.05)' : 'rgba(26,26,26,0.2)',
                   borderColor: isOpen ? `${GOLD}50` : 'var(--site-border)'
@@ -512,10 +512,10 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
 
   return (
     <div
-      className="min-h-screen w-full bg-site-bg text-site-text-heading font-sans"
+      className="min-h-screen w-full bg-kiro-bg text-kiro-ink-heading font-sans"
     >
       {/* ── S1: IDENTITY REVEAL ─────────────────────────────────────────── */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-32 overflow-hidden bg-site-bg">
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-32 overflow-hidden bg-kiro-bg">
         {archetype.heroImageUrl && (
           <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
             <DiscoveryConsumerImage
@@ -550,7 +550,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
             transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
             className="mb-8 flex flex-col items-center"
           >
-            <div className="px-4 py-1.5 border border-site-crimson/40 rounded-full text-[9px] font-mono tracking-[0.4em] uppercase shadow-[0_0_15px_rgba(227, 83, 54,0.15)] bg-site-bg-card/40 backdrop-blur-md text-site-crimson">
+            <div className="px-4 py-1.5 border border-kiro-accent/40 rounded-full text-[9px] font-mono tracking-[0.4em] uppercase shadow-[0_0_15px_rgba(227, 83, 54,0.15)] bg-kiro-bg-card/40 backdrop-blur-md text-kiro-accent">
               Aesthetic Identity
             </div>
           </motion.div>
@@ -588,7 +588,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1, delay: 2.5 }}
-                className="max-w-xl mx-auto p-6 border-l border-site-crimson/50 text-left bg-gradient-to-r from-site-crimson/[0.02] to-transparent relative w-full"
+                className="max-w-xl mx-auto p-6 border-l border-kiro-accent/50 text-left bg-gradient-to-r from-site-crimson/[0.02] to-transparent relative w-full"
               >
                 <div className="absolute top-0 left-0 w-px h-full bg-gradient-to-b from-transparent to-transparent" style={{ backgroundImage: `linear-gradient(to bottom, transparent, ${GOLD}, transparent)` }}></div>
                 <p className="text-[10px] font-mono tracking-[0.3em] uppercase mb-3" style={{ color: `${GOLD}80` }}>Your Words, Reflected</p>
@@ -632,8 +632,8 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
               <span className="text-[9px] font-mono tracking-[0.4em] uppercase mb-4" style={{ color: GOLD }}>
                 02 — Emotional Mirror
               </span>
-              <h2 className="text-4xl md:text-5xl font-light leading-tight text-site-text-heading">
-                Visions That <em className="text-site-crimson/80 italic">Resonate</em>
+              <h2 className="text-4xl md:text-5xl font-light leading-tight text-kiro-ink-heading">
+                Visions That <em className="text-kiro-accent/80 italic">Resonate</em>
               </h2>
             </div>
 
@@ -653,7 +653,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
                   </div>
                   <div className="absolute bottom-6 left-6 right-6">
-                    <p className="text-xs text-site-text-muted italic leading-relaxed backdrop-blur-md bg-site-bg-card/60 p-4 border-l border-site-crimson/50">
+                    <p className="text-xs text-kiro-ink-muted italic leading-relaxed backdrop-blur-md bg-kiro-bg-card/60 p-4 border-l border-kiro-accent/50">
                       "A space that breathes. The interplay of light and form here speaks to your desire for structure without rigidity."
                     </p>
                   </div>
@@ -676,7 +676,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
                     </div>
                     <div className="absolute bottom-5 left-5 right-5 z-10">
-                      <p className="text-[11px] text-site-text-muted italic leading-relaxed backdrop-blur-md bg-site-bg-card/40 p-3 border-l border-site-crimson/30">
+                      <p className="text-[11px] text-kiro-ink-muted italic leading-relaxed backdrop-blur-md bg-kiro-bg-card/40 p-3 border-l border-kiro-accent/30">
                         "Rich textures and depth anchor your spatial experience, grounding the ephemeral in the tactile."
                       </p>
                     </div>
@@ -757,8 +757,8 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
 
       {/* ── S8: SENSORY BLUEPRINT (Inspired by Aura Synthesizer) ────────────────── */}
       <section className="px-6 py-32 max-w-6xl mx-auto relative">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-site-crimson/5 blur-[120px] rounded-full -z-10" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-site-crimson/5 blur-[150px] rounded-full -z-10" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-kiro-accent/5 blur-[120px] rounded-full -z-10" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-kiro-accent/5 blur-[150px] rounded-full -z-10" />
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -767,8 +767,8 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
           className="mb-20"
         >
           <div className="flex items-center gap-4 mb-4">
-            <div className="h-px w-12 bg-site-crimson/30" />
-            <p className="text-[10px] font-mono tracking-[0.5em] uppercase text-site-crimson/80">
+            <div className="h-px w-12 bg-kiro-accent/30" />
+            <p className="text-[10px] font-mono tracking-[0.5em] uppercase text-kiro-accent/80">
               08 — Sensory Configuration
             </p>
           </div>
@@ -783,7 +783,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
               label: 'Ambient Light',
               value: sensoryMap?.light || (scores.warmth >= 7 ? 'Golden Hour' : scores.novelty >= 7 ? 'Digital Clarity' : 'Soft Diffusion'),
               desc: 'The fundamental frequency of your spatial atmosphere.',
-              icon: <Sun className="w-5 h-5 text-site-crimson" />,
+              icon: <Sun className="w-5 h-5 text-kiro-accent" />,
               delay: 0.1
             },
             {
@@ -814,25 +814,25 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: item.delay, duration: 0.8 }}
-              className="group p-8 rounded-none border border-site-border bg-site-bg-card/20 hover:bg-site-bg-card/40 transition-all duration-700 relative overflow-hidden"
+              className="group p-8 rounded-none border border-kiro-line bg-kiro-bg-card/20 hover:bg-kiro-bg-card/40 transition-all duration-700 relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 group-hover:text-site-crimson transition-all duration-500 transform group-hover:scale-110">
+              <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 group-hover:text-kiro-accent transition-all duration-500 transform group-hover:scale-110">
                 {item.icon}
               </div>
-              <p className="text-[9px] font-mono tracking-[0.3em] uppercase mb-10 text-site-text-meta/30 group-hover:text-site-crimson/50 transition-colors">
+              <p className="text-[9px] font-mono tracking-[0.3em] uppercase mb-10 text-kiro-ink-meta/30 group-hover:text-kiro-accent/50 transition-colors">
                 {item.label}
               </p>
               <p className="text-2xl font-light mb-4 tracking-tight group-hover:translate-x-1 transition-transform duration-500" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{item.value}</p>
               <p className="text-[11px] text-white/40 leading-relaxed font-light">{item.desc}</p>
 
-              <div className="absolute bottom-0 left-0 w-0 h-[1px] bg-site-crimson group-hover:w-full transition-all duration-1000" />
+              <div className="absolute bottom-0 left-0 w-0 h-[1px] bg-kiro-accent group-hover:w-full transition-all duration-1000" />
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* ── S9: DESIGN STRATEGY (Poetic Strategy Pillars) ───────────────────── */}
-      <section className="px-6 py-32 bg-site-bg-section relative overflow-hidden">
+      <section className="px-6 py-32 bg-kiro-bg-section relative overflow-hidden">
         {archetype.moodboardImageUrl && (
           <div className="absolute inset-0 z-0 opacity-10 pointer-events-none mix-blend-overlay">
             <MediaSlot
@@ -851,7 +851,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
             className="grid md:grid-cols-12 gap-16 items-start"
           >
             <div className="md:col-span-5 sticky top-32">
-              <p className="text-[10px] font-mono tracking-[0.5em] uppercase text-site-crimson/80 mb-6">
+              <p className="text-[10px] font-mono tracking-[0.5em] uppercase text-kiro-accent/80 mb-6">
                 09 — Core Strategy
               </p>
               <h2 className="text-5xl md:text-7xl font-light leading-[0.9] mb-8" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
@@ -905,21 +905,21 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
                   className="group"
                 >
                   <div className="flex items-end gap-6 mb-6">
-                    <span className="text-6xl font-light text-site-crimson/10 leading-none transition-colors group-hover:text-site-crimson/20" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{pillar.num}</span>
+                    <span className="text-6xl font-light text-kiro-accent/10 leading-none transition-colors group-hover:text-kiro-accent/20" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{pillar.num}</span>
                     <div className="flex items-center gap-4 mb-2">
-                      <div className="p-3 bg-site-bg-card/50 rounded-none text-site-crimson/60 group-hover:text-site-crimson transition-colors border border-site-border">
+                      <div className="p-3 bg-kiro-bg-card/50 rounded-none text-kiro-accent/60 group-hover:text-kiro-accent transition-colors border border-kiro-line">
                         {pillar.icon}
                       </div>
                       <h3 className="text-2xl font-light tracking-tight">{pillar.title}</h3>
                     </div>
                   </div>
                   <div className="pl-24">
-                    <p className="text-xl text-site-text-heading/60 font-light leading-relaxed italic border-l border-site-crimson/20 pl-8 group-hover:border-site-crimson transition-colors duration-700" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    <p className="text-xl text-kiro-ink-heading/60 font-light leading-relaxed italic border-l border-kiro-accent/20 pl-8 group-hover:border-kiro-accent transition-colors duration-700" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                       "{pillar.strategy}"
                     </p>
-                    <div className="mt-8 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0 text-site-crimson/60 text-[10px] font-mono uppercase tracking-widest">
+                    <div className="mt-8 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0 text-kiro-accent/60 text-[10px] font-mono uppercase tracking-widest">
                       <span>Implementation Required</span>
-                      <div className="h-px w-24 bg-site-crimson/20" />
+                      <div className="h-px w-24 bg-kiro-accent/20" />
                     </div>
                   </div>
                 </motion.div>
@@ -930,7 +930,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
       </section>
 
       {/* ── S6: CINEMATIC UPGRADE CTA ────────────────────────────────────── */}
-      <section className="px-6 py-40 text-center relative overflow-hidden bg-site-bg">
+      <section className="px-6 py-40 text-center relative overflow-hidden bg-kiro-bg">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_#BFA27A10_0%,_transparent_70%)]" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border border-white/[0.02] rounded-full animate-[spin_60s_linear_infinite]" />
@@ -944,7 +944,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
           transition={{ duration: 1.2 }}
           className="max-w-4xl mx-auto relative z-10"
         >
-          <p className="text-[11px] font-mono tracking-[0.6em] uppercase mb-8 text-site-crimson/60">
+          <p className="text-[11px] font-mono tracking-[0.6em] uppercase mb-8 text-kiro-accent/60">
             Final Step
           </p>
           <h2 className="text-5xl md:text-8xl font-light mb-12 leading-none" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
@@ -961,7 +961,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
               onClick={() => navigate('/estimate')}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="px-10 py-5 bg-site-crimson text-site-bg text-xs font-bold tracking-[0.3em] uppercase rounded-none hover:bg-site-crimson/90 transition-colors shadow-[0_0_30px_rgba(227,83,54,0.2)] relative group overflow-hidden flex items-center gap-3"
+              className="px-10 py-5 bg-kiro-accent text-site-bg text-xs font-bold tracking-[0.3em] uppercase rounded-none hover:bg-kiro-accent/90 transition-colors shadow-[0_0_30px_rgba(227,83,54,0.2)] relative group overflow-hidden flex items-center gap-3"
             >
               <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               <Calculator className="w-4 h-4 relative z-10" />
@@ -972,7 +972,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
               href={archetype.ctaDestination || "/contact-us"}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="px-12 py-5 border border-white/20 text-white/70 text-xs font-bold tracking-[0.3em] uppercase rounded-none hover:border-site-crimson hover:text-site-crimson transition-colors relative group overflow-hidden"
+              className="px-12 py-5 border border-white/20 text-white/70 text-xs font-bold tracking-[0.3em] uppercase rounded-none hover:border-kiro-accent hover:text-kiro-accent transition-colors relative group overflow-hidden"
             >
               <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
               {archetype.ctaText || "Book Design Review"}
@@ -1037,20 +1037,20 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
       </section>
 
       {/* ── FOOTER ─────────────────────────────────────────────── */}
-      <footer className="px-6 py-16 bg-site-bg-section border-t border-site-border">
+      <footer className="px-6 py-16 bg-kiro-bg-section border-t border-kiro-line">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-12">
             <div className="flex flex-col items-center md:items-start">
-              <p className="text-xl font-mono tracking-[0.4em] text-site-crimson mb-2">CROSSANGLE</p>
-              <p className="text-[9px] font-mono tracking-[0.3em] uppercase text-site-text-meta/30">The Interior Intelligence OS</p>
+              <p className="text-xl font-mono tracking-[0.4em] text-kiro-accent mb-2">CROSSANGLE</p>
+              <p className="text-[9px] font-mono tracking-[0.3em] uppercase text-kiro-ink-meta/30">The Interior Intelligence OS</p>
             </div>
             <div className="flex gap-12 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30">
-              <button type="button" className="hover:text-site-crimson transition-colors bg-transparent border-0 p-0 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30 cursor-pointer">Vision</button>
-              <button type="button" className="hover:text-site-crimson transition-colors bg-transparent border-0 p-0 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30 cursor-pointer">Manifesto</button>
-              <button type="button" className="hover:text-site-crimson transition-colors bg-transparent border-0 p-0 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30 cursor-pointer">Legal</button>
+              <button type="button" className="hover:text-kiro-accent transition-colors bg-transparent border-0 p-0 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30 cursor-pointer">Vision</button>
+              <button type="button" className="hover:text-kiro-accent transition-colors bg-transparent border-0 p-0 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30 cursor-pointer">Manifesto</button>
+              <button type="button" className="hover:text-kiro-accent transition-colors bg-transparent border-0 p-0 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30 cursor-pointer">Legal</button>
             </div>
           </div>
-          <div className="pt-8 border-t border-site-border flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] font-mono text-site-text-meta/20 tracking-[0.3em] uppercase">
+          <div className="pt-8 border-t border-kiro-line flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] font-mono text-kiro-ink-meta/20 tracking-[0.3em] uppercase">
             <span>Copyright 2026 Crossangle Interior. All rights reserved.</span>
             <span>Grounding Identity in Physical Space.</span>
           </div>
@@ -1071,13 +1071,13 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
         </div>
 
         <div className="relative z-10 flex flex-col items-center text-center mt-32">
-          <div className="px-8 py-3 border border-site-crimson/40 rounded-full text-2xl font-mono tracking-[0.5em] uppercase mb-16 text-site-crimson">
+          <div className="px-8 py-3 border border-kiro-accent/40 rounded-full text-2xl font-mono tracking-[0.5em] uppercase mb-16 text-kiro-accent">
             Aesthetic DNA Certificate
           </div>
           <h2 className="text-[10rem] font-light mb-12 leading-[0.85] tracking-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
             {displayName}
           </h2>
-          <div className="h-px w-24 bg-site-crimson/30 mb-12" />
+          <div className="h-px w-24 bg-kiro-accent/30 mb-12" />
           <p className="text-4xl text-white/60 font-light leading-relaxed max-w-4xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
             "{displayTagline}"
           </p>
@@ -1091,7 +1091,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
             </div>
 
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full border border-site-crimson/5 rounded-full" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full border border-kiro-accent/5 rounded-full" />
             </div>
           </div>
         </div>
@@ -1108,7 +1108,7 @@ const ResultsReveal: React.FC<Props> = ({ scores, archetype, aiResult, sessionId
           <div className="flex justify-between items-end w-full border-t border-white/10 pt-16">
             <div className="text-left">
               <p className="text-sm font-mono tracking-[0.4em] text-white/20 uppercase mb-2">Authenticated By</p>
-              <p className="text-3xl font-mono tracking-[0.4em] text-site-crimson">CROSSANGLE</p>
+              <p className="text-3xl font-mono tracking-[0.4em] text-kiro-accent">CROSSANGLE</p>
             </div>
             <div className="text-right">
               <p className="text-sm font-mono tracking-[0.4em] text-white/20 uppercase mb-2">Blueprint Type</p>

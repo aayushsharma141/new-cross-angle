@@ -1,5 +1,9 @@
-import { ChevronRight, ChevronLeft, Flag } from "lucide-react";
 import { useRef, useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const documentationSteps = [
   { phase: "01. Planning", name: "Site Photos & Measurements", desc: "Detailed digital scans and physical dimensional surveys to register initial tolerances.", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1000&auto=format&fit=crop" },
@@ -10,114 +14,136 @@ const documentationSteps = [
 ];
 
 const ProjectDocumentation = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(0); 
+  const containerRef = useRef<HTMLElement>(null);
 
-  const getCardWidth = () => {
-    if (window.innerWidth >= 768) return 600;
-    if (window.innerWidth >= 640) return 400;
-    return 300;
-  };
-
-  const scroll = (dir: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = getCardWidth();
-      scrollRef.current.scrollBy({ left: dir === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
-    }
-  };
-
-  const scrollToStep = (idx: number) => {
-    if (scrollRef.current) {
-      const cardWidth = getCardWidth();
-      scrollRef.current.scrollTo({ left: idx * (cardWidth + getGap()), behavior: 'smooth' });
-    }
-  };
-
-  const getGap = () => window.innerWidth >= 768 ? 48 : 24;
-
-  const handleScroll = () => {
-    if (scrollRef.current) {
-      const scrollPos = scrollRef.current.scrollLeft;
-      const cardWidth = getCardWidth();
-      const gap = getGap();
-      const newStep = Math.round(scrollPos / (cardWidth + gap));
-      if (newStep >= 0 && newStep < documentationSteps.length) {
-        setActiveStep(newStep);
+  useGSAP(() => {
+    // 1. Entrance animations when the section comes into view
+    gsap.from(".craft-entrance", {
+      y: 40,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.1,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 75%",
       }
-    }
-  };
+    });
+
+    // 2. Pinned Scroll Scrub Sequence
+    const numSteps = documentationSteps.length;
+    
+    ScrollTrigger.create({
+      trigger: containerRef.current,
+      start: "top top", // Pin when section reaches top of viewport
+      end: `+=${numSteps * 100}%`, // Scroll duration equals 100vh per step
+      pin: true,
+      scrub: 0.1, // Smooth interpolation
+      onUpdate: (self) => {
+        // Map scroll progress (0 - 1) to step index
+        let index = Math.floor(self.progress * numSteps);
+        if (index >= numSteps) index = numSteps - 1;
+        if (index < 0) index = 0;
+        
+        setActiveStep(index);
+      }
+    });
+  }, { scope: containerRef });
 
   return (
-    <section className="py-24 md:py-32 bg-neutral-950 text-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
-        <div>
-          <span className="text-[10px] font-semibold tracking-[0.35em] uppercase text-primary block mb-4">04 / THE CRAFT</span>
-          <h2 className="text-3xl md:text-5xl font-serif font-normal text-white">
-            Project <span className="italic text-primary font-light">Documentation</span>
-          </h2>
+    <section ref={containerRef} className="relative min-h-screen flex items-center bg-neutral-950 text-white overflow-hidden py-24 md:py-32">
+      {/* Cinematic Background Images */}
+      {documentationSteps.map((step, idx) => (
+        <div
+          key={idx}
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+            activeStep === idx ? "opacity-100 z-0" : "opacity-0 -z-10"
+          }`}
+        >
+          <img 
+            src={step.img} 
+            alt={step.name} 
+            className="w-full h-full object-cover" 
+            loading={idx === 0 ? "eager" : "lazy"} 
+          />
+          {/* Dark gradient overlay for text legibility */}
+          <div className="absolute inset-0 bg-neutral-950/80 md:bg-neutral-950/60 backdrop-blur-[2px]" />
+        </div>
+      ))}
+
+      <div className="max-w-7xl mx-auto w-full px-6 md:px-12 relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-16 md:gap-12">
+        
+        {/* Left Column: Title & Dynamic Details */}
+        <div className="w-full md:w-5/12 flex flex-col justify-between self-stretch">
+          <div>
+            <span className="craft-entrance text-[10px] font-semibold tracking-[0.35em] uppercase text-primary block mb-6 drop-shadow-md">04 / THE CRAFT</span>
+            <h2 className="craft-entrance text-4xl md:text-5xl lg:text-7xl font-serif font-normal text-white drop-shadow-lg leading-tight">
+              Project <br className="hidden md:block" />
+              <span className="italic text-primary font-light">Documentation</span>
+            </h2>
+          </div>
+
+          <div className="craft-entrance mt-12 md:mt-auto relative min-h-[120px] hidden md:block">
+            {documentationSteps.map((step, idx) => (
+              <div 
+                key={idx}
+                className={`transition-all duration-700 absolute bottom-0 left-0 max-w-sm w-full ${
+                  activeStep === idx 
+                    ? "opacity-100 translate-y-0 pointer-events-auto" 
+                    : "opacity-0 translate-y-8 pointer-events-none"
+                }`}
+              >
+                 <div className="w-12 h-[2px] bg-primary mb-6" />
+                 <h4 className="text-2xl font-serif mb-4 text-white drop-shadow-md">{step.name}</h4>
+                 <p className="text-sm md:text-base text-stone-300 font-light leading-relaxed drop-shadow-md">
+                   {step.desc}
+                 </p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Process Mini Timeline progress indicator */}
-        <div className="flex items-center gap-2 md:gap-4 overflow-x-auto no-scrollbar w-full md:w-auto bg-neutral-900 border border-white/5 px-6 py-3.5 rounded-full backdrop-blur-md">
+        {/* Right Column: Scroll-Synced Master List */}
+        <div className="w-full md:w-6/12 flex flex-col border-t border-white/10 md:border-t-0">
           {documentationSteps.map((step, idx) => (
-            <div key={idx} className="flex items-center gap-2 shrink-0">
-              <button 
-                onClick={() => scrollToStep(idx)}
-                className={`text-[10px] font-mono tracking-wider transition-colors duration-500 hover:text-primary focus:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded ${
-                activeStep === idx ? "text-primary font-bold" : "text-stone-500"
+            <div 
+              key={idx}
+              className="craft-entrance group py-6 md:py-8 border-b border-white/10 relative overflow-hidden"
+            >
+              {/* Subtle active background highlight */}
+              <div className={`absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent transition-opacity duration-500 -z-10 ${
+                activeStep === idx ? "opacity-100" : "opacity-0"
+              }`} />
+
+              <div className="flex flex-col">
+                 <span className={`text-[10px] md:text-xs font-mono tracking-[0.2em] uppercase transition-colors duration-300 mb-2 ${
+                   activeStep === idx ? "text-primary" : "text-stone-500"
+                 }`}>
+                   {step.phase.split('.')[0]}
+                 </span>
+                 
+                 <h3 className={`font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl transition-all duration-500 uppercase tracking-wide ${
+                   activeStep === idx ? "text-white translate-x-2 md:translate-x-6" : "text-white/30"
+                 }`}>
+                   {step.phase.split('.')[1].trim()}
+                 </h3>
+              </div>
+              
+              {/* Mobile Inline Description */}
+              <div className={`md:hidden transition-all duration-500 ease-in-out ${
+                activeStep === idx ? "max-h-60 opacity-100 mt-6" : "max-h-0 opacity-0 mt-0"
               }`}>
-                {step.phase.split('.')[1].trim()}
-              </button>
-              {idx < documentationSteps.length - 1 && (
-                <span className="w-4 h-px bg-white/10 shrink-0" />
-              )}
+                 <div className="w-8 h-[2px] bg-primary mb-4" />
+                 <h4 className="text-lg font-serif mb-2 text-white">{step.name}</h4>
+                 <p className="text-sm text-stone-400 font-light leading-relaxed">
+                   {step.desc}
+                 </p>
+              </div>
             </div>
           ))}
         </div>
 
-        <div className="flex gap-4">
-          <button 
-            onClick={() => scroll('left')} 
-            className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft className="w-5 h-5 text-stone-300" aria-hidden="true" />
-          </button>
-          <button 
-            onClick={() => scroll('right')} 
-            className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="w-5 h-5 text-stone-300" aria-hidden="true" />
-          </button>
-        </div>
-      </div>
-
-      <div 
-        ref={scrollRef}
-        onScroll={handleScroll}
-        className="flex overflow-x-auto gap-6 md:gap-12 px-6 md:px-12 pb-12 no-scrollbar snap-x snap-mandatory"
-      >
-        {documentationSteps.map((step, idx) => (
-          <div
-            key={idx}
-            data-reveal="card"
-            className="flex-shrink-0 w-[300px] sm:w-[400px] md:w-[600px] snap-center"
-          >
-            {/* Visual Swatch Image */}
-            <div className="aspect-[16/9] overflow-hidden bg-neutral-900 mb-6 relative border border-white/5 rounded-lg group shadow-lg">
-              <img src={step.img} alt={step.name} className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-700" loading="lazy" />
-              <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase text-primary border border-white/10 flex items-center gap-1.5 shadow-md">
-                <Flag className="w-3 h-3" />
-                {step.phase}
-              </div>
-            </div>
-            
-            {/* Details */}
-            <h3 className="font-serif text-xl text-stone-200 mb-2">{step.name}</h3>
-            <p className="text-xs text-stone-400 font-light leading-relaxed max-w-lg">{step.desc}</p>
-          </div>
-        ))}
       </div>
     </section>
   );

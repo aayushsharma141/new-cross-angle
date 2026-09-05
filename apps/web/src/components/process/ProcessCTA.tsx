@@ -14,11 +14,11 @@ const ProcessCTA = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <span className="text-[10px] uppercase tracking-[0.3em] text-site-gold block mb-8 font-medium">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-kiro-accent block mb-8 font-medium">
             Start Your Journey
           </span>
           <h2 className="text-4xl md:text-6xl font-serif font-normal tracking-tight mb-6">
-            Ready to Transform <span className="italic text-site-crimson font-light">Your Space?</span>
+            Ready to Transform <span className="italic text-kiro-accent font-light">Your Space?</span>
           </h2>
           <p className="text-stone-400 text-lg font-light max-w-2xl mx-auto mb-16 leading-relaxed">
             Whether you have a clear vision or are just exploring possibilities — we&apos;ll guide you through every step.

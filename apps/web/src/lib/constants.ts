@@ -1,4 +1,5 @@
 export const SITE_CONSTANTS = {
+  siteUrl: "https://crossangleinterior.com",
   companyName: "Cross Angle Interior",
   defaultPhone: "+917909041132",
   defaultWhatsApp: "917909041132",

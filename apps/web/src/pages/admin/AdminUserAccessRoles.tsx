@@ -98,7 +98,7 @@ export default function AdminUserAccessRoles(): JSX.Element {
         {ROLE_ORDER.map((role) => (
           <Surface variant="primary" radius="lg" border shadow="sm" key={role} className="border-zinc-800/60 bg-zinc-900/50 text-zinc-100">
             <Stack gap="sm" className="p-6">
-              <Text as="h3" variant="h3" className="leading-none" className="flex items-center gap-2 font-serif text-2xl">
+              <Text as="h3" variant="h3" className="leading-none flex items-center gap-2 font-serif text-2xl">
                 <Shield className="h-5 w-5 text-primary" />
                 {ROLE_LABELS[role]}
                 <span className="ml-auto text-sm font-normal text-zinc-400 flex items-center gap-1">
@@ -114,7 +114,7 @@ export default function AdminUserAccessRoles(): JSX.Element {
               </Text>
               <Text as="p" variant="caption" color="muted" className="text-zinc-400">{ROLE_DESCRIPTIONS[role]}</Text>
             </Stack>
-            <div className="p-6 pt-0" className="space-y-3 text-sm text-zinc-300">
+            <div className="p-6 pt-0 space-y-3 text-sm text-zinc-300">
               {ROLE_CAPABILITIES[role].map((capability) => (
                 <div key={capability} className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
@@ -129,7 +129,7 @@ export default function AdminUserAccessRoles(): JSX.Element {
       {/* Permission Matrix */}
       <Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/60 bg-zinc-900/50 text-zinc-100">
         <Stack gap="sm" className="p-6">
-          <Text as="h3" variant="h3" className="leading-none" className="font-serif text-2xl flex items-center gap-2">
+          <Text as="h3" variant="h3" className="leading-none font-serif text-2xl flex items-center gap-2">
             <Lock className="h-5 w-5 text-primary" />
             Permission Matrix
           </Text>
@@ -137,7 +137,7 @@ export default function AdminUserAccessRoles(): JSX.Element {
             Granular access controls defined per resource and role. This matrix is enforced across the entire admin panel.
           </Text>
         </Stack>
-        <div className="p-6 pt-0" className="overflow-x-auto">
+        <div className="p-6 pt-0 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-800">
@@ -208,12 +208,12 @@ export default function AdminUserAccessRoles(): JSX.Element {
       {/* Assignment Guardrails */}
       <Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/60 bg-zinc-900/50 text-zinc-100">
         <Stack gap="sm" className="p-6">
-          <Text as="h3" variant="h3" className="leading-none" className="font-serif text-2xl">Assignment Guardrails</Text>
+          <Text as="h3" variant="h3" className="leading-none font-serif text-2xl">Assignment Guardrails</Text>
           <Text as="p" variant="caption" color="muted" className="text-zinc-400">
             These rules are enforced in the UI and in the edge functions.
           </Text>
         </Stack>
-        <div className="p-6 pt-0" className="grid gap-3 text-sm text-zinc-300 md:grid-cols-2">
+        <div className="p-6 pt-0 grid gap-3 text-sm text-zinc-300 md:grid-cols-2">
           <div className="rounded-xl border border-zinc-800 bg-black/20 p-4">
             Super admins can create and manage every role, but they still cannot remove the last remaining super admin.
           </div>

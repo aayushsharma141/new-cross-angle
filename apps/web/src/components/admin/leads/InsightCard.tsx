@@ -77,7 +77,7 @@ export function InsightCard({ insight, onDismiss, className }: InsightCardProps)
         className
       )}
     >
-      <div className="p-6 pt-0" className="p-4 space-y-2">
+      <div className="p-6 pt-0 p-4 space-y-2">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
             <div className={cn("p-2 rounded-lg shrink-0 mt-0.5", config.bg)}>

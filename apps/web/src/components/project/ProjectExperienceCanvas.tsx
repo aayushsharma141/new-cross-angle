@@ -138,7 +138,7 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
   const { slug } = useParams<{ slug: string }>();
 
   const activeSlug = slug as keyof typeof PROJECT_ASSETS | undefined;
-  const assets = activeSlug ? PROJECT_ASSETS[activeSlug] : undefined;
+  const assets = (activeSlug && PROJECT_ASSETS[activeSlug]) ? PROJECT_ASSETS[activeSlug] : PROJECT_ASSETS["serene-master-suite"];
 
   // ── Mode state ──
   const [activeMode, setActiveMode] = useState<ActiveMode>("video");
@@ -483,11 +483,11 @@ export const ProjectExperienceCanvas = ({ whatsapp = "917909041132" }: ProjectEx
                     style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
                     className="absolute z-20 -translate-x-1/2 -translate-y-1/2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                   >
-                    <div className="relative flex items-center justify-center w-9 h-9 hover:scale-110 active:scale-95 transition-transform duration-200">
+                    <div className="relative flex items-center justify-center w-12 h-12 hover:scale-110 active:scale-95 transition-transform duration-200">
                       {!prefersReducedMotion && (
-                        <div className={`absolute inset-0 rounded-full animate-ping ${activeSpot?.id === spot.id ? "bg-primary/40" : "bg-white/20"}`} />
+                        <div className={`absolute inset-1.5 rounded-full animate-ping ${activeSpot?.id === spot.id ? "bg-primary/40" : "bg-white/20"}`} />
                       )}
-                      <div className={`absolute inset-1.5 rounded-full flex items-center justify-center shadow-lg font-bold text-[10px] transition-colors duration-300 ${
+                      <div className={`absolute inset-3 rounded-full flex items-center justify-center shadow-lg font-bold text-[10px] transition-colors duration-300 ${
                         activeSpot?.id === spot.id ? "bg-primary text-black" : "bg-white text-black"
                       }`}>
                         {idx + 1}

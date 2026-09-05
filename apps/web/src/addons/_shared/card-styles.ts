@@ -10,7 +10,7 @@ export const CARD_BASE =
     "bg-[#0a0a0a]/90 border border-white/[0.06] rounded-[8px] transition-all duration-300 relative overflow-hidden";
 
 /** Idle hover treatment — stronger accent reveal with lift */
-export const CARD_HOVER = "hover:border-site-gold/55 hover:bg-[#14100c]/90 hover:shadow-[0_4px_24px_rgba(209,175,110,0.08)] hover:-translate-y-[1px] cursor-pointer";
+export const CARD_HOVER = "hover:border-kiro-accent/55 hover:bg-[#14100c]/90 hover:shadow-[0_4px_24px_rgba(209,175,110,0.08)] hover:-translate-y-[1px] cursor-pointer";
 
 /**
  * Selected-state recipe — unified scale + accent border + soft tint.
@@ -19,7 +19,7 @@ export const CARD_HOVER = "hover:border-site-gold/55 hover:bg-[#14100c]/90 hover
  * variants on the button itself.
  */
 export const CARD_SELECTED =
-    "bg-[rgba(209,175,110,0.14)] border-site-gold scale-[1.02] ring-1 ring-site-gold/40 shadow-[0_4px_28px_rgba(209,175,110,0.28)] z-10 cursor-pointer";
+    "bg-[rgba(209,175,110,0.14)] border-kiro-accent scale-[1.02] ring-1 ring-kiro-accent/40 shadow-[0_4px_28px_rgba(209,175,110,0.28)] z-10 cursor-pointer";
 
 /**
  * Returns the full class string for a selectable card based on selection state.

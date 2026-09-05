@@ -19,7 +19,7 @@ interface Particle {
 }
 
 // Particles (Ocean Bubbles)
-const Particles = () => {
+const _Particles = () => {
   const [particles, setParticles] = useState<Particle[]>([]);
   useEffect(() => {
     const arr = [];
@@ -42,7 +42,7 @@ const Particles = () => {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full border border-[#C41230]/30 bg-[#C41230]/20"
+          className="absolute rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10"
           style={{ 
             left: `${p.x}vw`, 
             top: `100%`, 
@@ -196,11 +196,11 @@ const FooterSection = ({ title, id, openSection, toggleSection, children, delay,
         tabIndex={0}
         {...{"aria-expanded": isOpen}}
         aria-controls={contentId}
-        className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0"
+        className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0 min-h-[44px] md:min-h-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]/50 rounded"
         onClick={() => toggleSection(id)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleSection(id); } }}
       >
-        <span>// {title}</span>
+        <span className="text-white/30 mr-1.5" aria-hidden="true">—</span>{title}
         <span className="md:hidden">
           {isOpen ? <Minus className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
         </span>
@@ -239,9 +239,10 @@ export default function Footer() {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans group"
+        aria-label={name}
+        className="inline-flex items-center gap-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans group py-1.5 min-h-[44px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
       >
-        <span className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#C41230]/10 group-hover:border-[#C41230]/20 transition-all duration-200">
+        <span className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#D4AF37]/10 group-hover:border-[#D4AF37]/20 transition-all duration-200" aria-hidden="true">
           <Icon className="w-3.5 h-3.5" />
         </span>
         {name}
@@ -251,9 +252,9 @@ export default function Footer() {
 
   return (
     <footer
-      className="relative overflow-hidden text-white font-['Space_Mono'] block"
+      className="relative overflow-hidden text-white font-['Space_Mono'] block border-t border-[#D4AF37]/30"
       style={{
-        background: "radial-gradient(circle at 72% 28%, rgba(196,18,48,0.06), transparent 40%), radial-gradient(circle at 18% 82%, rgba(128,0,18,0.04), transparent 35%), #000"
+        background: "radial-gradient(circle at 72% 28%, rgba(212,175,55,0.03), transparent 40%), #000"
       }}
     >
       {/* CSS for CTA Sweep */}
@@ -282,61 +283,60 @@ export default function Footer() {
 
       {/* Noise overlay */}
       <div
-        className="absolute inset-0 opacity-5 pointer-events-none z-0"
+        className="absolute inset-0 opacity-[0.04] pointer-events-none z-0"
         style={{ backgroundImage: 'url(/noise.svg)' }}
       />
 
-      <Particles />
-
-      {/* Intense dark vignette overlay at the top to merge cleanly with upper sections */}
+      {/* Intense dark vignette overlay at the top */}
       <div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-[#020202] via-[#020202]/70 to-transparent z-10 pointer-events-none" />
 
       {/* --- HERO --- */}
       <div ref={heroRef} className="pt-[100px] pb-[64px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col items-center justify-center text-center gap-8 overflow-hidden">
-        {/* Ambient Red Glow for premium look */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#C41230]/[0.06] rounded-full blur-[100px] pointer-events-none z-0" />
+        {/* Ambient Gold Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#D4AF37]/[0.03] rounded-full blur-[100px] pointer-events-none z-0" />
         
-        {/* Subtle Badge */}
+        {/* Editorial eyebrow — replaces pill badge */}
         <motion.div
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D4AF37]/[0.03] border border-[#D4AF37]/20 text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase mb-2 relative z-10 select-none"
+          className="flex items-center gap-4 mb-2 relative z-10"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
-          The Next Step
+          <div className="w-8 h-px bg-[#C9A85C]/40" />
+          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-[#C9A85C]/70">Next Steps</span>
+          <div className="w-8 h-px bg-[#C9A85C]/40" />
         </motion.div>
 
         <div className="w-full max-w-[1400px] mx-auto relative z-10">
           <motion.h2
-            className="font-serif leading-[1.1] text-[clamp(2.2rem,4.2vw,4.5rem)] tracking-tight text-white mb-2 text-center whitespace-normal md:whitespace-nowrap"
-            initial={{ y: 80, opacity: 0 }}
+            className="font-serif leading-[1.1] text-[clamp(2rem,3.5vw,3.8rem)] tracking-tight text-white mb-2 text-center"
+            initial={{ y: 60, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
           >
             {footerCopy.headlineStart}{" "}
-            <span className="text-[#C41230] italic font-medium">{footerCopy.headlineHighlight}</span>
+            <span className="text-[#C9A85C] italic font-medium">{footerCopy.headlineHighlight}</span>
           </motion.h2>
         </div>
 
         <motion.div
-          className="flex flex-col items-center gap-6 w-full relative z-10 mt-2"
+          className="flex flex-col items-center gap-6 w-full relative z-10 mt-4"
           initial={{ y: 40, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1.2, delay: 0.15, ease: [0.25, 1, 0.5, 1] }}
         >
-          <p className="text-white/60 max-w-lg mx-auto text-[14px] md:text-[15px] font-sans tracking-wide leading-relaxed">
+          <p className="text-white/65 max-w-lg mx-auto text-[14px] md:text-[15px] font-sans tracking-wide leading-relaxed">
             {footerCopy.sub}
           </p>
         </motion.div>
       </div>
 
       {/* --- GRID --- */}
-      <div ref={gridRef} className="w-full relative z-20 border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 py-12 md:py-14 divide-y md:divide-y-0 md:divide-x divide-white/[0.06]">
+      <div ref={gridRef} className="w-full relative z-20 border-t border-white/[0.09] container-wide mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 py-12 md:py-14 divide-y md:divide-y-0 md:divide-x divide-white/[0.09]">
 
           {/* Col 1 — Studio Contact */}
           <FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="pr-0 md:pr-10 pb-8 md:pb-0">
@@ -345,17 +345,17 @@ export default function Footer() {
             </p>
             <a
               href={`mailto:${settings?.email || 'info@crossangleinterior.com'}`}
-              className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans mb-3 group"
+              className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#D4AF37] transition-colors duration-300 font-sans mb-3 group"
             >
-              <Mail className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-[#C41230] transition-colors" />
+              <Mail className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-[#D4AF37] transition-colors" />
               {settings?.email || 'info@crossangleinterior.com'}
             </a>
             {settings?.phone && (
               <a
                 href={`tel:${settings.phone}`}
-                className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#C41230] transition-colors duration-300 font-sans group"
+                className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#D4AF37] transition-colors duration-300 font-sans group"
               >
-                <Phone className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-[#C41230] transition-colors" />
+                <Phone className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-[#D4AF37] transition-colors" />
                 {settings.phone}
               </a>
             )}
@@ -366,7 +366,7 @@ export default function Footer() {
           <FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1} className="px-0 md:px-10 py-8 md:py-0">
             <div className="flex flex-col gap-5 mb-5">
               <div className="flex items-start gap-2.5">
-                <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#C41230]" />
+                <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#D4AF37]" />
                 {settings?.address ? (
                   <p className="text-[13px] text-white/70 font-sans leading-relaxed">{settings.address}</p>
                 ) : (
@@ -475,7 +475,9 @@ export default function Footer() {
       </div>
 
       {/* --- BOTTOM --- */}
-      <div className="border-t border-white/[0.06] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-10 w-full">
+      <div className="border-t border-white/[0.09] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-10 w-full">
+        {/* Thin gold rule above bottom bar */}
+        <div className="w-8 h-px bg-[#C9A85C]/30 mx-auto mt-5" aria-hidden="true" />
         <div className="flex flex-col md:flex-row items-center justify-between py-5 gap-3 text-[10px] md:text-[11px] text-white/40 uppercase tracking-[0.2em] font-sans">
           <span className="text-white/60 font-medium tracking-[0.2em]">© {new Date().getFullYear()} Cross Angle Interior. All Rights Reserved.</span>
           <div className="flex items-center gap-6">

@@ -49,7 +49,7 @@ export function ProjectPipelineChart() {
     return (
         <Surface variant="primary" radius="lg" border shadow="sm" className="col-span-1 md:col-span-2 lg:col-span-2 border-admin-border bg-admin-card">
             <Stack gap="sm" className="p-6">
-                <Text as="h3" variant="h3" className="leading-none" className="text-lg font-display text-admin-foreground">Project Pipeline</Text>
+                <Text as="h3" variant="h3" className="leading-none text-lg font-display text-admin-foreground">Project Pipeline</Text>
                 <p className="text-sm text-admin-muted">Active projects by status</p>
             </Stack>
             <div className="p-6 pt-0">

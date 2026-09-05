@@ -27,7 +27,7 @@ export function FunnelWidget({
     return (
         <Surface variant="primary" radius="lg" border shadow="sm" className={cn("border-admin-border bg-admin-card analytics-glass analytics-card-glow", className)}>
             <Stack gap="sm" className="p-6">
-                <Text as="h3" variant="h3" className="leading-none" className="text-lg font-display text-admin-foreground">{title}</Text>
+                <Text as="h3" variant="h3" className="leading-none text-lg font-display text-admin-foreground">{title}</Text>
                 {description && <p className="text-sm text-admin-muted">{description}</p>}
             </Stack>
             <div className="p-6 pt-0">

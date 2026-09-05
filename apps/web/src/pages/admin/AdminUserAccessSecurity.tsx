@@ -161,13 +161,13 @@ export default function AdminUserAccessSecurity(): JSX.Element {
       {/* ── Account Information ── */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
-          <Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+          <Stack gap="sm" className="p-6 bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><User className="text-primary h-5 w-5" /></div>
-              <div><Text as="h3" variant="h3" className="leading-none" className="text-lg font-serif">Account Information</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Your personal executive profile details.</Text></div>
+              <div><Text as="h3" variant="h3" className="leading-none text-lg font-serif">Account Information</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Your personal executive profile details.</Text></div>
             </div>
           </Stack>
-          <div className="p-6 pt-0" className="p-6">
+          <div className="p-6 pt-0">
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-1">
                 <Label className="text-muted-foreground text-xs uppercase tracking-wider">Email Address</Label>
@@ -189,16 +189,16 @@ export default function AdminUserAccessSecurity(): JSX.Element {
         {/* 2FA Card */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden h-full">
-            <Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+            <Stack gap="sm" className="p-6 bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><KeyRound className="text-primary h-5 w-5" /></div>
-                <div><Text as="h3" variant="h3" className="leading-none" className="text-lg font-serif">Two-Factor Authentication</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Enforce 2FA for all administrative accounts.</Text></div>
+                <div><Text as="h3" variant="h3" className="leading-none text-lg font-serif">Two-Factor Authentication</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Enforce 2FA for all administrative accounts.</Text></div>
               </div>
             </Stack>
-            <div className="p-6 pt-0" className="p-6 space-y-4">
+            <div className="p-6 pt-0 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-zinc-400">Status</span>
-                <Badge variant={is2FAEnforced ? "default" : "secondary"} className={is2FAEnforced ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : ""}>
+                <Badge variant={is2FAEnforced ? "primary" : "secondary"} className={is2FAEnforced ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : ""}>
                   {is2FAEnforced ? "Enforced" : "Optional"}
                 </Badge>
               </div>
@@ -223,13 +223,13 @@ export default function AdminUserAccessSecurity(): JSX.Element {
         {/* Session Timeout Card */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
           <Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden h-full">
-            <Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+            <Stack gap="sm" className="p-6 bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><Clock className="text-primary h-5 w-5" /></div>
-                <div><Text as="h3" variant="h3" className="leading-none" className="text-lg font-serif">Session Timeout</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Automatically log out inactive users.</Text></div>
+                <div><Text as="h3" variant="h3" className="leading-none text-lg font-serif">Session Timeout</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Automatically log out inactive users.</Text></div>
               </div>
             </Stack>
-            <div className="p-6 pt-0" className="p-6 space-y-4">
+            <div className="p-6 pt-0 space-y-4">
               <p className="text-sm text-zinc-400">
                 Inactive sessions expire after <span className="text-zinc-200 font-semibold">{sessionTimeout} minutes</span>.
               </p>
@@ -247,13 +247,13 @@ export default function AdminUserAccessSecurity(): JSX.Element {
       {/* ── Password Change ── */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         <Surface variant="primary" radius="lg" border shadow="sm" className="border-zinc-800/50 bg-zinc-900/40 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden">
-          <Stack gap="sm" className="p-6" className="bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
+          <Stack gap="sm" className="p-6 bg-white/[0.02] border-b border-white/[0.05] pb-4 px-6 pt-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary/10 rounded-xl border border-primary/20"><Shield className="text-primary h-5 w-5" /></div>
-              <div><Text as="h3" variant="h3" className="leading-none" className="text-lg font-serif">Security Protocol</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Update your access credentials to maintain unit integrity.</Text></div>
+              <div><Text as="h3" variant="h3" className="leading-none text-lg font-serif">Security Protocol</Text><Text as="p" variant="caption" color="muted" className="text-zinc-500">Update your access credentials to maintain unit integrity.</Text></div>
             </div>
           </Stack>
-          <div className="p-6 pt-0" className="p-6">
+          <div className="p-6 pt-0">
             <form onSubmit={handleChangePassword} className="space-y-6 max-w-md">
               <div className="space-y-2">
                 <Label htmlFor="currentPassword">Current Password</Label>

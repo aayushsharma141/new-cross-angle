@@ -17,6 +17,8 @@ import ScrollToTop from "@/components/layout/ScrollToTop";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
+import portfolioBedroom from "@/assets/portfolio-bedroom.jpg";
+
 const PortfolioPage = () => {
   const { data: featuredProjects = [] } = useQuery({
     queryKey: ['featuredProjects'],
@@ -55,6 +57,7 @@ const PortfolioPage = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://crossangleinterior.com/portfolio" />
         <link rel="canonical" href="https://crossangleinterior.com/portfolio" />
+        <link rel="preload" as="image" href={portfolioBedroom} />
       </Helmet>
 
 
@@ -71,7 +74,7 @@ const PortfolioPage = () => {
         <Philosophy />
 
         {/* 3. Featured Project Stories (Alternating Views) */}
-        <div className="relative space-y-12 bg-background z-10">
+        <div className="relative space-y-16 md:space-y-24 bg-background z-10 my-[10vh] md:my-[14vh]">
           {storiesData.map((story, idx) => (
             <FeaturedProjectStory
               key={story.slug}

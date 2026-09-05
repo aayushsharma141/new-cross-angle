@@ -14,10 +14,10 @@ export function DesignProcessVisual() {
 
       {/* Central Hub - The "Design Core" */}
       <div className="relative z-20 flex items-center justify-center">
-        <div className="absolute inset-0 bg-site-crimson/20 blur-3xl rounded-full scale-150 animate-pulse" />
-        <div className="w-24 h-24 rounded-full bg-site-bg-card/40 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-2xl relative overflow-hidden group">
+        <div className="absolute inset-0 bg-kiro-accent/20 blur-3xl rounded-full scale-150 animate-pulse" />
+        <div className="w-24 h-24 rounded-full bg-kiro-bg-card/40 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-2xl relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-tr from-site-crimson/20 to-transparent" />
-          <div className="relative z-10 w-12 h-12 bg-site-crimson rounded-none flex items-center justify-center shadow-[0_0_20px_rgba(235,53,68,0.5)] group-hover:scale-110 transition-transform duration-500">
+          <div className="relative z-10 w-12 h-12 bg-kiro-accent rounded-none flex items-center justify-center shadow-[0_0_20px_rgba(235,53,68,0.5)] group-hover:scale-110 transition-transform duration-500">
              <div className="w-1.5 h-1.5 bg-white rotate-45" />
           </div>
           {/* Inner ring */}
@@ -60,7 +60,7 @@ export function DesignProcessVisual() {
 
 function IconWrapper({ children, color, className }: { children: React.ReactNode, color: string, className?: string }) {
   const colorMap: Record<string, string> = {
-    crimson: "bg-site-crimson",
+    crimson: "bg-kiro-accent",
     green: "bg-green-500",
     blue: "bg-blue-200",
     white: "bg-white",
@@ -68,7 +68,7 @@ function IconWrapper({ children, color, className }: { children: React.ReactNode
 
   return (
     <div className={cn(
-      "relative p-2.5 rounded-full bg-site-bg-card/40 backdrop-blur-md border border-white/10 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-125 hover:border-site-crimson/30 group",
+      "relative p-2.5 rounded-full bg-kiro-bg-card/40 backdrop-blur-md border border-white/10 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-125 hover:border-kiro-accent/30 group",
       className
     )}>
       <div className={cn(

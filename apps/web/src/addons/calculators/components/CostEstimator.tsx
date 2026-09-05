@@ -132,7 +132,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
             </a>
                 
                 {discoveryApplied && (
-                    <div role="status" aria-live="polite" className="mb-8 p-4 bg-site-gold-light rounded-[10px] border-l-[3px] border-[#7a5c30] text-[13px] relative bg-[#7a5c30]/[0.06] border border-[#7a5c30]/20">
+                    <div role="status" aria-live="polite" className="mb-8 p-4 bg-kiro-accent-light rounded-[10px] border-l-[3px] border-[#7a5c30] text-[13px] relative bg-[#7a5c30]/[0.06] border border-[#7a5c30]/20">
                         <button type="button" onClick={dismissDiscovery} aria-label="Dismiss personalization banner" className="absolute top-2 right-2 text-[#7a5c30] hover:text-[#1a1a1a] transition-colors p-1 rounded-full hover:bg-[#7a5c30]/10">
                             <X className="w-3 h-3" />
                         </button>

@@ -7,7 +7,7 @@ export const FlowingCADLines = () => {
       <div className="absolute bottom-6 right-8 font-mono text-[9px] tracking-[0.25em] text-[#D1AF6E]/40 uppercase hidden md:block">
         CAD_SYS // LATENCY: 0.12ms // BUFFER: ACTIVE
       </div>
-      <div className="absolute top-10 left-8 font-mono text-[9px] tracking-[0.25em] text-[#C41230]/40 uppercase hidden md:block">
+      <div className="absolute top-10 left-8 font-mono text-[9px] tracking-[0.25em] text-[#D4AF37]/40 uppercase hidden md:block">
         SCALE: 1:50 // GRID_SNAP: ON
       </div>
 
@@ -25,9 +25,9 @@ export const FlowingCADLines = () => {
             <stop offset="100%" stopColor="#D1AF6E" stopOpacity="0" />
           </radialGradient>
           <radialGradient id="crimson-glow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#C41230" stopOpacity="1" />
-            <stop offset="50%" stopColor="#C41230" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#C41230" stopOpacity="0" />
+            <stop offset="0%" stopColor="#D4AF37" stopOpacity="1" />
+            <stop offset="50%" stopColor="#D4AF37" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#D4AF37" stopOpacity="0" />
           </radialGradient>
 
           {/* Grid background matching CAD environment */}
@@ -57,7 +57,7 @@ export const FlowingCADLines = () => {
         <path
           d="M 120 700 L 650 700 L 650 480 L 1150 480 L 1150 150 L 1300 150"
           fill="none"
-          stroke="rgba(196, 18, 48, 0.06)"
+          stroke="rgba(212,175,55, 0.06)"
           strokeWidth="0.8"
           strokeDasharray="6 3"
         />
@@ -109,10 +109,10 @@ export const FlowingCADLines = () => {
         <circle cx="950" cy="350" r="1.5" fill="#D1AF6E" opacity="0.4" />
         <circle cx="950" cy="680" r="1.5" fill="#D1AF6E" opacity="0.4" />
 
-        <circle cx="650" cy="700" r="1.5" fill="#C41230" opacity="0.3" />
-        <circle cx="650" cy="480" r="1.5" fill="#C41230" opacity="0.3" />
-        <circle cx="1150" cy="480" r="1.5" fill="#C41230" opacity="0.3" />
-        <circle cx="1150" cy="150" r="1.5" fill="#C41230" opacity="0.3" />
+        <circle cx="650" cy="700" r="1.5" fill="#D4AF37" opacity="0.3" />
+        <circle cx="650" cy="480" r="1.5" fill="#D4AF37" opacity="0.3" />
+        <circle cx="1150" cy="480" r="1.5" fill="#D4AF37" opacity="0.3" />
+        <circle cx="1150" cy="150" r="1.5" fill="#D4AF37" opacity="0.3" />
       </svg>
     </div>
   );

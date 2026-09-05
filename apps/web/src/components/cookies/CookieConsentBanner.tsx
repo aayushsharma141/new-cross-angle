@@ -27,7 +27,7 @@ const ToggleSwitch = ({
         ? "cursor-not-allowed opacity-70"
         : "cursor-pointer",
       checked
-        ? "bg-[#C41230] shadow-[0_0_10px_rgba(196,18,48,0.4)]"
+        ? "bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.4)]"
         : "bg-white/[0.12]",
     ].join(" ")}
   >
@@ -146,7 +146,7 @@ export const CookieConsentBanner = () => {
               className="pointer-events-none absolute inset-0"
               style={{
                 background:
-                  "radial-gradient(ellipse at bottom left, rgba(196,18,48,0.14) 0%, transparent 55%)",
+                  "radial-gradient(ellipse at bottom left, rgba(212,175,55,0.14) 0%, transparent 55%)",
               }}
             />
 
@@ -166,8 +166,8 @@ export const CookieConsentBanner = () => {
                 >
                   {/* Header */}
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#C41230]/15 border border-[#C41230]/20">
-                      <Cookie className="h-4 w-4 text-[#C41230]" />
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/20">
+                      <Cookie className="h-4 w-4 text-[#D4AF37]" />
                     </div>
                     <div>
                       <div className="mb-0.5 flex items-center gap-2">
@@ -192,7 +192,7 @@ export const CookieConsentBanner = () => {
                     <button
                       type="button"
                       onClick={handleAcceptAll}
-                      className="flex h-10 w-full items-center justify-center rounded-xl bg-[#C41230] text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_6px_20px_rgba(196,18,48,0.35)] transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+                      className="flex h-10 w-full items-center justify-center rounded-xl bg-[#D4AF37] text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_6px_20px_rgba(212,175,55,0.35)] transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
                     >
                       Accept All
                     </button>
@@ -276,14 +276,14 @@ export const CookieConsentBanner = () => {
                     <button
                       type="button"
                       onClick={handleSavePreferences}
-                      className="flex h-10 w-full items-center justify-center rounded-xl border border-[#C41230]/50 bg-[#C41230]/10 text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-all duration-200 hover:bg-[#C41230]/20 hover:border-[#C41230]/70 active:scale-[0.98]"
+                      className="flex h-10 w-full items-center justify-center rounded-xl border border-[#D4AF37]/50 bg-[#D4AF37]/10 text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition-all duration-200 hover:bg-[#D4AF37]/20 hover:border-[#D4AF37]/70 active:scale-[0.98]"
                     >
                       Save Preferences
                     </button>
                     <button
                       type="button"
                       onClick={handleAcceptAll}
-                      className="flex h-10 w-full items-center justify-center rounded-xl bg-[#C41230] text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_6px_20px_rgba(196,18,48,0.35)] transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+                      className="flex h-10 w-full items-center justify-center rounded-xl bg-[#D4AF37] text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_6px_20px_rgba(212,175,55,0.35)] transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
                     >
                       Accept All
                     </button>

@@ -24,6 +24,16 @@ const LocationsPage = lazy(() => import("@/pages/LocationsPage"));
 const LocationPage = lazy(() => import("@/pages/LocationPage"));
 const BlueprintPage = lazy(() => import("@/addons/discovery/pages/BlueprintPage"));
 
+const LabLayout = lazy(() => import("@/components/lab/LabLayout"));
+const LabOverview = lazy(() => import("@/pages/lab/LabOverview"));
+const LabFoundations = lazy(() => import("@/pages/lab/LabFoundations"));
+const LabInteractive = lazy(() => import("@/pages/lab/LabInteractive"));
+const LabRoadmap = lazy(() => import("@/pages/lab/LabRoadmap"));
+const LabOverlayDialog = lazy(() => import("@/pages/lab/LabOverlayDialog"));
+const LabCards = lazy(() => import("@/pages/lab/LabCards"));
+const LabNavigation = lazy(() => import("@/pages/lab/LabNavigation"));
+const LabPatterns = lazy(() => import("@/pages/lab/LabPatterns"));
+const LabTemplates = lazy(() => import("@/pages/lab/LabTemplates"));
 
 export const publicRoutes = (
   <>
@@ -45,7 +55,20 @@ export const publicRoutes = (
     <Route path="/locations" element={<PageTransition><LocationsPage /></PageTransition>} />
     <Route path="/locations/:city" element={<PageTransition><LocationPage /></PageTransition>} />
     <Route path="/system-blueprint" element={<PageTransition><BlueprintPage /></PageTransition>} />
-
+    
+    <Route path="/foundation" element={<Navigate to="/lab/foundations" replace />} />
+    <Route path="/lab" element={<PageTransition><LabLayout /></PageTransition>}>
+      <Route index element={<Navigate to="overview" replace />} />
+      <Route path="overview" element={<LabOverview />} />
+      <Route path="roadmap" element={<LabRoadmap />} />
+      <Route path="foundations" element={<LabFoundations />} />
+      <Route path="interactive" element={<LabInteractive />} />
+      <Route path="overlay" element={<LabOverlayDialog />} />
+      <Route path="cards" element={<LabCards />} />
+      <Route path="navigation" element={<LabNavigation />} />
+      <Route path="patterns" element={<LabPatterns />} />
+      <Route path="templates" element={<LabTemplates />} />
+    </Route>
     <Route path="/privacy" element={<PageTransition><PrivacyPage /></PageTransition>} />
     <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
     <Route path="/terms" element={<PageTransition><TermsPage /></PageTransition>} />

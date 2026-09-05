@@ -438,7 +438,7 @@ const Process = () => {
               />
               {/* Glowing head dot tracking the progress */}
               <motion.div
-                className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary shadow-[0_0_12px_4px_rgba(196,18,48,0.7)]"
+                className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary shadow-[0_0_12px_4px_rgba(212,175,55,0.7)]"
                 style={{
                   left: useTransform(lineScaleX, [0, 1], ["0%", "100%"]),
                 }}

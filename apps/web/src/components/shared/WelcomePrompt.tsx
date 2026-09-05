@@ -188,7 +188,7 @@ const WelcomePrompt = () => {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse at bottom left, rgba(196,18,48,0.15) 0%, transparent 60%)",
+              "radial-gradient(ellipse at bottom left, rgba(212,175,55,0.15) 0%, transparent 60%)",
           }}
         />
 
@@ -260,7 +260,7 @@ const WelcomePrompt = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-11 bg-gradient-to-r from-[#B61826] to-[#7A0E19] text-white tracking-[0.18em] uppercase text-[10px] font-semibold rounded-xl shadow-[0_6px_20px_rgba(196,18,48,0.35)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-1.5"
+              className="w-full h-11 bg-gradient-to-r from-[#B61826] to-[#7A0E19] text-white tracking-[0.18em] uppercase text-[10px] font-semibold rounded-xl shadow-[0_6px_20px_rgba(212,175,55,0.35)] hover:brightness-110 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-1.5"
             >
               {isSubmitting ? "Requesting..." : "Request Access"}
               <ArrowRight className="h-3.5 w-3.5" />

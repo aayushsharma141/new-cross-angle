@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "policyVersion": "1.0",
+  "name": "Production Delivery Release Promotion Policy",
+  "description": "Declarative policy configuration governing automated release promotion decisions based on evidence metrics.",
+  "thresholds": {
+    "architectureCoverage": {
+      "minimumPassRate": 100
+    },
+    "performance": {
+      "maxAvgMsPerOp": 10.0,
+      "maxHeapGrowthMB": 50.0
+    },
+    "vulnerabilities": {
+      "maxCritical": 0,
+      "maxHigh": 0
+    },
+    "operationalGates": {
+      "requireLiveness": "ALIVE",
+      "requireReadiness": "READY",
+      "requireHealth": "HEALTHY",
+      "requireAvailability": "SLO_ACHIEVED"
+    },
+    "userJourney": {
+      "requireE2ETransactionPass": true
+    }
+  }
+}

@@ -47,10 +47,21 @@ interface ProjectStoryAndTransformationProps {
   project: Project;
 }
 
-export const ProjectStoryAndTransformation = (_props: ProjectStoryAndTransformationProps) => {
+export const ProjectStoryAndTransformation = ({ project }: ProjectStoryAndTransformationProps) => {
   const { slug } = useParams<{ slug: string }>();
   const activeSlug = slug as keyof typeof storyTransformationData | undefined;
-  const data = activeSlug ? storyTransformationData[activeSlug] : undefined;
+  const defaultItem = storyTransformationData["serene-master-suite"];
+  const data = (activeSlug && storyTransformationData[activeSlug]) 
+    ? storyTransformationData[activeSlug] 
+    : {
+        thesis: project.title || "Architectural Transformation",
+        quote: project.brief || defaultItem.quote,
+        challenge: project.challengeShort || defaultItem.challenge,
+        decision: project.approach || defaultItem.decision,
+        outcome: project.resultShort || defaultItem.outcome,
+        beforeImg: "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop",
+        afterImg: project.heroImage || defaultItem.afterImg
+      };
 
   const sectionRef = useRef<HTMLDivElement>(null);
   
@@ -108,7 +119,6 @@ export const ProjectStoryAndTransformation = (_props: ProjectStoryAndTransformat
                 alt="Original space constraint state" 
                 className="w-full h-full object-cover filter grayscale opacity-45 group-hover:opacity-60 transition-opacity duration-1000"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/5">
                 <span className="text-[8px] font-mono text-stone-400 tracking-widest uppercase">Initial Site Scan Survey</span>
               </div>
