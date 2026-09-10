@@ -34,7 +34,6 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
     seo_title: "",
     seo_description: "",
     tags: "",
-    scheduled_at: "",
   });
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -80,7 +79,6 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
       seo_title: p.seo_title ?? "",
       seo_description: p.seo_description ?? "",
       tags: p.tags?.join(", ") ?? "",
-      scheduled_at: p.scheduled_at ?? "",
     });
   };
 
@@ -96,8 +94,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
       seo_title: "",
       seo_description: "",
       tags: "",
-      scheduled_at: "",
-    });
+      });
   };
 
   // Auto-save logic
@@ -158,8 +155,11 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
         seo_description: formData.seo_description || null,
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
         published_at: formData.status === 'published' ? new Date().toISOString() : null,
-        // NOTE: blog_posts has no scheduled_at column. Sending it rejected the
-        // whole write, so scheduling is not persisted until the column exists.
+        // NOTE: no scheduled_at. Scheduled publishing is not implemented:
+        // 20260529180400_blog_revisions_scheduling would add the column, but its
+        // IF EXISTS (blog_posts) guard did not pass in production, and nothing
+        // anywhere promotes a scheduled post to published. The UI control that
+        // promised it has been removed.
       };
 
       if (post) {
@@ -312,23 +312,6 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
               />
             </div>
 
-            {formData.status === "draft" && (
-              <div className="space-y-2 pt-4 border-t border-[hsl(var(--admin-border))]">
-                <Label htmlFor="scheduled-at" className="text-[hsl(var(--admin-text))]">Schedule Publishing</Label>
-                <Input
-                  id="scheduled-at"
-                  type="datetime-local"
-                  value={formData.scheduled_at ? formData.scheduled_at.slice(0, 16) : ""}
-                  onChange={(e) => setFormData(prev => ({ ...prev, scheduled_at: e.target.value ? new Date(e.target.value).toISOString() : "" }))}
-                  className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
-                />
-                {formData.scheduled_at && (
-                  <p className="text-xs text-[hsl(var(--admin-muted))]">
-                    Will publish at {new Date(formData.scheduled_at).toLocaleString()}
-                  </p>
-                )}
-              </div>
-            )}
           </div>
 
           <div className="space-y-2">
