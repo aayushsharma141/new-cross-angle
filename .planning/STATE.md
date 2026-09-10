@@ -58,3 +58,51 @@ persistent mobile contact affordance), and CA-05..CA-18. Known separate bug:
 `PageTransition` applies a transform that creates a containing block, so
 `position: fixed` descendants such as `ScrollToTop` are not viewport-fixed on
 any public page.
+
+## Mobile conversion affordance + Gallery surfacing — 2026-09-10
+
+Two audit entries closed on `feature/dam-v3-milestone-planning`:
+
+- **CA-04 — Persistent mobile contact affordance.** `WhatsAppButton` (a single
+  floating bubble, suppressed on `/`) replaced by `MobileActionBar`, a bottom
+  bar carrying both WhatsApp and call actions, gated on cookie consent and
+  site settings. `AnimatedContent` gained `max-md` bottom padding so the bar
+  never occludes content. Commit `d4797a41`.
+- **CA-02 — Archive greyscale on touch.** `ProjectArchiveCard`'s grayscale +
+  brightness treatment moved behind `[@media(hover:hover)]`, so touch devices
+  are no longer left with a desaturated image and no hover to restore it.
+  Commit `d4797a41`.
+
+Also surfaced Gallery in `navLinks` and repointed the homepage closing
+invitation at `/gallery` (its copy already described the gallery), and added
+`HomeFAQ` before that invitation. Commit `d6263730`.
+
+Rollback point: tag `checkpoint/v19-pre-30d-primitive-migration`.
+
+**Still open from the audit:** CA-05..CA-18, plus the `PageTransition`
+containing-block bug affecting `position: fixed` descendants.
+
+## Phase 30D scope finding — 2026-09-10
+
+Investigating how to resume archived Phases 30D-33 surfaced that the Phase 30
+"Rooms" are **admin surfaces, not public pages**:
+
+- `components/primitives/{foundation,interactive}` (the genome-tagged tree,
+  `// Genome ID: P007`) is consumed by 17 admin pages and ~40 admin
+  components. The entire public site accounts for 5 files.
+- 30A Entrance = `AdminAuth`, 30B Gallery = `AdminGallery`, 30C Workspace =
+  `pages/admin/workspace/*` (all 5 files migrated). Public `Index`,
+  `GalleryPage` and `PriceEstimator` have zero primitive imports.
+- "Material Library / Consultation" appears exactly **once** in the whole
+  repository — line 64 of `.planning/archive/ENGINEERING_ROADMAP_V1.md`. No
+  spec, requirement, or component defines it. `AdminMedia.tsx` (341 lines,
+  un-migrated) is the likeliest referent.
+- The archived roadmap is superseded by `.planning/milestones/v3.0-ROADMAP.md`
+  ("v3.0 DAM V3 Workspace", phases 5-10), which is what this branch is for.
+
+Separately, three primitive locations exist. `ui/primitives/*` (lowercase,
+117 importers) is the vendored shadcn base and is legitimate.
+`components/primitives/*` (63) and `components/ui/{foundation,interactive}`
+(38, including all 15 files in `components/patterns/`) are genuine
+duplicates of Container/Stack/Surface/Text/Button/Input. Decision taken:
+`components/primitives/*` is canonical.
