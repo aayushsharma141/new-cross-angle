@@ -71,17 +71,17 @@ On mutation success: `queryClient.invalidateQueries({ queryKey: [...] })`
 
 ## Edge Functions (Deno/TypeScript)
 
-| Function                | Trigger             | Purpose                         |
-| ----------------------- | ------------------- | ------------------------------- |
-| `assign-first-admin`    | Manual              | Set first user as admin         |
-| `auto-reply-lead`       | DB trigger / manual | Send email to new leads         |
-| `generate-caption`      | Manual              | AI caption for images           |
-| `process-lead`          | DB trigger          | Score and categorize leads      |
-| `notify-hot-lead`       | DB trigger          | Alert on high-value leads       |
-| `submit-discovery-lead` | Form submit         | Process discovery questionnaire |
-| `manage-user`           | Admin action        | Suspend/delete/unsuspend users  |
-| `invite-user`           | Admin action        | Send team invite emails         |
-| `rate_limiter`          | Middleware          | Protect public endpoints        |
+| Function                      | Trigger             | Purpose                        |
+| ----------------------------- | ------------------- | ------------------------------ |
+| `assign-first-admin`          | Manual              | Set first user as admin        |
+| `auto-reply-lead`             | DB trigger / manual | Send email to new leads        |
+| `generate-caption`            | Manual              | AI caption for images          |
+| `process-lead`                | DB trigger          | Score and categorize leads     |
+| `notify-hot-lead`             | DB trigger          | Alert on high-value leads      |
+| `submit-workspace-commitment` | Form submit         | Persist quiz lead + commitment |
+| `manage-user`                 | Admin action        | Suspend/delete/unsuspend users |
+| `invite-user`                 | Admin action        | Send team invite emails        |
+| `rate_limiter`                | Middleware          | Protect public endpoints       |
 
 Call pattern:
 
