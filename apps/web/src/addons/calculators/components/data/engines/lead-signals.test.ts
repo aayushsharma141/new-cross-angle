@@ -4,6 +4,7 @@ import { generateRiskCards } from './risk-cards';
 import { generateConversationStrategy } from './conversation-strategy';
 import { generateDesignerBrief } from './brief-generator';
 import type { LeadIntelligenceInput } from './types';
+import { buildDiscoveryHandoff } from '../discovery-handoff';
 
 /**
  * A lead as submit-estimate actually stores it: the DiscoveryHandoff flattened
@@ -125,5 +126,72 @@ describe('workspace panels populate from a stored lead', () => {
     expect(brief?.lifestyle.summary).toContain('Works from home');
     expect(brief?.lifestyle.summary).toContain('Has pets');
     expect(brief?.sensory.lighting).toContain('natural light');
+  });
+});
+
+describe('quiz -> lead columns -> engine signals', () => {
+  it('a quiz-only lead carries everything the panels need', () => {
+    // What the Discovery quiz holds when the user reaches the lead gate.
+    const userSignals = {
+      emotionalGoal: 'A calm, grounded home',
+      familyStructure: 'Nuclear',
+      householdSize: 4,
+      childCount: 2,
+      workFromHome: 'Yes',
+      hostingFrequency: 'Often',
+      hasPets: true,
+      lightingPreference: 'natural',
+      luxuryResolution: 'invest-in-materials',
+      roomPriorities: { kitchen: 'Must-Have', living: 'Must-Have', study: 'Nice-to-Have' },
+      selectedAdjectives: ['organic', 'warm', 'layered'],
+      budgetValue: 25000,
+      colorPalette: ['warm-neutral'],
+    } as unknown as Parameters<typeof buildDiscoveryHandoff>[0];
+
+    const handoff = buildDiscoveryHandoff(userSignals, 'warm_modernist');
+
+    // Exactly the columns submit-workspace-commitment now writes onto the lead.
+    const lead = {
+      name: 'Quiz Only',
+      property_type: 'apartment',
+      discovery_archetype: handoff.archetype,
+      discovery_lifestyle: handoff.lifestyle,
+      discovery_priorities: handoff.priorities,
+      discovery_sensory: handoff.sensory,
+      alcs_execution_path: null,
+      alcs_confidence: null,
+      budget_value_inr: handoff.budget,
+    } as unknown as LeadIntelligenceInput;
+
+    const signals = toDiscoverySignals(lead);
+    expect(signals?.lifestyle).toEqual({ wfh: true, hosting: true, family: true, pets: true });
+    expect(signals?.decision_makers).toBe(4);
+    expect(signals?.priorities?.heroRooms).toEqual(['kitchen', 'living']);
+    expect(signals?.sensory?.lighting).toBe('natural');
+    expect(signals?.luxuryResolvedAs).toBe('invest-in-materials');
+
+    // The panels that previously rendered nothing for this lead.
+    expect(generateRiskCards(lead).length).toBeGreaterThan(0);
+    expect(generateConversationStrategy(lead).length).toBeGreaterThan(0);
+    expect(generateDesignerBrief(lead)).not.toBeNull();
+  });
+
+  it('defaults hosting to false and lighting to ambient when the quiz stayed neutral', () => {
+    const handoff = buildDiscoveryHandoff(
+      { selectedAdjectives: [] } as unknown as Parameters<typeof buildDiscoveryHandoff>[0],
+      'quiet_minimalist',
+    );
+    const signals = toDiscoverySignals({
+      name: 'Neutral',
+      property_type: null,
+      discovery_archetype: handoff.archetype,
+      discovery_lifestyle: handoff.lifestyle,
+      discovery_priorities: handoff.priorities,
+      discovery_sensory: handoff.sensory,
+    } as unknown as LeadIntelligenceInput);
+
+    // buildDiscoveryHandoff defaults hostingFreq to "Sometimes" and lighting to "warm".
+    expect(signals?.lifestyle?.hosting).toBe(false);
+    expect(signals?.sensory?.lighting).toBe('ambient');
   });
 });

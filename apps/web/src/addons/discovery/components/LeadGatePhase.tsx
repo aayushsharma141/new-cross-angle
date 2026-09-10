@@ -10,6 +10,7 @@ import { UserSignals, AestheticScores, Archetype } from "@/types/discovery";
 import { trackLeadGateViewed, trackLeadGateSubmitted } from "../infrastructure/analytics/tracker";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
 import { saveDiscoveryResult } from "../core/persistence";
+import { buildDiscoveryHandoff } from "@/addons/calculators/components/data/discovery-handoff";
 
 interface Props {
     sessionId: string | null;
@@ -68,11 +69,18 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
             // Generate a simple narrative brief
             const narrative_brief = `Client seeks a ${signalsForDB.projectScope || 'project'} for a ${signalsForDB.propertyType || 'property'}. Primary value: ${signalsForDB.primaryValue || 'beauty'}. Budget bracket: ${signalsForDB.budgetBracket || 'not specified'}.`;
 
+            // The same mapper the Estimator uses, so a quiz-only lead lands in
+            // leads.discovery_* with exactly the shape submit-estimate writes.
+            // Without this the columns stayed null unless the user continued
+            // into the Estimator, and the Lead Workspace panels stayed empty.
+            const discoveryContext = buildDiscoveryHandoff(signals, archetype.name);
+
             const payload = {
                 name,
                 email,
                 phone,
                 session_id: sessionId,
+                discoveryContext,
                 decision_genome: signalsForDB,
                 project_snapshot,
                 narrative_brief,

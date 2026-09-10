@@ -34,8 +34,9 @@ Deno.serve(async (req: Request) => {
             return badRequestResponse(req, "Invalid JSON", {}, requestId);
         }
 
-        const { name, email, phone, session_id, decision_genome, project_snapshot, narrative_brief, workspace_state, versioning } = body as {
+        const { name, email, phone, session_id, discoveryContext, decision_genome, project_snapshot, narrative_brief, workspace_state, versioning } = body as {
             name: string; email: string; phone?: string; session_id?: string;
+            discoveryContext?: any;
             decision_genome: any;
             project_snapshot: any;
             narrative_brief: string;
@@ -68,17 +69,45 @@ Deno.serve(async (req: Request) => {
         const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
         const supabase = createClient(supabaseUrl, supabaseKey);
 
+        // Discovery intelligence columns, mirroring what submit-estimate writes
+        // (migration 20260625000000). Without these a quiz-only lead reached the
+        // CRM with no archetype or signals, so the Lead Workspace panels — which
+        // read discovery_lifestyle / _priorities / _sensory — rendered nothing.
+        const discoveryColumns = discoveryContext
+            ? {
+                discovery_archetype: discoveryContext.archetype ?? null,
+                discovery_confidence: discoveryContext.archetypeConfidence ?? null,
+                discovery_emotional_goal: discoveryContext.emotionalGoal ?? null,
+                discovery_lifestyle: discoveryContext.lifestyle ?? null,
+                discovery_priorities: discoveryContext.priorities ?? null,
+                discovery_sensory: discoveryContext.sensory ?? null,
+                discovery_contradictions: discoveryContext.contradictions ?? null,
+            }
+            : {};
+
         // First, check if lead exists, otherwise create
         let leadId = null;
         const { data: existingLead } = await supabase
             .from("leads")
-            .select("id")
+            .select("id, discovery_archetype")
             .eq("email", email.trim().toLowerCase())
             .limit(1)
             .single();
 
         if (existingLead) {
             leadId = existingLead.id;
+
+            // Backfill only. A lead that already carries an archetype came
+            // through the Estimator with a fuller payload; do not overwrite it.
+            if (discoveryContext && !existingLead.discovery_archetype) {
+                const { error: backfillError } = await supabase
+                    .from("leads")
+                    .update(discoveryColumns)
+                    .eq("id", leadId);
+                if (backfillError) {
+                    structuredLog("warn", FN, "discovery backfill failed", { code: backfillError.code }, requestId);
+                }
+            }
         } else {
             const { data: leadData, error: leadError } = await supabase
                 .from("leads")
@@ -87,7 +116,8 @@ Deno.serve(async (req: Request) => {
                     email: email.trim().toLowerCase(),
                     phone: phone ? phone.trim() : null,
                     lead_source: "workspace_studio",
-                    status: 'new'
+                    status: 'new',
+                    ...discoveryColumns
                 }).select("id").single();
             
             if (leadError) {
