@@ -9,6 +9,12 @@
 -- ─── 1. Add 'editor' to the app_role enum ────────────────────────────────────
 ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'editor';
 
+-- NOTE: every comparison against 'editor' below casts role to text.
+-- Postgres will not resolve an enum label that was added earlier in the same
+-- transaction (SQLSTATE 55P04), and Supabase applies each migration file in
+-- one transaction, so `role IN (..., 'editor')` aborts a fresh replay.
+-- The text comparison matches exactly the same rows.
+
 
 -- ─── 2. Fix is_admin_or_editor (name kept for backward compat) ───────────────
 --    Semantics: "is platform admin" (super_admin or admin)
@@ -34,7 +40,7 @@ AS $$
   SELECT EXISTS (
     SELECT 1 FROM public.user_roles
     WHERE user_id = auth.uid()
-      AND role IN ('super_admin', 'admin', 'editor')
+      AND role::text IN ('super_admin', 'admin', 'editor')
   );
 $$;
 
@@ -206,7 +212,7 @@ CREATE POLICY "platform_admin_insert_roles"
     CASE
       WHEN has_role(auth.uid(), 'super_admin') THEN true
       WHEN has_role(auth.uid(), 'admin') THEN
-        role IN ('editor', 'viewer')
+        role::text IN ('editor', 'viewer')
       ELSE false
     END
   );
@@ -218,7 +224,7 @@ CREATE POLICY "platform_admin_update_roles"
     CASE
       WHEN has_role(auth.uid(), 'super_admin') THEN true
       WHEN has_role(auth.uid(), 'admin') THEN
-        role IN ('editor', 'viewer')
+        role::text IN ('editor', 'viewer')
       ELSE false
     END
   )
@@ -226,7 +232,7 @@ CREATE POLICY "platform_admin_update_roles"
     CASE
       WHEN has_role(auth.uid(), 'super_admin') THEN true
       WHEN has_role(auth.uid(), 'admin') THEN
-        role IN ('editor', 'viewer')
+        role::text IN ('editor', 'viewer')
       ELSE false
     END
   );

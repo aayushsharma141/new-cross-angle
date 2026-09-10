@@ -154,39 +154,57 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ==========================================
 -- Attach Triggers
+--
+-- Guarded on table + column existence rather than issuing bare DDL.
+--
+-- `blogs` is renamed to _blogs_deprecated by
+-- 20260529180300_consolidate_duplicate_tables, whose only guard is
+-- IF EXISTS (blogs) — so on a fresh database that rename always fires and this
+-- migration used to abort here with 42P01 ("relation \"blogs\" does not
+-- exist"), leaving the whole chain unreplayable. Note that `DROP TRIGGER IF
+-- EXISTS ... ON blogs` guards the trigger, not the table, so it aborts too.
+--
+-- Production still has `blogs` (that rename never fired there), so this creates
+-- exactly the same five triggers it always did wherever the tables are present,
+-- and simply skips the ones whose table is absent.
 -- ==========================================
 
--- portfolio (image_url)
-DROP TRIGGER IF EXISTS sync_portfolio_image_usage ON portfolio;
-CREATE TRIGGER sync_portfolio_image_usage
-AFTER INSERT OR UPDATE OF image_url ON portfolio
-FOR EACH ROW
-EXECUTE FUNCTION sync_asset_usage_from_url('image_url', 'portfolio', 'hero', 'Portfolio');
+DO $$
+DECLARE
+  t record;
+BEGIN
+  FOR t IN
+    SELECT * FROM (VALUES
+      ('sync_portfolio_image_usage',       'portfolio',              'image_url',    'hero',   'Portfolio'),
+      ('sync_portfolio_video_usage',       'portfolio',              'video_url',    'video',  'Portfolio'),
+      ('sync_blogs_cover_usage',           'blogs',                  'cover_image',  'hero',   'Marketing'),
+      ('sync_transformation_before_usage', 'transformation_stories', 'before_media', 'before', 'Portfolio'),
+      ('sync_transformation_after_usage',  'transformation_stories', 'after_media',  'after',  'Portfolio')
+    ) AS v(trigger_name, table_name, column_name, usage_role, usage_domain)
+  LOOP
+    IF to_regclass('public.' || t.table_name) IS NULL THEN
+      RAISE NOTICE 'dam_v3 triggers: skipping % — table public.% does not exist',
+        t.trigger_name, t.table_name;
+      CONTINUE;
+    END IF;
 
--- portfolio (video_url)
-DROP TRIGGER IF EXISTS sync_portfolio_video_usage ON portfolio;
-CREATE TRIGGER sync_portfolio_video_usage
-AFTER INSERT OR UPDATE OF video_url ON portfolio
-FOR EACH ROW
-EXECUTE FUNCTION sync_asset_usage_from_url('video_url', 'portfolio', 'video', 'Portfolio');
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = t.table_name
+        AND column_name = t.column_name
+    ) THEN
+      RAISE NOTICE 'dam_v3 triggers: skipping % — public.%.% does not exist',
+        t.trigger_name, t.table_name, t.column_name;
+      CONTINUE;
+    END IF;
 
--- blogs (cover_image)
-DROP TRIGGER IF EXISTS sync_blogs_cover_usage ON blogs;
-CREATE TRIGGER sync_blogs_cover_usage
-AFTER INSERT OR UPDATE OF cover_image ON blogs
-FOR EACH ROW
-EXECUTE FUNCTION sync_asset_usage_from_url('cover_image', 'blogs', 'hero', 'Marketing');
-
--- transformation_stories (before_media)
-DROP TRIGGER IF EXISTS sync_transformation_before_usage ON transformation_stories;
-CREATE TRIGGER sync_transformation_before_usage
-AFTER INSERT OR UPDATE OF before_media ON transformation_stories
-FOR EACH ROW
-EXECUTE FUNCTION sync_asset_usage_from_url('before_media', 'transformation_stories', 'before', 'Portfolio');
-
--- transformation_stories (after_media)
-DROP TRIGGER IF EXISTS sync_transformation_after_usage ON transformation_stories;
-CREATE TRIGGER sync_transformation_after_usage
-AFTER INSERT OR UPDATE OF after_media ON transformation_stories
-FOR EACH ROW
-EXECUTE FUNCTION sync_asset_usage_from_url('after_media', 'transformation_stories', 'after', 'Portfolio');
+    EXECUTE format('DROP TRIGGER IF EXISTS %I ON public.%I', t.trigger_name, t.table_name);
+    EXECUTE format(
+      'CREATE TRIGGER %I AFTER INSERT OR UPDATE OF %I ON public.%I '
+      'FOR EACH ROW EXECUTE FUNCTION sync_asset_usage_from_url(%L, %L, %L, %L)',
+      t.trigger_name, t.column_name, t.table_name,
+      t.column_name, t.table_name, t.usage_role, t.usage_domain
+    );
+  END LOOP;
+END $$;
