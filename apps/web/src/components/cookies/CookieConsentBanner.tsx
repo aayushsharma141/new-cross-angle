@@ -121,8 +121,10 @@ export const CookieConsentBanner = () => {
           className={[
             // Mobile: full-width bottom sheet
             "fixed bottom-0 left-0 right-0 z-[120]",
-            // Desktop: compact bottom-left floating pod
-            "sm:bottom-5 sm:left-5 sm:right-auto sm:w-[340px]",
+            // Desktop: compact bottom-RIGHT floating pod.
+            // Bottom-left collides with the bottom-anchored, left-aligned hero
+            // content on / -- it fully covered the hero's only call to action.
+            "sm:bottom-5 sm:right-5 sm:left-auto sm:w-[340px]",
           ].join(" ")}
           aria-live="polite"
           role="dialog"
@@ -192,7 +194,7 @@ export const CookieConsentBanner = () => {
                     <button
                       type="button"
                       onClick={handleAcceptAll}
-                      className="flex h-10 w-full items-center justify-center rounded-xl bg-[#D4AF37] text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_6px_20px_rgba(212,175,55,0.35)] transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+                      className="flex h-10 w-full items-center justify-center rounded-xl bg-[#D4AF37] text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0c0c0c] shadow-[0_6px_20px_rgba(212,175,55,0.35)] transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
                     >
                       Accept All
                     </button>
@@ -283,7 +285,7 @@ export const CookieConsentBanner = () => {
                     <button
                       type="button"
                       onClick={handleAcceptAll}
-                      className="flex h-10 w-full items-center justify-center rounded-xl bg-[#D4AF37] text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_6px_20px_rgba(212,175,55,0.35)] transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+                      className="flex h-10 w-full items-center justify-center rounded-xl bg-[#D4AF37] text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0c0c0c] shadow-[0_6px_20px_rgba(212,175,55,0.35)] transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
                     >
                       Accept All
                     </button>
