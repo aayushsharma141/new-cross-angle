@@ -197,7 +197,6 @@ export function AssetSidebar({
 
     const uploadMutation = useMutation({
         mutationFn: async (fileList: File[]) => {
-            const { data: userData } = await supabase.auth.getUser();
             let successCount = 0;
             const errors: string[] = [];
 
@@ -228,7 +227,6 @@ export function AssetSidebar({
                             caption: file.name,
                             storage_provider: "imagekit",
                             storage_path: filePath,
-                            uploaded_by: userData?.user?.id,
                         },
                         { onConflict: "file_name" }
                     );

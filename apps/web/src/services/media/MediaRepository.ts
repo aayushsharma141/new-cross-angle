@@ -97,9 +97,11 @@ export const MediaRepository = {
       .from("media_files")
       .select("storage_provider, storage_path, url")
       .eq("id", id)
-      .single();
+      .maybeSingle();
     if (error) throw error;
-    return data as { storage_provider: string; storage_path: string; url: string };
+    // maybeSingle, not single: a row already gone is not an error for callers
+    // that delete — MediaService.delete treats null as "nothing left to do".
+    return data as { storage_provider: string; storage_path: string; url: string } | null;
   },
 
   async deleteFile(id: string): Promise<void> {

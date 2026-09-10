@@ -49,10 +49,11 @@ export class SupabaseProvider implements StorageProvider {
     };
   }
 
+  /** Throws on failure — see the note on ImageKitProvider.delete. */
   async delete(filePath: string): Promise<void> {
     const { error } = await supabase.storage
       .from(BUCKET_NAME)
       .remove([filePath]);
-    if (error) console.warn("Supabase storage delete failed:", error.message);
+    if (error) throw new Error(`Supabase storage delete failed: ${error.message}`);
   }
 }

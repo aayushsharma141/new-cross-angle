@@ -36,10 +36,16 @@ export class ImageKitProvider implements StorageProvider {
     };
   }
 
+  /**
+   * Throws on failure so callers can leave the DB row in place. Swallowing the
+   * error let MediaService drop the row while the file survived in ImageKit —
+   * an orphan with nothing left pointing at it. The edge function treats a
+   * 404 from ImageKit as success, so deleting an already-gone file is a no-op.
+   */
   async delete(filePath: string): Promise<void> {
     const { error } = await supabase.functions.invoke("imagekit-upload", {
       body: { action: "delete", filePath },
     });
-    if (error) console.warn("ImageKit delete failed:", error.message);
+    if (error) throw new Error(`ImageKit delete failed: ${error.message}`);
   }
 }

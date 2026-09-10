@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
 import { useToast } from "@/hooks/useToast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, invokeEdge } from "@/integrations/supabase/client";
+import { MediaService } from "@/services/media";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { AssetWorkspaceLayout } from "@/components/admin/media/AssetWorkspaceLayout";
 import { icons } from "@/design-system/tokens/icons";
@@ -91,15 +92,11 @@ const AdminMedia = () => {
     // ── Delete mutation ───────────────────────────────────────────────────────
 
     const deleteMutation = useMutation({
-        mutationFn: async (file: MediaFile) => {
-            const { error: dbError } = await supabase.from("media_files").delete().eq("id", file.id);
-            if (dbError) throw dbError;
-
-            const { error: storageError } = await supabase.storage
-                .from(BUCKET_NAME)
-                .remove([file.name]);
-            if (storageError) console.error("Storage delete failed:", storageError);
-        },
+        // Routed through MediaService: it resolves the provider from the row's
+        // storage_provider and deletes by storage_path. Removing from the
+        // `media` bucket by display name (as this did) never touched
+        // ImageKit-backed files and left them orphaned in the CDN.
+        mutationFn: (file: MediaFile) => MediaService.delete(file.id),
         onSuccess: () => {
             toast({ title: "Success", description: "File deleted successfully" });
             void queryClient.invalidateQueries({ queryKey: queryKeys.media.all });
@@ -116,35 +113,12 @@ const AdminMedia = () => {
     // ── Bulk delete mutation ──────────────────────────────────────────────────
 
     const bulkDeleteMutation = useMutation({
-        mutationFn: async (fileIds: Set<string>) => {
-            const fileEntries = Array.from(fileIds)
-                .map((id) => files.find((f) => f.id === id))
-                .filter((f): f is MediaFile => !!f);
-
-            const results = await Promise.allSettled(
-                fileEntries.map(async (f) => {
-                    const { error: dbError } = await supabase.from("media_files").delete().eq("id", f.id);
-                    if (dbError) throw new Error(`DB: ${dbError.message}`);
-                    const { error: storageError } = await supabase.storage
-                        .from(BUCKET_NAME)
-                        .remove([f.name]);
-                    if (storageError) console.error(`Storage: ${storageError.message}`);
-                    return f.id;
-                })
-            );
-
-            const succeeded = results.filter((r) => r.status === "fulfilled").length;
-            const failed = results
-                .filter((r): r is PromiseRejectedResult => r.status === "rejected")
-                .map((r) => (r.reason instanceof Error ? r.reason.message : String(r.reason)));
-
-            return { succeeded, total: fileEntries.length, failed };
-        },
-        onSuccess: ({ succeeded, total, failed }) => {
-            if (failed.length > 0) {
+        mutationFn: (fileIds: Set<string>) => MediaService.bulkDelete(Array.from(fileIds)),
+        onSuccess: ({ succeeded, total, errors }) => {
+            if (errors.length > 0) {
                 toast({
                     title: `${succeeded} of ${total} files deleted`,
-                    description: `Errors: ${failed.join("; ")}`,
+                    description: `Errors: ${errors.join("; ")}`,
                     variant: "destructive",
                 });
             } else {
@@ -160,7 +134,6 @@ const AdminMedia = () => {
 
     const syncStorageMutation = useMutation({
         mutationFn: async () => {
-            const { data: userData } = await supabase.auth.getUser();
             let syncedCount = 0;
 
             for (const folder of FOLDERS) {
@@ -191,7 +164,9 @@ const AdminMedia = () => {
                             caption: file.name,
                             storage_provider: "supabase",
                             storage_path: path,
-                            uploaded_by: userData?.user?.id,
+                            // media_files has no uploaded_by column — passing it
+                            // made this insert fail typecheck and would have been
+                            // rejected by PostgREST at runtime.
                         });
                         syncedCount++;
                     }
@@ -213,29 +188,19 @@ const AdminMedia = () => {
     const handleSyncImageKit = async () => {
         setIsSyncingImageKit(true);
         try {
-            const {
-                data: { session },
-            } = await supabase.auth.getSession();
-            if (!session) throw new Error("Not authenticated");
+            // Must go through invokeEdge (/api/supabase/functions/v1/...), not a
+            // direct call to VITE_SUPABASE_URL. The browser client runs with
+            // persistSession:false — the session lives in an HTTP-only cookie, so
+            // supabase.auth.getSession() always returns null here and the old
+            // direct fetch could never authenticate. Middleware injects the
+            // access_token as the Authorization header on the proxy path.
+            const { data: result, error } = await invokeEdge<{
+                upserted: number;
+                errors?: string[];
+            }>("sync-imagekit", { limit: 1000 });
 
-            const res = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sync-imagekit`,
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${session.access_token}`,
-                        "Content-Type": "application/json",
-                        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-                    },
-                    body: JSON.stringify({ limit: 1000 }),
-                }
-            );
-
-            const result = await res.json();
-
-            if (!res.ok) {
-                throw new Error(result.error || `HTTP ${res.status}`);
-            }
+            if (error) throw new Error(error.message);
+            if (!result) throw new Error("Empty response from sync-imagekit");
 
             toast({
                 title: "ImageKit sync complete",

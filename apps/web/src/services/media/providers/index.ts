@@ -19,15 +19,23 @@ export const fallbackProvider: StorageProvider = new SupabaseProvider();
 /**
  * Resolve the correct provider from a stored `storage_provider` column value.
  * Used when deleting files — we need the right provider to clean up storage.
+ *
+ * Returns null for `external`: the bytes live somewhere we do not control, so
+ * there is nothing for us to delete. Throws on anything else, including null —
+ * guessing a provider deletes from the wrong backend and orphans the real file
+ * once the DB row is gone.
  */
-export function resolveProvider(storageProvider: string): StorageProvider {
+export function resolveProvider(storageProvider: string | null): StorageProvider | null {
   switch (storageProvider) {
     case "imagekit":
       return defaultProvider;
     case "supabase":
       return fallbackProvider;
+    case "external":
+      return null;
     default:
-      console.warn(`Unknown storage provider: ${storageProvider}. Falling back to ImageKit.`);
-      return defaultProvider;
+      throw new Error(
+        `Cannot delete: unknown storage provider ${JSON.stringify(storageProvider)}`,
+      );
   }
 }

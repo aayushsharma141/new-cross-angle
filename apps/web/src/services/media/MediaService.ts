@@ -89,7 +89,10 @@ export const MediaService = {
     const file = await MediaRepository.getFileById(id);
     if (!file) return;
 
-    await resolveProvider(file.storage_provider).delete(file.storage_path);
+    // Storage first, then the row. If the provider throws, the row survives and
+    // the delete can be retried — the alternative leaves a file nothing points at.
+    const provider = resolveProvider(file.storage_provider);
+    if (provider) await provider.delete(file.storage_path);
     await MediaRepository.deleteFile(id);
   },
 
