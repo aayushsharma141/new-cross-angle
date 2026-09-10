@@ -106,3 +106,37 @@ Separately, three primitive locations exist. `ui/primitives/*` (lowercase,
 (38, including all 15 files in `components/patterns/`) are genuine
 duplicates of Container/Stack/Surface/Text/Button/Input. Decision taken:
 `components/primitives/*` is canonical.
+
+## v3.0 Phase 5 (Asset Workspace) — actual status, 2026-09-10
+
+The roadmap lists Phase 5 as pending and describes replacing a
+`MediaDetailsSheet`. That component does not exist; the Asset Workspace is
+already built and wired (`AdminMedia.tsx` -> `AssetWorkspaceLayout` ->
+`AssetSidebar` + `AssetInspector`). Phase 6's `UniversalAssetPicker` is also
+built and already integrated in five contexts. The checkboxes were stale.
+
+Real status against WS-01..WS-04:
+
+- **WS-01** AssetWorkspace full-page — already done.
+- **WS-02** Usage Panel — already done (`AssetUsagePanel` reads `asset_usages`,
+  links to the owning entity, and blocks delete while references exist).
+- **WS-03** Versions Panel + Replace — **done this session**, commit `2f423fb4`.
+  Was a stub rendering a hardcoded "v1 (Current)" for every asset.
+  `AssetService.getAssetVersions` / `replaceAsset` added; replace appends an
+  `asset_versions` row against the same asset id, so everything bound through
+  `asset_usages` follows without a broken reference.
+  `rpc_finalize_dam_asset` could not be reused (hardcodes `version_number = 1`,
+  also binds a usage row), so the insert is client-side; the
+  "Auth Full Access for Asset Versions" policy permits it for admins/editors.
+  Also fixed a latent ordering bug: the embedded `asset_versions` select had no
+  order while `AssetPreview` read index 0 as "latest". Harmless at one version
+  per asset, wrong as soon as Replace creates a second.
+- **WS-04** Metadata & Actions — **blocked on schema.** Tagging exists
+  (`asset_tags` / `asset_tag_links`) and dimensions live on `asset_versions`,
+  but there is no photographer/credit column on `assets`. Per ADR-0003
+  production is the schema source of truth and cannot be reproduced locally, so
+  that column has to be added against the live project before WS-04 can land.
+
+Success criteria 2 ("which version is live within 2 clicks") and 3 ("replace
+without breaking references") are met by the new panel. Not yet exercised in a
+browser — the surface is behind admin auth.
