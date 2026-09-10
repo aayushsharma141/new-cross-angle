@@ -6,8 +6,10 @@
  * REMOVED: Direct writes to `addon_events` and `addon_sessions` supabase tables.
  * ADDED:   Pure, dependency-injectable helpers that map to the typed `AnalyticsEventMap`.
  *
- * Lead persistence (submit-discovery-lead Edge Function) is intentionally
- * kept in LeadGatePhase.tsx — only behavioral analytics move here.
+ * Lead persistence is intentionally kept in LeadGatePhase.tsx, which posts to
+ * the submit-workspace-commitment Edge Function — only behavioral analytics
+ * move here. (This previously named submit-discovery-lead, which no longer
+ * exists; it was orphaned when the quiz moved to workspace commitments.)
  */
 
 import { v4 as uuidv4 } from "uuid";

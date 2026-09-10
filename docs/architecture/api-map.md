@@ -74,7 +74,7 @@ Auth: `apikey: <anon_key>` + `Authorization: Bearer <jwt>` (for authenticated re
 #### Discovery / Quiz
 | Operation | Table | Used By |
 |---|---|---|
-| Insert quiz result | `quiz_results` | submit-discovery-lead edge fn |
+| Insert quiz result | `quiz_results` | **No writer.** submit-discovery-lead was the only one and was deleted as orphaned; SharedResultPage resolves historical rows only. |
 | List quiz results | `quiz_results` | AdminQuizAnalytics |
 | Quiz result by slug | `quiz_results` | SharedResultPage |
 
@@ -108,7 +108,7 @@ fetch(`${SUPABASE_URL}/functions/v1/function-name`, {
 | Function | Method | Input | Output | Used By |
 |---|---|---|---|---|
 | `submit-estimate` | POST | `{name, email, phone, project_type, property_size, quality_tier, timeline}` | `{estimate_min, estimate_max, lead_id}` | CostEstimatorPage |
-| `submit-discovery-lead` | POST | `{name, email, phone, responses, aesthetic_profile}` | `{result_slug}` | DiscoveryPage |
+| `submit-workspace-commitment` | POST | `{name, email, phone, session_id, discoveryContext, decision_genome, project_snapshot, narrative_brief, workspace_state, versioning}` | `{success, id}` | LeadGatePhase (Discovery quiz) |
 | `rate_limiter` | Middleware | IP address | Allow/block | Protects public endpoints |
 | `sitemap` | GET | — | XML sitemap | `/sitemap.xml` rewrite |
 | `health` | GET | — | `{status: "ok"}` | Uptime monitoring (Checkly) |
