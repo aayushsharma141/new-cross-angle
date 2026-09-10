@@ -1,4 +1,5 @@
 import { LeadIntelligenceInput } from './types';
+import { toDiscoverySignals } from './lead-signals';
 import { AIRecommendationResult } from './types';
 
 export type StrategyBlockType = 'hook' | 'order' | 'explore' | 'avoid' | 'visual';
@@ -14,12 +15,12 @@ export interface StrategyBlock {
 export function generateConversationStrategy(lead: LeadIntelligenceInput): StrategyBlock[] {
   const blocks: StrategyBlock[] = [];
   
-  if (!lead.discovery_archetype || !lead.discovery_signals) {
+  const signals = toDiscoverySignals(lead);
+  if (!lead.discovery_archetype || !signals) {
     return blocks;
   }
   
   const archetype = lead.discovery_archetype;
-  const signals = lead.discovery_signals;
   const result: AIRecommendationResult | undefined = lead.estimator_data?.result;
   const path = lead.alcs_execution_path || result?.executionPath || 'Unknown';
   

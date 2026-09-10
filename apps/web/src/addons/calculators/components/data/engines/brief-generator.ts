@@ -1,4 +1,5 @@
 import { AIRecommendationResult, LeadIntelligenceInput } from './types';
+import { toDiscoverySignals } from './lead-signals';
 
 export interface DesignerBrief {
   identity: {
@@ -24,11 +25,11 @@ export interface DesignerBrief {
 }
 
 export function generateDesignerBrief(lead: LeadIntelligenceInput): DesignerBrief | null {
-  if (!lead.discovery_archetype || !lead.discovery_signals) {
+  const signals = toDiscoverySignals(lead);
+  if (!lead.discovery_archetype || !signals) {
     return null;
   }
 
-  const signals = lead.discovery_signals;
   const result: AIRecommendationResult | undefined = lead.estimator_data?.result;
   const confidence = lead.alcs_confidence || 80;
 

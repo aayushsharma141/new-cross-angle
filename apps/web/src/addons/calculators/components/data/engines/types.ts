@@ -333,7 +333,14 @@ export interface DiscoverySignals {
  */
 export type LeadIntelligenceInput = Pick<
   Tables<"leads">,
-  "name" | "property_type" | "discovery_archetype" | "alcs_execution_path" | "alcs_confidence"
+  | "name"
+  | "property_type"
+  | "discovery_archetype"
+  | "alcs_execution_path"
+  | "alcs_confidence"
+  | "discovery_lifestyle"
+  | "discovery_priorities"
+  | "discovery_sensory"
 > & {
   discovery_signals?: DiscoverySignals | null;
   estimator_data?: { result?: AIRecommendationResult } | null;

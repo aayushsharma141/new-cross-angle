@@ -1,4 +1,5 @@
 import { LeadIntelligenceInput } from './types';
+import { toDiscoverySignals } from './lead-signals';
 
 export interface RiskCard {
   id: string;
@@ -14,11 +15,11 @@ export interface RiskCard {
 export function generateRiskCards(lead: LeadIntelligenceInput): RiskCard[] {
   const cards: RiskCard[] = [];
 
-  if (!lead.discovery_signals) {
+  const signals = toDiscoverySignals(lead);
+  if (!signals) {
     return cards;
   }
 
-  const signals = lead.discovery_signals;
   const archetype = lead.discovery_archetype;
 
   // Risk 1: Budget Misalignment
