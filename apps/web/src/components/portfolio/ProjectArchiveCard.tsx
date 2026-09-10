@@ -100,7 +100,7 @@ export const ProjectArchiveCard = React.forwardRef<HTMLDivElement, ProjectArchiv
               alt={`${project.title} - ${project.category} interior showcase`}
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-cover grayscale brightness-75 group-hover:grayscale-0 group-hover:brightness-95 transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+              className="w-full h-full object-cover [@media(hover:hover)]:grayscale [@media(hover:hover)]:brightness-75 group-hover:grayscale-0 group-hover:brightness-95 transition-all duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
               animate={{ scale: shouldReduceMotion ? 1.0 : (isHovered ? 1.02 : 1.0) }}
               transition={{ duration: shouldReduceMotion ? 0.01 : 1.5, ease: [0.22, 1, 0.36, 1] }}
             />

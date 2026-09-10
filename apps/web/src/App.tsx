@@ -8,7 +8,7 @@ import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 import { PageSkeleton } from "./components/ui/enhanced/PageSkeleton";
 import { CoreProviders } from "./providers/CoreProviders";
 import { PageTracker } from "./analytics/page-tracking";
-import WhatsAppButton from "./components/layout/WhatsAppButton";
+import MobileActionBar from "./components/layout/MobileActionBar";
 import FixedSocialBar from "./components/layout/FixedSocialBar";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
@@ -120,13 +120,13 @@ const AnimatedRoutes = () => {
             <ErrorBoundary>
               <Suspense fallback={<PageSkeleton variant={getSkeletonVariant(location.pathname) as React.ComponentProps<typeof PageSkeleton>["variant"]} />}>
                 <AnimatePresence mode="wait">
-                  <AnimatedContent key={location.pathname} distance={15} duration={0.5} className="flex-1 w-full flex flex-col h-full">
+                  <AnimatedContent key={location.pathname} distance={15} duration={0.5} className="flex-1 w-full flex flex-col h-full max-md:pb-[calc(env(safe-area-inset-bottom)+56px)]">
                     <Routes location={location}>
                       {publicRoutes}
                     </Routes>
                   </AnimatedContent>
                 </AnimatePresence>
-                {location.pathname !== "/" && <WhatsAppButton />}
+                <MobileActionBar />
                 {["/", "/about-us", "/our-process", "/services", "/portfolio", "/gallery", "/blog", "/contact-us", "/locations"].includes(location.pathname) && location.pathname !== "/" && <FixedSocialBar />}
               </Suspense>
             </ErrorBoundary>

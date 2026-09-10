@@ -1,7 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import FixedSocialBar from "@/components/layout/FixedSocialBar";
 import ScrollProgress from "@/components/layout/ScrollProgress";
 
 import HubHero from "@/components/portfolio/HubHero";
@@ -63,7 +62,6 @@ const PortfolioPage = () => {
 
       <ScrollProgress />
       <Navbar />
-      <FixedSocialBar />
 
       <main id="main-content" className="relative bg-background text-foreground overflow-x-clip w-full min-h-screen">
 
