@@ -46,7 +46,7 @@ npm workspaces monorepo (`apps/*`, `packages/*`):
 - `apps/web/api/auth/*.ts` — Vercel serverless auth handlers (login / logout / me / refresh).
 - `apps/web/middleware.ts` — Vercel Edge middleware.
 - `packages/types` (`@repo/types`), `packages/ui` (`@repo/ui`), `packages/utils` (`@repo/utils`) — shared workspace packages consumed via those aliases.
-- `supabase/` — `config.toml`, ~84 SQL migrations, and ~25 Deno edge functions (AI, lead scoring, notifications, ImageKit, PostHog).
+- `supabase/` — `config.toml`, ~84 SQL migrations, and ~25 Deno edge functions (AI, lead scoring, notifications, ImageKit, PostHog). **The migrations are a partial changelog, not a reproducible build: 30 of 67 production tables are created by no migration, so `supabase start` / `db reset` cannot produce a working database. Generate types with `--linked` against the live project, never `--local`. See [.decisions/0003-production-is-schema-source-of-truth.md](.decisions/0003-production-is-schema-source-of-truth.md).**
 - `e2e/` + `playwright.config.ts` (repo root) — Playwright E2E; `apps/web/src/test/` — Vitest suites (architecture, chaos, contracts, telemetry, load harness).
 - `.planning/`, `.decisions/`, `.rules/` — GSD workflow state, ADRs, and project rules. `.rules/git.md` asks that `.planning/STATE.md` be updated before finishing a turn.
 
