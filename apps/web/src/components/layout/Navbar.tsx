@@ -10,13 +10,15 @@ import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
 import { ServicesMegaMenu } from "@/components/layout/ServicesMegaMenu";
 import { Surface, Container, Cluster } from "@/components/primitives/foundation";
 import { Link, Button } from "@/components/primitives/interactive";
+import defaultLogo from "@/assets/logo-icon.png";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [servicesHovered, setServicesHovered] = useState(false);
   const { settings } = useSiteSettings();
-  const logoUrl = settings?.company_logo_url || settings?.logo_light_url || '/logo-icon.png';
+  const logoUrl = settings?.company_logo_url || settings?.logo_light_url || defaultLogo;
   const location = useLocation();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -86,26 +88,26 @@ export const Navbar = () => {
             isScrolled ? "h-14 md:h-16" : "h-16 md:h-20"
           )}>
             {/* Logo Area (Left) */}
-            <div className="flex justify-start items-center min-w-0">
-              <Link as={RouterLink} to="/" underline="none" variant="inherit" className="flex items-center gap-2 sm:gap-3 z-10 shrink-0 group min-w-0">
+            <div className="flex justify-start items-center shrink-0 z-10">
+              <Link as={RouterLink} to="/" underline="none" variant="inherit" className="flex items-center gap-2 sm:gap-2.5 shrink-0 group">
                 <img
-                  src={logoUrl}
+                  src={getOptimizedUrl(logoUrl, { width: 200, quality: 80 })}
                   alt={settings?.studio_name || "Cross Angle Interior"}
                   style={{ imageRendering: "auto" }}
                   className={cn(
                     "w-auto transition-all duration-500 shrink-0 drop-shadow-md",
-                    isScrolled ? "h-10 md:h-14" : "h-12 md:h-20"
+                    isScrolled ? "h-8 sm:h-9 lg:h-10" : "h-11 sm:h-12 lg:h-[52px] xl:h-[56px]"
                   )}
                 />
                 <AnimatedLogo
                   isScrolled={isScrolled}
-                  className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0"
+                  className="flex items-center tracking-wide whitespace-nowrap shrink-0"
                 />
               </Link>
             </div>
 
             {/* Centered Pill Menu (Desktop) */}
-            <div className="hidden lg:flex justify-center items-center h-full">
+            <div className="hidden lg:flex justify-center items-center h-full flex-1 min-w-0 px-2">
               <div className="pointer-events-auto">
                 <SpotlightNavContainer
                   activeIndex={navLinks.findIndex((l) => location.pathname === l.href)}
@@ -115,7 +117,7 @@ export const Navbar = () => {
                     <div
                       key={link.name}
                       data-index={index}
-                      className="flex items-center px-4"
+                      className="flex items-center px-1.5 lg:px-2 xl:px-3.5"
                       onMouseEnter={() => link.hasMegaMenu && setServicesHovered(true)}
                       onMouseLeave={() => link.hasMegaMenu && setServicesHovered(false)}
                     >
@@ -125,7 +127,7 @@ export const Navbar = () => {
                         variant={location.pathname === link.href ? "primary" : showTransparent ? "inherit" : "muted"}
                         underline="none"
                         className={cn(
-                          "relative font-medium transition-all duration-300 group flex items-center gap-1.5 whitespace-nowrap",
+                          "relative font-medium text-xs lg:text-[12px] xl:text-sm transition-all duration-300 group flex items-center gap-1 whitespace-nowrap",
                           showTransparent && location.pathname !== link.href ? "text-primary-foreground/90" : "",
                           link.name === "Get Estimate" && "font-bold"
                         )}
@@ -133,7 +135,7 @@ export const Navbar = () => {
                         {link.name}
                         {link.hasMegaMenu && (
                           <ChevronDown className={cn(
-                            "w-4 h-4 transition-transform duration-300 opacity-60 group-hover:opacity-100",
+                            "w-3.5 h-3.5 transition-transform duration-300 opacity-60 group-hover:opacity-100",
                             servicesHovered && "rotate-180 opacity-100"
                           )} />
                         )}
@@ -148,11 +150,11 @@ export const Navbar = () => {
             </div>
 
             {/* Right CTA / Mobile Toggle */}
-            <Cluster gap="md" className="z-10 justify-end" wrap={false}>
+            <Cluster gap="md" className="z-10 justify-end shrink-0" wrap={false}>
               <div className="hidden lg:block">
                 <RouterLink
                   to="/estimate"
-                  className="home-button-sweep inline-flex items-center gap-2 px-6 py-2.5 bg-white/5 border border-white/10 text-[#FAFAFA] hover:text-[#D1AF6E] font-semibold text-[10px] uppercase tracking-[0.2em] hover:border-[#D1AF6E] rounded-sm transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D1AF6E] motion-reduce:transition-none group"
+                  className="home-button-sweep inline-flex items-center gap-1.5 xl:gap-2 px-3.5 xl:px-6 py-2 xl:py-2.5 bg-white/5 border border-white/10 text-[#FAFAFA] hover:text-[#D1AF6E] font-semibold text-[9px] xl:text-[10px] uppercase tracking-[0.15em] xl:tracking-[0.2em] hover:border-[#D1AF6E] rounded-sm transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D1AF6E] motion-reduce:transition-none group"
                 >
                   <span>Get Estimate</span>
                   <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1" aria-hidden="true">→</span>

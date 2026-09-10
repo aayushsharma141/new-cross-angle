@@ -30,8 +30,8 @@ export function CTAPattern({
   }
 
   return (
-    <Section spacing="xl" className={cn("py-24 bg-canvas-secondary border-b border-subtle relative overflow-hidden", className)}>
-      <Container size="narrow">
+    <Section spacing="loose" className={cn("py-24 bg-canvas-secondary border-b border-subtle relative overflow-hidden", className)}>
+      <Container size="reading">
         <div className="text-center space-y-8 p-12 bg-surface-card border border-copper/30 shadow-2xl rounded-3xl relative z-10">
           <Text size="micro" className="text-copper font-mono uppercase tracking-widest font-bold">
             COMMISSION YOUR PROJECT

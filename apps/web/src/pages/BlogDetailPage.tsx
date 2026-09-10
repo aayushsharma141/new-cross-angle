@@ -96,7 +96,7 @@ const BlogDetailPage = () => {
                 <meta name="description" content={post.excerpt} />
                 <meta property="og:title" content={cleanTitle(post.title)} />
                 <meta property="og:description" content={post.excerpt} />
-                <meta property="og:image" content={post.cover_image_url || post.cover_image || ""} />
+                <meta property="og:image" content={post.cover_image_url || post.cover_image || post.deprecated_cover_image_url || ""} />
                 <meta property="og:type" content="article" />
                 <link rel="canonical" href={`https://crossangleinterior.com/blog/${post.slug}`} />
             </Helmet>
@@ -146,11 +146,11 @@ const BlogDetailPage = () => {
                     </div>
 
                     {/* ── Cover Image ── */}
-                    {(post.cover_image_url || post.cover_image) && (
+                    {(post.cover_image_url || post.cover_image || post.deprecated_cover_image_url) && (
                         <div className="w-full max-w-[1200px] mx-auto px-4 md:px-8 -mt-2 relative z-10 mb-14 blog-cover-parallax">
                             <div className="w-full aspect-[4/3] md:aspect-[21/9] relative overflow-hidden rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.7)]">
                                 <Image
-                                    src={(post.cover_image_url || post.cover_image)!}
+                                    src={(post.cover_image_url || post.cover_image || post.deprecated_cover_image_url)!}
                                     alt={post.title}
                                     className="w-full h-full"
                                     imageClassName="object-cover"

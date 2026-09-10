@@ -3,6 +3,7 @@ import { Card } from "../base/Card"
 import { Heading } from "@/components/ui/foundation/Heading"
 import { Text } from "@/components/ui/foundation/Text"
 import { cn } from "@/lib/utils"
+import { getOptimizedUrl } from "@/lib/cdn"
 
 export interface ArticleCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string
@@ -30,7 +31,13 @@ export function ArticleCard({
       <div>
         <div className="w-full aspect-video bg-stone-900 relative overflow-hidden flex items-center justify-center text-stone-600 font-mono text-xs">
           {imageUrl ? (
-            <img src={imageUrl} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <img
+              src={getOptimizedUrl(imageUrl, { width: 800, quality: 80 })}
+              alt={title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              decoding="async"
+            />
           ) : (
             <span>[ Article Image ]</span>
           )}
@@ -43,18 +50,18 @@ export function ArticleCard({
             <span className="text-content-secondary">{readTime}</span>
           </div>
 
-          <Heading size="heading-sm" className="group-hover:text-copper transition-colors mb-2">
+          <Heading size="heading-md" className="group-hover:text-copper transition-colors mb-2">
             {title}
           </Heading>
 
-          <Text size="sm" variant="secondary" className="line-clamp-2">
+          <Text size="caption" variant="secondary" className="line-clamp-2">
             {snippet}
           </Text>
         </div>
       </div>
 
       <div className="px-6 pb-6 pt-0">
-        <Text size="xs" variant="secondary" className="font-mono">
+        <Text size="caption" variant="secondary" className="font-mono">
           {date}
         </Text>
       </div>

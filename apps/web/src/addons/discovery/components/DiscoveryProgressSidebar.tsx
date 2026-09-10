@@ -9,19 +9,19 @@ const PHASES = [
         id: "foundation",
         label: "Foundation",
         eyebrow: "01",
-        stages: [Stage.PropertyReality, Stage.Lifestyle, Stage.RoomPriority],
+        stages: [Stage.PhysicalSpace, Stage.MorningRoutine, Stage.RoomPriority],
     },
     {
         id: "vision",
         label: "Vision",
         eyebrow: "02",
-        stages: [Stage.VisualInstinct, Stage.ReinterpretationGate, Stage.AdjectiveSelection],
+        stages: [Stage.VisualInstinct, Stage.ReinterpretationGate, Stage.DesignIdentity],
     },
     {
         id: "senses",
         label: "Sensory & Priorities",
         eyebrow: "03",
-        stages: [Stage.PivotQuestion, Stage.MaterialResonance, Stage.LightCalibration],
+        stages: [Stage.PivotQuestion, Stage.MaterialIdentity, Stage.Atmosphere],
     },
     {
         id: "alignment",

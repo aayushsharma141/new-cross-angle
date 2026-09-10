@@ -7,7 +7,6 @@ import { Heading } from "@/components/ui/foundation/Heading"
 import { Text } from "@/components/ui/foundation/Text"
 import { Stack } from "@/components/ui/foundation/Stack"
 import { Divider } from "@/components/ui/foundation/Divider"
-import { Surface } from "@/components/ui/foundation/Surface"
 import { IconButton } from "@/components/ui/interactive/IconButton"
 
 const navGroups = [
@@ -98,15 +97,15 @@ export default function LabLayout() {
     <Stack direction="col" gap="md">
       <Text size="micro" className="text-content-secondary">LIFECYCLE STATUS</Text>
       <div className="grid grid-cols-2 gap-y-3 text-sm">
-        <Text size="sm" variant="secondary">Heading</Text><Text size="sm" className="text-emerald-500">🟢 Stable · ✓</Text>
-        <Text size="sm" variant="secondary">Surface</Text><Text size="sm" className="text-emerald-500">🟢 Stable · ✓</Text>
-        <Text size="sm" variant="secondary">Button</Text><Text size="sm" className="text-emerald-500">🟢 Stable · ✓</Text>
-        <Text size="sm" variant="secondary">Input</Text><Text size="sm" className="text-emerald-500">🟢 Stable · ✓</Text>
-        <Text size="sm" variant="secondary">Overlay Platform</Text><Text size="sm" className="text-emerald-500">🟢 Infra · ✓</Text>
-        <Text size="sm" variant="secondary">Dialog</Text><Text size="sm" className="text-emerald-500">🟢 Stable · ✓</Text>
-        <Text size="sm" variant="secondary">Card Ecosystem</Text><Text size="sm" className="text-emerald-500">🟢 Stable · ✓</Text>
-        <Text size="sm" variant="secondary">Navigation Platform</Text><Text size="sm" className="text-emerald-500">🟢 Stable · ✓</Text>
-        <Text size="sm" variant="secondary">Drawer</Text><Text size="sm" className="text-gray-400">⚪ Planned</Text>
+        <Text size="caption" variant="secondary">Heading</Text><Text size="caption" className="text-emerald-500">🟢 Stable · ✓</Text>
+        <Text size="caption" variant="secondary">Surface</Text><Text size="caption" className="text-emerald-500">🟢 Stable · ✓</Text>
+        <Text size="caption" variant="secondary">Button</Text><Text size="caption" className="text-emerald-500">🟢 Stable · ✓</Text>
+        <Text size="caption" variant="secondary">Input</Text><Text size="caption" className="text-emerald-500">🟢 Stable · ✓</Text>
+        <Text size="caption" variant="secondary">Overlay Platform</Text><Text size="caption" className="text-emerald-500">🟢 Infra · ✓</Text>
+        <Text size="caption" variant="secondary">Dialog</Text><Text size="caption" className="text-emerald-500">🟢 Stable · ✓</Text>
+        <Text size="caption" variant="secondary">Card Ecosystem</Text><Text size="caption" className="text-emerald-500">🟢 Stable · ✓</Text>
+        <Text size="caption" variant="secondary">Navigation Platform</Text><Text size="caption" className="text-emerald-500">🟢 Stable · ✓</Text>
+        <Text size="caption" variant="secondary">Drawer</Text><Text size="caption" className="text-gray-400">⚪ Planned</Text>
       </div>
     </Stack>
   )
@@ -116,7 +115,7 @@ export default function LabLayout() {
       
       {/* Mobile Top Nav & Drawer */}
       <div className="lg:hidden fixed top-16 left-0 right-0 z-40 bg-surface-card border-b border-subtle px-4 py-3 flex items-center justify-between shadow-sm">
-        <Heading size="h4" className="m-0">CrossAngle UI Platform</Heading>
+        <Heading size="heading-md" className="m-0">CrossAngle UI Platform</Heading>
         <IconButton 
           icon={mobileMenuOpen ? <X size={20} /> : <Menu size={20} />} 
           intent="ghost"
@@ -129,7 +128,7 @@ export default function LabLayout() {
         <div className="lg:hidden fixed inset-0 top-[120px] z-30 bg-surface-card overflow-y-auto p-6 border-t border-subtle">
           <Stack direction="col" gap="xl">
             <Stack direction="col" gap="md">
-              <Text size="label">Navigation</Text>
+              <Text size="micro">Navigation</Text>
               <NavLinks />
             </Stack>
             <Divider />
@@ -140,10 +139,10 @@ export default function LabLayout() {
 
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex w-72 flex-col border-r border-subtle bg-canvas-secondary p-8 overflow-y-auto">
-        <Heading size="h3" className="mb-8">CrossAngle UI Platform</Heading>
+        <Heading size="heading-md" className="mb-8">CrossAngle UI Platform</Heading>
         <Stack direction="col" gap="xl">
           <Stack direction="col" gap="md">
-            <Text size="label">Overview</Text>
+            <Text size="micro">Overview</Text>
             <NavLinks />
           </Stack>
           <Divider />

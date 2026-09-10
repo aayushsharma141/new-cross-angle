@@ -2,11 +2,13 @@ import { motion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { getOptimizedUrl } from "@/lib/cdn";
 
+// Root-relative, not route-relative: without the leading slash these resolved
+// against the current route and 404'd on any nested path (/portfolio/:slug).
 const IMAGE_PATHS = [
-  "images/projects/discovery/visual-11.jpg",
-  "images/projects/discovery/lifestyle-2.jpg",
-  "images/projects/discovery/lifestyle-5.jpg",
-  "images/projects/discovery/visual-2.jpg",
+  "/images/projects/discovery/visual-11.jpg",
+  "/images/projects/discovery/lifestyle-2.jpg",
+  "/images/projects/discovery/lifestyle-5.jpg",
+  "/images/projects/discovery/visual-2.jpg",
 ];
 
 const MOODS = [

@@ -29,7 +29,7 @@ const Services = () => {
     {
       title: "Modular Kitchens",
       href: "/services/specialized/modular-kitchens",
-      heroImage: services.find(s => s.slug === "modular-kitchens")?.hero_image || "/images/projects/discovery/visual-12.jpg"
+      heroImage: services.find(s => s.slug === "modular-kitchens")?.hero_image || "/images/projects/discovery/reflect-env-kitchen.jpg"
     },
     {
       title: "Luxury Renovations",

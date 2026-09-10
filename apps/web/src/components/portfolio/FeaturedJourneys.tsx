@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight, LayoutGrid } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 const FeaturedJourneys = () => {
   const { data: featuredProjects = [], isLoading } = useQuery({
@@ -50,7 +51,7 @@ const FeaturedJourneys = () => {
             <div className="relative w-full overflow-hidden group md:w-3/5">
               <div className="aspect-[16/9] overflow-hidden">
                 <motion.img 
-                  src={project.heroImage} 
+                  src={getOptimizedUrl(project.heroImage, { width: 900, quality: 80 })} 
                   alt={project.title}
                   className="h-full w-full object-cover transition-transform group-hover:scale-105"
                   style={{ transitionDuration: "2000ms" }}

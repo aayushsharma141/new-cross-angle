@@ -206,10 +206,10 @@ export default function LabOverlayDialog() {
             {/* 1. Default Dialog */}
             <div className="p-6 bg-surface-card border border-subtle rounded-xl flex flex-col justify-between gap-4">
               <div>
-                <Heading size="heading-sm" className="mb-1">
+                <Heading size="heading-md" className="mb-1">
                   Default Dialog
                 </Heading>
-                <Text size="sm" variant="secondary">
+                <Text size="caption" variant="secondary">
                   Standard modal card for forms, details, and information lookup.
                 </Text>
               </div>
@@ -225,7 +225,7 @@ export default function LabOverlayDialog() {
                     </DialogDescription>
                   </DialogHeader>
                   <DialogBody className="space-y-4">
-                    <Text size="sm">Please enter your details below:</Text>
+                    <Text size="caption">Please enter your details below:</Text>
                     <Input placeholder="Full Name" />
                     <Input placeholder="Email Address" type="email" />
                   </DialogBody>
@@ -242,10 +242,10 @@ export default function LabOverlayDialog() {
             {/* 2. Alert Dialog */}
             <div className="p-6 bg-surface-card border border-subtle rounded-xl flex flex-col justify-between gap-4">
               <div>
-                <Heading size="heading-sm" className="mb-1">
+                <Heading size="heading-md" className="mb-1">
                   Alert Dialog
                 </Heading>
-                <Text size="sm" variant="secondary">
+                <Text size="caption" variant="secondary">
                   High-priority modal requiring immediate user attention or action.
                 </Text>
               </div>
@@ -277,10 +277,10 @@ export default function LabOverlayDialog() {
             {/* 3. Sheet (Drawer Variant) */}
             <div className="p-6 bg-surface-card border border-subtle rounded-xl flex flex-col justify-between gap-4">
               <div>
-                <Heading size="heading-sm" className="mb-1">
+                <Heading size="heading-md" className="mb-1">
                   Sheet (Slide Over)
                 </Heading>
-                <Text size="sm" variant="secondary">
+                <Text size="caption" variant="secondary">
                   Side drawer sliding from viewport edge for filters or navigation.
                 </Text>
               </div>
@@ -297,7 +297,7 @@ export default function LabOverlayDialog() {
                   </DialogHeader>
                   <DialogBody className="space-y-6">
                     <Stack direction="col" gap="sm">
-                      <Text size="label">Typology</Text>
+                      <Text size="micro">Typology</Text>
                       <Button intent="secondary" size="sm">Residential Luxury</Button>
                       <Button intent="secondary" size="sm">Commercial Workspace</Button>
                       <Button intent="secondary" size="sm">Specialized Studio</Button>
@@ -315,10 +315,10 @@ export default function LabOverlayDialog() {
             {/* 4. Fullscreen Dialog */}
             <div className="p-6 bg-surface-card border border-subtle rounded-xl flex flex-col justify-between gap-4">
               <div>
-                <Heading size="heading-sm" className="mb-1">
+                <Heading size="heading-md" className="mb-1">
                   Fullscreen Canvas
                 </Heading>
-                <Text size="sm" variant="secondary">
+                <Text size="caption" variant="secondary">
                   Immersive distraction-free overlay for configurators or galleries.
                 </Text>
               </div>
@@ -352,10 +352,10 @@ export default function LabOverlayDialog() {
             {/* 5. Gallery Dialog */}
             <div className="p-6 bg-surface-card border border-subtle rounded-xl flex flex-col justify-between gap-4">
               <div>
-                <Heading size="heading-sm" className="mb-1">
+                <Heading size="heading-md" className="mb-1">
                   Gallery / Portfolio
                 </Heading>
-                <Text size="sm" variant="secondary">
+                <Text size="caption" variant="secondary">
                   Dark mode container optimized for architectural imagery.
                 </Text>
               </div>
@@ -389,10 +389,10 @@ export default function LabOverlayDialog() {
             {/* 6. Nested Dialog Stack */}
             <div className="p-6 bg-surface-card border border-subtle rounded-xl flex flex-col justify-between gap-4">
               <div>
-                <Heading size="heading-sm" className="mb-1">
+                <Heading size="heading-md" className="mb-1">
                   Nested Overlays
                 </Heading>
-                <Text size="sm" variant="secondary">
+                <Text size="caption" variant="secondary">
                   Tests OverlayManager stacking z-indexes and top-only ESC key stack.
                 </Text>
               </div>

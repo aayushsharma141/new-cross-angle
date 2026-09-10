@@ -13,7 +13,7 @@ const caseStudy = {
     { stage: "Consult", image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=600&auto=format&fit=crop" },
     { stage: "Measure & Plan", image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=600&auto=format&fit=crop" },
     { stage: "Design", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600&auto=format&fit=crop" },
-    { stage: "Execute", image: "https://images.unsplash.com/photo-1504307651254-35680f356fce?q=80&w=600&auto=format&fit=crop" },
+    { stage: "Execute", image: "/blueprint_shell.jpg" },
     { stage: "Handover", image: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=600&auto=format&fit=crop" },
   ],
   slug: "serene-master-suite"

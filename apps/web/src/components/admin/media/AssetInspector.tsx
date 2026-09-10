@@ -140,7 +140,7 @@ function AssetUsagePanel({ asset }: { asset: AssetRow }) {
                 {isLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                 ) : (
-                    <Badge variant={isUsed ? "secondary" : "default"} className={!isUsed ? "bg-emerald-500 hover:bg-emerald-600 text-white" : ""}>
+                    <Badge variant={isUsed ? "secondary" : "primary"} className={!isUsed ? "bg-emerald-500 hover:bg-emerald-600 text-white" : ""}>
                         {isUsed ? `${usages.length} Usages` : "Safe to Delete"}
                     </Badge>
                 )}

@@ -148,7 +148,7 @@ export default function AdminAuditLogs() {
                             {action.replace(/_/g, ' ')}
                           </Badge>
                           {selectedAction === action && (
-                            <Badge variant="default" className="text-[10px] bg-[hsl(var(--admin-primary))] text-[hsl(var(--admin-surface))]">Filtered</Badge>
+                            <Badge variant="primary" className="text-[10px] bg-[hsl(var(--admin-primary))] text-[hsl(var(--admin-surface))]">Filtered</Badge>
                           )}
                         </div>
                         <p className="text-2xl font-bold text-[hsl(var(--admin-text))]">{count}</p>
@@ -181,7 +181,7 @@ export default function AdminAuditLogs() {
                       <p className="text-2xl font-bold text-[hsl(var(--admin-text))]">{count}</p>
                       <p className="text-xs text-[hsl(var(--admin-text-muted))]">entries</p>
                       {selectedEntity === entity && (
-                        <Badge variant="default" className="mt-2 text-[10px] bg-[hsl(var(--admin-primary))] text-[hsl(var(--admin-surface))]">Filtered</Badge>
+                        <Badge variant="primary" className="mt-2 text-[10px] bg-[hsl(var(--admin-primary))] text-[hsl(var(--admin-surface))]">Filtered</Badge>
                       )}
                     </div>
                   ))}

@@ -5,7 +5,7 @@
  * page refreshes do not briefly drop users into a null-role state.
  */
 
-import type { AppRole } from "../rbac";
+import type { AppRole } from "@/lib/auth/rbac";
 
 const ROLE_CACHE_PREFIX = "user_role_";
 const ROLE_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes

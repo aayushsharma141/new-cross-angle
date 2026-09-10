@@ -17,7 +17,7 @@ import { SpotlightCard, IridescenceGlow } from "@/components/ReactBits";
 import { AnimatedBeam } from "@/components/magicui/animated-beam";
 import ShimmerButton from "@/components/magicui/shimmer-button";
 
-import type { DiscoveryConfig } from "./DiscoveryEngine";
+import type { DiscoveryConfig } from "@/types/discovery";
 
 interface WelcomeScreenProps {
   onStart: (mode: "quick" | "deep", intent?: string) => void;

@@ -211,7 +211,7 @@ const CTAContact = () => {
       setFormData({ firstName: "", lastName: "", email: "", phone: "", projectType: "", projectBudget: "", location: "", message: defaultMessage });
       setErrors({});
       setTouched({});
-      track(analytics, "contact_form_submitted", { leadSource: payload.lead_source });
+      track(analytics, "contact_form_submitted", { leadSource: payload.lead_source, email: payload.email });
       setTimeout(scrollToStatus, 100);
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -525,7 +525,7 @@ const CTAContact = () => {
                             <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
                               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full duration-1000" />
                               {isSubmitting ? (
-                                <span className="flex items-center gap-2.5 relative z-10"><Loader2 className="h-4 w-4 animate-spin" />Initiating…</span>
+                                <span className="flex items-center gap-2.5 relative z-10"><Loader2 className="h-4 w-4 animate-spin" />Initiatingï¿½</span>
                               ) : (
                                 <span className="flex items-center gap-2.5 relative z-10 py-4">Begin My Transformation <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" /></span>
                               )}

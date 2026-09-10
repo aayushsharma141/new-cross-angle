@@ -9,7 +9,6 @@
 import { 
   EnterpriseKnowledgeNode, 
   EnterpriseRelation, 
-  EnterpriseEntityType,
   ArchitectureKnowledgeGraph 
 } from './architecture-graph-engine';
 
@@ -120,7 +119,7 @@ export class ArchitectureDataIngestionBridge {
         label: `Commit: ${c.shortHash} - ${c.message.slice(0, 50)}`,
         owner: c.authorName,
         risk: c.filesModified.some(f => f.includes('storage') || f.includes('auth')) ? 'HIGH' : 'LOW',
-        layer: 'data',
+        layer: 'delivery',
         status: 'active',
         created: c.timestamp,
         updated: c.timestamp,
@@ -195,7 +194,7 @@ export class ArchitectureDataIngestionBridge {
         owner: pr.author,
         risk: pr.labels.includes('architecture') ? 'HIGH' : 'LOW',
         layer: 'governance',
-        status: pr.status === 'MERGED' ? 'active' : 'draft',
+        status: pr.status === 'MERGED' ? 'active' : 'proposed',
         created: pr.createdAt,
         updated: pr.mergedAt || pr.createdAt,
         tags: ['pr', ...pr.labels],
@@ -238,7 +237,7 @@ export class ArchitectureDataIngestionBridge {
         label: `${t.metricName} on ${t.componentId}: ${t.value}${t.unit}`,
         owner: 'SRE & Performance Guild',
         risk: isDegraded ? 'HIGH' : 'LOW',
-        layer: 'runtime',
+        layer: 'observability',
         status: isDegraded ? 'deprecated' : 'active',
         created: t.timestamp,
         updated: t.timestamp,
@@ -269,7 +268,7 @@ export class ArchitectureDataIngestionBridge {
           label: `Incident: Degraded ${t.metricName} on ${t.componentId}`,
           owner: 'SRE On-Call',
           risk: 'CRITICAL',
-          layer: 'runtime',
+          layer: 'observability',
           status: 'active',
           created: t.timestamp,
           updated: t.timestamp,

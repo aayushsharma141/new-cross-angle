@@ -1,4 +1,4 @@
-import { useState, ImgHTMLAttributes } from 'react';
+import { useState, useEffect, useRef, ImgHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 import { getOptimizedUrl } from '@/lib/cdn';
 
@@ -33,9 +33,25 @@ export function OptimizedImage({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
+  // A cached image can already be `complete` before React attaches onLoad, so
+  // that handler never fires and the blur/fade transition stays parked at
+  // opacity-50 — loaded, but rendered washed out. Check the element directly.
+  const imgRef = useRef<HTMLImageElement | null>(null);
+
   const optimizedSrc = generateImageKitUrl(src, width, height, quality);
-  const displaySrc = hasError ? (fallbackSrc || src) : optimizedSrc;
+  // Recovery only helps if it points somewhere different. When the CDN rewrote
+  // the URL, the untouched `src` is a real second chance (ImageKit down, origin
+  // up). When getOptimizedUrl passed the URL straight through — any host it
+  // cannot serve — `src` IS what just failed, so retrying it only re-renders the
+  // browser's broken-image glyph. Fall through to the empty state instead.
+  const recoverySrc = fallbackSrc || (optimizedSrc !== src ? src : undefined);
+  const displaySrc = hasError ? recoverySrc : optimizedSrc;
   const hasRenderableSrc = Boolean(displaySrc);
+
+  useEffect(() => {
+    const node = imgRef.current;
+    if (node?.complete && node.naturalWidth > 0) setIsLoading(false);
+  }, [displaySrc]);
 
   if (!hasRenderableSrc) {
     return <div className={cn('relative overflow-hidden bg-zinc-800/20', className)} aria-hidden="true" />;
@@ -44,6 +60,7 @@ export function OptimizedImage({
   return (
     <div className={cn('relative overflow-hidden bg-zinc-800/20', className)}>
       <img
+        ref={imgRef}
         src={displaySrc}
         alt={alt}
         width={width}

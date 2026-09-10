@@ -127,12 +127,12 @@ describe('Chaos & Fault Injection (Platform Reliability)', () => {
       error: null
     });
     
-    vi.spyOn(supabase, 'rpc').mockImplementation(async (fnName) => {
+    vi.spyOn(supabase, 'rpc').mockImplementation((async (fnName: string) => {
       if (fnName === 'rpc_create_uploading_asset') {
         return { data: 'fake-asset-id-1', error: null } as any;
       }
       return { data: null, error: null } as any;
-    });
+    }) as unknown as typeof supabase.rpc);
 
     const orchestrator = new UploadOrchestrator(new ImageKitProvider());
     const file = new File(["dummy content"], "test.png", { type: "image/png" });
@@ -175,7 +175,7 @@ describe('Chaos & Fault Injection (Platform Reliability)', () => {
       error: null
     });
     
-    vi.spyOn(supabase, 'rpc').mockImplementation(async (fnName) => {
+    vi.spyOn(supabase, 'rpc').mockImplementation((async (fnName: string) => {
       if (fnName === 'rpc_create_uploading_asset') {
         return { data: 'fake-asset-id', error: null } as any;
       }
@@ -183,7 +183,7 @@ describe('Chaos & Fault Injection (Platform Reliability)', () => {
         return { data: null, error: new Error("Supabase 500 Internal Error") } as any;
       }
       return { data: null, error: null } as any;
-    });
+    }) as unknown as typeof supabase.rpc);
 
     const provider = new ImageKitProvider();
     vi.spyOn(provider, 'upload').mockResolvedValue({

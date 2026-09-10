@@ -58,7 +58,7 @@ export function useCalculatorStore() {
                 if (analytics) track(analytics, "estimate_path_selected", { pathId: "calculator_complete" });
                 return prev;
             }
-            if (analytics) track(analytics, "estimate_path_selected", { pathId: calculator_step_ });
+            if (analytics) track(analytics, "estimate_path_selected", { pathId: `calculator_step_${prev + 1}` });
             return prev + 1;
         });
     }, [analytics]);

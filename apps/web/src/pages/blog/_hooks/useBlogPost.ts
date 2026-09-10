@@ -36,6 +36,13 @@ export interface BlogPost {
   excerpt: string;
   cover_image_url?: string;
   cover_image?: string;
+  /**
+   * The column that actually exists on `blog_posts`. `cover_image_url` is only
+   * populated by fetchAndStitchDamUsages (which the list query calls and this
+   * hook does not), and `cover_image` belongs to the separate `blogs` table —
+   * so without this field no article page ever rendered a cover.
+   */
+  deprecated_cover_image_url?: string;
   created_at: string;
   read_time_minutes?: number;
   view_count?: number;

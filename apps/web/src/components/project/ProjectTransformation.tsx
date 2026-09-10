@@ -8,16 +8,16 @@ interface ProjectTransformationProps {
 
 const fallbacks: Record<string, { before: string; after: string }> = {
   "serene-master-suite": {
-    before: "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop",
-    after: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1200&auto=format&fit=crop"
+    before: "/blueprint_shell.jpg",
+    after: "/reality_render.jpg"
   },
   "modern-culinary-space": {
-    before: "https://images.unsplash.com/photo-1565538810844-1e119412e707?q=80&w=1200&auto=format&fit=crop",
-    after: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop"
+    before: "/blueprint_shell.jpg",
+    after: "/images/projects/discovery/visual-5.jpg"
   },
   "executive-workspace": {
-    before: "https://images.unsplash.com/photo-1504307651254-35680f356fce?q=80&w=1200&auto=format&fit=crop",
-    after: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop"
+    before: "/blueprint_shell.jpg",
+    after: "/images/projects/discovery/reflect-workspace-dynamic.jpg"
   }
 };
 
@@ -26,11 +26,11 @@ const ProjectTransformation = ({ project }: ProjectTransformationProps) => {
   
   const beforeImage = hasMultipleImages 
     ? project.gallery[0].images[0] 
-    : (fallbacks[project.slug]?.before || "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop");
+    : (fallbacks[project.slug]?.before || "/blueprint_shell.jpg");
   
   const afterImage = hasMultipleImages 
     ? project.gallery[0].images[1] 
-    : (project.heroImage || fallbacks[project.slug]?.after || "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1200&auto=format&fit=crop");
+    : (project.heroImage || fallbacks[project.slug]?.after || "/reality_render.jpg");
 
   return (
     <section id="transformation" className="py-24 md:py-32 border-t border-white/5 bg-neutral-950">

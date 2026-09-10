@@ -25,7 +25,7 @@ const linkVariants = cva(
 )
 
 export interface LinkProps
-  extends React.AnchorHTMLAttributes<HTMLAnchorElement>,
+  extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "color">,
     VariantProps<typeof linkVariants> {
   as?: React.ElementType
 }

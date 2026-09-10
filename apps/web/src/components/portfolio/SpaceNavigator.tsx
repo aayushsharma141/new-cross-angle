@@ -2,42 +2,45 @@ import { motion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const IK = "https://ik.imagekit.io/wdrs8y61o/cross-angle/tr:q-85,f-auto,w-900";
+// Local assets under apps/web/public/ — served directly by Vercel, not via
+// ImageKit (its /cross-angle endpoint origin is Supabase Storage, which has
+// no "images" bucket). See apps/web/src/lib/cdn.ts.
+const IMAGE_BASE = "/images/projects/discovery";
 
 const SPACES = [
   {
     id: "bedroom",
     name: "Bedroom Spaces",
     headline: "Designed for restful nights",
-    image: `${IK}/images/projects/discovery/visual-13.jpg`,
+    image: `${IMAGE_BASE}/visual-13.jpg`,
     href: "/gallery?category=Bedroom Interior"
   },
   {
     id: "living",
     name: "Living Rooms",
     headline: "Built for functional luxury",
-    image: `${IK}/images/projects/discovery/visual-11.jpg`,
+    image: `${IMAGE_BASE}/visual-11.jpg`,
     href: "/gallery?category=Living Room Interior"
   },
   {
     id: "kitchen",
     name: "Modular Kitchens",
     headline: "Heart of the home",
-    image: `${IK}/images/projects/discovery/visual-10.jpg`,
+    image: `${IMAGE_BASE}/visual-10.jpg`,
     href: "/gallery?category=Modular Kitchen"
   },
   {
     id: "commercial",
     name: "Commercial Spaces",
     headline: "Productivity redefined",
-    image: `${IK}/images/projects/discovery/visual-17.jpg`,
+    image: `${IMAGE_BASE}/visual-17.jpg`,
     href: "/gallery?category=Commercial"
   },
   {
     id: "wardrobe",
     name: "Wardrobes",
     headline: "Organized elegance",
-    image: `${IK}/images/projects/discovery/visual-15.jpg`,
+    image: `${IMAGE_BASE}/visual-15.jpg`,
     href: "/gallery?category=Wardrobe"
   }
 ];

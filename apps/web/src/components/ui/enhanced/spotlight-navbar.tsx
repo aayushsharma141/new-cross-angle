@@ -114,7 +114,7 @@ export function SpotlightNavContainer({
                 }}
             >
                 {/* Content */}
-                <div className="relative flex items-center h-full px-6 gap-6 z-[10]">
+                <div className="relative flex items-center h-full px-2.5 xl:px-6 gap-0.5 lg:gap-1 xl:gap-3 z-[10]">
                     {children}
                 </div>
 

@@ -6,7 +6,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
-import { Checkbox } from "@/components/primitives/interactive";
+import { Checkbox } from "@/components/ui/interactive/Checkbox";
 import { useToast } from "@/hooks/useToast";
 import {
   Eye,

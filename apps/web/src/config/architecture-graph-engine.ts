@@ -44,6 +44,15 @@ export type EnterpriseLayer =
   | 'governance'
   | 'delivery';
 
+/** Graph nodes in architecture.manifest.ts carry no owner; attribute by layer. */
+const NODE_LAYER_OWNERS: Record<string, string> = {
+  presentation: 'Design Systems Guild',
+  service: 'Platform Guild',
+  gateway: 'Platform Guild',
+  infrastructure: 'SRE & Performance Guild',
+  persistence: 'Data Guild',
+};
+
 export interface EnterpriseKnowledgeNode {
   id: string;
   type: EnterpriseEntityType;
@@ -431,7 +440,7 @@ export class ArchitectureKnowledgeGraph {
         owner: adr.owner,
         risk: adr.riskLevel as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
         layer: 'governance',
-        status: adr.status === 'accepted' ? 'active' : 'proposed',
+        status: adr.status === 'ACCEPTED' ? 'active' : 'proposed',
         created: adr.date,
         updated: '2026-08-08',
         tags: ['adr', 'decision', adr.status],
@@ -504,13 +513,13 @@ export class ArchitectureKnowledgeGraph {
         id: node.id,
         type: 'component',
         label: node.label,
-        owner: node.owner,
+        owner: NODE_LAYER_OWNERS[node.layer] ?? 'Unassigned',
         risk: node.layer === 'gateway' || node.layer === 'infrastructure' ? 'MEDIUM' : 'LOW',
         layer: node.layer as EnterpriseLayer,
-        status: node.status === 'production' ? 'active' : 'proposed',
+        status: node.status === 'active' ? 'active' : 'proposed',
         created: '2026-01-15',
         updated: '2026-08-08',
-        tags: ['code', node.layer, node.owner],
+        tags: ['code', node.layer, NODE_LAYER_OWNERS[node.layer] ?? 'Unassigned'],
         metadata: { ...node }
       };
       this.nodes.set(node.id, compNode);
@@ -1050,7 +1059,9 @@ export class ArchitectureKnowledgeGraph {
     // Find governing principles
     const governingPrinciples: ArchitecturePrinciple[] = [];
     ARCHITECTURE_MANIFEST.principles.forEach(p => {
-      if (p.dependentServices.some(s => s.toLowerCase().includes(target.id.toLowerCase()) || target.id.toLowerCase().includes(s.toLowerCase()))) {
+      const haystack = `${p.name} ${p.description}`.toLowerCase();
+      const needle = target.id.toLowerCase();
+      if (haystack.includes(needle) || needle.includes(p.id.toLowerCase())) {
         governingPrinciples.push(p);
       }
     });
@@ -1187,8 +1198,8 @@ export class ArchitectureKnowledgeGraph {
     // 1. WHAT-IF / COUNTERFACTUAL MIGRATION PLANNING ENGINE
     // Examples: "WHAT IF StorageGateway IS REPLACED", "WHAT IF ImageKit IS REPLACED WITH Cloudflare Images", "WHAT IF ADR-002 IS REPEALED"
     if (lower.startsWith('what if') || lower.includes('if ') && (lower.includes('is replaced') || lower.includes('is removed') || lower.includes('is repealed') || lower.includes('fails') || lower.includes('with '))) {
-      const matchWith = trimmed.match(/(?:what if|show impact if|simulate)\s+([a-zA-Z0-9_\-]+)\s+is replaced with\s+([a-zA-Z0-9_\-\s]+)/i);
-      const matchSimple = trimmed.match(/(?:what if|show impact if|simulate)\s+([a-zA-Z0-9_\-]+)\s+(is replaced|is removed|is repealed|fails|is deprecated)/i);
+      const matchWith = trimmed.match(/(?:what if|show impact if|simulate)\s+([a-zA-Z0-9_-]+)\s+is replaced with\s+([a-zA-Z0-9_\s-]+)/i);
+      const matchSimple = trimmed.match(/(?:what if|show impact if|simulate)\s+([a-zA-Z0-9_-]+)\s+(is replaced|is removed|is repealed|fails|is deprecated)/i);
 
       let sourceQuery = 'StorageGateway';
       let targetQuery: string | undefined;

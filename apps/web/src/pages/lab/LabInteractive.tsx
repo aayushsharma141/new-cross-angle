@@ -32,7 +32,7 @@ export default function LabInteractive() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {/* Buttons */}
             <Surface elevation="level1" className="p-6 lg:p-8">
-              <Heading size="h3" className="mb-6">Buttons</Heading>
+              <Heading size="heading-md" className="mb-6">Buttons</Heading>
               <Stack direction="col" gap="md">
                 <Stack direction="row" gap="sm" wrap>
                   <Button intent="primary">Primary</Button>
@@ -50,7 +50,7 @@ export default function LabInteractive() {
 
             {/* Links & Badges */}
             <Surface elevation="level1" className="p-6 lg:p-8">
-              <Heading size="h3" className="mb-6">Links & Badges</Heading>
+              <Heading size="heading-md" className="mb-6">Links & Badges</Heading>
               <Stack direction="col" gap="lg">
                 <Stack direction="row" gap="md" wrap>
                   <Link href="#" color="primary">Primary Link</Link>
@@ -70,7 +70,7 @@ export default function LabInteractive() {
 
             {/* Inputs & Textareas */}
             <Surface elevation="level1" className="p-6 lg:p-8">
-              <Heading size="h3" className="mb-6">Text Fields</Heading>
+              <Heading size="heading-md" className="mb-6">Text Fields</Heading>
               <Stack direction="col" gap="md">
                 <Input placeholder="Default input..." />
                 <Input placeholder="Error state..." state="error" />
@@ -81,35 +81,35 @@ export default function LabInteractive() {
 
             {/* Selection Controls */}
             <Surface elevation="level1" className="p-6 lg:p-8">
-              <Heading size="h3" className="mb-6">Selection Controls</Heading>
+              <Heading size="heading-md" className="mb-6">Selection Controls</Heading>
               <Stack direction="col" gap="xl">
                 
                 <Stack direction="row" gap="md" align="center">
                   <Switch id="airplane" />
-                  <label htmlFor="airplane"><Text size="sm">Airplane Mode</Text></label>
+                  <label htmlFor="airplane"><Text size="caption">Airplane Mode</Text></label>
                 </Stack>
 
                 <Stack direction="row" gap="md" align="center">
                   <Checkbox id="terms" />
-                  <label htmlFor="terms"><Text size="sm">Accept terms and conditions</Text></label>
+                  <label htmlFor="terms"><Text size="caption">Accept terms and conditions</Text></label>
                 </Stack>
 
                 <div>
-                  <Text size="sm" className="mb-3 block">Radio Group</Text>
+                  <Text size="caption" className="mb-3 block">Radio Group</Text>
                   <RadioGroup defaultValue="comfortable">
                     <Stack direction="row" gap="md" align="center">
                       <RadioGroupItem value="default" id="r1" />
-                      <label htmlFor="r1"><Text size="sm">Default</Text></label>
+                      <label htmlFor="r1"><Text size="caption">Default</Text></label>
                     </Stack>
                     <Stack direction="row" gap="md" align="center">
                       <RadioGroupItem value="comfortable" id="r2" />
-                      <label htmlFor="r2"><Text size="sm">Comfortable</Text></label>
+                      <label htmlFor="r2"><Text size="caption">Comfortable</Text></label>
                     </Stack>
                   </RadioGroup>
                 </div>
 
                 <div>
-                  <Text size="sm" className="mb-3 block">Select Dropdown</Text>
+                  <Text size="caption" className="mb-3 block">Select Dropdown</Text>
                   <Select>
                     <SelectTrigger>
                       <SelectValue placeholder="Select an interior style" />

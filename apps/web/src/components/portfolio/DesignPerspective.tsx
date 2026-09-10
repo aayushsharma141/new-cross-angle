@@ -72,8 +72,11 @@ const PillarCard = ({ title, subtitle, description, image, num }: PillarCardProp
 
   return (
     <div
+      // Focusable on purpose: the focus ring reveals what hover reveals for
+      // mouse users. Dropping tabIndex would be the accessibility regression.
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
-      className="relative w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[32vw] h-[60vh] md:h-[65vh] rounded-2xl overflow-hidden group shrink-0 border border-white/5 bg-white/[0.02] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60 cursor-pointer"
+      className="relative w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[30vw] h-[52vh] md:h-[56vh] max-h-[520px] min-h-[380px] rounded-2xl overflow-hidden group shrink-0 border border-white/5 bg-white/[0.02] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/60 cursor-pointer"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -234,10 +237,10 @@ export const DesignPerspective = () => {
   return (
     <div ref={containerRef} className="relative h-[250vh] bg-background my-[10vh]">
       {/* Sticky container */}
-      <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center select-none">
+      <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center select-none pt-16 md:pt-20 pb-6">
         
         {/* Title layer */}
-        <div className="max-w-7xl mx-auto w-full px-6 md:px-12 mb-10 shrink-0">
+        <div className="max-w-7xl mx-auto w-full px-6 md:px-12 mb-6 md:mb-8 shrink-0">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-px bg-primary/50" />
             <span className="text-primary font-bold uppercase tracking-[0.25em] text-[10px]">

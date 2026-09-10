@@ -9,6 +9,8 @@ import { useScrollLock } from "./useScrollLock"
 import { useEscapeKey } from "./useEscapeKey"
 import { overlayManager } from "./OverlayManager"
 
+import { Slot } from "@radix-ui/react-slot"
+
 import { Heading } from "@/components/ui/foundation/Heading"
 import { Text } from "@/components/ui/foundation/Text"
 import { IconButton } from "@/components/ui/interactive/IconButton"
@@ -159,13 +161,13 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
       gallery: "w-full max-w-4xl bg-stone-950 border border-stone-800 text-stone-100 shadow-2xl rounded-xl p-8 animate-in fade-in-0 zoom-in-95",
     }
 
-    const isSheet = variant === "sheet"
     const isFullscreen = variant === "fullscreen"
 
     return (
       <Portal>
         <Overlay isOpen={isOpen} onClose={() => setIsOpen(false)} style={{ zIndex }}>
           <FocusTrap active={isOpen}>
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
             <div
               ref={ref}
               id={dialogId}
@@ -178,6 +180,9 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
                 variantStyles[variant],
                 className
               )}
+              // Propagation guard only, not an interaction: it stops the click
+              // reaching Overlay's close-on-backdrop. Dismissal is handled by
+              // Overlay and useEscapeKey, so there is no keyboard equivalent.
               onClick={(e) => e.stopPropagation()}
               {...props}
             >
@@ -207,11 +212,15 @@ export const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLD
 )
 DialogHeader.displayName = "DialogHeader"
 
-export const DialogTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, children, ...props }, ref) => {
+export interface DialogTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  size?: React.ComponentProps<typeof Heading>["size"]
+}
+
+export const DialogTitle = React.forwardRef<HTMLHeadingElement, DialogTitleProps>(
+  ({ className, children, size = "heading-md", ...props }, ref) => {
     const { titleId } = useDialogContext()
     return (
-      <Heading ref={ref} id={titleId} size="heading-md" className={cn("m-0", className)} {...props}>
+      <Heading ref={ref} id={titleId} size={size} className={cn("m-0", className)} {...props}>
         {children}
       </Heading>
     )
@@ -219,11 +228,15 @@ export const DialogTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttrib
 )
 DialogTitle.displayName = "DialogTitle"
 
-export const DialogDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-  ({ className, children, ...props }, ref) => {
+export interface DialogDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
+  size?: React.ComponentProps<typeof Text>["size"]
+}
+
+export const DialogDescription = React.forwardRef<HTMLParagraphElement, DialogDescriptionProps>(
+  ({ className, children, size = "caption", ...props }, ref) => {
     const { descriptionId } = useDialogContext()
     return (
-      <Text ref={ref} id={descriptionId} size="sm" variant="secondary" className={cn("mt-1", className)} {...props}>
+      <Text ref={ref} id={descriptionId} size={size} variant="secondary" className={cn("mt-1", className)} {...props}>
         {children}
       </Text>
     )
@@ -241,23 +254,27 @@ export const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLD
 )
 DialogFooter.displayName = "DialogFooter"
 
-export interface DialogCloseProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+export interface DialogCloseProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  /** Render the single child element instead of this component's own <button>. */
+  asChild?: boolean
+}
 
 export const DialogClose = React.forwardRef<HTMLButtonElement, DialogCloseProps>(
-  ({ children, onClick, ...props }, ref) => {
+  ({ children, onClick, asChild, type, ...props }, ref) => {
     const { setIsOpen } = useDialogContext()
+    const Comp = asChild ? Slot : "button"
     return (
-      <button
+      <Comp
         ref={ref}
-        type="button"
-        onClick={(e) => {
+        {...(asChild ? {} : { type: type ?? "button" })}
+        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
           onClick?.(e)
           setIsOpen(false)
         }}
         {...props}
       >
         {children}
-      </button>
+      </Comp>
     )
   }
 )

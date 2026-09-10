@@ -65,7 +65,7 @@ const PortfolioPage = () => {
       <Navbar />
       <FixedSocialBar />
 
-      <main id="main-content" className="relative bg-background text-foreground overflow-hidden w-full min-h-screen">
+      <main id="main-content" className="relative bg-background text-foreground overflow-x-clip w-full min-h-screen">
 
         {/* 1. Hero Section */}
         <HubHero />

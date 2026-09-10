@@ -14,7 +14,7 @@ export interface CardProps extends SurfaceProps {
  * and optional subtle hover scaling for interactive cards.
  */
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, interactive = false, elevation = "sm", children, ...props }, ref) => {
+  ({ className, interactive = false, elevation = "level1", children, ...props }, ref) => {
     return (
       <Surface
         ref={ref}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef, ImgHTMLAttributes } from "react";
+import React, { useState, useEffect, useRef, useCallback, forwardRef, ImgHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 import { getOptimizedUrl, getOptimizedSrcSet } from "@/lib/cdn";
 
@@ -20,13 +20,41 @@ export const Image = forwardRef<HTMLImageElement, ImageProps>(
     const autoSrcSet = explicitSrcSet || (src ? getOptimizedSrcSet(src, widths, { quality }) : "");
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(false);
-    const displaySrc = error ? (fallbackSrc || src || optimizedSrc) : optimizedSrc;
+    // Recovery only helps if it points somewhere different. When the CDN
+    // rewrote the URL, the untouched `src` is a real second chance (ImageKit
+    // down, origin up). When `getOptimizedUrl` passed the URL straight through
+    // — any host it cannot serve — `src` IS what just failed, and retrying it
+    // only re-renders the browser's broken-image glyph. In that case we fall
+    // through to the same empty state used when there is no src at all.
+    const recoverySrc = fallbackSrc || (optimizedSrc !== src ? src : undefined);
+    const displaySrc = error ? recoverySrc : optimizedSrc;
+    // A srcSet with `w` descriptors wins over `src` — the browser picks its
+    // candidate from that list and never looks at `src`. Keeping the failed
+    // candidates here would silently defeat the recovery above, so drop the
+    // srcSet once the optimized source has errored.
+    const displaySrcSet = error ? undefined : (autoSrcSet || undefined);
     const hasRenderableSrc = Boolean(displaySrc);
 
+    // A cached image can already be `complete` before React attaches onLoad, so
+    // that handler never fires and the fade-in stays parked at opacity-0 — the
+    // image is fully loaded but invisible. Check the element directly instead of
+    // trusting the event alone.
+    const innerRef = useRef<HTMLImageElement | null>(null);
+    const setRefs = useCallback(
+      (node: HTMLImageElement | null) => {
+        innerRef.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref) (ref as React.MutableRefObject<HTMLImageElement | null>).current = node;
+      },
+      [ref],
+    );
+
     useEffect(() => {
-      setIsLoading(Boolean(src));
       setError(false);
-    }, [src]);
+      const node = innerRef.current;
+      if (node?.complete && node.naturalWidth > 0) setIsLoading(false);
+      else setIsLoading(Boolean(src));
+    }, [src, displaySrc]);
 
     if (!hasRenderableSrc) {
       return (
@@ -43,14 +71,17 @@ export const Image = forwardRef<HTMLImageElement, ImageProps>(
           <div className="absolute inset-0 skeleton-shimmer" />
         )}
         <img
-          ref={ref}
+          ref={setRefs}
           src={displaySrc}
-          srcSet={autoSrcSet || undefined}
+          srcSet={displaySrcSet}
           sizes={sizes}
           alt={alt}
           loading="lazy"
           decoding="async"
-          fetchPriority={fetchPriority}
+          // React 18 does not recognise camelCase fetchPriority on a DOM node —
+          // the HTML attribute is all-lowercase. Same spread used in Hero,
+          // HubHero and HeroPattern; can become a plain prop on React 19.
+          {...(fetchPriority ? ({ fetchpriority: fetchPriority } as any) : {})}
           onLoad={(event) => {
             setIsLoading(false);
             onLoad?.(event);

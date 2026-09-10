@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { Surface } from "@/components/primitives/foundation";
 import { Button } from "@/components/ui/primitives/button";
-import { Checkbox } from "@/components/primitives/interactive";
+import { Checkbox } from "@/components/ui/interactive/Checkbox";
 import { getOptimizedUrl } from "@/lib/cdn";
 import { useDraggable } from "@dnd-kit/core";
 

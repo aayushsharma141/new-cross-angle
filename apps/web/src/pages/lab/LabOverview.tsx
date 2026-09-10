@@ -15,7 +15,7 @@ export default function LabOverview() {
         </Text>
         
         <div className="mt-8">
-          <Heading size="h3" className="mb-4">How to use this lab</Heading>
+          <Heading size="heading-md" className="mb-4">How to use this lab</Heading>
           <ul className="list-disc pl-5 space-y-2 text-content-secondary">
             <li><strong className="text-content-primary">Foundations:</strong> Core tokens like typography, color, spacing, and motion.</li>
             <li><strong className="text-content-primary">Interactive:</strong> Base interactive elements like Buttons, Inputs, and Badges.</li>

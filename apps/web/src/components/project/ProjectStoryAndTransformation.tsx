@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Compare } from "@/components/ui/enhanced/compare";
 import { type Project } from "@/lib/api";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 // Curated 1-sentence narrative sets mapped by slug
 const storyTransformationData: Record<string, {
@@ -29,7 +30,7 @@ const storyTransformationData: Record<string, {
     challenge: "Cooking isolated the host inside a closed-door utility box separated from guests.",
     decision: "Opened sightlines by dissolving walls and integrating a central social seating island.",
     outcome: "Kitchen became the vibrant center of daily interaction and entertaining flow.",
-    beforeImg: "https://images.unsplash.com/photo-1565538810844-1e119412e707?q=80&w=1200&auto=format&fit=crop",
+    beforeImg: "https://iuuivmwqodefdrrrewol.supabase.co/storage/v1/object/public/media/IMG-20250703-WA0027.jpg",
     afterImg: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop"
   },
   "executive-workspace": {
@@ -38,7 +39,7 @@ const storyTransformationData: Record<string, {
     challenge: "Builder-grade modular cubicles drained visual energy and blocked natural collaboration flow.",
     decision: "Constructed an open-plan layout with grooved felt acoustics and living moss panels.",
     outcome: "Workspace noise drops by 40% while active team engagement rises significantly.",
-    beforeImg: "https://images.unsplash.com/photo-1504307651254-35680f356fce?q=80&w=1200&auto=format&fit=crop",
+    beforeImg: "/blueprint_shell.jpg",
     afterImg: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop"
   }
 };
@@ -115,7 +116,7 @@ export const ProjectStoryAndTransformation = ({ project }: ProjectStoryAndTransf
               className="relative aspect-[21/9] rounded-xl overflow-hidden border border-white/5 bg-neutral-900 group shadow-lg"
             >
               <img 
-                src={data.beforeImg} 
+                src={getOptimizedUrl(data.beforeImg, { width: 1200, quality: 80 })} 
                 alt="Original space constraint state" 
                 className="w-full h-full object-cover filter grayscale opacity-45 group-hover:opacity-60 transition-opacity duration-1000"
               />

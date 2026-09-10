@@ -15,7 +15,7 @@ import {
   ArticleCard,
   GalleryCard,
 } from "@/components/ui/card"
-import { Layers, Compass } from "lucide-react"
+import { Compass } from "lucide-react"
 
 export default function LabCards() {
   return (
@@ -47,15 +47,15 @@ export default function LabCards() {
           </Heading>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Card className="p-8 border border-subtle">
-              <Heading size="heading-sm" className="mb-2">Base Structural Card</Heading>
-              <Text size="sm" variant="secondary">
+              <Heading size="heading-md" className="mb-2">Base Structural Card</Heading>
+              <Text size="caption" variant="secondary">
                 Inherits directly from Surface. Accepts elevation levels and lighting state environments (`gallery`, `workspace`).
               </Text>
             </Card>
 
             <Panel className="border border-subtle">
-              <Heading size="heading-sm" className="mb-2">Compact Panel Container</Heading>
-              <Text size="sm" variant="secondary">
+              <Heading size="heading-md" className="mb-2">Compact Panel Container</Heading>
+              <Text size="caption" variant="secondary">
                 Designed for sidebars, inspector tools, and auxiliary control boxes.
               </Text>
             </Panel>
@@ -93,7 +93,7 @@ export default function LabCards() {
             <TestimonialCard
               quote="CrossAngle transformed our duplex into a calm, light-filled haven. The execution was flawless."
               author="Kenji Takahashi"
-              role="Principal Architect"
+              authorRole="Principal Architect"
               projectScope="Tokyo Penthouse Project"
             />
 

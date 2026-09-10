@@ -20,17 +20,41 @@ const inputVariants = cva(
 
 export interface InputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
-    VariantProps<typeof inputVariants> {}
+    VariantProps<typeof inputVariants> {
+  /**
+   * Renders a bound <label> above the field. Omit it for a bare input —
+   * existing call sites that pass no label are unaffected.
+   */
+  label?: string
+}
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, state, type, ...props }, ref) => {
-    return (
+  ({ className, state, type, label, id, ...props }, ref) => {
+    const generatedId = React.useId()
+    const inputId = id ?? (label ? generatedId : undefined)
+
+    const input = (
       <input
         type={type}
+        id={inputId}
         className={cn(inputVariants({ state, className }))}
         ref={ref}
         {...props}
       />
+    )
+
+    if (!label) return input
+
+    return (
+      <div className="space-y-2">
+        <label
+          htmlFor={inputId}
+          className="block text-caption text-content-secondary font-medium"
+        >
+          {label}
+        </label>
+        {input}
+      </div>
     )
   }
 )

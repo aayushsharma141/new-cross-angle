@@ -48,7 +48,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
         discoveryApplied, discoveryName, discoveryRationale, dismissDiscovery,
         updateField, updateFields, nextStep, prevStep, goToStep,
         reset, saveLead, alcsEstimatorResponse,
-    } = useCalculatorStore(analytics);
+    } = useCalculatorStore();
 
     const startedRef = useRef(false);
     useEffect(() => {

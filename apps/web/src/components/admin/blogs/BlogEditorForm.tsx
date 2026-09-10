@@ -149,14 +149,17 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
         slug: formData.slug,
         excerpt: formData.excerpt || null,
         content: formData.content || null,
-        cover_image_url: formData.cover_image_url || null,
+        // TODO(ADR-0002): move to asset_usages; deprecated_cover_image_url is
+        // the post-DAM-v3 name of this column.
+        deprecated_cover_image_url: formData.cover_image_url || null,
         status: formData.status,
         featured: formData.featured,
         seo_title: formData.seo_title || null,
         seo_description: formData.seo_description || null,
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
         published_at: formData.status === 'published' ? new Date().toISOString() : null,
-        scheduled_at: formData.scheduled_at || null,
+        // NOTE: blog_posts has no scheduled_at column. Sending it rejected the
+        // whole write, so scheduling is not persisted until the column exists.
       };
 
       if (post) {

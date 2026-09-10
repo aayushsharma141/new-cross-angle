@@ -23,7 +23,7 @@ export function GalleryPattern({
 }: GalleryPatternProps) {
   if (mode === "dark") {
     return (
-      <Section spacing="xl" className={cn("bg-stone-950 text-stone-100 py-24", className)}>
+      <Section spacing="loose" className={cn("bg-stone-950 text-stone-100 py-24", className)}>
         <Container size="standard">
           <div className="mb-16 space-y-4">
             <Text size="micro" className="text-copper font-mono uppercase tracking-widest font-bold">
@@ -61,7 +61,7 @@ export function GalleryPattern({
   }
 
   return (
-    <Section spacing="xl" className={cn("py-24 bg-canvas-primary border-b border-subtle", className)}>
+    <Section spacing="loose" className={cn("py-24 bg-canvas-primary border-b border-subtle", className)}>
       <Container size="standard">
         <div className="mb-16 space-y-4">
           <Text size="micro" className="text-copper font-mono uppercase tracking-widest font-bold">

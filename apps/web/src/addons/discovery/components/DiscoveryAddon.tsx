@@ -1,5 +1,6 @@
 import React from 'react';
-import { DiscoveryEngine, DiscoveryConfig } from './DiscoveryEngine';
+import { DiscoveryEngine } from './DiscoveryEngine';
+import type { DiscoveryConfig } from '@/types/discovery';
 import { QuizErrorBoundary } from './QuizErrorBoundary';
 import { AestheticScores, UserSignals, AIAestheticResult } from '@/types/discovery';
 

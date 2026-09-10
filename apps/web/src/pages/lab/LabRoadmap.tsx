@@ -16,9 +16,9 @@ const ProgressItem = ({ title, percentage, description }: ProgressItemProps) => 
   <Stack direction="col" gap="sm">
     <div className="flex justify-between items-end">
       <Text size="body-lg" className="font-medium">{title}</Text>
-      <Text size="sm" variant="secondary" className="font-mono">{percentage}%</Text>
+      <Text size="caption" variant="secondary" className="font-mono">{percentage}%</Text>
     </div>
-    {description && <Text size="sm" variant="secondary">{description}</Text>}
+    {description && <Text size="caption" variant="secondary">{description}</Text>}
     <div className="h-2 w-full bg-canvas-secondary rounded-full overflow-hidden">
       <div 
         className="h-full bg-copper transition-all duration-1000 ease-out"

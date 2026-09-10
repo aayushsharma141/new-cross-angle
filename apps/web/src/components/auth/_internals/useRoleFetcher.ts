@@ -6,7 +6,7 @@
  *           3-attempt exponential backoff, timeout wrapping.
  */
 
-import type { AppRole } from "../rbac";
+import type { AppRole } from "@/lib/auth/rbac";
 import { getCachedRole, setCachedRole } from "./role-cache";
 import { supabase } from "@/integrations/supabase/client";
 

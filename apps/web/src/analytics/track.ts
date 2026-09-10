@@ -1,6 +1,7 @@
 import type { AnalyticsClient } from "./posthog-client";
 import type { AnalyticsEventMap } from "./events";
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
 /**
  * Type-safe wrapper around `client.track` for PRODUCT & LEARNING telemetry.
@@ -23,7 +24,7 @@ export function track<K extends keyof AnalyticsEventMap>(
   // Fire and forget to Supabase
   const metadata = properties as Record<string, unknown>;
   // user_id in analytics_events is an FK to auth.users, so it can only be a real user ID.
-  const userId = metadata.designerId || undefined;
+  const userId = (metadata.designerId as string | undefined) || undefined;
 
   const enrichedPayload = {
     ...properties,
@@ -34,7 +35,7 @@ export function track<K extends keyof AnalyticsEventMap>(
 
   supabase.from("analytics_events").insert({
     event_type: event as string,
-    payload: enrichedPayload,
+    payload: enrichedPayload as unknown as Json,
     user_id: userId,
   }).then(
     ({ error }) => {
@@ -72,7 +73,7 @@ export async function recordLearningEvent<K extends keyof AnalyticsEventMap>(
   try {
     const metadata = properties as Record<string, unknown>;
     // user_id in analytics_events is an FK to auth.users, so it can only be a real user ID.
-    const userId = metadata.designerId || undefined;
+    const userId = (metadata.designerId as string | undefined) || undefined;
 
     const enrichedPayload = {
       ...properties,
@@ -83,7 +84,7 @@ export async function recordLearningEvent<K extends keyof AnalyticsEventMap>(
 
     const { error } = await supabase.from("analytics_events").insert({
       event_type: event as string,
-      payload: enrichedPayload,
+      payload: enrichedPayload as unknown as Json,
       user_id: userId,
     });
 

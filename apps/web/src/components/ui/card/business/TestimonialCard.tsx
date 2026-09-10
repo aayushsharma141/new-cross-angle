@@ -4,10 +4,10 @@ import { Text } from "@/components/ui/foundation/Text"
 import { Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export interface TestimonialCardProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface TestimonialCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "role"> {
   quote: string
   author: string
-  role: string
+  authorRole: string
   rating?: number
   projectScope?: string
 }
@@ -15,7 +15,7 @@ export interface TestimonialCardProps extends React.HTMLAttributes<HTMLDivElemen
 export function TestimonialCard({
   quote,
   author,
-  role,
+  authorRole,
   rating = 5,
   projectScope,
   className,
@@ -35,11 +35,11 @@ export function TestimonialCard({
       </div>
 
       <div className="pt-4 border-t border-subtle">
-        <Text size="sm" className="font-semibold text-content-primary">
+        <Text size="caption" className="font-semibold text-content-primary">
           {author}
         </Text>
-        <Text size="xs" variant="secondary" className="font-mono">
-          {role} {projectScope ? `· ${projectScope}` : ""}
+        <Text size="caption" variant="secondary" className="font-mono">
+          {authorRole} {projectScope ? `· ${projectScope}` : ""}
         </Text>
       </div>
     </Card>

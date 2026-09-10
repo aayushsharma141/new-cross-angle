@@ -29,10 +29,11 @@ describe('Collector Outage & Recovery Resilience', () => {
 
     const mockProvider = {
       upload: async () => ({
-        assetId: 'resilience-asset-123',
         url: 'https://cdn.example.com/asset.png',
-        provider: 'imagekit' as const,
+        filePath: 'marketing/asset.png',
+        name: 'asset.png',
       }),
+      delete: async () => {},
     };
 
     const orchestrator = new UploadOrchestrator(mockProvider);
@@ -41,9 +42,9 @@ describe('Collector Outage & Recovery Resilience', () => {
     // 2. Execute business transaction during collector outage
     const result = await orchestrator.upload({
       file: blob,
-      filename: 'outage-test.png',
-      contentType: 'image/png',
       domain: 'marketing',
+      entityType: 'telemetry-test',
+      role: 'hero',
       idempotencyKey: 'outage-key-resilience',
     });
 
@@ -67,10 +68,11 @@ describe('Collector Outage & Recovery Resilience', () => {
 
     const mockProvider = {
       upload: async () => ({
-        assetId: 'resilience-asset-123',
         url: 'https://cdn.example.com/asset.png',
-        provider: 'imagekit' as const,
+        filePath: 'marketing/asset.png',
+        name: 'asset.png',
       }),
+      delete: async () => {},
     };
 
     const orchestrator = new UploadOrchestrator(mockProvider);
@@ -79,9 +81,9 @@ describe('Collector Outage & Recovery Resilience', () => {
     // Phase 1: Outage
     const outageResult = await orchestrator.upload({
       file: blob,
-      filename: 'phase1.png',
-      contentType: 'image/png',
       domain: 'sales',
+      entityType: 'telemetry-test',
+      role: 'hero',
       idempotencyKey: 'recovery-key-1',
     });
     expect(outageResult.assetId).toBe('resilience-asset-123');
@@ -91,9 +93,9 @@ describe('Collector Outage & Recovery Resilience', () => {
 
     const recoveryResult = await orchestrator.upload({
       file: blob,
-      filename: 'phase2.png',
-      contentType: 'image/png',
       domain: 'sales',
+      entityType: 'telemetry-test',
+      role: 'hero',
       idempotencyKey: 'recovery-key-2',
     });
 

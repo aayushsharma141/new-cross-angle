@@ -24,6 +24,7 @@ import { api } from "@/lib/api";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { SITE_CONSTANTS } from "@/lib/constants";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 // Register GSAP plugins once at module level
 gsap.registerPlugin(ScrollTrigger);
@@ -454,7 +455,7 @@ const ProjectPage = () => {
               {/* Background image */}
               <div className="absolute inset-0 z-0 bg-[var(--s-canvas-primary)]">
                 <img 
-                  src={nextProject.heroImage} 
+                  src={getOptimizedUrl(nextProject.heroImage, { width: 800, quality: 80 })} 
                   alt={nextProject.title} 
                   className="w-full h-full object-cover opacity-60 group-hover:opacity-85 transition-all duration-[1.2s] ease-out" 
                   loading="lazy"
@@ -525,7 +526,7 @@ const ProjectPage = () => {
                     <div className="aspect-[4/5] overflow-hidden mb-5 relative bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)] rounded-xl shadow-md">
                       <div className="w-full h-full">
                         <img
-                          src={rp.heroImage}
+                          src={getOptimizedUrl(rp.heroImage, { width: 800, quality: 80 })}
                           alt={rp.title}
                           className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.03]"
                           loading="lazy"

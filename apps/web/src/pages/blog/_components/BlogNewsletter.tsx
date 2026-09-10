@@ -163,7 +163,7 @@ export function BlogNewsletter() {
               animate={{ y: [0, -10, 0], rotate: [-6, -3, -6], scale: [0.9, 0.95, 0.9] }}
               transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 2 }}
             >
-              <MediaSlot assetKey="blog_newsletter_bg" fallbackUrl="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80" alt="" className="w-full h-full rounded-lg object-cover" />
+              <MediaSlot assetKey="blog_newsletter_bg" fallbackUrl="/images/projects/discovery/lifestyle-4.jpg" alt="" className="w-full h-full rounded-lg object-cover" />
             </motion.div>
 
             {/* Floating Particles in 3D Space */}

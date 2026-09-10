@@ -29,7 +29,7 @@ export function MetricCard({
           </span>
         )}
       </div>
-      <Text size="sm" variant="secondary" className="font-mono uppercase tracking-wider">
+      <Text size="caption" variant="secondary" className="font-mono uppercase tracking-wider">
         {label}
       </Text>
     </Card>

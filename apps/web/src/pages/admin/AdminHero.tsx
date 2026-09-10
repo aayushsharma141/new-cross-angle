@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/primitives/button";
 import { Image } from "@/components/ui/enhanced/image";
 import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
+import type { TablesUpdate } from "@/integrations/supabase/types";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { getOptimizedUrl } from "@/lib/cdn";
 
@@ -175,7 +176,7 @@ const AdminHero = () => {
         mutationFn: async ({ id, updatePayload }: { id: string, updatePayload: Record<string, unknown> }) => {
             const { error } = await supabase
                 .from("hero_media")
-                .update(updatePayload)
+                .update(updatePayload as TablesUpdate<"hero_media">)
                 .eq("id", id);
             if (error) throw error;
             return { id, updatePayload };

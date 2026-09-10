@@ -250,7 +250,7 @@ const LocationPage = () => {
             <div className="relative aspect-square md:aspect-[4/5] rounded-2xl overflow-hidden border border-white/10">
               <MediaSlot
                 assetKey="location_hero_bg"
-                fallbackUrl="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=1000"
+                fallbackUrl="/images/projects/discovery/lifestyle-4.jpg"
                 alt={`Luxury Interior Design in ${formattedCity}`}
                 className="w-full h-full object-cover mix-blend-luminosity opacity-80 hover:scale-105 transition-transform duration-1000"
               />

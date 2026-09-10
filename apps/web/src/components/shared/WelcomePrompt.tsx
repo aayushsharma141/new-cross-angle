@@ -8,6 +8,7 @@ import { leadService } from "@/services/LeadService";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import logoIcon from "@/assets/logo-icon.png";
 import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 const WelcomePrompt = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -210,7 +211,7 @@ const WelcomePrompt = () => {
           <div className="flex flex-col items-center gap-1.5">
             <div className="flex flex-col items-center justify-center gap-2 mb-1">
               <img
-                src={logoUrl}
+                src={getOptimizedUrl(logoUrl, { width: 200, quality: 80 })}
                 alt="Cross Angle Interior"
                 style={{ imageRendering: "auto" }}
                 className="h-16 w-auto drop-shadow-[0_0_1px_rgba(255,255,255,0.1)]"

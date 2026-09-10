@@ -19,7 +19,7 @@ export function TestimonialPattern({
   className,
 }: TestimonialPatternProps) {
   return (
-    <Section spacing="xl" className={cn("py-24 bg-canvas-primary border-b border-subtle", className)}>
+    <Section spacing="loose" className={cn("py-24 bg-canvas-primary border-b border-subtle", className)}>
       <Container size="standard">
         <div className="mb-16 space-y-4 max-w-3xl">
           <Text size="micro" className="text-copper font-mono uppercase tracking-widest font-bold">
@@ -35,7 +35,7 @@ export function TestimonialPattern({
               key={i}
               quote={t.quote}
               author={t.author}
-              role={t.role}
+              authorRole={t.role}
               projectScope={t.projectScope}
             />
           ))}

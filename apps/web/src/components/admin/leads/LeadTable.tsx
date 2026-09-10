@@ -3,7 +3,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { ExternalLink, MoreHorizontal, Mail, Phone, MapPin, Calendar, Tag, ArrowUpDown, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
-import { Checkbox } from "@/components/primitives/interactive";
+import { Checkbox } from "@/components/ui/interactive/Checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,

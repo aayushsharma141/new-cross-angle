@@ -2,14 +2,15 @@ import { useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const documentationSteps = [
   { phase: "01. Planning", name: "Site Photos & Measurements", desc: "Detailed digital scans and physical dimensional surveys to register initial tolerances.", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1000&auto=format&fit=crop" },
   { phase: "02. 3D Renders", name: "Material Boards & Visualizations", desc: "Photorealistic spatial rendering combined with sensory finish pairing configurations.", img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop" },
-  { phase: "03. Drawings", name: "Electrical & Plumbing Layouts", desc: "Precise engineering execution blueprints outlining technical systems and terminal grids.", img: "https://images.unsplash.com/photo-1541888081622-1cb66a3e6398?q=80&w=1000&auto=format&fit=crop" },
-  { phase: "04. Execution", name: "Site Masonry & Carpentry", desc: "Active structural assembly supervised daily against strict quality assurance guides.", img: "https://images.unsplash.com/photo-1504307651254-35680f356fce?q=80&w=1000&auto=format&fit=crop" },
+  { phase: "03. Drawings", name: "Electrical & Plumbing Layouts", desc: "Precise engineering execution blueprints outlining technical systems and terminal grids.", img: "/blueprint_shell.jpg" },
+  { phase: "04. Execution", name: "Site Masonry & Carpentry", desc: "Active structural assembly supervised daily against strict quality assurance guides.", img: "https://iuuivmwqodefdrrrewol.supabase.co/storage/v1/object/public/media/IMG-20250703-WA0033.jpg" },
   { phase: "05. Delivery", name: "Final Turnkey Handover", desc: "Deep cleaning, furniture placement, system testing, and delivery handover.", img: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1000&auto=format&fit=crop" }
 ];
 
@@ -62,7 +63,7 @@ const ProjectDocumentation = () => {
           }`}
         >
           <img 
-            src={step.img} 
+            src={getOptimizedUrl(step.img, { width: 900, quality: 80 })} 
             alt={step.name} 
             className="w-full h-full object-cover" 
             loading={idx === 0 ? "eager" : "lazy"} 

@@ -14,7 +14,7 @@ type SurfaceComponent = (<T extends React.ElementType = 'div'>(
   props: SurfaceProps<T> & { ref?: React.ComponentPropsWithRef<T>['ref'] }
 ) => React.ReactNode) & { displayName?: string };
 
-export const Surface = React.forwardRef(
+export const Surface = (React.forwardRef as unknown as (r: unknown) => unknown)(
   <T extends React.ElementType = 'div'>(
     { className, as, variant = 'primary', radius = 'md', shadow = 'none', border = false, ...props }: SurfaceProps<T>,
     ref: React.ComponentPropsWithRef<T>['ref']

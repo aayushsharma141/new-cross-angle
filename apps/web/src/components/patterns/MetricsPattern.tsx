@@ -11,7 +11,7 @@ export interface MetricsPatternProps extends MetricsContent {
 
 export function MetricsPattern({ metrics = [], className }: MetricsPatternProps) {
   return (
-    <Section spacing="lg" className={cn("py-16 bg-canvas-primary border-b border-subtle", className)}>
+    <Section spacing="default" className={cn("py-16 bg-canvas-primary border-b border-subtle", className)}>
       <Container size="standard">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {metrics.map((m, i) => (

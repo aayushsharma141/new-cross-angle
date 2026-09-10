@@ -8,6 +8,7 @@ import { StoryPattern } from "@/components/patterns/StoryPattern"
 import { GalleryPattern } from "@/components/patterns/GalleryPattern"
 import { Heading } from "@/components/ui/foundation/Heading"
 import { Text } from "@/components/ui/foundation/Text"
+import { getOptimizedUrl } from "@/lib/cdn";
 
 export interface CaseStudyTemplateProps {
   content: CaseStudyModel
@@ -47,20 +48,20 @@ export function CaseStudyTemplate({ content, actions }: CaseStudyTemplateProps) 
           <div className="py-12 border-b border-subtle bg-canvas-secondary">
             <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
               <div>
-                <Text size="xs" variant="secondary" className="font-mono mb-1">LOCATION</Text>
-                <Heading size="heading-sm">{content.specs.location}</Heading>
+                <Text size="caption" variant="secondary" className="font-mono mb-1">LOCATION</Text>
+                <Heading size="heading-md">{content.specs.location}</Heading>
               </div>
               <div>
-                <Text size="xs" variant="secondary" className="font-mono mb-1">YEAR</Text>
-                <Heading size="heading-sm">{content.specs.year}</Heading>
+                <Text size="caption" variant="secondary" className="font-mono mb-1">YEAR</Text>
+                <Heading size="heading-md">{content.specs.year}</Heading>
               </div>
               <div>
-                <Text size="xs" variant="secondary" className="font-mono mb-1">SIZE</Text>
-                <Heading size="heading-sm">{content.specs.size}</Heading>
+                <Text size="caption" variant="secondary" className="font-mono mb-1">SIZE</Text>
+                <Heading size="heading-md">{content.specs.size}</Heading>
               </div>
               <div>
-                <Text size="xs" variant="secondary" className="font-mono mb-1">CATEGORY</Text>
-                <Heading size="heading-sm">{content.specs.category}</Heading>
+                <Text size="caption" variant="secondary" className="font-mono mb-1">CATEGORY</Text>
+                <Heading size="heading-md">{content.specs.category}</Heading>
               </div>
             </div>
           </div>
@@ -71,12 +72,23 @@ export function CaseStudyTemplate({ content, actions }: CaseStudyTemplateProps) 
         <GalleryPattern {...content.gallery} />
         
         {content.nextProjectNav && (
-          <div className="py-24 border-t border-subtle bg-stone-950 text-center relative overflow-hidden group cursor-pointer" onClick={actions?.nextProject}>
+          <div
+            role="button"
+            tabIndex={0}
+            className="py-24 border-t border-subtle bg-stone-950 text-center relative overflow-hidden group cursor-pointer"
+            onClick={actions?.nextProject}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                actions?.nextProject?.();
+              }
+            }}
+          >
             {content.nextProjectNav.imageUrl && (
-              <img src={content.nextProjectNav.imageUrl} alt="Next Project" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-40 transition-opacity duration-700" />
+              <img src={getOptimizedUrl(content.nextProjectNav.imageUrl, { width: 800, quality: 80 })} alt="Next Project" className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-40 transition-opacity duration-700" />
             )}
             <div className="relative z-10">
-              <Text size="sm" className="font-mono text-copper mb-4 uppercase tracking-widest">NEXT PROJECT</Text>
+              <Text size="caption" className="font-mono text-copper mb-4 uppercase tracking-widest">NEXT PROJECT</Text>
               <Heading size="display-lg" className="text-white group-hover:text-copper transition-colors">{content.nextProjectNav.title}</Heading>
             </div>
           </div>

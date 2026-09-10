@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { MessageSquare, StarHalf, Edit2, Trash2, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { TablesUpdate } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/useToast";
 import { usePermissions } from "@/hooks/usePermissions";
 import { auditService } from "@/services/AuditService";
@@ -76,7 +77,7 @@ const AdminTestimonials = () => {
     mutationFn: async (payload: Record<string, unknown>) => {
       let error;
       if (editingTestimonial) { 
-        const { error: e } = await supabase.from('testimonials').update(payload).eq('id', editingTestimonial.id); 
+        const { error: e } = await supabase.from('testimonials').update(payload as TablesUpdate<"testimonials">).eq('id', editingTestimonial.id); 
         error = e; 
       } else { 
         const { error: e } = await supabase.from('testimonials').insert({ ...payload, display_order: testimonials.length } as any); 

@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/useToast";
 import { useSystem } from "@/context/SystemContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
+import type { TablesUpdate } from "@/integrations/supabase/types";
 
 // Primitives
 import { Input } from "@/components/primitives/interactive";
@@ -179,7 +180,7 @@ const AdminSettings = () => {
         // Row exists — update it
         const { error } = await supabase
           .from("site_settings")
-          .update(payload)
+          .update(payload as TablesUpdate<"site_settings">)
           .eq("id", settings.id);
         dbError = error;
       } else {
@@ -239,7 +240,7 @@ const AdminSettings = () => {
 
       await supabase
         .from("site_settings")
-        .update(payload)
+        .update(payload as TablesUpdate<"site_settings">)
         .eq("id", settings.id);
       
       await refetchSettings();

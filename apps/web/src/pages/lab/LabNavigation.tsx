@@ -15,7 +15,7 @@ import {
   Pagination,
   AnchorNav,
 } from "@/components/ui/navigation"
-import { Menu, Layers, ArrowUpRight } from "lucide-react"
+import { Menu, ArrowUpRight } from "lucide-react"
 
 export default function LabNavigation() {
   const [megaOpen, setMegaOpen] = React.useState(false)
@@ -51,7 +51,7 @@ export default function LabNavigation() {
           <Heading size="heading-md" className="mb-4">
             Navbar, Mega Menu & Mobile Drawer
           </Heading>
-          <Text variant="secondary" size="sm" className="mb-6">
+          <Text variant="secondary" size="caption" className="mb-6">
             Interactive preview of the global navigation header with glassmorphism, category dropdown trigger, and mobile drawer.
           </Text>
 
@@ -74,10 +74,10 @@ export default function LabNavigation() {
                 </div>
               }
             >
-              <a href="#" className="hover:text-copper transition-colors">Philosophy</a>
-              <a href="#" className="hover:text-copper transition-colors">Portfolio</a>
-              <a href="#" className="hover:text-copper transition-colors">Services</a>
-              <a href="#" className="hover:text-copper transition-colors">Journal</a>
+              <a href="#demo" className="hover:text-copper transition-colors">Philosophy</a>
+              <a href="#demo" className="hover:text-copper transition-colors">Portfolio</a>
+              <a href="#demo" className="hover:text-copper transition-colors">Services</a>
+              <a href="#demo" className="hover:text-copper transition-colors">Journal</a>
             </Navbar>
 
             {/* Mega Menu Overlay */}
@@ -88,9 +88,9 @@ export default function LabNavigation() {
                     RESIDENTIAL TYPOLOGIES
                   </Text>
                   <ul className="space-y-2 text-sm">
-                    <li><a href="#" className="hover:text-copper">Penthouse & Luxury Duplex</a></li>
-                    <li><a href="#" className="hover:text-copper">Minimalist Urban Villas</a></li>
-                    <li><a href="#" className="hover:text-copper">Heritage Restorations</a></li>
+                    <li><a href="#demo" className="hover:text-copper">Penthouse & Luxury Duplex</a></li>
+                    <li><a href="#demo" className="hover:text-copper">Minimalist Urban Villas</a></li>
+                    <li><a href="#demo" className="hover:text-copper">Heritage Restorations</a></li>
                   </ul>
                 </div>
                 <div>
@@ -98,9 +98,9 @@ export default function LabNavigation() {
                     COMMERCIAL & STUDIO
                   </Text>
                   <ul className="space-y-2 text-sm">
-                    <li><a href="#" className="hover:text-copper">Executive Workspaces</a></li>
-                    <li><a href="#" className="hover:text-copper">Boutique Hospitality</a></li>
-                    <li><a href="#" className="hover:text-copper">Acoustic Audio Studios</a></li>
+                    <li><a href="#demo" className="hover:text-copper">Executive Workspaces</a></li>
+                    <li><a href="#demo" className="hover:text-copper">Boutique Hospitality</a></li>
+                    <li><a href="#demo" className="hover:text-copper">Acoustic Audio Studios</a></li>
                   </ul>
                 </div>
                 <div>
@@ -118,10 +118,10 @@ export default function LabNavigation() {
             {/* Mobile Nav Sheet */}
             <MobileNav isOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} title="CrossAngle Navigation">
               <Stack direction="col" gap="md">
-                <a href="#" className="text-lg font-medium hover:text-copper">Philosophy</a>
-                <a href="#" className="text-lg font-medium hover:text-copper">Portfolio Showcase</a>
-                <a href="#" className="text-lg font-medium hover:text-copper">Architectural Services</a>
-                <a href="#" className="text-lg font-medium hover:text-copper">Design Journal</a>
+                <a href="#demo" className="text-lg font-medium hover:text-copper">Philosophy</a>
+                <a href="#demo" className="text-lg font-medium hover:text-copper">Portfolio Showcase</a>
+                <a href="#demo" className="text-lg font-medium hover:text-copper">Architectural Services</a>
+                <a href="#demo" className="text-lg font-medium hover:text-copper">Design Journal</a>
                 <Divider />
                 <Button intent="primary" className="w-full">Book Private Consultation</Button>
               </Stack>
@@ -137,7 +137,7 @@ export default function LabNavigation() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Breadcrumbs */}
             <div className="p-6 bg-surface-card border border-subtle rounded-xl">
-              <Text size="label" className="mb-4">Accessible Breadcrumb Trail</Text>
+              <Text size="micro" className="mb-4">Accessible Breadcrumb Trail</Text>
               <Breadcrumb
                 items={[
                   { label: "Home", href: "#" },
@@ -150,7 +150,7 @@ export default function LabNavigation() {
 
             {/* Tabs */}
             <div className="p-6 bg-surface-card border border-subtle rounded-xl">
-              <Text size="label" className="mb-4">Keyboard Accessible Tabs</Text>
+              <Text size="micro" className="mb-4">Keyboard Accessible Tabs</Text>
               <Tabs
                 variant="pill"
                 tabs={[
@@ -177,8 +177,8 @@ export default function LabNavigation() {
             {/* Pagination */}
             <div className="p-6 bg-surface-card border border-subtle rounded-xl flex flex-col justify-between">
               <div>
-                <Text size="label" className="mb-2">Portfolio Page Controls</Text>
-                <Text size="sm" variant="secondary" className="mb-4">
+                <Text size="micro" className="mb-2">Portfolio Page Controls</Text>
+                <Text size="caption" variant="secondary" className="mb-4">
                   Paginated page index indicator for project collections.
                 </Text>
               </div>
@@ -191,7 +191,7 @@ export default function LabNavigation() {
 
             {/* AnchorNav */}
             <div className="p-6 bg-surface-card border border-subtle rounded-xl">
-              <Text size="label" className="mb-4">Editorial Anchor Section Indicator</Text>
+              <Text size="micro" className="mb-4">Editorial Anchor Section Indicator</Text>
               <AnchorNav
                 items={[
                   { id: "spec-1", label: "01. Spatial Philosophy" },

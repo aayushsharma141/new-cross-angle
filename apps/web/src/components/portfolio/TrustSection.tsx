@@ -76,7 +76,7 @@ const TrustSection = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.6 }}
-                src={'image' in activeTestimonial && typeof activeTestimonial.image === 'string' ? activeTestimonial.image : "https://ik.imagekit.io/wdrs8y61o/cross-angle/tr:q-85,f-auto,w-400/images/projects/discovery/lifestyle-1.jpg"}
+                src={'image' in activeTestimonial && typeof activeTestimonial.image === 'string' ? activeTestimonial.image : "/images/projects/discovery/lifestyle-1.jpg"}
                 alt={activeTestimonial.author}
                 className="w-full h-full object-cover"
               />

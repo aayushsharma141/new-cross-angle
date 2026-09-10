@@ -34,7 +34,7 @@ export function ContactPattern({
   }
 
   return (
-    <Section spacing="xl" className={cn("py-24 bg-canvas-primary border-b border-subtle", className)}>
+    <Section spacing="loose" className={cn("py-24 bg-canvas-primary border-b border-subtle", className)}>
       <Container size="standard">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           {/* Studio Info */}
@@ -51,24 +51,24 @@ export function ContactPattern({
               <div className="flex items-start gap-4">
                 <MapPin className="text-copper mt-1" size={20} />
                 <div>
-                  <Text size="sm" className="font-semibold">Studio Location</Text>
-                  <Text size="xs" variant="secondary">{address}</Text>
+                  <Text size="caption" className="font-semibold">Studio Location</Text>
+                  <Text size="caption" variant="secondary">{address}</Text>
                 </div>
               </div>
 
               <div className="flex items-start gap-4">
                 <Mail className="text-copper mt-1" size={20} />
                 <div>
-                  <Text size="sm" className="font-semibold">Email Inquiry</Text>
-                  <Text size="xs" variant="secondary">{contactEmail}</Text>
+                  <Text size="caption" className="font-semibold">Email Inquiry</Text>
+                  <Text size="caption" variant="secondary">{contactEmail}</Text>
                 </div>
               </div>
 
               <div className="flex items-start gap-4">
                 <Phone className="text-copper mt-1" size={20} />
                 <div>
-                  <Text size="sm" className="font-semibold">Direct Telephone</Text>
-                  <Text size="xs" variant="secondary">{phone}</Text>
+                  <Text size="caption" className="font-semibold">Direct Telephone</Text>
+                  <Text size="caption" variant="secondary">{phone}</Text>
                 </div>
               </div>
             </div>
@@ -95,10 +95,14 @@ export function ContactPattern({
               />
 
               <div className="space-y-2">
-                <label className="text-xs font-mono font-medium text-content-secondary uppercase tracking-wider block">
+                <label
+                  htmlFor="contact-project-description"
+                  className="text-xs font-mono font-medium text-content-secondary uppercase tracking-wider block"
+                >
                   Project Description & Requirements
                 </label>
                 <textarea
+                  id="contact-project-description"
                   rows={5}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}

@@ -6,6 +6,7 @@ import { Text } from "@/components/ui/foundation/Text"
 import { MetricCard } from "@/components/ui/card/business/MetricCard"
 import { cn } from "@/lib/utils"
 import { StoryContent } from "@/types/content/patterns"
+import { getOptimizedUrl } from "@/lib/cdn";
 
 export interface StoryPatternProps extends StoryContent {
   className?: string
@@ -21,13 +22,13 @@ export function StoryPattern({
   className,
 }: StoryPatternProps) {
   return (
-    <Section spacing="xl" className={cn("py-24 bg-canvas-primary border-b border-subtle", className)}>
+    <Section spacing="loose" className={cn("py-24 bg-canvas-primary border-b border-subtle", className)}>
       <Container size="standard" className="space-y-24">
         {/* Top Split Manifesto */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 aspect-[4/5] bg-stone-900 border border-subtle rounded-2xl overflow-hidden relative flex items-center justify-center font-mono text-xs text-stone-500">
             {imageUrl1 ? (
-              <img src={imageUrl1} alt={headline} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+              <img src={getOptimizedUrl(imageUrl1, { width: 1200, quality: 80 })} alt={headline} loading="lazy" decoding="async" className="w-full h-full object-cover" />
             ) : (
               <span>[ Primary Interior Photography ]</span>
             )}
@@ -54,7 +55,7 @@ export function StoryPattern({
         {/* Full Width Hero Image */}
         <div className="w-full aspect-[21/9] bg-stone-900 border border-subtle rounded-2xl overflow-hidden relative flex items-center justify-center font-mono text-xs text-stone-500">
           {imageUrl2 ? (
-            <img src={imageUrl2} alt="Full interior panorama" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+            <img src={getOptimizedUrl(imageUrl2, { width: 1200, quality: 80 })} alt="Full interior panorama" loading="lazy" decoding="async" className="w-full h-full object-cover" />
           ) : (
             <span>[ Full Width Architectural Panorama Render ]</span>
           )}

@@ -9,7 +9,7 @@ const locations = [
     slug: "jamshedpur",
     assetKey: "location_jamshedpur",
     demographics: "Industrial Hub • Premium Residential Estates • Established Commercial Centers",
-    image: "https://images.unsplash.com/photo-1577983050965-0255fb2f7fb7?auto=format&fit=crop&q=80&w=800",
+    image: "https://iuuivmwqodefdrrrewol.supabase.co/storage/v1/object/public/media/projects/discovery/visual-14.jpg",
     delay: 0.1,
   },
   {

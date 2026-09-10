@@ -22,6 +22,10 @@ test("quiz_started payload is typed correctly", () => {
 test("contact_form_submitted payload is typed correctly", () => {
   expectTypeOf<AnalyticsEventMap["contact_form_submitted"]>().toEqualTypeOf<{
     leadSource: string;
+    email: string;
+    leadId?: string;
+    sessionId?: string;
+    correlationId?: string;
   }>();
 });
 

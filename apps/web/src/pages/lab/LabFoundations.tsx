@@ -36,9 +36,9 @@ export default function LabFoundations() {
               {/* Hero */}
               <div className="flex flex-col lg:grid lg:grid-cols-[200px_1fr] gap-4 lg:gap-12">
                 <Stack direction="col" gap="xs">
-                  <Text size="label">Hero</Text>
-                  <Text size="sm" variant="secondary">Heading / hero</Text>
-                  <Text size="sm" className="text-copper">96px / 100% / -2.5%</Text>
+                  <Text size="micro">Hero</Text>
+                  <Text size="caption" variant="secondary">Heading / hero</Text>
+                  <Text size="caption" className="text-copper">96px / 100% / -2.5%</Text>
                 </Stack>
                 <Heading size="hero" className="break-words">The Architecture of Space.</Heading>
               </div>
@@ -46,9 +46,9 @@ export default function LabFoundations() {
               {/* Display XL */}
               <div className="flex flex-col lg:grid lg:grid-cols-[200px_1fr] gap-4 lg:gap-12">
                 <Stack direction="col" gap="xs">
-                  <Text size="label">Display Extra Large</Text>
-                  <Text size="sm" variant="secondary">Heading / display-xl</Text>
-                  <Text size="sm" className="text-copper">72px / 100% / -2.5%</Text>
+                  <Text size="micro">Display Extra Large</Text>
+                  <Text size="caption" variant="secondary">Heading / display-xl</Text>
+                  <Text size="caption" className="text-copper">72px / 100% / -2.5%</Text>
                 </Stack>
                 <Heading size="display-xl" className="break-words">40,000 Sq. Ft. of Absolute Control.</Heading>
               </div>
@@ -56,9 +56,9 @@ export default function LabFoundations() {
               {/* Display LG */}
               <div className="flex flex-col lg:grid lg:grid-cols-[200px_1fr] gap-4 lg:gap-12">
                 <Stack direction="col" gap="xs">
-                  <Text size="label">Display Large</Text>
-                  <Text size="sm" variant="secondary">Heading / display-lg</Text>
-                  <Text size="sm" className="text-copper">60px / 100% / -2.5%</Text>
+                  <Text size="micro">Display Large</Text>
+                  <Text size="caption" variant="secondary">Heading / display-lg</Text>
+                  <Text size="caption" className="text-copper">60px / 100% / -2.5%</Text>
                 </Stack>
                 <Heading size="display-lg" className="break-words">German Technology, Kerala Heart.</Heading>
               </div>
@@ -66,9 +66,9 @@ export default function LabFoundations() {
               {/* Editorial Display */}
               <div className="flex flex-col lg:grid lg:grid-cols-[200px_1fr] gap-4 lg:gap-12">
                 <Stack direction="col" gap="xs">
-                  <Text size="label">Editorial Hero</Text>
-                  <Text size="sm" variant="secondary">Heading / display-lg (serif)</Text>
-                  <Text size="sm" className="text-copper">60px / 100% / -2.5%</Text>
+                  <Text size="micro">Editorial Hero</Text>
+                  <Text size="caption" variant="secondary">Heading / display-lg (serif)</Text>
+                  <Text size="caption" className="text-copper">60px / 100% / -2.5%</Text>
                 </Stack>
                 <Heading family="serif" size="display-lg" className="break-words italic">Your vision, our legacy.</Heading>
               </div>
@@ -76,9 +76,9 @@ export default function LabFoundations() {
               {/* Section Heading XL */}
               <div className="flex flex-col lg:grid lg:grid-cols-[200px_1fr] gap-4 lg:gap-12">
                 <Stack direction="col" gap="xs">
-                  <Text size="label">Section Title</Text>
-                  <Text size="sm" variant="secondary">Heading / heading-xl</Text>
-                  <Text size="sm" className="text-copper">36px / 110% / -1.5%</Text>
+                  <Text size="micro">Section Title</Text>
+                  <Text size="caption" variant="secondary">Heading / heading-xl</Text>
+                  <Text size="caption" className="text-copper">36px / 110% / -1.5%</Text>
                 </Stack>
                 <Heading size="heading-xl" className="break-words">The Minds Behind the Masterpieces.</Heading>
               </div>
@@ -86,9 +86,9 @@ export default function LabFoundations() {
               {/* Heading MD */}
               <div className="flex flex-col lg:grid lg:grid-cols-[200px_1fr] gap-4 lg:gap-12">
                 <Stack direction="col" gap="xs">
-                  <Text size="label">Card Title</Text>
-                  <Text size="sm" variant="secondary">Heading / heading-md</Text>
-                  <Text size="sm" className="text-copper">24px / 125% / 0%</Text>
+                  <Text size="micro">Card Title</Text>
+                  <Text size="caption" variant="secondary">Heading / heading-md</Text>
+                  <Text size="caption" className="text-copper">24px / 125% / 0%</Text>
                 </Stack>
                 <Heading size="heading-md" className="break-words">Flawless Deliveries</Heading>
               </div>
@@ -96,9 +96,9 @@ export default function LabFoundations() {
               {/* Body */}
               <div className="flex flex-col lg:grid lg:grid-cols-[200px_1fr] gap-4 lg:gap-12">
                 <Stack direction="col" gap="xs">
-                  <Text size="label">Body (Standard)</Text>
-                  <Text size="sm" variant="secondary">Text / body</Text>
-                  <Text size="sm" className="text-copper">16px / 150% / 0%</Text>
+                  <Text size="micro">Body (Standard)</Text>
+                  <Text size="caption" variant="secondary">Text / body</Text>
+                  <Text size="caption" className="text-copper">16px / 150% / 0%</Text>
                 </Stack>
                 <Text size="body" className="max-w-2xl">
                   We believe that space shapes behavior. Our approach to interior architecture 
@@ -110,9 +110,9 @@ export default function LabFoundations() {
               {/* Micro / Label */}
               <div className="flex flex-col lg:grid lg:grid-cols-[200px_1fr] gap-4 lg:gap-12">
                 <Stack direction="col" gap="xs">
-                  <Text size="label">Label / Overline</Text>
-                  <Text size="sm" variant="secondary">Text / micro</Text>
-                  <Text size="sm" className="text-copper">11px / 150% / +15%</Text>
+                  <Text size="micro">Label / Overline</Text>
+                  <Text size="caption" variant="secondary">Text / micro</Text>
+                  <Text size="caption" className="text-copper">11px / 150% / +15%</Text>
                 </Stack>
                 <Text size="micro">Our Process</Text>
               </div>
@@ -131,14 +131,22 @@ export default function LabFoundations() {
               {colors.map((c) => (
                 <div 
                   key={c.name}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setInspectedToken(c)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setInspectedToken(c);
+                    }
+                  }}
                   className="group cursor-pointer flex flex-col border border-subtle bg-surface-card rounded-md overflow-hidden transition-all hover:-translate-y-1 hover:shadow-elevated"
                 >
                   <div className={`h-32 w-full ${c.tailwind} border-b border-subtle`} />
                   <div className="p-4 flex flex-col gap-2">
-                    <Text size="label" className="font-bold">{c.name}</Text>
-                    <Text size="sm" variant="secondary" className="font-mono text-xs">{c.tailwind}</Text>
-                    <Text size="sm" className="line-clamp-2 mt-2">{c.usage}</Text>
+                    <Text size="micro" className="font-bold">{c.name}</Text>
+                    <Text size="caption" variant="secondary" className="font-mono text-xs">{c.tailwind}</Text>
+                    <Text size="caption" className="line-clamp-2 mt-2">{c.usage}</Text>
                   </div>
                 </div>
               ))}
@@ -164,7 +172,7 @@ export default function LabFoundations() {
                   >
                     <div className="absolute inset-0 bg-copper/10" />
                   </Surface>
-                  <Text size="sm" className="font-mono mt-4 text-center">rounded-{r}</Text>
+                  <Text size="caption" className="font-mono mt-4 text-center">rounded-{r}</Text>
                 </Stack>
               ))}
             </div>
@@ -181,17 +189,17 @@ export default function LabFoundations() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <Surface elevation="level1" className="p-6 group cursor-pointer h-48 flex items-center justify-center overflow-hidden">
                 <div className="w-16 h-16 bg-copper rounded-md group-hover:scale-125 group-active:scale-125 group-hover:-translate-y-4 group-active:-translate-y-4 transition-all duration-micro ease-physical"></div>
-                <Text size="label" className="absolute bottom-4">Micro (300ms)</Text>
+                <Text size="micro" className="absolute bottom-4">Micro (300ms)</Text>
               </Surface>
 
               <Surface elevation="level1" className="p-6 group cursor-pointer h-48 flex items-center justify-center overflow-hidden">
                 <div className="w-16 h-16 bg-copper rounded-md group-hover:scale-125 group-active:scale-125 group-hover:-translate-y-4 group-active:-translate-y-4 transition-all duration-macro ease-physical"></div>
-                <Text size="label" className="absolute bottom-4">Macro (800ms)</Text>
+                <Text size="micro" className="absolute bottom-4">Macro (800ms)</Text>
               </Surface>
 
               <Surface elevation="level1" className="p-6 group cursor-pointer h-48 flex items-center justify-center overflow-hidden">
                 <div className="w-16 h-16 bg-copper rounded-md opacity-100 group-hover:opacity-0 group-active:opacity-0 group-hover:scale-50 group-active:scale-50 transition-all duration-slow ease-physical"></div>
-                <Text size="label" className="absolute bottom-4">Epic (1400ms)</Text>
+                <Text size="micro" className="absolute bottom-4">Epic (1400ms)</Text>
               </Surface>
             </div>
           </Section>

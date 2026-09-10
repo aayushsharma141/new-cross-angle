@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 type AnimationEffect = "none" | "ken-burns-in" | "ken-burns-out" | "pan-left" | "pan-right" | "pan-up" | "pan-down" | "zoom-pan";
 
@@ -209,11 +210,13 @@ const Hero = () => {
                   poster="/hero_reality_render_1775299733746.png"
                   className="w-full h-full object-cover"
                 >
+                  {/* Not routed through getOptimizedUrl: that builds image transforms
+                      (f-webp, q-, w-) which would corrupt an mp4 stream. */}
                   <source src={item.media_url} type="video/mp4" />
                 </video>
               ) : (
                 <img
-                  src={item.media_url}
+                  src={getOptimizedUrl(item.media_url, { width: 1920, quality: 80 })}
                   alt={item.title || "Hero background"}
                   className={`w-full h-full object-cover ${EFFECT_CLASS[item.animation_effect || "none"]}`}
                   loading={i === 0 ? "eager" : "lazy"}

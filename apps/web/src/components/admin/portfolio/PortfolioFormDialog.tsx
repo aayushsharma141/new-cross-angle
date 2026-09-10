@@ -216,7 +216,9 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                 style_tags: formData.style ? [formData.style] : [],
                 short_description: formData.short_description,
                 description: descriptionData,
-                cover_image_url: formData.cover_image_url,
+                // TODO(ADR-0002): move to asset_usages; deprecated_cover_image_url
+                // is the post-DAM-v3 name of this column.
+                deprecated_cover_image_url: formData.cover_image_url,
                 featured: formData.is_featured,
                 status: formData.status,
                 published_at: formData.status === 'live' && (!initialData?.published_at) ? new Date().toISOString() : (initialData?.published_at || null),

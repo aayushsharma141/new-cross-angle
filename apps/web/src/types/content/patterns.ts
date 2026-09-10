@@ -71,6 +71,7 @@ export interface TestimonialsContent {
 
 export interface ContactContent {
   headline: string
+  subtitle?: string
   email: string
   phone: string
   address: string

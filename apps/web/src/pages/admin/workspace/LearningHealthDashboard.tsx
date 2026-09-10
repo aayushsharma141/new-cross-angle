@@ -17,16 +17,24 @@ export default function LearningHealthDashboard() {
         supabase.from('analytics_events').select('*', { count: 'exact', head: true }).is('payload->>sessionId', null)
       ]);
 
+      // TODO: regenerate src/integrations/supabase/types_utf8.ts. It predates
+      // decision_events (migration 20260625110000) and system_logs
+      // (20260313000000), so neither table appears in the generated Database type
+      // and these queries cannot be checked against it. Remove this escape hatch
+      // once the types are refreshed.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const untypedDb = supabase as any;
+
       // 2. Dataset v1 Readiness
       const [leadsRes, decisionsRes] = await Promise.all([
         supabase.from('leads').select('*', { count: 'exact', head: true }).eq('source', 'estimator'),
-        supabase.from('decision_events').select('*', { count: 'exact', head: true })
+        untypedDb.from('decision_events').select('*', { count: 'exact', head: true })
       ]);
 
       // 3. Platform Errors & Anomalies
       const [errorsRes, anomaliesRes] = await Promise.all([
-        supabase.from('system_logs').select('*', { count: 'exact', head: true }).eq('status', 'error'),
-        supabase.from('system_logs').select('*').in('status', ['error', 'anomaly']).order('created_at', { ascending: false }).limit(5)
+        untypedDb.from('system_logs').select('*', { count: 'exact', head: true }).eq('status', 'error'),
+        untypedDb.from('system_logs').select('*').in('status', ['error', 'anomaly']).order('created_at', { ascending: false }).limit(5)
       ]);
 
       setData({

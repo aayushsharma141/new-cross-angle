@@ -32,7 +32,7 @@ export function ServiceCard({
         <Heading size="heading-md" className="mb-2">
           {title}
         </Heading>
-        <Text size="sm" variant="secondary" className="mb-6">
+        <Text size="caption" variant="secondary" className="mb-6">
           {description}
         </Text>
 
@@ -51,7 +51,7 @@ export function ServiceCard({
         {priceRange && (
           <div>
             <Text size="micro" variant="secondary">STARTING FROM</Text>
-            <Text size="sm" className="font-semibold font-mono text-copper">{priceRange}</Text>
+            <Text size="caption" className="font-semibold font-mono text-copper">{priceRange}</Text>
           </div>
         )}
         <Button intent="ghost" size="sm" onClick={onSelect} className="gap-1 ml-auto">

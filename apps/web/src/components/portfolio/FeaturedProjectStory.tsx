@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 interface FeaturedProjectStoryProps {
   title: string;
@@ -175,7 +176,7 @@ export const FeaturedProjectStory = ({
                     style={{ y: imageY }}
                   >
                     <img
-                      src={coverImage}
+                      src={getOptimizedUrl(coverImage, { width: 1200, quality: 80 })}
                       alt={`${title} - ${category} luxury interior project`}
                       loading="lazy"
                       decoding="async"
@@ -243,7 +244,7 @@ export const FeaturedProjectStory = ({
                     style={{ y: imageY }}
                   >
                     <img
-                      src={coverImage}
+                      src={getOptimizedUrl(coverImage, { width: 1200, quality: 80 })}
                       alt={`${title} - ${category} luxury interior project`}
                       loading="lazy"
                       decoding="async"
@@ -287,7 +288,7 @@ export const FeaturedProjectStory = ({
                   style={{ y: imageY }}
                 >
                   <img
-                    src={coverImage}
+                    src={getOptimizedUrl(coverImage, { width: 1200, quality: 80 })}
                     alt={`${title} - ${category} luxury interior project`}
                     loading="lazy"
                     decoding="async"

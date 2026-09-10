@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { type Project } from "@/lib/api";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 interface ProjectArchiveCardProps {
   project: Project;
@@ -95,7 +96,7 @@ export const ProjectArchiveCard = React.forwardRef<HTMLDivElement, ProjectArchiv
           {/* Zooming Image container */}
           <div className="absolute inset-[1px] overflow-hidden rounded-2xl bg-neutral-900 z-0">
             <motion.img
-              src={project.heroImage}
+              src={getOptimizedUrl(project.heroImage, { width: 900, quality: 80 })}
               alt={`${project.title} - ${project.category} interior showcase`}
               loading="lazy"
               decoding="async"

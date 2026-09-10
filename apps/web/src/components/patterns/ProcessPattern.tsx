@@ -18,7 +18,7 @@ export function ProcessPattern({
   className,
 }: ProcessPatternProps) {
   return (
-    <Section spacing="xl" className={cn("py-24 bg-canvas-secondary border-b border-subtle", className)}>
+    <Section spacing="loose" className={cn("py-24 bg-canvas-secondary border-b border-subtle", className)}>
       <Container size="standard">
         <div className="mb-16 space-y-4 text-center max-w-3xl mx-auto">
           <Text size="micro" className="text-copper font-mono uppercase tracking-widest font-bold">
@@ -35,10 +35,10 @@ export function ProcessPattern({
                 <span className="text-display-md font-mono text-copper/30 font-bold block mb-4">
                   {step.number}
                 </span>
-                <Heading size="heading-sm" className="mb-3">
+                <Heading size="heading-md" className="mb-3">
                   {step.title}
                 </Heading>
-                <Text size="sm" variant="secondary" className="leading-relaxed">
+                <Text size="caption" variant="secondary" className="leading-relaxed">
                   {step.description}
                 </Text>
               </div>

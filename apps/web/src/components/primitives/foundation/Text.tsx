@@ -15,7 +15,7 @@ type TextComponent = (<T extends React.ElementType = 'span'>(
   props: TextProps<T> & { ref?: React.ComponentPropsWithRef<T>['ref'] }
 ) => React.ReactNode) & { displayName?: string };
 
-export const Text = React.forwardRef(
+export const Text = (React.forwardRef as unknown as (r: unknown) => unknown)(
   <T extends React.ElementType = 'span'>(
     { className, as, variant = 'body' as const, weight, align, color = 'default', truncate, ...props }: TextProps<T>,
     ref: React.ComponentPropsWithRef<T>['ref']
