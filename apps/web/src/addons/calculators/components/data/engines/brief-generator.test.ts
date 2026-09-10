@@ -1,14 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { generateDesignerBrief } from './brief-generator';
-import { Lead } from '../../../../../repositories/interfaces/LeadRepository';
+import { LeadIntelligenceInput } from './types';
 
 describe('Designer Brief Generator', () => {
   it('should return null if no discovery data exists', () => {
-    const lead: Partial<Lead> = {
-      name: 'John Doe',
-    };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(generateDesignerBrief(lead as any)).toBeNull();
+    const lead = { name: 'John Doe' } as LeadIntelligenceInput;
+    expect(generateDesignerBrief(lead)).toBeNull();
   });
 
   it('should generate a brief with lifestyle, sensory, and strategy signals', () => {
@@ -35,7 +32,7 @@ describe('Designer Brief Generator', () => {
       }
     };
 
-    const brief = generateDesignerBrief(lead as unknown as Lead);
+    const brief = generateDesignerBrief(lead as unknown as LeadIntelligenceInput);
     expect(brief).toBeDefined();
     expect(brief?.identity.archetype).toBe('warm_modernist');
     expect(brief?.lifestyle.summary).toContain('Works from home');

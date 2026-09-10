@@ -1,5 +1,4 @@
-import { Lead } from '../../../../../repositories/interfaces/LeadRepository';
-import { AIRecommendationResult } from './types';
+import { AIRecommendationResult, LeadIntelligenceInput } from './types';
 
 export interface DesignerBrief {
   identity: {
@@ -24,8 +23,7 @@ export interface DesignerBrief {
   };
 }
 
-export function generateDesignerBrief(leadRaw: Lead): DesignerBrief | null {
-  const lead = leadRaw as any;
+export function generateDesignerBrief(lead: LeadIntelligenceInput): DesignerBrief | null {
   if (!lead.discovery_archetype || !lead.discovery_signals) {
     return null;
   }

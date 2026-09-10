@@ -51,8 +51,12 @@ export default function AdminQuizAnalytics() {
     const from = dateFrom ? startOfDay(dateFrom).toISOString() : null;
     const to = dateTo ? endOfDay(dateTo).toISOString() : null;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const buildRangeQuery = (query: any, dateField: string) => {
+    // Generic over the PostgREST filter builder: whatever comes in comes back,
+    // so callers keep their row typing instead of collapsing to any.
+    const buildRangeQuery = <Q extends {
+      gte(field: string, value: string): Q;
+      lte(field: string, value: string): Q;
+    }>(query: Q, dateField: string): Q => {
       let next = query;
       if (from) next = next.gte(dateField, from);
       if (to) next = next.lte(dateField, to);
@@ -85,8 +89,7 @@ export default function AdminQuizAnalytics() {
       return { sessions: syntheticSessions, events: syntheticEvents };
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let leadsQuery: any = supabase.from("leads").select("id, name, email, phone, project_type, budget, start_timing, city, lead_source, source, source_url, created_at, internal_notes, form_data").or("lead_source.eq.style_quiz,lead_source.eq.aesthetic_discovery_engine").order("created_at", { ascending: false }).limit(500);
+    let leadsQuery = supabase.from("leads").select("id, name, email, phone, project_type, budget, start_timing, city, lead_source, source, source_url, created_at, internal_notes, form_data").or("lead_source.eq.style_quiz,lead_source.eq.aesthetic_discovery_engine").order("created_at", { ascending: false }).limit(500);
     leadsQuery = buildRangeQuery(leadsQuery, "created_at");
 
     try {

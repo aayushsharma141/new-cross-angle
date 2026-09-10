@@ -1,4 +1,4 @@
-import { Lead } from '../../../../../repositories/interfaces/LeadRepository';
+import { LeadIntelligenceInput } from './types';
 import { AIRecommendationResult } from './types';
 
 export type StrategyBlockType = 'hook' | 'order' | 'explore' | 'avoid' | 'visual';
@@ -11,8 +11,7 @@ export interface StrategyBlock {
   evidence: string;
 }
 
-export function generateConversationStrategy(leadRaw: Lead): StrategyBlock[] {
-  const lead = leadRaw as any;
+export function generateConversationStrategy(lead: LeadIntelligenceInput): StrategyBlock[] {
   const blocks: StrategyBlock[] = [];
   
   if (!lead.discovery_archetype || !lead.discovery_signals) {

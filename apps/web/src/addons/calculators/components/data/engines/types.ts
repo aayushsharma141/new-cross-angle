@@ -5,6 +5,8 @@
  * that the orchestrator chains into the final ExecutionBlueprint.
  */
 
+import type { Tables } from "@/integrations/supabase/types";
+
 import type { DiscoveryHandoff, NegotiationOption, NegotiationStrategy, PropertyFitTier } from "../discovery-handoff";
 
 // ─── Lifestyle Density ───────────────────────────────────────────────────────
@@ -284,6 +286,58 @@ export interface ExecutionBlueprint {
 }
 
 export type FitLevel = "high" | "medium" | "low" | "not-applicable";
+
+
+// --- Lead intelligence input ------------------------------------------------
+
+/**
+ * Discovery-quiz signals consumed by the brief, conversation-strategy and
+ * risk-card engines.
+ *
+ * WARNING: `discovery_signals` and `estimator_data` are NOT columns on the
+ * `leads` table. No migration defines them and nothing in the app or the edge
+ * functions writes them — they are only ever read. Every engine guards on
+ * `discovery_signals` and returns an empty result when it is missing, which is
+ * currently always, so the Lead Workspace strategy and risk panels never
+ * populate. Typed explicitly here so the gap is visible instead of hidden
+ * behind `as any`, which is what concealed it.
+ *
+ * TODO: persist these fields (or derive them from `form_data`) so the engines
+ * receive real input. Shape below mirrors the fixture in brief-generator.test.ts.
+ */
+export interface DiscoverySignals {
+  budget?: number | null;
+  timeline?: string | null;
+  decision_makers?: number | null;
+  luxuryResolvedAs?: string | null;
+  lifestyle?: {
+    wfh?: boolean;
+    hosting?: boolean;
+    family?: boolean;
+    pets?: boolean;
+  } | null;
+  priorities?: {
+    heroRooms?: string[];
+    emotionalWeights?: Record<string, number>;
+  } | null;
+  sensory?: {
+    lighting?: string;
+    textures?: string;
+  } | null;
+}
+
+/**
+ * The slice of a lead the intelligence engines actually read. Structurally
+ * satisfied by a full `Tables<"leads">` row, so callers can pass query results
+ * straight through without casting.
+ */
+export type LeadIntelligenceInput = Pick<
+  Tables<"leads">,
+  "name" | "property_type" | "discovery_archetype" | "alcs_execution_path" | "alcs_confidence"
+> & {
+  discovery_signals?: DiscoverySignals | null;
+  estimator_data?: { result?: AIRecommendationResult } | null;
+};
 
 // ─── Re-exports for convenience ──────────────────────────────────────────────
 

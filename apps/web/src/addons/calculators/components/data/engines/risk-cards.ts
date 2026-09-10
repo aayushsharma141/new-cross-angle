@@ -1,4 +1,4 @@
-import { Lead } from '../../../../../repositories/interfaces/LeadRepository';
+import { LeadIntelligenceInput } from './types';
 
 export interface RiskCard {
   id: string;
@@ -11,8 +11,7 @@ export interface RiskCard {
   impactScore: number; // Used internally for sorting
 }
 
-export function generateRiskCards(leadRaw: Lead): RiskCard[] {
-  const lead = leadRaw as any;
+export function generateRiskCards(lead: LeadIntelligenceInput): RiskCard[] {
   const cards: RiskCard[] = [];
 
   if (!lead.discovery_signals) {

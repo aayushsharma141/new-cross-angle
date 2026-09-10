@@ -189,11 +189,11 @@ const AdminMedia = () => {
         setIsSyncingImageKit(true);
         try {
             // Must go through invokeEdge (/api/supabase/functions/v1/...), not a
-            // direct call to VITE_SUPABASE_URL. The browser client runs with
-            // persistSession:false — the session lives in an HTTP-only cookie, so
-            // supabase.auth.getSession() always returns null here and the old
-            // direct fetch could never authenticate. Middleware injects the
-            // access_token as the Authorization header on the proxy path.
+            // direct call to VITE_SUPABASE_URL. Auth lives in an HTTP-only
+            // access_token cookie that only the proxy path can use: middleware
+            // (or the vite dev proxy) reads it and injects the Authorization
+            // header. A direct call to the Supabase origin never sees that
+            // cookie and so cannot authenticate.
             const { data: result, error } = await invokeEdge<{
                 upserted: number;
                 errors?: string[];

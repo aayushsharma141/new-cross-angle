@@ -73,8 +73,8 @@ export default function AdminLeadWorkspace() {
     enabled: !!id,
   });
 
-  const strategyBlocks = useMemo(() => lead ? generateConversationStrategy(lead as any) : [], [lead]);
-  const riskCards = useMemo(() => lead ? generateRiskCards(lead as any) : [], [lead]);
+  const strategyBlocks = useMemo(() => lead ? generateConversationStrategy(lead) : [], [lead]);
+  const riskCards = useMemo(() => lead ? generateRiskCards(lead) : [], [lead]);
 
   useEffect(() => {
     if (lead && !hasTrackedOpen.current) {
@@ -208,7 +208,7 @@ export default function AdminLeadWorkspace() {
                 </h2>
                 <Surface variant="primary" radius="lg" border shadow="sm" className="bg-[var(--s-surface-raised)] border-[var(--s-border-subtle)]">
                   <div className="p-6 pt-0 p-4 text-sm text-[var(--s-text-primary)] whitespace-pre-wrap leading-relaxed">
-                    Based on the discovery signals, {lead.name} exhibits traits of a {(lead as any).discovery_archetype?.replace('_', ' ') || 'standard'} client.
+                    Based on the discovery signals, {lead.name} exhibits traits of a {lead.discovery_archetype?.replace('_', ' ') || 'standard'} client.
                     Their priority is achieving a functional and aesthetic space within their constraints.
                   </div>
                 </Surface>

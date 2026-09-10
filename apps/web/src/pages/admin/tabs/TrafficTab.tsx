@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { captureException } from "@/lib/sentry";
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
 import { Users, Zap, Globe, MousePointerClick } from "lucide-react";
 import { DateRange } from "react-day-picker";
@@ -53,7 +54,15 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
       });
 
       if (error || !data) {
-        throw new Error("Failed to fetch traffic stats from PostHog");
+        // There is no global QueryCache onError, so an uncaptured throw here
+        // dies in this component's error state and is never reported.
+        captureException(error ?? new Error("posthog-query returned no data"), {
+          tags: { area: "admin-traffic" },
+          extra: { action: "traffic-stats", from: fromIso, to: toIso },
+        });
+        throw new Error(
+          `Failed to fetch traffic stats from PostHog${error?.message ? `: ${error.message}` : ""}`,
+        );
       }
 
       return data;
