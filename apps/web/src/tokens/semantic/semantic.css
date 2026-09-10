@@ -8,6 +8,8 @@
   --s-surface-primary:   var(--m-slab);
   --s-surface-secondary: var(--m-panel);
   --s-surface-elevated:  var(--m-surface);
+  --s-surface-raised:    var(--m-surface);
+  --s-surface-sunken:    var(--m-paper);
   --s-surface-overlay:   var(--m-glass);
 
   /* Text */
@@ -33,11 +35,14 @@
   --s-action-secondary-border: var(--s-border-default);
   --s-action-secondary-text:   var(--s-text-body);
 
+  /* Accent */
+  --s-accent-primary: var(--m-metal);
+
   /* Focus */
   --s-focus-ring: var(--m-metal);
 }
 
-/* Reset the global --radius used by shadcn to the architectural scale */
-:root {
-  --radius: var(--p-radius-md);
-}
+/* NOTE: this layer deliberately does not reset the global --radius.
+   The architectural scale lives in tokens/primitives/radius.css, which is not
+   imported yet; overriding --radius here would retune every corner on the site
+   from index.css's 0.5rem to 4px. Wire the primitives layer first. */

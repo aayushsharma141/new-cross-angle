@@ -1,5 +1,20 @@
 @import "./foundation.css";
 @import "./semantic.css";
+
+/* Architectural colour layers (foundation -> materials -> semantic).
+   These define the --f-*, --m-* and --s-* scales documented in TOKENS.md.
+   They were previously present in the tree but never imported, so all 480
+   var(--s-*) references in src/ resolved to nothing -- invalid border-color
+   fell back to currentColor, painting intended hairlines pure white.
+
+   environments/environments.css is intentionally NOT imported: it redefines
+   the :root material baseline to GALLERY LIGHT (--m-wall: hsl(40 10% 97%)),
+   which would invert every --s-* consumer to a light palette on top of the
+   dark body this site is designed around. Wire it only alongside a full
+   light/dark pass. */
+@import "./foundation/colors.css";
+@import "./materials/materials.css";
+@import "./semantic/semantic.css";
 @import "./lighting.css";
 @import "./typography.css";
 @import "./spacing.css";
