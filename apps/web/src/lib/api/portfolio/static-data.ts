@@ -120,12 +120,12 @@ export const staticProjects: Project[] = [
     duration: "4 Weeks",
     style: "Sleek German Ergonomics",
     year: 2024,
-    heroImage: "/images/projects/discovery/visual-12.jpg",
+    heroImage: "/images/projects/discovery/visual-5.jpg",
     gallery: [
       {
         room: "Main Kitchen Island",
         images: [
-          "/images/projects/discovery/visual-12.jpg",
+          "/images/projects/discovery/visual-5.jpg",
           "/images/projects/discovery/visual-15.jpg",
         ],
       },

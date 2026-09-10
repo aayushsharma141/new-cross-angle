@@ -101,28 +101,31 @@ Deno.serve(async (req) => {
 
     // ── Upsert into media table ──────────────────────────────────────────────
     let upserted = 0;
-    let skipped  = 0;
+    const skipped  = 0;
     const errors: string[] = [];
 
     for (const f of ikFiles) {
       // file_name is our unique key — use ImageKit filePath (starts with /)
       const providerPath = f.filePath.replace(/^\/+/, "");
-      const fileName = `imagekit:${providerPath}`.slice(0, 500); // prefix to distinguish from Supabase storage
+      const fileName = `imagekit:${providerPath}`.slice(0, 255); // prefix to distinguish from Supabase storage
 
+      // Target is media_files (the table the app actually reads). The old
+      // `media` table this function used to write to does not exist on the
+      // project — every sync silently failed. Columns below match the
+      // media_files schema; upsert key is the unique index on file_name.
       const { error: dbErr } = await adminClient
-        .from("media")
+        .from("media_files")
         .upsert(
           {
             file_name: fileName,
-            url: f.url,
-            file_type: f.fileType === "image" ? "image/jpeg" : f.fileType,
+            display_name: f.name,
+            storage_path: providerPath.slice(0, 500),
+            url: f.url.slice(0, 1000),
+            mime_type: guessMimeType(f.name, f.fileType),
             size_bytes: f.size || 0,
-            alt: f.name,
-            title: f.name,
-            uploaded_by: auth.user.id,
+            width: f.width ?? null,
+            height: f.height ?? null,
             storage_provider: "imagekit",
-            provider_file_id: f.fileId,
-            provider_path: providerPath,
           },
           { onConflict: "file_name" }
         );
@@ -147,3 +150,27 @@ Deno.serve(async (req) => {
     return serverErrorResponse(req, message, {}, FN, err, requestId);
   }
 });
+
+/**
+ * ImageKit's `fileType` is only "image" | "non-image", which is not a MIME
+ * type. Derive one from the extension and fall back to a safe default.
+ */
+function guessMimeType(name: string, fileType?: string): string {
+  const ext = name.split(".").pop()?.toLowerCase() ?? "";
+  const byExt: Record<string, string> = {
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp",
+    avif: "image/avif",
+    gif: "image/gif",
+    svg: "image/svg+xml",
+    ico: "image/x-icon",
+    mp4: "video/mp4",
+    webm: "video/webm",
+    mov: "video/quicktime",
+    pdf: "application/pdf",
+  };
+  if (byExt[ext]) return byExt[ext];
+  return fileType === "image" ? "image/jpeg" : "application/octet-stream";
+}

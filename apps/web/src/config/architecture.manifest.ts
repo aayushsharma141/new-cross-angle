@@ -391,13 +391,7 @@ export const ARCHITECTURE_MANIFEST: ArchitectureManifest = {
       trend: "stable",
     },
   ],
-  debtTaxonomy: {
-    security: { weight: 5, description: "Data isolation, auth boundary, or cryptographic exposure" },
-    architecture: { weight: 4, description: "Layer coupling, missing abstractions, or circular dependencies" },
-    performance: { weight: 3, description: "Client-side bundle bloat, N+1 queries, uncompressed payloads" },
-    maintainability: { weight: 2, description: "Token bypassing, inline styles, duplicated domain logic" },
-    documentation: { weight: 1, description: "Missing ADRs, unannotated API contracts, stale diagrams" },
-  },
+
   debtItems: [
     {
       id: "DEBT-SEC-01",

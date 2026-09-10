@@ -28,7 +28,7 @@ export const serviceCategories: ServiceCategory[] = [
         title: "Specialized Executions",
         slug: "specialized",
         description: "Special focus on custom lighting and modular setups.",
-        heroImage: "/images/projects/discovery/visual-12.jpg",
+        heroImage: "/images/projects/discovery/visual-6.jpg",
         icon: Lamp,
     },
 ];

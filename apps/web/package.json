@@ -21,6 +21,7 @@
     "arch:metrics": "npx ts-node scripts/checks/metrics.ts",
     "report:engineering": "npx ts-node scripts/checks/engineering-report.ts",
     "arch:no-console": "node scripts/checks/no-console-log.js",
+    "arch:supabase-auth": "node scripts/checks/supabase-auth-invariant.js",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -179,14 +179,7 @@ export default {
 				"focus-gold": "0 0 0 3px hsl(43 90% 55% / 0.45)",
 			},
 			backgroundImage: {
-				"ambient-body": `radial-gradient(ellipse 80% 50% at 50% -10%, hsl(355 85% 42% / 0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 90% 90%,  hsl(43 90% 55% / 0.04) 0%, transparent 50%)`,
-				"gradient-wine": "linear-gradient(135deg, hsl(355 85% 42%) 0%, hsl(355 90% 30%) 100%)",
-				"gradient-gold": "linear-gradient(90deg, hsl(355 85% 42%) 0%, hsl(43 90% 55%) 100%)",
-				"gradient-obsidian": "linear-gradient(180deg, hsl(0 0% 10%) 0%, hsl(0 0% 0%) 100%)",
-				"gradient-shine": "linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 5%) 50%, hsl(0 0% 8%) 100%)",
-				"gradient-silk": "linear-gradient(160deg, hsl(0 0% 11%) 0%, hsl(0 0% 9%) 100%)",
 				"noise": "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E\")",
-				"grid-pattern": "linear-gradient(hsl(0 0% 100% / 0.03) 1px, transparent 1px), linear-gradient(90deg, hsl(0 0% 100% / 0.03) 1px, transparent 1px)",
 			},
 			backgroundSize: {
 				"grid-sm": "24px 24px",
@@ -335,7 +328,6 @@ export default {
 			},
 			transitionTimingFunction: {
 				"luxury": "cubic-bezier(0.25, 0.1, 0.25, 1.0)",
-				"spring": "cubic-bezier(0.34, 1.56, 0.64, 1)",
 				"physical": "var(--ease-physical)",
 			},
 			transitionDuration: {
@@ -364,7 +356,7 @@ export default {
 		tailwindcssAnimate,
 		typography,
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		function ({ addComponents, addUtilities }: { addComponents: any; addUtilities: any }) {
+		function ({ addComponents }: { addComponents: any }) {
 			addComponents({
 				".glass": {
 					background: "hsl(0 0% 100% / 0.02)",
@@ -398,25 +390,6 @@ export default {
 						transform: "translateY(0)",
 						background: "linear-gradient(135deg, hsl(43 90% 45%) 0%, hsl(38 90% 35%) 100%)",
 					},
-				},
-			});
-
-			addUtilities({
-				".text-gradient-wine": {
-					background: "linear-gradient(135deg, hsl(355 85% 42%) 0%, hsl(355 90% 30%) 100%)",
-					"-webkit-background-clip": "text",
-					"background-clip": "text",
-					"-webkit-text-fill-color": "transparent",
-				},
-				".text-gradient-gold": {
-					background: "linear-gradient(90deg, hsl(43 90% 55%) 0%, hsl(38 90% 45%) 100%)",
-					"-webkit-background-clip": "text",
-					"background-clip": "text",
-					"-webkit-text-fill-color": "transparent",
-				},
-				".bg-ambient": {
-					backgroundImage: `radial-gradient(ellipse 80% 50% at 50% -10%, hsl(355 85% 42% / 0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 90% 90%,  hsl(43 90% 55% / 0.04) 0%, transparent 50%)`,
-					backgroundAttachment: "fixed",
 				},
 			});
 		},

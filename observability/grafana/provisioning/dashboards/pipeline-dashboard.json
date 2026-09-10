@@ -1,0 +1,25 @@
+{
+  "title": "Pipeline Coordinator",
+  "refresh": "10s",
+  "panels": [
+    {
+      "title": "READY / DEGRADED / FAILED States",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(dam_pipeline_ready_total[1m])) by (tenant)", "legendFormat": "{{tenant}} - READY" },
+        { "expr": "sum(rate(dam_pipeline_ready_degraded_total[1m])) by (tenant)", "legendFormat": "{{tenant}} - READY_DEGRADED" },
+        { "expr": "sum(rate(dam_pipeline_failed_total[1m])) by (tenant)", "legendFormat": "{{tenant}} - FAILED" }
+      ]
+    },
+    {
+      "title": "Pipeline Duration (Seconds)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "histogram_quantile(0.99, sum(rate(dam_pipeline_duration_seconds_bucket[1m])) by (le))", "legendFormat": "P99" },
+        { "expr": "histogram_quantile(0.50, sum(rate(dam_pipeline_duration_seconds_bucket[1m])) by (le))", "legendFormat": "P50" }
+      ]
+    }
+  ]
+}

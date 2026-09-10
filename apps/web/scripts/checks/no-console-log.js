@@ -4,32 +4,46 @@
  *
  * Exits 1 if any console.log statements are found outside test files.
  * console.warn, console.error, console.debug are allowed.
+ *
+ * Test files, the src/test/ tree, and load harnesses are exempt: printing
+ * results is their job.
  */
 
-const { execSync } = require("child_process");
-const path = require("path");
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
 
-const SRC = path.resolve(__dirname, "../../src");
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const SRC = path.resolve(__dirname, '../../src');
 
-try {
-  const result = execSync(
-    `grep -rn "console\\.log(" "${SRC}" --include="*.ts" --include="*.tsx"`,
-    { encoding: "utf-8" },
-  );
+const EXEMPT = [/\.test\.tsx?$/, /[\\/]src[\\/]test[\\/]/];
 
-  if (result.trim()) {
-    console.error("\n❌ console.log found in production source:\n");
-    console.error(result);
-    console.error("Use console.debug / console.warn / console.error instead.\n");
-    process.exit(1);
+function walk(dir, acc = []) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(full, acc);
+    else if (/\.tsx?$/.test(entry.name)) acc.push(full);
   }
-} catch (e) {
-  // grep exits 1 when no matches found — that's the success case
-  if (e.status === 1 && !e.stdout?.trim()) {
-    console.log("✅ No console.log found in src/");
-    process.exit(0);
-  }
-  // Real error
-  console.error("no-console-log check failed:", e.message);
+  return acc;
+}
+
+const violations = [];
+
+for (const file of walk(SRC)) {
+  if (EXEMPT.some((re) => re.test(file))) continue;
+  const lines = fs.readFileSync(file, 'utf-8').split('\n');
+  lines.forEach((line, i) => {
+    if (line.includes('console.log(')) {
+      violations.push(`${path.relative(SRC, file)}:${i + 1}: ${line.trim()}`);
+    }
+  });
+}
+
+if (violations.length) {
+  console.error('\n❌ console.log found in production source:\n');
+  console.error(violations.join('\n'));
+  console.error('\nUse console.debug / console.warn / console.error instead.\n');
   process.exit(1);
 }
+
+console.log('✅ No console.log found in src/');

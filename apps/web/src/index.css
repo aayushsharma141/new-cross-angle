@@ -74,12 +74,6 @@
     --sidebar-border: 0 0% 10%;
     --sidebar-ring: 43 90% 55%;
 
-    /* Gradients */
-    --gradient-wine: linear-gradient(135deg, hsl(0 100% 20%) 0%, hsl(0 80% 30%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(46 65% 45%) 0%, hsl(50 75% 60%) 50%, hsl(46 65% 45%) 100%);
-    --gradient-crimson: linear-gradient(90deg, hsl(0 100% 30%) 0%, hsl(0 100% 20%) 100%);
-    --gradient-obsidian: linear-gradient(180deg, hsl(0 0% 10%) 0%, hsl(0 0% 0%) 100%);
-    --gradient-shine: linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 5%) 50%, hsl(0 0% 8%) 100%);
     --shadow-luxury: 0 25px 50px -12px hsl(0 0% 0% / 0.9);
 
     /* 
@@ -332,8 +326,12 @@
   }
 
   body {
-    background-color: var(--site-bg);
-    color: var(--site-text);
+    /* --site-bg / --site-text hold bare HSL triplets ("0 0% 0%"), matching the
+       Tailwind token convention. They must be wrapped in hsl() to be valid
+       colours; without it both declarations are invalid at computed-value time
+       and silently fall back to the browser's color-scheme canvas. */
+    background-color: hsl(var(--site-bg));
+    color: hsl(var(--site-text));
     @apply font-sans antialiased;
     /* Improved readability: 1.6 line-height aids dyslexic users (WCAG 1.4.12) */
     line-height: 1.6;
@@ -399,30 +397,6 @@
 }
 
 @layer components {
-
-  /* Text Gradients */
-  .text-gradient-wine {
-    background: var(--gradient-wine);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .text-gradient-gold {
-    background: var(--gradient-gold);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* Background Gradients */
-  .bg-gradient-wine {
-    background: var(--gradient-wine);
-  }
-
-  .bg-gradient-gold {
-    background: var(--gradient-gold);
-  }
 
   /* Glass Effect */
   .glass {
@@ -594,10 +568,6 @@
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   }
 
-  .bg-grid-pattern {
-    background-image: linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px);
-    background-size: 100px 100px;
-  }
 }
 
 /* ===================================

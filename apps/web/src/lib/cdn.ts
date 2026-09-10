@@ -1,10 +1,20 @@
 /**
  * ImageKit CDN Utility
  * --------------------
- * 
- * Unified image optimization layer. After migrating all media to ImageKit,
- * this utility handles Direct ImageKit URLs, Supabase URLs (legacy), and
- * local static assets.
+ *
+ * Unified image optimization layer for Direct ImageKit URLs and Supabase
+ * Storage URLs (legacy).
+ *
+ * Site-local assets under `public/` are deliberately NOT routed through
+ * ImageKit. The `/cross-angle` URL-endpoint resolves against two sources
+ * only: the ImageKit Media Library, and its Web-host origin, which is the
+ * Supabase Storage public root. Files in `public/images/` are served by
+ * Vercel and exist in neither, so rewriting them produced an origin miss
+ * that ImageKit surfaced as `EBADREQ` / HTTP 400 rather than a 404.
+ *
+ * If static assets should go through the CDN later, the correct fix is a
+ * second ImageKit URL-endpoint whose origin is the site itself — not a
+ * path remap here.
  */
 
 const IMAGEKIT_URL_ENDPOINT =
@@ -32,11 +42,13 @@ const buildTransform = ({ width, height, quality = 80, blur, format = 'webp' }: 
 };
 
 /**
- * Transforms any URL into an optimized ImageKit delivery URL.
+ * Transforms a CDN-servable URL into an optimized ImageKit delivery URL.
  * Works with:
  * - Direct ImageKit URLs (ik.imagekit.io)
  * - Legacy Supabase Storage URLs
- * - Local /images/ assets
+ *
+ * Anything else — including site-local `/images/` assets — is returned
+ * untouched. See the note at the top of this file.
  */
 export const getOptimizedUrl = (url: string | undefined, options: OptimizationOptions = {}): string => {
   if (!url || typeof url !== 'string') return '';
@@ -46,11 +58,10 @@ export const getOptimizedUrl = (url: string | undefined, options: OptimizationOp
 
   const isImageKit = url.includes('ik.imagekit.io');
   const isSupabase = url.includes(SUPABASE_URL);
-  const isLocalImage = url.startsWith('/images/');
 
   const shouldBypass = import.meta.env.DEV || import.meta.env.VITE_BYPASS_IMAGEKIT === 'true';
 
-  if ((!isImageKit && !isSupabase && !isLocalImage) || shouldBypass) return url;
+  if ((!isImageKit && !isSupabase) || shouldBypass) return url;
 
   const endpoint = IMAGEKIT_URL_ENDPOINT.replace(/\/+$/, '');
   const endpointMatch = endpoint.match(/^https?:\/\/ik\.imagekit\.io\/([^/]+)(.*)$/);
@@ -70,8 +81,6 @@ export const getOptimizedUrl = (url: string | undefined, options: OptimizationOp
     } else {
       return url;
     }
-  } else if (isLocalImage) {
-    path = stripLeadingSlash(url);
   }
 
   if (endpointSubfolder && path.startsWith(endpointSubfolder + '/')) {
@@ -102,6 +111,13 @@ export const getOptimizedSrcSet = (
   options: Omit<OptimizationOptions, 'width'> = {},
 ): string => {
   if (!url) return '';
+
+  // When the URL is not transformable — a bypassed build, a site-local asset,
+  // or any host ImageKit cannot serve — getOptimizedUrl returns it untouched.
+  // Emitting the same URL at five widths would advertise sizes that do not
+  // exist and let the browser pick the "largest" of five identical files.
+  if (getOptimizedUrl(url, options) === url) return '';
+
   return widths
     .map(w => `${getOptimizedUrl(url, { ...options, width: w })} ${w}w`)
     .join(', ');

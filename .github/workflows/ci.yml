@@ -50,6 +50,9 @@ jobs:
       - name: No console.log in production source
         run: node apps/web/scripts/checks/no-console-log.js
 
+      - name: Supabase auth invariant (cookie-based session)
+        run: node apps/web/scripts/checks/supabase-auth-invariant.js
+
       - name: Architectural layer enforcement (dependency-cruiser)
         run: npm run arch:check --workspace=apps/web
         continue-on-error: true  # Enforce once baseline violations are resolved

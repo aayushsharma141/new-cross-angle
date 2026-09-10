@@ -149,8 +149,8 @@ Say goodbye to cluttered countertops. We incorporate pull-out pantries, corner c
 ### Complementary Upgrades
 For factory-precision cabinetry, explore our specialized [Modular Kitchen Systems](/services/specialized/modular-kitchens) or check our [Lighting Design](/services/specialized/lighting) for Task and Accent illumination.
         `,
-        heroImage: "/images/projects/discovery/visual-12.jpg",
-        hero_image: "/images/projects/discovery/visual-12.jpg",
+        heroImage: "/images/projects/discovery/visual-5.jpg",
+        hero_image: "/images/projects/discovery/visual-5.jpg",
         galleryImages: [
             "/images/projects/discovery/visual-15.jpg",
             "/images/projects/discovery/visual-13.jpg",

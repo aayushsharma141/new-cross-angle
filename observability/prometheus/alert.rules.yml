@@ -1,0 +1,41 @@
+groups:
+  - name: error-budgets
+    rules:
+      # Upload SLO: 99.9%
+      - alert: UploadErrorBudgetBurn
+        expr: |
+          rate(dam_upload_failures_total[1h]) 
+          / 
+          rate(dam_upload_requests_total[1h]) > 0.001
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Upload error budget burning too fast"
+          description: "Upload failure rate > 0.1% over the last hour"
+
+      # Search SLO: 99.5%
+      - alert: SearchErrorBudgetBurn
+        expr: |
+          rate(dam_search_errors_total[1h]) 
+          / 
+          rate(dam_search_requests_total[1h]) > 0.005
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Search error budget burning too fast"
+          description: "Search failure rate > 0.5% over the last hour"
+
+      # Pipeline SLO: 99%
+      - alert: PipelineErrorBudgetBurn
+        expr: |
+          rate(dam_pipeline_failed_total[1h]) 
+          / 
+          (rate(dam_pipeline_ready_total[1h]) + rate(dam_pipeline_ready_degraded_total[1h]) + rate(dam_pipeline_failed_total[1h])) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pipeline error budget burning too fast"
+          description: "Pipeline failure rate > 1% over the last hour"

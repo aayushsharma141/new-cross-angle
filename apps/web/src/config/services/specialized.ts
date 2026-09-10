@@ -30,8 +30,8 @@ Our modular carcasses are crafted from High-Density Moisture-Resistant (HDMR) bo
 ### Complete Your Kitchen
 Combine your modular cabinetry with our full [Kitchen & Dining](/services/residential/kitchen) services or enhance illumination with [Lighting Design](/services/specialized/lighting).
         `,
-        heroImage: "/images/projects/discovery/visual-12.jpg",
-        hero_image: "/images/projects/discovery/visual-12.jpg",
+        heroImage: "/images/projects/discovery/reflect-env-kitchen.jpg",
+        hero_image: "/images/projects/discovery/reflect-env-kitchen.jpg",
         galleryImages: [
             "/images/projects/discovery/visual-15.jpg",
             "/images/projects/discovery/visual-13.jpg",
@@ -155,7 +155,7 @@ Pair your lighting scheme with custom [False Ceiling & Lighting](/services/speci
         galleryImages: [
             "/images/projects/discovery/visual-13.jpg",
             "/images/projects/discovery/visual-4.jpg",
-            "/images/projects/discovery/visual-12.jpg"
+            "/images/projects/discovery/reflect-env-kitchen.jpg"
         ],
         features: [
             "Architectural 3-Layer Lighting Plans",
