@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AssetService, type AssetRow } from "@/services/AssetService";
+import { AssetService, type AssetRow, type AssetVersionRow } from "@/services/AssetService";
 import { CollectionService } from "@/services/CollectionService";
-import { Loader2, AlertCircle, Trash2, Link as LinkIcon, Info, Folders, X, Archive, ArchiveRestore } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Loader2, AlertCircle, Trash2, Link as LinkIcon, Info, Folders, X, Archive, ArchiveRestore, RefreshCw, History } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/primitives/button";
 import { ScrollArea } from "@/components/ui/primitives/scroll-area";
 import { Separator } from "@/components/ui/primitives/separator";
@@ -69,7 +69,8 @@ export function AssetInspector({ selectedAssetId, onCollectionFilter, activeColl
 // -- Sub Components -- //
 
 function AssetPreview({ asset }: { asset: AssetRow }) {
-    // Use the first asset_version URL directly (latest is first due to order desc)
+    // Latest first: AssetService.getAssets orders the embedded asset_versions
+    // by version_number desc, so index 0 is the live version.
     const versionUrl = asset.asset_versions?.[0]?.url;
     const isLoading = false;
 
@@ -174,16 +175,150 @@ function AssetUsagePanel({ asset }: { asset: AssetRow }) {
     );
 }
 
-function AssetVersionPanel({ asset: _asset }: { asset: AssetRow }) {
+function formatBytes(bytes: number | null): string {
+    if (bytes === null || bytes <= 0) return "—";
+    const units = ["B", "KB", "MB", "GB"];
+    const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+    const value = bytes / Math.pow(1024, exponent);
+    return `${value.toFixed(exponent === 0 ? 0 : 1)} ${units[exponent]}`;
+}
+
+function AssetVersionPanel({ asset }: { asset: AssetRow }) {
+    const queryClient = useQueryClient();
+    const { toast } = useToast();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const { data: versions = [], isLoading } = useQuery({
+        queryKey: ["dam", "asset_versions", asset.id],
+        queryFn: () => AssetService.getAssetVersions(asset.id),
+    });
+
+    const replaceMutation = useMutation({
+        mutationFn: (file: File) => AssetService.replaceAsset(asset.id, file),
+        onSuccess: (version) => {
+            // The grid, the preview and this panel all read the version list.
+            queryClient.invalidateQueries({ queryKey: ["dam", "asset_versions", asset.id] });
+            queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+            toast({
+                title: `Replaced with v${version.version_number}`,
+                description: "Every entity referencing this asset now serves the new file.",
+            });
+        },
+        onError: (error: Error) => {
+            toast({
+                title: "Replace failed",
+                description: error.message,
+                variant: "destructive",
+            });
+        },
+    });
+
+    const handleFileChosen = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        // Reset first so choosing the same file twice still fires a change event.
+        event.target.value = "";
+        if (file) replaceMutation.mutate(file);
+    };
+
+    const liveVersion = versions[0];
+
     return (
         <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Versions</h3>
-            <div className="p-4 border rounded-md bg-muted/20 flex items-center justify-between">
-                <div>
-                    <Badge className="mb-1">v1 (Current)</Badge>
-                    <p className="text-xs text-muted-foreground">Version history arriving in Phase 6.</p>
-                </div>
+            <div className="flex items-center justify-between gap-4">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Versions</h3>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="sr-only"
+                    onChange={handleFileChosen}
+                    accept="image/*,video/*"
+                />
+                <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={replaceMutation.isPending}
+                >
+                    {replaceMutation.isPending ? (
+                        <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+                    ) : (
+                        <RefreshCw className="w-3.5 h-3.5 mr-2" />
+                    )}
+                    {replaceMutation.isPending ? "Replacing…" : "Replace"}
+                </Button>
             </div>
+
+            <p className="text-xs text-muted-foreground">
+                Replacing uploads a new version against the same asset id. Every entity bound
+                through <span className="font-mono">asset_usages</span> follows automatically — no reference breaks.
+            </p>
+
+            {isLoading ? (
+                <div className="p-4 border rounded-md bg-muted/20 flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-xs">Loading version history…</span>
+                </div>
+            ) : versions.length === 0 ? (
+                <div className="p-4 border rounded-md bg-muted/20 text-xs text-muted-foreground">
+                    No versions recorded for this asset.
+                </div>
+            ) : (
+                <div className="border rounded-md divide-y overflow-hidden">
+                    {versions.map((version) => (
+                        <AssetVersionRowItem
+                            key={version.id}
+                            version={version}
+                            isLive={version.id === liveVersion?.id}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function AssetVersionRowItem({ version, isLive }: { version: AssetVersionRow; isLive: boolean }) {
+    const dimensions = version.width && version.height ? `${version.width}×${version.height}` : null;
+
+    return (
+        <div className={cn("flex items-center gap-3 p-3", isLive ? "bg-muted/30" : "bg-background")}>
+            <div className="w-12 h-12 shrink-0 rounded border bg-muted/20 overflow-hidden flex items-center justify-center">
+                {version.url && version.mime_type?.startsWith("image/") ? (
+                    <img
+                        src={version.url}
+                        alt={`Version ${version.version_number}`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                    />
+                ) : (
+                    <History className="w-4 h-4 text-muted-foreground opacity-40" />
+                )}
+            </div>
+
+            <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">v{version.version_number}</span>
+                    {isLive ? (
+                        <Badge>Live</Badge>
+                    ) : (
+                        <Badge variant="outline">Superseded</Badge>
+                    )}
+                </div>
+                <p className="text-xs text-muted-foreground truncate">
+                    {formatDistanceToNow(new Date(version.created_at), { addSuffix: true })}
+                    {dimensions ? ` · ${dimensions}` : ""}
+                    {` · ${formatBytes(version.size_bytes)}`}
+                </p>
+            </div>
+
+            {version.url && (
+                <Button size="sm" variant="ghost" asChild>
+                    <a href={version.url} target="_blank" rel="noreferrer">
+                        Open
+                    </a>
+                </Button>
+            )}
         </div>
     );
 }

@@ -31,12 +31,46 @@ export interface AssetUsageRow {
   created_at: string;
 }
 
+export interface AssetVersionRow {
+  id: string;
+  asset_id: string;
+  version_number: number;
+  url: string | null;
+  file_id: string;
+  size_bytes: number | null;
+  mime_type: string | null;
+  width: number | null;
+  height: number | null;
+  storage_provider: string | null;
+  created_at: string;
+}
+
 /** Thrown when attempting to hard-delete an asset that still has active usages. */
 export class AssetInUseError extends Error {
   constructor(public readonly usages: AssetUsageRow[]) {
     super(`Asset is still referenced by ${usages.length} usage(s) and cannot be deleted.`);
     this.name = "AssetInUseError";
   }
+}
+
+/** Folder used when an existing version carries no derivable storage path. */
+const REPLACEMENT_FALLBACK_FOLDER = "dam/replacements";
+
+/** Reads a File as the base64 data URL the `imagekit-upload` function expects. */
+function readAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error ?? new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+}
+
+/** Derives a version's storage folder so its replacement lands beside it. */
+function folderOf(fileId: string | null | undefined): string {
+  if (!fileId) return REPLACEMENT_FALLBACK_FOLDER;
+  const lastSlash = fileId.lastIndexOf("/");
+  return lastSlash > 0 ? fileId.slice(0, lastSlash) : REPLACEMENT_FALLBACK_FOLDER;
 }
 
 export const AssetService = {
@@ -74,7 +108,8 @@ export const AssetService = {
             asset_usages (count),
             asset_tag_links (tag_id)
           `)
-          .order("updated_at", { ascending: false });
+          .order("updated_at", { ascending: false })
+          .order("version_number", { referencedTable: "asset_versions", ascending: false });
 
         if (!opts?.showArchived && !opts?.status) {
           query = query.neq("status", "archived");
@@ -180,7 +215,8 @@ export const AssetService = {
         )
       `)
       .eq("status", "archived")
-      .order("updated_at", { ascending: false });
+      .order("updated_at", { ascending: false })
+      .order("version_number", { referencedTable: "asset_versions", ascending: false });
 
     if (error) throw error;
     return data as unknown as AssetRow[];
@@ -266,6 +302,101 @@ export const AssetService = {
 
     if (error) throw error;
     return data || [];
+  },
+
+  /** Full version history for an asset, newest first. */
+  async getAssetVersions(assetId: string): Promise<AssetVersionRow[]> {
+    const { data, error } = await supabase
+      .from("asset_versions")
+      .select("*")
+      .eq("asset_id", assetId)
+      .order("version_number", { ascending: false });
+
+    if (error) throw error;
+    return (data || []) as AssetVersionRow[];
+  },
+
+  /**
+   * Replaces an asset's binary without breaking references.
+   *
+   * Entities point at `asset_id` through `asset_usages` — never at a version id
+   * or a raw CDN URL (ADR-0002) — so appending a new `asset_versions` row
+   * re-points every consumer at once. `rpc_finalize_dam_asset` cannot be reused
+   * here: it hardcodes `version_number = 1` and would also bind a usage row.
+   *
+   * The superseded file is deliberately left in ImageKit; it is what makes the
+   * history browsable and a rollback possible.
+   */
+  async replaceAsset(assetId: string, file: File): Promise<AssetVersionRow> {
+    const versions = await AssetService.getAssetVersions(assetId);
+    const current = versions[0];
+    const nextVersionNumber = (current?.version_number ?? 0) + 1;
+
+    const fileData = await readAsDataUrl(file);
+
+    const { data: uploaded, error: uploadError } = await supabase.functions.invoke(
+      "imagekit-upload",
+      {
+        body: {
+          action: "upload",
+          fileName: file.name,
+          fileData,
+          folder: folderOf(current?.file_id),
+          useUniqueName: true,
+        },
+      },
+    );
+
+    if (uploadError) {
+      throw new Error(`Replacement upload failed: ${uploadError.message}`);
+    }
+
+    const filePath: string = uploaded.filePath || uploaded.name;
+
+    const { data: inserted, error: insertError } = await supabase
+      .from("asset_versions")
+      .insert({
+        asset_id: assetId,
+        version_number: nextVersionNumber,
+        storage_provider: "imagekit",
+        file_id: filePath,
+        url: uploaded.url,
+        size_bytes: file.size,
+        mime_type: file.type || "application/octet-stream",
+        width: uploaded.width ?? null,
+        height: uploaded.height ?? null,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      // The row is what makes the upload reachable. Without it the file is an
+      // orphan in ImageKit with nothing pointing at it, so clean it up rather
+      // than leaving unreferenced bytes behind.
+      try {
+        await supabase.functions.invoke("imagekit-upload", {
+          body: { action: "delete", filePath },
+        });
+      } catch (e) {
+        console.warn(
+          `[AssetService.replaceAsset] orphan cleanup failed for file_id=${filePath}:`,
+          e,
+        );
+      }
+      throw insertError;
+    }
+
+    // Surface the replacement in the "recently updated" ordering the sidebar uses.
+    const { error: touchError } = await supabase
+      .from("assets")
+      .update({ updated_at: new Date().toISOString() })
+      .eq("id", assetId);
+
+    if (touchError) {
+      console.warn("[AssetService.replaceAsset] failed to touch asset updated_at:", touchError);
+    }
+
+    return inserted as AssetVersionRow;
   },
 
   async getAssetVersion(versionId: string) {
