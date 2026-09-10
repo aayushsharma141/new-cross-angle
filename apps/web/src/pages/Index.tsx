@@ -6,6 +6,7 @@ import ScrollToTop from "@/components/layout/ScrollToTop";
 import { SITE_CONSTANTS } from "@/lib/constants";
 import { Link } from "react-router-dom";
 import Hero from "@/components/home/Hero";
+import { HomeFAQ } from "@/components/home/HomeFAQ";
 import { useEffect, useState } from "react";
 import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
 
@@ -153,6 +154,8 @@ const Index = () => {
           </div>
         </section>
 
+        <HomeFAQ />
+
         {/* 80–100% Scroll: Gallery invitation — refined editorial transition */}
         <section className="home-section-frame relative z-10 w-full px-6 md:px-12 lg:px-24 py-[14vh] md:py-[16vh] max-w-[1600px] mx-auto flex flex-col items-center justify-center text-center">
           {/* Vertical gold rule — gentle transition guide */}
@@ -169,13 +172,14 @@ const Index = () => {
           {/* Gold thin rule */}
           <div className="w-10 h-px bg-[#C9A85C]/40 mb-8" aria-hidden="true" />
           <Link 
-            to="/portfolio" 
+            to="/gallery" 
             className="home-button-sweep inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] font-semibold border-b border-[#C9A85C]/40 pb-2 text-[#C9A85C] transition-colors duration-500 hover:border-[#C9A85C] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none group"
           >
-            <span>Enter Portfolio</span>
+            <span>Enter Gallery</span>
             <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1.5" aria-hidden="true">→</span>
           </Link>
         </section>
+
 
       </main>
       <Footer />
