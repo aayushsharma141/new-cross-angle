@@ -22,11 +22,14 @@ export const MegaMenu = React.forwardRef<HTMLDivElement, MegaMenuProps>(
         <Overlay isOpen={isOpen} onClose={onClose} tint blur className="items-start pt-24">
           <div
             ref={ref}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mega menu"
+            tabIndex={-1}
             className={cn(
               "w-full max-w-5xl bg-surface-card border border-subtle shadow-2xl rounded-2xl p-8 animate-in fade-in-0 slide-in-from-top-4 duration-200 text-content-primary",
               className
             )}
-            onClick={(e) => e.stopPropagation()}
             {...props}
           >
             {children}

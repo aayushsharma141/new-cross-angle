@@ -92,6 +92,15 @@ export function AssetSidebar({
     const [uploadRole, setUploadRole] = useState<string>("general");
     const [uploadStats, setUploadStats] = useState<{ current: number; total: number; percent: number } | null>(null);
 
+    // Bulk Ingest Collection State (COLL-03)
+    const [isBulkIngestOpen, setIsBulkIngestOpen] = useState(false);
+    const [bulkCollectionName, setBulkCollectionName] = useState("");
+    const [bulkCollectionType, setBulkCollectionType] = useState<CollectionType>("shoot");
+    const [bulkFiles, setBulkFiles] = useState<File[]>([]);
+    const [bulkUploading, setBulkUploading] = useState(false);
+    const [bulkStats, setBulkStats] = useState<{ current: number; total: number; percent: number } | null>(null);
+    const [bulkError, setBulkError] = useState<string | null>(null);
+
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
@@ -193,6 +202,76 @@ export function AssetSidebar({
     const handleCreateSubmit = () => {
         if (!newCollectionName.trim()) return;
         createMutation.mutate();
+    };
+
+    const handleBulkIngestSubmit = async () => {
+        if (!bulkCollectionName.trim() || bulkFiles.length === 0) return;
+        setBulkUploading(true);
+        setBulkError(null);
+        setBulkStats({ current: 0, total: bulkFiles.length, percent: 0 });
+
+        try {
+            const created = await CollectionService.createCollection(bulkCollectionName.trim(), bulkCollectionType);
+            let successCount = 0;
+            const errors: string[] = [];
+
+            for (let i = 0; i < bulkFiles.length; i++) {
+                const file = bulkFiles[i];
+                try {
+                    const { url, filePath } = await MediaService.uploadDamAsset({
+                        file,
+                        title: file.name,
+                        domain: "system",
+                        entityType: "system",
+                        entityId: null,
+                        role: "general",
+                        collectionId: created.id,
+                        onProgress: (p) => setBulkStats({ current: i + 1, total: bulkFiles.length, percent: p }),
+                    });
+
+                    await supabase.from("media_files").upsert(
+                        {
+                            url,
+                            file_name: filePath,
+                            display_name: file.name,
+                            mime_type: file.type || "application/octet-stream",
+                            size_bytes: file.size,
+                            alt_text: file.name,
+                            caption: file.name,
+                            storage_provider: "imagekit",
+                            storage_path: filePath,
+                        },
+                        { onConflict: "file_name" }
+                    );
+
+                    successCount++;
+                } catch (e: unknown) {
+                    errors.push(`${file.name}: ${e instanceof Error ? e.message : String(e)}`);
+                }
+            }
+
+            setBulkUploading(false);
+            setBulkStats(null);
+            setIsBulkIngestOpen(false);
+            setBulkCollectionName("");
+            setBulkFiles([]);
+
+            void queryClient.invalidateQueries({ queryKey: ["dam", "collections"] });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+
+            toast({
+                title: "Bulk Ingestion Complete",
+                description: `Created "${created.name}" and uploaded ${successCount} of ${bulkFiles.length} file(s).`,
+            });
+
+            onCollectionFilter(created.id);
+        } catch (err: unknown) {
+            setBulkUploading(false);
+            setBulkStats(null);
+            const msg = err instanceof Error ? err.message : String(err);
+            setBulkError(msg);
+            toast({ title: "Bulk Ingestion Failed", description: msg, variant: "destructive" });
+        }
     };
 
     const uploadMutation = useMutation({
@@ -549,16 +628,27 @@ export function AssetSidebar({
                 <div id="panel-collections" role="tabpanel" className="flex-1 flex flex-col overflow-hidden">
                     <div className="flex-shrink-0 flex items-center justify-between px-3 py-2.5 border-b border-border">
                         <p className="text-xs text-muted-foreground">{collections.length} collections</p>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 focus-visible:ring-1 focus-visible:ring-primary"
-                            onClick={() => setIsCreatingCollection(true)}
-                            title="New Collection"
-                            aria-label="New Collection"
-                        >
-                            <Plus className="w-3.5 h-3.5" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-6 text-[11px] px-2 font-medium"
+                                onClick={() => setIsBulkIngestOpen(true)}
+                                title="Bulk Ingest New Collection"
+                            >
+                                <Upload className="w-3 h-3 mr-1" /> Ingest
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 focus-visible:ring-1 focus-visible:ring-primary"
+                                onClick={() => setIsCreatingCollection(true)}
+                                title="New Collection"
+                                aria-label="New Collection"
+                            >
+                                <Plus className="w-3.5 h-3.5" />
+                            </Button>
+                        </div>
                     </div>
 
                     {/* Create collection inline form */}
@@ -661,7 +751,6 @@ export function AssetSidebar({
                                     isActive={activeCollectionId === col.id}
                                     onClick={() => {
                                         onCollectionFilter(col.id);
-                                        setTab("assets");
                                     }}
                                 />
                             ))}
@@ -750,6 +839,98 @@ export function AssetSidebar({
                             </div>
                         )}
                     </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Bulk Ingest Dialog (COLL-03) */}
+            <Dialog open={isBulkIngestOpen} onOpenChange={setIsBulkIngestOpen}>
+                <DialogContent className="sm:max-w-[550px]">
+                    <DialogHeader>
+                        <DialogTitle>Bulk Ingest Collection</DialogTitle>
+                        <DialogDescription>
+                            Create a new collection and upload a batch of media files into it in one operation.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-2">
+                        <div className="grid grid-cols-3 gap-3">
+                            <div className="col-span-2 space-y-1">
+                                <label htmlFor="bulk-collection-name" className="text-xs font-semibold text-muted-foreground">Collection Name</label>
+                                <Input
+                                    id="bulk-collection-name"
+                                    value={bulkCollectionName}
+                                    onChange={(e) => setBulkCollectionName(e.target.value)}
+                                    placeholder="e.g. Luxury Villa Shoot"
+                                    className="h-8 text-xs"
+                                    disabled={bulkUploading}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label htmlFor="bulk-collection-type" className="text-xs font-semibold text-muted-foreground">Type</label>
+                                <Select
+                                    value={bulkCollectionType}
+                                    onValueChange={(v) => setBulkCollectionType(v as CollectionType)}
+                                    disabled={bulkUploading}
+                                >
+                                    <SelectTrigger id="bulk-collection-type" className="h-8 text-xs">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="shoot">Shoot</SelectItem>
+                                        <SelectItem value="campaign">Campaign</SelectItem>
+                                        <SelectItem value="moodboard_set">Moodboard</SelectItem>
+                                        <SelectItem value="project_delivery">Delivery</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <MediaUploadZone
+                            folderName={bulkCollectionName.trim() || "New Collection"}
+                            isUploading={bulkUploading}
+                            errorMessage={bulkError}
+                            onUpload={(files) => setBulkFiles(files)}
+                            onError={(err) => setBulkError(err)}
+                        />
+
+                        {bulkFiles.length > 0 && !bulkUploading && (
+                            <p className="text-xs text-primary font-medium">
+                                {bulkFiles.length} file(s) selected and ready for ingestion.
+                            </p>
+                        )}
+
+                        {bulkStats && (
+                            <div className="space-y-1">
+                                <div className="flex justify-between text-xs text-muted-foreground">
+                                    <span>Uploading files...</span>
+                                    <span>{bulkStats.current} of {bulkStats.total} ({bulkStats.percent}%)</span>
+                                </div>
+                                <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-primary transition-all duration-300"
+                                        style={{ width: `${bulkStats.percent}%` }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <DialogFooter className="mt-4">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsBulkIngestOpen(false)}
+                            disabled={bulkUploading}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            size="sm"
+                            onClick={handleBulkIngestSubmit}
+                            disabled={!bulkCollectionName.trim() || bulkFiles.length === 0 || bulkUploading}
+                        >
+                            {bulkUploading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            Create &amp; Ingest
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>

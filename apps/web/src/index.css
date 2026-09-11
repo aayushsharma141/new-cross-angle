@@ -249,6 +249,55 @@
     --input: var(--admin-border);
     --ring: var(--admin-gold);
     --admin-grain: none;
+
+    /* ── Hoisted out of `.dark .admin-theme` ────────────────────────────────
+     * These were declared ONLY in the dark block below. The admin surface is
+     * dark in every theme, but ThemeProvider writes the `dark`/`light` class
+     * onto <html> from `localStorage["vite-ui-theme"]` — a key it shares with
+     * the public site. With that key set to `light`, all of these stopped
+     * resolving, `hsl(var(--admin-primary))` became `hsl()`, and the browser
+     * dropped every declaration using them: page background, brand gold,
+     * button fills and most text colour went at once.
+     *
+     * Declared here so the admin palette is theme-independent. The `.dark`
+     * block still overrides with identical values, so dark rendering is
+     * byte-for-byte unchanged. */
+    --admin-background: 0 0% 1%;
+    --admin-foreground: 0 0% 98%;
+    --admin-primary: 43 90% 55%;
+    --admin-primary-hover: 43 90% 65%;
+    --admin-primary-foreground: 0 0% 0%;
+    --admin-primary-muted: 43 90% 55% / 0.12;
+    --admin-card-foreground: 0 0% 98%;
+    --admin-popover: 0 0% 3%;
+    --admin-popover-foreground: 0 0% 98%;
+    --admin-input: 0 0% 11%;
+    --admin-ring: var(--admin-gold);
+    --admin-secondary: 0 0% 10%;
+    --admin-secondary-foreground: 0 0% 98%;
+    --admin-accent: 43 90% 55%;
+    --admin-accent-foreground: 0 0% 100%;
+    --admin-text-muted: 215 15% 65%;
+    --admin-muted-foreground: 215 15% 65%;
+    --admin-danger-muted: 0 91% 60% / 0.12;
+    --admin-info-muted: 199 89% 55% / 0.12;
+    --admin-success-muted: 142 76% 45% / 0.12;
+    --admin-warning-muted: 38 92% 55% / 0.12;
+
+    /* ── Referenced across the admin surface but never declared anywhere ────
+     * Each of these appears in `hsl(var(--…))` expressions that resolved to an
+     * invalid colour, so the property was silently dropped. Usage counts at the
+     * time of writing: border-subtle 29, surface-hover 22, text-subtle 9,
+     * wine 8, error 2. Values continue the existing steps rather than
+     * introducing new hues — text-subtle sits one tier below --admin-muted,
+     * border-subtle one tier below --admin-border, and wine is the brand red
+     * already hardcoded in tailwind.config.ts's `btn-brand` shadow. */
+    --admin-text-subtle: 215 14% 48%;
+    --admin-border-subtle: 0 0% 9%;
+    --admin-surface-hover: 0 0% 10%;
+    --admin-error: 0 91% 60%;
+    --admin-wine: 355 85% 42%;
+    --admin-wine-light: 355 70% 55%;
   }
 
   .dark .admin-theme,

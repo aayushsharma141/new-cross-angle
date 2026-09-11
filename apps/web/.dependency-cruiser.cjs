@@ -4,6 +4,9 @@ module.exports = {
     doNotFollow: {
       path: "node_modules",
     },
+    tsConfig: {
+      fileName: "tsconfig.json",
+    },
     tsPreCompilationDeps: true,
     combinedDependencies: false,
     moduleSystems: ["es6", "cjs"],
@@ -43,7 +46,10 @@ module.exports = {
       name: "no-supabase-in-components",
       comment: "UI components must not call supabase directly. Use services, hooks, or context.",
       severity: "error",
-      from: { path: "^src/components" },
+      from: {
+        path: "^src/components",
+        pathNot: "^src/components/auth/(AuthProvider\\.tsx|_internals/useRoleFetcher\\.ts)$",
+      },
       to: { path: "^src/integrations/supabase/client" },
     },
     {

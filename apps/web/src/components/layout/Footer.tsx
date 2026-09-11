@@ -8,60 +8,7 @@ import { MapPin, Mail, Phone, Plus, Minus, Instagram, Youtube, Linkedin, Twitter
 
 
 
-interface Particle {
-  id: number;
-  x: number;
-  y: number;
-  duration: number;
-  delay: number;
-  size: number;
-  wobble: number;
-}
 
-// Particles (Ocean Bubbles)
-const _Particles = () => {
-  const [particles, setParticles] = useState<Particle[]>([]);
-  useEffect(() => {
-    const arr = [];
-    for (let i = 0; i < 100; i++) {
-      arr.push({
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        duration: 10 + Math.random() * 30,
-        delay: Math.random() * -20,
-        size: 1 + Math.random() * 6,
-        wobble: Math.random() * 40 - 20,
-      });
-    }
-    setParticles(arr);
-  }, []);
-
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-      {particles.map((p) => (
-        <motion.div
-          key={p.id}
-          className="absolute rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10"
-          style={{ 
-            left: `${p.x}vw`, 
-            top: `100%`, 
-            width: `${p.size}px`, 
-            height: `${p.size}px` 
-          }}
-          animate={{ 
-            y: [0, -3000],
-            x: [0, p.wobble, -p.wobble, 0]
-          }}
-          transition={{
-            y: { duration: p.duration, repeat: Infinity, ease: "linear", delay: p.delay },
-            x: { duration: p.duration / 2, repeat: Infinity, ease: "easeInOut", delay: p.delay }
-          }}
-        />
-      ))}
-    </div>
-  );
-};
 
 
 // Clock

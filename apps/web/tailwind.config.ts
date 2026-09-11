@@ -123,20 +123,52 @@ export default {
 						DEFAULT: "hsl(var(--admin-accent) / <alpha-value>)",
 						foreground: "hsl(var(--admin-accent-foreground) / <alpha-value>)",
 					},
-					border: "hsl(var(--admin-border) / <alpha-value>)",
+					border: {
+						DEFAULT: "hsl(var(--admin-border) / <alpha-value>)",
+						subtle: "hsl(var(--admin-border-subtle) / <alpha-value>)",
+					},
 					input: "hsl(var(--admin-input) / <alpha-value>)",
 					ring: "hsl(var(--admin-ring) / <alpha-value>)",
 					wine: {
 						DEFAULT: "hsl(var(--admin-wine) / <alpha-value>)",
 						light: "hsl(var(--admin-wine-light) / <alpha-value>)",
 					},
-					gold: {
-						DEFAULT: "hsl(var(--admin-gold) / <alpha-value>)",
-						muted: "hsl(var(--admin-gold-muted) / <alpha-value>)",
+					gold: "hsl(var(--admin-gold) / <alpha-value>)",
+
+					/* ── Previously missing from this palette ───────────────────
+					 * The admin surface uses two syntaxes for the same tokens.
+					 * The arbitrary form — bg-[hsl(var(--admin-surface))] — always
+					 * worked. The shorthand form — bg-admin-surface — had no key
+					 * here, so Tailwind emitted nothing and reported nothing:
+					 * roughly 400 class usages were silently inert, collapsing the
+					 * three-step text hierarchy to one. Verified absent from
+					 * dist/assets/index-*.css before adding these. */
+					bg: "hsl(var(--admin-bg) / <alpha-value>)",
+					surface: {
+						DEFAULT: "hsl(var(--admin-surface) / <alpha-value>)",
+						hover: "hsl(var(--admin-surface-hover) / <alpha-value>)",
 					},
-					obsidian: "hsl(var(--admin-obsidian) / <alpha-value>)",
-					charcoal: "hsl(var(--admin-charcoal) / <alpha-value>)",
-					stone: "hsl(var(--admin-stone) / <alpha-value>)",
+					text: {
+						DEFAULT: "hsl(var(--admin-text) / <alpha-value>)",
+						muted: "hsl(var(--admin-text-muted) / <alpha-value>)",
+						subtle: "hsl(var(--admin-text-subtle) / <alpha-value>)",
+					},
+					danger: {
+						DEFAULT: "hsl(var(--admin-danger) / <alpha-value>)",
+						muted: "hsl(var(--admin-danger-muted))",
+					},
+					success: {
+						DEFAULT: "hsl(var(--admin-success) / <alpha-value>)",
+						muted: "hsl(var(--admin-success-muted))",
+					},
+					warning: {
+						DEFAULT: "hsl(var(--admin-warning) / <alpha-value>)",
+						muted: "hsl(var(--admin-warning-muted))",
+					},
+					info: {
+						DEFAULT: "hsl(var(--admin-info) / <alpha-value>)",
+						muted: "hsl(var(--admin-info-muted))",
+					},
 				},
 			},
 			fontSize: {

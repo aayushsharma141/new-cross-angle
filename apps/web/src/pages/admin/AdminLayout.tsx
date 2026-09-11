@@ -168,7 +168,7 @@ const AdminLayout = (): JSX.Element | null => {
 
     const isFullWidth = location.pathname === "/admin" || location.pathname === "/admin/" || location.pathname.startsWith("/admin/crm") || location.pathname.startsWith("/admin/cms") || location.pathname.startsWith("/admin/blog") || location.pathname.startsWith("/admin/estimate") || location.pathname.startsWith("/admin/estimator") || location.pathname.startsWith("/admin/discovery") || location.pathname.startsWith("/admin/dashboard") || location.pathname.startsWith("/admin/system") || location.pathname.startsWith("/admin/user-access");
     return (
-        <div className="h-screen max-h-screen flex flex-col bg-admin-bg admin-theme overflow-hidden">
+        <div className="h-screen max-h-screen flex flex-col bg-admin-bg admin-theme dark overflow-hidden">
             <SkipNav targetId="admin-main" />
             {/* Premium Top Navigation */}
             <TopBar />

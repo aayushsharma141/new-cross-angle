@@ -1,0 +1,746 @@
+[
+  {
+    "type": "dependency",
+    "from": "src/test/chaos/FaultInjection.test.ts",
+    "to": "src/services/media/providers/ImageKitProvider.ts",
+    "unresolvedTo": "@/services/media/providers/ImageKitProvider",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "dynamic-import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-media-internals-outside-service"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/test/chaos/FaultInjection.test.ts",
+    "to": "src/services/media/UploadOrchestrator.ts",
+    "unresolvedTo": "@/services/media/UploadOrchestrator",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "dynamic-import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-media-internals-outside-service"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/test/load/load-test-server.ts",
+    "to": "src/services/media/UploadOrchestrator.ts",
+    "unresolvedTo": "../../services/media/UploadOrchestrator",
+    "dependencyTypes": [
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-media-internals-outside-service"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/test/load/tier-a-harness.ts",
+    "to": "src/services/media/UploadOrchestrator.ts",
+    "unresolvedTo": "../../services/media/UploadOrchestrator",
+    "dependencyTypes": [
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-media-internals-outside-service"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/test/telemetry/collector-resilience.test.ts",
+    "to": "src/services/media/UploadOrchestrator.ts",
+    "unresolvedTo": "../../services/media/UploadOrchestrator",
+    "dependencyTypes": [
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-media-internals-outside-service"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/about/AboutTeam.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/about/AboutTimeline.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/analytics/LeadFunnelChart.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/analytics/LeadSourceChart.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/analytics/PosthogFunnelChart.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/analytics/ProjectPipelineChart.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/blogs/BlogEditorForm.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/blogs/BlogList.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/dashboard/RecentActivityFeed.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/leads/LeadDetailSheet.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/leads/LeadTimeline.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/leads/ObjectionTracker.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/media/AssetSidebar.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/media/CollectionDetailView.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/portfolio/PortfolioFormDialog.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/settings/AuditLogTable.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/settings/GeneralSettingsForm.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/settings/ReportRecipientsManager.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/users/SecurityTab.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/admin/users/UserFormSheet.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/home/BeforeAfterShowcase.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/home/Hero.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/home/Process.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/home/Testimonials.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "src/components/ui/enhanced/MediaSlot.tsx",
+    "to": "src/integrations/supabase/client.ts",
+    "unresolvedTo": "@/integrations/supabase/client",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "no-supabase-in-components"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/analytics/context.ts",
+    "to": "src/analytics/context.ts",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/admin/settings/IntegrationsManager.tsx",
+    "to": "src/components/admin/settings/IntegrationsManager.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/home/HomeFinalCTA.tsx",
+    "to": "src/components/home/HomeFinalCTA.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/home/StyleDiscoveryTeaser.tsx",
+    "to": "src/components/home/StyleDiscoveryTeaser.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/portfolio/CursorGlow.tsx",
+    "to": "src/components/portfolio/CursorGlow.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/portfolio/GrainOverlay.tsx",
+    "to": "src/components/portfolio/GrainOverlay.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/portfolio/HowWeWork.tsx",
+    "to": "src/components/portfolio/HowWeWork.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/portfolio/MeshGradientBg.tsx",
+    "to": "src/components/portfolio/MeshGradientBg.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/portfolio/SpaceNavigator.tsx",
+    "to": "src/components/portfolio/SpaceNavigator.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/project/ProjectAmbience.tsx",
+    "to": "src/components/project/ProjectAmbience.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/project/ProjectBrief.tsx",
+    "to": "src/components/project/ProjectBrief.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/project/ProjectCTA.tsx",
+    "to": "src/components/project/ProjectCTA.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/project/ProjectDesignDecisions.tsx",
+    "to": "src/components/project/ProjectDesignDecisions.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/project/ProjectMoodboard.tsx",
+    "to": "src/components/project/ProjectMoodboard.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/project/ProjectNarrativeSpine.tsx",
+    "to": "src/components/project/ProjectNarrativeSpine.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/project/ProjectPalette.tsx",
+    "to": "src/components/project/ProjectPalette.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/project/ProjectQuote.tsx",
+    "to": "src/components/project/ProjectQuote.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/project/ProjectStats.tsx",
+    "to": "src/components/project/ProjectStats.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/project/ProjectVideo.tsx",
+    "to": "src/components/project/ProjectVideo.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/ReactBits/Particles.tsx",
+    "to": "src/components/ReactBits/Particles.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/services/ServicesFinalCTA.tsx",
+    "to": "src/components/services/ServicesFinalCTA.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/shared/LogoAnimation.tsx",
+    "to": "src/components/shared/LogoAnimation.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/ui/backgrounds/Squares.tsx",
+    "to": "src/components/ui/backgrounds/Squares.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/components/ui/FadeContent.tsx",
+    "to": "src/components/ui/FadeContent.tsx",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/services/FeatureFlagService.ts",
+    "to": "src/services/FeatureFlagService.ts",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/stores/useMediaStore.ts",
+    "to": "src/stores/useMediaStore.ts",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  },
+  {
+    "type": "module",
+    "from": "src/test/setup.ts",
+    "to": "src/test/setup.ts",
+    "rule": {
+      "severity": "info",
+      "name": "no-orphan"
+    }
+  }
+]

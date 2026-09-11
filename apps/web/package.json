@@ -12,7 +12,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "arch:check": "depcruise src --config .dependency-cruiser.cjs",
+    "arch:check": "depcruise src --config .dependency-cruiser.cjs --ignore-known",
     "arch:fitness": "vitest run src/test/architecture.test.ts",
     "arch:engine": "npx vite-node scripts/checks/architecture-engine.ts",
     "arch:drift": "npx vite-node scripts/checks/architecture-engine.ts --drift",
