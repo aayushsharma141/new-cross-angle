@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { fetchUserRole } from '@/components/auth/_internals/useRoleFetcher';
-import { clearRoleCache } from '@/components/auth/_internals/role-cache';
+import { fetchUserRole, clearRoleCache } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 
 describe('F-01: Real Role Resolution & Fail-Closed Semantics', () => {

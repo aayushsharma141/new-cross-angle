@@ -47,6 +47,9 @@ export function cacheVerifiedRole(userId: string, role: AppRole): void {
     setCachedRole(userId, role);
 }
 
+export { fetchUserRole } from "./_internals/useRoleFetcher";
+export { clearRoleCache } from "./_internals/role-cache";
+
 // ─── Session TTL (Remember Me) ───────────────────────────────────────────────
 const SESSION_EXPIRES_KEY = "admin_session_expires";
 
