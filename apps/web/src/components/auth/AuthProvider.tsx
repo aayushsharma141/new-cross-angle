@@ -1,4 +1,4 @@
-﻿import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { AppRole, hasWriteAccess, isSuperAdmin } from "@/lib/auth/rbac";
@@ -154,7 +154,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 }
 
                 // Role fetch delegated to useRoleFetcher (retry + backoff)
-                const userRole = "super_admin" as AppRole; // await fetchUserRole(serverUser.id);
+                const userRole = await fetchUserRole(serverUser.id);
                 console.debug(`Auth: Resolved role for ${serverUser.email}: '${userRole}'`);
                 if (isMounted) {
                     setRole(userRole);

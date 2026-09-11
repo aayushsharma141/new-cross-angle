@@ -44,10 +44,24 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
         );
     }
 
-    if (!user || !role || !allowedRoles.includes(role)) {
+    if (!user) {
+        return <Navigate to="/admin/auth" replace />;
+    }
+
+    if (!role) {
+        return (
+            <Navigate
+                to="/admin/auth?error=role_unavailable"
+                replace
+                state={{ accessDenied: true, role: null, attemptedPath: location.pathname }}
+            />
+        );
+    }
+
+    if (!allowedRoles.includes(role)) {
         // Redirect to the user's own default dashboard (not always /admin).
         // Pass accessDenied + attempted path so the hub can surface a toast.
-        const dest = role ? (ROLE_DEFAULT_ROUTE[role] ?? '/admin') : '/admin';
+        const dest = ROLE_DEFAULT_ROUTE[role] ?? '/admin';
         return (
             <Navigate
                 to={dest}
