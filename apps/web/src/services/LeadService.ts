@@ -52,6 +52,17 @@ export class LeadService {
     await this.repo.submitLead(payload);
   }
 
+  /**
+   * Browser-side fallback: fire the notify-telegram edge function directly.
+   * Only the lead id is sent; the edge function re-reads the row server-side.
+   *
+   * @temporary — remove once the DB trigger (on_lead_insert_telegram_notify)
+   * is proven end-to-end in production (INSERT → trigger → pg_net → edge fn).
+   */
+  async notifyTelegram(lead: Pick<Lead, 'id'>): Promise<void> {
+    await this.repo.notifyTelegram(lead as Lead);
+  }
+
   async updateLead(id: string, updates: Partial<Lead>): Promise<Lead> {
     return this.repo.updateLeadAndReturn(id, updates);
   }

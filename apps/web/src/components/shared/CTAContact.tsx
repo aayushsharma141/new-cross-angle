@@ -192,7 +192,9 @@ const CTAContact = () => {
     setSubmitStatus("idle");
     try {
       const cleanPhone = data.phone.replace(/\D/g, "");
+      const id = crypto.randomUUID();
       const payload = {
+        id,
         name: `${data.firstName} ${data.lastName}`.trim(),
         email: data.email,
         phone: `+91 ${cleanPhone}`,
@@ -205,7 +207,16 @@ const CTAContact = () => {
         source: "Contact-Form",
         form_data: { ...data, phoneNational: cleanPhone, serviceArea: "Jamshedpur", submittedAt: new Date().toISOString() },
       };
-      await leadService.createLead(payload);
+      
+      // Use submitLead instead of createLead to avoid RLS SELECT violation for anon users
+      await leadService.submitLead(payload);
+      
+      // Since the DB trigger 'on_lead_insert_telegram_notify' is failing silently,
+      // we must manually fire the notification using the client-generated ID.
+      leadService.notifyTelegram({ id }).catch(err =>
+        console.warn("Failed to send Telegram notification:", err)
+      );
+      
       setSubmitStatus("success");
       toast({ title: "Message sent!", description: "We'll get back to you within 24 hours." });
       setFormData({ firstName: "", lastName: "", email: "", phone: "", projectType: "", projectBudget: "", location: "", message: defaultMessage });

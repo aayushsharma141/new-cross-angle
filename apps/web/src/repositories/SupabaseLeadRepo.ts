@@ -220,7 +220,9 @@ export class SupabaseLeadRepo implements LeadRepository {
     }
 
     async notifyTelegram(lead: Lead): Promise<void> {
-        const { error } = await supabase.functions.invoke('notify-telegram', { body: { record: lead } });
+        // Public callers may only reference a lead by id; the edge function
+        // re-reads the row server-side and ignores any other payload fields.
+        const { error } = await supabase.functions.invoke('notify-telegram', { body: { record: { id: lead.id } } });
         if (error) throw error;
     }
 }
