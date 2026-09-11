@@ -207,9 +207,14 @@ Option C was executed not as a blanket "delete three legacy tables", but as **"v
    - `anon` **cannot** arbitrarily modify blog content or analytics aggregates.
    - The RPC strictly validates inputs (safe UUID parsing) and only performs narrow event row insertion and atomic `view_count` increment on `public.blog_posts`.
    - `PUBLIC` execute grant revoked; explicit grants restricted to `anon`, `authenticated`, and `service_role`.
-   - Explicit `SET search_path = public, auth` enforced.
+   - Explicit `SET search_path = public, auth` currently pinned. (Note: Supabase best practice for complete search path protection in `SECURITY DEFINER` routines is `SET search_path = ''` with all relation references fully schema-qualified; queued for comprehensive audit below).
 3. **Dead Aggregation Mechanism Dropped:**
    - Dropped `trigger_aggregate_blog_analytics` and `aggregate_blog_analytics()` via `20260911000004_drop_dead_article_analytics_trigger.sql`. They targeted nonexistent `article_analytics` and caused Postgres to abort event transactions.
-4. **Security Housekeeping Remaining:**
+4. **Queued Follow-up: SECURITY DEFINER Hardening Task:**
+   - Inventory all `SECURITY DEFINER` database functions across public schema.
+   - Audit and restrict `EXECUTE` privileges against the Data API.
+   - Migrate functions to `SET search_path = ''` with fully schema-qualified relation identifiers (`public.*`, `auth.*`).
+   - Add automated/negative authorization regression tests.
+5. **Security Housekeeping Remaining:**
    - Any Supabase management/service credentials that were exposed in agent command history or logs during prior sessions should be rotated in the Supabase Dashboard.
 
