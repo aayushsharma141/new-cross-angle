@@ -57,6 +57,9 @@ const AdminAuth: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [sentToEmail, setSentToEmail] = useState('');
+  const [recoveryCode, setRecoveryCode] = useState<string | null>(null);
+  const [recoveryTokenHash, setRecoveryTokenHash] = useState<string | null>(null);
+  const [recoveryAccessToken, setRecoveryAccessToken] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -99,14 +102,25 @@ const AdminAuth: React.FC = () => {
       return;
     }
 
-    const hashParams = new URLSearchParams(location.hash.substring(1));
-    if (hashParams.get('type') === 'recovery') {
-      setView('reset-password');
+    const hashRaw = location.hash.startsWith('#') ? location.hash.substring(1) : location.hash;
+    const hashParams = new URLSearchParams(hashRaw);
+
+    const code = searchParams.get('code') || hashParams.get('code');
+    const tokenHash = searchParams.get('token_hash') || hashParams.get('token_hash');
+    const accessToken = hashParams.get('access_token');
+    const type = searchParams.get('type') || hashParams.get('type');
+    const errorParam = searchParams.get('error') || hashParams.get('error');
+
+    if (errorParam === 'access_denied' || errorParam === 'expired') {
+      setView('expired');
       return;
     }
 
-    if (hashParams.get('error') === 'access_denied') {
-      setView('expired');
+    if (type === 'recovery' || code || tokenHash || accessToken) {
+      if (code) setRecoveryCode(code);
+      if (tokenHash) setRecoveryTokenHash(tokenHash);
+      if (accessToken) setRecoveryAccessToken(accessToken);
+      setView('reset-password');
       return;
     }
 
@@ -185,7 +199,7 @@ const AdminAuth: React.FC = () => {
 
   const sendResetEmail = async (targetEmail: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(targetEmail, {
-      redirectTo: `${window.location.origin}/admin/auth#type=recovery`,
+      redirectTo: `${window.location.origin}/admin/auth`,
     });
     if (error) throw error;
   };
@@ -247,8 +261,31 @@ const AdminAuth: React.FC = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password });
-      if (error) throw error;
+      const res = await fetch("/api/auth/recover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: recoveryCode ?? undefined,
+          token_hash: recoveryTokenHash ?? undefined,
+          access_token: recoveryAccessToken ?? undefined,
+          password,
+        }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        const errorMsg = data?.error || data?.message || "Failed to update password";
+        if (res.status === 400 || errorMsg.toLowerCase().includes('expired') || errorMsg.toLowerCase().includes('invalid')) {
+          setView('expired');
+        }
+        throw new Error(errorMsg);
+      }
+
+      setRecoveryCode(null);
+      setRecoveryTokenHash(null);
+      setRecoveryAccessToken(null);
+      navigate('/admin/auth', { replace: true });
       setView('reset-success');
     } catch (err: unknown) {
       const error = err as { message?: string };
