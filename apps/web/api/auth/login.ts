@@ -56,19 +56,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // ── Set HTTP-only cookies ──────────────────────────────────────────────────
+  const accessMaxAge = data.session.expires_in || 3600;
   const accessCookie = serialize("access_token", data.session.access_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 15 * 60, // 15 minutes
+    maxAge: accessMaxAge,
   });
 
   const refreshCookie = serialize("refresh_token", data.session.refresh_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    path: "/api/auth/refresh",
+    path: "/api",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   });
 

@@ -369,14 +369,84 @@ export default async function middleware(req: Request) {
     proxyHeaders.delete("x-forwarded-proto");
     
     try {
-      const response = await fetch(targetUrl, {
+      const hasBody = req.method !== 'GET' && req.method !== 'HEAD';
+      const bodyBuffer = hasBody ? await req.arrayBuffer() : undefined;
+
+      let response = await fetch(targetUrl, {
         method: req.method,
         headers: proxyHeaders,
-        body: req.method !== 'GET' && req.method !== 'HEAD' ? req.body : undefined,
+        body: bodyBuffer,
         redirect: 'manual'
       });
+
+      const newCookies: string[] = [];
+
+      // ── F-05: 401 → refresh → retry once ─────────────────────────────────────
+      if (response.status === 401) {
+        const refreshMatch = cookieHeader.match(/refresh_token=([^;]+)/);
+        const refreshToken = refreshMatch ? refreshMatch[1] : null;
+
+        if (refreshToken && SUPABASE_URL) {
+          try {
+            const refreshRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                apikey: SUPABASE_ANON_KEY || "",
+              },
+              body: JSON.stringify({ refresh_token: refreshToken }),
+            });
+
+            if (refreshRes.ok) {
+              const refreshData = await refreshRes.json() as {
+                access_token?: string;
+                refresh_token?: string;
+                expires_in?: number;
+              };
+
+              if (refreshData?.access_token) {
+                const newAccessToken = refreshData.access_token;
+                const newRefreshToken = refreshData.refresh_token || refreshToken;
+                const accessMaxAge = refreshData.expires_in || 3600;
+
+                // Update Authorization header for the single retry
+                proxyHeaders.set("Authorization", `Bearer ${newAccessToken}`);
+
+                // Retry original request ONCE only
+                response = await fetch(targetUrl, {
+                  method: req.method,
+                  headers: proxyHeaders,
+                  body: bodyBuffer,
+                  redirect: 'manual'
+                });
+
+                // Prepare new HttpOnly cookies to return with the retried response
+                const isProd = process.env.NODE_ENV === 'production';
+                const secureFlag = isProd ? '; Secure' : '';
+                newCookies.push(
+                  `access_token=${newAccessToken}; Path=/; Max-Age=${accessMaxAge}; HttpOnly; SameSite=Lax${secureFlag}`,
+                  `refresh_token=${newRefreshToken}; Path=/api; Max-Age=2592000; HttpOnly; SameSite=Lax${secureFlag}`
+                );
+              }
+            } else {
+              // Refresh failed with invalid/expired refresh token: clear cookies and fail closed
+              newCookies.push(
+                `access_token=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax`,
+                `refresh_token=; Path=/api; Max-Age=0; HttpOnly; SameSite=Lax`,
+                `refresh_token=; Path=/api/auth/refresh; Max-Age=0; HttpOnly; SameSite=Lax`
+              );
+            }
+          } catch {
+            // Network error during refresh: fail closed
+          }
+        }
+      }
       
       const resHeaders = new Headers(response.headers);
+      for (const cookie of newCookies) {
+        resHeaders.append("Set-Cookie", cookie);
+      }
+
       return new Response(response.body, {
         status: response.status,
         statusText: response.statusText,

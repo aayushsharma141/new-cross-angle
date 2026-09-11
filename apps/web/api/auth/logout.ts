@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { createClient } from "@supabase/supabase-js";
 import { serialize } from "cookie";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -14,26 +13,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const accessTokenMatch = cookies.match(/access_token=([^;]+)/);
   const accessToken = accessTokenMatch ? accessTokenMatch[1] : null;
 
-  if (accessToken) {
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: {
+  if (accessToken && supabaseUrl && supabaseKey) {
+    try {
+      // Direct GoTrue logout with scope=global to revoke the session server-side
+      await fetch(`${supabaseUrl}/auth/v1/logout?scope=global`, {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
+          apikey: supabaseKey,
+          "Content-Type": "application/json",
         },
-      },
-      auth: {
-        persistSession: false,
-      },
-    });
-
-    // Attempt to sign out globally
-    await supabase.auth.signOut();
+      });
+    } catch {
+      // Idempotent: ignore revocation errors if already revoked, expired, or offline
+    }
   }
 
-  // Always clear cookies
+  // Always clear cookies across all applicable paths regardless of revocation outcome
+  const isProd = process.env.NODE_ENV === "production";
   res.setHeader("Set-Cookie", [
-    serialize("access_token", "", { path: "/", maxAge: 0 }),
-    serialize("refresh_token", "", { path: "/api/auth/refresh", maxAge: 0 }),
+    serialize("access_token", "", { path: "/", maxAge: 0, httpOnly: true, sameSite: "lax", secure: isProd }),
+    serialize("refresh_token", "", { path: "/api", maxAge: 0, httpOnly: true, sameSite: "lax", secure: isProd }),
+    serialize("refresh_token", "", { path: "/api/auth/refresh", maxAge: 0, httpOnly: true, sameSite: "lax", secure: isProd }),
   ]);
 
   return res.status(204).end();

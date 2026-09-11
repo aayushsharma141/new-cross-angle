@@ -30,26 +30,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (error || !data.session) {
     // Clear cookies if refresh fails
+    const isProd = process.env.NODE_ENV === "production";
     res.setHeader("Set-Cookie", [
-      serialize("access_token", "", { path: "/", maxAge: 0 }),
-      serialize("refresh_token", "", { path: "/api/auth/refresh", maxAge: 0 }),
+      serialize("access_token", "", { path: "/", maxAge: 0, httpOnly: true, sameSite: "lax", secure: isProd }),
+      serialize("refresh_token", "", { path: "/api", maxAge: 0, httpOnly: true, sameSite: "lax", secure: isProd }),
+      serialize("refresh_token", "", { path: "/api/auth/refresh", maxAge: 0, httpOnly: true, sameSite: "lax", secure: isProd }),
     ]);
     return res.status(401).json({ error: "Session expired or invalid" });
   }
 
+  const accessMaxAge = data.session.expires_in || 3600;
   const accessCookie = serialize("access_token", data.session.access_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 15 * 60,
+    maxAge: accessMaxAge,
   });
 
   const refreshCookie = serialize("refresh_token", data.session.refresh_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    path: "/api/auth/refresh",
+    path: "/api",
     maxAge: 30 * 24 * 60 * 60,
   });
 
