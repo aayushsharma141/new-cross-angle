@@ -59,138 +59,243 @@ describe('F-03: Secure Password Recovery Contract', () => {
     vi.clearAllMocks();
   });
 
-  it('valid recovery code exchanges session, updates password, and globally revokes recovery session', async () => {
-    mockExchangeCodeForSession.mockResolvedValue({
-      data: { session: { access_token: 'ephemeral-recovery-token', user: { id: 'user-a-id' } } },
-      error: null,
+  describe('A. Client Extraction Contract', () => {
+    it('extracts access_token and refresh_token from recovery hash and prepares correct POST payload', () => {
+      // Simulates URL hash from Supabase implicit recovery:
+      // https://crossangle.in/admin/auth#access_token=supabase-access-token-123&refresh_token=supabase-refresh-token-456&token_type=bearer&type=recovery
+      const simulatedHash = '#access_token=supabase-access-token-123&refresh_token=supabase-refresh-token-456&token_type=bearer&type=recovery';
+      const hashRaw = simulatedHash.startsWith('#') ? simulatedHash.substring(1) : simulatedHash;
+      const hashParams = new URLSearchParams(hashRaw);
+
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      const type = hashParams.get('type');
+
+      expect(type).toBe('recovery');
+      expect(accessToken).toBe('supabase-access-token-123');
+      expect(refreshToken).toBe('supabase-refresh-token-456');
+
+      // Verify payload structure sent to /api/auth/recover
+      const payload = {
+        access_token: accessToken ?? undefined,
+        refresh_token: refreshToken ?? undefined,
+        password: 'NewSecurePassword123!',
+      };
+
+      expect(payload).toEqual({
+        access_token: 'supabase-access-token-123',
+        refresh_token: 'supabase-refresh-token-456',
+        password: 'NewSecurePassword123!',
+      });
     });
-    mockUpdateUser.mockResolvedValue({
-      data: { user: { id: 'user-a-id' } },
-      error: null,
-    });
-    mockSignOut.mockResolvedValue({ error: null });
-
-    const { req, res, getStatus, getJson } = createMockReqRes({
-      code: 'valid-pkce-recovery-code-123',
-      password: 'NewSecurePassword123!',
-    });
-
-    await recoverHandler(req, res);
-
-    expect(getStatus()).toBe(200);
-    expect(getJson()).toEqual({ message: 'Password updated successfully' });
-
-    // Verify PKCE code exchange was invoked with the code
-    expect(mockExchangeCodeForSession).toHaveBeenCalledWith('valid-pkce-recovery-code-123');
-
-    // Verify password update was invoked
-    expect(mockUpdateUser).toHaveBeenCalledWith({ password: 'NewSecurePassword123!' });
-
-    // Verify global sign out of the recovery session
-    expect(mockSignOut).toHaveBeenCalledWith({ scope: 'global' });
   });
 
-  it('expired or invalid recovery code returns 400 without leaking account details', async () => {
-    mockExchangeCodeForSession.mockResolvedValue({
-      data: { session: null },
-      error: new Error('Token has expired or is invalid'),
+  describe('B. Server Rejection Contract', () => {
+    it('rejects access_token without refresh_token with 400', async () => {
+      const { req, res, getStatus, getJson } = createMockReqRes({
+        access_token: 'orphan-access-token-without-refresh',
+        password: 'NewSecurePassword123!',
+      });
+
+      await recoverHandler(req, res);
+
+      expect(getStatus()).toBe(400);
+      expect(getJson()?.error).toBe('Both access_token and refresh_token are required for session recovery');
+      expect(mockSetSession).not.toHaveBeenCalled();
+      expect(mockUpdateUser).not.toHaveBeenCalled();
     });
 
-    const { req, res, getStatus, getJson } = createMockReqRes({
-      code: 'expired-recovery-code-999',
-      password: 'NewSecurePassword123!',
+    it('rejects empty or whitespace refresh_token with 400', async () => {
+      const { req, res, getStatus, getJson } = createMockReqRes({
+        access_token: 'valid-access-token',
+        refresh_token: '   ',
+        password: 'NewSecurePassword123!',
+      });
+
+      await recoverHandler(req, res);
+
+      expect(getStatus()).toBe(400);
+      expect(getJson()?.error).toBe('Both access_token and refresh_token are required for session recovery');
+      expect(mockSetSession).not.toHaveBeenCalled();
+      expect(mockUpdateUser).not.toHaveBeenCalled();
     });
 
-    await recoverHandler(req, res);
+    it('rejects missing recovery credentials with 400', async () => {
+      const { req, res, getStatus, getJson } = createMockReqRes({
+        password: 'NewSecurePassword123!',
+      });
 
-    expect(getStatus()).toBe(400);
-    expect(getJson()?.error).toBe('Invalid or expired recovery code');
-    expect(mockUpdateUser).not.toHaveBeenCalled();
+      await recoverHandler(req, res);
+
+      expect(getStatus()).toBe(400);
+      expect(getJson()?.error).toBe('Invalid or expired recovery code');
+      expect(mockSetSession).not.toHaveBeenCalled();
+      expect(mockUpdateUser).not.toHaveBeenCalled();
+    });
+
+    it('rejects short passwords (< 8 characters) with controlled 400', async () => {
+      const { req, res, getStatus, getJson } = createMockReqRes({
+        access_token: 'valid-access-token',
+        refresh_token: 'valid-refresh-token',
+        password: 'short',
+      });
+
+      await recoverHandler(req, res);
+
+      expect(getStatus()).toBe(400);
+      expect(getJson()?.error).toBe('Password must be at least 8 characters long');
+      expect(mockSetSession).not.toHaveBeenCalled();
+    });
   });
 
-  it('prevents code reuse by rejecting already-consumed codes', async () => {
-    // First invocation: code valid
-    mockExchangeCodeForSession.mockResolvedValueOnce({
-      data: { session: { access_token: 'recovery-token-once' } },
-      error: null,
-    });
-    mockUpdateUser.mockResolvedValueOnce({ data: {}, error: null });
+  describe('C. Successful Implicit Recovery Contract', () => {
+    it('valid access + refresh token establishes session, updates password, and globally revokes recovery session', async () => {
+      mockSetSession.mockResolvedValue({
+        data: {
+          session: {
+            access_token: 'implicit-recovery-access-token',
+            refresh_token: 'implicit-recovery-refresh-token',
+            user: { id: 'target-recovery-user-id', email: 'admin@crossangle.in' },
+          },
+        },
+        error: null,
+      });
+      mockUpdateUser.mockResolvedValue({
+        data: { user: { id: 'target-recovery-user-id' } },
+        error: null,
+      });
+      mockSignOut.mockResolvedValue({ error: null });
 
-    const call1 = createMockReqRes({
-      code: 'single-use-code-xyz',
-      password: 'FirstNewPassword123!',
-    });
-    await recoverHandler(call1.req, call1.res);
-    expect(call1.getStatus()).toBe(200);
+      const { req, res, getStatus, getJson } = createMockReqRes({
+        access_token: 'implicit-recovery-access-token',
+        refresh_token: 'implicit-recovery-refresh-token',
+        password: 'BrandNewSecurePassword456!',
+      });
 
-    // Second invocation with the same code: GoTrue returns error (code already exchanged)
-    mockExchangeCodeForSession.mockResolvedValueOnce({
-      data: { session: null },
-      error: new Error('Code has already been used'),
+      await recoverHandler(req, res);
+
+      expect(getStatus()).toBe(200);
+      expect(getJson()).toEqual({ message: 'Password updated successfully' });
+
+      // Session established with BOTH access_token and refresh_token
+      expect(mockSetSession).toHaveBeenCalledWith({
+        access_token: 'implicit-recovery-access-token',
+        refresh_token: 'implicit-recovery-refresh-token',
+      });
+
+      // Password updated on established session
+      expect(mockUpdateUser).toHaveBeenCalledWith({
+        password: 'BrandNewSecurePassword456!',
+      });
+
+      // Global revocation of ephemeral session
+      expect(mockSignOut).toHaveBeenCalledWith({ scope: 'global' });
     });
 
-    const call2 = createMockReqRes({
-      code: 'single-use-code-xyz',
-      password: 'SecondNewPassword123!',
+    it('handles invalid/expired access or refresh token from Supabase with 400', async () => {
+      mockSetSession.mockResolvedValue({
+        data: { session: null },
+        error: new Error('Invalid Refresh Token: Refresh Token Not Found'),
+      });
+
+      const { req, res, getStatus, getJson } = createMockReqRes({
+        access_token: 'expired-access-token',
+        refresh_token: 'expired-refresh-token',
+        password: 'NewSecurePassword123!',
+      });
+
+      await recoverHandler(req, res);
+
+      expect(getStatus()).toBe(400);
+      expect(getJson()?.error).toBe('Invalid or expired recovery code');
+      expect(mockUpdateUser).not.toHaveBeenCalled();
     });
-    await recoverHandler(call2.req, call2.res);
-    expect(call2.getStatus()).toBe(400);
-    expect(call2.getJson()?.error).toBe('Invalid or expired recovery code');
+
+    it('valid PKCE recovery code path remains fully functional', async () => {
+      mockExchangeCodeForSession.mockResolvedValue({
+        data: { session: { access_token: 'pkce-token', user: { id: 'user-pkce-id' } } },
+        error: null,
+      });
+      mockUpdateUser.mockResolvedValue({
+        data: { user: { id: 'user-pkce-id' } },
+        error: null,
+      });
+      mockSignOut.mockResolvedValue({ error: null });
+
+      const { req, res, getStatus, getJson } = createMockReqRes({
+        code: 'valid-pkce-recovery-code-123',
+        password: 'NewSecurePassword123!',
+      });
+
+      await recoverHandler(req, res);
+
+      expect(getStatus()).toBe(200);
+      expect(getJson()).toEqual({ message: 'Password updated successfully' });
+      expect(mockExchangeCodeForSession).toHaveBeenCalledWith('valid-pkce-recovery-code-123');
+      expect(mockUpdateUser).toHaveBeenCalledWith({ password: 'NewSecurePassword123!' });
+      expect(mockSignOut).toHaveBeenCalledWith({ scope: 'global' });
+    });
   });
 
-  it('session isolation: active admin cookie is NOT consumed as recovery session when recovering for another user', async () => {
-    mockExchangeCodeForSession.mockResolvedValue({
-      data: { session: { access_token: 'user-a-recovery-token', user: { id: 'user-a-id' } } },
-      error: null,
+  describe('D. Session Isolation Contract', () => {
+    it('session isolation: active admin cookie is NOT consumed as recovery session when recovering for another user', async () => {
+      mockSetSession.mockResolvedValue({
+        data: {
+          session: {
+            access_token: 'user-a-recovery-token',
+            refresh_token: 'user-a-refresh-token',
+            user: { id: 'user-a-id' },
+          },
+        },
+        error: null,
+      });
+      mockUpdateUser.mockResolvedValue({ data: {}, error: null });
+      mockSignOut.mockResolvedValue({ error: null });
+
+      // Simulate User B currently logged in with HTTP-only cookies in headers
+      const headers = {
+        cookie: 'access_token=user-b-admin-jwt-token; refresh_token=user-b-refresh-token',
+      };
+
+      const { req, res, getStatus } = createMockReqRes(
+        {
+          access_token: 'user-a-recovery-token',
+          refresh_token: 'user-a-refresh-token',
+          password: 'UserANewPassword123!',
+        },
+        headers,
+      );
+
+      await recoverHandler(req, res);
+
+      expect(getStatus()).toBe(200);
+
+      // Assert that recovery exclusively used user-a's tokens, not user-b's cookie
+      expect(mockSetSession).toHaveBeenCalledWith({
+        access_token: 'user-a-recovery-token',
+        refresh_token: 'user-a-refresh-token',
+      });
+      expect(mockUpdateUser).toHaveBeenCalledWith({ password: 'UserANewPassword123!' });
+      expect(mockSignOut).toHaveBeenCalledWith({ scope: 'global' });
     });
-    mockUpdateUser.mockResolvedValue({ data: {}, error: null });
-
-    // Simulate User B currently logged in with HTTP-only cookies in headers
-    const headers = {
-      cookie: 'access_token=user-b-admin-jwt-token; refresh_token=user-b-refresh-token',
-    };
-
-    const { req, res, getStatus } = createMockReqRes(
-      {
-        code: 'user-a-recovery-code',
-        password: 'UserANewPassword123!',
-      },
-      headers,
-    );
-
-    await recoverHandler(req, res);
-
-    expect(getStatus()).toBe(200);
-
-    // Assert that recovery exclusively used user-a's code, not user-b's cookie
-    expect(mockExchangeCodeForSession).toHaveBeenCalledWith('user-a-recovery-code');
-    // Ensure updateUser was executed on the client authenticated by code exchange
-    expect(mockUpdateUser).toHaveBeenCalledWith({ password: 'UserANewPassword123!' });
   });
 
-  it('rejects short passwords (< 8 characters) with controlled 400', async () => {
-    const { req, res, getStatus, getJson } = createMockReqRes({
-      code: 'some-code',
-      password: 'short',
+  describe('E. Zero-Persistence Contract', () => {
+    it('verifies that no recovery tokens or refresh tokens are stored in localStorage or sessionStorage in AdminAuth', () => {
+      const adminAuthFile = path.resolve(__dirname, '../../pages/admin/AdminAuth.tsx');
+      const content = fs.readFileSync(adminAuthFile, 'utf-8');
+
+      // Ensure recovery tokens/codes/refresh_tokens are not saved to localStorage or sessionStorage
+      expect(content).not.toMatch(/localStorage\.setItem\([^)]*recover/i);
+      expect(content).not.toMatch(/sessionStorage\.setItem\([^)]*recover/i);
+      expect(content).not.toMatch(/localStorage\.setItem\([^)]*code/i);
+      expect(content).not.toMatch(/sessionStorage\.setItem\([^)]*code/i);
+      expect(content).not.toMatch(/localStorage\.setItem\([^)]*token_hash/i);
+      expect(content).not.toMatch(/sessionStorage\.setItem\([^)]*token_hash/i);
+      expect(content).not.toMatch(/localStorage\.setItem\([^)]*refresh_token/i);
+      expect(content).not.toMatch(/sessionStorage\.setItem\([^)]*refresh_token/i);
+      expect(content).not.toMatch(/localStorage\.setItem\([^)]*access_token/i);
+      expect(content).not.toMatch(/sessionStorage\.setItem\([^)]*access_token/i);
     });
-
-    await recoverHandler(req, res);
-
-    expect(getStatus()).toBe(400);
-    expect(getJson()?.error).toBe('Password must be at least 8 characters long');
-    expect(mockExchangeCodeForSession).not.toHaveBeenCalled();
-  });
-
-  it('verifies that no recovery tokens or codes are stored in localStorage or sessionStorage in AdminAuth', () => {
-    const adminAuthFile = path.resolve(__dirname, '../../pages/admin/AdminAuth.tsx');
-    const content = fs.readFileSync(adminAuthFile, 'utf-8');
-
-    // Ensure recovery tokens/codes are not saved to localStorage or sessionStorage
-    expect(content).not.toMatch(/localStorage\.setItem\([^)]*recover/i);
-    expect(content).not.toMatch(/sessionStorage\.setItem\([^)]*recover/i);
-    expect(content).not.toMatch(/localStorage\.setItem\([^)]*code/i);
-    expect(content).not.toMatch(/sessionStorage\.setItem\([^)]*code/i);
-    expect(content).not.toMatch(/localStorage\.setItem\([^)]*token_hash/i);
-    expect(content).not.toMatch(/sessionStorage\.setItem\([^)]*token_hash/i);
   });
 });

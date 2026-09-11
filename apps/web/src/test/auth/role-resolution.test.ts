@@ -145,4 +145,40 @@ describe('F-01: Real Role Resolution & Fail-Closed Semantics', () => {
       `Found hardcoded literal role cast (as AppRole) in: ${violations.join(', ')}`
     ).toEqual([]);
   });
+
+  describe('AuthGuard & AuthProvider Role-Loading State Machine Coordination', () => {
+    it('AuthProvider keeps loading true until role resolution completes', () => {
+      const authProviderFile = path.resolve(__dirname, '../../components/auth/AuthProvider.tsx');
+      const content = fs.readFileSync(authProviderFile, 'utf-8');
+
+      // Verify that data.session is not consumed from /api/auth/me
+      expect(content).not.toMatch(/if\s*\(\s*data\.session\s*\)/);
+
+      // Verify setLoading(false) is NOT called before fetchUserRole in getInitialSession
+      // Look at the sequence around fetchUserRole:
+      const getInitialSessionMatch = content.match(
+        /const userRole = await fetchUserRole\(serverUser\.id\);[\s\S]*?setRole\(userRole\);[\s\S]*?setLoading\(false\);/
+      );
+      expect(
+        getInitialSessionMatch,
+        'setLoading(false) must be called after fetchUserRole resolves, not before'
+      ).not.toBeNull();
+    });
+
+    it('AuthGuard requires both loading and roleLoading to be false before checking role authorization', () => {
+      const authGuardFile = path.resolve(__dirname, '../../components/auth/AuthGuard.tsx');
+      const content = fs.readFileSync(authGuardFile, 'utf-8');
+
+      // Check that loading || roleLoading guards the spinner
+      expect(content).toMatch(/if\s*\(\s*loading\s*\|\|\s*roleLoading\s*\)/);
+
+      // Verify that role_unavailable redirect occurs after the loading check
+      const loadingIndex = content.indexOf('loading || roleLoading');
+      const roleCheckIndex = content.indexOf('role_unavailable');
+
+      expect(loadingIndex).toBeGreaterThan(-1);
+      expect(roleCheckIndex).toBeGreaterThan(-1);
+      expect(roleCheckIndex).toBeGreaterThan(loadingIndex);
+    });
+  });
 });

@@ -60,6 +60,7 @@ const AdminAuth: React.FC = () => {
   const [recoveryCode, setRecoveryCode] = useState<string | null>(null);
   const [recoveryTokenHash, setRecoveryTokenHash] = useState<string | null>(null);
   const [recoveryAccessToken, setRecoveryAccessToken] = useState<string | null>(null);
+  const [recoveryRefreshToken, setRecoveryRefreshToken] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -108,6 +109,7 @@ const AdminAuth: React.FC = () => {
     const code = searchParams.get('code') || hashParams.get('code');
     const tokenHash = searchParams.get('token_hash') || hashParams.get('token_hash');
     const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token') || searchParams.get('refresh_token');
     const type = searchParams.get('type') || hashParams.get('type');
     const errorParam = searchParams.get('error') || hashParams.get('error');
 
@@ -120,6 +122,7 @@ const AdminAuth: React.FC = () => {
       if (code) setRecoveryCode(code);
       if (tokenHash) setRecoveryTokenHash(tokenHash);
       if (accessToken) setRecoveryAccessToken(accessToken);
+      if (refreshToken) setRecoveryRefreshToken(refreshToken);
       setView('reset-password');
       return;
     }
@@ -268,6 +271,7 @@ const AdminAuth: React.FC = () => {
           code: recoveryCode ?? undefined,
           token_hash: recoveryTokenHash ?? undefined,
           access_token: recoveryAccessToken ?? undefined,
+          refresh_token: recoveryRefreshToken ?? undefined,
           password,
         }),
       });
@@ -285,6 +289,7 @@ const AdminAuth: React.FC = () => {
       setRecoveryCode(null);
       setRecoveryTokenHash(null);
       setRecoveryAccessToken(null);
+      setRecoveryRefreshToken(null);
       navigate('/admin/auth', { replace: true });
       setView('reset-success');
     } catch (err: unknown) {

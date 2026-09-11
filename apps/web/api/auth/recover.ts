@@ -20,6 +20,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "Invalid or expired recovery code" });
   }
 
+  // Implicit flow requires BOTH access_token and refresh_token to establish a valid session
+  if (access_token && (!refresh_token || typeof refresh_token !== "string" || !refresh_token.trim())) {
+    return res.status(400).json({ error: "Both access_token and refresh_token are required for session recovery" });
+  }
+
   // Ephemeral isolated client — never persists session, never consumes incoming cookie headers
   const supabase = createClient(supabaseUrl, supabaseKey, {
     auth: {
@@ -45,10 +50,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!error && data?.session) {
         sessionEstablished = true;
       }
-    } else if (access_token) {
+    } else if (access_token && refresh_token) {
       const { data, error } = await supabase.auth.setSession({
         access_token,
-        refresh_token: refresh_token || "",
+        refresh_token,
       });
       if (!error && data?.session) {
         sessionEstablished = true;

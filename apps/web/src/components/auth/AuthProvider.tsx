@@ -106,12 +106,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     if (res.ok) {
                         const data = await res.json();
                         serverUser = data.user;
-                        if (data.session) {
-                            await supabase.auth.setSession({
-                                access_token: data.session.access_token,
-                                refresh_token: data.session.refresh_token,
-                            });
-                        }
                     } else {
                         userError = { message: "Unauthenticated" };
                     }
@@ -148,10 +142,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 if (isMounted) {
                     setSession(null); // HTTP-only cookie session — no client-side token
                     setUser(serverUser);
-                }
-
-                if (isMounted) {
-                    setLoading(false);
                     setRoleLoading(true);
                     setRoleError(null);
                 }
@@ -163,6 +153,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     setRole(userRole);
                     setRoleError(userRole ? null : "Admin role could not be verified");
                     setRoleLoading(false);
+                    setLoading(false);
                 }
 
                 console.debug(`Auth: Initial load took ${(performance.now() - start).toFixed(2)}ms`);
@@ -212,7 +203,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 if (event === "SIGNED_IN" || event === "USER_UPDATED") {
                     setSession(newSession);
                     setUser(newSession?.user ?? null);
-                    setLoading(false);
 
                     if (newSession?.user) {
                         analytics.identify(newSession.user.id, {
@@ -227,14 +217,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                             setRole(userRole);
                             setRoleError(userRole ? null : "Admin role could not be verified");
                             setRoleLoading(false);
+                            setLoading(false);
                         }
                     } else {
                         setRole(null);
                         setRoleLoading(false);
                         setRoleError(null);
                         clearRoleCache();
+                        if (isMounted) setLoading(false);
                     }
-                    if (isMounted) setLoading(false);
                 }
             },
         );
