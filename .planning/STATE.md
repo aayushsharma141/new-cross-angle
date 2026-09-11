@@ -218,3 +218,34 @@ Option C was executed not as a blanket "delete three legacy tables", but as **"v
 5. **Security Housekeeping Remaining:**
    - Any Supabase management/service credentials that were exposed in agent command history or logs during prior sessions should be rotated in the Supabase Dashboard.
 
+
+## Admin Authentication Remediation — Security Patches 1 & 2 + SECURITY DEFINER track, 2026-09-12
+
+Review document (living, private): https://claude.ai/code/artifact/c659c2c9-a1c8-40d0-8b78-952d160a99ea
+
+### Status
+| Item | State | Evidence |
+| --- | --- | --- |
+| S1–S3 SECURITY DEFINER track (drop dead trigger, guard + revoke privileged RPCs, `search_path = ''` on 15 fns) | Closed | `c572beaf`, `5c81d383`, `d295bcd0`; `scripts/checks/test-rbac-rpc-matrix.mjs` 17/17 |
+| F-11 `get_lead_stats()` anonymous exposure | Closed | `5c81d383` |
+| F-01 hardcoded `super_admin` role → server-backed, fail-closed | Closed | `e9e16c4a`, `b922c690` |
+| F-02 tokens in login/me JSON | Closed | `7bf35889`; invariant script §3 scans `api/auth/*` |
+| F-03 recovery (server-side `/api/auth/recover`, implicit-flow token pair) | Code/contract verified — pending live round-trip | `ab81f784` + `b06a549a` (first cut forwarded only access_token; caught in review) |
+| F-04 `profiles.role` → `sync-user-role` escalation | Closed on live DB evidence (authorization reads `user_roles` only) | live inspection; `site_settings` lockdown tracked `3747d0bd` |
+| F-05 no refresh caller / 15-min cookie | Code/contract verified — pending Vercel preview run | `8252f5fb` (Edge proxy 401→refresh→retry once; cookie maxAge = `expires_in`) |
+| F-06 logout does not revoke | Code/contract verified — pending local run | `8252f5fb` (direct GoTrue `logout?scope=global`) |
+| F-07..F-10 (rate limit, CSRF/Origin, auth-layer role denial, audit log) | Open — Patch 3 | — |
+
+### Formal conclusion
+Production code remediation is complete and regression-tested (30 auth Vitest cases, arch/lint/typecheck/build, RBAC matrix). Live authentication-lifecycle validation is pending: there is no staging Supabase project, and production must not be used for recovery/logout smoke tests without explicit credentials and a throwaway account.
+
+### Deferred execution protocol
+Harness: `e2e/auth-lifecycle-smoke.spec.ts` (UNTRACKED — commit with the smoke results). Always `--project=chromium` (recovery link is single-use).
+1. Local, F-06: `PLAYWRIGHT_ADMIN_PASSWORD` in `.env.local` → run. Revokes every session for that account.
+2. Vercel preview, F-05: push branch (27 commits unpushed) → `PLAYWRIGHT_BASE_URL=<preview>` → run. Refresh retry is Edge-only; local dev cannot exercise it.
+3. Throwaway account, F-03: `SMOKE_RECOVERY_EMAIL` → run once (sends email) → `SMOKE_RECOVERY_LINK` + `SMOKE_RECOVERY_NEW_PASSWORD` → run. Harness refuses the primary admin email.
+
+### Known residuals (not blocking)
+- `logout.ts` revokes only when an `access_token` cookie is present; a logout after JWT expiry clears cookies without revoking the refresh token (Low). Fix: refresh-then-revoke, after the smoke run.
+- Migration files are not evidence of production function bodies (ADR 0003): S2 found `rpc_register_dam_asset` live without its guard and `update_media_metadata(text,jsonb)` live with no migration. Cite `pg_get_functiondef()` for any DB-function finding.
+- Open GoTrue dashboard questions: signup enabled?, JWT/OTP expiry, sign-in rate limits, password policy; switching the recovery email template to the token-hash variable would keep tokens out of the URL fragment.
