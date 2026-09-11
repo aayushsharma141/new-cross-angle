@@ -4,7 +4,7 @@ milestone: Production Hardening
 milestone_name: Phase 2 — Production Hardening & Release Verification (Complete)
 current_phase: Phase 3 (Business & Content Expansion) Ready
 status: Phase 2 Production Hardening 100% Certified. RELEASE_CHECKLIST signed off.
-last_updated: "2026-09-10T00:00:00.000Z"
+last_updated: "2026-09-11T00:00:00.000Z"
 progress:
   phase_1_design: "100% (Certified & Frozen)"
   stage_2_1_a11y_mobile: "100% (Certified & Logged)"
@@ -140,3 +140,76 @@ Real status against WS-01..WS-04:
 Success criteria 2 ("which version is live within 2 clicks") and 3 ("replace
 without breaking references") are met by the new panel. Not yet exercised in a
 browser — the surface is behind admin auth.
+
+## Admin Panel Audit — security lockdown (Option A), 2026-09-11
+
+Source: `Crossangle Admin Panel Audit.pdf` (26 findings). Executed P0-1 and
+P2-18 first because they were the only findings with live exposure.
+
+**Confirmed before fixing:** an anonymous `GET /rest/v1/site_settings?select=*`
+returned all 43 columns. `resend/supabase/vercel_api_key` were NULL in prod,
+`posthog_api_key` held the public `phc_` project token, and `security_config`,
+`report_recipients`, `telegram_chat_ids`, `rbac_permissions`, `integrations`
+were all readable. Every edge function already reads secrets from Supabase
+secrets (`Deno.env`); the DB columns were a dead-end store fed only by the
+admin Credentials tab (plus one fallback in `auto-reply-lead`).
+
+**Landed (uncommitted, needs `supabase db push` + `functions deploy`):**
+- `supabase/migrations/20260911000000_lock_down_site_settings.sql` — drops the
+  three key columns, strips `*_api_key`/`telegram_bot_token` from
+  `integrations` (object shape only), resets all policies, and gives `anon` a
+  column-level SELECT grant on an explicit public allow-list. `authenticated`
+  reads the full row; writes stay `is_admin_or_editor`.
+- `hooks/useSiteSettings.ts` — `useSiteSettings()` selects the same allow-list
+  explicitly (works before and after the migration); new
+  `useAdminSiteSettings()` reads the full row for AdminSettings,
+  AdminUserAccessSecurity, AdminEmailTemplates. Keys in `lib/queryKeys.ts`.
+- `AdminSettings` Credentials tab — PostHog/GA remain editable (public
+  identifiers); Resend/Telegram/PostHog-server/ImageKit are read-only cards
+  pointing at `supabase secrets set`. The "keys remain encrypted" copy was
+  false and is gone.
+- `supabase/functions/inspect-schema` deleted (service-role, no auth).
+- `notify-telegram` — service-role or admin JWT may pass a full record;
+  anyone else may pass only a lead id, which is re-read server-side, must be
+  <10 min old, and is rate-limited 5/min/IP. Browser now sends `{record:{id}}`.
+- `auto-reply-lead` no longer falls back to a DB-stored Resend key.
+
+- `auto-reply-lead` no longer falls back to a DB-stored Resend key.
+- Dropped browser-side `notifyTelegram` fallback (`b454ce91`). Lead notifications are 100% server-governed via Database Webhook (`public.leads` INSERT -> `notify-telegram` Edge Function authenticated with `WEBHOOK_SECRET` -> Telegram Bot). Verified end-to-end. Old plaintext GUC trigger `on_lead_insert_telegram_notify` dropped in `20260911000001_drop_legacy_telegram_trigger.sql`.
+
+## Admin Panel Audit — Option C Data Source Validation (Complete), 2026-09-11
+
+Option C was executed not as a blanket "delete three legacy tables", but as **"validate three suspected legacy data dependencies and eliminate only the ones proven invalid."**
+
+### Final Status by Target
+
+| Target | Audit Result | Action Taken | Status |
+|---|---|---|---|
+| `estimate_rates` (C1) | **Canonical — no change.** The only table storing admin-configurable pricing coefficients (`PricingConfig`). | Retained without modification. | **Closed** |
+| `admin_users` (C2) | **Phantom dependency — removed.** Never existed as a table or view in Postgres (`PGRST205`). | Repointed `AdminUserAccessRoles.tsx` to canonical `get_admin_users()` RPC with `editor` role support (`b20f9499`). | **Closed** |
+| `article_analytics` (C3) | **Dead/superseded — removed.** 0 rows, 0 schema in live DB. Ingestion path was broken. | Repaired `record_blog_event` ingestion (`session_id`, `view_count`), dropped dead aggregation trigger/func (`1113a031`), and repointed `AdminBlogPerformance.tsx` to canonical `blog_user_events` (`764c38a5`). | **Closed** |
+
+### Key Architectural & Security Decisions
+
+1. **Blog Analytics Consolidated on `blog_user_events`:**
+   ```text
+   Client tracking (useBlogTracking)
+       ↓
+   record_blog_event() RPC [SECURITY DEFINER, explicit search_path]
+       ↓
+   blog_user_events (canonical event store)
+       ├── AdminBlogOverview
+       ├── AdminBlogEngagement
+       └── AdminBlogPerformance
+   ```
+2. **Security Boundary for `record_blog_event`:**
+   - `anon` may execute `record_blog_event()` to record reader telemetry (`article_view`, `scroll_depth`, `reading_time`, `cta_click`).
+   - `anon` **cannot** arbitrarily modify blog content or analytics aggregates.
+   - The RPC strictly validates inputs (safe UUID parsing) and only performs narrow event row insertion and atomic `view_count` increment on `public.blog_posts`.
+   - `PUBLIC` execute grant revoked; explicit grants restricted to `anon`, `authenticated`, and `service_role`.
+   - Explicit `SET search_path = public, auth` enforced.
+3. **Dead Aggregation Mechanism Dropped:**
+   - Dropped `trigger_aggregate_blog_analytics` and `aggregate_blog_analytics()` via `20260911000004_drop_dead_article_analytics_trigger.sql`. They targeted nonexistent `article_analytics` and caused Postgres to abort event transactions.
+4. **Security Housekeeping Remaining:**
+   - Any Supabase management/service credentials that were exposed in agent command history or logs during prior sessions should be rotated in the Supabase Dashboard.
+

@@ -23,6 +23,7 @@
 | `is_featured` | `active` | `testimonials` |
 | `tags` | `category_id` | `projects` |
 | `username` | `full_name` | `profiles` |
+| `views_count` | `view_count` | `blog_posts` |
 
 ---
 
