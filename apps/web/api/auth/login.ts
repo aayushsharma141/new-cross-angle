@@ -77,10 +77,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   return res.status(200).json({
     user: data.user,
     role,           // ← role returned so the client can redirect immediately
-    session: { 
-      access_token: data.session.access_token, 
-      refresh_token: data.session.refresh_token 
-    },
     message: "Logged in successfully",
   });
 }

@@ -87,6 +87,26 @@ for (const file of walk(SRC)) {
   }
 }
 
+// ─── 3. api/auth/* handlers must never expose tokens or session objects ───────
+const API_AUTH = path.resolve(__dirname, '../../api/auth');
+if (fs.existsSync(API_AUTH)) {
+  const FORBIDDEN_KEYS = ['access_token', 'refresh_token', 'session'];
+  for (const file of walk(API_AUTH)) {
+    const source = stripComments(fs.readFileSync(file, 'utf-8'));
+    const jsonMatches = source.match(/res(?:\.status\(\d+\))?\.json\s*\(\s*([\s\S]*?)\s*\);/g) || [];
+    for (const jsonCall of jsonMatches) {
+      for (const key of FORBIDDEN_KEYS) {
+        const keyPattern = new RegExp(`(?:['"]?${key}['"]?\\s*:|\\b${key}\\b\\s*[,}])`);
+        if (keyPattern.test(jsonCall)) {
+          errors.push(
+            `api/auth/${path.relative(API_AUTH, file)} exposes \`${key}\` in JSON response — auth tokens must be confined to HTTP-only cookies.`,
+          );
+        }
+      }
+    }
+  }
+}
+
 if (errors.length) {
   console.error('\n❌ Supabase auth invariant violated:\n');
   for (const error of errors) console.error(`  • ${error}`);
@@ -94,4 +114,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('✅ Supabase auth invariant holds (proxy URL + no client-side session)');
+console.log('✅ Supabase auth invariant holds (proxy URL, no client-side session, no token leaks in api/auth/*)');
