@@ -1,13 +1,39 @@
 // Edge function runs on Deno — fetch is a native global
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import {
   handlePreflight,
   okResponse,
   serverErrorResponse,
+  badRequestResponse,
+  rateLimitResponse,
+  checkRateLimit,
+  getClientId,
+  verifyAdmin,
+  readLimitedBody,
   structuredLog,
   getRequestId,
 } from "../_lib/security.ts";
 
 const FN = "notify-telegram";
+
+/**
+ * Trust model (Admin Audit P2-18)
+ * --------------------------------
+ * This function used to accept any JSON from anyone and forward it to the
+ * owner's Telegram — an unauthenticated spam/phishing vector.
+ *
+ *  - Trusted callers (the `on_lead_insert_telegram_notify` DB trigger using the
+ *    service-role key, or an admin JWT from the dashboard) may send a full
+ *    `record`; it is used as-is.
+ *  - Anyone else (the public contact form via supabase.functions.invoke) may
+ *    only send a lead id. The lead is re-read from the database with the
+ *    service role, must have been created in the last few minutes, and the
+ *    message is built from the stored row — never from client-supplied text.
+ *    These calls are also rate limited per IP.
+ */
+const UNTRUSTED_MAX_LEAD_AGE_MS = 10 * 60 * 1000;
+const UNTRUSTED_RATE_LIMIT = { bucket: "notify-telegram", max: 5, windowMs: 60_000 };
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface LeadRecord {
   id: string;
@@ -32,6 +58,39 @@ interface NotifyPayload {
   [key: string]: unknown;  // If coming directly as LeadRecord
 }
 
+/** Service-role key (legacy DB trigger), Webhook secret (Dashboard Webhook), or verified admin JWT. */
+async function isTrustedCaller(req: Request, serviceKey: string, webhookSecret?: string): Promise<boolean> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) return false;
+  const token = authHeader.slice(7);
+  if (webhookSecret && token === webhookSecret) return true;
+  if (serviceKey && token === serviceKey) return true;
+  const admin = await verifyAdmin(req);
+  return admin.error === null;
+}
+
+/** Re-reads a lead the public form claims to have just created. */
+async function loadRecentLead(id: string, serviceKey: string): Promise<LeadRecord | null> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  if (!supabaseUrl || !serviceKey) return null;
+
+  const adminClient = createClient(supabaseUrl, serviceKey);
+  const { data, error } = await adminClient
+    .from("leads")
+    .select("id, name, email, phone, service, budget, lead_source, lead_type, city, message, source, form_data, created_at")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  const createdAt = data.created_at ? Date.parse(data.created_at) : NaN;
+  if (Number.isNaN(createdAt) || Date.now() - createdAt > UNTRUSTED_MAX_LEAD_AGE_MS) {
+    return null;
+  }
+
+  return { budget_value_inr: null, ...data } as LeadRecord;
+}
+
 function escapeHtml(value: string | null | undefined): string {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
@@ -48,14 +107,42 @@ Deno.serve(async (req) => {
   const requestId = getRequestId(req);
   const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
   const chatId = Deno.env.get("TELEGRAM_CHAT_ID") || "1228126069";
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  const webhookSecret = Deno.env.get("WEBHOOK_SECRET") ?? "";
 
   try {
-    const rawPayload = await req.json() as NotifyPayload;
-    // Extract lead depending on whether it was a webhook or direct invocation
-    const lead = (rawPayload.record ? rawPayload.record : rawPayload) as LeadRecord;
+    const { body: rawPayload, error: bodyError } = await readLimitedBody<NotifyPayload>(req);
+    if (bodyError || !rawPayload) {
+      return badRequestResponse(req, bodyError ?? "Invalid payload", {}, requestId);
+    }
 
-    if (!lead) {
-      return serverErrorResponse(req, "No record found in payload", {}, FN, undefined, requestId);
+    const trusted = await isTrustedCaller(req, serviceKey, webhookSecret);
+    let lead: LeadRecord | null = null;
+
+    if (trusted) {
+      // DB trigger / admin dashboard: payload is authoritative.
+      lead = (rawPayload.record ? rawPayload.record : rawPayload) as LeadRecord;
+    } else {
+      const clientId = getClientId(req);
+      const rl = await checkRateLimit(req, clientId, UNTRUSTED_RATE_LIMIT);
+      if (rl.limited) {
+        return rateLimitResponse(req, rl, {}, FN, requestId);
+      }
+
+      const candidateId = rawPayload.record?.id ?? (rawPayload as { id?: unknown }).id;
+      if (typeof candidateId !== "string" || !UUID_RE.test(candidateId)) {
+        return badRequestResponse(req, "A valid lead id is required", {}, requestId);
+      }
+
+      lead = await loadRecentLead(candidateId, serviceKey);
+      if (!lead) {
+        structuredLog("warn", FN, "Untrusted caller referenced an unknown or stale lead", { leadId: candidateId, clientId }, requestId);
+        return badRequestResponse(req, "Lead not found", {}, requestId);
+      }
+    }
+
+    if (!lead || !lead.id) {
+      return badRequestResponse(req, "No record found in payload", {}, requestId);
     }
 
     if (!botToken) {
@@ -102,7 +189,6 @@ ${emoji} <b>New Lead: CrossAngle Interior</b>
     `.trim();
 
     // Send to Telegram
-    // @ts-expect-error -- fetch is a Deno global, not recognized by VS Code's TS
     const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
