@@ -1,13 +1,13 @@
 import { JSX } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, Shield, Lock, Eye, Edit3, Trash2, Upload, Settings, BarChart3, Users, FileText, Image as ImageIcon, Mail, Database, DollarSign, Loader2 } from "lucide-react";
-import { ROLE_DESCRIPTIONS, ROLE_LABELS } from "@/lib/auth/rbac";
+import { ROLE_DESCRIPTIONS, ROLE_LABELS, type AppRole } from "@/lib/auth/rbac";
 import { PERMISSIONS, type Resource } from "@/lib/auth/permissions";
 import { Surface, Stack, Text } from "@/components/primitives/foundation";
 import { supabase } from "@/integrations/supabase/client";
 
 
-const ROLE_CAPABILITIES: Record<"super_admin" | "admin" | "viewer", string[]> = {
+const ROLE_CAPABILITIES: Record<AppRole, string[]> = {
   super_admin: [
     "Manage all users and assign every role",
     "Access system settings, audit controls, and protected modules",
@@ -17,6 +17,11 @@ const ROLE_CAPABILITIES: Record<"super_admin" | "admin" | "viewer", string[]> = 
     "Manage content and day-to-day admin work",
     "Create and manage viewer accounts only",
     "Cannot edit or demote super admins",
+  ],
+  editor: [
+    "Manage CMS pages, blog articles, and media library",
+    "Publish and schedule editorial content",
+    "No access to system settings or user management",
   ],
   viewer: [
     "Read-only access to the admin workspace",
@@ -66,24 +71,23 @@ const ACTION_LABELS: Record<string, string> = {
   manage_roles: "Manage Roles",
 };
 
-const ROLE_ORDER = ["super_admin", "admin", "viewer"] as const;
+const ROLE_ORDER: readonly AppRole[] = ["super_admin", "admin", "editor", "viewer"] as const;
 
 export default function AdminUserAccessRoles(): JSX.Element {
   const resources = Object.keys(PERMISSIONS) as Resource[];
 
-  // Live user counts per role from admin_users table
+  // Live user counts per role from get_admin_users RPC
   const { data: roleCounts, isLoading: countsLoading } = useQuery({
     queryKey: ["role-counts"],
     queryFn: async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase as any)
-        .from("admin_users")
-        .select("role")
-        .eq("is_active", true);
+      const { data, error } = await supabase.rpc("get_admin_users");
       if (error) throw error;
-      const counts: Record<string, number> = { super_admin: 0, admin: 0, viewer: 0 };
-      (data ?? []).forEach((u: { role: string }) => {
-        if (u.role && counts[u.role] !== undefined) counts[u.role]++;
+      const counts: Record<AppRole, number> = { super_admin: 0, admin: 0, editor: 0, viewer: 0 };
+      (data ?? []).forEach((u) => {
+        const role = u.role as AppRole;
+        if (u.status === "active" && role && counts[role] !== undefined) {
+          counts[role]++;
+        }
       });
       return counts;
     },
@@ -94,7 +98,7 @@ export default function AdminUserAccessRoles(): JSX.Element {
     <div className="w-full space-y-6 animate-in fade-in duration-700">
       
       {/* Role Overview Cards */}
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {ROLE_ORDER.map((role) => (
           <Surface variant="primary" radius="lg" border shadow="sm" key={role} className="border-zinc-800/60 bg-zinc-900/50 text-zinc-100">
             <Stack gap="sm" className="p-6">
