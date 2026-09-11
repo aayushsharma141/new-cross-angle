@@ -54,30 +54,77 @@ export default function AdminBlogPerformance() {
         try {
             const { data: blogData, error: blogErr } = await supabase
                 .from("blog_posts")
-                .select("id, title, slug, status, created_at")
+                .select("id, title, slug, status, created_at, view_count")
                 .order("created_at", { ascending: false });
 
-            if (blogErr) { console.error("Error loading blogs", blogErr); setLoading(false); return; }
+            if (blogErr) {
+                console.error("Error loading blogs", blogErr);
+                setLoading(false);
+                return;
+            }
 
-            const analyticsMap: Record<string, { views: number; read_time: number; scroll_depth: number }> = {};
-            try {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const { data: ad } = await (supabase as any)
-                    .from("article_analytics")
-                    .select("article_id, views, avg_read_time_seconds, scroll_completion_rate");
-                if (ad) ad.forEach((a: { article_id: string; views: number; avg_read_time_seconds: number; scroll_completion_rate: number }) => {
-                    analyticsMap[a.article_id] = { views: a.views || 0, read_time: a.avg_read_time_seconds || 0, scroll_depth: a.scroll_completion_rate || 0 };
-                });
-            } catch { /* table may not exist */ }
+            // Fetch events from canonical blog_user_events store
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { data: eventsData, error: eventsErr } = await (supabase as any)
+                .from("blog_user_events")
+                .select("article_id, event_type, metadata");
 
-            setArticles((blogData || []).map((b: { id: string; title: string; slug: string; status: string; created_at: string }) => ({
-                id: b.id, title: b.title, slug: b.slug, is_published: b.status === "published", created_at: b.created_at,
-                views: analyticsMap[b.id]?.views ?? 0,
-                read_time: analyticsMap[b.id]?.read_time ?? 0,
-                scroll_depth: analyticsMap[b.id]?.scroll_depth ?? 0,
-            })));
-        } catch (err) { console.error("Failed to load articles", err); }
-        setLoading(false);
+            if (eventsErr) {
+                console.warn("[AdminBlogPerformance] Failed to load events:", eventsErr);
+            }
+
+            const events = (eventsData || []) as {
+                article_id: string | null;
+                event_type: string;
+                metadata: Record<string, unknown> | null;
+            }[];
+
+            const analyticsMap: Record<string, { views: number; readTimes: number[]; scrollDepths: number[] }> = {};
+
+            for (const ev of events) {
+                if (!ev.article_id) continue;
+                if (!analyticsMap[ev.article_id]) {
+                    analyticsMap[ev.article_id] = { views: 0, readTimes: [], scrollDepths: [] };
+                }
+                const m = analyticsMap[ev.article_id];
+                if (ev.event_type === "article_view" || ev.event_type === "page_view") {
+                    m.views++;
+                } else if (ev.event_type === "scroll_depth") {
+                    const depth = Number(ev.metadata?.depth);
+                    if (!Number.isNaN(depth) && depth > 0) m.scrollDepths.push(depth);
+                } else if (ev.event_type === "reading_time") {
+                    const time = Number(ev.metadata?.time_spent_seconds);
+                    if (!Number.isNaN(time) && time > 0) m.readTimes.push(time);
+                }
+            }
+
+            setArticles((blogData || []).map((b: { id: string; title: string; slug: string; status: string; created_at: string; view_count: number | null }) => {
+                const m = analyticsMap[b.id];
+                const eventViews = m?.views ?? 0;
+                const views = eventViews > 0 ? eventViews : (b.view_count ?? 0);
+                const avgReadTime = m && m.readTimes.length > 0
+                    ? Math.round(m.readTimes.reduce((acc, v) => acc + v, 0) / m.readTimes.length)
+                    : 0;
+                const avgScroll = m && m.scrollDepths.length > 0
+                    ? Math.round(m.scrollDepths.reduce((acc, v) => acc + v, 0) / m.scrollDepths.length)
+                    : 0;
+
+                return {
+                    id: b.id,
+                    title: b.title,
+                    slug: b.slug,
+                    is_published: b.status === "published",
+                    created_at: b.created_at,
+                    views,
+                    read_time: avgReadTime,
+                    scroll_depth: avgScroll,
+                };
+            }));
+        } catch (err) {
+            console.error("Failed to load articles", err);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
     useEffect(() => {
