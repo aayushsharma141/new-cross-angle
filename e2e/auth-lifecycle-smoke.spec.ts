@@ -43,8 +43,9 @@ const IS_LOCAL = /localhost|127\.0\.0\.1/.test(BASE);
 const BYPASS = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 
 /** Request context that can pass Vercel Deployment Protection when a bypass secret is set. */
-function newCtx() {
+function newCtx(cookies?: any[]) {
   return pwRequest.newContext({
+    storageState: cookies ? { cookies, origins: [] } : undefined,
     extraHTTPHeaders: BYPASS ? { 'x-vercel-protection-bypass': BYPASS, 'x-vercel-set-bypass-cookie': 'true' } : {},
   });
 }
@@ -87,40 +88,48 @@ test.describe('Auth lifecycle smoke (live GoTrue)', () => {
   });
 
   test('F-05 session: invalid access cookie + valid refresh cookie → proxy refreshes and retries once', async () => {
-    const ctx = await newCtx();
+    test.skip(IS_LOCAL, 'Refresh retry is Edge-only (middleware.ts); point PLAYWRIGHT_BASE_URL at a Vercel deployment');
     const { refresh } = await login();
-
-    // Simulate expiry without waiting: a syntactically valid but unsigned JWT.
     const bogus = 'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjB9.invalid';
+    const domain = new URL(BASE).hostname;
+    
+    const ctx = await newCtx([
+      { name: 'access_token', value: bogus, domain, path: '/', expires: -1, httpOnly: true, secure: false, sameSite: 'Lax' },
+      { name: 'refresh_token', value: refresh, domain, path: '/', expires: -1, httpOnly: true, secure: false, sameSite: 'Lax' }
+    ]);
+
     const res = await ctx.get(`${BASE}/api/supabase/rest/v1/user_roles?select=role&limit=1`, {
-      headers: { cookie: `access_token=${bogus}; refresh_token=${refresh}`, apikey: ANON as string },
+      headers: { apikey: ANON as string },
     });
     expect(res.status(), 'retried request succeeds after refresh').toBe(200);
     const cookies = (await ctx.storageState()).cookies;
-    console.log('[F-05] ctx.cookies:', cookies);
     const newAccess = cookies.find(c => c.name === 'access_token')?.value;
     expect(newAccess, 'a fresh access_token cookie is issued on the retried response').toBeTruthy();
     expect(newAccess).not.toBe(bogus);
 
     // Failed refresh must fail closed and clear cookies.
-    const badCtx = await newCtx();
+    const badCtx = await newCtx([
+      { name: 'access_token', value: bogus, domain, path: '/', expires: -1, httpOnly: true, secure: false, sameSite: 'Lax' },
+      { name: 'refresh_token', value: 'not-a-real-token', domain, path: '/', expires: -1, httpOnly: true, secure: false, sameSite: 'Lax' }
+    ]);
     const bad = await badCtx.get(`${BASE}/api/supabase/rest/v1/user_roles?select=role&limit=1`, {
-      headers: { cookie: `access_token=${bogus}; refresh_token=not-a-real-token`, apikey: ANON as string },
+      headers: { apikey: ANON as string },
     });
-    console.log('[F-05] bad.status():', bad.status());
-    console.log('[F-05] bad.headers():', bad.headers());
-    console.log('[F-05] bad.body():', await bad.text());
     expect(bad.status()).toBe(401);
     await ctx.post(`${BASE}/api/auth/logout`, { headers: { cookie: `access_token=${newAccess}` } });
     await ctx.dispose();
   });
 
   test('F-06 logout: global revocation rejects the old access and refresh tokens', async () => {
-    const ctx = await newCtx();
     const { access, refresh } = await login();
+    const domain = new URL(BASE).hostname;
+    const ctx = await newCtx([
+      { name: 'access_token', value: access, domain, path: '/', expires: -1, httpOnly: true, secure: false, sameSite: 'Lax' },
+      { name: 'refresh_token', value: refresh, domain, path: '/', expires: -1, httpOnly: true, secure: false, sameSite: 'Lax' }
+    ]);
     expect((await gotrueUser(ctx, access)).status(), 'token valid before logout').toBe(200);
 
-    const out = await ctx.post(`${BASE}/api/auth/logout`, { headers: { cookie: `access_token=${access}; refresh_token=${refresh}` } });
+    const out = await ctx.post(`${BASE}/api/auth/logout`);
     expect(out.status()).toBe(204);
     const cleared = out.headersArray().filter((h) => h.name.toLowerCase() === 'set-cookie').map((h) => h.value);
     expect(cleared.some((c) => /^access_token=;.*Max-Age=0/i.test(c)), 'access cookie cleared').toBe(true);

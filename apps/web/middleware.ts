@@ -388,7 +388,6 @@ export default async function middleware(req: Request) {
         const refreshToken = refreshMatch ? refreshMatch[1] : null;
 
         if (refreshToken && SUPABASE_URL) {
-          console.log("[Middleware Refresh] Attempting refresh. SUPABASE_ANON_KEY missing?", !SUPABASE_ANON_KEY);
           try {
             const refreshRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
               method: "POST",
@@ -406,8 +405,6 @@ export default async function middleware(req: Request) {
                 refresh_token?: string;
                 expires_in?: number;
               };
-
-              console.log("[Middleware Refresh] Success, got access_token:", !!refreshData?.access_token);
 
               if (refreshData?.access_token) {
                 const newAccessToken = refreshData.access_token;
@@ -435,8 +432,6 @@ export default async function middleware(req: Request) {
                 );
               }
             } else {
-              const errText = await refreshRes.text().catch(() => '');
-              console.log(`[Middleware Refresh] Failed with ${refreshRes.status}:`, errText);
               // Refresh failed with invalid/expired refresh token: clear cookies and fail closed
               newCookies.push(
                 `access_token=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax`,

@@ -51,29 +51,10 @@ async function globalSetup() {
   // in VERCEL_AUTOMATION_BYPASS_SECRET, send it on every request so the setup
   // reaches the real /admin/auth form instead of Vercel's SSO page.
   const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
-  
   const context = await browser.newContext(
     bypass ? { extraHTTPHeaders: { 'x-vercel-protection-bypass': bypass } } : {}
   );
   const page = await context.newPage();
-
-  page.on('console', msg => console.log('BROWSER CONSOLE:', msg.text()));
-  page.on('pageerror', err => console.log('BROWSER ERROR:', err.message));
-  page.on('request', req => {
-    if (req.url().includes('login')) {
-      console.log('LOGIN REQ HEADERS:', req.headers());
-    }
-  });
-  page.on('request', req => console.log('REQ:', req.method(), req.url()));
-  page.on('response', async res => {
-    console.log('RES:', res.status(), res.url());
-    if (res.url().includes('login')) {
-      try {
-        const text = await res.text();
-        console.log('LOGIN RES BODY:', text);
-      } catch (e) {}
-    }
-  });
 
   try {
     // Navigate to the admin login page and sign in
@@ -86,7 +67,6 @@ async function globalSetup() {
     const passwordInput = page.locator('input[type="password"]').first();
     const submitBtn = page.locator('button[type="submit"]').first();
 
-    await page.screenshot({ path: 'test-screenshot.png' });
     await emailInput.waitFor({ state: 'visible', timeout: 15_000 });
     await emailInput.fill(email);
     await passwordInput.fill(password);
