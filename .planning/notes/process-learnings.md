@@ -191,3 +191,86 @@ This principle applies regardless of technology: Supabase Edge Functions, REST, 
 - Intended side effect confirmed (database row persisted, event emitted, etc.) → required for production readiness
 
 *Classification: [Likely] — generalised from one instance. Upgrade to [Certain] if recurs on another function or service boundary.*
+---
+
+## PL-008 — Mocked Provider Tests Passed While the Production Flow Was Broken
+
+**Date:** 2026-09-11
+**Status:** Institutionalized (ADR 0004)
+**Phase:** Admin Authentication Security Patch 1
+**Track:** F-03 password recovery
+
+### Observation
+
+`/api/auth/recover` was reported RESOLVED with 9/9 Vitest cases green. The
+tests mocked `supabase.auth.setSession`, `exchangeCodeForSession` and
+`verifyOtp` to return a session on any input. A code trace of the production
+path showed the browser client is implicit-flow (`flowType` default), the
+recovery link carries `#access_token=…&refresh_token=…`, and the client
+forwarded only `access_token`. auth-js rejects an empty refresh token
+(`GoTrueClient.js:3019`) — the exact guard the mock replaced. Every real
+recovery would have returned 400 "Invalid or expired recovery code".
+
+### False Conclusion
+
+"9/9 passing" was read as "recovery works". The tests proved *if GoTrue accepts
+what we send, the handler does the right thing next*, and never asked whether
+GoTrue would accept what we send.
+
+### Evidence
+
+- `apps/web/src/pages/admin/AdminAuth.tsx` before `b06a549a`: no
+  `refresh_token` capture from the URL hash.
+- `apps/web/api/auth/recover.ts` before `b06a549a`: `refresh_token: refresh_token || ""`.
+- `node_modules/@supabase/auth-js/dist/main/GoTrueClient.js:3019`:
+  `if (!access_token || !refresh_token) throw new AuthSessionMissingError()`.
+- Fix: `b06a549a`. Live round-trip still pending (`e2e/auth-lifecycle-smoke.spec.ts`).
+
+### Correct Conclusion
+
+A mock placed *at* the trust boundary a finding is about removes the boundary
+from the test. Tests behind such a mock can only ever reach `Implemented`.
+
+### Institutional Lesson
+
+Report test tiers separately; never sum them. A fix moves past `Implemented`
+only when the real component on the far side of the finding's boundary has
+been exercised. Codified as ADR 0004.
+
+---
+
+## PL-009 — Migration History Was Treated as Production Truth for Function Bodies
+
+**Date:** 2026-09-11
+**Status:** Institutionalized (ADR 0003 extended by ADR 0004 §3)
+**Phase:** SECURITY DEFINER audit, S2
+**Track:** F-11 and DAM RPC authorization
+
+### Observation
+
+The auth review judged a parallel audit's claim that `rpc_register_dam_asset()`
+had no authorization guard as "conflicts with migrations" because
+`20260622000001_dam_v3_rpcs.sql:28-31` defines one, and judged the
+`update_media_metadata()` claim "overstated" because the only migration
+definition returns `trigger`. Live inspection during S2 showed the production
+function had no guard and that a callable `update_media_metadata(text, jsonb)`
+overload existed with no migration at all. Three S3 targets (`is_admin`,
+`is_platform_admin_by_id`, `increment_project_view`) existed in production with
+no migration whatsoever.
+
+### False Assumption (avoided in the report, not in the first reading)
+
+"The migration defines X, therefore production does X." ADR 0003 had already
+established this is false for *tables*; it was assumed to hold for functions.
+
+### Correct Conclusion
+
+For anything in `pg_proc`, `pg_policies` or grants, the only evidence is the
+live catalogue: `pg_get_functiondef()`, `proconfig`, `proacl`, `pg_policies`.
+Migrations are context for *intent*.
+
+### Institutional Lesson
+
+Before any database security audit, snapshot the live catalogue for every
+object in scope and diff it against migrations; the diff is itself a finding.
+Seed: `.planning/seeds/live-schema-inventory-before-db-audits.md`.
