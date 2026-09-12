@@ -216,7 +216,7 @@ Option C was executed not as a blanket "delete three legacy tables", but as **"v
    - Migrate functions to `SET search_path = ''` with fully schema-qualified relation identifiers (`public.*`, `auth.*`).
    - Add automated/negative authorization regression tests.
 5. **Security Housekeeping Remaining:**
-   - Any Supabase management/service credentials that were exposed in agent command history or logs during prior sessions should be rotated in the Supabase Dashboard.
+   - Any Supabase management/service credentials that were exposed in agent command history or logs during prior sessions should be rotated in the Supabase Dashboard. *(Update: Admin password was leaked in a handoff artifact and rotated on 2026-09-12; .env.local updated.)*
 
 
 ## Admin Authentication Remediation — Security Patches 1 & 2 + SECURITY DEFINER track, 2026-09-12
@@ -232,8 +232,8 @@ Review document (living, private): https://claude.ai/code/artifact/c659c2c9-a1c8
 | F-02 tokens in login/me JSON | **Verified** — real handler response asserted; Closed by smoke run 1 | `7bf35889`; invariant script §3 scans `api/auth/*` |
 | F-03 recovery (server-side `/api/auth/recover`, implicit-flow token pair) | **Implemented** — GoTrue mocked; Closed by smoke run 3 | `ab81f784` + `b06a549a` (first cut forwarded only access_token; caught in review) |
 | F-04 `profiles.role` → `sync-user-role` escalation | **Closed** — live DB evidence (authorization reads `user_roles` only) | live inspection; `site_settings` lockdown tracked `3747d0bd` |
-| F-05 no refresh caller / 15-min cookie | **Implemented** — Edge runtime never exercised; Closed by smoke run 2 | `8252f5fb` (Edge proxy 401→refresh→retry once; cookie maxAge = `expires_in`) |
-| F-06 logout does not revoke | **Verified** (2026-09-12) — smoke harness passed locally against real GoTrue: pre-logout access token → 403 `session_not_found`, refresh token → rejected. Closed when the same run passes on the deployed preview (with F-05) | `8252f5fb` (direct GoTrue `logout?scope=global`) |
+| F-05 no refresh caller / 15-min cookie | **Closed** (2026-09-12) — Smoke run passed on Vercel preview. Edge proxy refreshed on 401 and successfully retried. | `8252f5fb` (Edge proxy 401→refresh→retry once; cookie maxAge = `expires_in`) |
+| F-06 logout does not revoke | **Closed** (2026-09-12) — Smoke run passed on Vercel preview against real GoTrue. Pre-logout access token → 403 `session_not_found`, refresh token → rejected. | `8252f5fb` (direct GoTrue `logout?scope=global`) |
 | F-07..F-10 (rate limit, CSRF/Origin, auth-layer role denial, audit log) | **Open** — Patch 3, after live validation | — |
 
 ### Formal conclusion
@@ -242,8 +242,8 @@ Production code remediation is complete and regression-tested (30 auth Vitest ca
 ### Deferred execution protocol
 Four distinct verification events, four instruments — not one generic run. Harness for F-03/F-05/F-06: `e2e/auth-lifecycle-smoke.spec.ts` (committed `cf350e69`). Always `--project=chromium` (recovery link is single-use). F-01 uses the browser suite, see step 0.
 0. Browser, F-01: `PLAYWRIGHT_ADMIN_PASSWORD` in `.env.local` → `npx playwright test e2e/admin-full-flow.spec.ts --project=chromium` (role resolves, admin lands on `/admin`); then log in as a user with no `user_roles` row and confirm redirect to `/admin/auth?error=role_unavailable`.
-1. Local, F-06: DONE 2026-09-12 (Verified). Re-runs on the preview with step 2 → Closed.
-2. Vercel preview, F-05: branch pushed (`af185fc6`+). Preview is behind Vercel Deployment Protection — set `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel → Settings → Deployment Protection → Protection Bypass for Automation) in `.env.local`; the harness sends it (`f7921227`). Then `PLAYWRIGHT_BASE_URL=<preview>` → run. Do not disable protection or deploy to production for this.
+1. Local & Preview, F-06: DONE 2026-09-12 (Closed). Smoke harness passed on Vercel preview.
+2. Vercel preview, F-05: DONE 2026-09-12 (Closed). Smoke harness passed on Vercel preview.
 3. Throwaway account, F-03: `SMOKE_RECOVERY_EMAIL` → run once (sends email) → `SMOKE_RECOVERY_LINK` + `SMOKE_RECOVERY_NEW_PASSWORD` → run. Harness refuses the primary admin email.
 
 ### Known residuals (not blocking)
