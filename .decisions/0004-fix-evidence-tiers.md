@@ -66,10 +66,13 @@ and was wrong because the boundary that mattered had been replaced by a stand-in
 
 - Status tables get longer and slower to fill in. That is the point: the
   F-03 table took one word to be wrong.
-- Some fixes will sit at `Verified` for a while when the live environment is
-  production and the round-trip needs credentials or a throwaway account (the
-  state of F-03, F-05, F-06 at the time of this decision). The label says so
-  honestly instead of hiding it.
+- Some fixes will sit at `Implemented` for a while when the only real
+  provider is production and exercising it needs credentials, a preview
+  deployment, or a throwaway account. That is the state of F-01, F-03, F-05
+  and F-06 at the time of this decision: their tests mock the far side of the
+  boundary, so by this definition they are not yet `Verified`. F-02 is
+  `Verified` (the real handler's response is what the test asserts). The
+  label says so honestly instead of hiding it.
 - The audit review document and `.planning/STATE.md` adopt these labels
   immediately. `e2e/auth-lifecycle-smoke.spec.ts` is the reference shape for
   a `Closed`-tier artifact: real provider, disposable account, refuses to run

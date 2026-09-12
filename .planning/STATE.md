@@ -223,21 +223,21 @@ Option C was executed not as a blanket "delete three legacy tables", but as **"v
 
 Review document (living, private): https://claude.ai/code/artifact/c659c2c9-a1c8-40d0-8b78-952d160a99ea
 
-### Status
+### Status (labels per ADR 0004: Implemented / Verified / Closed)
 | Item | State | Evidence |
 | --- | --- | --- |
-| S1–S3 SECURITY DEFINER track (drop dead trigger, guard + revoke privileged RPCs, `search_path = ''` on 15 fns) | Closed | `c572beaf`, `5c81d383`, `d295bcd0`; `scripts/checks/test-rbac-rpc-matrix.mjs` 17/17 |
-| F-11 `get_lead_stats()` anonymous exposure | Closed | `5c81d383` |
-| F-01 hardcoded `super_admin` role → server-backed, fail-closed | Closed | `e9e16c4a`, `b922c690` |
-| F-02 tokens in login/me JSON | Closed | `7bf35889`; invariant script §3 scans `api/auth/*` |
-| F-03 recovery (server-side `/api/auth/recover`, implicit-flow token pair) | Code/contract verified — pending live round-trip | `ab81f784` + `b06a549a` (first cut forwarded only access_token; caught in review) |
-| F-04 `profiles.role` → `sync-user-role` escalation | Closed on live DB evidence (authorization reads `user_roles` only) | live inspection; `site_settings` lockdown tracked `3747d0bd` |
-| F-05 no refresh caller / 15-min cookie | Code/contract verified — pending Vercel preview run | `8252f5fb` (Edge proxy 401→refresh→retry once; cookie maxAge = `expires_in`) |
-| F-06 logout does not revoke | Code/contract verified — pending local run | `8252f5fb` (direct GoTrue `logout?scope=global`) |
-| F-07..F-10 (rate limit, CSRF/Origin, auth-layer role denial, audit log) | Open — Patch 3 | — |
+| S1–S3 SECURITY DEFINER track (drop dead trigger, guard + revoke privileged RPCs, `search_path = ''` on 15 fns) | **Closed** (live RBAC matrix) | `c572beaf`, `5c81d383`, `d295bcd0`; `scripts/checks/test-rbac-rpc-matrix.mjs` 17/17 |
+| F-11 `get_lead_stats()` anonymous exposure | **Closed** (live: anon 401) | `5c81d383` |
+| F-01 hardcoded `super_admin` role → server-backed, fail-closed | **Implemented** — tests mock `fetchUserRole`; Closed by a live login (`admin-full-flow.spec.ts` or smoke run 1) | `e9e16c4a`, `b922c690` |
+| F-02 tokens in login/me JSON | **Verified** — real handler response asserted; Closed by smoke run 1 | `7bf35889`; invariant script §3 scans `api/auth/*` |
+| F-03 recovery (server-side `/api/auth/recover`, implicit-flow token pair) | **Implemented** — GoTrue mocked; Closed by smoke run 3 | `ab81f784` + `b06a549a` (first cut forwarded only access_token; caught in review) |
+| F-04 `profiles.role` → `sync-user-role` escalation | **Closed** — live DB evidence (authorization reads `user_roles` only) | live inspection; `site_settings` lockdown tracked `3747d0bd` |
+| F-05 no refresh caller / 15-min cookie | **Implemented** — Edge runtime never exercised; Closed by smoke run 2 | `8252f5fb` (Edge proxy 401→refresh→retry once; cookie maxAge = `expires_in`) |
+| F-06 logout does not revoke | **Implemented** — GoTrue `/logout` mocked; Closed by smoke run 1 | `8252f5fb` (direct GoTrue `logout?scope=global`) |
+| F-07..F-10 (rate limit, CSRF/Origin, auth-layer role denial, audit log) | **Open** — Patch 3, after live validation | — |
 
 ### Formal conclusion
-Production code remediation is complete and regression-tested (30 auth Vitest cases, arch/lint/typecheck/build, RBAC matrix). Live authentication-lifecycle validation is pending: there is no staging Supabase project, and production must not be used for recovery/logout smoke tests without explicit credentials and a throwaway account.
+Production code remediation is complete and regression-tested (30 auth Vitest cases, arch/lint/typecheck/build, RBAC matrix). By ADR 0004 four fixes are still **Implemented**, not Verified — their tests mock the far side of the boundary they fix. Live authentication-lifecycle validation is pending: there is no staging Supabase project, and production must not be used for recovery/logout smoke tests without explicit credentials and a throwaway account.
 
 ### Deferred execution protocol
 Harness: `e2e/auth-lifecycle-smoke.spec.ts` (UNTRACKED — commit with the smoke results). Always `--project=chromium` (recovery link is single-use).
