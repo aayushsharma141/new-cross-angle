@@ -18,14 +18,14 @@
  *   6. All real users are passed through untouched (no overhead).
  */
 
-import type { OgData } from "./src/og/og-defaults";
+import type { OgData } from "./src/og/og-defaults.js";
 import {
   DEFAULT_OG,
   SITE_NAME,
   SITE_URL,
   STATIC_OG_MAP,
   SERVICE_OG_MAP,
-} from "./src/og/og-defaults";
+} from "./src/og/og-defaults.js";
 
 export const config = {
   matcher: [
@@ -376,7 +376,8 @@ export default async function middleware(req: Request) {
         method: req.method,
         headers: proxyHeaders,
         body: bodyBuffer,
-        redirect: 'manual'
+        redirect: 'manual',
+        cache: 'no-store'
       });
 
       const newCookies: string[] = [];
@@ -387,6 +388,7 @@ export default async function middleware(req: Request) {
         const refreshToken = refreshMatch ? refreshMatch[1] : null;
 
         if (refreshToken && SUPABASE_URL) {
+          console.log("[Middleware Refresh] Attempting refresh. SUPABASE_ANON_KEY missing?", !SUPABASE_ANON_KEY);
           try {
             const refreshRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
               method: "POST",
@@ -395,6 +397,7 @@ export default async function middleware(req: Request) {
                 apikey: SUPABASE_ANON_KEY || "",
               },
               body: JSON.stringify({ refresh_token: refreshToken }),
+              cache: 'no-store'
             });
 
             if (refreshRes.ok) {
@@ -403,6 +406,8 @@ export default async function middleware(req: Request) {
                 refresh_token?: string;
                 expires_in?: number;
               };
+
+              console.log("[Middleware Refresh] Success, got access_token:", !!refreshData?.access_token);
 
               if (refreshData?.access_token) {
                 const newAccessToken = refreshData.access_token;
@@ -417,7 +422,8 @@ export default async function middleware(req: Request) {
                   method: req.method,
                   headers: proxyHeaders,
                   body: bodyBuffer,
-                  redirect: 'manual'
+                  redirect: 'manual',
+                  cache: 'no-store'
                 });
 
                 // Prepare new HttpOnly cookies to return with the retried response
@@ -429,6 +435,8 @@ export default async function middleware(req: Request) {
                 );
               }
             } else {
+              const errText = await refreshRes.text().catch(() => '');
+              console.log(`[Middleware Refresh] Failed with ${refreshRes.status}:`, errText);
               // Refresh failed with invalid/expired refresh token: clear cookies and fail closed
               newCookies.push(
                 `access_token=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax`,
@@ -442,10 +450,15 @@ export default async function middleware(req: Request) {
         }
       }
       
-      const resHeaders = new Headers(response.headers);
-      for (const cookie of newCookies) {
-        resHeaders.append("Set-Cookie", cookie);
-      }
+      const resHeaders = new Headers();
+      response.headers.forEach((value, key) => {
+        if (key.toLowerCase() !== 'set-cookie') {
+          resHeaders.set(key, value);
+        }
+      });
+      const upstreamCookies = typeof response.headers.getSetCookie === 'function' ? response.headers.getSetCookie() : [];
+      for (const c of upstreamCookies) resHeaders.append('Set-Cookie', c);
+      for (const c of newCookies) resHeaders.append('Set-Cookie', c);
 
       return new Response(response.body, {
         status: response.status,

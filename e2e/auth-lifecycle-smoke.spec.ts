@@ -59,8 +59,9 @@ function cookieValue(setCookies: string[], name: string): string | null {
   return null;
 }
 
-async function login(ctx: APIRequestContext) {
-  const res = await ctx.post(`${BASE}/api/auth/login`, { data: { email: EMAIL, password: PASSWORD } });
+async function login() {
+  const loginCtx = await newCtx();
+  const res = await loginCtx.post(`${BASE}/api/auth/login`, { data: { email: EMAIL, password: PASSWORD } });
   expect(res.status(), 'login should succeed').toBe(200);
   const setCookies = res.headersArray().filter((h) => h.name.toLowerCase() === 'set-cookie').map((h) => h.value);
   const access = cookieValue(setCookies, 'access_token');
@@ -70,6 +71,7 @@ async function login(ctx: APIRequestContext) {
   const body = await res.json();
   expect(body.session, 'F-02: login body must not carry a session').toBeUndefined();
   expect(body.access_token).toBeUndefined();
+  await loginCtx.dispose();
   return { access: access as string, refresh: refresh as string };
 }
 
@@ -85,9 +87,8 @@ test.describe('Auth lifecycle smoke (live GoTrue)', () => {
   });
 
   test('F-05 session: invalid access cookie + valid refresh cookie → proxy refreshes and retries once', async () => {
-    test.skip(IS_LOCAL, 'Refresh retry is Edge-only (middleware.ts); point PLAYWRIGHT_BASE_URL at a Vercel deployment');
     const ctx = await newCtx();
-    const { refresh } = await login(ctx);
+    const { refresh } = await login();
 
     // Simulate expiry without waiting: a syntactically valid but unsigned JWT.
     const bogus = 'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjB9.invalid';
@@ -95,15 +96,20 @@ test.describe('Auth lifecycle smoke (live GoTrue)', () => {
       headers: { cookie: `access_token=${bogus}; refresh_token=${refresh}`, apikey: ANON as string },
     });
     expect(res.status(), 'retried request succeeds after refresh').toBe(200);
-    const setCookies = res.headersArray().filter((h) => h.name.toLowerCase() === 'set-cookie').map((h) => h.value);
-    const newAccess = cookieValue(setCookies, 'access_token');
+    const cookies = (await ctx.storageState()).cookies;
+    console.log('[F-05] ctx.cookies:', cookies);
+    const newAccess = cookies.find(c => c.name === 'access_token')?.value;
     expect(newAccess, 'a fresh access_token cookie is issued on the retried response').toBeTruthy();
     expect(newAccess).not.toBe(bogus);
 
     // Failed refresh must fail closed and clear cookies.
-    const bad = await ctx.get(`${BASE}/api/supabase/rest/v1/user_roles?select=role&limit=1`, {
+    const badCtx = await newCtx();
+    const bad = await badCtx.get(`${BASE}/api/supabase/rest/v1/user_roles?select=role&limit=1`, {
       headers: { cookie: `access_token=${bogus}; refresh_token=not-a-real-token`, apikey: ANON as string },
     });
+    console.log('[F-05] bad.status():', bad.status());
+    console.log('[F-05] bad.headers():', bad.headers());
+    console.log('[F-05] bad.body():', await bad.text());
     expect(bad.status()).toBe(401);
     await ctx.post(`${BASE}/api/auth/logout`, { headers: { cookie: `access_token=${newAccess}` } });
     await ctx.dispose();
@@ -111,7 +117,7 @@ test.describe('Auth lifecycle smoke (live GoTrue)', () => {
 
   test('F-06 logout: global revocation rejects the old access and refresh tokens', async () => {
     const ctx = await newCtx();
-    const { access, refresh } = await login(ctx);
+    const { access, refresh } = await login();
     expect((await gotrueUser(ctx, access)).status(), 'token valid before logout').toBe(200);
 
     const out = await ctx.post(`${BASE}/api/auth/logout`, { headers: { cookie: `access_token=${access}; refresh_token=${refresh}` } });
