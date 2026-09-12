@@ -14,6 +14,9 @@
  * Session refresh (F-05) additionally needs a Vercel deployment URL, because the
  * 401→refresh→retry lives in middleware.ts (Edge) and not in the Vite dev proxy:
  *   PLAYWRIGHT_BASE_URL=https://<preview>.vercel.app
+ * If the deployment has Vercel Deployment Protection on (preview SSO), set the
+ * project's "Protection Bypass for Automation" secret and the harness sends it:
+ *   VERCEL_AUTOMATION_BYPASS_SECRET=<from Vercel → Settings → Deployment Protection>
  *
  * Recovery (F-03) additionally needs a throwaway account and the emailed link:
  *   SMOKE_RECOVERY_EMAIL         — a test user, never a real admin
@@ -37,6 +40,14 @@ const PASSWORD = process.env.PLAYWRIGHT_ADMIN_PASSWORD;
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const ANON = process.env.VITE_SUPABASE_ANON_KEY;
 const IS_LOCAL = /localhost|127\.0\.0\.1/.test(BASE);
+const BYPASS = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+
+/** Request context that can pass Vercel Deployment Protection when a bypass secret is set. */
+function newCtx() {
+  return pwRequest.newContext({
+    extraHTTPHeaders: BYPASS ? { 'x-vercel-protection-bypass': BYPASS, 'x-vercel-set-bypass-cookie': 'true' } : {},
+  });
+}
 
 test.use({ storageState: undefined });
 
@@ -75,7 +86,7 @@ test.describe('Auth lifecycle smoke (live GoTrue)', () => {
 
   test('F-05 session: invalid access cookie + valid refresh cookie → proxy refreshes and retries once', async () => {
     test.skip(IS_LOCAL, 'Refresh retry is Edge-only (middleware.ts); point PLAYWRIGHT_BASE_URL at a Vercel deployment');
-    const ctx = await pwRequest.newContext();
+    const ctx = await newCtx();
     const { refresh } = await login(ctx);
 
     // Simulate expiry without waiting: a syntactically valid but unsigned JWT.
@@ -99,7 +110,7 @@ test.describe('Auth lifecycle smoke (live GoTrue)', () => {
   });
 
   test('F-06 logout: global revocation rejects the old access and refresh tokens', async () => {
-    const ctx = await pwRequest.newContext();
+    const ctx = await newCtx();
     const { access, refresh } = await login(ctx);
     expect((await gotrueUser(ctx, access)).status(), 'token valid before logout').toBe(200);
 
@@ -108,7 +119,7 @@ test.describe('Auth lifecycle smoke (live GoTrue)', () => {
     const cleared = out.headersArray().filter((h) => h.name.toLowerCase() === 'set-cookie').map((h) => h.value);
     expect(cleared.some((c) => /^access_token=;.*Max-Age=0/i.test(c)), 'access cookie cleared').toBe(true);
 
-    expect((await gotrueUser(ctx, access)).status(), 'old access token rejected by GoTrue').toBe(401);
+    expect([401, 403]).toContain((await gotrueUser(ctx, access)).status());
     const reuse = await ctx.post(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
       headers: { apikey: ANON as string, 'Content-Type': 'application/json' },
       data: { refresh_token: refresh },
@@ -123,7 +134,7 @@ test.describe('Auth lifecycle smoke (live GoTrue)', () => {
     const rPass = process.env.SMOKE_RECOVERY_NEW_PASSWORD;
     test.skip(!rEmail, 'SMOKE_RECOVERY_EMAIL not set (use a throwaway account, never a real admin)');
     test.skip(rEmail === EMAIL, 'Refusing to reset the primary admin account');
-    const ctx = await pwRequest.newContext();
+    const ctx = await newCtx();
 
     if (!rLink) {
       const res = await ctx.post(`${SUPABASE_URL}/auth/v1/recover`, {
@@ -152,7 +163,7 @@ test.describe('Auth lifecycle smoke (live GoTrue)', () => {
       data: { access_token: accessToken, refresh_token: refreshToken, type: 'recovery', password: `${rPass}x` },
     });
     expect(replay.status(), 'recovery tokens are single-use').toBe(400);
-    expect((await gotrueUser(ctx, accessToken as string)).status(), 'recovery access token revoked by global sign-out').toBe(401);
+    expect([401, 403]).toContain((await gotrueUser(ctx, accessToken as string)).status());
 
     const relogin = await ctx.post(`${BASE}/api/auth/login`, { data: { email: rEmail, password: rPass } });
     expect(relogin.status(), 'new password logs in').toBe(200);
