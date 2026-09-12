@@ -1,5 +1,5 @@
 ---
-title: "Live lifecycle validation for F-03 / F-05 / F-06 — closes the auth audit"
+title: "Live validation for F-01 / F-03 / F-05 / F-06 — closes the auth audit"
 date: 2026-09-12
 priority: high
 depends_on: "Admin password in .env.local; branch pushed for a Vercel preview; a throwaway recovery account"
@@ -7,8 +7,8 @@ depends_on: "Admin password in .env.local; branch pushed for a Vercel preview; a
 
 ## Task
 
-Move F-03 (recovery), F-05 (refresh), F-06 (logout) from **Verified** to
-**Closed** per ADR 0004 by running the real-provider harness. Until this
+Move F-01 (role resolution), F-03 (recovery), F-05 (refresh), F-06 (logout)
+from **Implemented** to **Closed** per ADR 0004 with real-provider evidence. Until this
 passes, the admin authentication audit is *not* closed and **Patch 3
 (F-07–F-10) does not start** — the next security work is evidence, not code.
 
@@ -21,6 +21,17 @@ npx playwright test e2e/auth-lifecycle-smoke.spec.ts --project=chromium
 ```
 
 ## Sub-tasks
+
+These are four distinct verification events with different instruments. Do not
+report them as one number.
+
+0. **F-01 role resolution — browser E2E.** The smoke harness is API-only and
+   never renders `AuthProvider`, so it cannot close F-01. With
+   `PLAYWRIGHT_ADMIN_PASSWORD` set, run
+   `npx playwright test e2e/admin-full-flow.spec.ts --project=chromium`
+   (admin logs in, role resolves, lands on `/admin`). Then log in as a user with
+   **no** `user_roles` row and confirm the redirect to
+   `/admin/auth?error=role_unavailable` — that is the fail-closed half.
 
 1. **F-06 logout — local.**
    Set `PLAYWRIGHT_ADMIN_PASSWORD` in `.env.local` (never in chat or source).

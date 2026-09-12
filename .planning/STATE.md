@@ -228,7 +228,7 @@ Review document (living, private): https://claude.ai/code/artifact/c659c2c9-a1c8
 | --- | --- | --- |
 | S1–S3 SECURITY DEFINER track (drop dead trigger, guard + revoke privileged RPCs, `search_path = ''` on 15 fns) | **Closed** (live RBAC matrix) | `c572beaf`, `5c81d383`, `d295bcd0`; `scripts/checks/test-rbac-rpc-matrix.mjs` 17/17 |
 | F-11 `get_lead_stats()` anonymous exposure | **Closed** (live: anon 401) | `5c81d383` |
-| F-01 hardcoded `super_admin` role → server-backed, fail-closed | **Implemented** — tests mock `fetchUserRole`; Closed by a live login (`admin-full-flow.spec.ts` or smoke run 1) | `e9e16c4a`, `b922c690` |
+| F-01 hardcoded `super_admin` role → server-backed, fail-closed | **Implemented** — tests mock `fetchUserRole`. Closed only by a browser E2E: post-fix `admin-full-flow.spec.ts` run for the happy path, plus a no-`user_roles` test user reaching `/admin/auth?error=role_unavailable` for fail-closed. The API-only smoke harness does not exercise `AuthProvider`. | `e9e16c4a`, `b922c690` |
 | F-02 tokens in login/me JSON | **Verified** — real handler response asserted; Closed by smoke run 1 | `7bf35889`; invariant script §3 scans `api/auth/*` |
 | F-03 recovery (server-side `/api/auth/recover`, implicit-flow token pair) | **Implemented** — GoTrue mocked; Closed by smoke run 3 | `ab81f784` + `b06a549a` (first cut forwarded only access_token; caught in review) |
 | F-04 `profiles.role` → `sync-user-role` escalation | **Closed** — live DB evidence (authorization reads `user_roles` only) | live inspection; `site_settings` lockdown tracked `3747d0bd` |
@@ -240,8 +240,9 @@ Review document (living, private): https://claude.ai/code/artifact/c659c2c9-a1c8
 Production code remediation is complete and regression-tested (30 auth Vitest cases, arch/lint/typecheck/build, RBAC matrix). By ADR 0004 four fixes are still **Implemented**, not Verified — their tests mock the far side of the boundary they fix. Live authentication-lifecycle validation is pending: there is no staging Supabase project, and production must not be used for recovery/logout smoke tests without explicit credentials and a throwaway account.
 
 ### Deferred execution protocol
-Harness: `e2e/auth-lifecycle-smoke.spec.ts` (UNTRACKED — commit with the smoke results). Always `--project=chromium` (recovery link is single-use).
-1. Local, F-06: `PLAYWRIGHT_ADMIN_PASSWORD` in `.env.local` → run. Revokes every session for that account.
+Four distinct verification events, four instruments — not one generic run. Harness for F-03/F-05/F-06: `e2e/auth-lifecycle-smoke.spec.ts` (committed `cf350e69`). Always `--project=chromium` (recovery link is single-use). F-01 uses the browser suite, see step 0.
+0. Browser, F-01: `PLAYWRIGHT_ADMIN_PASSWORD` in `.env.local` → `npx playwright test e2e/admin-full-flow.spec.ts --project=chromium` (role resolves, admin lands on `/admin`); then log in as a user with no `user_roles` row and confirm redirect to `/admin/auth?error=role_unavailable`.
+1. Local, F-06: same password → smoke harness. Revokes every session for that account.
 2. Vercel preview, F-05: push branch (27 commits unpushed) → `PLAYWRIGHT_BASE_URL=<preview>` → run. Refresh retry is Edge-only; local dev cannot exercise it.
 3. Throwaway account, F-03: `SMOKE_RECOVERY_EMAIL` → run once (sends email) → `SMOKE_RECOVERY_LINK` + `SMOKE_RECOVERY_NEW_PASSWORD` → run. Harness refuses the primary admin email.
 
