@@ -1,17 +1,20 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { LeadRepository, LeadPayload, Lead } from './interfaces/LeadRepository';
 import type { PaginationParams, FilterParams, SortParams } from '@/services/types';
+import type { Database } from '@/integrations/supabase/types';
+
+type LeadsRow = Database['public']['Tables']['leads']['Row'];
 
 const CLOSED_STATUSES = new Set(['won', 'lost']);
 
 export class SupabaseLeadRepo implements LeadRepository {
     async submitLead(payload: LeadPayload): Promise<void> {
-        const { error } = await supabase.from('leads').insert(payload as any);
+        const { error } = await supabase.from('leads').insert(payload as unknown as Parameters<ReturnType<typeof supabase.from>['insert']>[0]);
         if (error) throw error;
     }
 
     async getLeads(filters?: FilterParams): Promise<Lead[]> {
-        let query: any = supabase
+        let query = supabase
             .from('leads')
             .select('*')
             .order('created_at', { ascending: false });
@@ -19,7 +22,7 @@ export class SupabaseLeadRepo implements LeadRepository {
         if (filters) {
             Object.entries(filters).forEach(([key, value]) => {
                 if (value !== undefined) {
-                    query = query.eq(key, value);
+                    query = query.eq(key as keyof LeadsRow, value);
                 }
             });
         }
@@ -44,7 +47,7 @@ export class SupabaseLeadRepo implements LeadRepository {
             direction = 'desc'
         } = params;
 
-        let query: any = supabase
+        let query = supabase
             .from('leads')
             .select('*', { count: 'exact' });
 
@@ -52,9 +55,10 @@ export class SupabaseLeadRepo implements LeadRepository {
             query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
         }
         if (status) {
-            query = query.eq('status', status as any);
+            query = query.eq('status', status as LeadsRow['status']);
         }
         if (category) {
+            // @ts-expect-error category is not strictly in the generated DB type but is part of the application payload
             query = query.eq('category', category);
         }
         if (dateFrom) {
@@ -68,8 +72,8 @@ export class SupabaseLeadRepo implements LeadRepository {
         const to = from + pageSize - 1;
 
         query = query
-            .order(column, { ascending: direction === 'asc' })
-            .range(from, to);
+            .order(column as keyof LeadsRow, { ascending: direction === 'asc' })
+            .range(from, to) as typeof query;
 
         const { data, error, count } = await query;
 
@@ -98,7 +102,7 @@ export class SupabaseLeadRepo implements LeadRepository {
     async createLead(payload: LeadPayload): Promise<Lead> {
         const { data, error } = await supabase
             .from('leads')
-            .insert(payload as any)
+            .insert(payload as unknown as Parameters<ReturnType<typeof supabase.from>['insert']>[0])
             .select()
             .single();
 
@@ -142,7 +146,7 @@ export class SupabaseLeadRepo implements LeadRepository {
 
         const { error } = await supabase
             .from('leads')
-            .update({ status: status as any, ...extra })
+            .update({ status: status as LeadsRow['status'], ...extra })
             .eq('id', id);
         if (error) throw error;
     }
@@ -161,7 +165,8 @@ export class SupabaseLeadRepo implements LeadRepository {
         );
         const { error } = await supabase
             .from('leads')
-            .update({ ...sanitized, ...extra } as any)
+            // @ts-expect-error Patch payload contains fields not strictly present in LeadsRow
+            .update({ ...sanitized, ...extra })
             .eq('id', id);
         if (error) throw error;
     }
@@ -180,7 +185,7 @@ export class SupabaseLeadRepo implements LeadRepository {
 
         const { error, count } = await supabase
             .from('leads')
-            .update({ status: status as any, ...extra, updated_at: now })
+            .update({ status: status as LeadsRow['status'], ...extra, updated_at: now })
             .in('id', ids);
 
         if (error) throw error;

@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const getInitialSession = async () => {
             const start = performance.now();
             try {
-                let serverUser: any = null;
+                let serverUser: User | null = null;
                 let userError = null;
                 try {
                     const res = await withTimeout(fetch("/api/auth/me"), 6000, "auth user validation");
