@@ -32,6 +32,10 @@ export default defineConfig({
 
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:8080',
+    // Pass Vercel Deployment Protection on preview URLs (see e2e/setup/admin-auth.ts).
+    ...(process.env.VERCEL_AUTOMATION_BYPASS_SECRET
+      ? { extraHTTPHeaders: { 'x-vercel-protection-bypass': process.env.VERCEL_AUTOMATION_BYPASS_SECRET, 'x-vercel-set-bypass-cookie': 'true' } }
+      : {}),
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
