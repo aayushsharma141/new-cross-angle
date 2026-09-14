@@ -274,3 +274,13 @@ C. Merge the feature branch to production — carries ~40 unreleased commits and
 2. Deploy a preview **through the git integration** from the feature branch; confirm `/api/auth/me` returns 401 JSON and `/admin` redirects.
 3. Run the four verification events (F-01 browser, F-03 recovery, F-05, F-06) against that preview → Closed.
 4. Merge to `new-crossangle-2.0`; promote; re-probe production with the same four checks. Only then is the audit closed.
+
+## F-13 hot-fix prepared — 2026-09-14
+
+- Branch `hotfix/f13-site-settings-public-columns` @ `ceb00b73`, one commit ahead of `origin/new-crossangle-2.0` (`9fed45c3`). Worktree: `<scratchpad>/hotfix-f13`. **Not pushed, not deployed.**
+- Change: `useSiteSettings` selects the 25 granted public columns for anon; `select("*")` retained for signed-in staff; cache invalidated on SIGNED_IN/SIGNED_OUT. DB lockdown untouched. No auth changes.
+- Buildability fix bundled: `apps/web/.gitignore` `logs` → `/logs`; `src/components/admin/logs/AuditLogTable.tsx` (from `d7a4ed57`) added — it was imported by `AdminAuditLogs.tsx` but never committed to the production branch. **Untouched `9fed45c3` does not build from git.**
+- **F-14 (new, Verified): production branch fails its own gates.** Root `npm run typecheck` = 187 errors on untouched `9fed45c3`, so the pre-commit hook can never pass and no commit can land with hooks enabled. Combined with the missing ignored file, this is how a developer's disk became the deployment source (PL-010). Hot-fix committed with `--no-verify` by owner authorisation; manual gates recorded in the commit message.
+- Known inconsistency to fix separately: the *uncommitted* working-tree edit of `20260911000000_lock_down_site_settings.sql` drops `posthog_host` while still granting it — would fail if applied. The hot-fix allow-list excludes `posthog_*` for this reason.
+- F-13 status per ADR 0004: **Implemented** (`ceb00b73`). → Verified/Closed only after deploy + live probe: `site_settings` → 200 for anon with expected public fields; settings-driven UI renders; protected columns (`security_config`, `report_recipients`, `telegram_chat_ids`, `rbac_permissions`, `integrations`) still refused to anon.
+- Deploy note: Root Directory still = repo root. That is fine for *this* branch (static SPA, no `api/` dependency) but confirm the deployment is built from `ceb00b73`, not from a disk.
