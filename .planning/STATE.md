@@ -250,3 +250,27 @@ Four distinct verification events, four instruments — not one generic run. Har
 - `logout.ts` revokes only when an `access_token` cookie is present; a logout after JWT expiry clears cookies without revoking the refresh token (Low). Fix: refresh-then-revoke, after the smoke run.
 - Migration files are not evidence of production function bodies (ADR 0003): S2 found `rpc_register_dam_asset` live without its guard and `update_media_metadata(text,jsonb)` live with no migration. Cite `pg_get_functiondef()` for any DB-function finding.
 - Open GoTrue dashboard questions: signup enabled?, JWT/OTP expiry, sign-in rate limits, password policy; switching the recovery email template to the token-hash variable would keep tokens out of the URL fragment.
+
+## Production reality check — 2026-09-14 (PL-010)
+
+**Production (`www.crossangleinterior.com`) does not run the audited code.** Production branch `origin/new-crossangle-2.0` is at `9fed45c3` (2026-06-20), pre-cookie-auth. Live probes: `/api/auth/me` → HTML; `/api/supabase/*` → HTML; `/admin` unauthenticated → 200; no Edge middleware behaviours present. Bundle uses `storage: localStorage, persistSession: true` and browser-side `signInWithPassword`. Production asset `Last-Modified` 2026-09-14 05:39 UTC — a production deploy happened today from the June code (trigger unknown; find out).
+
+| Item | State |
+| --- | --- |
+| Web-side remediation F-01/F-02/F-03/F-05/F-06 | **Unreleased** — feature branch only. ADR 0004 labels stand for the *code*; add **Released: no**. |
+| DB track S1–S3, F-11, F-04, site_settings lockdown | **Live** (shared DB) |
+| **Live regression:** June bundle's `site_settings?select=*` → 401 since 2026-09-11 | **Open — needs a decision today** (see options below) |
+| Vercel pipeline | Root Directory = repo root ⇒ `vercel build` emits **no** `api/` functions and **no** `middleware.ts`. Cookie auth cannot ship until Root Directory = `apps/web` (or api/ + middleware.ts move to root). Verified by building `f5e281aa` from a clean checkout: `.vercel/output/functions` absent. |
+| F-05/F-06 "Closed" on 2026-09-12 | Evidence came from a deploy not produced by the configured pipeline. Downgrade to **Verified** until a pipeline-produced deployment passes. |
+| Smoke re-run against clean preview | **Not run** — blocked on the Root Directory fix; a root-built preview has no auth endpoints to test. |
+
+### Options for the live `site_settings` 401
+A. Cherry-pick the `useSiteSettings` allow-list change (`apps/web/src/hooks/useSiteSettings.ts`, uncommitted in the working tree — commit it first) onto `new-crossangle-2.0` and deploy. Keeps the lockdown; fixes the read. **Recommended.**
+B. Re-grant anon SELECT broadly on `site_settings` — reverses the P0-1 exposure fix (security_config, report_recipients, telegram_chat_ids, rbac_permissions). Not recommended.
+C. Merge the feature branch to production — carries ~40 unreleased commits and requires the Vercel Root Directory fix first. Correct long-term; not a hotfix.
+
+### Path to actually releasing the auth remediation
+1. Vercel → Settings → Root Directory = `apps/web` (confirm `apps/web/vercel.json` rewrites are the intended production config; root `vercel.json` becomes dead).
+2. Deploy a preview **through the git integration** from the feature branch; confirm `/api/auth/me` returns 401 JSON and `/admin` redirects.
+3. Run the four verification events (F-01 browser, F-03 recovery, F-05, F-06) against that preview → Closed.
+4. Merge to `new-crossangle-2.0`; promote; re-probe production with the same four checks. Only then is the audit closed.

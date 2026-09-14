@@ -274,3 +274,70 @@ Migrations are context for *intent*.
 Before any database security audit, snapshot the live catalogue for every
 object in scope and diff it against migrations; the diff is itself a finding.
 Seed: `.planning/seeds/live-schema-inventory-before-db-audits.md`.
+
+---
+
+## PL-010 — The Audited Codebase Was Not the Deployed Codebase
+
+**Date:** 2026-09-14
+**Status:** Open — requires release decision
+**Phase:** Admin Authentication Remediation, live-validation step
+**Track:** F-05 re-run against a clean preview
+
+### Observation
+
+Attempting to build a preview from a clean checkout of `f5e281aa` with the
+Vercel project's own settings produced **static output only**: no
+`/api/auth/*` functions, no Edge `middleware.ts`. The project's Root Directory
+is the repo root; Vercel only auto-detects `api/` and `middleware.ts` at the
+root, and ours live under `apps/web/`.
+
+Probing production (`www.crossangleinterior.com`) confirmed the same shape live:
+`/api/auth/me` and `/api/supabase/*` return `index.html`; `/admin` without a
+cookie is 200; mobile UAs are not blocked; crawlers get no OG injection. The
+served bundle constructs supabase-js with `storage: localStorage,
+persistSession: true, autoRefreshToken: true` and calls `signInWithPassword`
+in the browser — the pre-cookie architecture.
+
+`origin/new-crossangle-2.0` (production branch) is at `9fed45c3`, 2026-06-20,
+two weeks before the cookie-auth refactor (`4ef7d744`, 2026-07-03). Nothing on
+`feature/dam-v3-milestone-planning` has been merged to it.
+
+### Consequences discovered
+
+1. **All web-side remediation is unreleased.** F-01, F-02, F-03, F-05, F-06
+   exist only on the feature branch. Production's auth posture is the June
+   model: tokens in localStorage, direct-to-Supabase, browser-side login.
+   (F-01's hardcoded role, committed 2026-09-05, never reached production.)
+2. **Database changes are live without their frontend companions.** The
+   `site_settings` lockdown (`20260911000000`, applied 2026-09-11) revoked anon
+   `select(*)`; the June bundle still issues `site_settings?select=*` and has
+   received **401 in production for three days** (confirmed in-browser
+   2026-09-14). Whatever reads site settings falls back to defaults.
+3. **Even after a merge, the current Vercel configuration cannot ship the
+   cookie model.** Root Directory must be `apps/web` (or `api/` and
+   `middleware.ts` must move to the repo root) before any deployment carries
+   the auth functions or the Edge proxy. The F-05/F-06 preview passes reported
+   on 2026-09-12 therefore came from a deploy that does not match the
+   project's configured pipeline (most likely `vercel deploy` run from inside
+   `apps/web`).
+4. The review's sentence "in production, middleware.ts intercepts
+   /api/supabase/*" (inherited from CLAUDE.md) described the repository, not
+   the live system.
+
+### Correct Conclusion
+
+"Verified against a deployment" is only meaningful if that deployment is
+produced by the pipeline that produces production. ADR 0004's `Closed` tier
+must additionally record **which branch is deployed where**, or it certifies
+code nobody runs.
+
+### Institutional Lesson
+
+- Before any audit, record: production branch, production commit, and one
+  live probe proving which architecture is serving (here: does
+  `/api/auth/me` return JSON or HTML?).
+- A DB migration that changes what the browser may read ships together with
+  the browser change, to the branch that is actually deployed — or not at all.
+- Extend ADR 0004: a `Closed` label names the deployment target and confirms
+  it is the production pipeline's output.
