@@ -26,16 +26,16 @@ export function useEstimateEngine(
   useEffect(() => {
     const fetchConfig = async () => {
       try {
+        // Pricing is admin-managed in estimator_flow_config (key "pricing") — QA-02.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data } = await (supabase as any)
-          .from("estimate_rates")
-          .select("config")
-          .order("updated_at", { ascending: false })
-          .limit(1)
+          .from("estimator_flow_config")
+          .select("data")
+          .eq("key", "pricing")
           .maybeSingle();
 
-        if (data?.config) {
-          setPricingConfig({ ...DEFAULT_PRICING_CONFIG, ...(data.config as PricingConfig) });
+        if (data?.data) {
+          setPricingConfig({ ...DEFAULT_PRICING_CONFIG, ...(data.data as PricingConfig) });
         }
       } catch (err) {
         console.error("Failed to load dynamic pricing config. Using defaults.", err);
