@@ -45,6 +45,7 @@ const CrmSettings = lazy(() => import("@/pages/admin/CrmSettings"));
 const AdminLeadWorkspace = lazy(() => import("@/pages/admin/workspace/AdminLeadWorkspace"));
 const LearningHealthDashboard = lazy(() => import("@/pages/admin/workspace/LearningHealthDashboard"));
 const AdminArchitecturePortal = lazy(() => import("@/pages/admin/AdminArchitecturePortal"));
+const AdminNotFound = lazy(() => import("@/pages/admin/AdminNotFound"));
 
 // ─── Role Sets ────────────────────────────────────────────────────────────────
 // Kept as named constants so the intent is readable at a glance.
@@ -67,6 +68,10 @@ export const adminRoutes = (
 
         {/* ── Dashboard: admin / super_admin only ──────────────────────── */}
         <Route path="dashboard/*" element={<RoleGuard allowedRoles={ADMIN_ONLY}><AdminDashboard /></RoleGuard>} />
+
+        {/* ── Media redirects ──────────────────────────────────────────────── */}
+        <Route path="media" element={<Navigate to="/admin/cms/media-library" replace />} />
+        <Route path="media-library" element={<Navigate to="/admin/cms/media-library" replace />} />
 
         {/* ── CMS: super_admin | admin | editor ───────────────────────────── */}
         <Route path="cms" element={<RoleGuard allowedRoles={CMS_ROLES}><CmsModule /></RoleGuard>}>
@@ -133,6 +138,9 @@ export const adminRoutes = (
         {/* ── Operational Health & Architecture OS: super_admin / admin ───── */}
         <Route path="learning-health" element={<RoleGuard allowedRoles={SUPER_ONLY}><LearningHealthDashboard /></RoleGuard>} />
         <Route path="architecture"    element={<RoleGuard allowedRoles={ADMIN_ONLY}><AdminArchitecturePortal /></RoleGuard>} />
+
+        {/* ── Catch-all: any unmatched /admin/* path (QA-07). Must stay last. ── */}
+        <Route path="*" element={<AdminNotFound />} />
       </Route>
 
     </Route>
