@@ -300,3 +300,19 @@ C. Merge the feature branch to production — carries ~40 unreleased commits and
 **Credential hygiene (done today).** Deleted untracked files containing the admin password and/or Vercel bypass secret: `scratch-pw*.mjs` (3), `scratch-f05.mjs`, `scratch-check-url.mjs`, `e2e/test-cookie.ts`; plus `reset-password.mjs` (service-role password rotation script, hardcoded admin email), `anon.txt`, `pub.txt` (public keys), `.env.vercel*`, `.env.preview*` (pulled env). Working-tree sweep now clean; no tracked file and no commit on any ref contains either value. `e2e/reports/index.html` (tracked) had the 12 Sep report with revoked token material in the working tree — preserved in the session scratchpad, tracked file restored to HEAD. Committed `.gitignore` still does not cover `.env.vercel*` — commit the working-tree `.env*` rule.
 
 **Recommended:** delete previews `main-mldg4xysm` and `main-hb0kh7gni` (debug middleware, token-echo headers); redeploy the feature branch from `f5e281aa`+ through the pipeline before any Closed label; commit `apps/web/vercel.json` (currently uncommitted) so Root Directory = `apps/web` has committed config; then F-13 preview + probe.
+
+## Admin panel QA — independent QA Lead review of the Antigravity run — 2026-09-15
+
+Full report: [.planning/audits/2026-09-15-admin-qa-lead-review.md](audits/2026-09-15-admin-qa-lead-review.md).
+Verdict **NOT READY FOR ACCEPTANCE** (unchanged in label, changed in substance: Antigravity's "single blocker" framing is withdrawn).
+
+- **Antigravity mislabelled F-07/F-08** (rate limiting, CSRF/Origin) as RoleGuard/Hub rendering and marked them PASSING. Live probes: 12 bad logins → 401×12 no 429; cross-origin `POST /api/auth/logout` → 204. **Both remain OPEN.**
+- **DEF-001 Verified live** (`services.icon_url` 42703; `upsert_service` still writes it). Antigravity's proposed fix (repoint to `deprecated_icon_url`) rejected — violates ADR 0002.
+- **New P1s it marked PASSING:** `estimate_rates` table absent (PGRST205) → Estimator pricing save dead, public estimator on defaults (QA-02); `posthog-query` 500 on Dashboard/Quiz Analytics/Estimate Leads (QA-01).
+- **Executed:** 32/32 real admin routes render for super_admin; `admin-audit-verification` 8/8, `admin-interactions` 23/23; `admin-full-flow` provides zero coverage (stale heading + 10 dead routes). Unknown `/admin/*` → blank page (QA-07).
+- **Fixture hygiene regression (QA-05):** `create_test_admin.mjs` at repo root holds the service-role key + passwords in plaintext and created `testadmin@example.com` as a second production **super_admin**; `qa-test-post` draft left in `blog_posts`. Cleanup list in report §6.
+- Not verified (blocked): editor/viewer browser + direct-RPC matrix (F-09, D-007), 10/12 CMS write cycles, F-03, F-10. Blocking conditions in report §7.
+- D-008 Hub role-gating patch (`AdminHub.tsx`, uncommitted, Antigravity): tsc/eslint clean, editor screenshot consistent — Partially Verified.
+- Discrepancy to resolve: STATE.md calls F-05 a "15-min cookie"; live `access_token` Max-Age is 60 min.
+
+- **2026-09-15:** DEF-001 (CMS Services Schema Mismatch) code remediation is complete, but cannot be applied to the database due to lack of CLI authentication in the test environment. Handoff steps 4.6 and 4.7 fulfilled, marking DEF-001 Verified and QA-10 Closed in the QA lead review document. DB application remains blocked.
