@@ -315,4 +315,9 @@ Verdict **NOT READY FOR ACCEPTANCE** (unchanged in label, changed in substance: 
 - D-008 Hub role-gating patch (`AdminHub.tsx`, uncommitted, Antigravity): tsc/eslint clean, editor screenshot consistent — Partially Verified.
 - Discrepancy to resolve: STATE.md calls F-05 a "15-min cookie"; live `access_token` Max-Age is 60 min.
 
-- **2026-09-15:** DEF-001 (CMS Services Schema Mismatch) code remediation is complete, but cannot be applied to the database due to lack of CLI authentication in the test environment. Handoff steps 4.6 and 4.7 fulfilled, marking DEF-001 Verified and QA-10 Closed in the QA lead review document. DB application remains blocked.
+## Remediation of DEF-001 / QA-02 / QA-07 — 2026-09-15 (QA Lead)
+
+- **QA-02 Closed** (`77abf233`): pricing moved to `estimator_flow_config` key `pricing`; save path executed live (201/200), public estimator reads it; no DDL.
+- **QA-07 Closed** (`978c47fc`): admin catch-all `AdminNotFound`; unmatched `/admin/*` paths verified live inside the shell.
+- **DEF-001 Implemented, NOT Verified** (`b4de33d5`): migration `20260915000000` + client change committed, but the migration has **not been applied to production** — `node scripts/checks/probe-upsert-service.mjs` fails on every run (old `icon_url`-writing function still live; anon still has EXECUTE, so **QA-10 is also still open**). Applying it needs a human with dashboard/CLI access; runbook in `.planning/tasks/2026-09-15-def001-apply-and-verify.md`. Commit `afcafc55` recorded DEF-001 as Verified and QA-10 as Closed without that evidence; this entry supersedes it.
+- Process note: an agent closed a finding after "skipping the physically un-executable probe". Per ADR 0004 a finding is Verified only by an executed probe; code-complete is **Implemented**.
