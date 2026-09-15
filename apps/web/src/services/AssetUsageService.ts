@@ -88,7 +88,7 @@ export const AssetUsageService = {
    * 2. Insert the new usage for (assetId, entityType, entityId, role)
    */
   async replaceUsage(params: CreateUsageParams & { entityId: string | null | undefined }): Promise<void> {
-    const { assetId, entityType, entityId, role } = params;
+    const { assetId, entityType, entityId, role, domain } = params;
 
     if (!entityId) {
       // Cannot bind usage without a stable entity ID.
@@ -99,8 +99,34 @@ export const AssetUsageService = {
     // Step 1: Remove old usage for this slot
     await AssetUsageService.removeUsage({ entityType, entityId, role });
 
-    // Step 2: Insert new usage
-    await AssetUsageService.createUsage({ assetId, entityType, entityId, role });
+    // Step 2: Insert new usage (domain forwarded so it is not re-inferred as "Portfolio")
+    await AssetUsageService.createUsage({ assetId, entityType, entityId, role, domain });
+  },
+
+  /**
+   * Resolves the current asset URL bound to a given role for a batch of entities.
+   * Returns a map of entityId -> url (entities without a usage are absent).
+   * Mirrors the read shape used by the public DAM stitcher so admin lists show
+   * the same image the public site renders.
+   */
+  async getUsageUrlsForEntities(entityType: string, entityIds: string[], role: string): Promise<Record<string, string>> {
+    if (entityIds.length === 0) return {};
+
+    const { data, error } = await supabase
+      .from("asset_usages")
+      .select("entity_id, assets ( asset_versions ( url ) )")
+      .eq("entity_type", entityType)
+      .eq("role", role)
+      .in("entity_id", entityIds);
+
+    if (error) throw error;
+
+    const urls: Record<string, string> = {};
+    for (const row of (data ?? []) as unknown as { entity_id: string; assets?: { asset_versions?: { url: string }[] } | null }[]) {
+      const url = row.assets?.asset_versions?.[0]?.url;
+      if (url && !urls[row.entity_id]) urls[row.entity_id] = url;
+    }
+    return urls;
   },
 
   /**

@@ -42,7 +42,6 @@ interface ServiceRecord {
     name: string;
     slug: string;
     description: string | Record<string, unknown>;
-    icon_url?: string;
     short_description?: string;
     short_tag?: string;
     active?: boolean;
@@ -93,6 +92,14 @@ const AdminServices = () => {
 
             if (!data) return [];
 
+            // Service imagery lives in asset_usages (ADR 0002), not on the services row.
+            // Same slot the public site reads: entity_type 'service', role 'icon'.
+            const iconUrls = await AssetUsageService.getUsageUrlsForEntities(
+                "service",
+                (data as ServiceRecord[]).map((item) => item.id),
+                "icon"
+            );
+
             return (data as ServiceRecord[]).map((item: ServiceRecord) => {
                 const descJson = typeof item.description === 'string'
                     ? JSON.parse(item.description)
@@ -101,12 +108,12 @@ const AdminServices = () => {
                 return {
                     id: item.id,
                     created_at: item.created_at,
-                    title: item.name, 
+                    title: item.name,
                     slug: item.slug,
                     active: item.active ?? true,
                     category_id: descJson.category_id || "residential",
                     description: descJson.content || item.short_description || "",
-                    hero_image: item.icon_url || "",
+                    hero_image: iconUrls[item.id] || "",
                     icon: descJson.icon || "Home",
                     tag: item.short_tag || "",
                     features: descJson.features || [],
@@ -166,39 +173,41 @@ const AdminServices = () => {
     };
 
     const upsertMutation = useMutation({
-        mutationFn: async (payload: {
+        mutationFn: async ({ heroAssetId, ...payload }: {
             p_active: boolean;
             p_description: any;
             p_display_order: number;
             p_faqs: any;
-            p_icon_url: string | null;
             p_name: string;
             p_service_id: string | null;
             p_short_tag: string | null;
             p_slug: string;
             p_steps: any;
+            heroAssetId: string | null;
         }) => {
+            // DEF-001: the RPC no longer accepts an icon URL; imagery is bound via asset_usages below.
             const { data, error: rpcError } = await supabase.rpc('upsert_service', payload as any);
             if (rpcError) throw rpcError;
-            
-            return {
-                payload,
-                returnedId: data as string
-            };
-        },
-        onSuccess: ({ payload, returnedId }) => {
+
+            const returnedId = data as string;
             const finalServiceId = payload.p_service_id || returnedId;
 
-            // Sync asset relationship if one was selected
-            if (finalServiceId && formData.hero_asset_id) {
-                void AssetUsageService.replaceUsage({
-                    assetId: formData.hero_asset_id,
-                    entityType: "services",
+            // Bind the selected asset to the same slot the public site reads
+            // (entity_type 'service', role 'icon' — see dam-stitcher / DAM v3 migration).
+            // Awaited so the list refetch below already sees the new image.
+            if (finalServiceId && heroAssetId) {
+                await AssetUsageService.replaceUsage({
+                    assetId: heroAssetId,
+                    entityType: "service",
                     entityId: finalServiceId,
-                    role: "hero"
+                    role: "icon",
+                    domain: "Services"
                 });
             }
 
+            return { payload, returnedId };
+        },
+        onSuccess: ({ payload }) => {
             toast({ title: payload.p_service_id ? "Service updated!" : "Service created!" });
             void auditService.writeAudit(
                 payload.p_service_id ? 'UPDATE' : 'CREATE',
@@ -252,14 +261,14 @@ const AdminServices = () => {
             p_name: formData.title,
             p_slug: formData.slug || generateSlug(formData.title || ""),
             p_description: descriptionData,
-            p_icon_url: formData.hero_image || null,
             p_short_tag: formData.tag || null,
             p_display_order: editingService
                 ? (services.findIndex(s => s.id === editingService.id) + 1) || 1
                 : services.length + 1,
             p_active: true,
             p_steps: stepsPayload,
-            p_faqs: faqPayload
+            p_faqs: faqPayload,
+            heroAssetId: formData.hero_asset_id
         });
     };
 
@@ -544,9 +553,9 @@ const AdminServices = () => {
                                             }}
                                             entityId={editingService?.id}
                                             placeholder="Select hero image�"
-                                            domain="services"
-                                            entityType="services"
-                                            damRole="hero"
+                                            domain="Services"
+                                            entityType="service"
+                                            damRole="icon"
                                         />
                                     </div>
 
