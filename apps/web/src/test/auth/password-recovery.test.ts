@@ -33,7 +33,8 @@ function createMockReqRes(body: Record<string, unknown>, headers: Record<string,
   const req = {
     method: 'POST',
     body,
-    headers,
+    // F-08: same-origin by default — tests exercising the origin check pass their own to override.
+    headers: { origin: 'http://localhost:8080', host: 'localhost:8080', ...headers },
   } as unknown as VercelRequest;
 
   const res = {

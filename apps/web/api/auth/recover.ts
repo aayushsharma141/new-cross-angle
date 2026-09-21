@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import { isSameOriginRequest } from "../_lib/security";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
@@ -7,6 +8,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  // F-08: reject cross-origin POSTs before touching session state.
+  if (!isSameOriginRequest(req)) {
+    return res.status(403).json({ error: "Invalid request origin" });
   }
 
   const { code, token_hash, access_token, refresh_token, type, password } = req.body || {};

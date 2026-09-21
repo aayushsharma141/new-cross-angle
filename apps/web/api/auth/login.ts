@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { serialize } from "cookie";
+import { isSameOriginRequest, checkAuthRateLimit, getClientIp } from "../_lib/security";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Read env vars lazily (inside the function) so module caching doesn't capture empty strings
@@ -10,6 +11,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  // F-08: reject cross-origin POSTs before touching auth state.
+  if (!isSameOriginRequest(req)) {
+    return res.status(403).json({ error: "Invalid request origin" });
   }
 
   const { email, password } = req.body || {};
@@ -22,6 +28,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const supabase = createClient(supabaseUrl, supabaseKey, {
     auth: { persistSession: false },
   });
+
+  // F-07: throttle by email (tight) and by IP (looser, catches spray-across-many-emails).
+  const allowed = await checkAuthRateLimit(supabase, [
+    { key: `email:${String(email).toLowerCase()}`, max: 5, windowSeconds: 900 },
+    { key: `ip:${getClientIp(req)}`, max: 20, windowSeconds: 900 },
+  ]);
+  if (!allowed) {
+    res.setHeader("Retry-After", "900");
+    return res.status(429).json({ error: "Too many attempts. Please try again later." });
+  }
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 

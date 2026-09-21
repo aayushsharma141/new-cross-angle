@@ -42,11 +42,19 @@ const ANON = process.env.VITE_SUPABASE_ANON_KEY;
 const IS_LOCAL = /localhost|127\.0\.0\.1/.test(BASE);
 const BYPASS = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 
-/** Request context that can pass Vercel Deployment Protection when a bypass secret is set. */
+/**
+ * Request context that can pass Vercel Deployment Protection when a bypass secret is set.
+ * Also sends Origin: BASE on every request — unlike a real browser fetch(), Playwright's
+ * APIRequestContext does not add one on its own, and /api/auth/* now rejects same-origin
+ * mutations that arrive with no Origin/Referer at all (F-08).
+ */
 function newCtx(cookies?: any[]) {
   return pwRequest.newContext({
     storageState: cookies ? { cookies, origins: [] } : undefined,
-    extraHTTPHeaders: BYPASS ? { 'x-vercel-protection-bypass': BYPASS, 'x-vercel-set-bypass-cookie': 'true' } : {},
+    extraHTTPHeaders: {
+      Origin: BASE,
+      ...(BYPASS ? { 'x-vercel-protection-bypass': BYPASS, 'x-vercel-set-bypass-cookie': 'true' } : {}),
+    },
   });
 }
 

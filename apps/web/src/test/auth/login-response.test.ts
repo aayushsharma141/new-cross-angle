@@ -27,6 +27,8 @@ vi.mock('@supabase/supabase-js', () => {
           })),
         })),
       })),
+      // F-07: check_and_record_auth_attempt — allowed by default.
+      rpc: vi.fn().mockResolvedValue({ data: true, error: null }),
     })),
   };
 });
@@ -43,6 +45,7 @@ describe('F-02: Login Response Token Exclusion Contract', () => {
 
     const req = {
       method: 'POST',
+      headers: { origin: 'http://localhost:8080', host: 'localhost:8080' },
       body: {
         email: 'admin@crossangle.in',
         password: 'ValidPassword123!',

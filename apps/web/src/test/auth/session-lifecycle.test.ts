@@ -27,6 +27,8 @@ vi.mock('@supabase/supabase-js', () => {
           })),
         })),
       })),
+      // F-07: check_and_record_auth_attempt — allowed by default.
+      rpc: vi.fn().mockResolvedValue({ data: true, error: null }),
     })),
   };
 });
@@ -42,7 +44,11 @@ function createMockReqRes(options: {
   let isEnded = false;
   const setHeaders: Record<string, unknown> = {};
 
+  // F-08: same-origin by default (localhost:8080 matches the dev server) — tests exercising
+  // the origin check itself pass their own headers to override this.
   const headers = {
+    origin: 'http://localhost:8080',
+    host: 'localhost:8080',
     ...(options.cookies ? { cookie: options.cookies } : {}),
     ...(options.headers || {}),
   };
