@@ -342,3 +342,21 @@ above). Re-executed independently, not taken on report:
 - `admin-interactions.spec.ts` — 23/23 pass, no regressions.
 
 **DEF-001: Verified, Closed. QA-10: Closed** (anon EXECUTE revoked, confirmed live).
+
+## F-07 / F-08 — auth hardening, 2026-09-21 (QA Lead)
+
+- **F-08 (CSRF/Origin) VERIFIED — CLOSED** (`74dae374`): verified-origin check on `login.ts`/`logout.ts`/
+  `refresh.ts`/`recover.ts` — Origin/Referer compared against the request's own Host, no hardcoded domain
+  allow-list (this app has a per-branch Vercel preview URL that changes every deploy). Code-only, no DB step,
+  live the moment it deploys. Executed: `probe-auth-hardening.mjs` — cross-origin `POST /api/auth/logout` →
+  `403` (was `204`). Real-browser regression via Playwright: `auth-lifecycle-smoke.spec.ts` F-06 passes
+  (required updating the spec's API-request helper to send `Origin`, since Playwright's raw request context
+  — unlike a real browser `fetch()` — doesn't add one on its own); `admin-full-flow.spec.ts` 21/22 (the one
+  failure is pre-existing stale-copy drift, QA-09, unrelated to this change).
+- **F-07 (rate limiting) IMPLEMENTED, NOT VERIFIED** (`d0cfc248`): DB-backed sliding-window counter
+  (`check_and_record_auth_attempt`, migration `20260921000000_f07_auth_rate_limit.sql`) by email (5/15min)
+  and IP (20/15min), fails open on any RPC error. **Migration not yet applied to production** —
+  `probe-auth-hardening.mjs` still shows `401×8`, no `429`, confirming the fail-open path works (login stays
+  available) rather than the throttle being live. Runbook: `.planning/tasks/2026-09-21-f07-f08-apply-and-verify.md`.
+  Given DEF-001's history (two false "applied" reports before a third held), this will be re-probed independently
+  before being marked Verified — not accepted on report.
