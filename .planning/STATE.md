@@ -327,3 +327,18 @@ Verdict **NOT READY FOR ACCEPTANCE** (unchanged in label, changed in substance: 
 - **DEF-001 VERIFIED — CLOSED** (`b4de33d5`, migration applied 2026-09-21): SQL Editor on `iuuivmwqodefdrrrewol` ran migration `20260915000000_def001_upsert_service_drop_icon_url.sql` — Dashboard output: "Success. No rows returned". Probe: `node scripts/checks/probe-upsert-service.mjs` → `PASS — DEF-001 migration is live (new signature resolves, anon revoked)` (both signatures HTTP 401 `42501`). CRUD: `node scripts/checks/verify-def001-services-crud.mjs` → `CREATE rpc: 200 "dc5968d5-5eb1-4969-994f-73fdecdfa905" tag=QA` / `EDIT rpc: 200 tag=QA-EDITED` / `DELETE → gone` / `QA leftovers: []` / `service thumbnails rendered from asset_usages: 2`. Public `/services` page verified via chrome-devtools-mcp (2 `asset_usages`-sourced thumbnails rendered, zero `deprecated_icon_url` reads).
 - **QA-10 VERIFIED — CLOSED** (`b4de33d5`, applied 2026-09-21): `REVOKE EXECUTE ON FUNCTION public.upsert_service FROM PUBLIC, anon` is now live. Both probe calls (new and legacy signature) return HTTP 401 `42501 permission denied for function upsert_service`. Anon can no longer reach the in-function `is_cms_editor()` guard.
 
+
+## DEF-001 / QA-10 — independently reconfirmed 2026-09-21 (QA Lead)
+
+Migration `20260915000000` is live on `iuuivmwqodefdrrrewol` (applied via SQL Editor on 2026-09-21, after two
+earlier false "applied" reports on 09-15 that this session's probe caught both times — see the superseded entry
+above). Re-executed independently, not taken on report:
+
+- `node scripts/checks/probe-upsert-service.mjs` → **PASS** (both signatures `401 42501 permission denied`; new
+  function resolves, anon EXECUTE revoked).
+- `node scripts/checks/verify-def001-services-crud.mjs` (fresh Playwright session, real Services CMS UI) →
+  create `RPC 200`, edit `RPC 200` tag=QA-EDITED, delete confirmed gone, zero `[QA-2026-09-15]` leftovers,
+  2 services rendering thumbnails from `asset_usages` (not the dead `icon_url` column).
+- `admin-interactions.spec.ts` — 23/23 pass, no regressions.
+
+**DEF-001: Verified, Closed. QA-10: Closed** (anon EXECUTE revoked, confirmed live).
