@@ -5,7 +5,9 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 import ScrollToTop from "@/components/layout/ScrollToTop";
-import ServicesHero from "@/components/services/ServicesHero";
+import { PageHero } from "@/components/motion/PageHero";
+import { ExpertiseChapter } from "@/components/home/ExpertiseChapter";
+import { ServicesHeroTagline } from "@/components/services/ServicesHeroTagline";
 import ServicesMarquee from "@/components/services/ServicesMarquee";
 import ServicesWhyUs from "@/components/services/ServicesWhyUs";
 import ServicesCTA from "@/components/services/ServicesCTA";
@@ -100,10 +102,36 @@ const ServicesPage = () => {
       </Helmet>
 
       <Navbar />
-      <main id="main-content" className="min-h-screen relative z-10 bg-[var(--s-canvas-primary)] overflow-hidden text-[var(--s-text-primary)] font-sans">
+      <main id="main-content" className="min-h-screen relative z-10 bg-[var(--s-canvas-primary)] overflow-x-clip text-[var(--s-text-primary)] font-sans">
 
-        <ServicesHero />
+        <PageHero
+          as="h2"
+          size="md"
+          kicker="Our Services"
+          lines={["From Empty Shell To", <span key="l2">Move-In Ready <span className="italic font-light text-[#C9A85C]">Home.</span></span>]}
+          lede={<ServicesHeroTagline />}
+          image={{ entity: "services", fallback: "/reality_render.jpg", alt: "" }}
+          actions={
+            <>
+              <Link
+                to="/estimate"
+                className="home-button-sweep inline-flex items-center gap-2 px-8 py-4 bg-white/5 backdrop-blur-md border border-white/10 text-white font-semibold text-[10px] uppercase tracking-[0.2em] hover:border-[#C9A85C] hover:text-[#C9A85C] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none rounded-md"
+              >
+                Get an Estimate
+              </Link>
+              <a
+                href="#residential"
+                className="inline-flex items-center gap-2 px-2 py-4 text-[10px] uppercase tracking-[0.2em] font-semibold text-white/80 hover:text-[#C9A85C] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none"
+              >
+                Browse Services <span aria-hidden="true">↓</span>
+              </a>
+            </>
+          }
+        />
         <ServicesMarquee />
+
+        {/* Cinematic overview of the four service lines (pinned, scroll-driven) */}
+        <ExpertiseChapter kicker="Our Expertise" />
         <ServiceArchetypes />
 
         {/* RESIDENTIAL */}

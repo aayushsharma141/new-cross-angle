@@ -863,6 +863,33 @@ em,
   background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.03) 85%, transparent 100%);
 }
 
+/* Touch hit-area for small text links: widens the tappable box to ~44px
+   on coarse pointers without changing the visual size. */
+@media (pointer: coarse) {
+  .tap-target {
+    position: relative;
+  }
+  .tap-target::after {
+    content: "";
+    position: absolute;
+    inset: -12px -8px;
+  }
+}
+
+/* Scroll-pinned chapter: runway height set by PinnedChapter via custom props.
+   Without them (reduced motion) the section is content-height. */
+.pinned-chapter {
+  height: calc(100dvh + var(--chapter-runway-mobile, 0px));
+}
+@media (min-width: 768px) {
+  .pinned-chapter {
+    height: calc(100dvh + var(--chapter-runway, 0px));
+  }
+}
+.pinned-chapter[data-motion="static"] {
+  height: auto;
+}
+
 .home-noise {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   background-size: 240px 240px;
