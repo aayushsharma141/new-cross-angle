@@ -1,91 +1,52 @@
-import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import {
-  Compass,
-  Gem,
-  LayoutGrid,
-  MapPinHouse,
-  Ruler,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
-import { PageHero } from "@/components/motion/PageHero";
 import { FounderFilmCard } from "@/components/about/FounderFilmCard";
 import AboutValues from "@/components/about/AboutValues";
 import AboutStats from "@/components/about/AboutStats";
 import AboutTimeline from "@/components/about/AboutTimeline";
 import AboutCTA from "@/components/about/AboutCTA";
-import AboutVideoModal from "@/components/about/AboutVideoModal";
 import AboutTeam from "@/components/about/AboutTeam";
-import { TactileMaterial } from "@/components/ui/enhanced/TactileMaterial";
+import { Section, Split, NumberedList, Em, textLinkClass } from "@/components/editorial";
+import { PageHero } from "@/components/motion/PageHero";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { SITE_CONSTANTS } from "@/lib/constants";
 import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
 
-
-const studioHighlights = [
-  "Custom homes built for your daily life, comfort, and lasting value.",
-  "Functional workspaces designed for productivity and brand impact.",
-  "We handle everything from start to finish, so you don't have to.",
-];
-
-const signaturePillars = [
-  {
-    icon: Compass,
-    title: "Smart Layouts",
-    description:
-      "Every space is planned around how you live and move, making your home feel calm, open, and easy to use.",
-  },
-  {
-    icon: Gem,
-    title: "Premium Materials",
-    description:
-      "We carefully select the best finishes, textures, and lighting so every room looks rich and lasts for years.",
-  },
-  {
-    icon: Sparkles,
-    title: "Made Just For You",
-    description:
-      "We don't use standard formulas. Every project is uniquely designed to match your lifestyle, taste, and goals.",
-  },
-];
-
 const workingStandards = [
   {
-    icon: Ruler,
-    title: "Detailed Planning",
-    description: "We finalize drawings and materials early so the actual building process is smooth and stress-free.",
+    title: "Detailed planning",
+    description: "We finalise drawings and materials early so the actual building process is smooth and stress-free.",
   },
   {
-    icon: LayoutGrid,
-    title: "End-to-End Service",
+    title: "End-to-end service",
     description: "Design, supervision, and final setup are all managed by our team in one seamless process.",
   },
   {
-    icon: ShieldCheck,
-    title: "Quality Guaranteed",
+    title: "Quality guaranteed",
     description: "We make sure the final result matches exactly what was promised, with no compromises on quality.",
   },
   {
-    icon: MapPinHouse,
-    title: "Local Expertise",
+    title: "Local expertise",
     description: "Our work reflects the true needs and aspirations of homes and businesses across the region.",
   },
 ];
 
+/**
+ * About — cinematic hero over an editorial body.
+ *
+ * Hero → studio statement (with the founder film as its one image) →
+ * principles → numbers → journey → how we work → team → closing.
+ * One idea and one visual per section; see `components/editorial`.
+ */
 const AboutPage = () => {
-  const [isVideoOpen, setIsVideoOpen] = useState(false);
   const { settings } = useSiteSettings();
   const videoUrl = settings?.about_video_url || SITE_CONSTANTS.defaultYoutubeVideoUrl;
 
   return (
     <>
-      <h1 className="sr-only">About Cross Angle Interior | Premium Interior Design Studio in Jamshedpur</h1>
       <Helmet>
         <title>About Us | Cross Angle Interior - Premier Interior Design Studio</title>
         <meta
@@ -133,353 +94,70 @@ const AboutPage = () => {
         }}
       />
 
-            <Navbar />
-      <main id="main-content" className="min-h-screen relative z-10">
-
-        {/* Cinematic hero — founder film beside the copy on desktop, below it on smaller screens */}
+      <Navbar />
+      <main id="main-content" className="relative z-10 min-h-screen bg-[var(--s-canvas-primary)] text-white">
         <PageHero
           size="sm"
           cursorAura
-          kicker="About The Studio"
+          kicker="About the studio"
           lines={[
-            "We Design. We Execute.",
-            <span key="l2">
-              We Deliver <span className="italic font-light text-[#C9A85C]">Turnkey</span> Interiors.
-            </span>,
+            "We design. We execute.",
+            <span key="l2">We deliver <span className="italic font-light text-[#C9A85C]">turnkey</span> interiors.</span>,
           ]}
           lede={
             <>
               <p>
-                For over 15 years, we've delivered fully managed interior projects — combining design intelligence, execution
+                For over fifteen years we've delivered fully managed interior projects — design intelligence, execution
                 precision, and hospitality-level detailing from concept to final handover.
               </p>
               <p className="mt-4 font-display italic text-[1.15rem] md:text-[1.35rem] leading-snug text-[#C9A85C]/90">
                 Every project is delivered as a complete, ready-to-live environment.
               </p>
-              <ul className="hidden md:block mt-5 space-y-2.5 text-[13px] md:text-[14px] tracking-[0.01em] text-white/65">
-                {[
-                  "Residential, Commercial & Hospitality",
-                  "End-to-End Turnkey — No Sub-Contracting",
-                  "Jamshedpur's Premier Referenced Interior Studio",
-                ].map((point) => (
-                  <li key={point} className="flex items-center gap-3">
-                    <span aria-hidden="true" className="w-[6px] h-[6px] rounded-full bg-[#C9A85C] shadow-[0_0_8px_rgba(209,175,110,0.6)] shrink-0" />
-                    {point}
-                  </li>
-                ))}
-              </ul>
             </>
           }
           image={{ entity: "about-us", fallback: "/modern_interior_base.png", alt: "" }}
           actions={
-            <>
-              <Link
-                to="/portfolio"
-                className="home-button-sweep inline-flex items-center gap-2 px-8 py-4 bg-white/5 backdrop-blur-md border border-white/10 text-white font-semibold text-[10px] uppercase tracking-[0.2em] hover:border-[#C9A85C] hover:text-[#C9A85C] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none rounded-md"
-              >
-                View Our Work
-              </Link>
-              <button
-                type="button"
-                onClick={() => setIsVideoOpen(true)}
-                className="lg:hidden inline-flex items-center gap-3 px-2 py-4 text-[10px] uppercase tracking-[0.2em] font-semibold text-white/80 hover:text-[#C9A85C] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none"
-              >
-                <span aria-hidden="true" className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/25">▶</span>
-                Watch the studio film
-              </button>
-            </>
+            <Link to="/portfolio" className={textLinkClass}>
+              View our work <span aria-hidden="true">→</span>
+            </Link>
           }
-          meta={
-            <dl className="flex flex-wrap gap-x-10 gap-y-4">
-              {[
-                { value: "15+", label: "Years Experience" },
-                { value: "500+", label: "Projects Delivered" },
-                { value: "98%", label: "Client Satisfaction" },
-              ].map((stat) => (
-                <div key={stat.label} className="flex items-baseline gap-3">
-                  <dt className="sr-only">{stat.label}</dt>
-                  <dd className="font-display text-3xl md:text-4xl leading-none text-white">{stat.value}</dd>
-                  <dd className="text-[9px] uppercase tracking-[0.25em] text-white/50">{stat.label}</dd>
-                </div>
-              ))}
-            </dl>
-          }
-          aside={<FounderFilmCard videoUrl={videoUrl} />}
         />
 
-        {/* Founder film for screens where the hero can't hold it */}
-        <section className="lg:hidden px-6 md:px-12 py-14 bg-[var(--s-canvas-primary)]">
-          <FounderFilmCard videoUrl={videoUrl} className="max-w-[640px] mx-auto" />
-        </section>
+        {/* The studio — statement beside the founder film */}
+        <Section>
+          <Split
+            eyebrow="Studio profile"
+            heading={<>Interiors that feel <Em>luxurious</Em>, effortless, and deeply personal.</>}
+            body="Cross Angle Interior brings together great design, technical expertise, and full-service execution to create spaces you will love living in — whether it's the warmth of oak or the cool elegance of marble, every room looks stunning and works perfectly."
+            media={<FounderFilmCard videoUrl={videoUrl} />}
+          />
+        </Section>
 
-        <section className="relative overflow-hidden border-y border-[var(--s-border-subtle)] bg-[var(--s-canvas-primary)] py-24 md:py-36">
-          {/* Subtle architectural background */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:100px_100px]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(209,175,110,0.08),transparent_50%),radial-gradient(circle_at_bottom_right,rgba(209,175,110,0.04),transparent_40%)]" />
-          
-          {/* Luxury Watermark */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[15vw] font-serif font-bold text-white/[0.01] pointer-events-none select-none whitespace-nowrap z-0">
-            CROSS ANGLE
-          </div>
-
-          <div className="container relative z-10 mx-auto px-4">
-            <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] items-center">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="relative rounded-[3rem] border border-[var(--s-border-subtle)] bg-[var(--s-canvas-secondary)] p-10 shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-3xl md:p-14 group overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.03),transparent_50%)] pointer-events-none" />
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/20 transition-colors duration-700 pointer-events-none" />
-                
-                <div className="relative z-10">
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="w-16 h-px bg-gradient-to-r from-primary to-transparent" />
-                    <span className="text-primary font-bold uppercase tracking-[0.4em] text-[10px]">Studio Profile</span>
-                  </div>
-                  <h2 className="font-serif font-normal text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-tight text-white">
-                    We design interiors that feel <span className="text-primary italic font-light">luxurious</span>, <span className="text-primary font-medium">effortless</span>, and deeply personal.
-                  </h2>
-                  <p className="mt-8 text-base leading-relaxed text-white/60 font-light md:text-lg max-w-2xl">
-                    Cross Angle Interior brings together great design, technical expertise, and full-service execution to create spaces you will love living in. We make sure every room looks stunning and works perfectly—whether it's the warmth of <TactileMaterial name="wood" texture="wood" /> or the cool elegance of <TactileMaterial name="marble" texture="marble" />.
-                  </p>
-                  
-                  {/* Highlights Grid with architectural lines */}
-                  <div className="mt-12 grid gap-6 md:grid-cols-3 relative">
-                    <div className="absolute -inset-x-4 top-1/2 -translate-y-1/2 h-px bg-white/5 hidden md:block" />
-                    {studioHighlights.map((item, idx) => (
-                      <motion.div
-                        key={item}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, delay: idx * 0.15 }}
-                        whileHover={{ y: -8, scale: 1.02 }}
-                        className="relative rounded-2xl border border-[var(--s-border-subtle)] bg-[var(--s-canvas-primary)]/80 p-6 text-sm leading-relaxed text-white/70 font-light shadow-[0_10px_30px_rgba(0,0,0,0.2)] backdrop-blur-md transition-all duration-500 hover:border-primary/30 hover:bg-white/[0.02] hover:shadow-[0_20px_40px_rgba(209,175,110,0.1)] group/item"
-                      >
-                        <div className="absolute top-0 left-6 w-8 h-px bg-primary/50 opacity-0 group-hover/item:opacity-100 transition-opacity duration-500" />
-                        <span className="block text-primary/60 font-serif text-xl font-bold mb-3 group-hover/item:text-primary transition-colors duration-300">0{idx + 1}</span>
-                        {item}
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="grid gap-8"
-              >
-                {/* Custom glowing defines us card */}
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="group relative overflow-hidden rounded-[2.5rem] border border-[var(--s-border-subtle)] bg-[var(--s-canvas-secondary)] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.4)] backdrop-blur-2xl transition-all duration-700 hover:border-primary/30"
-                >
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(209,175,110,0.1),transparent_50%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-                  <div className="absolute bottom-0 right-0 w-32 h-32 border-b border-r border-primary/0 group-hover:border-primary/30 rounded-br-[2.5rem] transition-all duration-700 pointer-events-none" />
-                  
-                  <div className="flex items-center gap-3 mb-8">
-                    <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_10px_#d1af6e] animate-pulse" />
-                    <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-white/50 group-hover:text-primary transition-colors duration-500">What defines us</p>
-                  </div>
-                  
-                  <div className="space-y-8 relative z-10">
-                    <div className="group/sub">
-                      <p className="text-2xl font-serif font-medium text-white group-hover/sub:text-primary transition-colors duration-300">Start to Finish</p>
-                      <p className="mt-3 text-sm leading-relaxed text-white/60 font-light group-hover/sub:text-white/80 transition-colors duration-300">
-                        A single team handles everything from your first idea to the final reveal.
-                      </p>
-                    </div>
-                    <div className="h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
-                    <div className="group/sub">
-                      <p className="text-2xl font-serif font-medium text-white group-hover/sub:text-primary transition-colors duration-300">Beauty meets Function</p>
-                      <p className="mt-3 text-sm leading-relaxed text-white/60 font-light group-hover/sub:text-white/80 transition-colors duration-300">
-                        A beautiful space is only perfect if it makes your daily life easier and more comfortable.
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Studio standards card */}
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="relative rounded-[2.5rem] border border-[var(--s-border-subtle)] bg-[var(--s-canvas-secondary)] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-xl group hover:border-primary/20 transition-all duration-700"
-                >
-                  <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-white/50 mb-8">Studio standards</p>
-                  <div className="space-y-4">
-                    {["Clear consultations", "Curated finish selections", "Execution oversight", "Premium visual consistency"].map((item, idx) => (
-                      <motion.div
-                        key={item}
-                        initial={{ opacity: 0, x: -10 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.4, delay: idx * 0.1 }}
-                        whileHover={{ x: 8 }}
-                        className="flex items-center gap-5 rounded-2xl border border-transparent hover:border-white/5 bg-transparent hover:bg-white/[0.02] px-2 py-3 transition-all duration-300 group/item"
-                      >
-                        <span className="relative flex h-3 w-3 items-center justify-center">
-                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-20 group-hover/item:opacity-75"></span>
-                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary group-hover/item:bg-primary transition-colors duration-300"></span>
-                        </span>
-                        <span className="text-sm font-medium text-white/70 group-hover/item:text-white transition-colors duration-300">{item}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* Core Values with 3D Cards */}
         <AboutValues />
-
-        {/* Stats Section with Count-up */}
         <AboutStats />
-
-        <section className="relative overflow-hidden bg-[var(--s-canvas-primary)] py-28 md:py-36 border-b border-[var(--s-border-subtle)]">
-          {/* Glowing backdrops */}
-          <div className="absolute right-0 top-1/4 h-80 w-80 rounded-full bg-primary/5 blur-[130px] pointer-events-none" />
-          <div className="absolute left-10 bottom-10 h-64 w-64 rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
-          
-          <div className="container relative z-10 mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="mx-auto max-w-3xl text-center"
-            >
-              <div className="flex items-center justify-center gap-4 mb-5">
-                <div className="w-12 h-px bg-primary" />
-                <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">Our Design Signature</span>
-              </div>
-              <h2 className="font-serif font-normal text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-tight text-white">
-                Premium designs that feel comfortable and <span className="text-primary italic font-light">last for years</span>.
-              </h2>
-              <p className="mt-6 text-lg leading-8 text-white/60 font-light">
-                The best interiors don't feel crowded or complicated. We build that feeling through smart layouts, high-quality materials, and designs that make your everyday life easier.
-              </p>
-            </motion.div>
-
-            <div className="mt-16 grid gap-8 lg:grid-cols-3">
-              {signaturePillars.map((pillar, index) => (
-                <motion.div
-                  key={pillar.title}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.12 }}
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  className="group relative overflow-hidden rounded-[2.25rem] border border-[var(--s-border-subtle)] bg-[var(--s-canvas-secondary)] p-8 shadow-[0_15px_45px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all duration-500 hover:border-primary/25 hover:shadow-[0_30px_70px_rgba(209,175,110,0.12)]"
-                >
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(209,175,110,0.06),transparent_45%)]" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(209,175,110,0.08),transparent_45%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
-                  <div className="relative z-10">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 bg-gradient-to-b from-primary/15 to-transparent text-primary shadow-[0_4px_20px_rgba(209,175,110,0.1)] group-hover:border-primary/30 group-hover:from-primary/20 group-hover:text-primary transition-all duration-500">
-                      <pillar.icon className="h-6 w-6 stroke-[1.5]" />
-                    </div>
-                    <h3 className="mt-8 font-serif text-2xl font-semibold text-white group-hover:text-primary transition-colors duration-300">
-                      {pillar.title}
-                    </h3>
-                    
-                    {/* Expanding line divide on hover */}
-                    <div className="my-4 h-px w-8 bg-primary/40 transition-all duration-500 group-hover:w-full group-hover:bg-primary/30" />
-                    
-                    <p className="text-sm leading-relaxed text-white/60 font-light group-hover:text-white/90 transition-colors duration-300">
-                      {pillar.description}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Timeline with Scroll Animation */}
         <AboutTimeline />
 
-        <section className="relative overflow-hidden bg-[var(--s-canvas-primary)] py-24 md:py-32 border-b border-[var(--s-border-subtle)]">
-          {/* Blueprint architectural grid overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] opacity-60" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20" />
+        {/* How we work */}
+        <Section rule>
+          <Split
+            align="start"
+            mediaSide="left"
+            eyebrow="How we work"
+            heading={<>A seamless journey from idea to <Em>final reveal.</Em></>}
+            body="Great results come from a smooth process. We keep you involved in the decisions that matter while we handle the coordination behind the scenes."
+            media={<NumberedList items={workingStandards} />}
+          >
+            <Link to="/our-process" className={textLinkClass}>
+              See the full process <span aria-hidden="true">→</span>
+            </Link>
+          </Split>
+        </Section>
 
-          <div className="container relative z-10 mx-auto px-4">
-            <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr]">
-              <motion.div
-                initial={{ opacity: 0, x: -24 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.65 }}
-                className="flex flex-col justify-center"
-              >
-                <div className="flex items-center gap-4 mb-5">
-                  <div className="w-12 h-px bg-primary" />
-                  <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">How We Work</span>
-                </div>
-                <h2 className="font-serif font-normal text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-tight text-white">
-                  A seamless journey from idea to <span className="text-primary italic font-light">final reveal</span>.
-                </h2>
-                <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/60 font-light">
-                  Great results come from a smooth process. We keep you involved in the fun decisions while we handle all the stress and hard work behind the scenes.
-                </p>
-              </motion.div>
-
-              <div className="grid gap-5">
-                {workingStandards.map((item, index) => (
-                  <motion.div
-                    key={item.title}
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.08 }}
-                    whileHover={{ x: 8, scale: 1.01 }}
-                    className="group flex gap-6 rounded-[2rem] border border-[var(--s-border-subtle)] bg-[var(--s-canvas-secondary)] p-7 shadow-[0_15px_40px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-primary/20 hover:shadow-[0_20px_50px_rgba(209,175,110,0.06)]"
-                  >
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-gradient-to-b from-primary/15 to-transparent text-primary shadow-[0_4px_15px_rgba(209,175,110,0.05)] group-hover:border-primary/30 group-hover:from-primary/20 group-hover:text-primary transition-all duration-500">
-                      <item.icon className="h-6 w-6 stroke-[1.5]" />
-                    </div>
-                    <div>
-                      <div className="mb-2.5 flex items-center gap-3">
-                        <span className="font-serif text-sm font-bold tracking-[0.2em] text-primary group-hover:text-primary transition-colors duration-300">
-                          0{index + 1}
-                        </span>
-                        <h3 className="font-serif text-2xl font-semibold text-white group-hover:text-primary transition-colors duration-300">
-                          {item.title}
-                        </h3>
-                      </div>
-                      <p className="text-sm leading-relaxed text-white/60 font-light group-hover:text-white/90 transition-colors duration-300">
-                        {item.description}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* The Visionaries - Team Section */}
         <AboutTeam />
-
-        {/* CTA Section */}
         <AboutCTA />
       </main>
       <Footer />
       <ScrollToTop />
-
-      {/* Video Modal */}
-      <AboutVideoModal
-        isOpen={isVideoOpen}
-        onClose={() => setIsVideoOpen(false)}
-        videoUrl={videoUrl}
-      />
     </>
   );
 };
