@@ -1,9 +1,8 @@
 import { Toaster } from "@/components/ui/primitives/toaster";
 import { BrowserRouter, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { CookieConsentBanner } from "./components/cookies/CookieConsentBanner";
-import { runWhenIdle } from "./lib/idle";
 import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 import { PageSkeleton } from "./components/ui/enhanced/PageSkeleton";
 import { CoreProviders } from "./providers/CoreProviders";
@@ -18,9 +17,6 @@ import { AdminDeviceGate } from "./components/admin/AdminDeviceGate";
 import { AnimatedContent } from "./components/ReactBits/index";
 
 const SmoothScroll = lazy(() => import("./components/layout/SmoothScroll").then(m => ({ default: m.SmoothScroll })));
-const DeferredScrollManager = lazy(() =>
-  import("./components/layout/ScrollManager").then((m) => ({ default: m.ScrollManager })),
-);
 
 const AdminPageLoader = () => <PageSkeleton variant="admin" />;
 
@@ -42,17 +38,6 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo({ top: 0, behavior: "auto" }); }, [pathname]);
   return null;
-};
-
-const DeferredExperienceEnhancements = () => {
-  const [shouldEnhanceScroll, setShouldEnhanceScroll] = useState(false);
-  useEffect(() => runWhenIdle(() => setShouldEnhanceScroll(true), 100), []);
-  if (!shouldEnhanceScroll) return null;
-  return (
-    <Suspense fallback={null}>
-      <DeferredScrollManager />
-    </Suspense>
-  );
 };
 
 import { useSiteSettings } from "./hooks/useSiteSettings";
@@ -142,7 +127,6 @@ const AnimatedRoutes = () => {
 const App = () => (
   <CoreProviders>
     <SiteMetaUpdater />
-    <DeferredExperienceEnhancements />
     <Toaster />
     <ErrorBoundary>
       <BrowserRouter

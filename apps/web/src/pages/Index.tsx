@@ -6,6 +6,7 @@ import ScrollToTop from "@/components/layout/ScrollToTop";
 import { SITE_CONSTANTS } from "@/lib/constants";
 import { Link } from "react-router-dom";
 import Hero from "@/components/home/Hero";
+import { PhilosophyChapter } from "@/components/home/PhilosophyChapter";
 import { HomeFAQ } from "@/components/home/HomeFAQ";
 import { useEffect, useState } from "react";
 import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
@@ -72,29 +73,13 @@ const Index = () => {
           <Hero />
         </div>
 
-        {/* 20–35% Scroll: Philosophy Headline — atmospheric silence treatment */}
-        <section className="home-section-frame relative z-10 w-full px-6 md:px-12 lg:px-24 mt-[16vh] mb-[8vh] max-w-[1600px] mx-auto flex justify-end overflow-hidden">
-          {/* Atmospheric: subtle ambient multi-stop warm glow */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 pointer-events-none"
-            style={{ 
-              background: "radial-gradient(ellipse at 70% 50%, rgba(201,168,92,0.04) 0%, rgba(255,255,255,0.008) 45%, transparent 70%)" 
-            }}
-          />
-          <div ref={headlineRef} className="w-full md:w-10/12 lg:w-8/12 pl-0 md:pl-12 relative">
-            {/* Subtle horizontal separator */}
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent mb-8" />
-            <span className="home-kicker mb-6 block uppercase text-[10px] tracking-[0.25em] font-bold text-white/50">The Philosophy</span>
-            <h2 className="font-display text-[clamp(2.75rem,5.5vw,5.5rem)] leading-[1.05] font-normal text-[var(--s-text-primary)]" style={{ letterSpacing: "-0.03em" }}>
-              Homes Designed For Living.<br />
-              <span className="text-white/70">Engineered For Predictability.</span>
-            </h2>
-          </div>
-        </section>
+        {/* 20–35% Scroll: Chapter 01 — pinned, word-scrubbed philosophy statement */}
+        <div ref={headlineRef} className="relative z-10">
+          <PhilosophyChapter />
+        </div>
 
         {/* 35–55% Scroll: One primary CTA (Editorial Asymmetry, staggered left) */}
-        <section className="home-section-frame relative z-10 w-full px-6 md:px-12 lg:px-24 mb-[18vh] max-w-[1600px] mx-auto flex justify-start">
+        <section className="home-section-frame relative z-10 w-full px-6 md:px-12 lg:px-24 mt-[14vh] mb-[18vh] max-w-[1600px] mx-auto flex justify-start">
           <div className="home-panel w-full md:w-6/12 lg:w-5/12 p-8 md:p-12 flex flex-col gap-10 rounded-xl relative">
             <p className="home-body text-base md:text-lg leading-relaxed max-w-[44ch] text-white/72">
               We treat interior design as an engineering challenge, not just decoration. Enjoy beautiful, highly functional spaces for daily living, delivered through our CrossAngle Predictable Interior System™.
