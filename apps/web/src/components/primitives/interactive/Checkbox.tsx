@@ -1,7 +1,7 @@
 // Genome ID: P013 Checkbox
 import React from 'react';
 import { cn } from '../../../lib/utils';
-import { Cluster, Text } from '../foundation';
+import { Text } from '../foundation';
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
   invalid?: boolean;

@@ -8,7 +8,6 @@ import {
   archGraph, 
   AQLQueryResult, 
   ImpactAnalysisResult, 
-  EnterpriseKnowledgeNode, 
   EnterpriseEntityType 
 } from '@/config/architecture-graph-engine';
 import { 

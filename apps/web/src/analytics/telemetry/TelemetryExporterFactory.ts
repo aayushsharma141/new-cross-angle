@@ -1,4 +1,4 @@
-import { ConsoleSpanExporter, SimpleSpanProcessor, BatchSpanProcessor, SpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { BatchSpanProcessor, SpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { TelemetryConfig } from './TelemetryConfig';
 
