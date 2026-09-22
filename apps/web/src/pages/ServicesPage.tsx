@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { PageHero } from "@/components/motion/PageHero";
 import { ExpertiseChapter } from "@/components/home/ExpertiseChapter";
+import { ServicesHeroTagline } from "@/components/services/ServicesHeroTagline";
 import ServicesMarquee from "@/components/services/ServicesMarquee";
 import ServicesWhyUs from "@/components/services/ServicesWhyUs";
 import ServicesCTA from "@/components/services/ServicesCTA";
@@ -107,7 +108,7 @@ const ServicesPage = () => {
           size="md"
           kicker="Our Services"
           lines={["From Empty Shell To", <span key="l2">Move-In Ready <span className="italic font-light text-[#C9A85C]">Home.</span></span>]}
-          lede="Design intelligence, execution discipline and hospitality-level detailing — every service delivered as a complete, ready-to-live environment."
+          lede={<ServicesHeroTagline />}
           image={{ entity: "services", fallback: "/reality_render.jpg", alt: "" }}
           actions={
             <>
