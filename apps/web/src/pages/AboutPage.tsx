@@ -15,6 +15,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { PageHero } from "@/components/motion/PageHero";
+import { FounderFilmCard } from "@/components/about/FounderFilmCard";
 import AboutValues from "@/components/about/AboutValues";
 import AboutStats from "@/components/about/AboutStats";
 import AboutTimeline from "@/components/about/AboutTimeline";
@@ -135,9 +136,9 @@ const AboutPage = () => {
             <Navbar />
       <main id="main-content" className="min-h-screen relative z-10">
 
-        {/* Cinematic hero — the studio film opens from the secondary action */}
+        {/* Cinematic hero — founder film beside the copy on desktop, below it on smaller screens */}
         <PageHero
-          size="md"
+          size="sm"
           kicker="About The Studio"
           lines={[
             "We Design. We Execute.",
@@ -145,7 +146,29 @@ const AboutPage = () => {
               We Deliver <span className="italic font-light text-[#C9A85C]">Turnkey</span> Interiors.
             </span>,
           ]}
-          lede="For over 15 years, we've delivered fully managed interior projects — combining design intelligence, execution precision, and hospitality-level detailing from concept to final handover."
+          lede={
+            <>
+              <p>
+                For over 15 years, we've delivered fully managed interior projects — combining design intelligence, execution
+                precision, and hospitality-level detailing from concept to final handover.
+              </p>
+              <p className="mt-3 text-[clamp(0.85rem,0.95vw,1rem)] italic font-light text-[#C9A85C]">
+                Every project is delivered as a complete, ready-to-live environment.
+              </p>
+              <ul className="hidden md:block mt-4 space-y-2 text-[clamp(0.85rem,1vw,1rem)] text-white/70">
+                {[
+                  "Residential, Commercial & Hospitality",
+                  "End-to-End Turnkey — No Sub-Contracting",
+                  "Jamshedpur's Premier Referenced Interior Studio",
+                ].map((point) => (
+                  <li key={point} className="flex items-center gap-3">
+                    <span aria-hidden="true" className="w-[6px] h-[6px] rounded-full bg-[#C9A85C] shadow-[0_0_8px_rgba(209,175,110,0.6)] shrink-0" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </>
+          }
           image={{ entity: "about-us", fallback: "/modern_interior_base.png", alt: "" }}
           actions={
             <>
@@ -158,7 +181,7 @@ const AboutPage = () => {
               <button
                 type="button"
                 onClick={() => setIsVideoOpen(true)}
-                className="inline-flex items-center gap-3 px-2 py-4 text-[10px] uppercase tracking-[0.2em] font-semibold text-white/80 hover:text-[#C9A85C] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none"
+                className="lg:hidden inline-flex items-center gap-3 px-2 py-4 text-[10px] uppercase tracking-[0.2em] font-semibold text-white/80 hover:text-[#C9A85C] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none"
               >
                 <span aria-hidden="true" className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/25">▶</span>
                 Watch the studio film
@@ -180,7 +203,13 @@ const AboutPage = () => {
               ))}
             </dl>
           }
+          aside={<FounderFilmCard videoUrl={videoUrl} />}
         />
+
+        {/* Founder film for screens where the hero can't hold it */}
+        <section className="lg:hidden px-6 md:px-12 py-14 bg-[var(--s-canvas-primary)]">
+          <FounderFilmCard videoUrl={videoUrl} className="max-w-[640px] mx-auto" />
+        </section>
 
         <section className="relative overflow-hidden border-y border-[var(--s-border-subtle)] bg-[var(--s-canvas-primary)] py-24 md:py-36">
           {/* Subtle architectural background */}

@@ -22,6 +22,13 @@ export interface PageHeroProps {
   actions?: ReactNode;
   /** Extra content along the bottom edge (stats, meta). Hidden below `md` to keep the headline in view. */
   meta?: ReactNode;
+  /**
+   * Right-hand panel on `lg+` (a film, a card). Hidden below `lg` — render a
+   * mobile alternative after the hero if the content matters there.
+   */
+  aside?: ReactNode;
+  /** "Scroll to explore" cue at the bottom edge. */
+  scrollCue?: boolean;
   /** Backdrop photograph: `site_media_assets.asset_key` = `page_<entity>_hero`, with a static fallback. */
   image: { entity: string; fallback: string; alt?: string };
   /** Text alignment / column placement. */
@@ -31,13 +38,14 @@ export interface PageHeroProps {
   className?: string;
   /** Element rendered as the headline — pages that already have an `<h1>` can pass "h2". */
   as?: "h1" | "h2";
-  /** Headline scale: "lg" for two short lines, "md" for longer statements. */
-  size?: "lg" | "md";
+  /** Headline scale: "lg" for two short lines, "md" for longer statements, "sm" when a lot sits beneath it. */
+  size?: "lg" | "md" | "sm";
 }
 
 const HEADLINE_SIZE = {
   lg: "text-[clamp(2.6rem,7vw,6.5rem)] max-w-[20ch]",
   md: "text-[clamp(2.2rem,5.2vw,4.9rem)] max-w-[24ch]",
+  sm: "text-[clamp(2rem,4.2vw,4rem)] max-w-[26ch]",
 } as const;
 
 /**
@@ -60,6 +68,8 @@ export const PageHero = ({
   className,
   as: Heading = "h1",
   size = "lg",
+  aside,
+  scrollCue = true,
 }: PageHeroProps) => {
   const ref = useRef<HTMLElement>(null);
   const prefersReducedMotion = useReducedMotion();
@@ -76,7 +86,9 @@ export const PageHero = ({
         .fromTo(q("[data-hero-kicker]"), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.8 }, 0.2)
         .fromTo(q("[data-hero-line]"), { autoAlpha: 0, y: "0.6em" }, { autoAlpha: 1, y: 0, duration: 1, stagger: 0.12 }, 0.3)
         .fromTo(q("[data-hero-lede]"), { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.8 }, 0.7)
-        .fromTo(q("[data-hero-meta]"), { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.8 }, 0.85);
+        .fromTo(q("[data-hero-meta]"), { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.8 }, 0.85)
+        .fromTo(q("[data-hero-aside]"), { autoAlpha: 0, x: 40 }, { autoAlpha: 1, x: 0, duration: 1 }, 0.5)
+        .fromTo(q("[data-hero-cue]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 1 }, 1.1);
 
       // Scroll exit
       gsap.timeline({
@@ -85,6 +97,8 @@ export const PageHero = ({
       })
         .to(q("[data-hero-media]"), { scale: 1.1, duration: 1 }, 0)
         .to(q("[data-hero-copy]"), { y: -70, autoAlpha: 0, duration: 0.6 }, 0.15)
+        .to(q("[data-hero-aside]"), { y: -40, autoAlpha: 0, duration: 0.6 }, 0.15)
+        .to(q("[data-hero-cue]"), { autoAlpha: 0, duration: 0.2 }, 0)
         .to(q("[data-hero-seal]"), { rotate: 90, autoAlpha: 0, duration: 0.6 }, 0.1);
     },
     { scope: ref, dependencies: [prefersReducedMotion] },
@@ -94,7 +108,7 @@ export const PageHero = ({
     <section
       ref={ref}
       className={cn(
-        "relative w-full h-[80vh] md:h-[90vh] min-h-[560px] overflow-hidden bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)]",
+        "relative w-full min-h-[80vh] md:min-h-[90vh] flex flex-col justify-end overflow-hidden bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)]",
         className,
       )}
     >
@@ -121,11 +135,17 @@ export const PageHero = ({
       <div
         data-hero-copy
         className={cn(
-          "absolute inset-0 z-10 flex flex-col justify-end px-6 md:px-12 lg:px-24 pb-[8vh] md:pb-[10vh] will-change-transform",
+          "relative z-10 flex flex-col justify-end px-6 md:px-12 lg:px-24 pt-[22vh] md:pt-[24vh] pb-[9vh] md:pb-[11vh] will-change-transform",
           align === "center" && "items-center text-center",
         )}
       >
-        <div className={cn("w-full max-w-[1600px] mx-auto flex flex-col gap-5", align === "center" && "items-center")}>
+        <div
+          className={cn(
+            "w-full max-w-[1600px] mx-auto flex flex-col gap-5",
+            align === "center" && "items-center",
+            aside && "lg:pr-[42%]",
+          )}
+        >
           <div data-hero-kicker>
             <ChapterKicker align={align}>{kicker}</ChapterKicker>
           </div>
@@ -140,9 +160,9 @@ export const PageHero = ({
             ))}
           </Heading>
           {lede && (
-            <p data-hero-lede className="text-base md:text-lg max-w-[46ch] leading-relaxed text-white/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.5)]">
-              {lede}
-            </p>
+            <div data-hero-lede className="text-base md:text-lg max-w-[46ch] leading-relaxed text-white/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.5)]">
+              {typeof lede === "string" ? <p>{lede}</p> : lede}
+            </div>
           )}
           {actions && (
             <div data-hero-lede className={cn("flex flex-wrap gap-4 mt-1", align === "center" && "justify-center")}>
@@ -156,6 +176,22 @@ export const PageHero = ({
           )}
         </div>
       </div>
+
+      {aside && (
+        <div
+          data-hero-aside
+          className="hidden lg:flex absolute z-20 right-12 xl:right-24 top-[16vh] bottom-[12vh] w-[36%] max-w-[560px] flex-col justify-end will-change-transform"
+        >
+          {aside}
+        </div>
+      )}
+
+      {scrollCue && (
+        <div data-hero-cue aria-hidden="true" className="absolute bottom-5 left-6 md:left-12 lg:left-24 z-20 flex items-center gap-3">
+          <span className="block w-6 h-px bg-gradient-to-r from-transparent to-white/30 animate-[pulse_2.2s_ease-in-out_infinite] motion-reduce:animate-none" />
+          <span className="text-[8px] uppercase tracking-[0.3em] text-white/35">Scroll to explore</span>
+        </div>
+      )}
     </section>
   );
 };
