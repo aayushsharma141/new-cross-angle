@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, Database, Cloud, Activity, Plus, Clock, Zap, Bolt, Unplug } from "lucide-react";
+import { Mail, Database, Cloud, Activity, Plus, Bolt, Unplug } from "lucide-react";
 
 const T = {
   bg: "#0D0F0E",
@@ -31,28 +31,20 @@ export const INTEGRATIONS_DATA = [
     desc: "Transactional email delivery",
     detail: "crossangleinteriors@gmail.com",
     status: "active",
-    lastSync: "2 min ago",
-    uptime: "99.9%",
     icon: Mail,
     color: "#60A5FA",
     colorDim: "rgba(96,165,250,0.1)",
-    requests: "1.2K",
-    period: "this month",
   },
   {
     id: "supabase",
     name: "Supabase",
     category: "Database",
     desc: "Primary database and auth provider",
-    detail: "67.2 MB of 20 GB used",
+    detail: "PostgreSQL · Realtime enabled",
     status: "active",
-    lastSync: "Live",
-    uptime: "100%",
     icon: Database,
     color: "#34D399",
     colorDim: "rgba(52,211,153,0.1)",
-    requests: "20K",
-    period: "row reads today",
   },
   {
     id: "vercel",
@@ -61,36 +53,21 @@ export const INTEGRATIONS_DATA = [
     desc: "Frontend hosting and edge functions",
     detail: "Production · main branch",
     status: "active",
-    lastSync: "Deployed 4h ago",
-    uptime: "99.98%",
     icon: Cloud,
     color: "#F8FAFC",
     colorDim: "rgba(248,250,252,0.07)",
-    requests: "8.4K",
-    period: "edge requests today",
   },
   {
     id: "posthog",
     name: "PostHog",
     category: "Analytics",
     desc: "Product analytics and event tracking",
-    detail: "Analytics collection active",
+    detail: "Event streaming via edge function",
     status: "active",
-    lastSync: "Streaming",
-    uptime: "99.7%",
     icon: Activity,
     color: "#F97316",
     colorDim: "rgba(249,115,22,0.1)",
-    requests: "340",
-    period: "events today",
   },
-];
-
-const HEALTH_METRICS = [
-  { label: "System Health", value: "All systems operational", dot: T.green },
-  { label: "DB Storage", value: "67.2 MB / 20 GB", bar: 0.33 },
-  { label: "Integrations", value: "4 / 4 active", dot: T.green },
-  { label: "Last Deploy", value: "4 hours ago", dot: T.greenDim },
 ];
 
 function StatusBadge() {
@@ -114,51 +91,7 @@ function StatusBadge() {
   );
 }
 
-function SystemHealthPanel() {
-  return (
-    <div style={{
-      background: T.card,
-      border: `1px solid ${T.border}`,
-      borderRadius: "12px",
-      padding: "20px 24px",
-      display: "grid",
-      gridTemplateColumns: "repeat(4, 1fr)",
-      gap: "0",
-    }}>
-      {HEALTH_METRICS.map((m, i) => (
-        <div
-          key={m.label}
-          style={{
-            padding: "0 20px",
-            borderLeft: i > 0 ? `1px solid ${T.border}` : "none",
-          }}
-        >
-          <div style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.08em", color: T.muted, textTransform: "uppercase", marginBottom: "8px" }}>
-            {m.label}
-          </div>
-          {m.bar !== undefined ? (
-            <>
-              <div style={{ fontSize: "13px", fontWeight: 500, color: T.text, marginBottom: "8px" }}>{m.value}</div>
-              <div style={{ height: "3px", background: T.border, borderRadius: "2px", overflow: "hidden" }}>
-                <div style={{
-                  height: "100%",
-                  width: `${m.bar * 100}%`,
-                  background: `linear-gradient(90deg, ${T.green}, ${T.accent})`,
-                  borderRadius: "2px",
-                }} />
-              </div>
-            </>
-          ) : (
-            <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-              <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: m.dot, boxShadow: `0 0 6px ${m.dot}`, flexShrink: 0 }} />
-              <span style={{ fontSize: "13px", fontWeight: 500, color: T.text }}>{m.value}</span>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
+
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function IntegrationCard({ integration, onRevoke, onConfigure }: { integration: any, onRevoke: (id: string) => void, onConfigure: (id: string) => void }) {
@@ -211,20 +144,9 @@ function IntegrationCard({ integration, onRevoke, onConfigure }: { integration: 
           {integration.desc} · <span style={{ color: T.mutedLight }}>{integration.detail}</span>
         </div>
 
-        {/* Metrics row */}
-        <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-            <Clock style={{ width: "12px", height: "12px", color: T.muted, marginTop: "1px" }} aria-hidden="true" />
-            <span style={{ fontSize: "12px", color: T.muted }}>Sync: <span style={{ color: T.green }}>{integration.lastSync}</span></span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-            <Activity style={{ width: "12px", height: "12px", color: T.muted, marginTop: "1px" }} aria-hidden="true" />
-            <span style={{ fontSize: "12px", color: T.muted }}>Uptime: <span style={{ color: T.mutedLight }}>{integration.uptime}</span></span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-            <Zap style={{ width: "12px", height: "12px", color: T.muted, marginTop: "1px" }} aria-hidden="true" />
-            <span style={{ fontSize: "12px", color: T.muted }}><span style={{ color: T.text, fontWeight: 600 }}>{integration.requests}</span> {integration.period}</span>
-          </div>
+        {/* Note: per-integration usage metrics (requests, uptime) require a server-side probe and are not tracked client-side. */}
+        <div style={{ fontSize: "11px", color: T.muted, fontStyle: "italic" }}>
+          Runtime metrics not available — check each provider's dashboard.
         </div>
       </div>
 
@@ -326,11 +248,6 @@ export function IntegrationsManager({ onConfigure, onRevoke }: { onConfigure: (i
         .fade-up-6 { animation: fadeUp 0.35s 0.25s ease both; }
       `}</style>
       
-      {/* Health panel */}
-      <div className="fade-up-2">
-        <SystemHealthPanel />
-      </div>
-
       {/* Section header */}
       <div className="fade-up-3" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px", marginTop: "32px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

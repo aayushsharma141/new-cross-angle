@@ -1,186 +1,35 @@
-import { motion } from "framer-motion";
-import { Target, Lightbulb, Award, Users, LucideIcon } from "lucide-react";
-import { useState, useRef } from "react";
-import { useMotionValue, useSpring, useTransform } from "framer-motion";
-
-interface ValueCardProps {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  index: number;
-}
+import { Section, Split, NumberedList, Em } from "@/components/editorial";
 
 const values = [
   {
-    icon: Target,
-    title: "Execution-First Planning",
+    title: "Execution-first planning",
     description: "Every project begins with a detailed scope, timeline, and budget framework — delivered before a single wall is touched.",
   },
   {
-    icon: Lightbulb,
-    title: "Design Intelligence",
+    title: "Design intelligence",
     description: "We blend function with aesthetic rigor — creating spaces built for everyday use, not just photographs.",
   },
   {
-    icon: Award,
-    title: "Turnkey Accountability",
+    title: "Turnkey accountability",
     description: "No sub-contracting surprises. We own the full project — materials, labour, timelines, and final handover.",
   },
   {
-    icon: Users,
-    title: "Client Transparency",
+    title: "Client transparency",
     description: "Real-time progress updates, clear milestones, and zero hidden costs. You always know where your project stands.",
   },
 ];
 
-const ValueCard = ({ icon: Icon, title, description, index }: ValueCardProps) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), {
-    stiffness: 300,
-    damping: 30,
-  });
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), {
-    stiffness: 300,
-    damping: 30,
-  });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    mouseX.set(x);
-    mouseY.set(y);
-  };
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-    setIsHovered(false);
-  };
-
-  return (
-    <motion.div
-      ref={cardRef}
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{
-        duration: 0.5,
-        delay: index * 0.1,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      }}
-      style={{
-        rotateX: isHovered ? rotateX : 0,
-        rotateY: isHovered ? rotateY : 0,
-        transformStyle: "preserve-3d",
-        willChange: "transform",
-      }}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={handleMouseLeave}
-      className="relative group cursor-pointer perspective-1000"
-    >
-      <div className="relative h-full p-8 md:p-10 rounded-[2.5rem] bg-gradient-to-br from-white/[0.03] to-white/[0.01] backdrop-blur-3xl border border-white/5 shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:shadow-[0_20px_50px_rgba(209,175,110,0.12)] hover:border-site-gold/30 transition-all duration-700 overflow-hidden group-hover:bg-gradient-to-br group-hover:from-white/[0.06] group-hover:to-white/[0.02]">
-        {/* Internal reflection */}
-        <div className="absolute inset-0 rounded-[2.5rem] ring-1 ring-inset ring-white/5 pointer-events-none" />
-        
-        {/* Architectural corner accents */}
-        <div className="absolute top-0 right-0 w-16 h-16 border-t border-r border-site-crimson/0 group-hover:border-site-crimson/40 rounded-tr-[2.5rem] transition-all duration-700 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-site-gold/0 group-hover:border-site-gold/40 rounded-bl-[2.5rem] transition-all duration-700 pointer-events-none" />
-
-        {/* Huge Number */}
-        <div className="absolute -bottom-6 -right-2 text-[140px] leading-none font-serif font-bold text-white/[0.02] pointer-events-none select-none group-hover:text-site-gold/[0.04] transition-colors duration-700 z-0">
-          0{index + 1}
-        </div>
-
-        {/* Spotlight gradient */}
-        <motion.div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-          style={{
-            background: isHovered
-              ? `radial-gradient(500px circle at ${(mouseX.get() + 0.5) * 100}% ${(mouseY.get() + 0.5) * 100}%, rgba(209, 175, 110, 0.08), transparent 40%)`
-              : "none",
-          }}
-        />
-
-        {/* Icon */}
-        <motion.div
-          className="relative z-10 w-14 h-14 rounded-2xl bg-black/50 border border-white/10 group-hover:border-site-crimson/40 group-hover:bg-site-crimson/10 flex items-center justify-center mb-8 transition-all duration-700 shadow-inner group-hover:shadow-[0_0_20px_rgba(217,43,43,0.2)]"
-          whileHover={{ scale: 1.1, rotate: 5 }}
-        >
-          <Icon className="w-7 h-7 text-muted-foreground group-hover:text-site-crimson transition-colors duration-500" />
-        </motion.div>
-
-        {/* Content */}
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-4 h-[1px] bg-site-gold/40 group-hover:w-8 group-hover:bg-site-gold transition-all duration-500" />
-            <h3 className="font-serif text-lg font-semibold text-white group-hover:text-site-gold transition-colors duration-300">
-              {title}
-            </h3>
-          </div>
-          <p className="text-muted-foreground text-sm leading-relaxed group-hover:text-white/90 transition-colors duration-300">
-            {description}
-          </p>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-const AboutValues = () => {
-  return (
-    <section className="relative py-24 md:py-32 bg-background overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 -right-1/4 w-1/2 h-1/2 bg-site-gold/5 rounded-full blur-[120px]" />
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-      </div>
-
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto text-center mb-12 md:mb-20 px-4"
-        >
-          <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-site-crimson mb-4 flex items-center justify-center gap-2">
-            <span className="inline-block w-5 h-[2px] bg-site-crimson" /> Our Principles
-          </span>
-          <h2 className="font-serif font-bold text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] tracking-tight text-white mb-5">
-            Designed for aesthetics.<br />
-            <span className="text-site-crimson font-medium">Built for everyday use.</span>
-          </h2>
-          <p className="text-[clamp(0.85rem,0.95vw,0.95rem)] text-muted-foreground leading-[1.8] max-w-[44ch] mx-auto">
-            Every project is delivered fully executed — not just designed.
-            Our principles drive every decision from brief to final handover.
-          </p>
-        </motion.div>
-
-        {/* Values Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {values.map((value, index) => (
-            <ValueCard
-              key={index}
-              icon={value.icon}
-              title={value.title}
-              description={value.description}
-              index={index}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
+/** The four principles, as a numbered list beside a single statement. */
+const AboutValues = () => (
+  <Section rule>
+    <Split
+      align="start"
+      eyebrow="What we stand for"
+      heading={<>Designed for aesthetics. <Em>Built for everyday use.</Em></>}
+      body="The best interiors don't feel crowded or complicated. We build that feeling through disciplined planning, honest materials, and a single team accountable from first sketch to final handover."
+      media={<NumberedList items={values} />}
+    />
+  </Section>
+);
 
 export default AboutValues;

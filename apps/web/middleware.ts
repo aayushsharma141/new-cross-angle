@@ -18,14 +18,14 @@
  *   6. All real users are passed through untouched (no overhead).
  */
 
-import type { OgData } from "./src/og/og-defaults";
+import type { OgData } from "./src/og/og-defaults.js";
 import {
   DEFAULT_OG,
   SITE_NAME,
   SITE_URL,
   STATIC_OG_MAP,
   SERVICE_OG_MAP,
-} from "./src/og/og-defaults";
+} from "./src/og/og-defaults.js";
 
 export const config = {
   matcher: [
@@ -36,6 +36,7 @@ export const config = {
      *  - Files with extensions (.js, .css, .png, etc.)
      */
     "/((?!api|assets|.*\\..*).*)",
+    "/api/supabase/:path*"
   ],
 };
 
@@ -176,6 +177,29 @@ function buildAdminDesktopRequiredHtml(): string {
   </main>
 </body>
 </html>`;
+}
+
+// ─── JWT Authentication at Edge (Cookie-based) ───────────────────────────────
+
+async function verifyAuth(req: Request): Promise<boolean> {
+  const cookieHeader = req.headers.get("cookie") ?? "";
+  const match = cookieHeader.match(/access_token=([^;]+)/);
+  if (!match) return false;
+  
+  const token = match[1];
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return false;
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: SUPABASE_ANON_KEY,
+      },
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 // ─── Supabase REST fetch helpers (zero SDK overhead) ───────────────────────────
@@ -320,15 +344,146 @@ export default async function middleware(req: Request) {
   const urlObj = new URL(req.url);
   const pathname = urlObj.pathname;
 
-  if (isAdminPath(pathname) && isMobileAdminClient(ua)) {
-    return new Response(buildAdminDesktopRequiredHtml(), {
-      status: 403,
-      headers: {
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "no-store",
-        "X-Admin-Mobile-Blocked": "1",
-      },
-    });
+  // ─── Supabase API Proxy ───────────────────────────────────────────────────────
+  if (pathname.startsWith('/api/supabase/')) {
+    const supabasePath = pathname.replace('/api/supabase', '');
+    const targetUrl = `${SUPABASE_URL}${supabasePath}${urlObj.search}`;
+    
+    const proxyHeaders = new Headers(req.headers);
+    
+    // Inject Authorization header from HTTP-only cookie
+    const cookieHeader = req.headers.get("cookie") ?? "";
+    const match = cookieHeader.match(/access_token=([^;]+)/);
+    if (match) {
+      proxyHeaders.set("Authorization", `Bearer ${match[1]}`);
+    }
+    
+    // Ensure apikey is present
+    if (!proxyHeaders.has("apikey") && SUPABASE_ANON_KEY) {
+      proxyHeaders.set("apikey", SUPABASE_ANON_KEY);
+    }
+    
+    // Clean up proxy-specific headers
+    proxyHeaders.delete("host");
+    proxyHeaders.delete("x-forwarded-host");
+    proxyHeaders.delete("x-forwarded-proto");
+    
+    try {
+      const hasBody = req.method !== 'GET' && req.method !== 'HEAD';
+      const bodyBuffer = hasBody ? await req.arrayBuffer() : undefined;
+
+      let response = await fetch(targetUrl, {
+        method: req.method,
+        headers: proxyHeaders,
+        body: bodyBuffer,
+        redirect: 'manual',
+        cache: 'no-store'
+      });
+
+      const newCookies: string[] = [];
+
+      // ── F-05: 401 → refresh → retry once ─────────────────────────────────────
+      if (response.status === 401) {
+        const refreshMatch = cookieHeader.match(/refresh_token=([^;]+)/);
+        const refreshToken = refreshMatch ? refreshMatch[1] : null;
+
+        if (refreshToken && SUPABASE_URL) {
+          try {
+            const refreshRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                apikey: SUPABASE_ANON_KEY || "",
+              },
+              body: JSON.stringify({ refresh_token: refreshToken }),
+              cache: 'no-store'
+            });
+
+            if (refreshRes.ok) {
+              const refreshData = await refreshRes.json() as {
+                access_token?: string;
+                refresh_token?: string;
+                expires_in?: number;
+              };
+
+              if (refreshData?.access_token) {
+                const newAccessToken = refreshData.access_token;
+                const newRefreshToken = refreshData.refresh_token || refreshToken;
+                const accessMaxAge = refreshData.expires_in || 3600;
+
+                // Update Authorization header for the single retry
+                proxyHeaders.set("Authorization", `Bearer ${newAccessToken}`);
+
+                // Retry original request ONCE only
+                response = await fetch(targetUrl, {
+                  method: req.method,
+                  headers: proxyHeaders,
+                  body: bodyBuffer,
+                  redirect: 'manual',
+                  cache: 'no-store'
+                });
+
+                // Prepare new HttpOnly cookies to return with the retried response
+                const isProd = process.env.NODE_ENV === 'production';
+                const secureFlag = isProd ? '; Secure' : '';
+                newCookies.push(
+                  `access_token=${newAccessToken}; Path=/; Max-Age=${accessMaxAge}; HttpOnly; SameSite=Lax${secureFlag}`,
+                  `refresh_token=${newRefreshToken}; Path=/api; Max-Age=2592000; HttpOnly; SameSite=Lax${secureFlag}`
+                );
+              }
+            } else {
+              // Refresh failed with invalid/expired refresh token: clear cookies and fail closed
+              newCookies.push(
+                `access_token=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax`,
+                `refresh_token=; Path=/api; Max-Age=0; HttpOnly; SameSite=Lax`,
+                `refresh_token=; Path=/api/auth/refresh; Max-Age=0; HttpOnly; SameSite=Lax`
+              );
+            }
+          } catch {
+            // Network error during refresh: fail closed
+          }
+        }
+      }
+      
+      const resHeaders = new Headers();
+      response.headers.forEach((value, key) => {
+        if (key.toLowerCase() !== 'set-cookie') {
+          resHeaders.set(key, value);
+        }
+      });
+      const upstreamCookies = typeof response.headers.getSetCookie === 'function' ? response.headers.getSetCookie() : [];
+      for (const c of upstreamCookies) resHeaders.append('Set-Cookie', c);
+      for (const c of newCookies) resHeaders.append('Set-Cookie', c);
+
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: resHeaders
+      });
+    } catch {
+      return new Response(JSON.stringify({ error: "Proxy error" }), { status: 502 });
+    }
+  }
+
+  if (isAdminPath(pathname)) {
+    if (isMobileAdminClient(ua)) {
+      return new Response(buildAdminDesktopRequiredHtml(), {
+        status: 403,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "no-store",
+          "X-Admin-Mobile-Blocked": "1",
+        },
+      });
+    }
+
+    // Secure JWT Cookie Authentication for Admin
+    if (!pathname.startsWith("/admin/auth")) {
+      const isAuthed = await verifyAuth(req);
+      if (!isAuthed) {
+        return Response.redirect(new URL("/admin/auth", req.url));
+      }
+    }
   }
 
   // Pass real users through immediately — zero overhead

@@ -99,7 +99,7 @@ function mapImpactZones(h: DiscoveryHandoff, archetype: BudgetArchetype): { high
 function computeBenchmarkPosition(investmentDensity: number, benchmark: { low: number; median: number; high: number }): "below" | "at" | "above" | "premium" {
   if (investmentDensity >= benchmark.high) return "premium";
   if (investmentDensity >= benchmark.median * 1.15) return "above";
-  if (investmentDensity >= benchmark.median * 0.85) return "at";
+  if (investmentDensity >= benchmark.low) return "at";
   return "below";
 }
 

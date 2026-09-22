@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { UserSignals, AestheticScores, Archetype } from "@/types/discovery";
 import { trackLeadGateViewed, trackLeadGateSubmitted } from "../infrastructure/analytics/tracker";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
+import { saveDiscoveryResult } from "../core/persistence";
+import { buildDiscoveryHandoff } from "@/addons/calculators/components/data/discovery-handoff";
 
 interface Props {
     sessionId: string | null;
@@ -23,8 +26,10 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
     const [phone, setPhone] = useState("");
     const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
     const analytics = useAnalytics();
     const analyticsTrack = analytics.track.bind(analytics);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (sessionId) {
@@ -51,21 +56,47 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
             // Strip large computed objects not needed in DB
             const { ...signalsForDB } = signals as UserSignals & { consultationIntelligence?: unknown };
 
+            // Generate Project Snapshot
+            const project_snapshot = {
+                budgetBracket: signalsForDB.budgetBracket || 'Unknown',
+                projectScope: signalsForDB.projectScope || 'Unknown',
+                propertyType: signalsForDB.propertyType || 'Unknown',
+                confidence: signalsForDB.consultationIntelligence?.confidence?.overall || 0,
+                realism: signalsForDB.consultationIntelligence?.confidence?.realism || 'Unknown',
+                suitability: signalsForDB.consultationIntelligence?.propertySuitability?.tier || 'Unknown',
+            };
+
+            // Generate a simple narrative brief
+            const narrative_brief = `Client seeks a ${signalsForDB.projectScope || 'project'} for a ${signalsForDB.propertyType || 'property'}. Primary value: ${signalsForDB.primaryValue || 'beauty'}. Budget bracket: ${signalsForDB.budgetBracket || 'not specified'}.`;
+
+            // The same mapper the Estimator uses, so a quiz-only lead lands in
+            // leads.discovery_* with exactly the shape submit-estimate writes.
+            // Without this the columns stayed null unless the user continued
+            // into the Estimator, and the Lead Workspace panels stayed empty.
+            const discoveryContext = buildDiscoveryHandoff(signals, archetype.name);
+
             const payload = {
                 name,
                 email,
                 phone,
                 session_id: sessionId,
-                consent: true,
-                results: {
-                    archetype: archetype.name,
-                    scores: scores,
-                    project_type: signals.reflectionAnswers?.find(a => a.question.includes('space'))?.answer || 'residential',
+                discoveryContext,
+                decision_genome: signalsForDB,
+                project_snapshot,
+                narrative_brief,
+                workspace_state: {
+                    stage: "LeadCapture",
+                    intentVisualConflict: signalsForDB.intentVisualConflict
                 },
-                raw_data: signalsForDB
+                versioning: {
+                    decisionSchemaVersion: "1.0.0",
+                    genomeVersion: "1.0.0",
+                    recommendationEngineVersion: "1.0.0",
+                    designSystemVersion: "2.0.0"
+                }
             };
 
-            const { data, error } = await supabase.functions.invoke("submit-discovery-lead", {
+            const { data, error } = await supabase.functions.invoke("submit-workspace-commitment", {
                 body: payload,
             });
 
@@ -87,6 +118,15 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                 }
             }
 
+            // ——— PHASE 13: Persist Discovery result for Estimator handoff ———
+            // Always persist (even on non-critical error) so user can navigate to Estimator
+            saveDiscoveryResult({
+                archetype: archetype.name,
+                displayName: archetype.name,
+                scores,
+                signals,
+            });
+            setSubmitted(true);
             onComplete();
         } catch (err) {
             console.error("Submission exception:", err);
@@ -178,21 +218,52 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
                         </div>
                     </div>
 
-                    <div className="pt-4">
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting || !name.trim() || !email.trim()}
-                            className="w-full h-14 bg-[#233526] text-white disabled:bg-[#e8e4dd] disabled:text-[#5a5a5a] disabled:opacity-100 rounded-xl text-sm font-semibold hover:bg-[#1a281c] transition-all duration-300 shadow-md group disabled:shadow-none"
-                        >
-                            {isSubmitting ? (
-                                <Loader2 className="w-5 h-5 animate-spin mx-auto text-white/70" />
-                            ) : (
-                                <span className="flex items-center justify-center gap-2">
-                                    Save & Get Consultation
+                    <div className="pt-4 space-y-3">
+                        {!submitted ? (
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting || !name.trim() || !email.trim()}
+                                className="w-full h-14 bg-[#233526] text-white disabled:bg-[#e8e4dd] disabled:text-[#5a5a5a] disabled:opacity-100 rounded-xl text-sm font-semibold hover:bg-[#1a281c] transition-all duration-300 shadow-md group disabled:shadow-none"
+                            >
+                                {isSubmitting ? (
+                                    <Loader2 className="w-5 h-5 animate-spin mx-auto text-white/70" />
+                                ) : (
+                                    <span className="flex items-center justify-center gap-2">
+                                        Save &amp; Get Consultation
+                                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                                    </span>
+                                )}
+                            </Button>
+                        ) : (
+                            <motion.div
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4 }}
+                                className="space-y-3"
+                            >
+                                <p className="text-center text-[11px] uppercase tracking-[0.15em] text-[#5a5a5a] font-semibold">
+                                    Blueprint saved ✓ — what's next?
+                                </p>
+                                {/* Primary: Estimator CTA */}
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/estimate")}
+                                    className="w-full h-14 bg-[#8b6f47] text-white rounded-xl text-sm font-semibold hover:bg-[#705939] transition-all duration-300 shadow-md flex items-center justify-center gap-2 group"
+                                >
+                                    <Calculator className="w-4 h-4" />
+                                    See My Cost Estimate
                                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                                </span>
-                            )}
-                        </Button>
+                                </button>
+                                {/* Secondary: proceed to full results */}
+                                <button
+                                    type="button"
+                                    onClick={onComplete}
+                                    className="w-full h-11 border border-[#e8e4dd] text-[#5a5a5a] rounded-xl text-xs font-semibold hover:bg-[#faf8f5] transition-all duration-200"
+                                >
+                                    View Full Aesthetic Report
+                                </button>
+                            </motion.div>
+                        )}
                     </div>
                 </form>
             </div>

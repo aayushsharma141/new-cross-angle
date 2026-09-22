@@ -1,0 +1,12 @@
+/* CORE */
+:root {
+  --p-font-size-2xs: 0.625rem; /* 10px */
+  --p-font-size-xs:  0.75rem;  /* 12px */
+  --p-font-size-sm:  0.875rem; /* 14px */
+  --p-font-size-base: 1rem;     /* 16px */
+  --p-font-size-lg:  1.25rem;  /* 20px */
+  --p-font-size-xl:  1.563rem; /* 25px */
+  --p-font-size-2xl: 1.953rem; /* 31px */
+  --p-font-size-3xl: 2.441rem; /* 39px */
+  --p-font-size-4xl: 3.052rem; /* 49px */
+}

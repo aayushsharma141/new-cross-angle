@@ -39,12 +39,6 @@ export class LeadService {
 
   async createLead(payload: LeadPayload): Promise<Lead> {
     const data = await this.repo.createLead(payload);
-
-    // Fire-and-forget: notify Telegram of the new lead.
-    // We do NOT await this so it never blocks or delays the form UX.
-    this.repo.notifyTelegram(data)
-      .catch((err: unknown) => console.warn('[LeadService] Telegram notify failed:', err));
-
     return data;
   }
 

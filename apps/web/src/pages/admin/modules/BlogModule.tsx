@@ -21,3 +21,5 @@ export const BlogModule = () => {
         </ModuleLayout>
     );
 };
+
+export default BlogModule;

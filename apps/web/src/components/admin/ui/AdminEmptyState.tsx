@@ -39,7 +39,7 @@ export function AdminEmptyState({
       )}
     >
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[hsl(var(--admin-surface))]">
-        <Icon className="h-8 w-8 text-[hsl(var(--admin-text-muted))]" />
+        <Icon className="h-8 w-8 text-[hsl(var(--admin-text-muted))]" aria-hidden="true" />
       </div>
       <h3 className="mb-2 text-lg font-medium text-[hsl(var(--admin-text))]">{title}</h3>
       {description && (
@@ -72,7 +72,7 @@ export function AdminTableEmpty({
         className="py-12 text-center text-[hsl(var(--admin-text-muted))]"
       >
         <div className="flex flex-col items-center justify-center">
-          <Inbox className="mb-2 h-8 w-8 opacity-50" />
+          <Inbox className="mb-2 h-8 w-8 opacity-50" aria-hidden="true" />
           <span>{message}</span>
         </div>
       </td>

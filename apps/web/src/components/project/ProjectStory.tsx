@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 interface ProjectStoryProps {
   brief: string;
@@ -27,14 +28,14 @@ const humanNarratives: Record<string, {
     quote: "Shattering the boundary between cooking and entertaining.",
     conflict: "The family loved to host, but the original kitchen layout isolated the cook inside a closed-door utility box. Preparing a meal was treated as a chore behind walls, leaving guests separated in the lounge.",
     resolution: "We dissolved the walls, transforming the space into a social culinary theatre. A central 3-meter white quartz island was inserted, integrating the cooktop and prep surfaces directly into the lounge conversation stream.",
-    img: "https://images.unsplash.com/photo-1565538810844-1e119412e707?q=80&w=1000&auto=format&fit=crop"
+    img: "https://iuuivmwqodefdrrrewol.supabase.co/storage/v1/object/public/media/IMG-20250703-WA0027.jpg"
   },
   "executive-workspace": {
     thesis: "Warm authority.",
     quote: "A biophilic hub that projects corporate command without the cold steel clinic.",
     conflict: "The tech startup needed to impress visiting investors with absolute operational authority, but the team felt isolated inside typical builder-grade cubicles that drained visual energy and broke collaboration.",
     resolution: "We built an open-plan matrix structured around acoustic focus zones. Smoked timber slats and living biophilic moss walls were introduced to control echo, maintaining workspace health and natural sound dampening.",
-    img: "https://images.unsplash.com/photo-1504307651254-35680f356fce?q=80&w=1000&auto=format&fit=crop"
+    img: "https://iuuivmwqodefdrrrewol.supabase.co/storage/v1/object/public/media/projects/discovery/reflect-workspace-dynamic.jpg"
   }
 };
 
@@ -53,9 +54,9 @@ const ProjectStory = ({ brief, approach }: ProjectStoryProps) => {
         
         {/* Chapter Header */}
         <div className="mb-20">
-          <span className="text-xs font-semibold tracking-[0.35em] uppercase text-site-gold block mb-4">— CHAPTER 02</span>
+          <span className="text-xs font-semibold tracking-[0.35em] uppercase text-primary block mb-4">— CHAPTER 02</span>
           <h2 className="text-3xl md:text-5xl font-serif font-normal text-white">
-            The <span className="italic text-site-crimson font-light">Challenge & Narrative</span>
+            The <span className="italic text-primary font-light">Challenge & Narrative</span>
           </h2>
         </div>
 
@@ -64,7 +65,7 @@ const ProjectStory = ({ brief, approach }: ProjectStoryProps) => {
           
           {/* Left: Dramatic quote/thesis (BIG) */}
           <div className="lg:col-span-5 space-y-6">
-            <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-site-gold block">
+            <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-primary block">
               {story.thesis}
             </span>
             <motion.blockquote 
@@ -89,7 +90,7 @@ const ProjectStory = ({ brief, approach }: ProjectStoryProps) => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="space-y-4"
             >
-              <span className="text-[10px] font-mono tracking-widest text-site-crimson uppercase block">
+              <span className="text-[10px] font-mono tracking-widest text-primary uppercase block">
                 The Friction
               </span>
               <p className="text-stone-300">
@@ -105,7 +106,7 @@ const ProjectStory = ({ brief, approach }: ProjectStoryProps) => {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="space-y-4"
             >
-              <span className="text-[10px] font-mono tracking-widest text-site-gold uppercase block">
+              <span className="text-[10px] font-mono tracking-widest text-primary uppercase block">
                 The Breakthrough
               </span>
               <p className="text-stone-300">
@@ -119,7 +120,7 @@ const ProjectStory = ({ brief, approach }: ProjectStoryProps) => {
 
         {/* Offset Layered Image showcasing the original constraint */}
         <div className="mt-20 relative w-full aspect-[21/9] rounded-xl overflow-hidden border border-white/10 group shadow-2xl">
-          <img src={story.img} alt="Structural challenge detail" className="w-full h-full object-cover filter grayscale opacity-40 group-hover:opacity-65 transition-opacity duration-[2s] pointer-events-none" />
+          <img src={getOptimizedUrl(story.img, { width: 1200, quality: 80 })} alt="Structural challenge detail" className="w-full h-full object-cover filter grayscale opacity-40 group-hover:opacity-65 transition-opacity duration-[2s] pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/20 to-transparent pointer-events-none" />
           <div className="absolute bottom-6 left-6 px-4 py-2 bg-black/60 backdrop-blur-md border border-white/10 rounded-full">
             <span className="text-[9px] font-mono text-stone-400 tracking-widest uppercase">Visual survey log</span>

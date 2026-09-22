@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import {
   Save, Plus, Trash2, Pencil, ChevronDown, ChevronRight,
-  Loader2, Users, X, Check
+  Loader2, Users, X, Check, Image as ImageIcon
 } from "lucide-react";
 import { AdminFormCard } from "@/components/admin/shared";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
+import { AssetUsageService } from "@/services/AssetUsageService";
+import { toEntityId } from "@/lib/discovery-utils";
 
 interface ArchetypeItem {
   name: string;
@@ -14,6 +17,11 @@ interface ArchetypeItem {
   traits: string[];
   materialBias: string;
   strategy: string;
+  heroImageUrl?: string;
+  moodboardImageUrl?: string;
+  ctaText?: string;
+  ctaDescription?: string;
+  ctaDestination?: string;
 }
 
 type ArchetypeItemWithId = ArchetypeItem & { _id: string };
@@ -173,6 +181,94 @@ function ArchetypeCard({
             />
           </div>
 
+          {/* CTA Configuration */}
+          <div className="space-y-3 pt-2 pb-2 border-t border-[hsl(var(--admin-border))]/50">
+            <h4 className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text))] font-semibold flex items-center gap-1.5">
+              Cost Estimator CTA (Funnel Handoff)
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label htmlFor={`ctaText-${item._id}`} className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">Button Text</label>
+                <Input
+                  id={`ctaText-${item._id}`}
+                  value={item.ctaText || ""}
+                  onChange={(e) => onUpdate("ctaText", e.target.value)}
+                  className="h-7 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
+                  placeholder="e.g. Build Estimate with this Style"
+                />
+              </div>
+              <div className="space-y-1">
+                <label htmlFor={`ctaDest-${item._id}`} className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">Destination Path</label>
+                <Input
+                  id={`ctaDest-${item._id}`}
+                  value={item.ctaDestination || ""}
+                  onChange={(e) => onUpdate("ctaDestination", e.target.value)}
+                  className="h-7 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
+                  placeholder="e.g. /estimator"
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label htmlFor={`ctaDesc-${item._id}`} className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">CTA Description</label>
+              <Input
+                id={`ctaDesc-${item._id}`}
+                value={item.ctaDescription || ""}
+                onChange={(e) => onUpdate("ctaDescription", e.target.value)}
+                className="h-7 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
+                placeholder="Brief text prompting estimator transition�"
+              />
+            </div>
+          </div>
+
+          {/* Media Images */}
+          <div className="space-y-3 pt-2 pb-2 border-y border-[hsl(var(--admin-border))]/50">
+            <h4 className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text))] font-semibold flex items-center gap-1.5">
+              <ImageIcon className="w-3 h-3" /> Archetype Visuals
+            </h4>
+            <div className="space-y-1">
+              <label htmlFor="heroImageUrl" className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">Hero Image</label>
+              <MediaPickerField
+                id="heroImageUrl"
+                value={item.heroImageUrl || ""}
+                onChange={(url) => onUpdate("heroImageUrl", url)}
+                onAssetSelect={(asset) => {
+                    // Archetypes live in config JSONB — no stable entity row ID yet.
+                    // We use item._id as a logical ID. replaceUsage will no-op if null.
+                    void AssetUsageService.replaceUsage({
+                        assetId: asset.id,
+                        entityType: "archetype",
+                        entityId: toEntityId(item.name),
+                        role: "hero",
+                    });
+                }}
+                domain="discovery"
+                entityType="archetypes"
+                damRole="hero"
+                placeholder="Select hero image�"
+              />
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="moodboardImageUrl" className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">Moodboard Image</label>
+              <MediaPickerField
+                id="moodboardImageUrl"
+                value={item.moodboardImageUrl || ""}
+                onChange={(url) => onUpdate("moodboardImageUrl", url)}
+                onAssetSelect={(asset) => {
+                    void AssetUsageService.replaceUsage({
+                        assetId: asset.id,
+                        entityType: "archetype",
+                        entityId: toEntityId(item.name),
+                        role: "moodboard",
+                    });
+                }}
+                domain="discovery"
+                entityType="archetypes"
+                damRole="moodboard"
+                placeholder="Select moodboard image�"
+              />
+            </div>
+          </div>
+
           {/* Traits */}
           <div className="space-y-2">
             <label className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">
@@ -246,8 +342,8 @@ export function ArchetypesEditor() {
   }, [data, dirty, items.length]);
 
   const strip = (arr: ArchetypeItemWithId[]): ArchetypeItem[] =>
-    arr.map(({ name, tagline, traits, materialBias, strategy }) => ({
-      name, tagline, traits, materialBias, strategy,
+    arr.map(({ name, tagline, traits, materialBias, strategy, heroImageUrl, moodboardImageUrl, ctaText, ctaDescription, ctaDestination }) => ({
+      name, tagline, traits, materialBias, strategy, heroImageUrl, moodboardImageUrl, ctaText, ctaDescription, ctaDestination
     }));
 
   const updateItem = (id: string, field: keyof ArchetypeItem, value: unknown) => {

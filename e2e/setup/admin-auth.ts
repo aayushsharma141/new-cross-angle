@@ -46,11 +46,20 @@ async function globalSetup() {
   }
 
   const browser = await chromium.launch();
-  const page = await browser.newPage();
+  // Vercel Deployment Protection (preview SSO) sits in front of the app on
+  // preview URLs. With the project's "Protection Bypass for Automation" secret
+  // in VERCEL_AUTOMATION_BYPASS_SECRET, send it on every request so the setup
+  // reaches the real /admin/auth form instead of Vercel's SSO page.
+  const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+  const context = await browser.newContext(
+    bypass ? { extraHTTPHeaders: { 'x-vercel-protection-bypass': bypass } } : {}
+  );
+  const page = await context.newPage();
 
   try {
     // Navigate to the admin login page and sign in
-    await page.goto(`${baseURL}/admin`);
+    const adminUrl = new URL(`${baseURL}/admin`);
+    await page.goto(adminUrl.toString());
     await dismissCookieBanner(page);
 
     // Wait for the login form

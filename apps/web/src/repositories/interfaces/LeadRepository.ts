@@ -72,5 +72,4 @@ export interface LeadRepository {
         bySource: Record<string, number>;
         avgResponseTime: number;
     }>;
-    notifyTelegram(lead: Lead): Promise<void>;
 }

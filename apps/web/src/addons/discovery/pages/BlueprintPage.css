@@ -279,7 +279,7 @@
 /* ── TERMINAL WINDOW (pseudo-element top line) ────────────────────────── */
 .terminal-window {
   border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 32px 80px rgba(0,0,0,0.9), 0 0 40px rgba(196,18,48,0.15) inset, 0 0 0 1px rgba(255,255,255,0.05);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.9), 0 0 40px rgba(212,175,55,0.15) inset, 0 0 0 1px rgba(255,255,255,0.05);
   background: linear-gradient(180deg, rgba(9,9,11,0.85) 0%, rgba(5,5,7,0.95) 100%);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -290,7 +290,7 @@
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(196,18,48,0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent);
   opacity: 0.8;
 }
 
@@ -318,9 +318,9 @@
   pointer-events: none;
 }
 .scorecard-metric:hover {
-  border-color: rgba(196,18,48,0.6);
-  background: linear-gradient(135deg, rgba(196,18,48,0.08) 0%, rgba(0,0,0,0) 100%);
-  box-shadow: 0 12px 40px rgba(196,18,48,0.2), inset 0 0 20px rgba(196,18,48,0.1);
+  border-color: rgba(212,175,55,0.6);
+  background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(0,0,0,0) 100%);
+  box-shadow: 0 12px 40px rgba(212,175,55,0.2), inset 0 0 20px rgba(212,175,55,0.1);
   transform: translateY(-2px) scale(1.02);
 }
 
@@ -332,20 +332,20 @@
   margin-bottom: 2px;
 }
 .doc-row:hover {
-  background: linear-gradient(90deg, rgba(196,18,48,0.1) 0%, transparent 100%);
-  border-color: rgba(196,18,48,0.2);
+  background: linear-gradient(90deg, rgba(212,175,55,0.1) 0%, transparent 100%);
+  border-color: rgba(212,175,55,0.2);
   transform: translateX(4px);
 }
 .doc-row.active {
-  background: linear-gradient(90deg, rgba(196,18,48,0.15) 0%, rgba(196,18,48,0.05) 100%);
-  border-left: 2px solid #C41230;
+  background: linear-gradient(90deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 100%);
+  border-left: 2px solid #D4AF37;
 }
 .doc-row::before {
   content: '';
   position: absolute;
   left: -2px; top: 0; bottom: 0;
   width: 2px;
-  background: #C41230;
+  background: #D4AF37;
   transform: scaleY(0);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: center;
@@ -373,7 +373,7 @@
   background: rgba(255,255,255,0.1); border-radius: 4px;
 }
 .custom-panel-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(196,18,48,0.4);
+  background: rgba(212,175,55,0.4);
 }
 
 /* ── SECTION SCROLL MARGIN ────────────────────────────────────────────── */

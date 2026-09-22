@@ -42,7 +42,7 @@ export function PosthogFunnelChart({ action, color, fromIso, toIso }: { action: 
     }
   });
 
-  if (isLoading) return <div className="h-full w-full flex items-center justify-center text-xs text-[hsl(var(--admin-text-muted))]">Loading...</div>;
+  if (isLoading) return <div className="h-full w-full flex items-center justify-center text-xs text-[hsl(var(--admin-text-muted))]">Loading…</div>;
   if (!data || data.length === 0) return <div className="h-full w-full flex items-center justify-center text-xs text-[hsl(var(--admin-text-muted))]">No data available</div>;
 
   return (

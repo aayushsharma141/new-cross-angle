@@ -14,7 +14,12 @@ ADD COLUMN IF NOT EXISTS budget TEXT;
 END IF;
 END $$;
 -- 2. Update site_settings
-DO $$ BEGIN
+DO $$ BEGIN IF EXISTS (
+    SELECT 1
+    FROM pg_tables
+    WHERE schemaname = 'public'
+        AND tablename = 'site_settings'
+) THEN
 ALTER TABLE public.site_settings
 ADD COLUMN IF NOT EXISTS hero_title TEXT;
 ALTER TABLE public.site_settings
@@ -25,6 +30,7 @@ ALTER TABLE public.site_settings
 ADD COLUMN IF NOT EXISTS footer_text TEXT;
 ALTER TABLE public.site_settings
 ADD COLUMN IF NOT EXISTS contact_intro TEXT;
+END IF;
 END $$;
 -- 3. Update milestones (Recreate to match "Counter" format: label, value)
 -- Drop existing milestones table if it exists and recreate
@@ -68,7 +74,13 @@ UPDATE USING (auth.uid() = id);
 CREATE POLICY "Admin all profiles" ON public.profiles FOR ALL USING (auth.role() = 'authenticated');
 -- Simplified for now
 -- 5. Ensure projects has service_tag (or mapping)
-DO $$ BEGIN
+DO $$ BEGIN IF EXISTS (
+    SELECT 1
+    FROM pg_tables
+    WHERE schemaname = 'public'
+        AND tablename = 'projects'
+) THEN
 ALTER TABLE public.projects
 ADD COLUMN IF NOT EXISTS service_tag TEXT;
+END IF;
 END $$;

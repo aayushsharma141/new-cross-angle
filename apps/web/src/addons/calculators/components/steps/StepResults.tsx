@@ -7,7 +7,7 @@ import { SERVICES as DEFAULT_SERVICES, THEME } from "../data/pricing-config";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Link } from "react-router-dom";
 import { Home, Calendar, Check, AlertTriangle, PhoneCall, Info, Compass } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { cn } from "@/lib/utils";
 import { ECOSYSTEM_COPY, ECOSYSTEM_ROUTES } from "@/addons/_shared/ecosystemCopy";
 import { EstimatorIntelligencePanel } from "../EstimatorIntelligencePanel";
@@ -53,31 +53,31 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
     if (!estimate) {
         return (
             <div className="flex flex-col items-center justify-center py-20 animate-in fade-in zoom-in duration-500">
-                <div className="w-20 h-20 rounded-full bg-[#faf8f5] flex items-center justify-center mb-6 border border-[#e8e4dd] shadow-lg">
-                    <AlertTriangle className="w-8 h-8 text-[#8b6f47]" />
+                <div className="w-20 h-20 rounded-full bg-kiro-bg flex items-center justify-center mb-6 border border-kiro-line shadow-lg">
+                    <AlertTriangle className="w-8 h-8 text-kiro-accent" />
                 </div>
-                <h3 className="text-[#1a1a1a] text-xl font-bold mb-4">No Estimate Found</h3>
-                <p className="text-[#5a5a5a] text-center max-w-xs mb-8">
+                <h3 className="text-kiro-ink text-xl font-bold mb-4">No Estimate Found</h3>
+                <p className="text-kiro-inkSoft text-center max-w-xs mb-8">
                     It looks like we're missing some details to calculate your investment range.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center gap-3">
                     <button
                         type="button"
                         onClick={onBack}
-                        className="px-8 py-3 rounded-[8px] font-black text-xs uppercase tracking-widest bg-[#8b6f47] text-white hover:bg-[#705939] transition-all active:scale-[0.98] shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                        className="px-8 py-3 rounded-[8px] font-black text-xs uppercase tracking-wide bg-kiro-accent text-white hover:bg-[#705939] transition-all active:scale-[0.98] shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                     >
                         ← Go Back
                     </button>
                     <button
                         type="button"
                         onClick={onReset}
-                        className="px-8 py-3 rounded-[8px] font-black text-xs uppercase tracking-widest border border-[#e8e4dd] bg-white text-[#1a1a1a] hover:bg-[#faf8f5] transition-all active:scale-[0.98] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                        className="px-8 py-3 rounded-[8px] font-black text-xs uppercase tracking-wide border border-kiro-line bg-white text-kiro-ink hover:bg-kiro-bg transition-all active:scale-[0.98] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                     >
                         Start Over
                     </button>
                     <Link
                         to={ECOSYSTEM_ROUTES.contact}
-                        className="px-8 py-3 rounded-[8px] font-black text-xs uppercase tracking-widest border border-[#e8e4dd] bg-white text-[#5a5a5a] hover:bg-[#faf8f5] transition-all active:scale-[0.98] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                        className="px-8 py-3 rounded-[8px] font-black text-xs uppercase tracking-wide border border-kiro-line bg-white text-kiro-inkSoft hover:bg-kiro-bg transition-all active:scale-[0.98] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                     >
                         Contact Us
                     </Link>
@@ -99,7 +99,7 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
         breakdownItems.push({
             label: `Creative Fee`,
             value: formatRange(estimate.designCost.min, estimate.designCost.max),
-            icon: <Calendar className="w-4 h-4 text-[#8b6f47]" />
+            icon: <Calendar className="w-4 h-4 text-kiro-accent" />
         });
     }
     if (estimate.gstOnDesign > 0) {
@@ -122,81 +122,57 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
         breakdownItems.push({ label: "Bespoke Commissions", value: formatCurrency(estimate.addonCost), color: THEME.ACCENT });
     }
 
-    const containerVariants = {
-        hidden: { opacity: 0, y: 30 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                staggerChildren: 0.1,
-                duration: 0.8,
-                ease: [0.22, 1, 0.36, 1] as const
-            }
-        }
-    };
 
-    const itemVariants = {
-        hidden: { opacity: 0, x: -20 },
-        visible: { opacity: 1, x: 0 }
-    };
 
     const finalMin = Math.max(0, estimate.total.min - appliedSavings);
     const finalMax = Math.max(0, estimate.total.max - appliedSavings);
 
     return (
-        <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="space-y-8 pb-20"
+        <div
+            className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700"
         >
             {/* ═══ Immersive Header Card ═══ */}
             <StarBorder
-              color="#8b6f47"
+              color="#7a5c30"
               backgroundColor="rgba(255, 255, 255, 0.9)"
               className="relative shadow-[0_8px_40px_rgba(139,111,71,0.08)]"
             >
-              <div className="relative overflow-hidden p-10 lg:p-14 border border-[#e8e4dd]/10">
+              <div className="relative overflow-hidden p-10 lg:p-14 border border-kiro-line/10">
                 {/* Warm Aura Effects */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-[#8b6f47]/[0.06] blur-[120px] rounded-full -mr-32 -mt-32" aria-hidden="true" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#8b6f47]/[0.04] blur-[100px] rounded-full -ml-20 -mb-20" aria-hidden="true" />
+                <div className="absolute top-0 right-0 w-96 h-96 bg-kiro-accent/[0.06] blur-[120px] rounded-full -mr-32 -mt-32" aria-hidden="true" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-kiro-accent/[0.04] blur-[100px] rounded-full -ml-20 -mb-20" aria-hidden="true" />
 
                 <div className="relative z-10 flex flex-col items-center text-center">
-                    <motion.div
-                        variants={itemVariants}
+                    <div
                         className="mb-4 block"
                     >
                       <FallingText
                         text={hasBlueprint ? "Personalized Investment Outlook" : "Baseline Investment Outlook"}
-                        className="text-[#8b6f47] font-mono text-[10px] uppercase tracking-[0.5em] font-bold justify-center"
+                        className="text-kiro-accent font-mono text-[12px] uppercase tracking-[0.5em] font-bold justify-center"
                         delay={15}
                       />
-                    </motion.div>
+                    </div>
 
-                    <motion.h2
-                        variants={itemVariants}
-                        className="text-4xl md:text-6xl font-bold text-[#1a1a1a] tracking-tighter mb-3 font-serif"
+                    <h2
+                        className="text-4xl md:text-6xl font-bold text-kiro-ink tracking-tighter mb-3 font-serif"
                     >
                         <span className="tabular-nums">
                             <CountUp to={finalMin} duration={1.8} separator="," locale="en-IN" currency="INR" /> – <CountUp to={finalMax} duration={1.8} separator="," locale="en-IN" currency="INR" />
                         </span>
-                    </motion.h2>
-                    <motion.p variants={itemVariants} className="text-sm md:text-base text-[#5a5a5a] max-w-xl leading-relaxed mb-6">
+                    </h2>
+                    <p className="text-sm md:text-base text-kiro-inkSoft max-w-xl leading-relaxed mb-6">
                         {hasBlueprint
                             ? `Estimated from your selected scope and calibrated with ${blueprintName}.`
                             : "Estimated from your selected scope. Add a Discovery Blueprint first for a more personal report."}
-                    </motion.p>
+                    </p>
 
                     {/* Gold accent underline */}
-                    <motion.div
-                        className="h-0.5 bg-gradient-to-r from-transparent via-[#8b6f47] to-transparent mb-8"
-                        initial={{ width: 0 }}
-                        animate={{ width: 160 }}
-                        transition={{ duration: 1.2, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    <div
+                        className="h-0.5 bg-gradient-to-r from-transparent via-kiro-accent to-transparent mb-8 w-40"
                     />
 
-                    <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-3">
-                    </motion.div>
+                    <div className="flex flex-wrap justify-center gap-3">
+                    </div>
                 </div>
               </div>
             </StarBorder>
@@ -204,20 +180,20 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
             {/* ═══ Content Split ═══ */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left Column: Breakdown + Concordance (7 Cols) */}
-                <motion.div variants={itemVariants} className="lg:col-span-7 space-y-6">
-                    <div className="bg-white border border-[#e8e4dd] rounded-[8px] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                <div className="lg:col-span-7 space-y-6">
+                    <div className="bg-white border border-kiro-line rounded-[8px] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
                         <div className="flex items-start gap-4">
-                            <div className="w-11 h-11 rounded-[6px] bg-[#8b6f47]/10 border border-[#8b6f47]/25 flex items-center justify-center shrink-0">
-                                <Compass className="w-5 h-5 text-[#8b6f47]" />
+                            <div className="w-11 h-11 rounded-[6px] bg-kiro-accent/10 border border-kiro-accent/25 flex items-center justify-center shrink-0">
+                                <Compass className="w-5 h-5 text-kiro-accent" />
                             </div>
                             <div>
-                                <p className="text-[10px] font-mono tracking-[0.25em] uppercase text-[#8b6f47] mb-2">
+                                <p className="text-[12px] font-mono tracking-wider uppercase text-kiro-accent mb-2">
                                     {hasBlueprint ? "Discovery Continuity" : "Personalization Gap"}
                                 </p>
-                                <h3 className="text-xl font-serif text-[#1a1a1a] mb-3">
+                                <h3 className="text-xl font-serif text-kiro-ink mb-3">
                                     {hasBlueprint ? `${blueprintName} carried into execution` : "This is a direct estimate"}
                                 </h3>
-                                <p className="text-sm text-[#5a5a5a] leading-relaxed">
+                                <p className="text-sm text-kiro-inkSoft leading-relaxed">
                                     {blueprintSummary}
                                 </p>
                             </div>
@@ -225,89 +201,81 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
                     </div>
 
                     {/* Execution Intelligence */}
-                    <div className="bg-white border border-[#e8e4dd] rounded-[8px] overflow-hidden backdrop-blur-xl transition-all shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
-                        <div className="px-8 py-6 border-b border-[#e8e4dd] flex items-center justify-between">
-                            <h3 className="text-[#1a1a1a] text-base font-bold uppercase tracking-widest font-sans">Execution Intelligence</h3>
-                            <div className="p-2 bg-[#faf8f5] rounded-[4px] border border-[#e8e4dd] flex items-center gap-1.5 text-[9px] uppercase font-bold tracking-wider text-[#8b6f47]">
-                                <motion.span
-                                    animate={{ opacity: [1, 0.4, 1] }}
-                                    transition={{ duration: 2, repeat: Infinity }}
+                    <div className="bg-white border border-kiro-line rounded-[8px] overflow-hidden backdrop-blur-xl transition-all shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <div className="px-8 py-6 border-b border-kiro-line flex items-center justify-between">
+                            <h3 className="text-kiro-ink text-base font-bold uppercase tracking-wide font-sans">Execution Intelligence</h3>
+                            <div className="p-2 bg-kiro-bg rounded-[4px] border border-kiro-line flex items-center gap-1.5 text-[9px] uppercase font-bold tracking-wider text-kiro-accent">
+                                <span
+                                    className="animate-pulse"
                                 >
                                     Interactive
-                                </motion.span>
+                                </span>
                             </div>
                         </div>
 
-                        <div className="p-2 divide-y divide-[#e8e4dd]/60">
+                        <div className="p-2 divide-y divide-kiro-line/60">
                             {breakdownItems.map((item, i) => {
                                 const isExpanded = expandedItemIndex === i;
                                 return (
                                     <div key={i} className="group transition-colors">
-                                        <motion.button
+                                        <button
                                             type="button"
                                             onClick={() => setExpandedItemIndex(isExpanded ? null : i)}
-                                            variants={itemVariants}
-                                            className="w-full flex justify-between items-center px-6 py-5 text-left rounded-[4px] hover:bg-[#8b6f47]/[0.03] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-1"
+                                            className="w-full flex justify-between items-center px-6 py-5 text-left rounded-[4px] hover:bg-kiro-accent/[0.08] hover:border-l-2 hover:border-kiro-accent transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-1"
                                             title="Click to view details"
                                         >
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-[4px] border border-[#e8e4dd] bg-[#faf8f5] flex items-center justify-center group-hover:bg-[#8b6f47]/10 transition-colors">
-                                                    {item.icon || <div className="w-1.5 h-1.5 rounded-full bg-[#8b6f47]/50 group-hover:bg-[#8b6f47]" />}
+                                                <div className="w-8 h-8 rounded-[4px] border border-kiro-line bg-kiro-bg group-hover:bg-kiro-accent/[0.15] group-hover:border-kiro-accent/40 flex items-center justify-center transition-all duration-200">
+                                                    {item.icon || <div className="w-1.5 h-1.5 rounded-full bg-kiro-accent/50 group-hover:bg-kiro-accent" />}
                                                 </div>
                                                 <div className="flex items-center gap-1.5">
-                                                    <span className="text-[#5a5a5a] text-[11px] font-medium uppercase tracking-widest transition-colors group-hover:text-[#1a1a1a]">{item.label}</span>
-                                                    <Info className="w-3.5 h-3.5 text-[#5a5a5a]/40 group-hover:text-[#8b6f47] transition-colors" />
+                                                    <span className="text-kiro-inkSoft text-[13px] font-medium uppercase tracking-wide transition-colors group-hover:text-kiro-ink">{item.label}</span>
+                                                    <Info className="w-3.5 h-3.5 text-kiro-inkSoft/40 group-hover:text-kiro-accent transition-colors" />
                                                 </div>
                                             </div>
                                             <span className={cn(
                                                 "text-sm font-bold tracking-tight",
-                                                item.color === THEME.ACCENT ? "text-[#8b6f47]" : "text-[#1a1a1a]"
+                                                item.color === THEME.ACCENT ? "text-kiro-accent" : "text-kiro-ink"
                                             )}>
                                                 {item.value}
                                             </span>
-                                        </motion.button>
+                                        </button>
                                         
-                                        <AnimatePresence>
-                                            {isExpanded && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: "auto", opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    transition={{ duration: 0.25, ease: "easeInOut" }}
-                                                    className="overflow-hidden bg-[#faf8f5] border-l-2 border-[#8b6f47] ml-6"
+                                        {isExpanded && (
+                                                <div
+                                                    className="overflow-hidden bg-kiro-accent/[0.06] border-l-[3px] border-kiro-accent ml-6 rounded-b-[4px] animate-in slide-in-from-top-2 fade-in duration-200"
                                                 >
-                                                    <div className="px-8 py-4 text-[11px] text-[#5a5a5a] leading-relaxed font-light italic">
+                                                    <div className="px-8 py-4 text-[13px] text-kiro-inkSoft leading-relaxed font-light italic">
                                                         {getItemExplanation(item.label, formData.propertyType || "")}
                                                     </div>
-                                                </motion.div>
+                                                </div>
                                             )}
-                                        </AnimatePresence>
                                     </div>
                                 );
                             })}
                         </div>
 
                         {/* Summary Footer */}
-                        <div className="p-8 bg-[#faf8f5]/60 border-t border-[#e8e4dd] flex justify-between items-center">
+                        <div className="p-8 bg-kiro-bg/60 border-t border-kiro-line flex justify-between items-center">
                             <div>
-                                <p className="text-[10px] text-[#5a5a5a] uppercase tracking-widest font-black mb-1">Indicative Total</p>
-                                <p className="text-2xl font-bold text-[#8b6f47] font-serif">{formatRange(finalMin, finalMax)}</p>
+                                <p className="text-[12px] text-kiro-inkSoft uppercase tracking-wide font-black mb-1">Indicative Total</p>
+                                <p className="text-2xl font-bold text-kiro-accent font-serif">{formatRange(finalMin, finalMax)}</p>
                             </div>
                             <div className="text-right">
-                                <p className="text-[9px] text-[#5a5a5a] italic leading-relaxed font-medium">Model includes scope,<br />standard GST and contingency.</p>
+                                <p className="text-[9px] text-kiro-inkSoft italic leading-relaxed font-medium">Model includes scope,<br />standard GST and contingency.</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Blueprint Translation */}
-                    <div className="bg-white border border-[#e8e4dd] p-8 rounded-[8px] relative overflow-hidden group shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#8b6f47]/[0.04] blur-2xl pointer-events-none group-hover:bg-[#8b6f47]/[0.08] transition-colors" aria-hidden="true" />
+                    <div className="bg-white border border-kiro-line p-8 rounded-[8px] relative overflow-hidden group shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-kiro-accent/[0.04] blur-2xl pointer-events-none group-hover:bg-kiro-accent/[0.08] transition-colors" aria-hidden="true" />
                         
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="w-10 h-10 rounded-[4px] bg-[#8b6f47]/10 border border-[#8b6f47]/25 flex items-center justify-center">
-                                <span className="text-[#8b6f47] text-lg">✦</span>
+                            <div className="w-10 h-10 rounded-[4px] bg-kiro-accent/10 border border-kiro-accent/25 flex items-center justify-center">
+                                <span className="text-kiro-accent text-lg">✦</span>
                             </div>
-                            <h3 className="text-[#1a1a1a] text-base font-bold uppercase tracking-widest">Blueprint Translation</h3>
+                            <h3 className="text-kiro-ink text-base font-bold uppercase tracking-wide">Blueprint Translation</h3>
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -318,29 +286,26 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
                                         cx="48"
                                         cy="48"
                                         r="40"
-                                        className="fill-none stroke-[#e8e4dd]"
+                                        className="fill-none stroke-kiro-line"
                                         strokeWidth="4"
                                     />
-                                    <motion.circle
+                                    <circle
                                         cx="48"
                                         cy="48"
                                         r="40"
-                                        className="fill-none stroke-[#8b6f47]"
+                                        className="fill-none stroke-kiro-accent"
                                         strokeWidth="4"
                                         strokeDasharray="251.2"
-                                        initial={{ strokeDashoffset: 251.2 }}
-                                        animate={{ strokeDashoffset: 251.2 - (251.2 * 0.85) }}
-                                        transition={{ duration: 2.0, ease: "easeOut", delay: 0.3 }}
-                                        style={{ filter: "drop-shadow(0 0 6px rgba(139,111,71,0.3))" }}
+                                        style={{ strokeDashoffset: 251.2 - (251.2 * 0.85), filter: "drop-shadow(0 0 6px rgba(139,111,71,0.3))" }}
                                     />
                                 </svg>
-                                <span className="absolute text-[#1a1a1a] font-serif text-lg font-bold">85%</span>
+                                <span className="absolute text-kiro-ink font-serif text-lg font-bold">85%</span>
                             </div>
                             <div className="flex-1 space-y-1.5 text-center sm:text-left">
-                                <h4 className="text-xs font-black uppercase text-[#8b6f47] tracking-wider">
+                                <h4 className="text-xs font-black uppercase text-kiro-accent tracking-wider">
                                     {hasBlueprint ? "Profile-to-scope fit" : "Baseline scope fit"}
                                 </h4>
-                                <p className="text-[#5a5a5a] text-[11px] leading-relaxed">
+                                <p className="text-kiro-inkSoft text-[13px] leading-relaxed">
                                     {hasBlueprint
                                         ? `Your ${blueprintName} profile helps prioritize finish language, service depth, and bespoke inclusions before a designer reviews the final plan.`
                                         : "This estimate is useful for scope planning. A Discovery Blueprint adds the emotional, material, and lifestyle layer needed for a more personalized report."}
@@ -348,10 +313,10 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
 							</div>
                         </div>
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Right Column: ALCS Intelligence + Inclusions + Roadmap + CTAs (5 Cols) */}
-                <motion.div variants={itemVariants} className="lg:col-span-5 space-y-6">
+                <div className="lg:col-span-5 space-y-6">
 
                     {/* ALCS Intelligence Panel — shown when Discovery handoff available */}
                     {alcsEstimatorResponse && (
@@ -363,21 +328,21 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
                         />
                     )}
                     {/* Deliverables Card */}
-                    <div className="bg-white border border-[#e8e4dd] rounded-[8px] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)] relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#8b6f47]/[0.04] blur-2xl -mr-16 -mt-16 group-hover:bg-[#8b6f47]/[0.08] transition-colors" aria-hidden="true" />
+                    <div className="bg-white border border-kiro-line rounded-[8px] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)] relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-kiro-accent/[0.04] blur-2xl -mr-16 -mt-16 group-hover:bg-kiro-accent/[0.08] transition-colors" aria-hidden="true" />
 
                         <div className="flex items-center gap-3 mb-8">
-                            <div className="w-10 h-10 rounded-[4px] bg-[#8b6f47]/10 border border-[#8b6f47]/25 flex items-center justify-center">
-                                <Check className="w-5 h-5 text-[#8b6f47]" />
+                            <div className="w-10 h-10 rounded-[4px] bg-kiro-accent/10 border border-kiro-accent/25 flex items-center justify-center">
+                                <Check className="w-5 h-5 text-kiro-accent" />
                             </div>
-                            <h3 className="text-[#1a1a1a] text-base font-bold uppercase tracking-widest font-sans">Scope Inclusions</h3>
+                            <h3 className="text-kiro-ink text-base font-bold uppercase tracking-wide font-sans">Scope Inclusions</h3>
                         </div>
 
                         <div className="space-y-4">
                             {svc?.includes.slice(0, 6).map((item, i) => (
                                 <div key={i} className="flex items-start gap-3 group/item">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-[#8b6f47]/40 mt-1.5 group-hover/item:scale-150 transition-transform" />
-                                    <span className="text-[#5a5a5a] text-[11px] leading-relaxed group-hover/item:text-[#1a1a1a] transition-colors">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-kiro-accent/40 mt-1.5 group-hover/item:scale-150 transition-transform" />
+                                    <span className="text-kiro-inkSoft text-[13px] leading-relaxed group-hover/item:text-kiro-ink transition-colors">
                                         {item}
                                     </span>
                                 </div>
@@ -386,47 +351,47 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
                     </div>
 
                     {/* Delivery Timeline Roadmap */}
-                    <div className="bg-white border border-[#e8e4dd] p-8 rounded-[8px] relative overflow-hidden group shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
-                        <h3 className="text-[#1a1a1a] text-base font-bold uppercase tracking-widest mb-8 flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-[4px] border border-[#e8e4dd] bg-[#faf8f5] flex items-center justify-center">
-                                <Calendar className="w-4 h-4 text-[#8b6f47]" />
+                    <div className="bg-white border border-kiro-line p-8 rounded-[8px] relative overflow-hidden group shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <h3 className="text-kiro-ink text-base font-bold uppercase tracking-wide mb-8 flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-[4px] border border-kiro-line bg-kiro-bg flex items-center justify-center">
+                                <Calendar className="w-4 h-4 text-kiro-accent" />
                             </div>
                             Artisanal Roadmap
                         </h3>
                         
-                        <div className="relative border-l border-[#e8e4dd] ml-3 pl-8 space-y-8">
+                        <div className="relative border-l border-kiro-line ml-3 pl-8 space-y-8">
                             {/* Phase 1 */}
                             <div className="relative group/step">
-                                <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-[4px] bg-[#faf8f5] border border-[#8b6f47] flex items-center justify-center text-[10px] font-bold text-[#8b6f47] group-hover/step:bg-[#8b6f47] group-hover/step:text-white transition-all">
+                                <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-[4px] bg-kiro-bg border border-kiro-accent flex items-center justify-center text-[12px] font-bold text-kiro-accent group-hover/step:bg-kiro-accent group-hover/step:text-white transition-all">
                                     01
                                 </div>
-                                <h4 className="text-[11px] font-black uppercase text-[#1a1a1a] tracking-wider mb-1">Blueprint & Scope Calibration</h4>
-                                <span className="text-[9px] font-mono text-[#8b6f47]/80 block mb-1">Weeks 1 – 4</span>
-                                <p className="text-[#5a5a5a] text-[10px] leading-relaxed">
+                                <h4 className="text-[13px] font-black uppercase text-kiro-ink tracking-wider mb-1">Blueprint & Scope Calibration</h4>
+                                <span className="text-[9px] font-mono text-kiro-accent/80 block mb-1">Weeks 1 – 4</span>
+                                <p className="text-kiro-inkSoft text-[12px] leading-relaxed">
                                     Aligning your project details with style intent, room priorities, and investment comfort.
                                 </p>
                             </div>
 
                             {/* Phase 2 */}
                             <div className="relative group/step">
-                                <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-[4px] bg-[#faf8f5] border border-[#e8e4dd] flex items-center justify-center text-[10px] font-bold text-[#5a5a5a] group-hover/step:border-[#8b6f47] group-hover/step:text-[#8b6f47] transition-all">
+                                <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-[4px] bg-kiro-bg border border-kiro-line flex items-center justify-center text-[12px] font-bold text-kiro-inkSoft group-hover/step:border-kiro-accent group-hover/step:text-kiro-accent transition-all">
                                     02
                                 </div>
-                                <h4 className="text-[11px] font-black uppercase text-[#1a1a1a] tracking-wider mb-1">Design Detailing & Sourcing</h4>
-                                <span className="text-[9px] font-mono text-[#8b6f47]/80 block mb-1">Weeks 5 – 12</span>
-                                <p className="text-[#5a5a5a] text-[10px] leading-relaxed">
+                                <h4 className="text-[13px] font-black uppercase text-kiro-ink tracking-wider mb-1">Design Detailing & Sourcing</h4>
+                                <span className="text-[9px] font-mono text-kiro-accent/80 block mb-1">Weeks 5 – 12</span>
+                                <p className="text-kiro-inkSoft text-[12px] leading-relaxed">
                                     Translating the agreed direction into drawings, materials, vendor planning, and finish selections.
                                 </p>
                             </div>
 
                             {/* Phase 3 */}
                             <div className="relative group/step">
-                                <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-[4px] bg-[#faf8f5] border border-[#e8e4dd] flex items-center justify-center text-[10px] font-bold text-[#5a5a5a] group-hover/step:border-[#8b6f47] group-hover/step:text-[#8b6f47] transition-all">
+                                <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-[4px] bg-kiro-bg border border-kiro-line flex items-center justify-center text-[12px] font-bold text-kiro-inkSoft group-hover/step:border-kiro-accent group-hover/step:text-kiro-accent transition-all">
                                     03
                                 </div>
-                                <h4 className="text-[11px] font-black uppercase text-[#1a1a1a] tracking-wider mb-1">Execution Stewardship & Handover</h4>
-                                <span className="text-[9px] font-mono text-[#8b6f47]/80 block mb-1">Weeks 13+</span>
-                                <p className="text-[#5a5a5a] text-[10px] leading-relaxed">
+                                <h4 className="text-[13px] font-black uppercase text-kiro-ink tracking-wider mb-1">Execution Stewardship & Handover</h4>
+                                <span className="text-[9px] font-mono text-kiro-accent/80 block mb-1">Weeks 13+</span>
+                                <p className="text-kiro-inkSoft text-[12px] leading-relaxed">
                                     Coordinating site progress, quality checks, installation sequence, and final move-in readiness.
                                 </p>
                             </div>
@@ -439,19 +404,19 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
                             <button
                                 type="button"
                                 onClick={onReset}
-                                className="w-full p-6 rounded-[8px] border border-[#e8e4dd] bg-white hover:bg-[#8b6f47]/[0.04] hover:border-[#8b6f47]/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                                className="w-full p-6 rounded-[8px] border border-kiro-line bg-white hover:bg-kiro-accent/[0.04] hover:border-kiro-accent/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                             >
-                                <Home className="w-6 h-6 text-[#5a5a5a] group-hover:text-[#8b6f47] transition-all group-hover:rotate-12" />
-                                <span className="text-[10px] uppercase font-black tracking-widest text-[#5a5a5a] transition-colors group-hover:text-[#8b6f47]">Restart Estimate</span>
+                                <Home className="w-6 h-6 text-kiro-inkSoft group-hover:text-kiro-accent transition-all group-hover:rotate-12" />
+                                <span className="text-[12px] uppercase font-black tracking-wide text-kiro-inkSoft transition-colors group-hover:text-kiro-accent">Restart Estimate</span>
                             </button>
                         </Magnet>
                         <Magnet range={40} className="w-full">
                             <Link
                                 to={ECOSYSTEM_ROUTES.discovery}
-                                className="w-full p-6 rounded-[8px] border border-[#e8e4dd] bg-white hover:bg-[#8b6f47]/[0.04] hover:border-[#8b6f47]/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                                className="w-full p-6 rounded-[8px] border border-kiro-line bg-white hover:bg-kiro-accent/[0.04] hover:border-kiro-accent/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                             >
-                                <Compass className="w-6 h-6 text-[#5a5a5a] group-hover:text-[#8b6f47] transition-colors" />
-                                <span className="text-[10px] uppercase font-black tracking-widest text-[#5a5a5a] transition-colors group-hover:text-[#8b6f47]">
+                                <Compass className="w-6 h-6 text-kiro-inkSoft group-hover:text-kiro-accent transition-colors" />
+                                <span className="text-[12px] uppercase font-black tracking-wide text-kiro-inkSoft transition-colors group-hover:text-kiro-accent">
                                     {hasBlueprint ? "Refine Blueprint" : "Create Blueprint"}
                                 </span>
                             </Link>
@@ -459,25 +424,25 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
                         <Magnet range={40} className="w-full">
                             <Link
                                 to="/system-blueprint"
-                                className="w-full p-6 rounded-[8px] border border-[#e8e4dd] bg-white hover:bg-[#8b6f47]/[0.04] hover:border-[#8b6f47]/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                                className="w-full p-6 rounded-[8px] border border-kiro-line bg-white hover:bg-kiro-accent/[0.04] hover:border-kiro-accent/40 transition-all group flex flex-col items-center gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                             >
-                                <Info className="w-6 h-6 text-[#5a5a5a] group-hover:text-[#8b6f47] transition-all group-hover:rotate-12" />
-                                <span className="text-[10px] uppercase font-black tracking-widest text-[#5a5a5a] transition-colors group-hover:text-[#8b6f47]">System Blueprint</span>
+                                <Info className="w-6 h-6 text-kiro-inkSoft group-hover:text-kiro-accent transition-all group-hover:rotate-12" />
+                                <span className="text-[12px] uppercase font-black tracking-wide text-kiro-inkSoft transition-colors group-hover:text-kiro-accent">System Blueprint</span>
                             </Link>
                         </Magnet>
                         <Magnet range={40} className="w-full">
                             <Link
                                 to={ECOSYSTEM_ROUTES.contact}
-                                className="w-full p-6 rounded-[8px] bg-[#8b6f47] hover:bg-[#705939] transition-all group flex flex-col items-center gap-3 shadow-[0_4px_16px_rgba(139,111,71,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:ring-offset-2"
+                                className="w-full p-6 rounded-[8px] bg-kiro-accent hover:bg-[#705939] transition-all group flex flex-col items-center gap-3 shadow-[0_4px_16px_rgba(139,111,71,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                             >
                                 <PhoneCall className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-                                <span className="text-[10px] uppercase font-black tracking-widest text-white">Review With Designer</span>
+                                <span className="text-[12px] uppercase font-black tracking-wide text-white">Review With Designer</span>
                             </Link>
                         </Magnet>
                     </div>
-                </motion.div>
+                </div>
             </div>
-        </motion.div >
+        </div >
     );
 }
 

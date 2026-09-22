@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import { Loader2, Award, Users, Clock, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/useToast";

@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EvidencePlatformSchemaV1",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "evidenceId",
+    "generator",
+    "timestamp",
+    "provenance",
+    "status",
+    "results"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "evidenceId": {
+      "type": "string",
+      "pattern": "^EV-[A-Z0-9-]+$"
+    },
+    "generator": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["gitSha", "gitBranch", "nodeVersion", "platform", "arch", "cpus"],
+      "properties": {
+        "gitSha": { "type": "string" },
+        "gitBranch": { "type": "string" },
+        "gitTag": { "type": "string" },
+        "nodeVersion": { "type": "string" },
+        "platform": { "type": "string" },
+        "arch": { "type": "string" },
+        "cpus": { "type": "number" },
+        "hostname": { "type": "string" }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PASSED", "FAILED"]
+    },
+    "results": {
+      "type": "object"
+    },
+    "checksum": {
+      "type": "string"
+    }
+  }
+}

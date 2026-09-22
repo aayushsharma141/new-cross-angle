@@ -3,7 +3,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { ExternalLink, MoreHorizontal, Mail, Phone, MapPin, Calendar, Tag, ArrowUpDown, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
-import { Checkbox } from '@/components/ui/primitives/checkbox';
+import { Checkbox } from "@/components/ui/interactive/Checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,10 +19,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/primitives/dialog';
-import { Badge } from '@/components/ui/primitives/badge';
+import { Badge } from "@/components/primitives/interactive";
 import { DataTable } from '@/components/admin/DataTable';
 import type { Lead } from '@/repositories/interfaces/LeadRepository';
 import { CRM_STAGE_BADGE_CLASSES, CRM_TEMPERATURES } from '@/lib/crm';
+import { CRM_STAGES } from '@/lib/crm/stages';
 
 const temperatureStyles: Record<string, string> = CRM_TEMPERATURES.reduce(
   (acc, t) => {
@@ -258,13 +259,13 @@ export function LeadTable({
                 <DropdownMenuLabel className="text-xs text-muted-foreground">
                   Change Status
                 </DropdownMenuLabel>
-                {['new', 'in_conversation', 'meeting_planned', 'quote_sent', 'closing', 'won', 'lost'].map((status) => (
+                {CRM_STAGES.map((stage) => (
                   <DropdownMenuItem
-                    key={status}
-                    onClick={() => onStatusChange?.(lead.id, status)}
-                    disabled={lead.status === status}
+                    key={stage.id}
+                    onClick={() => onStatusChange?.(lead.id, stage.id)}
+                    disabled={lead.status === stage.id}
                   >
-                    {status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    {stage.label}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -284,7 +285,7 @@ export function LeadTable({
       loading={loading}
       onPaginationChange={onPaginationChange}
       onSearchChange={onSearchChange}
-      searchPlaceholder="Search leads by name, email, or phone..."
+      searchPlaceholder="Search leads by name, email, or phone�"
       emptyMessage="No leads found"
       pageSizeOptions={[10, 25, 50]}
     />

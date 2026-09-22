@@ -1,0 +1,47 @@
+/* CORE */
+
+/* FROZEN GLOBAL LIGHTING: GALLERY LIGHT */
+/* The baseline aesthetic for the entire application (limestone, paper, charcoal, bronze). */
+:root, [data-environment="gallery"] {
+  --m-wall:      hsl(40 10% 97%);    /* limestone/warm plaster */
+  --m-floor:     hsl(40 10% 97%);
+  --m-plaster:   hsl(40 10% 95%);
+  --m-surface:   hsl(38 22% 92%);    /* stone-colored surface */
+  --m-slab:      hsl(38 22% 92%);
+  --m-panel:     hsl(38 22% 89%);
+  --m-paper:     hsl(38 22% 94%);
+  --m-glass:     color-mix(in srgb, hsl(40 10% 97%) 80%, transparent);
+  --m-metal:     hsl(43 35% 50%);    /* bronze interaction cue */
+  --m-fabric:    hsl(38 22% 92%);
+  --m-wood:      hsl(0 0% 6%);
+  --m-shadow:    var(--f-shadow-100);
+  --m-highlight: hsl(0 0% 6%);
+  --m-line:      color-mix(in srgb, hsl(0 0% 6%) 8%, transparent);
+  --m-detail:    hsl(0 0% 6%);       /* charcoal text */
+  --m-subtext:   hsl(0 0% 30%);
+  --m-caption:   hsl(0 0% 50%);
+}
+
+/* ENTRANCE: Maximum design silence */
+/* Surfaces blend into the wall to let photography dictate structure. */
+[data-environment="entrance"] {
+  --m-surface:   var(--m-wall);
+  --m-panel:     var(--m-wall);
+  --m-shadow:    var(--f-shadow-none); /* Quieter chrome */
+}
+
+/* WORKSPACE: Drafting precision */
+/* Crisper surfaces mimicking stacked paper; slightly sharper lines for dense information. */
+[data-environment="workspace"] {
+  --m-surface:   hsl(38 15% 96%);    /* Crisper paper */
+  --m-panel:     hsl(38 15% 93%);
+  --m-line:      color-mix(in srgb, hsl(0 0% 6%) 12%, transparent); /* Stronger grid lines */
+}
+
+/* CONSULTATION: Calmer rhythm */
+/* Slightly warmer, more intimate surfaces. */
+[data-environment="consultation"] {
+  --m-surface:   hsl(38 28% 90%);    /* Warmer stone */
+  --m-panel:     hsl(38 28% 87%);
+  --m-metal:     hsl(43 40% 45%);    /* Richer bronze for intimate interaction */
+}

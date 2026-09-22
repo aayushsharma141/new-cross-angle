@@ -12,14 +12,21 @@ verify_jwt = false
 [functions.aesthetic-ai]
 verify_jwt = false
 
+# The three ImageKit functions are admin-only and mutate storage + the DB.
+# They each call verifyAdmin() internally, but a stale deploy of
+# migrate-to-imagekit shipped without that guard and was callable by anyone.
+# verify_jwt is the platform-level second layer: it rejects requests carrying
+# no JWT at all, so a missing in-function guard can no longer expose them.
+# Safe for every real caller — browser calls go through /api/supabase, where
+# middleware.ts (prod) and the vite proxy (dev) inject the user's access_token.
 [functions.imagekit-upload]
-verify_jwt = false
+verify_jwt = true
 
 [functions.migrate-to-imagekit]
-verify_jwt = false
+verify_jwt = true
 
 [functions.sync-imagekit]
-verify_jwt = false
+verify_jwt = true
 
 
 [functions.admin-login]

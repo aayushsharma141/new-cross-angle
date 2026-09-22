@@ -1,34 +1,40 @@
-import { lazy } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-
-import SectionNavDots from "@/components/layout/SectionNavDots";
-import ScrollProgress from "@/components/layout/ScrollProgress";
-import WelcomePrompt from "@/components/shared/WelcomePrompt";
-import { LazySection } from "@/components/performance/LazySection";
 import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { SITE_CONSTANTS } from "@/lib/constants";
-
-// ── Above-fold: eager (loaded with initial bundle) ──────────────────────────
+import { Link } from "react-router-dom";
 import Hero from "@/components/home/Hero";
-
-// ── Below-fold: code-split + IntersectionObserver-triggered ─────────────────
-const StyleDiscoveryTeaser = lazy(() => import("@/components/home/StyleDiscoveryTeaser"));
-const Portfolio            = lazy(() => import("@/components/home/Portfolio"));
-const BeforeAfterShowcase  = lazy(() => import("@/components/home/BeforeAfterShowcase").then(m => ({ default: m.BeforeAfterShowcase })));
-const Process              = lazy(() => import("@/components/home/Process"));
-const Testimonials         = lazy(() => import("@/components/home/Testimonials"));
-const EstimatorPromo       = lazy(() => import("@/components/home/EstimatorPromo"));
-const HomeFinalCTA         = lazy(() => import("@/components/home/HomeFinalCTA"));
+import { PhilosophyChapter } from "@/components/home/PhilosophyChapter";
+import { ExpertiseChapter } from "@/components/home/ExpertiseChapter";
+import { ProcessChapter } from "@/components/home/ProcessChapter";
+import { TransformationChapter } from "@/components/home/TransformationChapter";
+import { HomeFAQ } from "@/components/home/HomeFAQ";
+import { useEffect, useState } from "react";
+import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
 
 const Index = () => {
+  const [revealed, setRevealed] = useState(false);
+  
+  // Instrument focal points for Attention Purity Index
+  const headlineRef = useAttentionTelemetry<HTMLDivElement>("entrance", "hero-headline", 2);
+  const ctaRef = useAttentionTelemetry<HTMLDivElement>("entrance", "primary-cta", 3);
+  const featuredRef = useAttentionTelemetry<HTMLDivElement>("entrance", "featured-project", 4);
+
+  useEffect(() => {
+    // The Reveal (The Entrance): A slow, curtain-like vertical wipe on initial page load
+    const timer = setTimeout(() => {
+      setRevealed(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <>
       <h1 className="sr-only">Crossangle Interior | Premium Interior Design Studio in Jamshedpur</h1>
       <Helmet>
-        <title>Crossangle Interior | Premium Interior Design Studio in Jamshedpur</title>
+        <title>Crossangle Interior | Premium Interior Design Studio</title>
         <meta
           name="description"
           content="Transform your vision into exquisite living spaces with Crossangle Interior. Innovative and personalized interior design solutions for homes and commercial spaces in Jamshedpur."
@@ -41,7 +47,7 @@ const Index = () => {
         <meta property="og:description" content="Transform your vision into exquisite living spaces with Crossangle Interior. Innovative and personalized interior design solutions." />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/" />
-        {/* ✦ LCP Preload: fetch above-fold hero image with highest browser priority */}
+        {/* LCP Preload: fetch above-fold hero image with highest browser priority */}
         <link
           rel="preload"
           href="/hero_reality_render_1775299733746.png"
@@ -50,60 +56,138 @@ const Index = () => {
         />
       </Helmet>
 
-      <ScrollProgress />
-      <WelcomePrompt />
-      
-      <Navbar />
-      <main id="main-content" className="min-h-screen relative w-full">
-        <SectionNavDots />
+      {/* The Reveal Curtain Overlay */}
+      <div 
+        className="fixed inset-0 z-50 bg-[var(--s-canvas-primary)] pointer-events-none transition-transform duration-[1400ms] motion-reduce:transition-none"
+        style={{ 
+          transform: revealed ? "translateY(-100%)" : "translateY(0)",
+          transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)"
+        }}
+      />
 
-        {/* Hero — eager, sticky behind everything, curtain scroll effect */}
-        <div id="home" className="h-screen">
+      <Navbar />
+
+      {/* The main canvas for the Entrance. */}
+      <main id="main-content" className="home-shell min-h-screen relative w-full pb-[10vh]" data-environment="entrance">
+        <div className="absolute inset-0 pointer-events-none home-noise z-0" />
+
+        {/* 0–20% Scroll: Hero photography (Design Silence) */}
+        <div className="relative z-10">
           <Hero />
         </div>
 
-        {/* Content slides OVER the hero as you scroll (curtain effect) */}
-        <div className="relative z-10">
-
-          {/* 1. Style Discovery Teaser */}
-          <LazySection key="discovery" id="discovery" className="bg-neutral-950" minHeight={600} rootMargin="300px 0px">
-            <StyleDiscoveryTeaser />
-          </LazySection>
-
-          {/* 2. Portfolio Showcase */}
-          <LazySection key="portfolio" id="portfolio" className="bg-neutral-950 border-t border-white/[0.05]" minHeight={1000} rootMargin="300px 0px">
-            <Portfolio />
-          </LazySection>
-
-          {/* 3. Before & After Slides (Transformation) */}
-          <LazySection key="before-after" id="before-after" className="bg-[#060504] border-t border-white/[0.05]" minHeight={750} rootMargin="300px 0px">
-            <BeforeAfterShowcase />
-          </LazySection>
-
-          {/* 4. Methodology Process (Predictable Interior System) */}
-          <LazySection key="process" id="process" className="bg-site-bg border-t border-white/[0.05]" minHeight={800} rootMargin="300px 0px">
-            <Process />
-          </LazySection>
-
-          {/* 5. Testimonials */}
-          <LazySection key="testimonials" id="testimonials" className="bg-[#080807] border-t border-white/[0.05]" minHeight={700} rootMargin="300px 0px">
-            <Testimonials />
-          </LazySection>
-
-          {/* 6. Cost Estimator Teaser */}
-          <LazySection key="estimator" id="estimator" className="bg-black border-t border-white/[0.05]" minHeight={600} rootMargin="300px 0px">
-            <EstimatorPromo />
-          </LazySection>
-
-          {/* 7. Final CTA */}
-          <LazySection key="final-cta" id="final-cta" className="bg-neutral-950 border-t border-white/[0.05]" minHeight={600} rootMargin="300px 0px">
-            <HomeFinalCTA />
-          </LazySection>
-
+        {/* 20–35% Scroll: Chapter 01 — pinned, word-scrubbed philosophy statement */}
+        <div ref={headlineRef} className="relative z-10">
+          <PhilosophyChapter />
         </div>
+
+        {/* 35–55% Scroll: One primary CTA (Editorial Asymmetry, staggered left) */}
+        <section className="home-section-frame relative z-10 w-full px-6 md:px-12 lg:px-24 mt-[14vh] mb-[18vh] max-w-[1600px] mx-auto flex justify-start">
+          <div className="home-panel w-full md:w-6/12 lg:w-5/12 p-8 md:p-12 flex flex-col gap-10 rounded-xl relative">
+            <p className="home-body text-base md:text-lg leading-relaxed max-w-[44ch] text-white/72">
+              We treat interior design as an engineering challenge, not just decoration. Enjoy beautiful, highly functional spaces for daily living, delivered through our CrossAngle Predictable Interior System™.
+            </p>
+            <div ref={ctaRef} className="pt-4 flex items-center justify-between group border-t border-[rgba(255,255,255,0.06)]">
+              <Link
+                to="/aesthetic-discovery-engine"
+                className="home-button-sweep inline-flex items-center justify-between w-full uppercase tracking-[0.2em] text-[10px] font-semibold text-[var(--s-text-primary)] py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] rounded-md"
+              >
+                <span>Take Style Quiz</span>
+                <span className="text-[#C9A85C] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1.5 motion-reduce:transition-none flex items-center gap-1.5">
+                  Explore <span aria-hidden="true">→</span>
+                </span>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Chapter 02 — pinned services accordion */}
+        <div className="relative z-10 mb-[14vh]">
+          <ExpertiseChapter />
+        </div>
+
+        {/* 55–80% Scroll: Featured project — editorial photograph treatment */}
+        <section className="home-section-frame relative z-10 w-full mb-[18vh] overflow-visible">
+          <div ref={featuredRef} className="px-6 md:px-12 lg:px-24 max-w-[1600px] mx-auto flex flex-col-reverse md:flex-row items-end gap-12 md:gap-16">
+            {/* Left: copy block */}
+            <div className="w-full md:w-[38%] pb-0 md:pb-12 shrink-0">
+              <span className="home-kicker mb-6 block uppercase text-[10px] tracking-[0.25em] font-bold">01 / Featured Project</span>
+              <h3 className="font-display text-3xl md:text-5xl mb-6 text-[var(--s-text-primary)] font-normal leading-[1.1]" style={{ letterSpacing: "-0.025em" }}>The Highland Residence</h3>
+              <div className="flex gap-2 mb-6">
+                 <span className="home-chip text-[10px] uppercase tracking-[0.12em] font-medium px-2.5 py-1 border border-white/10 bg-white/[0.02] rounded-md">Jamshedpur</span>
+                 <span className="home-chip text-[10px] uppercase tracking-[0.12em] font-medium px-2.5 py-1 border border-white/10 bg-white/[0.02] rounded-md">Turn-key</span>
+              </div>
+              <p className="home-body text-sm leading-relaxed max-w-[38ch] mb-10 text-white/70">
+                Limestone / Oak / Natural Light. An exercise in material restraint and spatial flow.
+              </p>
+              <Link 
+                to="/portfolio" 
+                className="home-button-sweep inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-semibold border-b border-white/20 pb-2 text-[#C9A85C] transition-colors duration-500 hover:border-[#C9A85C] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none group"
+              >
+                <span>View Case Study</span>
+                <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1" aria-hidden="true">→</span>
+              </Link>
+            </div>
+            {/* Right: editorial photograph — bleeds past container, sharp architectural corners */}
+            <div className="w-full md:w-[62%] md:-mr-[4vw] lg:-mr-[6vw]">
+              <div className="aspect-[4/5] md:aspect-[4/3] lg:aspect-[3/2] overflow-hidden relative group rounded-none">
+                <img 
+                  src="/hero_reality_render_1775299733746.png"
+                  className="w-full h-full object-cover transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.015] motion-reduce:transition-none motion-reduce:group-hover:scale-100 rounded-none" 
+                  alt="The Highland Residence architectural interior — Jamshedpur luxury residential project" 
+                  loading="lazy" 
+                  decoding="async"
+                  width="1600"
+                  height="900"
+                />
+                {/* Thin gold bottom accent line */}
+                <div className="absolute bottom-0 left-0 w-16 h-[1px] bg-[#C9A85C]/50" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Chapter 03 — pinned five-stage journey */}
+        <div className="relative z-10 mb-[10vh]">
+          <ProcessChapter />
+        </div>
+
+        {/* Chapter 04 — scroll-scrubbed before/after wipe */}
+        <div className="relative z-10 mb-[10vh]">
+          <TransformationChapter />
+        </div>
+
+        <HomeFAQ />
+
+        {/* 80–100% Scroll: Gallery invitation — refined editorial transition */}
+        <section className="home-section-frame relative z-10 w-full px-6 md:px-12 lg:px-24 py-[14vh] md:py-[16vh] max-w-[1600px] mx-auto flex flex-col items-center justify-center text-center">
+          {/* Vertical gold rule — gentle transition guide */}
+          <div className="w-px h-10 bg-gradient-to-b from-transparent via-[#C9A85C]/40 to-transparent mb-8" aria-hidden="true" />
+          {/* Restrained eyebrow */}
+          <span className="mb-4 block uppercase text-[10px] tracking-[0.25em] font-bold text-white/40">The Archive</span>
+          {/* Proportionally balanced statement */}
+          <h2
+            className="font-display text-[clamp(2.25rem,4.5vw,4rem)] mb-8 text-[var(--s-text-primary)] font-normal leading-[1.1]"
+            style={{ letterSpacing: "-0.025em" }}
+          >
+            Explore the Gallery
+          </h2>
+          {/* Gold thin rule */}
+          <div className="w-10 h-px bg-[#C9A85C]/40 mb-8" aria-hidden="true" />
+          <Link 
+            to="/gallery" 
+            className="home-button-sweep inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] font-semibold border-b border-[#C9A85C]/40 pb-2 text-[#C9A85C] transition-colors duration-500 hover:border-[#C9A85C] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none group"
+          >
+            <span>Enter Gallery</span>
+            <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1.5" aria-hidden="true">→</span>
+          </Link>
+        </section>
+
+
       </main>
       <Footer />
 
+      {/* Schema Markups retained */}
       <SchemaMarkup
         type="LocalBusiness"
         data={{

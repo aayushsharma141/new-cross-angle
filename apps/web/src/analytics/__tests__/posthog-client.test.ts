@@ -7,17 +7,11 @@
  */
 
 import { describe, expect, it, vi } from "vitest";
-import { createAnalyticsClient, type PostHogInstance } from "../posthog-client";
+import { createAnalyticsClient } from "../posthog-client";
 
 /** Minimal posthog stub — only tracks calls */
-function makePosthogStub(): PostHogInstance & {
-  capture: ReturnType<typeof vi.fn>;
-  init: ReturnType<typeof vi.fn>;
-  identify: ReturnType<typeof vi.fn>;
-  reset: ReturnType<typeof vi.fn>;
-  opt_in_capturing: ReturnType<typeof vi.fn>;
-  opt_out_capturing: ReturnType<typeof vi.fn>;
-} {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function makePosthogStub(): any {
   return {
     capture: vi.fn(),
     init: vi.fn(),

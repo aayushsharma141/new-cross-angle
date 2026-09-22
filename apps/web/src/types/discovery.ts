@@ -1,19 +1,29 @@
 export enum Stage {
   Welcome = 0,
-  PropertyReality = 1,
-  Lifestyle = 2,
-  RoomPriority = 3,
-  VisualInstinct = 4,
-  ReinterpretationGate = 5,
-  AdjectiveSelection = 6,
-  PivotQuestion = 7,
-  MaterialResonance = 8,
-  LightCalibration = 9,
-  BudgetAlignment = 10,
-  Analysis = 11,
-  MiniResult = 12,
-  LeadCapture = 13,
-  Results = 14,
+  PhysicalSpace = 1,
+  Timeline = 2,
+  MorningRoutine = 3,
+  KitchenUsage = 4,
+  EntertainmentStyle = 5,
+  RoomPriority = 6,
+  VisualInstinct = 7,
+  ReinterpretationGate = 8,
+  DesignIdentity = 9,
+  Atmosphere = 10,
+  Constraints = 11,
+  MaterialIdentity = 12,
+  LivingPreferences = 13,
+  PivotQuestion = 14,
+  BudgetAlignment = 15,
+  Analysis = 16,
+  MiniResult = 17,
+  LeadCapture = 18,
+  Results = 19,
+}
+
+export interface DiscoveryConfig {
+  firmName?: string;
+  availableModes?: ("quick" | "deep" | "both")[];
 }
 
 export interface LifestyleOption {
@@ -50,6 +60,11 @@ export interface Archetype {
   traits: string[];
   materialBias: string;
   strategy: string;
+  heroImageUrl?: string;
+  moodboardImageUrl?: string;
+  ctaText?: string;
+  ctaDescription?: string;
+  ctaDestination?: string;
   match: (scores: AestheticScores) => number;
 }
 
@@ -67,6 +82,8 @@ export interface UserSignals {
   propertyType?: 'Apartment' | 'Villa' | 'Independent Floor' | 'Studio';
   carpetArea?: number;
   projectScope?: 'Cosmetic Renovation' | 'Full Structural Renovation' | 'Bare Shell' | 'New Build';
+  possessionStatus?: 'Ready to Move' | 'Under Construction' | 'Living There Currently';
+  morningRoutine?: 'Slow & Peaceful' | 'Chaotic Family Rush' | 'Early & Active';
   familyStructure?: 'Nuclear' | 'Joint' | 'Pets' | 'Elderly';
   cookingRole?: 'Daily Ritual' | 'Quick Utility' | 'Hosting';
   hostingFrequency?: 'Weekly' | 'Monthly' | 'Rarely';
@@ -82,12 +99,27 @@ export interface UserSignals {
   // Consultation intelligence (computed post-visual)
   consultationIntelligence?: ConsultationIntelligence;
   primaryValue?: 'beauty' | 'practicality' | 'impression' | 'longevity' | 'identity';
+  emotionalGoal?: string;
+  householdSize?: number;
+  childCount?: number;
+  workFromHome?: string | boolean;
+  hasPets?: boolean;
+  propertyAge?: number;
+  city?: string;
+  cityTier?: string;
+  lightingPreference?: string;
+  colorPalette?: string[];
+  budgetValue?: number;
+  acceptedCompromises?: string[];
   reflectionAnswers: { question: string; answer: string }[];
   lifestyleChoices: string[];
   selectedImageIds: number[];
   selectedImageTags: Partial<AestheticScores>[];
   selectedAdjectives: string[];
   freeTextReflection: string;
+  designIdentity?: string[];
+  atmosphere?: string[];
+  constraints?: string[];
   sliderValues: { label: string; value: number }[];
   materialChoice: string;
   lightPreference: string;

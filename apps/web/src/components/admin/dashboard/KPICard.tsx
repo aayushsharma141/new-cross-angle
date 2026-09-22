@@ -124,7 +124,7 @@ export function MetricCard({
       </div>
       {progress !== undefined && (
         <div className="mt-3">
-          <div className="h-2 w-full overflow-hidden rounded-full bg-[hsl(var(--admin-surface))]">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-[hsl(var(--admin-surface))]" role="progressbar" {...{ 'aria-valuenow': progress, 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-label': title }}>
             <div
               className={cn(
                 'h-full transition-all',
@@ -155,7 +155,7 @@ interface ConversionFunnelProps {
 }
 
 export function ConversionFunnel({ stages, className }: ConversionFunnelProps) {
-  const maxCount = Math.max(...stages.map((s) => s.count));
+  const maxCount = stages && stages.length > 0 ? Math.max(...stages.map((s) => s.count)) : 1;
 
   return (
     <div className={cn('space-y-2', className)}>
@@ -186,7 +186,7 @@ export function ConversionFunnel({ stages, className }: ConversionFunnelProps) {
                 )}
               </div>
             </div>
-            <div className="mt-1 h-6 w-full overflow-hidden rounded-md bg-muted">
+            <div className="mt-1 h-6 w-full overflow-hidden rounded-md bg-muted" role="progressbar" {...{ 'aria-valuenow': percentage, 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-label': `${stage.name} stage conversion` }}>
               <div
                 className="h-full bg-primary transition-all duration-500"
                 style={{ width: `${percentage}%` }}

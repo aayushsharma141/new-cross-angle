@@ -1,0 +1,25 @@
+@layer base {
+  /* The Gallery Lighting (Light Theme Override) */
+  .gallery {
+    --canvas-primary: var(--color-stone-50);
+    --canvas-secondary: var(--color-stone-100);
+    --surface-card: var(--color-white);
+    
+    --text-primary: var(--color-charcoal-900);
+    --text-secondary: var(--color-charcoal-500);
+    
+    --border-subtle: 0 0% 0% / 0.1; /* rgba(26,26,26,0.1) approximate */
+  }
+
+  /* The Workspace Lighting (Ultra-focus White) */
+  .workspace {
+    --canvas-primary: var(--color-white);
+    --canvas-secondary: var(--color-stone-50);
+    --surface-card: var(--color-white);
+    
+    --text-primary: var(--color-obsidian-900);
+    --text-secondary: var(--color-charcoal-500);
+    
+    --border-subtle: 0 0% 0% / 0.1;
+  }
+}

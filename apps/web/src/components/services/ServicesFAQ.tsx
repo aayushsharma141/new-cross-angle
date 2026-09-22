@@ -33,8 +33,8 @@ const ServicesFAQ = () => {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="relative bg-[#040404] py-24 lg:py-36 px-6 overflow-hidden border-b border-white/[0.04]">
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_50%_40%_at_100%_50%,rgba(196,18,48,0.04),transparent)]" />
+    <section className="relative bg-[var(--s-canvas-primary)] py-24 lg:py-36 px-6 overflow-hidden border-b border-[var(--s-border-subtle)]">
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_50%_40%_at_100%_50%,rgba(209,175,110,0.04),transparent)]" />
 
       <div className="max-w-[1100px] mx-auto relative z-10">
         {/* Header */}
@@ -44,8 +44,8 @@ const ServicesFAQ = () => {
           viewport={{ once: true }}
           className="flex items-center gap-4 mb-7"
         >
-          <div className="w-10 h-px bg-site-crimson" />
-          <span className="font-bold text-[9px] uppercase tracking-[0.45em] text-site-gold">
+          <div className="w-10 h-px bg-primary" />
+          <span className="font-bold text-[9px] uppercase tracking-[0.45em] text-primary">
             Common Questions
           </span>
         </motion.div>
@@ -57,13 +57,13 @@ const ServicesFAQ = () => {
           className="font-serif font-normal text-[clamp(2rem,3.8vw,3.2rem)] leading-[1.1] tracking-tight text-white mb-14"
         >
           Before You{" "}
-          <em className="italic text-site-crimson font-light underline underline-offset-[10px] decoration-white/10 decoration-[3px]">
+          <em className="italic text-primary font-light underline underline-offset-[10px] decoration-white/10 decoration-[3px]">
             Reach Out
           </em>
         </motion.h2>
 
         {/* FAQ accordion */}
-        <div className="divide-y divide-white/[0.07]">
+        <div className="divide-y divide-[var(--s-border-subtle)]">
           {faqs.map((faq, i) => (
             <motion.div
               key={i}
@@ -77,7 +77,7 @@ const ServicesFAQ = () => {
                 {...{"aria-expanded": open === i}}
                 aria-controls={`faq-panel-${i}`}
                 onClick={() => setOpen(open === i ? null : i)}
-                className="w-full flex items-start justify-between gap-6 py-7 text-left group focus:outline-none focus-visible:ring-1 focus-visible:ring-site-crimson"
+                className="w-full flex items-start justify-between gap-6 py-7 text-left group focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
               >
                 <span
                   className={`font-sans text-[0.95rem] font-medium leading-snug transition-colors duration-300 ${
@@ -89,7 +89,7 @@ const ServicesFAQ = () => {
                 <div
                   className={`shrink-0 mt-0.5 w-6 h-6 flex items-center justify-center border transition-all duration-300 ${
                     open === i
-                      ? "border-site-crimson text-site-crimson"
+                      ? "border-primary text-primary"
                       : "border-white/15 text-white/30 group-hover:border-white/30"
                   }`}
                 >

@@ -26,7 +26,7 @@ interface LoadingStateProps {
 }
 
 export const LoadingState = ({
-    text = "Loading...",
+    text = "Loading…",
     fullScreen = false,
     className
 }: LoadingStateProps) => {

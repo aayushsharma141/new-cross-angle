@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Compare } from "@/components/ui/enhanced/compare";
-import { type Project } from "@/data/projects";
+import { type Project } from "@/lib/api";
 
 interface ProjectTransformationProps {
   project: Project;
@@ -8,16 +8,16 @@ interface ProjectTransformationProps {
 
 const fallbacks: Record<string, { before: string; after: string }> = {
   "serene-master-suite": {
-    before: "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop",
-    after: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1200&auto=format&fit=crop"
+    before: "/blueprint_shell.jpg",
+    after: "/reality_render.jpg"
   },
   "modern-culinary-space": {
-    before: "https://images.unsplash.com/photo-1565538810844-1e119412e707?q=80&w=1200&auto=format&fit=crop",
-    after: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop"
+    before: "/blueprint_shell.jpg",
+    after: "/images/projects/discovery/visual-5.jpg"
   },
   "executive-workspace": {
-    before: "https://images.unsplash.com/photo-1504307651254-35680f356fce?q=80&w=1200&auto=format&fit=crop",
-    after: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop"
+    before: "/blueprint_shell.jpg",
+    after: "/images/projects/discovery/reflect-workspace-dynamic.jpg"
   }
 };
 
@@ -26,11 +26,11 @@ const ProjectTransformation = ({ project }: ProjectTransformationProps) => {
   
   const beforeImage = hasMultipleImages 
     ? project.gallery[0].images[0] 
-    : (fallbacks[project.slug]?.before || "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop");
+    : (fallbacks[project.slug]?.before || "/blueprint_shell.jpg");
   
   const afterImage = hasMultipleImages 
     ? project.gallery[0].images[1] 
-    : (project.heroImage || fallbacks[project.slug]?.after || "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=1200&auto=format&fit=crop");
+    : (project.heroImage || fallbacks[project.slug]?.after || "/reality_render.jpg");
 
   return (
     <section id="transformation" className="py-24 md:py-32 border-t border-white/5 bg-neutral-950">
@@ -42,7 +42,7 @@ const ProjectTransformation = ({ project }: ProjectTransformationProps) => {
           transition={{ duration: 0.7 }}
           className="flex items-center gap-4 mb-16"
         >
-          <span className="text-xs font-medium tracking-[0.3em] uppercase text-site-gold">01. Transformation</span>
+          <span className="text-xs font-medium tracking-[0.3em] uppercase text-primary">01. Transformation</span>
           <span className="flex-1 h-px bg-white/10 max-w-xs" />
         </motion.div>
 
@@ -79,7 +79,7 @@ const ProjectTransformation = ({ project }: ProjectTransformationProps) => {
             className="grid md:grid-cols-2 gap-12 md:gap-20 max-w-5xl mx-auto"
           >
             <div>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-site-crimson block mb-4 font-medium">The Challenge</span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-primary block mb-4 font-medium">The Challenge</span>
               <ul className="text-xl md:text-2xl font-serif text-white leading-relaxed space-y-3">
                 {project.challengeShort?.split('•').filter(Boolean).map((item, idx) => (
                   <li key={idx} className="flex gap-4">
@@ -93,11 +93,11 @@ const ProjectTransformation = ({ project }: ProjectTransformationProps) => {
             </div>
 
             <div>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-site-gold block mb-4 font-medium">The Result</span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-primary block mb-4 font-medium">The Result</span>
               <ul className="text-lg text-stone-300 font-light leading-relaxed space-y-3">
                 {project.resultShort?.split('•').filter(Boolean).map((item, idx) => (
                   <li key={idx} className="flex gap-4">
-                    <span className="text-site-gold">•</span>
+                    <span className="text-primary">•</span>
                     <span>{item.trim()}</span>
                   </li>
                 )) || (

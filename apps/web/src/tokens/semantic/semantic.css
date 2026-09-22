@@ -1,0 +1,48 @@
+/* CORE */
+:root, [data-environment] {
+  /* Canvas */
+  --s-canvas-primary:   var(--m-wall);
+  --s-canvas-secondary: var(--m-plaster);
+
+  /* Surface */
+  --s-surface-primary:   var(--m-slab);
+  --s-surface-secondary: var(--m-panel);
+  --s-surface-elevated:  var(--m-surface);
+  --s-surface-raised:    var(--m-surface);
+  --s-surface-sunken:    var(--m-paper);
+  --s-surface-overlay:   var(--m-glass);
+
+  /* Text */
+  --s-text-primary: var(--m-detail);
+  --s-text-secondary: var(--m-subtext);
+  --s-text-tertiary: var(--m-caption);
+  --s-text-display: var(--m-detail);
+  --s-text-heading: var(--m-detail);
+  --s-text-body:    var(--m-subtext);
+  --s-text-muted:   var(--m-caption);
+  --s-text-subtle:  var(--m-caption);
+
+  /* Borders & Dividers */
+  --s-border-subtle:   var(--m-line);
+  --s-border-default:  color-mix(in srgb, var(--m-detail) 14%, transparent);
+  --s-border-strong:   color-mix(in srgb, var(--m-detail) 24%, transparent);
+  --s-divider-default: var(--s-border-subtle);
+
+  /* Actions */
+  --s-action-primary-bg:       var(--m-metal);
+  --s-action-primary-text:     var(--m-wall);
+  --s-action-secondary-bg:     transparent;
+  --s-action-secondary-border: var(--s-border-default);
+  --s-action-secondary-text:   var(--s-text-body);
+
+  /* Accent */
+  --s-accent-primary: var(--m-metal);
+
+  /* Focus */
+  --s-focus-ring: var(--m-metal);
+}
+
+/* NOTE: this layer deliberately does not reset the global --radius.
+   The architectural scale lives in tokens/primitives/radius.css, which is not
+   imported yet; overriding --radius here would retune every corner on the site
+   from index.css's 0.5rem to 4px. Wire the primitives layer first. */

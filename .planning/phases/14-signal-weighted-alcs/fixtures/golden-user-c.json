@@ -1,0 +1,43 @@
+{
+  "strategyLabel": "Hero Space",
+  "propertyFit": 75,
+  "propertyFitTier": "good",
+  "executionPath": "hero_space",
+  "focusAreas": [
+    "Living Room"
+  ],
+  "reasoning": "Because your family lifestyle prioritizes  — and your luxury language centers on material quality — natural stone, solid wood, and premium textiles — your investment creates maximum emotional return when focused on social and sensory spaces first. The hero zone strategy concentrates premium quality where you'll experience it daily.",
+  "summary": "Your property is workable for your lifestyle goals (75% fit). The recommended strategy is \"Hero Space Investment Strategy\" — focusing on Living Room as highest emotional return areas.",
+  "confidence": 90,
+  "evidence": [
+    {
+      "signal": "Targeted investment approach",
+      "scoreImpact": 55,
+      "source": "budget",
+      "rationale": "Optimizes capital by focusing on key zones"
+    },
+    {
+      "signal": "Resolves budget pressure",
+      "scoreImpact": 15,
+      "source": "budget",
+      "rationale": "Prevents spreading budget too thin"
+    },
+    {
+      "signal": "Material-first luxury language",
+      "scoreImpact": 12,
+      "source": "sensory",
+      "rationale": "Materials shine in hero zones"
+    },
+    {
+      "signal": "Warm lighting preference",
+      "scoreImpact": 5,
+      "source": "sensory",
+      "rationale": "Enhances localized ambiance"
+    }
+  ],
+  "primaryDrivers": [
+    "Budget Dynamics",
+    "Resolves budget pressure",
+    "Material Quality"
+  ]
+}

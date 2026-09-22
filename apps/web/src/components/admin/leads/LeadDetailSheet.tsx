@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 
 import {
     Sheet,
@@ -7,8 +8,8 @@ import {
 } from "@/components/ui/primitives/sheet";
 import { Button } from "@/components/ui/primitives/button";
 import { Label } from "@/components/ui/primitives/label";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { leadSchema, formatZodErrors } from "@/lib/validation/validations";
 import { useState, useEffect, useRef, useCallback } from "react";
 import FocusLock from "react-focus-lock";
@@ -18,7 +19,7 @@ import {
   CheckCircle2,
   Clock,
   Send, Loader2, CheckCheck, MessageCircle, Trash2,
-  ChevronDown, Target, AlertTriangle, Lightbulb, Info,
+  ChevronDown, Target, AlertTriangle, Lightbulb, Info, Brain,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/useToast";
@@ -325,6 +326,11 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                     </div>
                     {!isNewLead && (
                         <div className="flex items-center gap-1.5 shrink-0 mt-8">
+                            <Link to={`/admin/crm/leads/${formData.id}/workspace`}>
+                                <Button variant="outline" size="sm" className="h-8 px-3 rounded-md bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/30 text-purple-300 text-[12px] font-bold">
+                                    <Brain className="w-3.5 h-3.5 mr-1.5" /> Workspace
+                                </Button>
+                            </Link>
                             <Button variant="outline" size="sm" className="h-8 px-3 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-300 text-[12px] font-medium" onClick={() => formData.phone && window.open(`tel:${formData.phone}`, '_blank')}>
                                 <Phone className="w-3.5 h-3.5 mr-1.5" /> Call
                             </Button>
@@ -400,6 +406,13 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                         className={cn("h-9 px-3 text-[12px] font-medium -mb-px transition-colors", activeTab === "details" ? "text-admin-text border-b-2 border-admin-primary" : "text-admin-text-muted hover:text-admin-text")}>
                         Details
                     </button>
+                    {!isNewLead && (
+                        <button 
+                            onClick={() => setActiveTab("tasks")}
+                            className={cn("h-9 px-3 text-[12px] font-medium -mb-px transition-colors", activeTab === "tasks" ? "text-admin-text border-b-2 border-admin-primary" : "text-admin-text-muted hover:text-admin-text")}>
+                            Tasks
+                        </button>
+                    )}
                     {!isNewLead && (
                         <button 
                             onClick={() => setActiveTab("activity")}
@@ -482,7 +495,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                     value={formData.message || formData.notes || ""}
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                     readOnly={isReadOnly}
-                                    placeholder="Add notes, requirements, or copy their initial message here..."
+                                    placeholder="Add notes, requirements, or copy their initial message here�"
                                     className="min-h-[120px] bg-admin-surface border-admin-border text-[13px] text-admin-text placeholder:text-admin-text-subtle"
                                 />
                             </section>
@@ -569,7 +582,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                                     {sendState === "sending" ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : 
                                                      sendState === "sent" ? <CheckCheck className="w-3.5 h-3.5 mr-1.5" /> : 
                                                      <Send className="w-3.5 h-3.5 mr-1.5" />}
-                                                    {sendState === "sending" ? "Sending..." : sendState === "sent" ? "Sent Successfully" : "Send via CrossAngle"}
+                                                    {sendState === "sending" ? "Sending�" : sendState === "sent" ? "Sent Successfully" : "Send via CrossAngle"}
                                                 </Button>
                                             </div>
                                         </div>

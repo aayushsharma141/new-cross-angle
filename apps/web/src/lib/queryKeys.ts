@@ -26,6 +26,15 @@ export const queryKeys = {
     all: ["services"] as const,
     detail: (id: string) => ["services", id] as const,
   },
+  designProcess: {
+    steps: ["designProcessSteps"] as const,
+  },
+  transformationStories: {
+    active: ["transformation-stories"] as const,
+  },
+  siteMedia: {
+    slot: (assetKey: string) => ["site-media-slot", assetKey] as const,
+  },
   users: {
     all: ["users"] as const,
   },

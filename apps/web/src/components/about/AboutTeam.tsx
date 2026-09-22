@@ -1,8 +1,8 @@
-import { Instagram, Linkedin, Mail } from "lucide-react";
-import { ScrollReveal } from "../ui/enhanced/scroll-reveal";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Image } from "@/components/ui/enhanced/image";
+import { Section, Eyebrow, DisplayHeading, Body, Em, reveal } from "@/components/editorial";
 
 interface TeamMemberData {
     id: string;
@@ -15,92 +15,47 @@ interface TeamMemberData {
     email: string | null;
 }
 
-const TeamMember = ({ member, index }: { member: TeamMemberData, index: number }) => {
-    return (
-        <ScrollReveal animation="fade-up" delay={index * 0.1}>
-            <div className="group relative w-full h-[450px] md:h-[500px] overflow-hidden rounded-[2rem] bg-card border border-white/5 shadow-[0_4px_24px_rgba(0,0,0,0.4)] transition-all duration-700 hover:border-site-gold/45 hover:shadow-[0_20px_50px_rgba(209,175,110,0.15)] flex flex-col">
-                
-                {/* Image Container */}
-                <div className="absolute inset-0 grayscale sepia-[.2] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-700 z-0">
-                    <Image
-                        src={member.image_url || undefined}
-                        alt={member.name}
-                        className="h-full w-full"
-                        imageClassName="transition-transform duration-1000 group-hover:scale-105"
-                        width={800}
-                        height={1000}
-                    />
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500 z-10" />
-                </div>
+const socialLink =
+    "text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40 transition-colors duration-300 hover:text-primary focus-visible:outline-none focus-visible:text-primary";
 
-                {/* Internal reflection */}
-                <div className="absolute inset-0 rounded-[2rem] ring-1 ring-inset ring-white/5 pointer-events-none z-20" />
-
-                {/* Info Content - Absolute positioned at the bottom */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 flex flex-col justify-end z-20">
-                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                        <h3 className="font-serif text-2xl font-bold text-white mb-1 drop-shadow-md">
-                            {member.name}
-                        </h3>
-                        <p className="text-xs uppercase tracking-[0.2em] text-site-gold font-semibold drop-shadow-sm mb-4">
-                            {member.role}
-                        </p>
-                    </div>
-
-                    {/* Expandable Biography & Socials */}
-                    <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-in-out">
-                        <div className="overflow-hidden">
-                            <div className="transform -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
-                                {member.bio && (
-                                    <p className="text-sm text-white/80 leading-relaxed mb-6 pt-2 border-t border-white/10">
-                                        {member.bio}
-                                    </p>
-                                )}
-
-                                {/* Social Links */}
-                                <div className="flex items-center gap-4">
-                                    {member.instagram_url && (
-                                        <a
-                                            href={member.instagram_url}
-                                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:text-black hover:bg-site-gold hover:border-site-gold transition-all duration-300"
-                                            aria-label={`${member.name}'s Instagram`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            <Instagram className="w-4 h-4" />
-                                        </a>
-                                    )}
-                                    {member.linkedin_url && (
-                                        <a
-                                            href={member.linkedin_url}
-                                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:text-black hover:bg-site-gold hover:border-site-gold transition-all duration-300"
-                                            aria-label={`${member.name}'s LinkedIn`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            <Linkedin className="w-4 h-4" />
-                                        </a>
-                                    )}
-                                    {member.email && (
-                                        <a
-                                            href={`mailto:${member.email}`}
-                                            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:text-black hover:bg-site-gold hover:border-site-gold transition-all duration-300"
-                                            aria-label={`Email ${member.name}`}
-                                        >
-                                            <Mail className="w-4 h-4" />
-                                        </a>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+const TeamMember = ({ member, index }: { member: TeamMemberData; index: number }) => (
+    <motion.li {...reveal(index * 0.06)} className="flex flex-col">
+        <div className="mb-6 aspect-[4/5] sm:aspect-[3/4] w-full overflow-hidden bg-white/[0.03]">
+            <Image
+                src={member.image_url || undefined}
+                alt={member.name}
+                className="h-full w-full"
+                imageClassName="transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.03] motion-reduce:transition-none"
+                width={800}
+                height={1067}
+            />
+        </div>
+        <h3 className="font-display text-2xl text-white">{member.name}</h3>
+        <p className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-primary">{member.role}</p>
+        {member.bio && <Body className="mt-4 text-sm">{member.bio}</Body>}
+        {(member.instagram_url || member.linkedin_url || member.email) && (
+            <div className="mt-5 flex items-center gap-5">
+                {member.instagram_url && (
+                    <a href={member.instagram_url} target="_blank" rel="noopener noreferrer" className={socialLink}>
+                        Instagram
+                    </a>
+                )}
+                {member.linkedin_url && (
+                    <a href={member.linkedin_url} target="_blank" rel="noopener noreferrer" className={socialLink}>
+                        LinkedIn
+                    </a>
+                )}
+                {member.email && (
+                    <a href={`mailto:${member.email}`} className={socialLink}>
+                        Email
+                    </a>
+                )}
             </div>
-        </ScrollReveal>
-    );
-};
+        )}
+    </motion.li>
+);
 
+/** The studio team, from `team_members`. Portraits with no card chrome. */
 const AboutTeam = () => {
     const [team, setTeam] = useState<TeamMemberData[]>([]);
     const [loading, setLoading] = useState(true);
@@ -128,47 +83,35 @@ const AboutTeam = () => {
         fetchTeam();
     }, []);
 
+    if (!loading && team.length === 0) return null;
+
     return (
-        <section className="py-24 md:py-32 relative overflow-hidden bg-background">
-            {/* Background elements */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-site-gold/5 rounded-full blur-[120px] -mr-48 -mt-48 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/5 rounded-full blur-[100px] -ml-40 -mb-40 pointer-events-none" />
+        <Section rule>
+            <motion.div {...reveal()} className="mb-16 max-w-2xl md:mb-24">
+                <Eyebrow className="mb-6">The studio</Eyebrow>
+                <DisplayHeading className="mb-6">
+                    The minds behind the <Em>masterpieces.</Em>
+                </DisplayHeading>
+                <Body className="max-w-lg">
+                    Specialists who don't just draft plans — they oversee site execution to the millimetre. Together,
+                    we orchestrate environments that are as durable as they are evocative.
+                </Body>
+            </motion.div>
 
-            <div className="container mx-auto px-4 relative z-10">
-                <div className="max-w-2xl mb-16 md:mb-24">
-                    <ScrollReveal animation="slide-in-left">
-                        <span className="inline-block text-site-gold font-medium tracking-[0.3em] uppercase text-xs mb-4">
-                            The Visionaries
-                        </span>
-                        <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1]">
-                            Architecture of <br />
-                            <span className="text-site-gold italic">Anticipation</span>
-                        </h2>
-                    </ScrollReveal>
-
-                    <ScrollReveal animation="fade-up" delay={0.2}>
-                        <p className="text-muted-foreground text-lg mt-6 leading-relaxed">
-                            Our studio is composed of specialists who don't just see spaces; they anticipate their soul.
-                            Together, we orchestrate environments that are as enduring as they are evocative.
-                        </p>
-                    </ScrollReveal>
+            {loading ? (
+                <div className="grid grid-cols-1 gap-x-10 gap-y-16 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+                    {[0, 1, 2].map((i) => (
+                        <div key={i} className="aspect-[3/4] w-full animate-pulse bg-white/[0.03]" />
+                    ))}
                 </div>
-
-                {loading ? (
-                    <div className="flex justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-site-gold"></div>
-                    </div>
-                ) : team.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {team.map((member, index) => (
-                            <TeamMember key={member.id} member={member} index={index} />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center text-muted-foreground">Team data not found.</div>
-                )}
-            </div>
-        </section>
+            ) : (
+                <ul className="grid grid-cols-1 gap-x-10 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+                    {team.map((member, index) => (
+                        <TeamMember key={member.id} member={member} index={index} />
+                    ))}
+                </ul>
+            )}
+        </Section>
     );
 };
 

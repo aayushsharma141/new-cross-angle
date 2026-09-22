@@ -2,7 +2,8 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Compare } from "@/components/ui/enhanced/compare";
-import { type Project } from "@/data/projects";
+import { type Project } from "@/lib/api";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 // Curated 1-sentence narrative sets mapped by slug
 const storyTransformationData: Record<string, {
@@ -29,7 +30,7 @@ const storyTransformationData: Record<string, {
     challenge: "Cooking isolated the host inside a closed-door utility box separated from guests.",
     decision: "Opened sightlines by dissolving walls and integrating a central social seating island.",
     outcome: "Kitchen became the vibrant center of daily interaction and entertaining flow.",
-    beforeImg: "https://images.unsplash.com/photo-1565538810844-1e119412e707?q=80&w=1200&auto=format&fit=crop",
+    beforeImg: "https://iuuivmwqodefdrrrewol.supabase.co/storage/v1/object/public/media/IMG-20250703-WA0027.jpg",
     afterImg: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop"
   },
   "executive-workspace": {
@@ -38,7 +39,7 @@ const storyTransformationData: Record<string, {
     challenge: "Builder-grade modular cubicles drained visual energy and blocked natural collaboration flow.",
     decision: "Constructed an open-plan layout with grooved felt acoustics and living moss panels.",
     outcome: "Workspace noise drops by 40% while active team engagement rises significantly.",
-    beforeImg: "https://images.unsplash.com/photo-1504307651254-35680f356fce?q=80&w=1200&auto=format&fit=crop",
+    beforeImg: "/blueprint_shell.jpg",
     afterImg: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop"
   }
 };
@@ -47,10 +48,21 @@ interface ProjectStoryAndTransformationProps {
   project: Project;
 }
 
-export const ProjectStoryAndTransformation = (_props: ProjectStoryAndTransformationProps) => {
+export const ProjectStoryAndTransformation = ({ project }: ProjectStoryAndTransformationProps) => {
   const { slug } = useParams<{ slug: string }>();
   const activeSlug = slug as keyof typeof storyTransformationData | undefined;
-  const data = activeSlug ? storyTransformationData[activeSlug] : undefined;
+  const defaultItem = storyTransformationData["serene-master-suite"];
+  const data = (activeSlug && storyTransformationData[activeSlug]) 
+    ? storyTransformationData[activeSlug] 
+    : {
+        thesis: project.title || "Architectural Transformation",
+        quote: project.brief || defaultItem.quote,
+        challenge: project.challengeShort || defaultItem.challenge,
+        decision: project.approach || defaultItem.decision,
+        outcome: project.resultShort || defaultItem.outcome,
+        beforeImg: "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop",
+        afterImg: project.heroImage || defaultItem.afterImg
+      };
 
   const sectionRef = useRef<HTMLDivElement>(null);
   
@@ -82,7 +94,7 @@ export const ProjectStoryAndTransformation = (_props: ProjectStoryAndTransformat
               data-reveal="quote"
               className="space-y-4"
             >
-              <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-site-gold block">
+              <span className="text-[10px] font-mono tracking-[0.25em] uppercase text-primary block">
                 03 / TRANSFORM
               </span>
               <h2 className="text-3xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
@@ -104,11 +116,10 @@ export const ProjectStoryAndTransformation = (_props: ProjectStoryAndTransformat
               className="relative aspect-[21/9] rounded-xl overflow-hidden border border-white/5 bg-neutral-900 group shadow-lg"
             >
               <img 
-                src={data.beforeImg} 
+                src={getOptimizedUrl(data.beforeImg, { width: 1200, quality: 80 })} 
                 alt="Original space constraint state" 
                 className="w-full h-full object-cover filter grayscale opacity-45 group-hover:opacity-60 transition-opacity duration-1000"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/5">
                 <span className="text-[8px] font-mono text-stone-400 tracking-widest uppercase">Initial Site Scan Survey</span>
               </div>
@@ -143,7 +154,7 @@ export const ProjectStoryAndTransformation = (_props: ProjectStoryAndTransformat
         >
           {/* Challenge Box */}
           <div className="space-y-2.5">
-            <span className="text-[9px] uppercase tracking-[0.2em] text-site-crimson font-semibold block">Challenge</span>
+            <span className="text-[9px] uppercase tracking-[0.2em] text-primary font-semibold block">Challenge</span>
             <p className="text-sm font-light text-stone-200 leading-relaxed font-serif">
               {data.challenge}
             </p>
@@ -151,7 +162,7 @@ export const ProjectStoryAndTransformation = (_props: ProjectStoryAndTransformat
 
           {/* Decision Box */}
           <div className="space-y-2.5">
-            <span className="text-[9px] uppercase tracking-[0.2em] text-site-gold font-semibold block">Decision</span>
+            <span className="text-[9px] uppercase tracking-[0.2em] text-primary font-semibold block">Decision</span>
             <p className="text-sm font-light text-stone-200 leading-relaxed font-serif">
               {data.decision}
             </p>

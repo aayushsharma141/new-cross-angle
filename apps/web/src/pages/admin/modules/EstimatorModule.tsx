@@ -20,3 +20,5 @@ export const EstimatorModule = () => {
         </ModuleLayout>
     );
 };
+
+export default EstimatorModule;

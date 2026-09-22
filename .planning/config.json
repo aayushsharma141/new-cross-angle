@@ -9,7 +9,8 @@
     "plan_check": true,
     "verifier": true,
     "nyquist_validation": true,
-    "auto_advance": true
+    "auto_advance": true,
+    "_auto_chain_active": false
   },
   "ship": {
     "pr_body_sections": [
@@ -37,5 +38,8 @@
         "template": "- Product owner approval pending for {phase_name}."
       }
     ]
+  },
+  "graphify": {
+    "enabled": true
   }
 }

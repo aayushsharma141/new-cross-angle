@@ -1,13 +1,15 @@
-import { ArrowRight, Compass, PhoneCall } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
+import { getOptimizedUrl } from "@/lib/cdn";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import useReducedMotion from "@/hooks/useReducedMotion";
+import { HeroWatermark } from "@/components/home/HeroWatermark";
 
-import { MediaSlot } from "@/components/ui/enhanced/MediaSlot";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-/* ─── Types ─── */
 type AnimationEffect = "none" | "ken-burns-in" | "ken-burns-out" | "pan-left" | "pan-right" | "pan-up" | "pan-down" | "zoom-pan";
 
 interface HeroMediaItem {
@@ -21,7 +23,6 @@ interface HeroMediaItem {
   animation_effect?: AnimationEffect;
 }
 
-/* ─── Animation effect → CSS class mapping ─── */
 const EFFECT_CLASS: Record<AnimationEffect, string> = {
   none: "",
   "ken-burns-in": "hero-anim-kb-in",
@@ -33,7 +34,6 @@ const EFFECT_CLASS: Record<AnimationEffect, string> = {
   "zoom-pan": "hero-anim-zoom-pan",
 };
 
-/* ─── Preload a single image URL, resolves when fully decoded ─── */
 function preloadImage(url: string): Promise<void> {
   return new Promise((resolve) => {
     const img = new window.Image();
@@ -44,30 +44,40 @@ function preloadImage(url: string): Promise<void> {
   });
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Slide state machine
-   Each slide sits at one of three positions along the x-axis:
-     "left"   → translateX(-100%)  off-screen left
-     "center" → translateX(0)      fully visible
-     "right"  → translateX(100%)   off-screen right
-   On transition, the outgoing slide moves to "left" and the
-   incoming slide moves in from "right" (or vice-versa).
-──────────────────────────────────────────────────────────────*/
 const Hero = () => {
-  const { settings } = useSiteSettings();
+  const containerRef = useAttentionTelemetry<HTMLDivElement>("entrance", "hero-media", 1);
+  const prefersReducedMotion = useReducedMotion();
+
+  // Scroll exit: as Chapter 01 pins beneath, the photograph pushes in and
+  // the copy drifts up and out, so the hero reads as the cover of the story.
+  useGSAP(
+    () => {
+      if (prefersReducedMotion || !containerRef.current) return;
+      const q = gsap.utils.selector(containerRef);
+      gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: { trigger: containerRef.current, start: "top top", end: "bottom top", scrub: 0.6 },
+      })
+        .to(q("[data-hero-media]"), { scale: 1.1, duration: 1 }, 0)
+        .to(q("[data-hero-copy]"), { y: -80, autoAlpha: 0, duration: 0.6 }, 0.1)
+        .to(q("[data-hero-watermark]"), { rotate: 90, autoAlpha: 0, duration: 0.6 }, 0.1);
+    },
+    { scope: containerRef, dependencies: [prefersReducedMotion] },
+  );
   const [mediaItems, setMediaItems] = useState<HeroMediaItem[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
-  const [direction, setDirection] = useState<1 | -1>(1); // 1 = forward, -1 = backward
   const [transitioning, setTransitioning] = useState(false);
+  const [contentVisible, setContentVisible] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMountedRef = useRef(true);
 
-  /* scroll-based scroll-hint fade */
-  const { scrollY } = useScroll();
-  const scrollHintOpacity = useTransform(scrollY, [0, 300], [0.55, 0]);
+  // Stagger content reveal on mount
+  useEffect(() => {
+    const t = setTimeout(() => setContentVisible(true), 300);
+    return () => clearTimeout(t);
+  }, []);
 
-  /* ─── Fetch hero media from Supabase ─── */
   const fetchMedia = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -97,294 +107,205 @@ const Hero = () => {
     return () => { isMountedRef.current = false; };
   }, [fetchMedia]);
 
-  /* ─── Core transition: preload → slide in ─── */
-  const transitionTo = useCallback(async (nextIdx: number, dir: 1 | -1) => {
+  // Cross-dissolve: just swap opacity, no translateX
+  const transitionTo = useCallback(async (nextIdx: number) => {
     if (!isMountedRef.current || transitioning) return;
     const nextItem = mediaItems[nextIdx];
-
     setTransitioning(true);
 
-    // Preload before any visual change
     if (nextItem && nextItem.media_type === "image") {
       await preloadImage(nextItem.media_url);
     }
     if (!isMountedRef.current) return;
 
-    // RAF ensures the browser has painted the preloaded img offscreen
     requestAnimationFrame(() => {
       if (!isMountedRef.current) return;
-      setDirection(dir);
-      setPrevIndex((prev) => {
-        // carry old active to prev so it can slide out
-        void prev;
-        return activeIndex;
-      });
+      setPrevIndex(activeIndex);
       setActiveIndex(nextIdx);
-      // After the CSS transition duration (800ms), mark done
       setTimeout(() => {
         if (isMountedRef.current) {
           setPrevIndex(null);
           setTransitioning(false);
         }
-      }, 900);
+      }, 1100);
     });
   }, [activeIndex, mediaItems, transitioning]);
 
-  /* ─── Auto-rotate ─── */
   useEffect(() => {
     if (mediaItems.length <= 1) return;
     const currentItem = mediaItems[activeIndex];
-    const duration = currentItem?.duration_ms || 5000;
+    const duration = currentItem?.duration_ms || 6000;
 
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       const nextIdx = (activeIndex + 1) % mediaItems.length;
-      transitionTo(nextIdx, 1);
+      transitionTo(nextIdx);
     }, duration);
 
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [activeIndex, mediaItems, transitionTo]);
 
-  /* ─── Manual dot navigation ─── */
-  const goToSlide = useCallback((idx: number) => {
-    if (idx === activeIndex || transitioning) return;
-    const dir = idx > activeIndex ? 1 : -1;
-    transitionTo(idx, dir);
-  }, [activeIndex, transitioning, transitionTo]);
-
-  /* ─── Per-slide CSS transform ─── */
+  // Cross-dissolve style: use opacity instead of translateX
   const getSlideStyle = (i: number): React.CSSProperties => {
-    // Active slide: center
     if (i === activeIndex) {
       return {
-        transform: "translateX(0)",
+        opacity: 1,
         zIndex: 3,
-        transition: transitioning
-          ? "transform 0.85s cubic-bezier(0.76, 0, 0.24, 1)"
-          : "none",
+        transition: transitioning ? "opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1)" : "none",
       };
     }
-    // Exiting slide: slide out in opposite direction
     if (i === prevIndex && prevIndex !== null) {
       return {
-        transform: direction === 1 ? "translateX(-100%)" : "translateX(100%)",
+        opacity: 0,
         zIndex: 2,
-        transition: "transform 0.85s cubic-bezier(0.76, 0, 0.24, 1)",
+        transition: "opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1)",
       };
     }
-    // All other slides wait off-screen in their entry direction
-    // (the incoming slide starts off-screen and animates to 0, which is handled by activeIndex case above on next render)
     return {
-      transform: direction === 1 ? "translateX(100%)" : "translateX(-100%)",
+      opacity: 0,
       zIndex: 1,
       transition: "none",
     };
   };
 
-  /* ─── Framer Motion Animation Variants ─── */
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
-    },
-  };
-  const itemUp = {
-    hidden: { y: 30, opacity: 0 },
-    show: { y: 0, opacity: 1, transition: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] as const } },
-  };
-  const slideLeft = {
-    hidden: { x: 50, opacity: 0 },
-    show: { x: 0, opacity: 1, transition: { duration: 1, ease: [0.25, 0.1, 0.25, 1] as const, delay: 0.8 } },
-  };
-
   return (
-    <section
-      id="home"
-      className="sticky top-0 z-0 h-screen w-full overflow-hidden bg-black"
-    >
-      {/* Noise grain overlay */}
-      <div className="absolute inset-0 home-noise pointer-events-none opacity-[0.03] mix-blend-mode-soft-light z-10" />
+    <>
+      {/* CSS for staggered hero text reveal */}
+      <style>{`
+        @keyframes heroWordReveal {
+          from { opacity: 0; transform: translateY(18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .hero-word { display: inline-block; opacity: 0; }
+        .hero-content-visible .hero-word-1 {
+          animation: heroWordReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
+        }
+        .hero-content-visible .hero-word-2 {
+          animation: heroWordReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards;
+        }
+        .hero-content-visible .hero-kicker-text {
+          animation: heroWordReveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+          opacity: 0;
+        }
+        .hero-content-visible .hero-body-text {
+          animation: heroWordReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.65s forwards;
+          opacity: 0;
+        }
+        .hero-content-visible .hero-cta-btn {
+          animation: heroWordReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.82s forwards;
+          opacity: 0;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-word, .hero-kicker-text, .hero-body-text, .hero-cta-btn {
+            opacity: 1 !important;
+            animation: none !important;
+          }
+        }
+      `}</style>
 
-      {/* ═══ Background slides — permanent stack with slide transforms ═══ */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Static fallback while CMS loads */}
-        {mediaItems.length === 0 && (
-          <MediaSlot
-            assetKey="home_hero_bg"
-            fallbackUrl="/hero_reality_render_1775299733746.png"
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        )}
-
-        {/* ALL slides always in DOM — position set via transform */}
-        {mediaItems.map((item, i) => (
-          <div
-            key={item.id}
-            className="absolute inset-0 will-change-transform"
-            style={getSlideStyle(i)}
-          >
-            {item.media_type === "video" ? (
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                poster="/hero_reality_render_1775299733746.png"
-                className="w-full h-full object-cover"
-              >
-                <source src={item.media_url} type="video/mp4" />
-              </video>
-            ) : (
-              <img
-                src={item.media_url}
-                alt={item.title || "Hero background"}
-                className={`w-full h-full object-cover ${EFFECT_CLASS[item.animation_effect || "none"]}`}
-                loading={i <= 1 ? "eager" : "lazy"}
-                decoding="async"
-                style={
-                  item.animation_effect && item.animation_effect !== "none"
-                    ? { animationDuration: `${(item.duration_ms || 6500) / 1000}s` }
-                    : undefined
-                }
-              />
-            )}
-          </div>
-        ))}
-
-        {/* ── Overlays — always on top of slides ── */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_28%,rgba(182,24,38,0.16),transparent_28%)] pointer-events-none" style={{ zIndex: 4 }} />
-        <div className="absolute inset-0 bg-black/60 md:bg-transparent pointer-events-none" style={{ zIndex: 4 }} />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.88)_0%,rgba(0,0,0,0.62)_32%,rgba(0,0,0,0.18)_64%,rgba(0,0,0,0.45)_100%)] pointer-events-none" style={{ zIndex: 4 }} />
-        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black via-black/55 to-transparent pointer-events-none" style={{ zIndex: 4 }} />
-      </div>
-
-      {/* ═══ Content: split-grid layout ═══ */}
-      <div className="container-wide mx-auto h-full px-4 sm:px-6 lg:px-10 relative z-20">
-        <div className="grid h-full items-end lg:grid-cols-[minmax(0,1fr)_320px] gap-8 pb-fluid-py pt-24 md:pt-32 lg:pt-36">
-
-          {/* ── Left column ── */}
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate="show"
-            className="max-w-[46rem] self-center"
-          >
-            <motion.span variants={itemUp} className="home-kicker mb-6 inline-block">
-              <span className="hero-kicker-text drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Luxury Residential & Commercial Interior Designers</span>
-            </motion.span>
-
-            <div className="mb-6">
-              <motion.div variants={itemUp}>
-                <h1
-                  className="hero-title font-display text-[clamp(2.5rem,5.5vw,4.8rem)] leading-[1.05] font-semibold text-white max-w-full sm:max-w-[20ch]"
-                  style={{ textShadow: "0 10px 38px rgba(0,0,0,0.42), 0 2px 10px rgba(0,0,0,0.24)", letterSpacing: "-0.02em" }}
-                >
-                  <span className="text-[#F9F6F0]">Homes Designed For Living.</span>
-                  <br />
-                  <span
-                    className="hero-title-accent text-transparent bg-clip-text drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-                    style={{
-                      backgroundImage: "linear-gradient(to bottom, #FFFFFF 0%, #EAD5B7 30%, #C39E5C 70%, #8C6730 100%)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                    }}
-                  >
-                    Engineered For Predictability.
-                  </span>
-                </h1>
-              </motion.div>
-            </div>
-
-            <motion.p
-              variants={itemUp}
-              className="hero-body-text home-body text-base md:text-lg lg:text-xl mb-10 max-w-[38rem]"
-              style={{ textShadow: "0 1px 10px rgba(0,0,0,0.45)" }}
-            >
-              We treat interior design as an engineering challenge, not just decoration. Enjoy beautiful, highly functional spaces for daily living, delivered through our CrossAngle Predictable Interior System™.
-            </motion.p>
-
-            <motion.div variants={itemUp} className="flex flex-col sm:flex-row gap-4">
-              <div className="hero-cta-btn">
-                <Link
-                  to="/aesthetic-discovery-engine"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap home-button-sweep group rounded-none h-14 px-8 md:px-10 uppercase tracking-[0.2em] text-[11px] font-bold transition-all duration-300 bg-site-crimson text-white hover:bg-site-crimson/90 hover:scale-[1.02] shadow-[0_4px_14px_rgba(196,18,48,0.3)] hover:shadow-[0_6px_20px_rgba(196,18,48,0.4)]"
-                >
-                  <Compass className="w-4 h-4" />
-                  <span>Take Style Quiz</span>
-                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1.5" />
-                </Link>
-              </div>
-              <div className="hero-cta-btn">
-                <Link
-                  to="/contact-us"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap home-button-sweep group rounded-none h-14 px-8 md:px-10 uppercase tracking-[0.2em] text-[11px] font-medium transition-all duration-300 bg-black/40 backdrop-blur-md text-white border border-white/20 hover:bg-white/10 hover:border-white/30 hover:scale-[1.02]"
-                >
-                  <PhoneCall className="w-4 h-4" />
-                  <span>Book a Consultation</span>
-                  <ArrowRight className="ml-1 h-4 w-4 opacity-60" />
-                </Link>
-              </div>
-            </motion.div>
-
-            {/* Stats strip */}
-            <motion.div
-              variants={slideLeft}
-              className="flex flex-wrap gap-x-8 gap-y-3 mt-10 pt-8 border-t border-white/[0.07]"
-            >
-              <div>
-                <span className="block text-2xl md:text-3xl font-serif text-white font-medium">{settings?.studio_stats?.projectsCompleted || 750}+</span>
-                <span className="text-[11px] tracking-[0.15em] uppercase text-stone-400 font-medium">Projects Completed</span>
-              </div>
-              <div className="hidden sm:block w-px bg-white/[0.07] self-stretch" />
-              <div>
-                <span className="block text-2xl md:text-3xl font-serif text-white font-medium">{settings?.studio_stats?.yearsExperience || 15}+</span>
-                <span className="text-[11px] tracking-[0.15em] uppercase text-stone-400 font-medium">Years Experience</span>
-              </div>
-              <div className="hidden sm:block w-px bg-white/[0.07] self-stretch" />
-              <div>
-                <span className="block text-2xl md:text-3xl font-serif text-white font-medium">98%</span>
-                <span className="text-[11px] tracking-[0.15em] uppercase text-stone-400 font-medium">On-Time Delivery</span>
-              </div>
-            </motion.div>
-
-          </motion.div>
-        </div>
-      </div>
-
-      {/* ═══ Slide indicators ═══ */}
-      {mediaItems.length > 1 && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2.5">
-          {mediaItems.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goToSlide(i)}
-              className={`h-1.5 rounded-full transition-all duration-500 ${i === activeIndex
-                  ? "w-12 bg-white shadow-[0_0_18px_rgba(255,255,255,0.34)]"
-                  : "w-4 bg-white/24 hover:bg-white/48"
-                }`}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* ═══ Scroll hint ═══ */}
-      <motion.div
-        className="absolute bottom-8 right-8 z-20 hidden md:flex flex-col items-center gap-2"
-        style={{ opacity: scrollHintOpacity }}
+      <section
+        ref={containerRef}
+        className="relative w-full h-[70vh] md:h-[85vh] lg:h-[95vh] overflow-hidden bg-[var(--s-canvas-primary)]"
       >
-        <span className="text-[10px] text-white/60 uppercase tracking-[0.3em] font-medium [writing-mode:vertical-rl]">Scroll</span>
-        <motion.div
-          className="w-px h-10 bg-white/30"
-          animate={{ scaleY: [0.3, 1, 0.3] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          style={{ transformOrigin: "top" }}
-        />
-      </motion.div>
-    </section>
+        {/* Rotating seal — top right, decorative */}
+        <div data-hero-watermark className="absolute top-[14vh] right-6 md:right-16 lg:right-24 z-[9] pointer-events-none will-change-transform">
+          <HeroWatermark />
+        </div>
+
+        {/* Noise grain overlay */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.025] mix-blend-screen z-10 bg-[url('/noise.png')]" />
+
+        {/* Photography layer */}
+        <div data-hero-media className="absolute inset-0 overflow-hidden will-change-transform transform-gpu">
+          {/* Guaranteed fallback render */}
+          <img
+            src="/hero_reality_render_1775299733746.png"
+            alt="CrossAngle luxury architectural interior"
+            className="absolute inset-0 w-full h-full object-cover z-0"
+            loading="eager"
+            {...({ fetchpriority: "high" } as any)}
+            decoding="sync"
+          />
+
+          {/* Dynamic slides — cross-dissolve */}
+          {mediaItems.map((item, i) => (
+            <div
+              key={item.id}
+              className="absolute inset-0 will-change-[opacity]"
+              style={getSlideStyle(i)}
+            >
+              {item.media_type === "video" ? (
+                <video
+                  autoPlay loop muted playsInline preload="auto"
+                  poster="/hero_reality_render_1775299733746.png"
+                  className="w-full h-full object-cover"
+                >
+                  {/* Not routed through getOptimizedUrl: that builds image transforms
+                      (f-webp, q-, w-) which would corrupt an mp4 stream. */}
+                  <source src={item.media_url} type="video/mp4" />
+                </video>
+              ) : (
+                <img
+                  src={getOptimizedUrl(item.media_url, { width: 1920, quality: 80 })}
+                  alt={item.title || "Hero background"}
+                  className={`w-full h-full object-cover ${EFFECT_CLASS[item.animation_effect || "none"]}`}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/hero_reality_render_1775299733746.png";
+                  }}
+                  style={
+                    item.animation_effect && item.animation_effect !== "none"
+                      ? { animationDuration: `${(item.duration_ms || 7000) / 1000}s` }
+                      : undefined
+                  }
+                />
+              )}
+            </div>
+          ))}
+
+          {/* Overlay — lighter so photography dominates */}
+          <div
+            className={`absolute inset-0 pointer-events-none z-10 flex flex-col justify-end p-8 md:p-16 lg:px-24 bg-gradient-to-t from-black/75 via-black/15 to-transparent${contentVisible ? " hero-content-visible" : ""}`}
+          >
+            <div data-hero-copy className="pointer-events-auto w-full max-w-[1600px] mx-auto flex flex-col gap-5 will-change-transform">
+
+              {/* Kicker */}
+              <span className="hero-kicker-text uppercase text-[10px] tracking-[0.25em] font-bold text-[#C9A85C] flex items-center gap-4">
+                <span className="w-12 h-px bg-[#C9A85C]/60" />
+                CrossAngle Interior
+              </span>
+
+              {/* Staggered headline */}
+              <h1
+                className="hero-title font-display text-[clamp(2.5rem,6vw,5.75rem)] leading-[1.05] text-white mb-1 font-normal"
+                style={{ letterSpacing: "-0.03em" }}
+              >
+                <span className="hero-word hero-word-1 block">Museum-Quality</span>
+                <span className="hero-word hero-word-2 block text-[#C9A85C] italic">Residential Design</span>
+              </h1>
+
+              {/* Body */}
+              <p className="hero-body-text text-base md:text-lg max-w-[44ch] leading-relaxed text-white/75">
+                We design turn-key interiors that blend architectural discipline with effortless living.
+              </p>
+
+              {/* CTA */}
+              <div className="flex gap-4 mt-1">
+                <a
+                  href="/portfolio"
+                  className="hero-cta-btn home-button-sweep inline-flex items-center gap-2 px-8 py-4 bg-white/5 backdrop-blur-md border border-white/10 text-white font-semibold text-[10px] uppercase tracking-[0.2em] hover:border-[#C9A85C] hover:text-[#C9A85C] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none group rounded-md"
+                >
+                  <span>View Portfolio</span>
+                  <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1" aria-hidden="true">→</span>
+                </a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 };
 

@@ -54,8 +54,8 @@ const HubLightExperience = () => {
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">The Science of Light</span>
+            <div className="w-12 h-px bg-primary" />
+            <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">The Science of Light</span>
           </div>
           <h2 className="text-2xl md:text-3xl text-white tracking-tight font-serif font-normal mb-3">
             Experience Different Lights

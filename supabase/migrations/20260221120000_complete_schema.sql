@@ -94,7 +94,15 @@ ALTER TABLE public.team_members
 END IF;
 END $$;
 -- Add missing columns to team_members if they don't exist
+DO $$ BEGIN IF EXISTS (
+    SELECT 1
+    FROM pg_tables
+    WHERE schemaname = 'public'
+        AND tablename = 'team_members'
+) THEN
 ALTER TABLE public.team_members
 ADD COLUMN IF NOT EXISTS instagram_url TEXT;
 ALTER TABLE public.team_members
 ADD COLUMN IF NOT EXISTS email TEXT;
+END IF;
+END $$;

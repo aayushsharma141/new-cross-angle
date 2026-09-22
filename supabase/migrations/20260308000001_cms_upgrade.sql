@@ -45,77 +45,45 @@ CREATE POLICY "Admins can manage pages" ON public.pages FOR ALL USING (public.is
 -- The existing table uses: page (text), section_key, title, subtitle, body,
 -- image_url, cta_text, cta_url, extra (jsonb), updated_at
 -- Add order_index (default 0, so existing rows keep working)
-ALTER TABLE public.page_sections
-ADD COLUMN IF NOT EXISTS order_index INTEGER NOT NULL DEFAULT 0;
--- Add status lifecycle
-ALTER TABLE public.page_sections
-ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('draft', 'published', 'archived'));
--- Add section_type (mirrors section_key but designed for the block registry)
-ALTER TABLE public.page_sections
-ADD COLUMN IF NOT EXISTS section_type TEXT;
--- Backfill section_type from section_key for existing rows
-UPDATE public.page_sections
-SET section_type = section_key
-WHERE section_type IS NULL;
--- Add content_json (structured block payload — superset of existing flat fields)
-ALTER TABLE public.page_sections
-ADD COLUMN IF NOT EXISTS content_json JSONB DEFAULT '{}'::jsonb;
--- Backfill content_json from existing flat columns
-UPDATE public.page_sections
-SET content_json = jsonb_strip_nulls(
-        jsonb_build_object(
-            'title',
-            title,
-            'subtitle',
-            subtitle,
-            'body',
-            body,
-            'imageUrl',
-            image_url,
-            'ctaText',
-            cta_text,
-            'ctaUrl',
-            cta_url
-        )
-    )
-WHERE content_json = '{}'::jsonb
-    OR content_json IS NULL;
--- Add created_at if missing
-ALTER TABLE public.page_sections
-ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
--- Indexes
-CREATE INDEX IF NOT EXISTS idx_page_sections_page ON public.page_sections (page);
-CREATE INDEX IF NOT EXISTS idx_page_sections_order ON public.page_sections (page, order_index);
-CREATE INDEX IF NOT EXISTS idx_page_sections_status ON public.page_sections (status);
-CREATE INDEX IF NOT EXISTS idx_page_sections_content_gin ON public.page_sections USING gin (content_json);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='page_sections') THEN
+    ALTER TABLE public.page_sections ADD COLUMN IF NOT EXISTS order_index INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE public.page_sections ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('draft', 'published', 'archived'));
+    ALTER TABLE public.page_sections ADD COLUMN IF NOT EXISTS section_type TEXT;
+    
+    EXECUTE 'UPDATE public.page_sections SET section_type = section_key WHERE section_type IS NULL;';
+    
+    ALTER TABLE public.page_sections ADD COLUMN IF NOT EXISTS content_json JSONB DEFAULT '{}'::jsonb;
+    
+    EXECUTE 'UPDATE public.page_sections SET content_json = jsonb_strip_nulls(jsonb_build_object(''title'', title, ''subtitle'', subtitle, ''body'', body, ''imageUrl'', image_url, ''ctaText'', cta_text, ''ctaUrl'', cta_url)) WHERE content_json = ''{}''::jsonb OR content_json IS NULL;';
+    
+    ALTER TABLE public.page_sections ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+    
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_page_sections_page ON public.page_sections (page);';
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_page_sections_order ON public.page_sections (page, order_index);';
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_page_sections_status ON public.page_sections (status);';
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_page_sections_content_gin ON public.page_sections USING gin (content_json);';
+  END IF;
+END $$;
 -- ── 3. BLOGS – status lifecycle ───────────────────────────────
 -- Keep existing is_published column (backward-compat) but add status text column
-ALTER TABLE public.blogs
-ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived'));
--- Add content_json column for rich-text (TipTap JSON)
-ALTER TABLE public.blogs
-ADD COLUMN IF NOT EXISTS content_json JSONB DEFAULT NULL;
--- Add featured_media_id for the media library FK
-ALTER TABLE public.blogs
-ADD COLUMN IF NOT EXISTS featured_media_id UUID DEFAULT NULL;
--- Backfill status from existing is_published flag
-UPDATE public.blogs
-SET status = 'published'
-WHERE is_published = true
-    AND status = 'draft';
--- Indexes
-CREATE INDEX IF NOT EXISTS idx_blogs_status ON public.blogs (status);
-CREATE INDEX IF NOT EXISTS idx_blogs_slug ON public.blogs (slug);
--- Update the read policy to honour new status column
-DROP POLICY IF EXISTS "Anyone can read published blogs" ON public.blogs;
-CREATE POLICY "Anyone can read published blogs" ON public.blogs FOR
-SELECT USING (
-        (
-            is_published = true
-            OR status = 'published'
-        )
-        OR public.is_admin_or_editor(auth.uid())
-    );
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='blogs') THEN
+    ALTER TABLE public.blogs ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived'));
+    ALTER TABLE public.blogs ADD COLUMN IF NOT EXISTS content_json JSONB DEFAULT NULL;
+    ALTER TABLE public.blogs ADD COLUMN IF NOT EXISTS featured_media_id UUID DEFAULT NULL;
+    
+    EXECUTE 'UPDATE public.blogs SET status = ''published'' WHERE is_published = true AND status = ''draft'';';
+    
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_blogs_status ON public.blogs (status);';
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_blogs_slug ON public.blogs (slug);';
+    
+    EXECUTE 'DROP POLICY IF EXISTS "Anyone can read published blogs" ON public.blogs;';
+    EXECUTE 'CREATE POLICY "Anyone can read published blogs" ON public.blogs FOR SELECT USING ((is_published = true OR status = ''published'') OR public.is_admin_or_editor(auth.uid()));';
+  END IF;
+END $$;
 -- ── 4. MEDIA TABLE ────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.media (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

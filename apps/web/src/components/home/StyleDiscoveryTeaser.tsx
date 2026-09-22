@@ -31,7 +31,7 @@ const StyleDiscoveryTeaser = () => {
           transition={{ duration: 0.7 }}
           className="text-center mb-16"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-site-gold/[0.06] border border-site-gold/20 text-site-gold text-[9px] font-bold tracking-[0.3em] uppercase mb-6">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[9px] font-bold tracking-[0.3em] uppercase mb-6">
             <Sparkles className="w-3 h-3" />
             Find Your Style
           </span>
@@ -76,7 +76,7 @@ const StyleDiscoveryTeaser = () => {
         >
           <Link
             to="/aesthetic-discovery-engine"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-sans text-xs tracking-[0.2em] uppercase hover:bg-site-gold hover:text-black transition-all duration-300 font-semibold group"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-sans text-xs tracking-[0.2em] uppercase hover:bg-primary hover:text-primary-foreground transition-all duration-300 font-semibold group"
           >
             <Compass className="w-4 h-4" />
             <span>Take the Style Quiz</span>

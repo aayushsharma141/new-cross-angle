@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 interface ProjectClientStoryProps {
   quote: string;
@@ -55,7 +56,7 @@ const ProjectClientStory = ({ quote, storyParagraphs, imageSrc }: ProjectClientS
               transition={{ duration: 1 }}
               className="lg:col-span-5 relative aspect-[3/4] overflow-hidden bg-neutral-900 border border-white/10 shadow-2xl rounded-lg"
             >
-              <img src={imageSrc} alt="Project detail" className="w-full h-full object-cover" loading="lazy" />
+              <img src={getOptimizedUrl(imageSrc, { width: 900, quality: 80 })} alt="Project detail" className="w-full h-full object-cover" loading="lazy" />
             </motion.div>
           )}
 

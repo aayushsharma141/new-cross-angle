@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { processFAQs } from "@/data/process";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
 const ProcessFAQ = () => {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  const { data: processFAQs = [] } = useQuery({
+    queryKey: ['processFAQs'],
+    queryFn: api.getProcessFAQs
+  });
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -18,6 +24,8 @@ const ProcessFAQ = () => {
       }
     }))
   };
+
+  if (processFAQs.length === 0) return null;
 
   return (
     <section className="relative bg-[#050505] border-t border-white/[0.05] py-24 md:py-32 px-6 overflow-hidden">
@@ -33,12 +41,12 @@ const ProcessFAQ = () => {
           className="text-center mb-16"
         >
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">Questions?</span>
-            <div className="w-12 h-px bg-site-crimson" />
+            <div className="w-12 h-px bg-kiro-accent" />
+            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-kiro-accent">Questions?</span>
+            <div className="w-12 h-px bg-kiro-accent" />
           </div>
           <h2 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] tracking-tight text-white">
-            Common <span className="italic font-medium text-site-crimson">Questions</span>
+            Common <span className="italic font-medium text-kiro-accent">Questions</span>
           </h2>
         </motion.div>
 
@@ -56,9 +64,11 @@ const ProcessFAQ = () => {
               >
                 <button
                   type="button"
+                  id={`process-faq-btn-${idx}`}
                   onClick={() => setOpenIdx(isOpen ? null : idx)}
+                  aria-controls={`process-faq-panel-${idx}`}
                   {...{ "aria-expanded": isOpen ? "true" : "false" }}
-                  className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left text-sm font-medium text-white hover:bg-white/[0.02] transition-colors"
+                  className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left text-sm font-medium text-white hover:bg-white/[0.02] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <span className="font-light leading-snug pr-4">{faq.question}</span>
                   <ChevronDown
@@ -69,6 +79,9 @@ const ProcessFAQ = () => {
                   {isOpen && (
                     <motion.div
                       key="content"
+                      id={`process-faq-panel-${idx}`}
+                      role="region"
+                      aria-labelledby={`process-faq-btn-${idx}`}
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}

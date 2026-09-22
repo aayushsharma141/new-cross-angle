@@ -31,7 +31,11 @@ export default defineConfig({
   reporter: [['html', { outputFolder: 'e2e/reports' }], ['list']],
 
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:5173',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:8080',
+    // Pass Vercel Deployment Protection on preview URLs (see e2e/setup/admin-auth.ts).
+    ...(process.env.VERCEL_AUTOMATION_BYPASS_SECRET
+      ? { extraHTTPHeaders: { 'x-vercel-protection-bypass': process.env.VERCEL_AUTOMATION_BYPASS_SECRET, 'x-vercel-set-bypass-cookie': 'true' } }
+      : {}),
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -82,7 +86,7 @@ export default defineConfig({
 
   webServer: {
     command: 'npm run dev:web',
-    url: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:5173',
+    url: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:8080',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

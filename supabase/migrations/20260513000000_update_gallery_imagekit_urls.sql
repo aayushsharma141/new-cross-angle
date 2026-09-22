@@ -5,6 +5,10 @@
 -- When you upload images to ImageKit media library, replace the
 -- base URL with: https://ik.imagekit.io/wdrs8y61o/cross-angle
 
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'gallery_items') THEN
+    EXECUTE $dyn$
 -- Clear old broken data
 DELETE FROM public.gallery_items;
 DELETE FROM public.gallery_categories;
@@ -19,7 +23,7 @@ INSERT INTO public.gallery_categories (name, slug, display_order) VALUES
   ('Wardrobe',              'wardrobe',              6)
 ON CONFLICT (slug) DO NOTHING;
 
-DO $$
+DO $inner$
 DECLARE
   kitchen_id  uuid;
   bedroom_id  uuid;
@@ -76,4 +80,7 @@ BEGIN
     (ward_id,   'Sliding Door Wardrobe',           base || '/wardrobe-2.jpg',   'Kolkata',    2023, 'Space-saving sliding door wardrobe with integrated full-length mirrors and custom internal layout.', 2),
     (ward_id,   'Built-In Wardrobe',               base || '/wardrobe-3.jpg',   'Ranchi',     2024, 'Built-in wardrobe with backlit display shelving, velvet-lined jewellery drawers and a fitted dresser.', 3);
 
+END $inner$;
+$dyn$;
+  END IF;
 END $$;

@@ -95,7 +95,7 @@ const ServiceCategoryPage = () => {
 
                     {/* Services List */}
                     <section className="py-20" aria-labelledby="services-list-heading">
-                        <div className="container px-4">
+                        <div className="container mx-auto px-4">
                             <h2 id="services-list-heading" className="sr-only">Our {category.title} Services</h2>
                             <div className="grid grid-cols-1 gap-12">
                                 {categoryServices.map((service, index) => (
@@ -148,7 +148,7 @@ const ServiceCategoryPage = () => {
 
                     {/* CTA */}
                     <section className="py-20 bg-accent/10" aria-labelledby="cta-heading">
-                        <div className="container text-center">
+                        <div className="container mx-auto text-center">
                             <h2 id="cta-heading" className="font-serif text-3xl mb-4">Need Custom {category.title} Solutions?</h2>
                             <p className="text-muted-foreground mb-8">We offer bespoke design services tailored to your unique requirements.</p>
                             <Button variant="outline" size="lg" asChild>

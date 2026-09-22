@@ -30,8 +30,8 @@ const StyleSelector = () => {
     <div className="container mx-auto px-6 flex flex-col items-center">
       <div className="mb-20 text-center w-full max-w-2xl">
         <div className="flex items-center justify-center gap-4 mb-4">
-          <div className="w-12 h-px bg-site-crimson" />
-          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Style Selector</span>
+          <div className="w-12 h-px bg-primary" />
+          <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">Style Selector</span>
         </div>
         <h2 className="mb-6 text-3xl font-light tracking-tight text-white md:text-5xl">Find Your Taste</h2>
         <p className="mx-auto max-w-xl text-sm font-light text-white/50">
@@ -53,7 +53,7 @@ const StyleSelector = () => {
               {activeStyle === style.id && (
                 <motion.div 
                   layoutId="activeIndicator"
-                  className="absolute left-0 top-0 bottom-0 w-1 bg-site-gold"
+                  className="absolute left-0 top-0 bottom-0 w-1 bg-primary"
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
@@ -104,7 +104,7 @@ const StyleSelector = () => {
                       <p className="text-xs text-white/60 uppercase tracking-widest">{project.location}</p>
                     </div>
                     <div className="pr-4 opacity-0 transition-opacity group-hover:opacity-100">
-                      <Button variant="ghost" size="sm" className="text-site-gold uppercase tracking-[0.2em] text-[10px]">
+                      <Button variant="ghost" size="sm" className="text-primary uppercase tracking-[0.2em] text-[10px]">
                         View
                       </Button>
                     </div>

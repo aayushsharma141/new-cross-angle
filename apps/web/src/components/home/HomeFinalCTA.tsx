@@ -31,7 +31,7 @@ const HomeFinalCTA = () => {
   return (
     <section className="bg-gradient-to-b from-neutral-950 via-neutral-900/50 to-neutral-950 py-24 md:py-32 relative overflow-hidden border-t border-white/[0.05]">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-site-gold/5 rounded-full blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />
       </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -65,15 +65,15 @@ const HomeFinalCTA = () => {
                   to={card.href}
                   className="block group h-full"
                 >
-                  <div className="h-full p-8 rounded-2xl border border-white/[0.06] bg-neutral-900/40 backdrop-blur-sm hover:bg-neutral-800/40 hover:border-site-gold/30 transition-all duration-500">
-                    <div className="w-12 h-12 rounded-xl bg-site-gold/10 flex items-center justify-center mb-6 group-hover:bg-site-gold/20 transition-colors">
-                      <Icon className="w-5 h-5 text-site-gold" />
+                  <div className="h-full p-8 rounded-2xl border border-white/[0.06] bg-neutral-900/40 backdrop-blur-sm hover:bg-neutral-800/40 hover:border-primary/30 transition-all duration-500">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
+                      <Icon className="w-5 h-5 text-primary" />
                     </div>
                     <h3 className="text-xl font-serif text-white mb-3">{card.title}</h3>
                     <p className="text-sm text-stone-400 font-light leading-relaxed mb-6">
                       {card.description}
                     </p>
-                    <span className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase font-semibold text-site-gold group-hover:gap-3 transition-all">
+                    <span className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase font-semibold text-primary group-hover:gap-3 transition-all">
                       {card.label}
                       <ArrowRight className="w-3.5 h-3.5" />
                     </span>

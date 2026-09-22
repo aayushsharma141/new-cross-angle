@@ -15,9 +15,9 @@ async function init() {
   try {
     sharp = (await import('sharp')).default;
   } catch (err) {
-    console.error('Error: "sharp" library is not installed.');
-    console.error('Please run "npm install -D sharp" in the root or web package first.');
-    process.exit(1);
+    console.warn('⚠️  Warning: "sharp" is not available in this environment (likely CI/Vercel).');
+    console.warn('   Skipping image optimization — images should already be pre-optimized locally.');
+    process.exit(0); // Graceful skip — do NOT fail the build
   }
 }
 

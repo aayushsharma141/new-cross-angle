@@ -5,7 +5,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 export const About = () => {
   const { settings } = useSiteSettings();
   return (
-    <section id="about" className="py-section-y bg-site-bg-section border-t border-white/5 relative overflow-hidden">
+    <section id="about" className="py-section-y bg-kiro-bg-section border-t border-white/5 relative overflow-hidden">
       <div className="container mx-auto relative z-10 px-4 max-w-5xl">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-center">
           
@@ -29,12 +29,12 @@ export const About = () => {
           {/* Right Column: Short Note & Stats */}
           <div className="md:col-span-8">
             <ScrollReveal animation="slide-in-right" delay={0.15}>
-              <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px] block mb-4">
+              <span className="text-kiro-accent font-bold uppercase tracking-[0.3em] text-[10px] block mb-4">
                 Founder Note
               </span>
               
               <h3 className="font-serif text-2xl md:text-3xl font-bold text-white mb-6 leading-snug tracking-tight">
-                Homes are <span className="text-site-crimson italic font-light serif">emotional</span>. Execution must be <span className="text-site-gold italic font-light serif">engineered</span>.
+                Homes are <span className="text-kiro-accent italic font-light serif">emotional</span>. Execution must be <span className="text-kiro-accent italic font-light serif">engineered</span>.
               </h3>
 
               <p className="text-white/70 text-sm md:text-base leading-relaxed font-light mb-8">

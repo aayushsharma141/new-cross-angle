@@ -135,7 +135,7 @@ const GalleryLightbox = ({
             <Link
               to={`/contact-us?interest=${encodeURIComponent(currentItem.title || currentItem.category)}`}
               onClick={(e) => e.stopPropagation()}
-              className="self-start mt-2 px-5 py-2.5 bg-site-crimson text-white text-[10px] uppercase tracking-[0.2em] font-semibold rounded hover:bg-site-crimson/90 transition-colors"
+              className="self-start mt-2 px-5 py-2.5 bg-primary text-white text-[10px] uppercase tracking-[0.2em] font-semibold rounded hover:bg-primary/90 transition-colors"
             >
               Build this Look
             </Link>
@@ -224,10 +224,6 @@ const GalleryLightbox = ({
             {/* ── Navigation Row ────────────────────────────────────── */}
             <div
               className="flex items-center justify-between px-6 md:px-10 py-5 border-t border-white/5"
-              onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => e.stopPropagation()}
-              role="button"
-              tabIndex={-1}
             >
               {/* Prev Arrow */}
               <button
@@ -270,7 +266,7 @@ const GalleryLightbox = ({
               <Link
                 to={`/contact-us?interest=${encodeURIComponent(currentItem.title || currentItem.category)}`}
                 onClick={(e) => e.stopPropagation()}
-                className="md:hidden px-4 py-2 bg-site-crimson text-white text-[9px] uppercase tracking-[0.2em] font-semibold rounded hover:bg-site-crimson/90 transition-colors whitespace-nowrap"
+                className="md:hidden px-4 py-2 bg-primary text-white text-[9px] uppercase tracking-[0.2em] font-semibold rounded hover:bg-primary/90 transition-colors whitespace-nowrap"
               >
                 Build this Look
               </Link>

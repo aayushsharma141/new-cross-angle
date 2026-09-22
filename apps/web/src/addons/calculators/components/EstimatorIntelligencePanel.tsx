@@ -51,7 +51,7 @@ function SuitabilityRing({ score, tier }: { score: number; tier: string }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
-            className="text-2xl font-semibold text-[#1a1a1a] font-serif leading-none"
+            className="text-2xl font-semibold text-kiro-ink font-serif leading-none"
           >
             {score}
           </motion.span>
@@ -84,7 +84,7 @@ function BudgetConflictBar({ conflict }: { conflict: EstimatorResponse["budgetCo
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-[9px] uppercase tracking-[0.2em] text-[#8c8c8c] font-bold">Budget Alignment</p>
+        <p className="text-[9px] uppercase tracking-wider text-[#8c8c8c] font-bold">Budget Alignment</p>
         <span
           className="px-2 py-0.5 rounded-full text-[9px] uppercase tracking-[0.15em] font-bold"
           style={{ backgroundColor: meta.bg, color: meta.color }}
@@ -101,7 +101,7 @@ function BudgetConflictBar({ conflict }: { conflict: EstimatorResponse["budgetCo
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
         />
       </div>
-      <p className="text-[11px] text-[#5a5a5a]">
+      <p className="text-[13px] text-kiro-inkSoft">
         {overBudget
           ? `Estimated cost exceeds your budget by ₹${Math.abs(conflict.gapAmount / 100000).toFixed(1)}L (${Math.abs(conflict.gapPercent)}%)`
           : `Your budget has approx. ₹${(conflict.gapAmount / 100000).toFixed(1)}L headroom`
@@ -129,7 +129,7 @@ function NegotiationCard({
   const impactDots = Array.from({ length: 5 }).map((_, i) => (
     <span
       key={i}
-      className={`w-1.5 h-1.5 rounded-full ${i < option.satisfactionImpact ? "bg-[#c9a96e]" : "bg-[#e8e4dd]"}`}
+      className={`w-1.5 h-1.5 rounded-full ${i < option.satisfactionImpact ? "bg-[#c9a96e]" : "bg-kiro-line"}`}
     />
   ));
 
@@ -139,22 +139,22 @@ function NegotiationCard({
       animate={{ opacity: 1, y: 0 }}
       className={`border rounded-xl overflow-hidden transition-all duration-200 cursor-pointer ${
         isApplied
-          ? "border-[#8b6f47] bg-[#8b6f47]/5 shadow-[0_0_15px_rgba(139,111,71,0.1)]"
+          ? "border-kiro-accent bg-kiro-accent/[0.12] ring-2 ring-kiro-accent/25 shadow-[0_4px_20px_rgba(139,111,71,0.15)]"
           : isExpanded
-          ? "border-[#233526] bg-[#233526]/4"
-          : "border-[#e8e4dd] bg-white hover:border-[#c9a96e]/40"
+          ? "border-[#233526] bg-[#233526]/6"
+          : "border-kiro-line bg-white hover:border-kiro-accent/50 hover:bg-kiro-accentSoft hover:shadow-[0_4px_16px_rgba(139,111,71,0.1)]"
       }`}
       onClick={onToggleExpand}
     >
       <div className="p-4 flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <p className="text-sm font-semibold text-[#1a1a1a]">{option.label}</p>
-            <span className="px-2 py-0.5 bg-[#233526]/8 text-[#233526] rounded-full text-[9px] uppercase tracking-widest font-bold">
+            <p className="text-sm font-semibold text-kiro-ink">{option.label}</p>
+            <span className="px-2 py-0.5 bg-[#233526]/8 text-[#233526] rounded-full text-[9px] uppercase tracking-wide font-bold">
               Save ₹{(option.savingsAmount / 100000).toFixed(1)}L
             </span>
           </div>
-          <p className="text-[11px] text-[#5a5a5a] leading-relaxed">{option.description}</p>
+          <p className="text-[13px] text-kiro-inkSoft leading-relaxed">{option.description}</p>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
           <p className="text-[9px] uppercase tracking-[0.15em] text-[#8c8c8c]">Sacrifice</p>
@@ -169,19 +169,19 @@ function NegotiationCard({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="border-t border-[#e8e4dd] bg-[#faf8f5] px-4 py-3 overflow-hidden flex justify-between items-center gap-4"
+            className="border-t border-kiro-line bg-kiro-bg px-4 py-3 overflow-hidden flex justify-between items-center gap-4"
           >
-            <p className="text-[11px] text-[#5a5a5a] italic flex-1">
+            <p className="text-[13px] text-kiro-inkSoft italic flex-1">
               <span className="text-[#8c8c8c] uppercase tracking-[0.15em] text-[9px] font-bold not-italic block mb-0.5">Tradeoff</span>
               {option.tradeoff}
             </p>
             <button
                 type="button"
                 onClick={onToggleApply}
-                className={`shrink-0 px-4 py-2 rounded-[6px] text-[10px] font-bold uppercase tracking-widest transition-all ${
+                className={`shrink-0 px-4 py-2 rounded-[6px] text-[12px] font-bold uppercase tracking-wide transition-all ${
                     isApplied 
-                    ? "bg-[#8b6f47] text-white hover:bg-[#705939]" 
-                    : "bg-white border border-[#8b6f47] text-[#8b6f47] hover:bg-[#8b6f47]/5"
+                    ? "bg-kiro-accent text-white hover:bg-[#705939]" 
+                    : "bg-white border border-kiro-accent text-kiro-accent hover:bg-kiro-accent/5"
                 }`}
             >
                 {isApplied ? "Applied" : "Apply"}
@@ -214,23 +214,23 @@ export function EstimatorIntelligencePanel({ response, onSelectOption }: Estimat
       </div>
 
       {/* Property Suitability */}
-      <div className="bg-white/90 backdrop-blur-sm border border-[#e8e4dd] rounded-2xl p-6 relative z-10">
+      <div className="bg-white/90 backdrop-blur-sm border border-kiro-line rounded-2xl p-6 relative z-10">
         <div className="flex items-center gap-2 mb-5">
           <div className="w-6 h-px bg-[#c9a96e]" />
-          <p className="text-[9px] uppercase tracking-[0.25em] text-[#5a5a5a] font-bold">Property Intelligence</p>
+          <p className="text-[9px] uppercase tracking-wider text-kiro-inkSoft font-bold">Property Intelligence</p>
         </div>
 
         <div className="flex items-start gap-6">
           <SuitabilityRing score={response.fitScore} tier={response.fitTier} />
           <div className="flex-1 space-y-3">
-            <p className="text-sm font-semibold text-[#1a1a1a]">Property Fit Score</p>
-            <p className="text-[12px] text-[#5a5a5a] leading-relaxed">{response.fitNarrative}</p>
+            <p className="text-sm font-semibold text-kiro-ink">Property Fit Score</p>
+            <p className="text-[12px] text-kiro-inkSoft leading-relaxed">{response.fitNarrative}</p>
           </div>
         </div>
       </div>
 
       {/* Budget Conflict */}
-      <div className="bg-white/90 backdrop-blur-sm border border-[#e8e4dd] rounded-2xl p-6 relative z-10">
+      <div className="bg-white/90 backdrop-blur-sm border border-kiro-line rounded-2xl p-6 relative z-10">
         <BudgetConflictBar conflict={response.budgetConflict} />
       </div>
 
@@ -242,14 +242,14 @@ export function EstimatorIntelligencePanel({ response, onSelectOption }: Estimat
       >
         <div className="flex items-center gap-2 mb-2">
           <div className="w-1.5 h-1.5 rounded-full bg-[#c9a96e]" />
-          <p className="text-[9px] uppercase tracking-[0.25em] text-[#c9a96e] font-bold">
+          <p className="text-[9px] uppercase tracking-wider text-[#c9a96e] font-bold">
             Recommended Strategy
           </p>
         </div>
-        <p className="text-sm font-semibold text-[#1a1a1a] mb-1.5 capitalize">
+        <p className="text-sm font-semibold text-kiro-ink mb-1.5 capitalize">
           {response.strategy.replace(/_/g, ' ')}
         </p>
-        <p className="text-[12px] text-[#5a5a5a] leading-relaxed">{response.strategyRationale}</p>
+        <p className="text-[12px] text-kiro-inkSoft leading-relaxed">{response.strategyRationale}</p>
       </div>
 
       {/* Negotiation Options */}
@@ -257,11 +257,11 @@ export function EstimatorIntelligencePanel({ response, onSelectOption }: Estimat
         <div className="space-y-3 relative z-10">
           <div className="flex items-center gap-2">
             <div className="w-6 h-px bg-[#c9a96e]" />
-            <p className="text-[9px] uppercase tracking-[0.25em] text-[#5a5a5a] font-bold">
+            <p className="text-[9px] uppercase tracking-wider text-kiro-inkSoft font-bold">
               Adjustment Options
             </p>
           </div>
-          <p className="text-[11px] text-[#8c8c8c]">Tap any option to explore the tradeoff details.</p>
+          <p className="text-[13px] text-[#8c8c8c]">Tap any option to explore the tradeoff details.</p>
           <div className="space-y-3">
             {response.negotiationOptions.map((opt: NegotiationOption) => (
               <NegotiationCard
@@ -294,7 +294,7 @@ export function EstimatorIntelligencePanel({ response, onSelectOption }: Estimat
         <div className="space-y-3 relative z-10 bg-white/60 p-4 rounded-2xl border border-white/40">
           <div className="flex items-center gap-2">
             <div className="w-6 h-px bg-[#c9a96e]" />
-            <p className="text-[9px] uppercase tracking-[0.25em] text-[#5a5a5a] font-bold">Phasing Roadmap</p>
+            <p className="text-[9px] uppercase tracking-wider text-kiro-inkSoft font-bold">Phasing Roadmap</p>
           </div>
           <div className="space-y-3">
             {response.phases.map((phase: NonNullable<EstimatorResponse["phases"]>[0]) => (
@@ -306,19 +306,19 @@ export function EstimatorIntelligencePanel({ response, onSelectOption }: Estimat
                 className="flex gap-4 items-start"
               >
                 <div className="flex flex-col items-center gap-1 pt-1">
-                  <div className="w-6 h-6 rounded-full bg-[#233526] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-[#233526] text-white text-[12px] font-bold flex items-center justify-center shrink-0">
                     {phase.phase}
                   </div>
                   {phase.phase < (response.phases?.length ?? 0) && (
-                    <div className="w-px h-8 bg-[#e8e4dd]" />
+                    <div className="w-px h-8 bg-kiro-line" />
                   )}
                 </div>
                 <div className="flex-1 pb-4">
-                  <p className="text-sm font-semibold text-[#1a1a1a] mb-0.5">{phase.label}</p>
-                  <p className="text-[10px] text-[#c9a96e] uppercase tracking-[0.15em] mb-2">{phase.timeline} · ₹{(phase.estimatedCost / 100000).toFixed(0)}L</p>
+                  <p className="text-sm font-semibold text-kiro-ink mb-0.5">{phase.label}</p>
+                  <p className="text-[12px] text-[#c9a96e] uppercase tracking-[0.15em] mb-2">{phase.timeline} · ₹{(phase.estimatedCost / 100000).toFixed(0)}L</p>
                   <ul className="space-y-1">
                     {phase.scopeItems.slice(0, 4).map((item: string, i: number) => (
-                      <li key={i} className="text-[11px] text-[#5a5a5a] flex gap-2">
+                      <li key={i} className="text-[13px] text-kiro-inkSoft flex gap-2">
                         <span className="text-[#c9a96e] mt-0.5">·</span>
                         {item}
                       </li>

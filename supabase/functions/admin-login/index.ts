@@ -7,13 +7,12 @@ const CORS_HEADERS = {
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const ROLE_PRIORITY = ["super_admin", "admin", "viewer"] as const;
+const ROLE_PRIORITY = ["super_admin", "admin", "editor", "viewer"] as const;
 type AppRole = typeof ROLE_PRIORITY[number];
 
 function mapStoredRole(role: string | null | undefined): AppRole | null {
     if (!role) return null;
     if ((ROLE_PRIORITY as readonly string[]).includes(role)) return role as AppRole;
-    if (role === "editor") return "admin";
     return null;
 }
 

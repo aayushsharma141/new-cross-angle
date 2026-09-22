@@ -14,8 +14,9 @@ import {
   TIERS,
   INVESTMENT_PRESETS,
   TIMELINE_OPTIONS,
+  DEFAULT_PRICING_CONFIG,
 } from "@/addons/calculators/components/data/pricing-config";
-import { ADJECTIVE_OPTIONS, materialOptions, lightOptions } from "@/constants/discovery";
+import { ADJECTIVE_OPTIONS, materialOptions, lightOptions, visualImages, DESIGN_LANGUAGES, COLOR_MOODS, DISLIKE_COLORS } from "@/constants/discovery";
 import { CRM_STAGES } from "@/lib/crm/stages";
 
 export type FlowConfigKey =
@@ -37,7 +38,13 @@ export type FlowConfigKey =
   | "discovery_materials"
   | "discovery_lights"
   | "discovery_archetypes"
-  | "crm_stages";
+  | "discovery_questions"
+  | "discovery_visual_prompts"
+  | "crm_stages"
+  | "alcs_rules"
+  | "result_templates"
+  | "media_assets"
+  | "pricing";
 
 const DEFAULTS: Record<FlowConfigKey, unknown> = {
   property_types: PROPERTY_TYPES,
@@ -58,7 +65,18 @@ const DEFAULTS: Record<FlowConfigKey, unknown> = {
   discovery_materials: materialOptions,
   discovery_lights: lightOptions,
   discovery_archetypes: [],
+  discovery_questions: {
+    design_languages: DESIGN_LANGUAGES,
+    color_moods: COLOR_MOODS,
+    dislike_colors: DISLIKE_COLORS,
+  },
+  discovery_visual_prompts: visualImages,
   crm_stages: CRM_STAGES.map(s => ({ id: s.id, label: s.label, dotClass: s.dotClass })),
+  alcs_rules: null,
+  result_templates: null,
+  media_assets: null,
+  // QA-02: pricing lives here (key "pricing") — the `estimate_rates` table never existed in production.
+  pricing: DEFAULT_PRICING_CONFIG,
 };
 
 export function useFlowConfig<T = unknown>(key: FlowConfigKey) {

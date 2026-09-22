@@ -27,3 +27,5 @@ export const SystemModule = () => {
         </ModuleLayout>
     );
 };
+
+export default SystemModule;

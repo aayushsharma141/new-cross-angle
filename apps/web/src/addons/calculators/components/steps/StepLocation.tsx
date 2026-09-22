@@ -10,9 +10,9 @@ interface Props {
 }
 
 const labelStyle = "block text-sm font-medium mb-2 text-gray-500";
-const inputStyle = "w-full bg-[#ffffff] !bg-[#ffffff] border border-[#1a1a1a]/[0.08] focus:border-[#8b6f47] rounded-[8px] px-4 py-2.5 text-[#1a1a1a] !text-[#1a1a1a] text-sm outline-none transition-all shadow-inner placeholder:text-[#1a1a1a]/30";
+const inputStyle = "w-full bg-[#ffffff] !bg-[#ffffff] border border-[#1a1a1a]/[0.08] focus:border-[#7a5c30] rounded-[8px] px-4 py-2.5 text-[#1a1a1a] !text-[#1a1a1a] text-sm outline-none transition-all shadow-inner placeholder:text-[#1a1a1a]/30";
 const dropdownStyle = "bg-[#ffffff] border border-[#1a1a1a]/[0.08] rounded-[8px] mt-1.5 max-h-52 overflow-y-auto shadow-2xl z-50 relative pointer-events-auto";
-const dropdownItemStyle = "flex justify-between items-center w-full bg-transparent border-none text-[#1a1a1a] px-4 py-2.5 cursor-pointer text-sm text-left hover:bg-[#8b6f47]/10 transition-colors";
+const dropdownItemStyle = "flex justify-between items-center w-full bg-transparent border-none text-[#1a1a1a] px-4 py-2.5 cursor-pointer text-sm text-left hover:bg-[#7a5c30]/10 transition-colors";
 
 export function StepLocation({ formData, updateFields }: Props) {
     const { data: LOCATION_DATA } = useFlowConfig<Record<string, Record<string, string>>>("location_data");
@@ -62,7 +62,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                         id="state-input"
                         type="text"
                         title="Search for your state"
-                        placeholder="Search state..."
+                        placeholder="Search state�"
                         value={formData.state || stateSearch}
                         onChange={e => {
                             setStateSearch(e.target.value);
@@ -77,7 +77,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                                 updateFields({ state: "", city: "", cityTier: "tier1" });
                                 setStateSearch("");
                             }}
-                            className="absolute right-3 text-[#5a5a5a] hover:text-[#8b6f47] transition-colors text-sm"
+                            className="absolute right-3 text-[#5a5a5a] hover:text-[#7a5c30] transition-colors text-sm"
                             title="Clear state"
                         >
                             ✕
@@ -101,7 +101,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                     <div className="flex flex-wrap gap-2 mt-3 max-h-40 overflow-y-auto pr-1">
                         {states.map(s => (
                             <button key={s} onClick={() => handleStateSelect(s)}
-                                className="bg-[#ffffff] border border-[#1a1a1a]/[0.06] text-[#1a1a1a]/70 rounded-none px-3 py-1.5 cursor-pointer text-xs hover:border-[#8b6f47]/50 hover:text-[#1a1a1a] transition-all">
+                                className="bg-white border border-[#1a1a1a]/[0.08] text-[#1a1a1a]/70 rounded-full px-3.5 py-1.5 cursor-pointer text-[12px] font-medium hover:border-[#7a5c30]/60 hover:text-[#7a5c30] hover:bg-[#7a5c30]/[0.05] hover:-translate-y-0.5 hover:shadow-[0_2px_8px_rgba(122,92,48,0.12)] transition-all duration-200">
                                 {s}
                             </button>
                         ))}
@@ -118,7 +118,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                             id="city-input"
                             type="text"
                             title="Search for your city"
-                            placeholder="Search city..."
+                            placeholder="Search city�"
                             value={formData.city || citySearch}
                             onChange={e => {
                                 setCitySearch(e.target.value);
@@ -133,7 +133,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                                     updateFields({ city: "", cityTier: "tier1" });
                                     setCitySearch("");
                                 }}
-                                className="absolute right-3 text-[#5a5a5a] hover:text-[#8b6f47] transition-colors text-sm"
+                                className="absolute right-3 text-[#5a5a5a] hover:text-[#7a5c30] transition-colors text-sm"
                                 title="Clear city"
                             >
                                 ✕
@@ -147,7 +147,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                                 return (
                                     <button key={c} onClick={() => handleCitySelect(c)} className={dropdownItemStyle}>
                                         <span className="font-medium">{c}</span>
-                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-none uppercase tracking-tighter ${t === "tier1" ? "bg-[#8b6f47]/15 text-[#8b6f47]" :
+                                        <span className={`text-[12px] font-bold px-1.5 py-0.5 rounded-none uppercase tracking-tighter ${t === "tier1" ? "bg-[#7a5c30]/15 text-[#7a5c30]" :
                                             t === "tier2" ? "bg-amber-500/15 text-amber-500" :
                                                 "bg-[#1a1a1a]/10 text-[#1a1a1a]/70"
                                             }`}>
@@ -164,13 +164,14 @@ export function StepLocation({ formData, updateFields }: Props) {
                                 const t = LOCATION_DATA[formData.state]?.[c];
                                 return (
                                     <button key={c} onClick={() => handleCitySelect(c)}
-                                        className="bg-[#ffffff] border border-[#1a1a1a]/[0.06] rounded-none px-3 py-1.5 cursor-pointer hover:border-[#8b6f47]/50 transition-all group">
+                                        className="bg-white border border-[#1a1a1a]/[0.08] rounded-full px-3.5 py-1.5 cursor-pointer hover:border-[#7a5c30]/60 hover:bg-[#7a5c30]/[0.04] hover:-translate-y-0.5 hover:shadow-[0_2px_8px_rgba(122,92,48,0.1)] transition-all duration-200 group">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[#1a1a1a]/70 text-xs group-hover:text-[#1a1a1a] transition-colors">{c}</span>
-                                            <span className={`text-[9px] font-bold px-1 py-0 rounded-none uppercase tracking-tighter opacity-70 ${t === "tier1" ? "bg-[#8b6f47]/15 text-[#8b6f47]" :
-                                                t === "tier2" ? "bg-amber-500/15 text-amber-500" :
-                                                    "bg-[#1a1a1a]/10 text-[#1a1a1a]/70"
-                                                }`}>
+                                            <span className="text-[#1a1a1a]/70 text-[12px] font-medium group-hover:text-[#7a5c30] transition-colors">{c}</span>
+                                            <span className={`text-[10px] font-bold px-1.5 py-0 rounded-full uppercase tracking-wide ${
+                                                t === "tier1" ? "bg-[#7a5c30]/15 text-[#7a5c30]" :
+                                                t === "tier2" ? "bg-amber-500/15 text-amber-600" :
+                                                "bg-[#1a1a1a]/10 text-[#1a1a1a]/60"
+                                            }`}>
                                                 {t}
                                             </span>
                                         </div>
@@ -184,28 +185,37 @@ export function StepLocation({ formData, updateFields }: Props) {
 
             {/* Tier badge */}
             {tierInfo && (
-                <div className={`bg-[#ffffff] border-2 rounded-none p-5 mt-2 animate-in zoom-in-95 duration-300 shadow-xl ${formData.cityTier === "tier1" ? "border-[#8b6f47]/20 bg-[#8b6f47]/5" :
-                    formData.cityTier === "tier2" ? "border-amber-500/20 bg-amber-500/5" :
-                        "border-[#1a1a1a]/[0.06] bg-[#ffffff]/50"
-                    }`}>
+                <div className={`relative border-2 rounded-xl p-5 mt-2 animate-in zoom-in-95 duration-300 overflow-hidden ${
+                    formData.cityTier === "tier1" ? "border-[#7a5c30]/30 bg-gradient-to-br from-[#7a5c30]/[0.08] to-[#7a5c30]/[0.03]" :
+                    formData.cityTier === "tier2" ? "border-amber-500/30 bg-gradient-to-br from-amber-500/[0.08] to-amber-500/[0.03]" :
+                    "border-[#1a1a1a]/[0.06] bg-white/60"
+                }`}>
+                    {/* Left accent bar */}
+                    <div className={`absolute left-0 inset-y-0 w-1 rounded-l-xl ${
+                        formData.cityTier === "tier1" ? "bg-gradient-to-b from-[#7a5c30] to-[#7a5c30]/30" :
+                        formData.cityTier === "tier2" ? "bg-gradient-to-b from-amber-500 to-amber-500/30" :
+                        "bg-[#1a1a1a]/20"
+                    }`} aria-hidden="true" />
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-2.5">
-                            <span className={`text-sm font-black px-3 py-1 rounded-none uppercase tracking-wider ${formData.cityTier === "tier1" ? "bg-[#8b6f47]/15 text-[#8b6f47]" :
-                                formData.cityTier === "tier2" ? "bg-amber-500/15 text-amber-500" :
-                                    "bg-[#1a1a1a]/10 text-[#1a1a1a]/70"
-                                }`}>
+                            <span className={`text-sm font-black px-3 py-1 rounded-full uppercase tracking-wide ${
+                                formData.cityTier === "tier1" ? "bg-[#7a5c30]/15 text-[#7a5c30]" :
+                                formData.cityTier === "tier2" ? "bg-amber-500/15 text-amber-600" :
+                                "bg-[#1a1a1a]/10 text-[#1a1a1a]/70"
+                            }`}>
                                 {tierInfo.label}
                             </span>
-                            <span className="text-[#5a5a5a] text-xs font-semibold uppercase tracking-widest">
+                            <span className="text-[#5a5a5a] text-xs font-semibold uppercase tracking-wide">
                                 Location Class
                             </span>
                         </div>
                         <div className="text-right">
-                            <span className="text-[#5a5a5a] text-[10px] font-bold uppercase block -mb-1">Tier Multiplier</span>
-                            <span className={`text-2xl font-black italic tracking-tight ${formData.cityTier === "tier1" ? "text-[#8b6f47]" :
-                                formData.cityTier === "tier2" ? "text-amber-500" :
-                                    "text-[#1a1a1a]/70"
-                                }`}>
+                            <span className="text-[#5a5a5a] text-[12px] font-bold uppercase block -mb-1">Tier Multiplier</span>
+                            <span className={`text-2xl font-black italic tracking-tight ${
+                                formData.cityTier === "tier1" ? "text-[#7a5c30]" :
+                                formData.cityTier === "tier2" ? "text-amber-600" :
+                                "text-[#1a1a1a]/70"
+                            }`}>
                                 {tierInfo.multiplier}×
                             </span>
                         </div>
@@ -213,10 +223,11 @@ export function StepLocation({ formData, updateFields }: Props) {
                     <div className="mt-4 pt-4 border-t border-[#1a1a1a]/[0.06]">
                         <p className="text-[#5a5a5a] text-xs leading-relaxed">
                             <span className="text-[#1a1a1a] font-semibold">{formData.city}, {formData.state}</span> —
-                            Operational costs and logistics rates will be adjusted by the <span className={`font-bold underline underline-offset-4 decoration-current/30 ${formData.cityTier === "tier1" ? "text-[#8b6f47]" :
-                                formData.cityTier === "tier2" ? "text-amber-500" :
-                                    "text-[#1a1a1a]/70"
-                                }`}>{tierInfo.label.toLowerCase()} multiplier</span>.
+                            Operational costs and logistics rates will be adjusted by the <span className={`font-bold underline underline-offset-4 decoration-current/30 ${
+                                formData.cityTier === "tier1" ? "text-[#7a5c30]" :
+                                formData.cityTier === "tier2" ? "text-amber-600" :
+                                "text-[#1a1a1a]/70"
+                            }`}>{tierInfo.label.toLowerCase()} multiplier</span>.
                         </p>
                     </div>
                 </div>

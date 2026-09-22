@@ -23,8 +23,8 @@ const OurApproach = () => {
             viewport={{ once: true }}
             className="flex items-center gap-4 mb-6"
           >
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-site-gold">The Philosophy</span>
+            <div className="w-12 h-px bg-kiro-accent" />
+            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-kiro-accent">The Philosophy</span>
           </motion.div>
 
           <motion.h2
@@ -34,7 +34,7 @@ const OurApproach = () => {
             className="font-display font-normal text-[clamp(2.8rem,6vw,5.5rem)] leading-[1.05] tracking-tighter text-white"
           >
             We Design. We Execute.<br />
-            We Deliver <em className="italic text-site-crimson font-medium">Complete</em> Environments.
+            We Deliver <em className="italic text-kiro-accent font-medium">Complete</em> Environments.
           </motion.h2>
         </div>
 
@@ -64,7 +64,7 @@ const OurApproach = () => {
                     i !== pillars.length - 1 && "border-b border-white/[0.05]"
                   )}
                 >
-                  <span className="font-display italic text-[1.75rem] text-site-crimson/40 group-hover:text-site-crimson transition-colors duration-500 pt-1">
+                  <span className="font-display italic text-[1.75rem] text-kiro-accent/40 group-hover:text-kiro-accent transition-colors duration-500 pt-1">
                     {pillar.num}
                   </span>
                   <div>
@@ -89,12 +89,12 @@ const OurApproach = () => {
           >
             {/* Glossy Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
-            <div className="absolute -top-1/4 -right-1/4 w-full h-full bg-site-crimson/10 blur-[100px] rounded-full" />
+            <div className="absolute -top-1/4 -right-1/4 w-full h-full bg-kiro-accent/10 blur-[100px] rounded-full" />
 
             <div className="relative z-10 flex flex-col h-full justify-between">
               <div>
-                <div className="font-bold text-[10px] tracking-[0.3em] uppercase text-site-crimson mb-12 flex items-center gap-3">
-                  <div className="w-8 h-px bg-site-crimson" />
+                <div className="font-bold text-[10px] tracking-[0.3em] uppercase text-kiro-accent mb-12 flex items-center gap-3">
+                  <div className="w-8 h-px bg-kiro-accent" />
                   Performance Metrics
                 </div>
 
@@ -104,7 +104,7 @@ const OurApproach = () => {
                     whileInView={{ opacity: 1, x: 0 }}
                     className="group"
                   >
-                    <div className="font-display italic font-light text-[clamp(2.5rem,5vw,5rem)] leading-none text-white mb-2 group-hover:text-site-crimson transition-colors duration-500">₹2–20Cr+</div>
+                    <div className="font-display italic font-light text-[clamp(2.5rem,5vw,5rem)] leading-none text-white mb-2 group-hover:text-kiro-accent transition-colors duration-500">₹2–20Cr+</div>
                     <div className="font-bold text-[10px] tracking-[0.2em] uppercase text-white/60">Project Value Threshold</div>
                   </motion.div>
 
@@ -114,7 +114,7 @@ const OurApproach = () => {
                     transition={{ delay: 0.1 }}
                     className="group"
                   >
-                    <div className="font-display italic font-light text-[clamp(2.5rem,5vw,5rem)] leading-none text-white mb-2 group-hover:text-site-crimson transition-colors duration-500">95%</div>
+                    <div className="font-display italic font-light text-[clamp(2.5rem,5vw,5rem)] leading-none text-white mb-2 group-hover:text-kiro-accent transition-colors duration-500">95%</div>
                     <div className="font-bold text-[10px] tracking-[0.2em] uppercase text-white/60">Execution Fidelity Rate</div>
                   </motion.div>
 
@@ -124,7 +124,7 @@ const OurApproach = () => {
                     transition={{ delay: 0.2 }}
                     className="group"
                   >
-                    <div className="font-display italic font-light text-[clamp(1.8rem,3vw,3rem)] leading-none text-white mb-2 group-hover:text-site-crimson transition-colors duration-500">On-Time Delivery</div>
+                    <div className="font-display italic font-light text-[clamp(1.8rem,3vw,3rem)] leading-none text-white mb-2 group-hover:text-kiro-accent transition-colors duration-500">On-Time Delivery</div>
                     <div className="font-bold text-[10px] tracking-[0.2em] uppercase text-white/60">Contractually Guaranteed</div>
                   </motion.div>
                 </div>
@@ -133,7 +133,7 @@ const OurApproach = () => {
               <div className="mt-20 pt-10 border-t border-white/5 flex items-center justify-between">
                 <span className="text-white/20 text-[9px] uppercase tracking-widest">Global Sourcing • In-house Fab</span>
                 <div className="flex gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-site-crimson shadow-[0_0_8px_rgba(196,30,58,0.8)]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-kiro-accent shadow-[0_0_8px_rgba(196,30,58,0.8)]" />
                   <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
                   <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
                 </div>

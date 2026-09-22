@@ -21,3 +21,5 @@ export const UserAccessModule = () => {
         </ModuleLayout>
     );
 };
+
+export default UserAccessModule;

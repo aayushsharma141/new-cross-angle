@@ -148,7 +148,7 @@ const SalesTab = ({ date }: SalesTabProps) => {
     },
   });
 
-  const fmt = (v: number | string | undefined | null): string => (v == null ? "..." : typeof v === "number" ? v.toLocaleString() : v);
+  const fmt = (v: number | string | undefined | null): string => (v == null ? "…" : typeof v === "number" ? v.toLocaleString() : v);
 
   return (
     <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
@@ -158,7 +158,7 @@ const SalesTab = ({ date }: SalesTabProps) => {
           title="Estimator Submissions"
           value={fmt(stats?.estimatorLeads)}
           numericValue={stats?.estimatorLeads}
-          change={stats ? `${stats.leadsTrend > 0 ? "+" : ""}${stats.leadsTrend}% vs prev` : "..."}
+          change={stats ? `${stats.leadsTrend > 0 ? "+" : ""}${stats.leadsTrend}% vs prev` : "…"}
           trend={(stats?.leadsTrend || 0) > 0 ? "up" : "neutral"}
           icon={Layers}
           variant="gold"

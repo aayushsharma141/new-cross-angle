@@ -9,17 +9,19 @@ export const Philosophy = () => {
             <img 
               src="/reality_render.jpg" 
               alt="Engineering Interiors" 
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700"
             />
             <div className="absolute inset-0 bg-neutral-950/20 group-hover:bg-neutral-950/0 transition-all duration-700"></div>
           </ScrollReveal>
           
           <ScrollReveal animation="slide-in-right" className="max-w-2xl">
-            <span className="text-site-crimson font-mono text-[10px] uppercase tracking-[0.3em] mb-8 block">Signature Philosophy</span>
+            <span className="text-kiro-accent font-mono text-[10px] uppercase tracking-[0.3em] mb-8 block">Signature Philosophy</span>
             <h2 className="text-[clamp(2rem,3.5vw,3rem)] font-serif font-bold text-white leading-[1.2] tracking-tight">
               Most interior projects fail because they are treated as decoration projects.
             </h2>
-            <div className="w-16 h-[2px] bg-site-gold my-10"></div>
+            <div className="w-16 h-[2px] bg-kiro-accent my-10"></div>
             <h3 className="text-[clamp(1.5rem,2.5vw,2rem)] font-serif text-white/60 leading-[1.3] italic font-light">
               We treat them as engineering projects.
             </h3>

@@ -100,15 +100,15 @@ const TrustSection = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">
+            <div className="w-12 h-px bg-kiro-accent" />
+            <span className="text-kiro-accent font-bold uppercase tracking-[0.3em] text-[10px]">
               Why Choose Us
             </span>
           </div>
 
           <h2 className="font-display text-[clamp(2.4rem,6vw,4.5rem)] leading-[0.95] tracking-[-0.02em] text-white mb-6 flex flex-wrap justify-center gap-x-2">
             <FallingText text="Trust &" delay={30} duration={0.6} />
-            <em className="not-italic text-site-gold">
+            <em className="not-italic text-kiro-accent">
               <FallingText text="Credibility" delay={30} duration={0.6} />
             </em>
           </h2>
@@ -128,13 +128,13 @@ const TrustSection = () => {
                 delay={index * 0.1}
                 distance={20}
                 className={cn(
-                  "p-5 md:p-6 rounded-xl bg-site-bg-card border border-site-border",
-                  "hover:border-site-crimson/30 hover:bg-site-bg-card-hover",
+                  "p-5 md:p-6 rounded-xl bg-kiro-bg-card border border-kiro-line",
+                  "hover:border-kiro-accent/30 hover:bg-kiro-bg-card-hover",
                   "transition-all duration-500 group h-full"
                 )}
               >
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-site-crimson/10 border border-site-crimson/20 flex items-center justify-center mb-3 md:mb-4 group-hover:bg-site-crimson/20 transition-colors">
-                  <Icon className="w-5 h-5 md:w-6 md:h-6 text-site-crimson" />
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-kiro-accent/10 border border-kiro-accent/20 flex items-center justify-center mb-3 md:mb-4 group-hover:bg-kiro-accent/20 transition-colors">
+                  <Icon className="w-5 h-5 md:w-6 md:h-6 text-kiro-accent" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-1 md:mb-2 text-sm md:text-base">{item.title}</h3>
                 <p className="text-xs md:text-sm text-muted-foreground">{item.description}</p>
@@ -146,8 +146,8 @@ const TrustSection = () => {
         {/* Brand Partners - Slow Marquee */}
         <FadeContent delay={0.3} distance={20}>
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Trusted Brand Partners</span>
+            <div className="w-12 h-px bg-kiro-accent" />
+            <span className="text-kiro-accent font-bold uppercase tracking-[0.3em] text-[10px]">Trusted Brand Partners</span>
           </div>
 
           {/* Marquee Container */}

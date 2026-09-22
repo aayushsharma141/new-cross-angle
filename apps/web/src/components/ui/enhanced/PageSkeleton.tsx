@@ -29,7 +29,7 @@ const SkeletonBlock = ({
 function PublicShell({ children, className, ariaLabel, loadingMessage = "INITIALIZING EXPERIENCE..." }: { children: React.ReactNode; className?: string; ariaLabel: string; loadingMessage?: string }) {
   return (
     <div role="status" aria-busy className={cn("relative min-h-screen bg-[#050505] text-white overflow-hidden", className)} aria-label={ariaLabel}>
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(196,18,48,0.16),transparent_34%),radial-gradient(circle_at_82%_24%,rgba(209,175,110,0.08),transparent_30%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(212,175,55,0.16),transparent_34%),radial-gradient(circle_at_82%_24%,rgba(209,175,110,0.08),transparent_30%)]" />
       
       {/* Premium Data-fetching boundary text */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center z-50 pointer-events-none opacity-60">

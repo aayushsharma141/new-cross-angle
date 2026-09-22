@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight, LayoutGrid } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 const FeaturedJourneys = () => {
   const { data: featuredProjects = [], isLoading } = useQuery({
@@ -13,7 +14,7 @@ const FeaturedJourneys = () => {
   if (isLoading) {
     return (
       <div className="container mx-auto py-32 px-6 flex justify-center items-center">
-        <div className="w-8 h-8 rounded-full border-t-2 border-site-gold animate-spin"></div>
+        <div className="w-8 h-8 rounded-full border-t-2 border-primary animate-spin"></div>
       </div>
     );
   }
@@ -26,8 +27,8 @@ const FeaturedJourneys = () => {
     <div className="container mx-auto py-32 px-6">
       <div className="mb-24 text-center">
         <div className="flex items-center justify-center gap-4 mb-6">
-          <div className="w-12 h-px bg-site-crimson" />
-          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Featured Journeys</span>
+          <div className="w-12 h-px bg-primary" />
+          <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">Featured Journeys</span>
         </div>
         <h2 className="text-4xl font-extralight tracking-tight text-white md:text-6xl italic">
           Hero-Level Chronicles
@@ -50,7 +51,7 @@ const FeaturedJourneys = () => {
             <div className="relative w-full overflow-hidden group md:w-3/5">
               <div className="aspect-[16/9] overflow-hidden">
                 <motion.img 
-                  src={project.heroImage} 
+                  src={getOptimizedUrl(project.heroImage, { width: 900, quality: 80 })} 
                   alt={project.title}
                   className="h-full w-full object-cover transition-transform group-hover:scale-105"
                   style={{ transitionDuration: "2000ms" }}
@@ -66,7 +67,7 @@ const FeaturedJourneys = () => {
             {/* Narrative Stage */}
             <div className="w-full space-y-8 md:w-2/5">
               <div className="space-y-4">
-                <h3 className="text-sm font-medium tracking-[0.2em] text-site-gold uppercase">
+                <h3 className="text-sm font-medium tracking-[0.2em] text-primary uppercase">
                   {project.style}
                 </h3>
                 <h4 className="text-3xl font-light leading-tight text-white md:text-4xl">
@@ -90,7 +91,7 @@ const FeaturedJourneys = () => {
 
               <Link 
                 to={`/portfolio/${project.slug || project.id}`}
-                className="group inline-flex items-center gap-4 py-4 text-[11px] uppercase tracking-[0.3em] text-white underline-offset-8 hover:underline decoration-site-gold transition-all"
+                className="group inline-flex items-center gap-4 py-4 text-[11px] uppercase tracking-[0.3em] text-white underline-offset-8 hover:underline decoration-primary transition-all"
               >
                 Explore This Journey
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />

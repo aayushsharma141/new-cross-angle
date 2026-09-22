@@ -21,9 +21,9 @@ const ProjectClientExperience = ({
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <span className="text-xs font-medium tracking-[0.3em] uppercase text-site-gold block mb-4">Client Experience</span>
+          <span className="text-xs font-medium tracking-[0.3em] uppercase text-primary block mb-4">Client Experience</span>
           <h2 className="text-3xl md:text-5xl font-serif font-normal text-white">
-            The <span className="italic text-site-crimson font-light">Verdict</span>
+            The <span className="italic text-primary font-light">Verdict</span>
           </h2>
         </motion.div>
 

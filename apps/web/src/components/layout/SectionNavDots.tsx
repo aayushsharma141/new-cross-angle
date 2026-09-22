@@ -72,17 +72,21 @@ const SectionNavDots = () => {
           <li key={section.id} className="relative group">
             <button
               onClick={() => scrollToSection(section.id)}
-              className={cn(
-                "w-3 h-3 rounded-full transition-all duration-300",
-                "border-2 border-background/50",
-                "hover:scale-125 hover:border-primary",
-                activeSection === section.id
-                  ? "bg-primary border-primary scale-110"
-                  : "bg-transparent"
-              )}
+              className="w-8 h-8 -m-2.5 flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               aria-label={`Navigate to ${section.label}`}
               aria-current={activeSection === section.id ? "true" : undefined}
-            />
+            >
+              <span
+                className={cn(
+                  "w-3 h-3 rounded-full transition-all duration-300 block",
+                  "border-2 border-background/50",
+                  "group-hover:scale-125 group-hover:border-primary",
+                  activeSection === section.id
+                    ? "bg-primary border-primary scale-110"
+                    : "bg-transparent"
+                )}
+              />
+            </button>
 
             {/* Tooltip */}
             <span

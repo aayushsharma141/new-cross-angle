@@ -13,10 +13,15 @@
 --      function into checking the wrong data — a search_path hijack attack.
 -- Fix: Pin each function's search_path to 'public' so it always resolves
 --      identifiers against the correct schema, regardless of session settings.
-ALTER FUNCTION public.is_admin(uuid)
-SET search_path = 'public';
-ALTER FUNCTION public.set_comment_path()
-SET search_path = 'public';
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'is_admin') THEN
+    EXECUTE 'ALTER FUNCTION public.is_admin(uuid) SET search_path = ''public'';';
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'set_comment_path') THEN
+    EXECUTE 'ALTER FUNCTION public.set_comment_path() SET search_path = ''public'';';
+  END IF;
+END $$;
 -- These are created by triggers/migrations that weren't in local files —
 -- recreate with SET search_path baked in.
 CREATE OR REPLACE FUNCTION public.trg_estimate_leads_enforce_status() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
@@ -45,18 +50,23 @@ $$;
 CREATE SCHEMA IF NOT EXISTS extensions;
 -- Supabase allows moving extensions; the ltree type on comments.path
 -- continues to work as 'ltree' resolves via search_path in functions.
-ALTER EXTENSION ltree
-SET SCHEMA extensions;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'ltree') THEN
+    EXECUTE 'ALTER EXTENSION ltree SET SCHEMA extensions;';
+  END IF;
+END $$;
 -- ── 3. Revoke anon/authenticated SELECT on daily_project_kpis ────────────────
 -- Why: Materialized views bypass RLS — anyone can query raw aggregated KPI
 --      data via the REST API. This view shows sensitive project analytics.
 -- Fix: Remove public grants; grant only to service_role (used by admin panel).
-REVOKE
-SELECT ON public.daily_project_kpis
-FROM anon;
-REVOKE
-SELECT ON public.daily_project_kpis
-FROM authenticated;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'daily_project_kpis') THEN
+    EXECUTE 'REVOKE SELECT ON public.daily_project_kpis FROM anon;';
+    EXECUTE 'REVOKE SELECT ON public.daily_project_kpis FROM authenticated;';
+  END IF;
+END $$;
 -- Admin dashboards call this via service_role (bypasses grants anyway).
 -- If any frontend query needs it, update to use a SERVER-side API call.
 -- ── 4. Fix always-true RLS policies on sensitive tables ──────────────────────

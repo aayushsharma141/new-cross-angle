@@ -2,8 +2,8 @@ import React from 'react';
 import { useState, useMemo } from "react";
 import { Pencil, Trash2, Briefcase, FileText } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/primitives/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/primitives/tabs";
@@ -20,6 +20,7 @@ import { ServiceDetail } from "@repo/types";
 import { serviceSchema, formatZodErrors } from "@/lib/validation/validations";
 import { FeaturesEditor, ProcessEditor, FAQEditor } from "@/components/admin/ServiceFormFields";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
+import { AssetUsageService } from "@/services/AssetUsageService";
 import { AdminFilterBar, AdminSafeAction, AdminEmptyState, AdminSkeletonCard } from "@/components/admin/shared";
 import { AdminAddCard } from "@/components/admin/shared/AdminEmptyState";
 import { DataLoadingBoundary } from "@/components/ui/enhanced/DataLoadingBoundary";
@@ -41,7 +42,6 @@ interface ServiceRecord {
     name: string;
     slug: string;
     description: string | Record<string, unknown>;
-    icon_url?: string;
     short_description?: string;
     short_tag?: string;
     active?: boolean;
@@ -56,17 +56,18 @@ const AdminServices = () => {
     const [searchQuery, setSearchQuery] = useState("");
 
     // Form State
-    const [formData, setFormData] = useState<Partial<ServiceDetail>>({
+    const [formData, setFormData] = useState({
         title: "",
         slug: "",
         description: "",
         hero_image: "",
+        hero_asset_id: null as string | null,
         category_id: "residential",
         icon: "Home",
         tag: "",
-        features: [],
-        process_steps: [],
-        faq: []
+        features: [] as string[],
+        process_steps: [] as { title: string, description: string }[],
+        faq: [] as { question: string, answer: string }[]
     });
 
     const { toast } = useToast();
@@ -91,6 +92,14 @@ const AdminServices = () => {
 
             if (!data) return [];
 
+            // Service imagery lives in asset_usages (ADR 0002), not on the services row.
+            // Same slot the public site reads: entity_type 'service', role 'icon'.
+            const iconUrls = await AssetUsageService.getUsageUrlsForEntities(
+                "service",
+                (data as ServiceRecord[]).map((item) => item.id),
+                "icon"
+            );
+
             return (data as ServiceRecord[]).map((item: ServiceRecord) => {
                 const descJson = typeof item.description === 'string'
                     ? JSON.parse(item.description)
@@ -99,12 +108,12 @@ const AdminServices = () => {
                 return {
                     id: item.id,
                     created_at: item.created_at,
-                    title: item.name, 
+                    title: item.name,
                     slug: item.slug,
                     active: item.active ?? true,
                     category_id: descJson.category_id || "residential",
                     description: descJson.content || item.short_description || "",
-                    hero_image: item.icon_url || "",
+                    hero_image: iconUrls[item.id] || "",
                     icon: descJson.icon || "Home",
                     tag: item.short_tag || "",
                     features: descJson.features || [],
@@ -128,6 +137,7 @@ const AdminServices = () => {
             slug: service.slug,
             description: service.description || "",
             hero_image: service.hero_image || "",
+            hero_asset_id: null,
             category_id: service.category_id || "residential",
             icon: service.icon || "Home",
             tag: service.tag || "",
@@ -163,12 +173,41 @@ const AdminServices = () => {
     };
 
     const upsertMutation = useMutation({
-        mutationFn: async (payload: Record<string, unknown>) => {
-            const { error: rpcError } = await supabase.rpc('upsert_service', payload);
+        mutationFn: async ({ heroAssetId, ...payload }: {
+            p_active: boolean;
+            p_description: any;
+            p_display_order: number;
+            p_faqs: any;
+            p_name: string;
+            p_service_id: string | null;
+            p_short_tag: string | null;
+            p_slug: string;
+            p_steps: any;
+            heroAssetId: string | null;
+        }) => {
+            // DEF-001: the RPC no longer accepts an icon URL; imagery is bound via asset_usages below.
+            const { data, error: rpcError } = await supabase.rpc('upsert_service', payload as any);
             if (rpcError) throw rpcError;
-            return payload;
+
+            const returnedId = data as string;
+            const finalServiceId = payload.p_service_id || returnedId;
+
+            // Bind the selected asset to the same slot the public site reads
+            // (entity_type 'service', role 'icon' — see dam-stitcher / DAM v3 migration).
+            // Awaited so the list refetch below already sees the new image.
+            if (finalServiceId && heroAssetId) {
+                await AssetUsageService.replaceUsage({
+                    assetId: heroAssetId,
+                    entityType: "service",
+                    entityId: finalServiceId,
+                    role: "icon",
+                    domain: "Services"
+                });
+            }
+
+            return { payload, returnedId };
         },
-        onSuccess: (payload) => {
+        onSuccess: ({ payload }) => {
             toast({ title: payload.p_service_id ? "Service updated!" : "Service created!" });
             void auditService.writeAudit(
                 payload.p_service_id ? 'UPDATE' : 'CREATE',
@@ -222,14 +261,14 @@ const AdminServices = () => {
             p_name: formData.title,
             p_slug: formData.slug || generateSlug(formData.title || ""),
             p_description: descriptionData,
-            p_icon_url: formData.hero_image || null,
             p_short_tag: formData.tag || null,
             p_display_order: editingService
                 ? (services.findIndex(s => s.id === editingService.id) + 1) || 1
                 : services.length + 1,
             p_active: true,
             p_steps: stepsPayload,
-            p_faqs: faqPayload
+            p_faqs: faqPayload,
+            heroAssetId: formData.hero_asset_id
         });
     };
 
@@ -240,6 +279,7 @@ const AdminServices = () => {
             slug: "",
             description: "",
             hero_image: "",
+            hero_asset_id: null,
             category_id: "residential",
             icon: "Home",
             tag: "",
@@ -319,7 +359,7 @@ const AdminServices = () => {
                     filteredServices.map((service, i) => {
                         const delayClass = `fade-up-${Math.min((i % 4) + 1, 4)}`;
 
-                        const ServiceIcon = (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[service.icon || "Briefcase"] || LucideIcons.Briefcase;
+                        const ServiceIcon = (LucideIcons as any)[service.icon || "Briefcase"] || LucideIcons.Briefcase;
 
                         return (
                             <div key={service.id} className={`${delayClass} group`}>
@@ -393,7 +433,7 @@ const AdminServices = () => {
                                             icon={Trash2}
                                             label="Delete"
                                             confirmLabel="Delete service?"
-                                            onConfirm={() => handleDelete(service.id)}
+                                            onConfirm={async () => { handleDelete(service.id); }}
                                             danger
                                         />
                                     </div>
@@ -501,10 +541,21 @@ const AdminServices = () => {
                                     <div className="space-y-2">
                                         <Label htmlFor="svc-hero" className="text-[hsl(var(--admin-text))]">Hero Image URL</Label>
                                         <MediaPickerField
-                                            id="svc-hero"
-                                            value={formData.hero_image || ""}
+                                            id="hero_image"
+                                            value={formData.hero_image}
                                             onChange={(url) => setFormData({ ...formData, hero_image: url })}
-                                            placeholder="https://..."
+                                            onAssetSelect={(asset, url) => {
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    hero_image: url,
+                                                    hero_asset_id: asset.id
+                                                }));
+                                            }}
+                                            entityId={editingService?.id}
+                                            placeholder="Select hero image�"
+                                            domain="Services"
+                                            entityType="service"
+                                            damRole="icon"
                                         />
                                     </div>
 
@@ -556,7 +607,7 @@ const AdminServices = () => {
                         <div className="shrink-0 px-6 py-4 border-t border-[hsl(var(--admin-border))] flex justify-end gap-2 bg-[hsl(var(--admin-surface))] rounded-b-xl">
                             <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="admin-btn-secondary">Cancel</Button>
                             <Button type="submit" disabled={upsertMutation.isPending} className="admin-btn-primary">
-                                {upsertMutation.isPending ? "Saving..." : editingService ? "Update" : "Create"}
+                                {upsertMutation.isPending ? "Saving�" : editingService ? "Update" : "Create"}
                             </Button>
                         </div>
                     </form>

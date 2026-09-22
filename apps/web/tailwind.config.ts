@@ -15,12 +15,27 @@ export default {
 				xs: "400px",
 			},
 			fontFamily: {
-				display: ["'Cormorant Garamond'", "serif", ...fontFamily.serif],
-				sans: ["'DM Sans'", "system-ui", "sans-serif", ...fontFamily.sans],
+				display: ["var(--font-display)", "serif", ...fontFamily.serif],
+				sans: ["var(--font-sans)", "system-ui", "sans-serif", ...fontFamily.sans],
 				label: ["'Montserrat'", "sans-serif"],
 				mono: ["'JetBrains Mono'", "ui-monospace", "monospace", ...fontFamily.mono],
 			},
 			colors: {
+				// Foundation V1.0 Tokens
+				canvas: {
+					primary: "hsl(var(--canvas-primary) / <alpha-value>)",
+					secondary: "hsl(var(--canvas-secondary) / <alpha-value>)",
+				},
+				surface: {
+					card: "hsl(var(--surface-card) / <alpha-value>)",
+				},
+				content: {
+					primary: "hsl(var(--text-primary) / <alpha-value>)",
+					secondary: "hsl(var(--text-secondary) / <alpha-value>)",
+				},
+				subtle: "hsl(var(--border-subtle) / <alpha-value>)",
+				copper: "hsl(var(--accent-copper) / <alpha-value>)",
+				
 				background: "hsl(var(--background) / <alpha-value>)",
 				foreground: "hsl(var(--foreground) / <alpha-value>)",
 				card: {
@@ -45,6 +60,10 @@ export default {
 					DEFAULT: "hsl(var(--accent) / <alpha-value>)",
 					foreground: "hsl(var(--accent-foreground) / <alpha-value>)",
 				},
+				error: {
+					DEFAULT: "hsl(var(--error) / <alpha-value>)",
+					foreground: "hsl(var(--error-foreground) / <alpha-value>)",
+				},
 				muted: {
 					DEFAULT: "hsl(var(--muted) / <alpha-value>)",
 					foreground: "hsl(var(--muted-foreground) / <alpha-value>)",
@@ -62,37 +81,19 @@ export default {
 					border: "hsl(var(--sidebar-border) / <alpha-value>)",
 					ring: "hsl(var(--sidebar-ring) / <alpha-value>)",
 				},
-				site: {
-					bg: '#000000',
-					'bg-section': '#080604',
-					'bg-card': '#100D0A',
-					'bg-card-hover': '#1A1614',
-					'bg-light': '#F5F3EF',
-					'bg-input': '#100D0A',
-					crimson: '#C41230',
-					'crimson-light': 'rgba(196, 18, 48, 0.3)',
-					gold: '#D1AF6E',
-					'gold-light': 'rgba(209, 175, 110, 0.3)',
-					stone: '#8B8B8B',
-					text: '#EDEAE6',
-					'text-heading': '#FFFFFF',
-					'text-muted': '#A3A09C',
-					'text-meta': '#6B6B6B',
-					border: 'rgba(237, 234, 230, 0.08)',
-					'border-input': 'rgba(237, 234, 230, 0.1)',
-				},
+
 				kiro: {
-					bg: '#faf8f5',
-					surface: '#ffffff',
-					ink: '#1a1a1a',
-					inkSoft: '#5a5a5a',
-					line: '#e8e4dd',
-					accent: '#8b6f47',
-					accentSoft: '#f3ede2',
-					hard: '#d64545',
-					soft: '#e89c3a',
-					note: '#d4b73a',
-					good: '#4a8a5c'
+					bg: "hsl(var(--kiro-bg) / <alpha-value>)",
+					surface: "hsl(var(--kiro-surface) / <alpha-value>)",
+					ink: "hsl(var(--kiro-ink) / <alpha-value>)",
+					inkSoft: "hsl(var(--kiro-inkSoft) / <alpha-value>)",
+					line: "hsl(var(--kiro-line) / <alpha-value>)",
+					accent: "hsl(var(--kiro-accent) / <alpha-value>)",
+					accentSoft: "hsl(var(--kiro-accentSoft) / <alpha-value>)",
+					hard: "hsl(var(--kiro-hard) / <alpha-value>)",
+					soft: "hsl(var(--kiro-soft) / <alpha-value>)",
+					note: "hsl(var(--kiro-note) / <alpha-value>)",
+					good: "hsl(var(--kiro-good) / <alpha-value>)"
 				},
 				admin: {
 					background: "hsl(var(--admin-background) / <alpha-value>)",
@@ -122,26 +123,79 @@ export default {
 						DEFAULT: "hsl(var(--admin-accent) / <alpha-value>)",
 						foreground: "hsl(var(--admin-accent-foreground) / <alpha-value>)",
 					},
-					border: "hsl(var(--admin-border) / <alpha-value>)",
+					border: {
+						DEFAULT: "hsl(var(--admin-border) / <alpha-value>)",
+						subtle: "hsl(var(--admin-border-subtle) / <alpha-value>)",
+					},
 					input: "hsl(var(--admin-input) / <alpha-value>)",
 					ring: "hsl(var(--admin-ring) / <alpha-value>)",
 					wine: {
 						DEFAULT: "hsl(var(--admin-wine) / <alpha-value>)",
 						light: "hsl(var(--admin-wine-light) / <alpha-value>)",
 					},
-					gold: {
-						DEFAULT: "hsl(var(--admin-gold) / <alpha-value>)",
-						muted: "hsl(var(--admin-gold-muted) / <alpha-value>)",
+					gold: "hsl(var(--admin-gold) / <alpha-value>)",
+
+					/* ── Previously missing from this palette ───────────────────
+					 * The admin surface uses two syntaxes for the same tokens.
+					 * The arbitrary form — bg-[hsl(var(--admin-surface))] — always
+					 * worked. The shorthand form — bg-admin-surface — had no key
+					 * here, so Tailwind emitted nothing and reported nothing:
+					 * roughly 400 class usages were silently inert, collapsing the
+					 * three-step text hierarchy to one. Verified absent from
+					 * dist/assets/index-*.css before adding these. */
+					bg: "hsl(var(--admin-bg) / <alpha-value>)",
+					surface: {
+						DEFAULT: "hsl(var(--admin-surface) / <alpha-value>)",
+						hover: "hsl(var(--admin-surface-hover) / <alpha-value>)",
 					},
-					obsidian: "hsl(var(--admin-obsidian) / <alpha-value>)",
-					charcoal: "hsl(var(--admin-charcoal) / <alpha-value>)",
-					stone: "hsl(var(--admin-stone) / <alpha-value>)",
+					text: {
+						DEFAULT: "hsl(var(--admin-text) / <alpha-value>)",
+						muted: "hsl(var(--admin-text-muted) / <alpha-value>)",
+						subtle: "hsl(var(--admin-text-subtle) / <alpha-value>)",
+					},
+					danger: {
+						DEFAULT: "hsl(var(--admin-danger) / <alpha-value>)",
+						muted: "hsl(var(--admin-danger-muted))",
+					},
+					success: {
+						DEFAULT: "hsl(var(--admin-success) / <alpha-value>)",
+						muted: "hsl(var(--admin-success-muted))",
+					},
+					warning: {
+						DEFAULT: "hsl(var(--admin-warning) / <alpha-value>)",
+						muted: "hsl(var(--admin-warning-muted))",
+					},
+					info: {
+						DEFAULT: "hsl(var(--admin-info) / <alpha-value>)",
+						muted: "hsl(var(--admin-info-muted))",
+					},
 				},
 			},
+			fontSize: {
+				"hero": "var(--text-hero)",
+				"display-xl": "var(--text-display-xl)",
+				"display-lg": "var(--text-display-lg)",
+				"display-md": "var(--text-display-md)",
+				"heading-xl": "var(--text-heading-xl)",
+				"heading-lg": "var(--text-heading-lg)",
+				"heading-md": "var(--text-heading-md)",
+				"body-lg": "var(--text-body-lg)",
+				"body": "var(--text-body)",
+				"caption": "var(--text-caption)",
+				"micro": "var(--text-micro)",
+			},
+			lineHeight: {
+				"tightest": "var(--leading-tightest)",
+				"tighter": "var(--leading-tighter)",
+				"tight": "var(--leading-tight)",
+				"relaxed": "var(--leading-relaxed)",
+				"loose": "var(--leading-loose)",
+			},
 			borderRadius: {
+				none: "var(--radius-none)",
+				sm: "var(--radius-sm)",
+				md: "var(--radius-md)",
 				lg: "var(--radius)",
-				md: "calc(var(--radius) - 2px)",
-				sm: "calc(var(--radius) - 4px)",
 				xl: "calc(var(--radius) + 4px)",
 				"2xl": "calc(var(--radius) + 8px)",
 			},
@@ -157,14 +211,7 @@ export default {
 				"focus-gold": "0 0 0 3px hsl(43 90% 55% / 0.45)",
 			},
 			backgroundImage: {
-				"ambient-body": `radial-gradient(ellipse 80% 50% at 50% -10%, hsl(355 85% 42% / 0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 90% 90%,  hsl(43 90% 55% / 0.04) 0%, transparent 50%)`,
-				"gradient-wine": "linear-gradient(135deg, hsl(355 85% 42%) 0%, hsl(355 90% 30%) 100%)",
-				"gradient-gold": "linear-gradient(90deg, hsl(355 85% 42%) 0%, hsl(43 90% 55%) 100%)",
-				"gradient-obsidian": "linear-gradient(180deg, hsl(0 0% 10%) 0%, hsl(0 0% 0%) 100%)",
-				"gradient-shine": "linear-gradient(135deg, hsl(0 0% 10%) 0%, hsl(0 0% 5%) 50%, hsl(0 0% 8%) 100%)",
-				"gradient-silk": "linear-gradient(160deg, hsl(0 0% 11%) 0%, hsl(0 0% 9%) 100%)",
 				"noise": "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E\")",
-				"grid-pattern": "linear-gradient(hsl(0 0% 100% / 0.03) 1px, transparent 1px), linear-gradient(90deg, hsl(0 0% 100% / 0.03) 1px, transparent 1px)",
 			},
 			backgroundSize: {
 				"grid-sm": "24px 24px",
@@ -172,10 +219,13 @@ export default {
 				"grid-lg": "80px 80px",
 			},
 			letterSpacing: {
+				"tighter": "var(--tracking-tighter)",
+				"tight": "var(--tracking-tight)",
+				"normal": "var(--tracking-normal)",
+				"wide": "var(--tracking-wide)",
+				"widest": "var(--tracking-widest)",
 				"label": "0.10em",
 				"btn": "0.08em",
-				"wide-xl": "0.15em",
-				"tight-display": "-0.02em",
 			},
 			backdropBlur: {
 				xs: "4px",
@@ -183,6 +233,13 @@ export default {
 				md: "12px",
 				lg: "24px",
 				xl: "40px",
+			},
+			transitionDuration: {
+				"850": "850ms",
+				"1200": "1200ms",
+				"1500": "1500ms",
+				"2000": "2000ms",
+				"3000": "3000ms",
 			},
 			keyframes: {
 				"fade-in": {
@@ -279,8 +336,6 @@ export default {
 			},
 			animation: {
 				"fade-in": "fade-in 0.4s ease forwards",
-				'site-fade-in': 'fadeIn 0.6s ease-out',
-				'site-slide-up': 'slideUp 0.5s ease-out',
 				"glow-pulse": "glow-pulse 2.5s ease-in-out infinite",
 				"shimmer": "shimmer 2.5s linear infinite",
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -305,19 +360,35 @@ export default {
 			},
 			transitionTimingFunction: {
 				"luxury": "cubic-bezier(0.25, 0.1, 0.25, 1.0)",
-				"spring": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+				"physical": "var(--ease-physical)",
 			},
 			transitionDuration: {
 				"250": "250ms",
 				"400": "400ms",
 				"600": "600ms",
+				"micro": "var(--duration-micro)",
+				"macro": "var(--duration-macro)",
+				"slow": "var(--duration-slow)",
+			},
+			zIndex: {
+				"below": "var(--z-below)",
+				"base": "var(--z-base)",
+				"above": "var(--z-above)",
+				"nav": "var(--z-nav)",
+				"overlay": "var(--z-overlay)",
+				"modal": "var(--z-modal)",
+			},
+			maxWidth: {
+				"reading": "var(--max-w-reading)",
+				"standard": "var(--max-w-standard)",
 			},
 		},
 	},
 	plugins: [
 		tailwindcssAnimate,
 		typography,
-		function ({ addComponents, addUtilities }) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		function ({ addComponents }: { addComponents: any }) {
 			addComponents({
 				".glass": {
 					background: "hsl(0 0% 100% / 0.02)",
@@ -351,25 +422,6 @@ export default {
 						transform: "translateY(0)",
 						background: "linear-gradient(135deg, hsl(43 90% 45%) 0%, hsl(38 90% 35%) 100%)",
 					},
-				},
-			});
-
-			addUtilities({
-				".text-gradient-wine": {
-					background: "linear-gradient(135deg, hsl(355 85% 42%) 0%, hsl(355 90% 30%) 100%)",
-					"-webkit-background-clip": "text",
-					"background-clip": "text",
-					"-webkit-text-fill-color": "transparent",
-				},
-				".text-gradient-gold": {
-					background: "linear-gradient(90deg, hsl(43 90% 55%) 0%, hsl(38 90% 45%) 100%)",
-					"-webkit-background-clip": "text",
-					"background-clip": "text",
-					"-webkit-text-fill-color": "transparent",
-				},
-				".bg-ambient": {
-					backgroundImage: `radial-gradient(ellipse 80% 50% at 50% -10%, hsl(355 85% 42% / 0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 90% 90%,  hsl(43 90% 55% / 0.04) 0%, transparent 50%)`,
-					backgroundAttachment: "fixed",
 				},
 			});
 		},

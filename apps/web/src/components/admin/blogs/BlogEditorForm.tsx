@@ -2,8 +2,8 @@ import React from 'react';
 import { useState, useEffect } from "react";
 import { Loader2, RotateCcw, Trash2, Star, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
-import { Textarea } from "@/components/ui/primitives/textarea";
+import { Input } from "@/components/primitives/interactive";
+import { Textarea } from "@/components/primitives/interactive";
 import { Label } from "@/components/ui/primitives/label";
 import { Switch } from "@/components/ui/primitives/switch";
 import { RichTextEditor } from "@/components/admin/blogs/RichTextEditor";
@@ -34,7 +34,6 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
     seo_title: "",
     seo_description: "",
     tags: "",
-    scheduled_at: "",
   });
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -80,7 +79,6 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
       seo_title: p.seo_title ?? "",
       seo_description: p.seo_description ?? "",
       tags: p.tags?.join(", ") ?? "",
-      scheduled_at: p.scheduled_at ?? "",
     });
   };
 
@@ -96,8 +94,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
       seo_title: "",
       seo_description: "",
       tags: "",
-      scheduled_at: "",
-    });
+      });
   };
 
   // Auto-save logic
@@ -149,14 +146,20 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
         slug: formData.slug,
         excerpt: formData.excerpt || null,
         content: formData.content || null,
-        cover_image_url: formData.cover_image_url || null,
+        // TODO(ADR-0002): move to asset_usages; deprecated_cover_image_url is
+        // the post-DAM-v3 name of this column.
+        deprecated_cover_image_url: formData.cover_image_url || null,
         status: formData.status,
         featured: formData.featured,
         seo_title: formData.seo_title || null,
         seo_description: formData.seo_description || null,
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
         published_at: formData.status === 'published' ? new Date().toISOString() : null,
-        scheduled_at: formData.scheduled_at || null,
+        // NOTE: no scheduled_at. Scheduled publishing is not implemented:
+        // 20260529180400_blog_revisions_scheduling would add the column, but its
+        // IF EXISTS (blog_posts) guard did not pass in production, and nothing
+        // anywhere promotes a scheduled post to published. The UI control that
+        // promised it has been removed.
       };
 
       if (post) {
@@ -197,7 +200,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
               value={formData.title}
               onChange={(e) => handleTitleChange(e.target.value)}
               required
-              placeholder="Enter a catchy title..."
+              placeholder="Enter a catchy title�"
               className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
             />
           </div>
@@ -309,23 +312,6 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
               />
             </div>
 
-            {formData.status === "draft" && (
-              <div className="space-y-2 pt-4 border-t border-[hsl(var(--admin-border))]">
-                <Label htmlFor="scheduled-at" className="text-[hsl(var(--admin-text))]">Schedule Publishing</Label>
-                <Input
-                  id="scheduled-at"
-                  type="datetime-local"
-                  value={formData.scheduled_at ? formData.scheduled_at.slice(0, 16) : ""}
-                  onChange={(e) => setFormData(prev => ({ ...prev, scheduled_at: e.target.value ? new Date(e.target.value).toISOString() : "" }))}
-                  className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
-                />
-                {formData.scheduled_at && (
-                  <p className="text-xs text-[hsl(var(--admin-muted))]">
-                    Will publish at {new Date(formData.scheduled_at).toLocaleString()}
-                  </p>
-                )}
-              </div>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -340,7 +326,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
               value={formData.excerpt}
               onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
               rows={5}
-              placeholder="Short summary for SEO and previews..."
+              placeholder="Short summary for SEO and previews�"
               className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
             />
           </div>
@@ -383,7 +369,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
                   <Input
                     value={formData.cover_image_url || ""}
                     onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                    placeholder="https://..."
+                    placeholder="https://�"
                     className="mt-1 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
                   />
                 </div>

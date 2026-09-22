@@ -109,12 +109,12 @@ export function SpotlightNavContainer({
                 )}
                 style={{
                     ...((isDark
-                        ? { "--spotlight-color": "rgba(255,255,255,0.15)", "--ambience-color": "#D1AF6E" }
-                        : { "--spotlight-color": "rgba(0,0,0,0.05)", "--ambience-color": "#D1AF6E" }) as React.CSSProperties)
+                        ? { "--spotlight-color": "rgba(255,255,255,0.15)", "--ambience-color": "#C9A85C" }
+                        : { "--spotlight-color": "rgba(0,0,0,0.05)", "--ambience-color": "#C9A85C" }) as React.CSSProperties)
                 }}
             >
                 {/* Content */}
-                <div className="relative flex items-center h-full px-6 gap-6 z-[10]">
+                <div className="relative flex items-center h-full px-2.5 xl:px-6 gap-0.5 lg:gap-1 xl:gap-3 z-[10]">
                     {children}
                 </div>
 

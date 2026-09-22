@@ -2,10 +2,6 @@ import React, { createContext, useContext, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { ArrowLeft } from "lucide-react";
-import { ADMIN_ROUTES } from "@/lib/admin-routes";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
-
 interface ModuleTab {
     label: string;
     path: string;
@@ -37,71 +33,16 @@ export function ModuleActions({ children }: { children: React.ReactNode }) {
 
 export const ModuleLayout = ({ title, description, tabs, sidebar, children }: ModuleLayoutProps) => {
     const location = useLocation();
-    const { settings } = useSiteSettings();
-    const logoUrl = settings?.company_logo_url || settings?.logo_light_url || '/logo-icon.png';
     const [slotEl, setSlotEl] = useState<HTMLDivElement | null>(null);
 
     return (
         <ModuleActionsSlotContext.Provider value={slotEl}>
-            <div className="flex-1 bg-[hsl(var(--admin-background))] text-[hsl(var(--admin-text))] h-full min-h-0 flex flex-col lg:grid lg:grid-cols-[260px_1fr] lg:grid-rows-[auto_1fr]">
+            <div className="flex-1 bg-[hsl(var(--admin-background))] text-[hsl(var(--admin-text))] h-full min-h-0 flex flex-col lg:grid lg:grid-cols-[260px_1fr] lg:grid-rows-1">
                 
-                {/* Mobile Top Header (Hidden on Desktop) */}
-                <header className="lg:hidden flex-none px-6 h-14 border-b border-[hsl(var(--admin-border))]/40 bg-admin-surface/40 backdrop-blur-md flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Link
-                            to={ADMIN_ROUTES.hub.path}
-                            className="flex items-center gap-2 text-admin-text-muted hover:text-admin-text text-[11px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-md hover:bg-admin-surface/50 border border-admin-border/30 transition-all"
-                        >
-                            <ArrowLeft className="w-3.5 h-3.5" />
-                            <span>Hub</span>
-                        </Link>
-                        <div className="h-4 w-px bg-admin-border/40" />
-                        <Link to={ADMIN_ROUTES.hub.path} className="flex items-center gap-3 group">
-                            <img src={logoUrl} alt="CrossAngle Logo" className="w-12 h-12 object-contain" />
-                            <div className="flex flex-col justify-center">
-                                <span className="text-lg text-admin-text uppercase tracking-[0.08em] font-extrabold leading-none">CrossAngle</span>
-                                <span className="text-[11px] text-admin-primary uppercase tracking-[0.16em] font-medium block mt-1">Intelligence</span>
-                            </div>
-                        </Link>
-                    </div>
-                </header>
 
                 {/* --- Grid Layout for Desktop, Flex for Mobile --- */}
                 
-                {/* Desktop Top Header (Merged Logo + Title) */}
-                <div className="hidden lg:flex col-span-2 items-center justify-between border-b border-[hsl(var(--admin-border))]/50 bg-[hsl(var(--admin-background))]/50 px-7 py-5">
-                    <div className="flex items-center gap-6 min-w-0">
-                        {/* Logo */}
-                        <Link to={ADMIN_ROUTES.hub.path} className="flex items-center gap-3 group shrink-0">
-                            <img src={logoUrl} alt="CrossAngle Logo" className="w-12 h-12 object-contain" />
-                            <div className="flex flex-col justify-center">
-                                <span className="text-lg text-admin-text uppercase tracking-[0.08em] font-extrabold leading-none">CrossAngle</span>
-                                <span className="text-[11px] text-admin-primary uppercase tracking-[0.16em] font-medium block mt-1">Intelligence</span>
-                            </div>
-                        </Link>
-
-                        {/* Divider */}
-                        <div className="h-8 w-px bg-admin-border/40 shrink-0" />
-
-                        {/* Title and Description */}
-                        <div className="flex items-baseline gap-3 min-w-0">
-                            <h1 className="admin-title text-2xl md:text-3xl tracking-tight shrink-0">{title}</h1>
-                            {description && (
-                                <p className="admin-subtitle text-sm md:text-base opacity-80 italic truncate">
-                                    {description}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Actions Slot */}
-                    <div
-                        ref={setSlotEl}
-                        className="flex items-center gap-2 shrink-0 empty:hidden"
-                    />
-                </div>
-
-                {/* 3. Sidebar Nav (Bottom Left) */}
+                {/* 3. Sidebar Nav (Bottom Left on Desktop, Hidden on Mobile) */}
                 <aside className="hidden lg:flex flex-col justify-between border-r border-[hsl(var(--admin-border))]/50 py-6 px-5 overflow-y-auto custom-scrollbar">
                     {sidebar ? (
                         sidebar
@@ -160,25 +101,39 @@ export const ModuleLayout = ({ title, description, tabs, sidebar, children }: Mo
                         </div>
                     )}
 
-                    {/* Back to Hub (Bottom) */}
-                    <div className="mt-6">
-                        <Link
-                            to={ADMIN_ROUTES.hub.path}
-                            className="flex items-center justify-center gap-2 text-admin-text-muted hover:text-admin-text hover:bg-admin-surface/50 border border-admin-border/30 rounded-md px-3 py-2.5 transition-all w-full group"
-                            title="Back to Hub"
-                        >
-                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                            <span className="text-xs font-semibold tracking-wide uppercase">Back to Hub</span>
-                        </Link>
-                    </div>
+
                 </aside>
 
-                {/* 4. Main Content Area (Bottom Right on Desktop, Bottom on Mobile) */}
-                <main className="flex-1 min-w-0 overflow-auto relative custom-scrollbar">
-                    <div className="px-4 lg:px-8 py-4 lg:py-6 w-full min-h-full flex flex-col mx-auto">
-                        {children}
+                {/* Right side area: Top header + Main content */}
+                <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+                    {/* Desktop Top Header (Merged Logo + Title) */}
+                    <div className="hidden lg:flex items-center justify-between border-b border-[hsl(var(--admin-border))]/50 bg-[hsl(var(--admin-background))]/50 px-7 py-5 flex-none">
+                        <div className="flex items-center gap-6 min-w-0">
+                            {/* Title and Description */}
+                            <div className="flex items-baseline gap-3 min-w-0">
+                                <h1 className="admin-title text-2xl md:text-3xl tracking-tight shrink-0">{title}</h1>
+                                {description && (
+                                    <p className="admin-subtitle text-sm md:text-base opacity-80 italic truncate">
+                                        {description}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Actions Slot */}
+                        <div
+                            ref={setSlotEl}
+                            className="flex items-center gap-2 shrink-0 empty:hidden"
+                        />
                     </div>
-                </main>
+
+                    {/* 4. Main Content Area (Bottom Right on Desktop, Bottom on Mobile) */}
+                    <main className="flex-1 min-w-0 overflow-auto relative custom-scrollbar">
+                        <div className="px-4 lg:px-8 py-4 lg:py-6 w-full min-h-full flex flex-col mx-auto">
+                            {children}
+                        </div>
+                    </main>
+                </div>
 
             </div>
         </ModuleActionsSlotContext.Provider>

@@ -1,0 +1,11 @@
+@layer base {
+  :root {
+    /* Physical Kinetics Easing */
+    --ease-physical: cubic-bezier(0.22, 1, 0.36, 1);
+    
+    /* Durations */
+    --duration-micro: 300ms; /* Hover, Focus */
+    --duration-macro: 800ms; /* Page load, layout shift */
+    --duration-slow: 1400ms; /* Epic material hover */
+  }
+}

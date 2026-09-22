@@ -43,7 +43,7 @@ export function LeadTaskList({ leadId, isReadOnly }: LeadTaskListProps) {
   });
 
   if (isLoading) {
-    return <div className="p-4 text-center text-muted-foreground text-sm">Loading tasks...</div>;
+    return <div className="p-4 text-center text-muted-foreground text-sm">Loading tasks…</div>;
   }
 
   const openTasks = tasks.filter(t => !t.completed_at);
@@ -64,7 +64,7 @@ export function LeadTaskList({ leadId, isReadOnly }: LeadTaskListProps) {
           >
             <input
               type="text"
-              placeholder="Add a new task..."
+              placeholder="Add a new task…"
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
               className="flex-1 bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] rounded-md px-3 py-2 text-sm text-[hsl(var(--admin-text))] placeholder:text-muted-foreground focus:outline-none focus:border-[hsl(var(--admin-primary))]"

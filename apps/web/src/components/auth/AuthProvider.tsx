@@ -1,14 +1,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import {
-    AppRole,
-    hasWriteAccess,
-    isSuperAdmin,
-    mapProfileRole,
-    mapStoredUserRole,
-} from "@/lib/auth/rbac";
+import { AppRole, hasWriteAccess, isSuperAdmin } from "@/lib/auth/rbac";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
+import { getCachedRole, setCachedRole, clearRoleCache } from "./_internals/role-cache";
+import { fetchUserRole } from "./_internals/useRoleFetcher";
+
+// ─── Public Context Contract ─────────────────────────────────────────────────
+// This interface and useAuth() hook are the public API.
+// Nothing below should be imported directly by consumers.
 
 interface AuthContextType {
     user: User | null;
@@ -40,83 +40,22 @@ const AuthContext = createContext<AuthContextType>({
     signOut: async () => { },
 });
 
-export const useAuth = () => {
-    return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
 
-// ─── Role Cache (sessionStorage + 5-min TTL) ───────────────────────────────
-const ROLE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-const ROLE_CACHE_VERSION = "admin-rbac-v4";
-const ROLE_PRIORITY: AppRole[] = ["super_admin", "admin", "viewer"];
-
-interface CachedRole {
-    role: string | null;
-    expiresAt: number;
-    version: string;
-}
-
-type RoleQueryResult = {
-    data: { role: string | null }[] | null;
-    error: { message?: string } | null;
-};
-
-type SyncRoleResult = {
-    data: { role?: string | null } | null;
-    error: { message?: string } | null;
-};
-
-function getCachedRole(userId: string): { role: AppRole | null } | undefined {
-    try {
-        const raw = sessionStorage.getItem(`user_role_${userId}`);
-        if (!raw) return undefined;
-        const cached: CachedRole = JSON.parse(raw);
-        if (cached.version !== ROLE_CACHE_VERSION) {
-            sessionStorage.removeItem(`user_role_${userId}`);
-            return undefined;
-        }
-        if (Date.now() > cached.expiresAt) {
-            sessionStorage.removeItem(`user_role_${userId}`);
-            return undefined;
-        }
-        return { role: mapStoredUserRole(cached.role) };
-    } catch {
-        return undefined;
-    }
-}
-
-function setCachedRole(userId: string, role: AppRole | null): void {
-    const entry: CachedRole = {
-        role,
-        expiresAt: Date.now() + ROLE_TTL_MS,
-        version: ROLE_CACHE_VERSION,
-    };
-    sessionStorage.setItem(`user_role_${userId}`, JSON.stringify(entry));
-}
-
+/** Convenience export for components that set a role after an explicit action (e.g. login page). */
 export function cacheVerifiedRole(userId: string, role: AppRole): void {
     setCachedRole(userId, role);
 }
 
-function pickBestStoredRole(rows: { role: string | null }[] | null | undefined): AppRole | null {
-    const roles = new Set((rows ?? []).map((row) => mapStoredUserRole(row.role)).filter(Boolean));
-    return ROLE_PRIORITY.find((candidate) => roles.has(candidate)) ?? null;
-}
+export { fetchUserRole } from "./_internals/useRoleFetcher";
+export { clearRoleCache } from "./_internals/role-cache";
 
-function clearRoleCache(): void {
-    Object.keys(sessionStorage).forEach(key => {
-        if (key.startsWith('user_role_')) sessionStorage.removeItem(key);
-    });
-}
-
-// ─── Remember Me TTL ─────────────────────────────────────────────────────────
-// When the user logs in WITHOUT "Remember Me", we write a 24-hour expiry
-// timestamp to localStorage. On every app load we check this timestamp
-// and sign the user out if it has passed.
-const SESSION_EXPIRES_KEY = 'admin_session_expires';
+// ─── Session TTL (Remember Me) ───────────────────────────────────────────────
+const SESSION_EXPIRES_KEY = "admin_session_expires";
 
 function isSessionExpired(): boolean {
     const raw = localStorage.getItem(SESSION_EXPIRES_KEY);
-    if (!raw) return false; // No key = "Remember Me" was checked — no TTL applied
+    if (!raw) return false;
     return Date.now() > parseInt(raw, 10);
 }
 
@@ -124,19 +63,12 @@ function clearSessionExpiry(): void {
     localStorage.removeItem(SESSION_EXPIRES_KEY);
 }
 
-async function withTimeout<T>(
-    operation: Promise<T>,
-    timeoutMs: number,
-    label: string,
-): Promise<T> {
+// ─── Timeout helper ──────────────────────────────────────────────────────────
+async function withTimeout<T>(operation: Promise<T>, timeoutMs: number, label: string): Promise<T> {
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
-
     const timeoutPromise = new Promise<never>((_, reject) => {
-        timeoutId = setTimeout(() => {
-            reject(new Error(`${label} timed out after ${timeoutMs}ms`));
-        }, timeoutMs);
+        timeoutId = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
     });
-
     try {
         return await Promise.race([operation, timeoutPromise]);
     } finally {
@@ -156,97 +88,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loggingOut, setLoggingOut] = useState(false);
     const analytics = useAnalytics();
 
-    /**
-     * Fetches the user's role from `user_roles` (the backend source of truth).
-     * Uses sessionStorage cache with a 5-minute TTL so refreshes do not briefly
-     * drop users into a null-role state between reloads.
-     */
-    const fetchUserRole = async (userId: string): Promise<AppRole | null> => {
-        // Check cache first
-        const cached = getCachedRole(userId);
-        if (cached !== undefined) {
-            console.log("Auth: Using cached user role:", cached.role);
-            return cached.role;
-        }
-
-        const start = performance.now();
-        const MAX_RETRIES = 3;
-        const BACKOFF_MS = [500, 1500, 3000];
-
-        for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-            if (attempt > 0) {
-                const delay = BACKOFF_MS[attempt - 1] ?? 3000;
-                console.log(`Auth: Retry ${attempt}/${MAX_RETRIES - 1} after ${delay}ms...`);
-                await new Promise(r => setTimeout(r, delay));
-            }
-
-            // 1. Direct query to user_roles
-            try {
-                console.log(`Auth: Fetching role via user_roles query (attempt ${attempt + 1})...`);
-                const { data, error } = await withTimeout<RoleQueryResult>(
-                    supabase
-                        .from('user_roles')
-                        .select('role')
-                        .eq('user_id', userId)
-                        .limit(5) as unknown as Promise<RoleQueryResult>,
-                    3500,
-                    "user_roles query",
-                );
-
-                const directRole = !error ? pickBestStoredRole(data) : null;
-                if (directRole) {
-                    console.log("Auth: Got role from user_roles:", directRole, `(${(performance.now() - start).toFixed(0)}ms)`);
-                    setCachedRole(userId, directRole);
-                    return directRole;
-                }
-                if (error) {
-                    console.warn("Auth: user_roles query failed:", error);
-                }
-            } catch (err) {
-                console.warn("Auth: user_roles query timed out or failed:", err);
-            }
-
-            // 2. Final recovery: sync-user-role Edge Function (handles profiles fallback internally)
-            try {
-                console.log(`Auth: Attempting sync-user-role recovery (attempt ${attempt + 1})...`);
-                const { data: syncData, error: syncError } = await withTimeout<SyncRoleResult>(
-                    supabase.functions.invoke("sync-user-role") as Promise<SyncRoleResult>,
-                    4000,
-                    "sync-user-role",
-                );
-
-                if (syncError) {
-                    console.warn("Auth: sync-user-role failed:", syncError);
-                } else {
-                    const syncedRole =
-                        mapStoredUserRole(syncData?.role as string | null | undefined) ??
-                        mapProfileRole(syncData?.role as string | null | undefined);
-
-                    if (syncedRole) {
-                        console.log("Auth: Recovered role via sync-user-role:", syncedRole, `(${(performance.now() - start).toFixed(0)}ms)`);
-                        setCachedRole(userId, syncedRole);
-                        return syncedRole;
-                    }
-
-                    // Edge function succeeded but returned no role — the user definitively has no role
-                    if (syncData !== null && syncData !== undefined) {
-                        console.log("Auth: User has no role definitively.", `(${(performance.now() - start).toFixed(0)}ms)`);
-                        return null;
-                    }
-                }
-            } catch (err) {
-                console.warn("Auth: sync-user-role invocation timed out or failed:", err);
-            }
-
-            // If this isn't the last attempt, we'll retry via the loop
-        }
-
-        // All retries exhausted — return null but DON'T cache it so next navigation can retry
-        console.warn("Auth: All role fetch retries exhausted. Returning null (not cached).");
-        return null;
-    };
-
-
     useEffect(() => {
         let isMounted = true;
 
@@ -258,15 +99,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const getInitialSession = async () => {
             const start = performance.now();
             try {
-                // Step 1: Read the local session first so login pages are not
-                // blocked by a slow Supabase auth validation request.
-                const { data: { session: currentSession } } = await withTimeout(
-                    supabase.auth.getSession(),
-                    2500,
-                    "auth session lookup",
-                );
+                let serverUser: User | null = null;
+                let userError = null;
+                try {
+                    const res = await withTimeout(fetch("/api/auth/me"), 6000, "auth user validation");
+                    if (res.ok) {
+                        const data = await res.json();
+                        serverUser = data.user;
+                    } else {
+                        userError = { message: "Unauthenticated" };
+                    }
+                } catch (err) {
+                    userError = err as Error;
+                }
 
-                if (!currentSession?.user) {
+                if (userError || !serverUser) {
+                    console.warn("Auth: No valid session found.", userError?.message);
                     if (isMounted) {
                         setUser(null);
                         setSession(null);
@@ -276,38 +124,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     return;
                 }
 
-                let validatedUser = currentSession.user;
-
-                // Step 2: Validate session server-side when reachable. If this
-                // is slow, continue with the locally restored session and let
-                // role verification prove access.
-                try {
-                    const { data: { user: serverUser }, error: userError } = await withTimeout(
-                        supabase.auth.getUser(),
-                        6000,
-                        "auth user validation",
-                    );
-
-                    if (userError || !serverUser) {
-                        console.warn("Auth: No valid session found.", userError?.message);
-                        if (isMounted) {
-                            setUser(null);
-                            setSession(null);
-                            setRole(null);
-                            setLoading(false);
-                        }
-                        return;
-                    }
-
-                    validatedUser = serverUser;
-                } catch (error) {
-                    console.warn("Auth: Session validation was slow; continuing with restored session.", error);
-                }
-
-                // Step 3: Enforce Remember Me TTL (24-hour expiry for non-persistent sessions)
+                // Enforce Remember Me TTL
                 if (isSessionExpired()) {
-                    console.log('Auth: Session TTL expired (Remember Me was unchecked). Signing out.');
-                    await supabase.auth.signOut();
+                    console.debug("Auth: Session TTL expired. Signing out.");
+                    try { await fetch("/api/auth/logout", { method: "POST" }); } catch { /* best effort */ }
                     clearRoleCache();
                     clearSessionExpiry();
                     if (isMounted) {
@@ -320,27 +140,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 }
 
                 if (isMounted) {
-                    setSession(currentSession);
-                    setUser(validatedUser);
-                }
-
-                if (isMounted) {
-                    setLoading(false);
+                    setSession(null); // HTTP-only cookie session — no client-side token
+                    setUser(serverUser);
                     setRoleLoading(true);
                     setRoleError(null);
                 }
 
-                // Step 4: Fetch role — this has its own retry window and should
-                // not be collapsed into the initial auth loading state.
-                const userRole = await fetchUserRole(validatedUser.id);
-                console.log(`Auth: Resolved role for ${validatedUser.email}: '${userRole}'`);
+                // Role fetch delegated to useRoleFetcher (retry + backoff)
+                const userRole = await fetchUserRole(serverUser.id);
+                console.debug(`Auth: Resolved role for ${serverUser.email}: '${userRole}'`);
                 if (isMounted) {
                     setRole(userRole);
                     setRoleError(userRole ? null : "Admin role could not be verified");
                     setRoleLoading(false);
+                    setLoading(false);
                 }
 
-                console.log(`Auth: Initial load took ${(performance.now() - start).toFixed(2)}ms`);
+                console.debug(`Auth: Initial load took ${(performance.now() - start).toFixed(2)}ms`);
             } catch (error) {
                 console.error("Auth: Error getting session:", error);
                 if (isMounted) {
@@ -353,16 +169,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         getInitialSession();
 
-        // ─── Auth state change handler ───────────────────────────────────
-        // KEY FIX: TOKEN_REFRESHED no longer re-fetches role from DB.
-        // This was the root cause of the "role shifts to no role" bug.
-        // Token refreshes happen every ~hour and the DB query would often
-        // timeout, causing setRole(null) which drops the user's access.
+        // Auth state change handler — TOKEN_REFRESHED no longer re-fetches role
+        // (was root cause of "role shifts to null" bug after hourly refresh)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event: AuthChangeEvent, newSession: Session | null) => {
                 if (!isMounted) return;
-
-                console.log("Auth: State change event:", event);
+                console.debug("Auth: State change event:", event);
 
                 if (event === "SIGNED_OUT") {
                     setSession(null);
@@ -377,17 +189,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 }
 
                 if (event === "TOKEN_REFRESHED") {
-                    // Token refresh is routine — update session/user but NEVER
-                    // re-fetch the role from DB. Use cache only. If cache is
-                    // expired, keep the current in-memory role to avoid drops.
+                    // Token refresh is routine — update session/user but never re-fetch role.
+                    // Use cache only; if expired, keep current in-memory role to avoid drops.
                     setSession(newSession);
                     setUser(newSession?.user ?? null);
                     if (newSession?.user) {
                         const cached = getCachedRole(newSession.user.id);
-                        if (cached !== undefined && isMounted) {
-                            setRole(cached.role);
-                        }
-                        // If cache expired, keep existing in-memory role — don't overwrite with null
+                        if (cached !== undefined && isMounted) setRole(cached.role);
                     }
                     return;
                 }
@@ -395,10 +203,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 if (event === "SIGNED_IN" || event === "USER_UPDATED") {
                     setSession(newSession);
                     setUser(newSession?.user ?? null);
-                    setLoading(false);
 
                     if (newSession?.user) {
-                        // Bind anonymous user actions to authenticated user
                         analytics.identify(newSession.user.id, {
                             email: newSession.user.email,
                             role: role ?? undefined,
@@ -407,22 +213,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                         setRoleLoading(true);
                         setRoleError(null);
                         const userRole = await fetchUserRole(newSession.user.id);
-                        // Always set the role (even null) so RoleGuard can act correctly.
-                        // Previously, null was not set which left role in its old state.
                         if (isMounted) {
                             setRole(userRole);
                             setRoleError(userRole ? null : "Admin role could not be verified");
                             setRoleLoading(false);
+                            setLoading(false);
                         }
                     } else {
                         setRole(null);
                         setRoleLoading(false);
                         setRoleError(null);
                         clearRoleCache();
+                        if (isMounted) setLoading(false);
                     }
-                    if (isMounted) setLoading(false);
                 }
-            }
+            },
         );
 
         return () => {
@@ -433,11 +238,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     const signOut = async () => {
-        // Set loggingOut FIRST — this tells AuthGuard and AdminLayout
-        // to show a transition overlay instead of redirecting/flashing.
         setLoggingOut(true);
-        if (supabase) {
-            await supabase.auth.signOut();
+        try {
+            await fetch("/api/auth/logout", { method: "POST" });
+        } catch (err) {
+            console.error("Auth: Error during logout API call", err);
         }
         clearRoleCache();
         clearSessionExpiry();
@@ -449,10 +254,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         analytics.reset();
     };
 
-    const isAdminRole = isSuperAdmin(role);
-    const isEditorRole = hasWriteAccess(role);
-    const isViewerRole = role !== null;
-
     return (
         <AuthContext.Provider value={{
             user,
@@ -460,12 +261,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             role,
             roleLoading,
             roleError,
-            isAdmin: isAdminRole,
-            isEditor: isEditorRole,
-            isViewer: isViewerRole,
+            isAdmin: isSuperAdmin(role),
+            isEditor: hasWriteAccess(role),
+            isViewer: role !== null,
             loading,
             loggingOut,
-            signOut
+            signOut,
         }}>
             {children}
         </AuthContext.Provider>

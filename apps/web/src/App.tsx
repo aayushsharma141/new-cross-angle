@@ -1,14 +1,13 @@
 import { Toaster } from "@/components/ui/primitives/toaster";
 import { BrowserRouter, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { CookieConsentBanner } from "./components/cookies/CookieConsentBanner";
-import { runWhenIdle } from "./lib/idle";
 import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 import { PageSkeleton } from "./components/ui/enhanced/PageSkeleton";
 import { CoreProviders } from "./providers/CoreProviders";
 import { PageTracker } from "./analytics/page-tracking";
-import WhatsAppButton from "./components/layout/WhatsAppButton";
+import MobileActionBar from "./components/layout/MobileActionBar";
 import FixedSocialBar from "./components/layout/FixedSocialBar";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
@@ -18,9 +17,6 @@ import { AdminDeviceGate } from "./components/admin/AdminDeviceGate";
 import { AnimatedContent } from "./components/ReactBits/index";
 
 const SmoothScroll = lazy(() => import("./components/layout/SmoothScroll").then(m => ({ default: m.SmoothScroll })));
-const DeferredScrollManager = lazy(() =>
-  import("./components/layout/ScrollManager").then((m) => ({ default: m.ScrollManager })),
-);
 
 const AdminPageLoader = () => <PageSkeleton variant="admin" />;
 
@@ -42,17 +38,6 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo({ top: 0, behavior: "auto" }); }, [pathname]);
   return null;
-};
-
-const DeferredExperienceEnhancements = () => {
-  const [shouldEnhanceScroll, setShouldEnhanceScroll] = useState(false);
-  useEffect(() => runWhenIdle(() => setShouldEnhanceScroll(true), 100), []);
-  if (!shouldEnhanceScroll) return null;
-  return (
-    <Suspense fallback={null}>
-      <DeferredScrollManager />
-    </Suspense>
-  );
 };
 
 import { useSiteSettings } from "./hooks/useSiteSettings";
@@ -108,7 +93,7 @@ const AnimatedRoutes = () => {
           </AdminDeviceGate>
         </ErrorBoundary>
       ) : settings?.maintenance_mode_active ? (
-        <div className="min-h-screen flex items-center justify-center bg-site-bg-dark text-white p-6 text-center">
+        <div className="min-h-screen flex items-center justify-center bg-kiro-bg-dark text-white p-6 text-center">
           <div className="max-w-md">
             <h1 className="text-4xl font-serif mb-4 tracking-tight">System Update</h1>
             <p className="text-site-gray">Our digital experience is currently undergoing scheduled maintenance. Please check back shortly.</p>
@@ -120,14 +105,14 @@ const AnimatedRoutes = () => {
             <ErrorBoundary>
               <Suspense fallback={<PageSkeleton variant={getSkeletonVariant(location.pathname) as React.ComponentProps<typeof PageSkeleton>["variant"]} />}>
                 <AnimatePresence mode="wait">
-                  <AnimatedContent key={location.pathname} distance={15} duration={0.5} className="flex-1 w-full flex flex-col h-full">
+                  <AnimatedContent key={location.pathname} distance={15} duration={0.5} className="flex-1 w-full flex flex-col h-full max-md:pb-[calc(env(safe-area-inset-bottom)+56px)]">
                     <Routes location={location}>
                       {publicRoutes}
                     </Routes>
                   </AnimatedContent>
                 </AnimatePresence>
-                <WhatsAppButton />
-                <FixedSocialBar />
+                <MobileActionBar />
+                {["/", "/about-us", "/our-process", "/services", "/portfolio", "/gallery", "/blog", "/contact-us", "/locations"].includes(location.pathname) && location.pathname !== "/" && <FixedSocialBar />}
               </Suspense>
             </ErrorBoundary>
           </SmoothScroll>
@@ -142,7 +127,6 @@ const AnimatedRoutes = () => {
 const App = () => (
   <CoreProviders>
     <SiteMetaUpdater />
-    <DeferredExperienceEnhancements />
     <Toaster />
     <ErrorBoundary>
       <BrowserRouter

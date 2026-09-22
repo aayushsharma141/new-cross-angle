@@ -8,7 +8,7 @@ const ProjectBrief = ({ brief }: ProjectBriefProps) => {
   if (!brief) return null;
 
   return (
-    <section id="brief" className="py-24 md:py-32 border-t border-white/5 bg-site-bg">
+    <section id="brief" className="py-24 md:py-32 border-t border-white/5 bg-background">
       <div className="max-w-4xl mx-auto px-6 text-center flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

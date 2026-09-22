@@ -8,16 +8,14 @@ import {
     ArrowUpDown,
     ArrowUp,
     ArrowDown,
-    Scroll,
     RefreshCw,
     FileText,
     Search,
-    TrendingUp,
 } from "lucide-react";
 import { AdminMetricsPanel } from "@/components/admin/shared";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { Button } from "@/components/ui/primitives/button";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import {
     Table,
     TableBody,
@@ -26,7 +24,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/design-system/components/Table";
-import { Badge } from "@/components/ui/primitives/badge";
+import { Badge } from "@/components/primitives/interactive";
 
 /* ───────────── Types ───────────── */
 interface ArticleRow {
@@ -56,29 +54,77 @@ export default function AdminBlogPerformance() {
         try {
             const { data: blogData, error: blogErr } = await supabase
                 .from("blog_posts")
-                .select("id, title, slug, is_published, created_at")
+                .select("id, title, slug, status, created_at, view_count")
                 .order("created_at", { ascending: false });
 
-            if (blogErr) { console.error("Error loading blogs", blogErr); setLoading(false); return; }
+            if (blogErr) {
+                console.error("Error loading blogs", blogErr);
+                setLoading(false);
+                return;
+            }
 
-            const analyticsMap: Record<string, { views: number; read_time: number; scroll_depth: number }> = {};
-            try {
-                const { data: ad } = await supabase
-                    .from("article_analytics")
-                    .select("article_id, views, avg_read_time_seconds, scroll_completion_rate");
-                if (ad) ad.forEach((a: { article_id: string; views: number; avg_read_time_seconds: number; scroll_completion_rate: number }) => {
-                    analyticsMap[a.article_id] = { views: a.views || 0, read_time: a.avg_read_time_seconds || 0, scroll_depth: a.scroll_completion_rate || 0 };
-                });
-            } catch { /* table may not exist */ }
+            // Fetch events from canonical blog_user_events store
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const { data: eventsData, error: eventsErr } = await (supabase as any)
+                .from("blog_user_events")
+                .select("article_id, event_type, metadata");
 
-            setArticles((blogData || []).map((b: { id: string; title: string; slug: string; is_published: boolean; created_at: string }) => ({
-                id: b.id, title: b.title, slug: b.slug, is_published: b.is_published, created_at: b.created_at,
-                views: analyticsMap[b.id]?.views ?? 0,
-                read_time: analyticsMap[b.id]?.read_time ?? 0,
-                scroll_depth: analyticsMap[b.id]?.scroll_depth ?? 0,
-            })));
-        } catch (err) { console.error("Failed to load articles", err); }
-        setLoading(false);
+            if (eventsErr) {
+                console.warn("[AdminBlogPerformance] Failed to load events:", eventsErr);
+            }
+
+            const events = (eventsData || []) as {
+                article_id: string | null;
+                event_type: string;
+                metadata: Record<string, unknown> | null;
+            }[];
+
+            const analyticsMap: Record<string, { views: number; readTimes: number[]; scrollDepths: number[] }> = {};
+
+            for (const ev of events) {
+                if (!ev.article_id) continue;
+                if (!analyticsMap[ev.article_id]) {
+                    analyticsMap[ev.article_id] = { views: 0, readTimes: [], scrollDepths: [] };
+                }
+                const m = analyticsMap[ev.article_id];
+                if (ev.event_type === "article_view" || ev.event_type === "page_view") {
+                    m.views++;
+                } else if (ev.event_type === "scroll_depth") {
+                    const depth = Number(ev.metadata?.depth);
+                    if (!Number.isNaN(depth) && depth > 0) m.scrollDepths.push(depth);
+                } else if (ev.event_type === "reading_time") {
+                    const time = Number(ev.metadata?.time_spent_seconds);
+                    if (!Number.isNaN(time) && time > 0) m.readTimes.push(time);
+                }
+            }
+
+            setArticles((blogData || []).map((b: { id: string; title: string; slug: string; status: string; created_at: string; view_count: number | null }) => {
+                const m = analyticsMap[b.id];
+                const eventViews = m?.views ?? 0;
+                const views = eventViews > 0 ? eventViews : (b.view_count ?? 0);
+                const avgReadTime = m && m.readTimes.length > 0
+                    ? Math.round(m.readTimes.reduce((acc, v) => acc + v, 0) / m.readTimes.length)
+                    : 0;
+                const avgScroll = m && m.scrollDepths.length > 0
+                    ? Math.round(m.scrollDepths.reduce((acc, v) => acc + v, 0) / m.scrollDepths.length)
+                    : 0;
+
+                return {
+                    id: b.id,
+                    title: b.title,
+                    slug: b.slug,
+                    is_published: b.status === "published",
+                    created_at: b.created_at,
+                    views,
+                    read_time: avgReadTime,
+                    scroll_depth: avgScroll,
+                };
+            }));
+        } catch (err) {
+            console.error("Failed to load articles", err);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
     useEffect(() => {
@@ -160,10 +206,10 @@ export default function AdminBlogPerformance() {
             <div className="fade-up-1">
                 <AdminMetricsPanel 
                     metrics={[
-                        { label: "Total Views", value: totalViews.toLocaleString(), icon: Eye },
-                        { label: "Top Article", value: topArticle?.title?.substring(0, 20) || "—", icon: TrendingUp },
-                        { label: "Avg. Scroll", value: `${avgScroll}%`, icon: Scroll },
-                        { label: "Avg. Read Time", value: avgReadTime ? `${(avgReadTime / 60).toFixed(1)}m` : "—", icon: Clock }
+                        { label: "Total Views", value: totalViews.toLocaleString() },
+                        { label: "Top Article", value: topArticle?.title?.substring(0, 20) || "—" },
+                        { label: "Avg. Scroll", value: `${avgScroll}%` },
+                        { label: "Avg. Read Time", value: avgReadTime ? `${(avgReadTime / 60).toFixed(1)}m` : "—" }
                     ]} 
                 />
             </div>
@@ -173,7 +219,7 @@ export default function AdminBlogPerformance() {
                 <div className="relative flex-1 max-w-sm">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
                     <Input
-                        placeholder="Search articles..."
+                        placeholder="Search articles�"
                         className="pl-10 bg-[hsl(var(--admin-background))] border-[hsl(var(--admin-border))] focus:border-[hsl(var(--admin-primary))]/50 rounded-xl text-[hsl(var(--admin-text))]"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}

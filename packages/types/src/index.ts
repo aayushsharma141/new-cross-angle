@@ -21,7 +21,9 @@ export interface ServiceDetail extends BaseEntity {
     title: string;
     slug: string;
     description: string;
+    longDescription?: string;
     hero_image: string;
+    galleryImages?: string[];
     category_id: string;
     icon?: string;
     tag?: string;
@@ -29,4 +31,5 @@ export interface ServiceDetail extends BaseEntity {
     features: string[]; // Stored as JSONB in DB
     process_steps: ProcessStep[]; // Stored as JSONB in DB
     faq: FAQItem[]; // Stored as JSONB in DB
+    relatedServices?: string[];
 }

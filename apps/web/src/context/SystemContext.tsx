@@ -42,18 +42,33 @@ export const SystemProvider = ({ children }: { children: ReactNode }) => {
 
     const refreshHealth = useCallback(async () => {
         try {
-            // Ping the DB with a minimal query
-            const { error } = await supabase
+            // Probe 1: Database — minimal row count query
+            const { error: dbError } = await supabase
                 .from('leads')
                 .select('id', { head: true, count: 'exact' });
 
-            const dbOk = !error;
+            const dbOk = !dbError;
+
+            // Probe 2: Edge function / API gateway — ping posthog-query with a no-op action
+            // This tells us if Supabase edge functions (and by extension PostHog connectivity)
+            // are reachable. A successful invocation (even empty results) means api is online.
+            let apiOk = false;
+            try {
+                const { error: fnError } = await supabase.functions.invoke('posthog-query', {
+                    body: { action: 'ping' },
+                });
+                // A 4xx/5xx edge function error is still "reachable"; only a network-level
+                // throw means the gateway itself is down.
+                apiOk = fnError?.message?.includes('FunctionsFetchError') !== true;
+            } catch {
+                apiOk = false;
+            }
 
             setHealth({
-                status: dbOk ? 'healthy' : 'degraded',
+                status: dbOk && apiOk ? 'healthy' : 'degraded',
                 database: dbOk ? 'connected' : 'disconnected',
                 storage: 'available',
-                api: 'online',
+                api: apiOk ? 'online' : 'offline',
                 lastChecked: new Date().toISOString(),
             });
         } catch {
@@ -66,6 +81,7 @@ export const SystemProvider = ({ children }: { children: ReactNode }) => {
             }));
         }
     }, []);
+
 
     const addNotification = (note: SystemNotification) => {
         setNotifications(prev => [note, ...prev]);

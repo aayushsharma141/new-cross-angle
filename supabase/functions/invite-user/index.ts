@@ -13,7 +13,7 @@ import {
   structuredLog, 
   getRequestId 
 } from "../_lib/security.ts";
-import { canAssignRole, isAppRole, normalizeRole } from "../_lib/rbac.ts";
+import { canAssignRole, isAdminOrAbove, isAppRole, normalizeRole } from "../_lib/rbac.ts";
 
 const CORS_OPTS = { credentialed: true };
 const RATE_OPTS = { bucket: "invite-user", max: 10, windowMs: 60_000 };
@@ -62,7 +62,7 @@ Deno.serve(async (req: Request) => {
             .eq("user_id", user.id)
             .maybeSingle();
 
-        if (roleError || !roleData?.role || !isAppRole(roleData.role) || roleData.role === "viewer") {
+        if (roleError || !roleData?.role || !isAppRole(roleData.role) || !isAdminOrAbove(roleData.role)) {
             return forbiddenResponse(req, "permission to invite users required", CORS_OPTS, requestId);
         }
 

@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { Link } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, Building2, UtensilsCrossed, Lamp, Sofa, Palette, Lightbulb, PenTool, Bed, LucideIcon } from "lucide-react";
+import { Surface, Grid, Text, Stack } from "@/components/primitives/foundation";
+import { Link, Button } from "@/components/primitives/interactive";
 
 // Icon mapping helper
 const IconMap: Record<string, LucideIcon> = {
@@ -32,33 +34,36 @@ export function ServicesMegaMenu({ isHovered }: { isHovered: boolean }) {
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="absolute top-full left-0 pt-6 w-[800px] z-50 cursor-default"
         >
-          <div className="bg-[#050505]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 overflow-hidden">
+          <Surface variant="glass" border radius="lg" shadow="xl" className="p-8 overflow-hidden relative bg-background/95">
             {/* Background decorative elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-site-crimson/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-site-gold/5 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/3" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/3" />
             
-            <div className="relative z-10 grid grid-cols-3 gap-8">
+            <Grid cols={3} gap="xl" className="relative z-10">
               {categories.map((cat) => {
                 const catServices = services?.filter((s) => s.category_id === cat.id) || [];
                 
                 return (
-                  <div key={cat.id} className="space-y-4">
-                    <h3 className="font-serif text-site-gold border-b border-white/10 pb-2 text-lg">
+                  <Stack key={cat.id} gap="md">
+                    <h3 className="font-serif text-primary border-b border-border pb-2 text-lg">
                       {cat.label}
                     </h3>
                     
                     {catServices.length > 0 ? (
-                      <ul className="space-y-3">
+                      <Stack as="ul" gap="sm">
                         {catServices.slice(0, 5).map((service) => {
                           const Icon = service.icon ? IconMap[service.icon] : null;
                           return (
                             <li key={service.id}>
                               <Link 
+                                as={RouterLink}
                                 to={`/services/${service.category_id}/${service.slug}`}
-                                className="group flex items-center gap-3 text-white/70 hover:text-white transition-colors"
+                                variant="muted"
+                                underline="none"
+                                className="group flex items-center gap-3 transition-colors"
                               >
                                 {Icon && (
-                                  <div className="p-1.5 rounded-md bg-white/5 group-hover:bg-site-crimson/20 group-hover:text-site-crimson transition-colors">
+                                  <div className="p-1.5 rounded-md bg-muted group-hover:bg-primary/20 group-hover:text-primary transition-colors">
                                     <Icon className="w-4 h-4" />
                                   </div>
                                 )}
@@ -70,37 +75,43 @@ export function ServicesMegaMenu({ isHovered }: { isHovered: boolean }) {
                         {catServices.length > 5 && (
                           <li>
                             <Link 
+                              as={RouterLink}
                               to={`/services#${cat.id}`}
-                              className="text-xs text-site-crimson hover:text-site-crimson/80 transition-colors uppercase tracking-wider font-semibold"
+                              variant="primary"
+                              underline="none"
+                              className="text-xs uppercase tracking-wider font-semibold"
                             >
                               View All {cat.label}
                             </Link>
                           </li>
                         )}
-                      </ul>
+                      </Stack>
                     ) : (
-                      <div className="text-xs text-white/40 italic py-2">
+                      <Text variant="caption" color="muted" className="italic py-2">
                         No services available yet.
-                      </div>
+                      </Text>
                     )}
-                  </div>
+                  </Stack>
                 );
               })}
-            </div>
+            </Grid>
             
-            <div className="relative z-10 mt-8 pt-6 border-t border-white/10 flex items-center justify-between">
+            <div className="relative z-10 mt-8 pt-6 border-t border-border flex items-center justify-between">
               <div>
-                <h4 className="text-white font-medium mb-1">Not sure where to start?</h4>
-                <p className="text-sm text-white/50">Take our interactive style quiz.</p>
+                <Text variant="body" className="font-medium mb-1">Not sure where to start?</Text>
+                <Text variant="caption" color="muted">Take our interactive style quiz.</Text>
               </div>
               <Link 
+                as={RouterLink}
                 to="/aesthetic-discovery-engine" 
-                className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/10"
+                underline="none"
               >
-                Start Discovery Engine
+                <Button variant="outline" size="sm" className="rounded-full">
+                  Start Discovery Engine
+                </Button>
               </Link>
             </div>
-          </div>
+          </Surface>
         </motion.div>
       )}
     </AnimatePresence>

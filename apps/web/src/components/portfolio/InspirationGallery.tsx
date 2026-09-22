@@ -2,11 +2,13 @@ import { motion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { getOptimizedUrl } from "@/lib/cdn";
 
+// Root-relative, not route-relative: without the leading slash these resolved
+// against the current route and 404'd on any nested path (/portfolio/:slug).
 const IMAGE_PATHS = [
-  "images/projects/discovery/visual-11.jpg",
-  "images/projects/discovery/lifestyle-2.jpg",
-  "images/projects/discovery/lifestyle-5.jpg",
-  "images/projects/discovery/visual-2.jpg",
+  "/images/projects/discovery/visual-11.jpg",
+  "/images/projects/discovery/lifestyle-2.jpg",
+  "/images/projects/discovery/lifestyle-5.jpg",
+  "/images/projects/discovery/visual-2.jpg",
 ];
 
 const MOODS = [
@@ -49,8 +51,8 @@ const InspirationGallery = () => {
       <div className="container mx-auto mb-16 px-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-px bg-site-crimson" />
-            <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Inspiration Gallery</span>
+            <div className="w-12 h-px bg-primary" />
+            <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">Inspiration Gallery</span>
           </div>
           <h2 className="text-3xl font-light tracking-tight text-white md:text-5xl italic">
             Feel The Mood

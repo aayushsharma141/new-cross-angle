@@ -7,14 +7,16 @@ const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
 
 interface MediaUploadZoneProps {
-    onUpload: (files: File[]) => Promise<void> | void;
+    onUpload: (files: File[], collectionId?: string | null) => Promise<void> | void;
     isUploading: boolean;
     folderName: string;
     errorMessage?: string | null;
     onError?: (message: string) => void;
+    /** When set, newly uploaded assets will be auto-assigned to this collection */
+    collectionId?: string | null;
 }
 
-export const MediaUploadZone = ({ onUpload, isUploading, folderName, errorMessage, onError }: MediaUploadZoneProps) => {
+export const MediaUploadZone = ({ onUpload, isUploading, folderName, errorMessage, onError, collectionId }: MediaUploadZoneProps) => {
     const onDrop = useCallback((acceptedFiles: File[], rejections: FileRejection[]) => {
         if (rejections.length > 0) {
             const msgs = rejections.map(r => {
@@ -35,9 +37,9 @@ export const MediaUploadZone = ({ onUpload, isUploading, folderName, errorMessag
             return;
         }
         if (acceptedFiles.length > 0) {
-            onUpload(acceptedFiles);
+            onUpload(acceptedFiles, collectionId);
         }
-    }, [onUpload, onError]);
+    }, [onUpload, onError, collectionId]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,

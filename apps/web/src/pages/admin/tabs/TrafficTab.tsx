@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { captureException } from "@/lib/sentry";
 import { AdminKPI } from "@/components/admin/dashboard/AdminKPI";
 import { Users, Zap, Globe, MousePointerClick } from "lucide-react";
 import { DateRange } from "react-day-picker";
@@ -30,7 +31,7 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
   const toIso = currentTo?.toISOString();
 
   // Core traffic KPIs
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading, isError } = useQuery({
     queryKey: ["traffic-stats", date],
     queryFn: async () => {
       let previousFromIso: string | undefined;
@@ -53,17 +54,20 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
       });
 
       if (error || !data) {
-        return {
-          views: 0,
-          viewsTrend: 0,
-          uniqueVisitors: 0,
-          engagementEvents: 0,
-          avgPagesPerVisitor: "0",
-        };
+        // There is no global QueryCache onError, so an uncaptured throw here
+        // dies in this component's error state and is never reported.
+        captureException(error ?? new Error("posthog-query returned no data"), {
+          tags: { area: "admin-traffic" },
+          extra: { action: "traffic-stats", from: fromIso, to: toIso },
+        });
+        throw new Error(
+          `Failed to fetch traffic stats from PostHog${error?.message ? `: ${error.message}` : ""}`,
+        );
       }
 
       return data;
     },
+    retry: 1,
   });
 
   // Traffic over time (area chart)
@@ -135,7 +139,7 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
     },
   });
 
-  const fmt = (v: number | string | undefined | null): string => (v == null ? "..." : typeof v === "number" ? v.toLocaleString() : v);
+  const fmt = (v: number | string | undefined | null): string => (v == null ? "…" : typeof v === "number" ? v.toLocaleString() : v);
 
   return (
     <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
@@ -145,7 +149,7 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
           title="Page Views"
           value={fmt(stats?.views)}
           numericValue={stats?.views}
-          change={stats ? `${stats.viewsTrend > 0 ? "+" : ""}${stats.viewsTrend}% vs previous period` : "..."}
+          change={stats ? `${stats.viewsTrend > 0 ? "+" : ""}${stats.viewsTrend}% vs previous period` : "…"}
           trend={stats?.viewsTrend === 0 ? "neutral" : (stats?.viewsTrend || 0) > 0 ? "up" : "down"}
           icon={Globe}
           variant="gold"
@@ -181,6 +185,15 @@ const TrafficTab = ({ date }: TrafficTabProps) => {
           isLoading={isLoading}
         />
       </div>
+
+      {/* PostHog error banner */}
+      {isError && !isLoading && (
+        <div className="rounded-xl border border-[hsl(var(--admin-warning))]/30 bg-[hsl(var(--admin-warning))]/5 px-5 py-3 flex items-center gap-3 text-sm">
+          <span className="w-2 h-2 rounded-full bg-[hsl(var(--admin-warning))] shrink-0" />
+          <span className="text-[hsl(var(--admin-warning))] font-medium">Analytics unavailable</span>
+          <span className="text-[hsl(var(--admin-text-muted))]">PostHog could not be reached. Traffic data shown below may be stale or empty — not zero.</span>
+        </div>
+      )}
 
       {/* Traffic Over Time (Area Chart) */}
       <div className="rounded-2xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-6">

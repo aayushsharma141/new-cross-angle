@@ -92,7 +92,7 @@ export function CalendarDateRangePicker({
                     <div className="p-4 border-b">
                         <Select onValueChange={handlePresetChange}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select preset..." />
+                                <SelectValue placeholder="Select preset…" />
                             </SelectTrigger>
                             <SelectContent position="popper">
                                 <SelectItem value="today">Today</SelectItem>

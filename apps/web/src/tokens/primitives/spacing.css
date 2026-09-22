@@ -1,0 +1,12 @@
+/* CORE */
+:root {
+  --p-space-3xs: 4px;
+  --p-space-2xs: 8px;
+  --p-space-xs:  16px;
+  --p-space-sm:  24px;
+  --p-space-md:  32px;
+  --p-space-lg:  48px;
+  --p-space-xl:  64px;
+  --p-space-2xl: 96px;
+  --p-space-3xl: 144px;
+}

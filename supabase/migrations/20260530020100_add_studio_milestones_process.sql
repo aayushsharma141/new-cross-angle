@@ -1,5 +1,13 @@
 -- Add studio_stats to site_settings
+DO $$ BEGIN IF EXISTS (
+    SELECT 1
+    FROM pg_tables
+    WHERE schemaname = 'public'
+        AND tablename = 'site_settings'
+) THEN
 ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS studio_stats JSONB DEFAULT '{"yearsExperience": 15, "happyClients": 500, "projectsCompleted": 750, "awardsWon": 25}'::jsonb;
+END IF;
+END $$;
 
 -- Create studio_milestones
 CREATE TABLE IF NOT EXISTS public.studio_milestones (
@@ -14,9 +22,9 @@ CREATE TABLE IF NOT EXISTS public.studio_milestones (
 
 ALTER TABLE public.studio_milestones ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public can view studio milestones" ON public.studio_milestones FOR SELECT USING (true);
-CREATE POLICY "Admin can insert studio milestones" ON public.studio_milestones FOR INSERT WITH CHECK (public.is_admin());
-CREATE POLICY "Admin can update studio milestones" ON public.studio_milestones FOR UPDATE USING (public.is_admin());
-CREATE POLICY "Admin can delete studio milestones" ON public.studio_milestones FOR DELETE USING (public.is_admin());
+CREATE POLICY "Admin can insert studio milestones" ON public.studio_milestones FOR INSERT WITH CHECK (public.is_admin_or_editor(auth.uid()));
+CREATE POLICY "Admin can update studio milestones" ON public.studio_milestones FOR UPDATE USING (public.is_admin_or_editor(auth.uid()));
+CREATE POLICY "Admin can delete studio milestones" ON public.studio_milestones FOR DELETE USING (public.is_admin_or_editor(auth.uid()));
 
 -- Create design_process_steps
 CREATE TABLE IF NOT EXISTS public.design_process_steps (
@@ -37,9 +45,9 @@ CREATE TABLE IF NOT EXISTS public.design_process_steps (
 
 ALTER TABLE public.design_process_steps ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public can view design process steps" ON public.design_process_steps FOR SELECT USING (true);
-CREATE POLICY "Admin can insert design process steps" ON public.design_process_steps FOR INSERT WITH CHECK (public.is_admin());
-CREATE POLICY "Admin can update design process steps" ON public.design_process_steps FOR UPDATE USING (public.is_admin());
-CREATE POLICY "Admin can delete design process steps" ON public.design_process_steps FOR DELETE USING (public.is_admin());
+CREATE POLICY "Admin can insert design process steps" ON public.design_process_steps FOR INSERT WITH CHECK (public.is_admin_or_editor(auth.uid()));
+CREATE POLICY "Admin can update design process steps" ON public.design_process_steps FOR UPDATE USING (public.is_admin_or_editor(auth.uid()));
+CREATE POLICY "Admin can delete design process steps" ON public.design_process_steps FOR DELETE USING (public.is_admin_or_editor(auth.uid()));
 
 -- Insert default milestones
 INSERT INTO public.studio_milestones (year, title, event, display_order) VALUES

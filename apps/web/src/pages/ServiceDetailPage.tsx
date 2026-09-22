@@ -14,7 +14,6 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import ReactMarkdown from 'react-markdown';
 import { Image } from "@/components/ui/enhanced/image";
-import { SiteBreadcrumb } from "@/components/shared/SiteBreadcrumb";
 
 const ServiceDetailPage = () => {
     const { category: categorySlug, service: serviceSlug } = useParams();
@@ -27,7 +26,7 @@ const ServiceDetailPage = () => {
     const { data: allServices = [] } = useQuery({
         queryKey: ["services"],
         queryFn: api.getServices,
-        enabled: Boolean(staticService?.relatedServices?.length),
+        enabled: true,
     });
 
     const category = serviceCategories.find((c) => c.slug === categorySlug);
@@ -45,8 +44,9 @@ const ServiceDetailPage = () => {
     }
 
     // Get related services data
-    const relatedServicesData = (staticService?.relatedServices || [])
-        .map((slug) => allServices.find((item) => item.slug === slug))
+    const relatedSlugs = service?.relatedServices || staticService?.relatedServices || [];
+    const relatedServicesData = relatedSlugs
+        .map((slug) => allServices.find((item) => item.slug === slug || item.id === slug))
         .filter((s): s is (typeof allServices)[number] => s !== undefined);
 
     return (
@@ -104,20 +104,10 @@ const ServiceDetailPage = () => {
                 <Navbar />
 
                 <main id="main-content" className="flex-grow">
-                    {/* Breadcrumb */}
-                    <div className="pt-24 pb-4">
-                        <SiteBreadcrumb 
-                            items={[
-                                { label: "Services", href: "/services" },
-                                { label: category.title, href: `/services/${category.slug}` },
-                                { label: service.title }
-                            ]} 
-                        />
-                    </div>
 
                     {/* Hero Section */}
                     <section className="relative py-16 md:py-24 overflow-hidden">
-                        <div className="container px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+                        <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
                             <motion.div
                                 initial={{ opacity: 0, x: -30 }}
                                 animate={{ opacity: 1, x: 0 }}
@@ -165,10 +155,33 @@ const ServiceDetailPage = () => {
                     </section>
 
                     {/* Rich Content / Long Description */}
-                    {staticService?.longDescription && (
+                    {service?.longDescription && (
                         <section className="py-16 border-t border-border/50">
                             <div className="container px-4 max-w-4xl mx-auto prose prose-lg prose-headings:font-serif prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-li:text-muted-foreground md:prose-xl">
-                                <ReactMarkdown>{staticService.longDescription}</ReactMarkdown>
+                                <ReactMarkdown>{service.longDescription}</ReactMarkdown>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Gallery Showcase */}
+                    {service?.galleryImages && service.galleryImages.length > 0 && (
+                        <section className="py-16 bg-muted/10 border-t border-border/30">
+                            <div className="container mx-auto px-4 max-w-6xl">
+                                <h2 className="font-serif text-3xl mb-8 text-center">Design Gallery Showcase</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {service.galleryImages.map((img: string, idx: number) => (
+                                        <div key={idx} className="aspect-square rounded-2xl overflow-hidden shadow-lg border border-border group">
+                                            <Image
+                                                src={img}
+                                                alt={`${service.title} gallery image ${idx + 1}`}
+                                                className="h-full w-full"
+                                                imageClassName="transform transition duration-700 group-hover:scale-105"
+                                                width={600}
+                                                height={600}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </section>
                     )}
@@ -225,7 +238,7 @@ const ServiceDetailPage = () => {
                     {/* Related Services (New) */}
                     {relatedServicesData.length > 0 && (
                         <section className="py-16 bg-muted/20">
-                            <div className="container px-4">
+                            <div className="container mx-auto px-4">
                                 <h2 className="font-serif text-3xl mb-10 text-center">Complementary Services</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                                     {relatedServicesData.map((s) => (

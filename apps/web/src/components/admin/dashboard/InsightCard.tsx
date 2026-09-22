@@ -12,9 +12,25 @@ interface InsightCardProps {
 
 export function InsightCard({ title, description, actionLabel, onAction, onDismiss, type = "insight" }: InsightCardProps) {
     const isWarning = type === "warning";
-    const bgGlow = isWarning ? 'bg-[hsl(var(--admin-wine))]/5' : 'bg-[hsl(var(--admin-primary))]/5';
-    const iconBg = isWarning ? 'bg-[hsl(var(--admin-wine))]/10 text-[hsl(var(--admin-wine))]' : 'bg-[hsl(var(--admin-primary))]/10 text-[hsl(var(--admin-primary))]';
-    const actionTextClass = isWarning ? 'text-[hsl(var(--admin-wine))] hover:text-[hsl(var(--admin-wine))]' : 'text-[hsl(var(--admin-primary))] hover:text-[hsl(var(--admin-primary))]';
+    const isSuccess = type === "success";
+
+    const bgGlow = isWarning 
+        ? 'bg-[hsl(var(--admin-wine))]/5' 
+        : isSuccess 
+        ? 'bg-emerald-500/5' 
+        : 'bg-[hsl(var(--admin-primary))]/5';
+
+    const iconBg = isWarning 
+        ? 'bg-[hsl(var(--admin-wine))]/10 text-[hsl(var(--admin-wine))]' 
+        : isSuccess 
+        ? 'bg-emerald-500/10 text-emerald-500' 
+        : 'bg-[hsl(var(--admin-primary))]/10 text-[hsl(var(--admin-primary))]';
+
+    const actionTextClass = isWarning 
+        ? 'text-[hsl(var(--admin-wine))] hover:text-[hsl(var(--admin-wine))]' 
+        : isSuccess 
+        ? 'text-emerald-500 hover:text-emerald-500' 
+        : 'text-[hsl(var(--admin-primary))] hover:text-[hsl(var(--admin-primary))]';
 
     return (
         <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[hsl(var(--admin-card))] to-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] p-5 shadow-lg group">
@@ -31,7 +47,7 @@ export function InsightCard({ title, description, actionLabel, onAction, onDismi
                         {onDismiss && (
                             <button 
                                 onClick={onDismiss} 
-                                className="absolute top-0 right-0 text-[hsl(var(--admin-text-subtle))] hover:text-[hsl(var(--admin-foreground))] transition-colors p-1 rounded-md hover:bg-[hsl(var(--admin-surface-hover))]"
+                                className="absolute top-0 right-0 text-[hsl(var(--admin-text-subtle))] hover:text-[hsl(var(--admin-foreground))] transition-colors p-1 rounded-md hover:bg-[hsl(var(--admin-surface-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-primary))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-card))]"
                                 aria-label="Dismiss insight"
                             >
                                 <X className="w-3.5 h-3.5" />

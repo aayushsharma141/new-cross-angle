@@ -29,7 +29,8 @@ async function trackEvent(
             p_event_type: eventType,
             p_article_id: articleId ?? null,
             p_session_id: getSessionId(),
-            p_metadata: metadata,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            p_metadata: metadata as any,
             p_device: getDevice(),
             p_referrer: document.referrer || null,
         });

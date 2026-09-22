@@ -1,0 +1,102 @@
+================================================================================
+                         CROSSANGLE INTERIOR - RULES & REQUIREMENTS
+================================================================================
+
+This document serves as the project's central guide for requirements, user requests,
+and coding rules. Update or reference this file to maintain codebase alignment.
+
+--------------------------------------------------------------------------------
+1. ADMIN PANEL & CRM (FOR NON-TECH / HINGLISH STAFF)
+--------------------------------------------------------------------------------
+   * **Simple Vocabulary & Translation Contexts**:
+     - The admin editor and CRM must be fully usable by non-technical business
+       professionals who have low English or speak Hinglish.
+     - Replace complex jargon with simple everyday terms:
+       - Use "Customer List" or "Lead Tracker" instead of "CRM Module".
+       - Use "Add Project" / "Add Image" instead of "Initialize CMS Node".
+       - Use "Baat Chal Rahi Hai" or "Interested" instead of "QUALIFIED".
+       - Use "Deal Done" or "Project Won" instead of "WON".
+   * **Contextual Help & Tooltips**:
+     - Every action button, field input, and metric KPI (e.g., Leads Today, Hot
+       Leads, Pipeline Value) must feature a clear, easy-to-read Hinglish/Simple 
+       English tooltip or help text explaining what it does.
+   * **Access Controls**:
+     - Technical telemetry (storage metrics, system performance, active modules)
+       and Audit logs must be hidden in the footer for non-admin/staff roles.
+   * **UI Simplicity & Layout**:
+     - Keep layout clean and high-contrast. Use desktop-only optimization for the
+       admin panel, with a Vercel middleware block preventing accidental mobile edits.
+     - Card actions should be clean, showing quick-action buttons (Call, WhatsApp,
+       Email) directly on card hover or focus.
+     - Use neutral gray/amber styling instead of red for unassigned tasks or normal
+       status states; reserve red ONLY for critical alerts to prevent user overload.
+
+--------------------------------------------------------------------------------
+2. GENERAL TECH STACK & DESIGN CONSTRAINTS
+--------------------------------------------------------------------------------
+   * **Tech Stack**: React 18, Vite, TypeScript 5, Tailwind CSS v3, shadcn/ui
+     (Radix UI), Supabase DB, Deno Edge Functions, ImageKit CDN.
+   * **Styling System**:
+     - Do not use Tailwind CSS v4 or arbitrary inline HSL conversions (e.g., 
+       `hsl(var(--admin-...))`). Always use standardized Tailwind semantic classes 
+       (e.g., `bg-admin-bg`, `bg-admin-surface`, `text-admin-primary`).
+     - Aesthetic profile: Deep obsidian dark backgrounds (`hsl(225, 20%, 6%)`),
+       warm gold/bronze accents (`hsl(var(--admin-primary))`), and 
+       `Cormorant Garamond` + `DM Sans` typography.
+   * **Brand Naming**: Always use 'Cross Angle Interior' or 'Crossangle Interior'
+     consistently across all files and components.
+   * **Comments / Docstrings**: Never remove or rewrite existing code comments or
+     docstrings unless explicitly asked.
+
+--------------------------------------------------------------------------------
+3. IMMUTABLE DATABASE SCHEMAS & FIELD NAME TRAPS
+--------------------------------------------------------------------------------
+   * **Field Name Traps (Critical coding rules to avoid silent data loss)**:
+     - Table `leads`: Use `name` (NOT `full_name`), `lead_source` (NOT `service` or `source`).
+     - Table `services`: Use `name` (NOT `title`).
+     - Table `testimonials`: Use `name` (NOT `author` or `client_name`), `active` (NOT `is_active`).
+     - Table `projects`: Use `category_id` (NOT `tags`).
+     - Table `profiles`: Use `full_name` (NOT `username`).
+   * **Estimate Calculations**:
+     - Never calculate project cost estimates client-side. Min and max estimates
+       must always be calculated securely on the server-side via Supabase Edge 
+       Functions (`submit-estimate`).
+   * **Migration Rules**:
+     - Never edit past database migration files.
+     - New migrations must be named `supabase/migrations/YYYYMMDDHHMMSS_description.sql`.
+     - Always include rollback comments.
+
+--------------------------------------------------------------------------------
+4. AESTHETIC DISCOVERY ENGINE (STYLE QUIZ)
+--------------------------------------------------------------------------------
+   * **Accessibility (WCAG 2.1 AA Compliance)**:
+     - Focus states must be highly visible and styled in the brand's warm bronze
+       palette (`focus-visible:ring-2 focus-visible:ring-[#8b6f47]`).
+     - Custom interactive divs must support keyboard navigation (`tabIndex={0}`,
+       `role="button"`, and `onKeyDown` handlers for Space/Enter activation).
+   * **i18n Language Toggle**:
+     - Nav bar must feature a clear EN / HINGLISH pill toggle that instantly swaps
+       translation contexts globally with accessible `aria-pressed` labels.
+
+--------------------------------------------------------------------------------
+5. VISUAL DESIGN HISTORY PROTOCOL
+--------------------------------------------------------------------------------
+   * **Step-by-step UI updates flow**:
+     1. Read `DESIGN_HISTORY.md` and the relevant page file in `design-history/`
+        before making styling updates.
+     2. Report the current active visual layout and properties to the user.
+     3. Ask the user whether to build on top of the layout, toggle features, or
+        perform a custom overhaul.
+     4. Tag a new Git checkpoint (e.g. `checkpoint/v5-...`) before editing.
+
+--------------------------------------------------------------------------------
+6. KNOWLEDGE GRAPH & COMMAND EXECUTION PROTOCOLS
+--------------------------------------------------------------------------------
+   * **Knowledge Graph (Graphify)**:
+     - Read `graphify-out/GRAPH_REPORT.md` before answering architecture questions.
+     - If `graphify-out/wiki/index.md` exists, navigate it first.
+     - Run `graphify update .` after code edits to sync the graph.
+   * **Command Execution Constraints**:
+     - Never auto-execute terminal commands. All runs (e.g., `npm run dev`, migrations)
+       require explicit user inline confirmation.
+================================================================================

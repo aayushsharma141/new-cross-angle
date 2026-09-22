@@ -33,7 +33,7 @@ const AdminBlogs = () => {
           return;
         }
         if (data) {
-          setEditingPost(data as unknown as BlogPost);
+          setEditingPost(data);
           setActiveTab("editor");
         }
       }

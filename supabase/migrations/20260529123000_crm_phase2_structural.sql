@@ -40,9 +40,9 @@ ALTER TABLE public.lead_tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.lead_objections ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Admin full access to lead_tasks" ON public.lead_tasks FOR ALL USING (
-  EXISTS (SELECT 1 FROM public.admin_users WHERE id = auth.uid())
+  public.is_admin_or_editor(auth.uid())
 );
 
 CREATE POLICY "Admin full access to lead_objections" ON public.lead_objections FOR ALL USING (
-  EXISTS (SELECT 1 FROM public.admin_users WHERE id = auth.uid())
+  public.is_admin_or_editor(auth.uid())
 );

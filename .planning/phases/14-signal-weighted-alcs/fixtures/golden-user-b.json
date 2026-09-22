@@ -1,0 +1,67 @@
+{
+  "strategyLabel": "Smart Renovation",
+  "propertyFit": 75,
+  "propertyFitTier": "good",
+  "executionPath": "smart_renovation",
+  "focusAreas": [
+    "Living Room"
+  ],
+  "reasoning": "Because your family lifestyle prioritizes social connection — and your luxury language centers on smart integration — automated systems and invisible tech — your existing property becomes the canvas — not a constraint. Strategic renovation upgrades the spaces that matter most while preserving what already works.",
+  "summary": "Your property is workable for your lifestyle goals (75% fit). The recommended strategy is \"Smart Strategic Renovation\" — focusing on Living Room as highest emotional return areas.",
+  "confidence": 90,
+  "evidence": [
+    {
+      "signal": "Base viability",
+      "scoreImpact": 40,
+      "source": "property",
+      "rationale": "Existing property supports renovation"
+    },
+    {
+      "signal": "Pragmatic alignment",
+      "scoreImpact": 20,
+      "source": "archetype",
+      "rationale": "Matches balanced/conservative investment psychology"
+    },
+    {
+      "signal": "Balanced capital",
+      "scoreImpact": 15,
+      "source": "budget",
+      "rationale": "Budget perfectly aligns with strategic upgrades"
+    },
+    {
+      "signal": "Tech-integrated luxury language",
+      "scoreImpact": 15,
+      "source": "sensory",
+      "rationale": "Aligns with structural upgrade strategy"
+    },
+    {
+      "signal": "Apartment suitability",
+      "scoreImpact": 10,
+      "source": "property",
+      "rationale": "Renovation is standard for apartment upgrades"
+    },
+    {
+      "signal": "Adequate property suitability",
+      "scoreImpact": 10,
+      "source": "property",
+      "rationale": "Property fits core needs"
+    },
+    {
+      "signal": "Good aspiration alignment",
+      "scoreImpact": 10,
+      "source": "archetype",
+      "rationale": "Low friction with existing space"
+    },
+    {
+      "signal": "Moderate layout flexibility",
+      "scoreImpact": 5,
+      "source": "property",
+      "rationale": "Some structural adaptability"
+    }
+  ],
+  "primaryDrivers": [
+    "Baseline Fit",
+    "Pragmatic alignment",
+    "Balanced capital"
+  ]
+}

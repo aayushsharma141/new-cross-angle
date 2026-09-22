@@ -7,19 +7,19 @@ const ambienceData: Record<AmbienceMode, { label: string; sublabel: string; imag
   Day: {
     label: "Morning Clarity",
     sublabel: "Natural daylight reveals every curated detail",
-    image: "/images/projects/discovery/visual-11.jpg",
+    image: "/images/projects/discovery/reflect-morning-silence.jpg",
     tag: "07:30 AM",
   },
   Evening: {
     label: "Golden Hour",
     sublabel: "Warm amber tones transform the entire atmosphere",
-    image: "/images/projects/discovery/visual-17.jpg",
+    image: "/images/projects/discovery/reflect-evening-dinner.jpg",
     tag: "06:45 PM",
   },
   Night: {
     label: "Nocturnal Elegance",
     sublabel: "A sanctuary of light against the evening darkness",
-    image: "/images/projects/portfolio-kitchen.jpg",
+    image: "/images/projects/discovery/reflect-night-crisp.jpg",
     tag: "10:00 PM",
   },
 };

@@ -1,253 +1,94 @@
-# Project Roadmap
+# Production & Learning Roadmap v1
 
-This document outlines the phased execution plan for the project.
+This roadmap documents the transition from **building software** to **producing evidence**. The platform's core operating infrastructure (DAM, CRM, Recommendation Engines, Primitive Layouts) is complete. The system's primary directive is now learning operations and evidence-gathering under the Platform Constitution.
 
-## Phases
+---
 
-### Phase 1: Quick Wins & Semantic SEO Foundation
+## Phase Status Today
 
-**Status**: Complete
+| Area | Status |
+| :--- | :---: |
+| **Architecture** | ✅ Complete |
+| **Primitive System** | ✅ Complete |
+| **Workspace** | ✅ Complete |
+| **Decision Ledger** | ✅ Complete |
+| **Learning Telemetry** | ✅ Complete |
+| **Replay Chain** | ✅ Validated |
+| **State Reconstruction** | ✅ Validated |
+| **Behavioral Replay** | ⏳ Deferred |
+| **Governance** | ✅ Frozen |
+| **Dataset v1** | ✅ Active |
+| **Product Features** | 🟢 Active |
 
-**Goals**:
+---
 
-- Ensure all basic semantic HTML tags (H1/H2) are correctly applied and nested.
-- Implement immediate UX improvements with high-contrast sticky CTAs.
-- Implement immediate SEO wins with FAQ Schema.
+## Track A — Product Evolution (Active)
 
-**Features**:
+Visual foundation (Gallery Light environment) is frozen. We now move to composition and editorial rhythm.
 
-- [x] **Fix `<h1>` / `<h2>` / `<h3>` hierarchy.**
-  - Audit and fix all H1/H2 tags across the 14 core pages. Ensure every page has exactly one `<h1>` tag containing the primary keyword/title.
-  - Correct the heading nesting (e.g., `<h3>` without a preceding `<h2>`) on `ServiceDetailPage.tsx` and `ProjectPage.tsx`.
-- [x] **Add missing Schema.org JSON-LD.**
-  - Inject FAQ Schema on all service pages utilizing existing content (`service.faq`).
-  - (Optional, stretch) Add basic LocalBusiness schema to the footer or contact page.
-- [x] **Implement Sticky CTAs.**
-  - Add a floating/sticky high-contrast "Consult with us" CTA on mobile and desktop for `ServiceDetailPage.tsx` and `ProjectPage.tsx`.
+| Phase | Goal | Status |
+| :--- | :--- | :---: |
+| **31** | **Editorial Composition** — Kill symmetric SaaS grids, introduce asymmetry and design silence. | 🟢 Active |
+| **32** | **Motion Polish** — Implement intent-centric motion defined in Design Genome. | ❄️ Frozen |
+| **33** | **Visual QA** — Final cross-browser/responsive visual QA and regression checks. | ❄️ Frozen |
 
-### Phase 2: URL Restructure & Internal Linking
+---
 
-**Status**: Complete
+## Track B — Learning Operations (Active)
 
-**Goals**:
+The active track focuses on running the system in production, collecting signal-weighted evidence, maintaining dataset integrity, and refining the recommendation models.
 
-- Enforce a strict Hub-and-Spoke (Silo) URL structure for services.
-- Improve contextual cross-linking to drive users deeper into the funnels.
+| Phase | Goal | Status |
+| :--- | :--- | :---: |
+| **L1** | **Production / Learning Mode** — Run live telemetry, feed real client interaction data to CRM and Supabase. | 🟢 Active |
+| **L2** | **Founding Cases (Dataset v1)** — Triage and collect the first set of real client genomes under strict pace of reality governance rules. | 🟢 Active |
+| **L3** | **Dataset Integrity Reviews (DIR)** — Audit saved decision genomes to verify perfect parity between local storage and DB schemas. | 🟢 Active |
+| **L4** | **Operational Investigations (OI)** — Detect and investigate anomalies in the recommendation scoring pipelines. | 🟢 Active |
+| **L5** | **Process Learnings (PL)** — Extract and curate reusable institutional design strategies validated by real designer feedback. | 🟢 Active |
+| **L6** | **Instrument Stability Review (Case 5)** — Perform deep-dive telemetry validation upon reaching 5 founding cases. | 🟡 Planned |
+| **L7** | **Learning Baseline Report v1 (Case 20)** — Synthesize the first baseline recommendation performance report. | 🟡 Planned |
 
-**Features**:
+---
 
-- [x] Restructure the URL routing to strictly follow the nested Silo framework (e.g., `/services/residential/living-room`).
-- [x] Update all existing internal links to point to the new URL patterns.
-- [x] Inject `relatedServices` links contextually into the `longDescription` text of service pages, replacing plain list links with descriptive anchor text.
+## Phase Details & Success Criteria
 
-### Phase 3: Case Studies & Process Pages
+### Phase 31: Editorial Composition
 
-**Status**: Complete
+- **Goal:** Transform the UI from a "custom built UI" to a professionally art-directed studio experience.
+- **Success Criteria:**
+  1. No remaining symmetric SaaS grids.
+  2. Editorial asymmetry and "design silence" implemented.
+  3. Photography dictates vertical rhythm.
+  4. Validation through Attention Purity Index (API) >90% on focal points.
 
-**Goals**:
+### Phase L1: Production / Learning Mode
 
-- Upgrade Project pages into fully fleshed-out Case Studies.
-- Enhance trust by creating a dedicated process overview.
+- **Goal:** Operate the platform as a continuous learning loop. Ensure client interactions on Discovery/Estimator flows consistently generate telemetry and route recommendations with explainable evidence.
+- **Success Criteria:**
+  1. Live telemetry correctly logs client selections to the Decision Ledger.
+  2. Every recommendation serves a complete evidence chain explaining the top drivers.
 
-**Features**:
+### Phase L2: Founding Cases (Dataset v1)
 
-- [x] Build out comprehensive "Project Detail" pages featuring 300+ words explaining the challenge, solution, and services rendered.
-- [x] Interlink Project Detail pages back to relevant Service Detail pages.
-- [x] Add a dedicated "Our Process" page describing "How We Work".
+- **Goal:** Accumulate high-quality client cases. No synthetic data is allowed.
+- **Success Criteria:**
+  1. Capturing and organizing real client journeys as distinct cases.
+  2. Adherence to Terminology Freeze; use existing FC, DIR, OI, and PL schemas.
 
-### Phase 4: Advanced Features & Local SEO Expansion
+### Phase L3: Dataset Integrity Reviews (DIR)
 
-**Status**: Complete
+- **Goal:** Keep database structures and JSON genomes perfectly aligned without drift.
+- **Success Criteria:**
+  1. Run automated validation checks showing zero schema validation errors in active client dossiers.
 
-**Goals**:
+### Phase L4: Operational Investigations (OI)
 
-- Capture top-of-funnel and local search traffic.
-- Enhance discovery within the Project Hub.
+- **Goal:** Diagnose recommendation outliers or conflicts (e.g., mismatched user sensory profiles vs archetype expectations).
+- **Success Criteria:**
+  1. System highlights design conflicts and reports exact trade-off impact scores.
 
-**Features**:
+### Phase L5: Process Learnings (PL)
 
-- [x] Implement advanced filtering on the Project Hub (filter by Residential, Commercial, Style, etc.).
-- [x] Launch localized landing pages targeting specific geographic service areas.
-- [x] Develop deep-dive blog content clustered around the high-margin services.
-
-### Phase 5: Content Hierarchy & Process Page Alignment
-
-**Status**: Pending
-
-**Goals**:
-- Unify the process methodology to a single 5-stage framework.
-- De-duplicate the Services page.
-- Secure schema injections.
-
-**Features**:
-
-- [ ] Standardise all process pages to the 5-Stage framework (Consult, Measure & Plan, Design, Execute, Handover).
-- [ ] Remove `<ServicesProcess />` and `<OurApproach />` from `ServicesPage.tsx`.
-- [ ] Implement safe JSON-LD schema escaping in `SchemaMarkup.tsx`.
-
-### Phase 7: Advanced Media Library Overhaul
-
-**Status**: Planning
-
-**Goals**:
-- Replace the flat-list media library with a fully hierarchical system.
-- Support nested folders with `ltree` database architecture.
-- Implement bulk move, copy, and delete for mixed file+folder selections.
-- Add ZIP import and export with folder structure preservation.
-- Introduce drag-and-drop between folders.
-
-**Features**:
-
-- [ ] **DB Migration** — `media_folders` (ltree) + `media_files` tables with full metadata.
-- [ ] **MediaService.ts Overhaul** — typed methods for all folder/file CRUD.
-- [ ] **Edge Function: `media-operations`** — bulk-move, bulk-copy, bulk-delete.
-- [ ] **Edge Function: `media-export`** — streaming ZIP download preserving folder structure.
-- [ ] **Edge Function: `media-import`** — unzip, recreate folder tree, upload files.
-- [ ] **Zustand Store: `useMediaStore`** — selection state, breadcrumbs, navigation.
-- [ ] **Component: `SidebarFolderTree`** — recursive collapsible tree with drag-and-drop.
-# Project Roadmap
-
-This document outlines the phased execution plan for the project.
-
-## Phases
-
-### Phase 1: Quick Wins & Semantic SEO Foundation
-
-**Status**: Complete
-
-**Goals**:
-
-- Ensure all basic semantic HTML tags (H1/H2) are correctly applied and nested.
-- Implement immediate UX improvements with high-contrast sticky CTAs.
-- Implement immediate SEO wins with FAQ Schema.
-
-**Features**:
-
-- [x] **Fix `<h1>` / `<h2>` / `<h3>` hierarchy.**
-  - Audit and fix all H1/H2 tags across the 14 core pages. Ensure every page has exactly one `<h1>` tag containing the primary keyword/title.
-  - Correct the heading nesting (e.g., `<h3>` without a preceding `<h2>`) on `ServiceDetailPage.tsx` and `ProjectPage.tsx`.
-- [x] **Add missing Schema.org JSON-LD.**
-  - Inject FAQ Schema on all service pages utilizing existing content (`service.faq`).
-  - (Optional, stretch) Add basic LocalBusiness schema to the footer or contact page.
-- [x] **Implement Sticky CTAs.**
-  - Add a floating/sticky high-contrast "Consult with us" CTA on mobile and desktop for `ServiceDetailPage.tsx` and `ProjectPage.tsx`.
-
-### Phase 2: URL Restructure & Internal Linking
-
-**Status**: Complete
-
-**Goals**:
-
-- Enforce a strict Hub-and-Spoke (Silo) URL structure for services.
-- Improve contextual cross-linking to drive users deeper into the funnels.
-
-**Features**:
-
-- [x] Restructure the URL routing to strictly follow the nested Silo framework (e.g., `/services/residential/living-room`).
-- [x] Update all existing internal links to point to the new URL patterns.
-- [x] Inject `relatedServices` links contextually into the `longDescription` text of service pages, replacing plain list links with descriptive anchor text.
-
-### Phase 3: Case Studies & Process Pages
-
-**Status**: Complete
-
-**Goals**:
-
-- Upgrade Project pages into fully fleshed-out Case Studies.
-- Enhance trust by creating a dedicated process overview.
-
-**Features**:
-
-- [x] Build out comprehensive "Project Detail" pages featuring 300+ words explaining the challenge, solution, and services rendered.
-- [x] Interlink Project Detail pages back to relevant Service Detail pages.
-- [x] Add a dedicated "Our Process" page describing "How We Work".
-
-### Phase 4: Advanced Features & Local SEO Expansion
-
-**Status**: Complete
-
-**Goals**:
-
-- Capture top-of-funnel and local search traffic.
-- Enhance discovery within the Project Hub.
-
-**Features**:
-
-- [x] Implement advanced filtering on the Project Hub (filter by Residential, Commercial, Style, etc.).
-- [x] Launch localized landing pages targeting specific geographic service areas.
-- [x] Develop deep-dive blog content clustered around the high-margin services.
-
-### Phase 5: Content Hierarchy & Process Page Alignment
-
-**Status**: Pending
-
-**Goals**:
-- Unify the process methodology to a single 5-stage framework.
-- De-duplicate the Services page.
-- Secure schema injections.
-
-**Features**:
-
-- [ ] Standardise all process pages to the 5-Stage framework (Consult, Measure & Plan, Design, Execute, Handover).
-- [ ] Remove `<ServicesProcess />` and `<OurApproach />` from `ServicesPage.tsx`.
-- [ ] Implement safe JSON-LD schema escaping in `SchemaMarkup.tsx`.
-
-### Phase 7: Advanced Media Library Overhaul
-
-**Status**: Planning
-
-**Goals**:
-- Replace the flat-list media library with a fully hierarchical system.
-- Support nested folders with `ltree` database architecture.
-- Implement bulk move, copy, and delete for mixed file+folder selections.
-- Add ZIP import and export with folder structure preservation.
-- Introduce drag-and-drop between folders.
-
-**Features**:
-
-- [ ] **DB Migration** — `media_folders` (ltree) + `media_files` tables with full metadata.
-- [ ] **MediaService.ts Overhaul** — typed methods for all folder/file CRUD.
-- [ ] **Edge Function: `media-operations`** — bulk-move, bulk-copy, bulk-delete.
-- [ ] **Edge Function: `media-export`** — streaming ZIP download preserving folder structure.
-- [ ] **Edge Function: `media-import`** — unzip, recreate folder tree, upload files.
-- [ ] **Zustand Store: `useMediaStore`** — selection state, breadcrumbs, navigation.
-- [ ] **Component: `SidebarFolderTree`** — recursive collapsible tree with drag-and-drop.
-- [ ] **Component: `MediaBreadcrumb`** — path navigation with inline "New Folder".
-- [ ] **Component: `MediaGridMain`** — folders + files in one unified grid view.
-- [ ] **Context Menus** — right-click menus for file and folder actions.
-- [ ] **`AdminMedia.tsx` Overhaul** — wire everything together with Import/Export buttons.
-- [ ] **Deploy & Migrate** — SQL migration, Edge Function deploy, data seeding.
-
-### Phase 8: UI/UX Audit Remediation
-
-**Status**: Complete
-
-**Goals**:
-- Address the critical and major findings from the 10-dimensional Elite UI/UX audit.
-- Unify Admin CMS data fetching patterns (React Query).
-- Restore immediate trust with quick visual bug fixes.
-
-**Features**:
-- [x] Execute Phase 0: Quick Confidence Restorers (Phantom Sentry, Gantt chart, ServicesHero `#FF2A2A`, prefers-reduced-motion).
-- [x] Execute Phase 1: Frontend Trust & Credibility.
-- [x] Execute Phase 2: Keyboard & Screen Reader Gate (Focus traps, SkipNav).
-- [x] Execute Phase 3: Admin Consistency (React Query, etc.).
-- [x] Execute Phase 4: Instant UI Feedback Loop.
-- [x] Execute Phase 5 & 6: Long-Tail Bugs & Quality Gates.
-
-### Phase 9: Developer Infrastructure
-
-**Status**: Planning
-
-**Goals**:
-- Eradicate 0-day configuration gaps (Grade F to A).
-- Add CI/CD gating, TypeScript strictness, and Pre-commit hygiene.
-- Enforce basic security standards.
-
-**Features**:
-- [ ] Implement Husky & lint-staged for pre-commit hooks.
-- [ ] Configure ESLint properly (no-unused-vars, jsx-a11y plugin).
-- [ ] Create missing `npm run lint` and `npm run typecheck` scripts.
-- [ ] Set up GitHub Actions CI/CD to block pushes with type/lint errors.
-- [ ] Enable `strictNullChecks` and `noImplicitAny` in TypeScript.
-- [ ] Pin dependencies and clean up unused packages.
+- **Goal:** Curate recommendations based on explicit human validation.
+- **Success Criteria:**
+  1. Designers approve or modify AI recommendations, and the outcome is logged to compound system intelligence.

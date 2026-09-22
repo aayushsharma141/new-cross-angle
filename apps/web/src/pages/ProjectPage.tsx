@@ -1,15 +1,12 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet-async";
 import {
   motion,
-  useScroll,
-  useTransform,
-  useSpring,
   AnimatePresence,
 } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -17,26 +14,23 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import ProjectHero from "@/components/project/ProjectHero";
-import ProjectSnapshot from "@/components/project/ProjectSnapshot";
-import ProjectExperienceCanvas from "@/components/project/ProjectExperienceCanvas";
-import ProjectStoryAndTransformation from "@/components/project/ProjectStoryAndTransformation";
-import ProjectDocumentation from "@/components/project/ProjectDocumentation";
-import ProjectSystemInAction from "@/components/project/ProjectSystemInAction";
-import ProjectOutcome from "@/components/project/ProjectOutcome";
 import ProjectClientExperience from "@/components/project/ProjectClientExperience";
-import ProjectNarrativeSpine from "@/components/project/ProjectNarrativeSpine";
+import ProjectExperienceCanvas from "@/components/project/ProjectExperienceCanvas";
+import ProjectDocumentation from "@/components/project/ProjectDocumentation";
+import ProjectStoryAndTransformation from "@/components/project/ProjectStoryAndTransformation";
+import ProjectOutcome from "@/components/project/ProjectOutcome";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { SITE_CONSTANTS } from "@/lib/constants";
+import { getOptimizedUrl } from "@/lib/cdn";
 
 // Register GSAP plugins once at module level
 gsap.registerPlugin(ScrollTrigger);
 
 const ProjectPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const { settings } = useSiteSettings();
   const whatsapp = settings?.whatsapp || SITE_CONSTANTS.defaultWhatsApp;
 
@@ -53,47 +47,8 @@ const ProjectPage = () => {
 
   const isLoading = isProjectLoading || isListLoading;
   const currentIndex = projects.findIndex((p) => p.slug === slug);
-
-  // ── Scroll state ──────────────────────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  const [activeStage, setActiveStage] = useState(0);
   const [showMicroBar, setShowMicroBar] = useState(false);
-
-  // Smooth spring for spine draw
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 60,
-    damping: 20,
-  });
-  const journeyHeight = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
-
-  // Stage detection via IntersectionObserver to respect actual section heights
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = (entry.target as HTMLElement).dataset.chapter;
-            if (id === "dream" || id === "snapshot") setActiveStage(0);
-            else if (id === "canvas") setActiveStage(1);
-            else if (id === "story") setActiveStage(2);
-            else if (id === "craft") setActiveStage(3);
-            else if (id === "outcome" || id === "testimonial" || id === "cta") setActiveStage(4);
-          }
-        });
-      },
-      { rootMargin: "-20% 0px -60% 0px" }
-    );
-
-    const chapters = document.querySelectorAll("[data-chapter]");
-    chapters.forEach((c) => observer.observe(c));
-
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     const onScroll = () => setShowMicroBar(window.scrollY > 600);
@@ -106,47 +61,47 @@ const ProjectPage = () => {
     () => {
       if (!project) return;
 
-      const prefersReduced =
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const prefersReduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
       if (prefersReduced) return;
 
-      // Chapter: Canvas section fades in from slight offset — tightening the
-      // perceived gap between Hero and the immersive canvas
+      // Chapter: Design canvas section fades in from slight offset
       ScrollTrigger.create({
-        trigger: '[data-chapter="canvas"]',
+        trigger: '[data-chapter="design"]',
         start: "top 85%",
         end: "top 40%",
         scrub: 1,
         onUpdate: (self) => {
-          gsap.set('[data-chapter="canvas"]', {
+          gsap.set('[data-chapter="design"]', {
             opacity: 0.4 + self.progress * 0.6,
             y: 30 - self.progress * 30,
           });
         },
       });
 
-      // Chapter: Story section — slide text from left as it enters
+      // Chapter: Transformation section — slide text from left as it enters
       ScrollTrigger.create({
-        trigger: '[data-chapter="story"]',
+        trigger: '[data-chapter="transformation"]',
         start: "top 90%",
         end: "top 50%",
         scrub: 1,
         onUpdate: (self) => {
-          gsap.set('[data-chapter="story"] [data-reveal="quote"]', {
+          gsap.set('[data-chapter="transformation"] [data-reveal="quote"]', {
             opacity: self.progress,
             x: -20 + self.progress * 20,
           });
         },
       });
 
-      // Chapter: Documentation — stagger reveal the timeline cards
+      // Chapter: Process Documentation — stagger reveal the timeline cards
       ScrollTrigger.create({
-        trigger: '[data-chapter="craft"]',
+        trigger: '[data-chapter="process"]',
         start: "top 80%",
         once: true,
         onEnter: () => {
           gsap.fromTo(
-            '[data-chapter="craft"] [data-reveal="card"]',
+            '[data-chapter="process"] [data-reveal="card"]',
             { opacity: 0, y: 40 },
             {
               opacity: 1,
@@ -154,7 +109,7 @@ const ProjectPage = () => {
               duration: 0.8,
               stagger: 0.12,
               ease: "power3.out",
-            }
+            },
           );
         },
       });
@@ -174,7 +129,7 @@ const ProjectPage = () => {
               duration: 0.7,
               stagger: 0.1,
               ease: "back.out(1.4)",
-            }
+            },
           );
         },
       });
@@ -193,12 +148,12 @@ const ProjectPage = () => {
               scale: 1,
               duration: 1.2,
               ease: "power2.out",
-            }
+            },
           );
         },
       });
     },
-    { scope: containerRef, dependencies: [project] }
+    { scope: containerRef, dependencies: [project] },
   );
 
   // ── View tracking ─────────────────────────────────────────────────────────
@@ -218,16 +173,20 @@ const ProjectPage = () => {
   // ── Loading / 404 states ──────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--s-canvas-primary)] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-px h-16 bg-white/10 relative overflow-hidden">
+          <div className="w-px h-16 bg-[var(--s-border-subtle)] relative overflow-hidden">
             <motion.div
-              className="absolute top-0 left-0 w-full h-full bg-primary/60"
+              className="absolute top-0 left-0 w-full h-full bg-[var(--s-text-primary)]/60"
               animate={{ y: ["-100%", "100%"] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
             />
           </div>
-          <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground font-light">
+          <p className="text-xs uppercase tracking-[0.3em] text-[var(--s-text-tertiary)] font-light">
             Loading
           </p>
         </div>
@@ -237,17 +196,17 @@ const ProjectPage = () => {
 
   if (!project) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--s-canvas-primary)]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-2xl font-serif mb-4 text-foreground">
+          <h1 className="text-2xl font-serif mb-4 text-[var(--s-text-primary)]">
             Project not found
           </h1>
           <Link to="/portfolio">
-            <button className="inline-flex items-center justify-center border border-primary/30 text-primary hover:bg-primary hover:text-background px-6 py-2 rounded-md transition-colors text-sm">
+            <button className="inline-flex items-center justify-center border border-[var(--s-border-subtle)] text-[var(--s-text-secondary)] hover:bg-[var(--s-text-primary)] hover:text-[var(--s-canvas-primary)] px-6 py-2 rounded-none transition-colors text-sm uppercase tracking-widest font-medium">
               Back to Portfolio
             </button>
           </Link>
@@ -256,9 +215,19 @@ const ProjectPage = () => {
     );
   }
 
-  const prevProject = currentIndex > 0 ? projects[currentIndex - 1] : null;
+  const prevProject =
+    currentIndex > 0
+      ? projects[currentIndex - 1]
+      : projects.length > 1
+        ? projects[projects.length - 1]
+        : null;
+
   const nextProject =
-    currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
+    currentIndex >= 0 && currentIndex < projects.length - 1
+      ? projects[currentIndex + 1]
+      : projects.length > 1
+        ? projects[0]
+        : null;
 
   const relatedProjects = projects
     .filter((p) => p.id !== project.id && p.type === project.type)
@@ -283,12 +252,6 @@ const ProjectPage = () => {
 
       <Navbar />
 
-      {/* ── Persistent Narrative Spine ──────────────────────────────────── */}
-      <ProjectNarrativeSpine
-        scrollYProgress={smoothProgress}
-        activeStage={activeStage}
-      />
-
       {/* ── Floating Micro-bar ──────────────────────────────────────────── */}
       <AnimatePresence>
         {showMicroBar && (
@@ -297,24 +260,56 @@ const ProjectPage = () => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -100, opacity: 0 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed top-16 left-0 right-0 bg-neutral-950/80 backdrop-blur-xl border-b border-white/5 z-45 py-3.5 hidden md:block"
+            className="fixed top-[84px] left-0 right-0 bg-[var(--s-canvas-primary)]/95 backdrop-blur-xl border-b border-[var(--s-border-subtle)] z-40 py-3.5 hidden md:block shadow-lg"
           >
             <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center text-xs">
-              <span className="font-serif text-white text-sm tracking-wide">
-                {project.title}
-              </span>
-              <div className="flex gap-8 text-[10px] font-mono tracking-widest text-stone-400 uppercase">
-                <div className="flex items-center gap-2">
-                  <span className="text-site-gold">Area:</span>
-                  <span className="text-white">{project.area}</span>
+              <div className="flex items-center gap-6">
+                <Link to="/portfolio" className="text-[11px] font-semibold uppercase tracking-widest text-[var(--s-text-secondary)] hover:text-[var(--s-text-primary)] transition-colors flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-sm px-1 -ml-1">
+                  <span>← Back</span>
+                </Link>
+                <div className="w-px h-4 bg-[var(--s-border-subtle)]" aria-hidden="true" />
+                <span className="font-display text-[var(--s-text-primary)] text-sm tracking-wide font-semibold">
+                  {project.title}
+                </span>
+              </div>
+              <div className="flex items-center gap-8">
+                <div className="hidden lg:flex gap-8 text-[12px] tracking-widest text-[var(--s-text-secondary)] uppercase font-semibold">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[var(--s-text-tertiary)] font-normal">Area:</span>
+                    <span className="text-[var(--s-text-primary)]">{project.area}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[var(--s-text-tertiary)] font-normal">Timeline:</span>
+                    <span className="text-[var(--s-text-primary)]">{project.duration}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[var(--s-text-tertiary)] font-normal">Location:</span>
+                    <span className="text-[var(--s-text-primary)]">{project.location}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-site-gold">Timeline:</span>
-                  <span className="text-white">{project.duration}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-site-gold">Location:</span>
-                  <span className="text-white">{project.location}</span>
+                <div className="flex items-center gap-2 border-l border-[var(--s-border-subtle)] pl-4">
+                  {prevProject && (
+                    <Link
+                      to={`/portfolio/${prevProject.slug}`}
+                      className="text-[11px] font-semibold uppercase tracking-wider text-[var(--s-text-secondary)] hover:text-[var(--s-text-primary)] transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-primary rounded-sm px-2 py-1"
+                      aria-label={`Previous project: ${prevProject.title}`}
+                      title={`Previous: ${prevProject.title}`}
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" aria-hidden="true" />
+                      <span className="hidden sm:inline">Prev</span>
+                    </Link>
+                  )}
+                  {nextProject && (
+                    <Link
+                      to={`/portfolio/${nextProject.slug}`}
+                      className="text-[11px] font-semibold uppercase tracking-wider text-[var(--s-text-secondary)] hover:text-[var(--s-text-primary)] transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-primary rounded-sm px-2 py-1"
+                      aria-label={`Next project: ${nextProject.title}`}
+                      title={`Next: ${nextProject.title}`}
+                    >
+                      <span className="hidden sm:inline">Next</span>
+                      <ChevronRight className="w-3.5 h-3.5" aria-hidden="true" />
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
@@ -325,25 +320,12 @@ const ProjectPage = () => {
       {/* ── MAIN PAGE JOURNEY ───────────────────────────────────────────── */}
       <main
         ref={containerRef}
-        className="bg-background relative overflow-x-hidden"
+        className="bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)] relative overflow-x-hidden"
         id="main-content"
+        data-environment="gallery"
       >
-        {/* Blueprint thread overlay — subtle ghost behind spine */}
-        <div
-          className="absolute left-6 md:left-12 lg:left-16 top-0 bottom-0 w-[1px] bg-white/5 pointer-events-none z-10 hidden lg:block"
-          aria-hidden="true"
-        >
-          <motion.div
-            className="absolute top-0 left-0 right-0 bg-gradient-to-b from-site-gold via-site-gold to-transparent origin-top shadow-[0_0_12px_rgba(197,168,128,0.3)]"
-            style={{ height: journeyHeight }}
-          />
-        </div>
-
-        {/* ═══════════════════════════════════════════════════════════════
-            CHAPTER 01 — THE DREAM
-            Rhythm: MASSIVE (100vh) — captivate
-           ═══════════════════════════════════════════════════════════════ */}
-        <div data-chapter="dream">
+        {/* 1. ARRIVAL */}
+        <div data-chapter="arrival">
           <ProjectHero
             heroImage={project.heroImage || ""}
             title={project.title || "Project Detail"}
@@ -352,73 +334,94 @@ const ProjectPage = () => {
             location={project.location || ""}
             area={project.area !== "-" ? project.area : undefined}
             year={project.year}
-
             brief={project.brief}
             type={project.type}
           />
         </div>
 
-        {/* Rhythm: tiny — metadata chips, breathe after the hero */}
-        <div data-chapter="snapshot">
-          <ProjectSnapshot
-            goal={
-              project.brief
-                ? project.brief.split(".")[0] + "."
-                : project.type === "commercial"
-                ? "Modernize workspace while maintaining corporate identity"
-                : "Create a calm, highly functional family home"
-            }
-            type={project.style || "Luxury Turnkey"}
-            timeline={project.duration && project.duration !== "-" ? project.duration : "4 Months"}
-            investment={
-              project.budget && project.budget !== "-"
-                ? project.budget
-                : "Premium"
-            }
-            challenge={
-              project.approach
-                ? project.approach.split(".")[0] + "."
-                : "Integrating smart home tech without compromising the minimalist aesthetic"
-            }
-          />
+        {/* 2 & 3. CONTEXT & CONSTRAINTS */}
+        <div id="context-section" className="py-20 md:py-32 bg-[var(--s-surface-raised)] relative border-b border-[var(--s-border-subtle)] scroll-mt-24">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-24 relative z-10">
+            {/* Context - Asymmetric left emphasis */}
+            <div data-chapter="context" className="md:col-span-8 flex flex-col justify-center pb-8 md:pb-0">
+              <h2 className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[var(--s-text-secondary)] mb-6 flex items-center gap-2">
+                <span className="w-6 h-px bg-primary" aria-hidden="true" />
+                The Context
+              </h2>
+              <p className="text-2xl md:text-3xl lg:text-4xl font-display text-[var(--s-text-primary)] leading-[1.35] tracking-tight font-light">
+                {project.brief ||
+                  "Every space begins with a distinct reality. The client needed a complete paradigm shift—moving from a fragmented layout to a cohesive, breathable environment."}
+              </p>
+            </div>
+            {/* Constraints - Asymmetric right detail */}
+            <div data-chapter="constraints" className="md:col-span-4 flex flex-col justify-center border-t md:border-t-0 md:border-l border-[var(--s-border-subtle)] pt-8 md:pt-0 md:pl-12">
+              <h2 className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[var(--s-text-secondary)] mb-6 flex items-center gap-2">
+                <span className="w-6 h-px bg-primary" aria-hidden="true" />
+                The Constraints
+              </h2>
+              <div className="font-sans font-normal text-[var(--s-text-secondary)] leading-relaxed text-sm md:text-base">
+                <p>
+                  {project.approach ||
+                    "Strict structural limitations, unmovable load-bearing elements, and an aggressive timeline forced us to rely on inventive zoning rather than simple demolition."}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Rhythm: HUGE (80vh canvas) — immerse */}
-        <div
-          data-chapter="canvas"
-          id="walkthrough"
-          className="will-change-[opacity,transform]"
-        >
+        {/* 4. DESIGN THINKING */}
+        <div data-chapter="design" className="py-20 md:py-32">
           <ErrorBoundary>
             <ProjectExperienceCanvas whatsapp={whatsapp} />
           </ErrorBoundary>
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════════
-            CHAPTER 02 & 03 — CHALLENGE & TRANSFORMATION
-            Rhythm: quiet (quote) → MASSIVE (before/after) → tiny (3 lines)
-            Overlaps upward into canvas section for seamless flow
-           ═══════════════════════════════════════════════════════════════ */}
-        <div
-          data-chapter="story"
-          className="relative -mt-10 z-10"
-        >
+        {/* 5. MATERIAL DECISIONS */}
+        <div data-chapter="materials" className="py-20 md:py-32 relative px-6 md:px-12 lg:px-24 max-w-[1600px] mx-auto border-t border-[var(--s-border-subtle)]">
+          <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20">
+            <div className="w-full md:w-5/12">
+              <h2 className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[var(--s-text-secondary)] mb-6 flex items-center gap-2">
+                <span className="w-6 h-px bg-primary" aria-hidden="true" />
+                Material Decisions
+              </h2>
+              <p className="text-2xl lg:text-3xl font-display text-[var(--s-text-primary)] leading-[1.35] mb-6 font-light">
+                Tactile choices that define the atmosphere. We selected raw, authentic finishes that age gracefully over time.
+              </p>
+              <p className="text-sm text-[var(--s-text-secondary)] font-sans max-w-sm leading-relaxed">
+                Focusing on texture rather than ornament, each surface is intentional and resilient.
+              </p>
+            </div>
+            <div className="w-full md:w-7/12">
+              <div className="relative aspect-[16/10] md:aspect-[3/2] w-full overflow-hidden bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)] rounded-xl group shadow-xl">
+                <img
+                  src={
+                    project.gallery && project.gallery.length > 0
+                      ? typeof project.gallery[0] === 'string'
+                        ? project.gallery[0]
+                        : (project.gallery[0]?.images?.[0] || project.heroImage)
+                      : project.heroImage
+                  }
+                  alt={`${project.title} material detail`}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.03]"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 6. CONSTRUCTION / PROCESS */}
+        <div data-chapter="process">
+          <ProjectDocumentation />
+        </div>
+
+        {/* 7. TRANSFORMATION */}
+        <div data-chapter="transformation" className="relative z-10">
           <ProjectStoryAndTransformation project={project} />
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════════
-            CHAPTER 04 — BEHIND THE CRAFT
-            Rhythm: HUGE (blueprints) → quiet (methodology)
-           ═══════════════════════════════════════════════════════════════ */}
-        <div data-chapter="craft">
-          <ProjectDocumentation />
-          <ProjectSystemInAction project={project} />
-        </div>
-
-        {/* ═══════════════════════════════════════════════════════════════
-            CHAPTER 05 — THE OUTCOME
-            Rhythm: HUGE (numbers) → quiet (testimonial) → MASSIVE (CTA)
-           ═══════════════════════════════════════════════════════════════ */}
+        {/* 8. OUTCOME */}
         <div data-chapter="outcome">
           <ProjectOutcome
             location={project.location || ""}
@@ -430,8 +433,9 @@ const ProjectPage = () => {
           />
         </div>
 
+        {/* 9. REFLECTION */}
         {project.testimonial && (
-          <div data-chapter="testimonial">
+          <div data-chapter="reflection">
             <ProjectClientExperience
               quote={project.testimonial.quote}
               clientName={project.testimonial.author}
@@ -440,120 +444,105 @@ const ProjectPage = () => {
           </div>
         )}
 
-        {/* Project navigation */}
-        <div className="border-t border-white/5">
-          <div className="max-w-6xl mx-auto px-6 py-10">
-            <div className="flex justify-between items-center">
-              {prevProject ? (
-                <motion.button
-                  whileHover={{ x: -4 }}
-                  onClick={() => navigate(`/portfolio/${prevProject.slug}`)}
-                  className="flex items-center gap-4 text-muted-foreground hover:text-foreground transition-colors group"
-                >
-                  <div className="w-10 h-10 border border-white/10 flex items-center justify-center group-hover:border-primary/40 group-hover:text-primary transition-all">
-                    <ChevronLeft className="w-4 h-4" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-light">
-                      Previous
-                    </p>
-                    <p className="font-serif text-foreground text-sm">
-                      {prevProject.title}
-                    </p>
-                  </div>
-                </motion.button>
-              ) : (
-                <div />
-              )}
+        {/* 10. NEXT PROJECT & RETURN TO GALLERY */}
+        <div data-chapter="next" className="border-t border-[var(--s-border-subtle)] flex flex-col">
+          {nextProject && (
+            <Link 
+              to={`/portfolio/${nextProject.slug}`}
+              className="relative block w-full h-[55vh] min-h-[380px] overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary" 
+              aria-label={`View next project: ${nextProject.title}`}
+            >
+              {/* Background image */}
+              <div className="absolute inset-0 z-0 bg-[var(--s-canvas-primary)]">
+                <img 
+                  src={getOptimizedUrl(nextProject.heroImage, { width: 800, quality: 80 })} 
+                  alt={nextProject.title} 
+                  className="w-full h-full object-cover opacity-60 group-hover:opacity-85 transition-all duration-[1.2s] ease-out" 
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              
+              <div className="relative z-10 max-w-7xl mx-auto px-6 h-full flex flex-col items-center justify-center text-center">
+                <p className="text-xs uppercase tracking-[0.25em] font-semibold text-white/90 mb-4 flex items-center gap-2">
+                  <span className="w-6 h-px bg-primary" aria-hidden="true" />
+                  Continue the Journey
+                  <span className="w-6 h-px bg-primary" aria-hidden="true" />
+                </p>
+                <h3 className="font-display text-4xl md:text-6xl lg:text-7xl text-white mb-8 tracking-tight font-light">{nextProject.title}</h3>
+                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/40 px-6 py-3 rounded-full group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-xl">
+                  <span className="text-[11px] uppercase tracking-[0.25em] font-bold">View Project</span>
+                  <ChevronRight className="w-4 h-4 -mr-1" aria-hidden="true" />
+                </div>
+              </div>
+            </Link>
+          )}
 
-              <Link
-                to="/portfolio"
-                className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors font-light"
-              >
-                All Projects
-              </Link>
-
-              {nextProject ? (
-                <motion.button
-                  whileHover={{ x: 4 }}
-                  onClick={() => navigate(`/portfolio/${nextProject.slug}`)}
-                  className="flex items-center gap-4 text-muted-foreground hover:text-foreground transition-colors group"
-                >
-                  <div className="text-right">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-light">
-                      Next
-                    </p>
-                    <p className="font-serif text-foreground text-sm">
-                      {nextProject.title}
-                    </p>
-                  </div>
-                  <div className="w-10 h-10 border border-white/10 flex items-center justify-center group-hover:border-primary/40 group-hover:text-primary transition-all">
-                    <ChevronRight className="w-4 h-4" />
-                  </div>
-                </motion.button>
-              ) : (
-                <div />
-              )}
-            </div>
+          <div className="max-w-6xl mx-auto px-6 py-16 flex justify-center w-full bg-[var(--s-surface-raised)] border-b border-[var(--s-border-subtle)]">
+            <Link
+              to="/portfolio"
+              className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[var(--s-text-primary)] hover:bg-[var(--s-text-primary)] hover:text-[var(--s-canvas-primary)] transition-colors cursor-pointer px-8 py-4 border-2 border-[var(--s-text-primary)] rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              Return to Gallery
+            </Link>
           </div>
         </div>
 
         {/* Related Projects */}
         {relatedProjects.length > 0 && (
-          <section className="py-24 border-t border-white/5">
-            <div className="max-w-6xl mx-auto px-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="mb-12"
-              >
-                <p className="text-xs uppercase tracking-[0.3em] text-primary/60 mb-4 font-light">
-                  — Continue Exploring
-                </p>
-                <h2 className="font-serif text-3xl md:text-4xl text-foreground">
-                  Related Projects
-                </h2>
-              </motion.div>
-              <div className={`grid gap-5 ${
-                relatedProjects.length === 1 ? "md:grid-cols-1 max-w-xl" :
-                relatedProjects.length === 2 ? "md:grid-cols-2 max-w-4xl" :
-                "md:grid-cols-3"
-              }`}>
-                {relatedProjects.map((rp, index) => (
-                  <motion.div
-                    key={rp.id}
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Link to={`/portfolio/${rp.slug}`} className="group block">
-                      <div className="aspect-[4/3] overflow-hidden mb-5 relative">
-                        <motion.div
-                          whileHover={{ scale: 1.06 }}
-                          transition={{ duration: 0.7 }}
-                          className="w-full h-full"
-                        >
-                          <img
-                            src={rp.heroImage}
-                            alt={rp.title}
-                            className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
-                            loading="lazy"
-                          />
-                        </motion.div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <section className="py-20 md:py-32 border-t border-[var(--s-border-subtle)] px-6 md:px-12 lg:px-24 max-w-[1600px] mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-12"
+            >
+              <p className="text-[11px] uppercase tracking-[0.25em] font-semibold text-[var(--s-text-secondary)] mb-3 flex items-center gap-2">
+                <span className="w-6 h-px bg-primary" aria-hidden="true" />
+                Continue Exploring
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl text-[var(--s-text-primary)] tracking-tight font-light">
+                Related Projects
+              </h2>
+            </motion.div>
+            <div
+              className={`grid gap-8 md:gap-12 ${
+                relatedProjects.length === 1
+                  ? "md:grid-cols-1 max-w-2xl"
+                  : relatedProjects.length === 2
+                    ? "md:grid-cols-2 max-w-5xl"
+                    : "md:grid-cols-3"
+              }`}
+            >
+              {relatedProjects.map((rp, index) => (
+                <motion.div
+                  key={rp.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                >
+                  <Link to={`/portfolio/${rp.slug}`} className="group block focus:outline-none focus:ring-2 focus:ring-primary rounded-xl">
+                    <div className="aspect-[4/5] overflow-hidden mb-5 relative bg-[var(--s-surface-raised)] border border-[var(--s-border-subtle)] rounded-xl shadow-md">
+                      <div className="w-full h-full">
+                        <img
+                          src={getOptimizedUrl(rp.heroImage, { width: 800, quality: 80 })}
+                          alt={rp.title}
+                          className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.03]"
+                          loading="lazy"
+                          decoding="async"
+                        />
                       </div>
-                      <h3 className="font-serif text-foreground group-hover:text-primary transition-colors duration-300 mb-1">
-                        {rp.title}
-                      </h3>
-                      <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-light">
-                        {rp.location}
-                      </p>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
+                    </div>
+                    <h3 className="font-display text-xl text-[var(--s-text-primary)] group-hover:text-primary transition-colors mb-1.5 font-normal">
+                      {rp.title}
+                    </h3>
+                    <p className="text-[11px] uppercase tracking-[0.15em] font-semibold text-[var(--s-text-secondary)]">
+                      {rp.location}
+                    </p>
+                  </Link>
+                </motion.div>
+              ))}
             </div>
           </section>
         )}

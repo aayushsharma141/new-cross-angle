@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+﻿import { Helmet } from "react-helmet-async";
 import { SITE_CONSTANTS } from "@/lib/constants";
 
 /**
@@ -57,9 +57,9 @@ export const SchemaMarkup = ({ type, data, locale = "en-IN" }: SchemaMarkupProps
             formattedData = {
                 ...formattedData,
                 name: SITE_CONSTANTS.companyName,
-                url: "https://crossangleinterior.com",
-                logo: "https://crossangleinterior.com/logo-icon.png",
-                image: "https://crossangleinterior.com/reality_render.jpg",
+                url: SITE_CONSTANTS.siteUrl,
+                logo: `$\{SITE_CONSTANTS.siteUrl}/logo-icon.png`,
+                image: `$\{SITE_CONSTANTS.siteUrl}/reality_render.jpg`,
                 foundingDate: "2015",
                 founders: [
                     {
@@ -92,9 +92,9 @@ export const SchemaMarkup = ({ type, data, locale = "en-IN" }: SchemaMarkupProps
                 ...formattedData,
                 "@type": type,
                 name: SITE_CONSTANTS.companyName,
-                image: "https://crossangleinterior.com/reality_render.jpg",
-                "@id": "https://crossangleinterior.com/#localbusiness",
-                url: "https://crossangleinterior.com",
+                image: `$\{SITE_CONSTANTS.siteUrl}/reality_render.jpg`,
+                "@id": `$\{SITE_CONSTANTS.siteUrl}/#localbusiness`,
+                url: SITE_CONSTANTS.siteUrl,
                 telephone: SITE_CONSTANTS.defaultPhone,
                 priceRange: "$$",
                 address: {
@@ -131,7 +131,7 @@ export const SchemaMarkup = ({ type, data, locale = "en-IN" }: SchemaMarkupProps
                     "@type": "ListItem",
                     position: index + 1,
                     name: item.name,
-                    item: item.url.startsWith("http") ? item.url : `https://crossangleinterior.com${item.url}`,
+                    item: item.url.startsWith("http") ? item.url : `$\{SITE_CONSTANTS.siteUrl}${item.url}`,
                 }));
             } else {
                 formattedData.itemListElement = data.itemListElement || [];
@@ -160,7 +160,7 @@ export const SchemaMarkup = ({ type, data, locale = "en-IN" }: SchemaMarkupProps
                 provider: {
                     "@type": "InteriorDesigner",
                     name: SITE_CONSTANTS.companyName,
-                    image: "https://crossangleinterior.com/logo-icon.png",
+                    image: `$\{SITE_CONSTANTS.siteUrl}/logo-icon.png`,
                 },
                 areaServed: [
                     {
@@ -191,7 +191,7 @@ export const SchemaMarkup = ({ type, data, locale = "en-IN" }: SchemaMarkupProps
                     name: SITE_CONSTANTS.companyName,
                     logo: {
                         "@type": "ImageObject",
-                        url: "https://crossangleinterior.com/logo-icon.png",
+                        url: `$\{SITE_CONSTANTS.siteUrl}/logo-icon.png`,
                     },
                 },
                 inLanguage: languageCode,
@@ -203,7 +203,7 @@ export const SchemaMarkup = ({ type, data, locale = "en-IN" }: SchemaMarkupProps
             formattedData = {
                 ...formattedData,
                 name: SITE_CONSTANTS.companyName,
-                url: "https://crossangleinterior.com",
+                url: SITE_CONSTANTS.siteUrl,
                 potentialAction: {
                     "@type": "SearchAction",
                     target: {

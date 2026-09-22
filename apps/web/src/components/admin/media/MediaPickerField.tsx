@@ -1,30 +1,52 @@
 import React, { useState } from "react";
-import { Input } from "@/components/ui/primitives/input";
+import { Input } from "@/components/primitives/interactive";
 import { Button } from "@/components/ui/primitives/button";
 import { Image as ImageIcon, X } from "lucide-react";
-import MediaPickerModal from "@/components/admin/MediaPickerModal";
+import { UniversalAssetPicker } from "@/components/admin/media/UniversalAssetPicker";
+import { AssetRow } from "@/services/AssetService";
 import { getOptimizedUrl } from "@/lib/cdn";
 
 interface MediaPickerFieldProps {
     value: string;
     onChange: (url: string) => void;
+    /**
+     * Optional callback fired after the user confirms selection from the Asset Library.
+     * Receives the full AssetRow and the resolved URL.
+     *
+     * Use this in consuming editors (PortfolioFormDialog, AdminServices, etc.) to
+     * create an asset_usage record via AssetUsageService.replaceUsage().
+     *
+     * DO NOT call AssetUsageService inside this component — keep relationship logic
+     * in the editor layer, not in this reusable UI component.
+     */
+    onAssetSelect?: (asset: AssetRow, url: string) => void;
+    /** Stable entity ID (e.g. project.id) — passed through to onAssetSelect callers. Not used inside this component. */
+    entityId?: string | null;
     id?: string;
     name?: string;
     placeholder?: string;
     disabled?: boolean;
     className?: string;
     previewClassName?: string;
+    domain?: string;
+    entityType?: string;
+    damRole?: string;
 }
 
 export function MediaPickerField({
     value,
     onChange,
+    onAssetSelect,
+    entityId: _entityId,
     id,
     name,
     placeholder = "Select an image...",
     disabled = false,
     className = "",
-    previewClassName = "h-32 object-cover"
+    previewClassName = "h-32 object-cover",
+    domain = "system",
+    entityType: _entityType = "system",
+    damRole = "general"
 }: MediaPickerFieldProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -72,13 +94,22 @@ export function MediaPickerField({
                 </div>
             )}
             
-            <MediaPickerModal
+            <UniversalAssetPicker
                 open={isModalOpen}
                 onOpenChange={setIsModalOpen}
-                onSelect={(file) => {
-                    onChange(file.url);
+                onSelect={(asset, url) => {
+                    // 1. Always update the URL field — this is always safe.
+                    onChange(url);
+                    // 2. If the editor provided onAssetSelect, call it so it can
+                    //    handle asset_usage creation via AssetUsageService.
+                    //    This component deliberately does NOT call AssetUsageService.
+                    if (onAssetSelect) {
+                        onAssetSelect(asset, url);
+                    }
                     setIsModalOpen(false);
                 }}
+                domain={domain}
+                role={damRole}
             />
         </div>
     );

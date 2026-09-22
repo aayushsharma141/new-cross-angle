@@ -51,11 +51,16 @@ const interiorLetterVariants: Variants = {
 
 export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
   className,
+  isScrolled,
   textSize,
 }) => {
   const [, setIsHovered] = useState(false);
   const logoRef = useRef<HTMLDivElement>(null);
   const [hoverX, setHoverX] = useState<number | null>(null);
+
+  const sizeClass = textSize || (isScrolled
+    ? "text-[clamp(0.95rem,1.15vw,1.25rem)] leading-none"
+    : "text-[clamp(1.05rem,1.35vw,1.45rem)] leading-none");
 
   const word1 = "CROSSANGLE";
   const word2 = "INTERIOR";
@@ -116,8 +121,8 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         initial="hidden"
         animate="visible"
         className={cn(
-          "flex mr-1.5 sm:mr-2 logo-metallic-text relative z-10",
-          textSize || "text-[clamp(0.9rem,3vw,1.4rem)]"
+          "flex mr-2 lg:mr-2.5 xl:mr-3.5 logo-word-crossangle relative z-10 font-bold",
+          sizeClass
         )}
       >
         {word1.split("").map((letter, i) => (
@@ -136,8 +141,8 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         initial="hidden"
         animate="visible"
         className={cn(
-          "flex logo-metallic-text relative z-10",
-          textSize || "text-[clamp(0.9rem,3vw,1.4rem)]"
+          "flex logo-word-interior relative z-10 font-bold",
+          sizeClass
         )}
       >
         {word2.split("").map((letter, i) => (

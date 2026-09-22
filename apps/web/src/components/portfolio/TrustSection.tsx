@@ -5,26 +5,6 @@ import { api } from "@/lib/api";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const FALLBACK_TESTIMONIALS = [
-  {
-    quote: "Our bedroom has become our personal retreat. The attention to detail and quality of work exceeded our expectations. Every morning feels like waking up in a 5-star hotel.",
-    author: "Mrs. Sharma",
-    role: "Homeowner, Serene Master Suite",
-    image: "https://ik.imagekit.io/wdrs8y61o/cross-angle/tr:q-85,f-auto,w-400/images/projects/discovery/lifestyle-1.jpg"
-  },
-  {
-    quote: "The kitchen is now the heart of our home. Cooking has become a joy! The modular setup is exactly what we needed for our busy family.",
-    author: "Mrs. Desai",
-    role: "Homeowner, Modern Culinary Space",
-    image: "https://ik.imagekit.io/wdrs8y61o/cross-angle/tr:q-85,f-auto,w-400/images/projects/discovery/visual-4.jpg"
-  },
-  {
-    quote: "Our new office has transformed how our team works. The space truly reflects our company culture and has significantly boosted team morale.",
-    author: "Vikram Singh",
-    role: "CEO, TechStart Solutions",
-    image: "https://ik.imagekit.io/wdrs8y61o/cross-angle/tr:q-85,f-auto,w-400/images/projects/discovery/visual-7.jpg"
-  }
-];
 
 const TrustSection = () => {
   const { data: testimonials = [], isLoading } = useQuery({
@@ -32,9 +12,7 @@ const TrustSection = () => {
     queryFn: api.getTestimonials,
   });
 
-  const displayTestimonials = testimonials.length > 0
-    ? testimonials.slice(0, 5)
-    : FALLBACK_TESTIMONIALS;
+  const displayTestimonials = testimonials.slice(0, 5);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [autoplay, setAutoplay] = useState(true);
@@ -60,9 +38,13 @@ const TrustSection = () => {
   if (isLoading) {
     return (
       <div className="container px-6 flex justify-center items-center h-48">
-        <div className="w-8 h-8 rounded-full border-t-2 border-site-gold animate-spin" />
+        <div className="w-8 h-8 rounded-full border-t-2 border-primary animate-spin" />
       </div>
     );
+  }
+
+  if (displayTestimonials.length === 0) {
+    return null;
   }
 
   const activeTestimonial = displayTestimonials[activeIndex];
@@ -71,8 +53,8 @@ const TrustSection = () => {
     <div className="container mx-auto px-6 py-24 border-t border-white/5">
       <div className="mb-16 text-center">
         <div className="flex items-center justify-center gap-4 mb-6">
-          <div className="w-12 h-px bg-site-crimson" />
-          <span className="text-site-gold font-bold uppercase tracking-[0.3em] text-[10px]">Client Stories</span>
+          <div className="w-12 h-px bg-primary" />
+          <span className="text-primary font-bold uppercase tracking-[0.3em] text-[10px]">Client Stories</span>
         </div>
         <h2 className="text-3xl font-light tracking-tight text-white md:text-5xl italic">
           Trusted by Homeowners & Businesses
@@ -83,7 +65,7 @@ const TrustSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8 items-center bg-white/[0.02] border border-white/5 rounded-2xl p-6 md:p-12 overflow-hidden relative">
           
           {/* Subtle Background Elements */}
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-site-gold/10 blur-[100px] pointer-events-none rounded-full" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 blur-[100px] pointer-events-none rounded-full" />
           
           {/* Image Side */}
           <div className="md:col-span-2 relative h-64 md:h-96 rounded-xl overflow-hidden order-2 md:order-1">
@@ -94,7 +76,7 @@ const TrustSection = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.6 }}
-                src={'image' in activeTestimonial && typeof activeTestimonial.image === 'string' ? activeTestimonial.image : "https://ik.imagekit.io/wdrs8y61o/cross-angle/tr:q-85,f-auto,w-400/images/projects/discovery/lifestyle-1.jpg"}
+                src={'image' in activeTestimonial && typeof activeTestimonial.image === 'string' ? activeTestimonial.image : "/images/projects/discovery/lifestyle-1.jpg"}
                 alt={activeTestimonial.author}
                 className="w-full h-full object-cover"
               />
@@ -106,7 +88,7 @@ const TrustSection = () => {
           <div className="md:col-span-3 order-1 md:order-2 flex flex-col justify-center h-full">
             <div className="flex gap-1 mb-6">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-site-gold text-site-gold" />
+                <Star key={i} className="w-4 h-4 fill-primary text-primary" />
               ))}
             </div>
 
@@ -127,7 +109,7 @@ const TrustSection = () => {
                     <p className="text-sm font-bold uppercase tracking-[0.2em] text-white">
                       {activeTestimonial.author}
                     </p>
-                    <p className="text-[10px] uppercase tracking-[0.3em] text-site-gold">
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-primary">
                       {activeTestimonial.role}
                     </p>
                   </div>
@@ -155,7 +137,7 @@ const TrustSection = () => {
                     aria-label={`Go to testimonial ${i + 1}`}
                     className={cn(
                       "w-2 h-2 rounded-full transition-all duration-300",
-                      activeIndex === i ? "bg-site-gold w-6" : "bg-white/20 hover:bg-white/50"
+                      activeIndex === i ? "bg-primary w-6" : "bg-white/20 hover:bg-white/50"
                     )}
                   />
                 ))}

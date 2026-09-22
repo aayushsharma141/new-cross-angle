@@ -15,7 +15,7 @@ const LegalFooter = () => {
 
           {/* Brand mark */}
           <div className="flex items-center gap-2 text-white/40">
-            <Shield className="h-3.5 w-3.5 text-[#C41230]/60" />
+            <Shield className="h-3.5 w-3.5 text-[#D4AF37]/60" />
             <span className="text-xs">
               © {year} <span className="text-white/60 font-medium">Crossangle Interior</span>. All rights reserved.
             </span>

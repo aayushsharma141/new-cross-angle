@@ -21,6 +21,14 @@ export default {
         },
         extend: {
             colors: {
+                canvas: 'var(--s-canvas-primary)',
+                surface: 'var(--s-surface-primary)',
+                display: 'var(--s-text-display)',
+                body: 'var(--s-text-body)',
+                'border-subtle': 'var(--s-border-subtle)',
+                'border-default': 'var(--s-border-default)',
+                'cx-accent': 'var(--s-action-primary-bg)',
+                'cx-focus': 'var(--s-focus-ring)',
                 border: 'hsl(var(--border))',
                 input: 'hsl(var(--input))',
                 ring: 'hsl(var(--ring))',
@@ -37,6 +45,10 @@ export default {
                 destructive: {
                     DEFAULT: 'hsl(var(--destructive))',
                     foreground: 'hsl(var(--destructive-foreground))'
+                },
+                error: {
+                    DEFAULT: 'hsl(var(--error))',
+                    foreground: 'hsl(var(--error-foreground))'
                 },
                 muted: {
                     DEFAULT: 'hsl(var(--muted))',
@@ -140,9 +152,19 @@ export default {
                 'admin-accent':         'hsl(var(--admin-primary) / <alpha-value>)',
             },
             borderRadius: {
+                'cx-none': 'var(--p-radius-none)',
+                'cx-sm': 'var(--p-radius-sm)',
+                'cx-md': 'var(--p-radius-md)',
                 lg: 'var(--radius)',
                 md: 'calc(var(--radius) - 2px)',
                 sm: 'calc(var(--radius) - 4px)'
+            },
+            transitionDuration: {
+                '850': '850ms',
+                '1200': '1200ms',
+                '1500': '1500ms',
+                '2000': '2000ms',
+                '3000': '3000ms',
             },
             keyframes: {
                 'accordion-down': {

@@ -120,7 +120,7 @@ const ContentTab = ({ date }: ContentTabProps) => {
     },
   });
 
-  const fmt = (v: number | undefined | null): string => (v == null ? "..." : v.toLocaleString());
+  const fmt = (v: number | undefined | null): string => (v == null ? "…" : v.toLocaleString());
 
   return (
     <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
