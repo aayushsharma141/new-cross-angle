@@ -8,6 +8,7 @@ import { getOptimizedUrl } from "@/lib/cdn";
 import { cn } from "@/lib/utils";
 import { ChapterKicker } from "@/components/home/ChapterKicker";
 import { HeroWatermark } from "@/components/home/HeroWatermark";
+import { CursorAura } from "@/components/motion/CursorAura";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -29,6 +30,8 @@ export interface PageHeroProps {
   aside?: ReactNode;
   /** "Scroll to explore" cue at the bottom edge. */
   scrollCue?: boolean;
+  /** Gold glass-ring cursor aura over the photograph (fine pointers only). */
+  cursorAura?: boolean;
   /** Backdrop photograph: `site_media_assets.asset_key` = `page_<entity>_hero`, with a static fallback. */
   image: { entity: string; fallback: string; alt?: string };
   /** Text alignment / column placement. */
@@ -70,6 +73,7 @@ export const PageHero = ({
   size = "lg",
   aside,
   scrollCue = true,
+  cursorAura = false,
 }: PageHeroProps) => {
   const ref = useRef<HTMLElement>(null);
   const prefersReducedMotion = useReducedMotion();
@@ -125,6 +129,8 @@ export const PageHero = ({
         <div className="absolute inset-0 home-noise mix-blend-overlay" />
       </div>
 
+      {cursorAura && <CursorAura className="z-[8]" />}
+
       {seal && (
         <div data-hero-seal className="absolute top-[14vh] right-6 md:right-16 lg:right-24 z-[9] pointer-events-none will-change-transform">
           <HeroWatermark />
@@ -141,36 +147,43 @@ export const PageHero = ({
       >
         <div
           className={cn(
-            "w-full max-w-[1600px] mx-auto flex flex-col gap-5",
+            "w-full max-w-[1600px] mx-auto flex flex-col",
             align === "center" && "items-center",
             aside && "lg:pr-[42%]",
           )}
         >
-          <div data-hero-kicker>
+          <div data-hero-kicker className="mb-6 md:mb-8">
             <ChapterKicker align={align}>{kicker}</ChapterKicker>
           </div>
           <Heading
-            className={cn("font-display leading-[0.98] font-normal [text-shadow:0_2px_28px_rgba(0,0,0,0.55)]", HEADLINE_SIZE[size])}
-            style={{ letterSpacing: "-0.03em" }}
+            className={cn("font-display leading-[1.02] font-normal text-balance [text-shadow:0_2px_28px_rgba(0,0,0,0.55)]", HEADLINE_SIZE[size])}
+            style={{ letterSpacing: "-0.02em" }}
           >
             {lines.map((line, i) => (
-              <span key={i} data-hero-line className="block">
+              <span
+                key={i}
+                data-hero-line
+                className={cn("block", lines.length > 1 && i < lines.length - 1 && "font-light text-white/80")}
+              >
                 {line}
               </span>
             ))}
           </Heading>
           {lede && (
-            <div data-hero-lede className="text-base md:text-lg max-w-[46ch] leading-relaxed text-white/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.5)]">
+            <div
+              data-hero-lede
+              className="mt-6 md:mt-7 text-[15px] md:text-[17px] leading-[1.75] max-w-[44ch] text-white/75 [text-shadow:0_1px_16px_rgba(0,0,0,0.5)]"
+            >
               {typeof lede === "string" ? <p>{lede}</p> : lede}
             </div>
           )}
           {actions && (
-            <div data-hero-lede className={cn("flex flex-wrap gap-4 mt-1", align === "center" && "justify-center")}>
+            <div data-hero-lede className={cn("flex flex-wrap items-center gap-x-6 gap-y-3 mt-8 md:mt-9", align === "center" && "justify-center")}>
               {actions}
             </div>
           )}
           {meta && (
-            <div data-hero-meta className="hidden md:block mt-8 pt-6 border-t border-white/10 w-full">
+            <div data-hero-meta className="hidden md:block mt-10 pt-6 border-t border-white/10 w-full">
               {meta}
             </div>
           )}

@@ -139,6 +139,7 @@ const AboutPage = () => {
         {/* Cinematic hero — founder film beside the copy on desktop, below it on smaller screens */}
         <PageHero
           size="sm"
+          cursorAura
           kicker="About The Studio"
           lines={[
             "We Design. We Execute.",
@@ -152,10 +153,10 @@ const AboutPage = () => {
                 For over 15 years, we've delivered fully managed interior projects — combining design intelligence, execution
                 precision, and hospitality-level detailing from concept to final handover.
               </p>
-              <p className="mt-3 text-[clamp(0.85rem,0.95vw,1rem)] italic font-light text-[#C9A85C]">
+              <p className="mt-4 font-display italic text-[1.15rem] md:text-[1.35rem] leading-snug text-[#C9A85C]/90">
                 Every project is delivered as a complete, ready-to-live environment.
               </p>
-              <ul className="hidden md:block mt-4 space-y-2 text-[clamp(0.85rem,1vw,1rem)] text-white/70">
+              <ul className="hidden md:block mt-5 space-y-2.5 text-[13px] md:text-[14px] tracking-[0.01em] text-white/65">
                 {[
                   "Residential, Commercial & Hospitality",
                   "End-to-End Turnkey — No Sub-Contracting",
@@ -197,8 +198,8 @@ const AboutPage = () => {
               ].map((stat) => (
                 <div key={stat.label} className="flex items-baseline gap-3">
                   <dt className="sr-only">{stat.label}</dt>
-                  <dd className="font-display text-2xl md:text-3xl text-white">{stat.value}</dd>
-                  <dd className="text-[10px] uppercase tracking-[0.2em] text-white/50">{stat.label}</dd>
+                  <dd className="font-display text-3xl md:text-4xl leading-none text-white">{stat.value}</dd>
+                  <dd className="text-[9px] uppercase tracking-[0.25em] text-white/50">{stat.label}</dd>
                 </div>
               ))}
             </dl>
