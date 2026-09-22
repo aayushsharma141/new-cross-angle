@@ -1,36 +1,26 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Link as RouterLink, useLocation } from "react-router-dom";
-import { Link } from "@/components/primitives/interactive";
+import { Instagram, Youtube, Linkedin, Twitter, Facebook } from "lucide-react";
 import { useDynamicCTA } from "@/hooks/useDynamicCTA";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { MapPin, Mail, Phone, Plus, Minus, Instagram, Youtube, Linkedin, Twitter, Facebook } from "lucide-react";
+import { navLinks } from "@/config/navigation";
+import { SERVICE_BANDS } from "@/config/service-area";
 
+const EASE_OUT_CUBIC = [0.33, 1, 0.68, 1] as const;
 
-
-
-
-
-// Clock
-function LiveClock() {
-  const [time, setTime] = useState("");
-  useEffect(() => {
-    const update = () => {
-      const now = new Date();
-      setTime("IST: " + now.toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" }));
-    };
-    update();
-    const id = setInterval(update, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  return (
-    <div className="mt-2.5 text-[12px] font-['Space_Mono'] text-white/50">
-      {time}
-    </div>
-  );
-}
-
+/**
+ * Footer refinements (v2):
+ * - Faster reveal animations (900ms → 700ms)
+ * - Improved CTA button with better hover and focus states
+ * - Enhanced link styling with underline animations
+ * - Better social icon hover effects with smooth color transitions
+ * - Improved column spacing and visual hierarchy
+ * - Refined legal section with better visual separation
+ * - Better mobile responsive spacing
+ * - Consistent focus ring styling
+ * - Enhanced reveal delay timing for staggered entrance
+ */
 const getFooterCopy = (pathname: string, cta: ReturnType<typeof useDynamicCTA>["cta"]) => {
   if (pathname === "/") {
     return cta;
@@ -114,331 +104,194 @@ const getFooterCopy = (pathname: string, cta: ReturnType<typeof useDynamicCTA>["
   };
 };
 
-interface FooterSectionProps {
-  title: string;
-  id: string;
-  openSection: string | null;
-  toggleSection: (id: string) => void;
-  children: React.ReactNode;
-  delay: number;
-  className?: string;
-}
+// Local-SEO landing pages; kept as a single quiet line rather than a column
+/** Jamshedpur's own districts — every one is an anchor on /locations. */
+const FOOTER_AREAS = SERVICE_BANDS.find((b) => b.id === "jamshedpur")?.areas ?? [];
 
-// MAIN COMPONENT
-const FooterSection = ({ title, id, openSection, toggleSection, children, delay, className = "" }: FooterSectionProps) => {
-  const isOpen = openSection === id;
-  const contentId = `footer-${id}-content`;
-  const buttonId = `footer-${id}-btn`;
-  return (
-    <motion.div
-      className={`flex-1 min-w-[150px] p-0 ${className}`}
-      initial={{ opacity: 0, y: 80 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 1, delay, ease: "easeOut" }}
-    >
-      <div
-        id={buttonId}
-        role="button"
-        tabIndex={0}
-        {...{"aria-expanded": isOpen}}
-        aria-controls={contentId}
-        className="font-sans text-[11px] md:text-[12px] tracking-[0.3em] text-white/60 mb-0 md:mb-5 flex justify-between items-center cursor-pointer md:cursor-default py-3 md:py-0 min-h-[44px] md:min-h-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]/50 rounded"
-        onClick={() => toggleSection(id)}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleSection(id); } }}
-      >
-        <span className="text-white/30 mr-1.5" aria-hidden="true">—</span>{title}
-        <span className="md:hidden">
-          {isOpen ? <Minus className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-        </span>
-      </div>
-      <div
-        id={contentId}
-        role="region"
-        aria-labelledby={buttonId}
-        className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[500px] mt-5 opacity-100' : 'max-h-0 opacity-0 md:max-h-[1000px] md:opacity-100 md:mt-0'}`}
-      >
-        {children}
-      </div>
-    </motion.div>
-  );
-};
+const SOCIALS: { key: string; name: string; Icon: React.ElementType }[] = [
+  { key: "instagram", name: "Instagram", Icon: Instagram },
+  { key: "facebook", name: "Facebook", Icon: Facebook },
+  { key: "youtube", name: "YouTube", Icon: Youtube },
+  { key: "linkedin", name: "LinkedIn", Icon: Linkedin },
+  { key: "twitter", name: "Twitter / X", Icon: Twitter },
+];
 
+const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+const columnHeading = "text-[9px] font-bold uppercase tracking-[0.3em] text-white/35 mb-6";
+const columnLink =
+  "relative text-sm font-light text-white/65 hover:text-white transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A] rounded-sm";
+const legalLink =
+  "relative text-white/50 hover:text-white transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A]";
+
+/**
+ * Editorial footer.
+ *
+ * Two bands on a fixed dark surface: a brand statement with the page-aware
+ * CTA on the left and three quiet link columns on the right, then a hairline
+ * legal strip. Always light-on-dark regardless of theme — like the hero, it is
+ * a photographic/dark surface by design, so it uses `white` and the gold
+ * `primary` token rather than theme-following foreground tokens.
+ */
 export default function Footer() {
-  const [openSection, setOpenSection] = useState<string | null>(null);
-  const toggleSection = (section: string) => {
-    setOpenSection(openSection === section ? null : section);
-  };
-
-  const heroRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
   const { cta } = useDynamicCTA();
   const location = useLocation();
   const footerCopy = getFooterCopy(location.pathname, cta);
   const { settings } = useSiteSettings();
 
-  const renderSocialLink = (key: string, name: string, Icon: React.ElementType): React.ReactNode | null => {
+  const email = settings?.email || "info@crossangleinterior.com";
+  const phone = settings?.phone;
+  const address = settings?.address || "Jamshedpur, Jharkhand 831012, India";
+  const studioName = settings?.studio_name || "Crossangle Interior";
+
+  const socials = SOCIALS.filter(({ key }) => {
     const url = settings?.social_links?.[key];
-    if (!url || typeof url !== 'string' || url.trim().length === 0) return null;
-    return (
-      <a
-        key={key}
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={name}
-        className="inline-flex items-center gap-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans group py-1.5 min-h-[44px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
-      >
-        <span className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center group-hover:bg-[#D4AF37]/10 group-hover:border-[#D4AF37]/20 transition-all duration-200" aria-hidden="true">
-          <Icon className="w-3.5 h-3.5" />
-        </span>
-        {name}
-      </a>
-    );
-  };
+    return typeof url === "string" && url.trim().length > 0;
+  });
+
+  const reveal = (delay = 0) => ({
+    initial: { opacity: 0, y: 20 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.2 },
+    transition: { duration: 0.7, delay, ease: EASE_OUT_CUBIC },
+  });
 
   return (
-    <footer
-      className="relative overflow-hidden text-white font-['Space_Mono'] block border-t border-[#D4AF37]/30"
-      style={{
-        background: "radial-gradient(circle at 72% 28%, rgba(212,175,55,0.03), transparent 40%), #000"
-      }}
-    >
-      {/* CSS for CTA Sweep */}
-      <style>{`
-          .footer-cta {
-            margin-top: 40px;
-            display: inline-block;
-            padding: 16px 32px;
-            border-radius: 999px;
-            border: 1px solid rgba(255,255,255,0.2);
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-            transition: border-color 0.3s;
-          }
-          .footer-cta::before {
-            content: "";
-            position: absolute;
-            left: -100%; top: 0; width: 100%; height: 100%;
-            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: 0.7s;
-          }
-          .footer-cta:hover::before { left: 100%; }
-          .footer-cta:hover { border-color: rgba(255,255,255,0.5); }
-        `}</style>
-
-      {/* Noise overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.04] pointer-events-none z-0"
-        style={{ backgroundImage: 'url(/noise.svg)' }}
-      />
-
-      {/* Intense dark vignette overlay at the top */}
-      <div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-[#020202] via-[#020202]/70 to-transparent z-10 pointer-events-none" />
-
-      {/* --- HERO --- */}
-      <div ref={heroRef} className="pt-[100px] pb-[64px] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-20 flex flex-col items-center justify-center text-center gap-8 overflow-hidden">
-        {/* Ambient Gold Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#D4AF37]/[0.03] rounded-full blur-[100px] pointer-events-none z-0" />
-        
-        {/* Editorial eyebrow — replaces pill badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="flex items-center gap-4 mb-2 relative z-10"
-        >
-          <div className="w-8 h-px bg-[#C9A85C]/40" />
-          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-[#C9A85C]/70">Next Steps</span>
-          <div className="w-8 h-px bg-[#C9A85C]/40" />
-        </motion.div>
-
-        <div className="w-full max-w-[1400px] mx-auto relative z-10">
-          <motion.h2
-            className="font-serif leading-[1.1] text-[clamp(2rem,3.5vw,3.8rem)] tracking-tight text-white mb-2 text-center"
-            initial={{ y: 60, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
-          >
-            {footerCopy.headlineStart}{" "}
-            <span className="text-[#C9A85C] italic font-medium">{footerCopy.headlineHighlight}</span>
-          </motion.h2>
-        </div>
-
-        <motion.div
-          className="flex flex-col items-center gap-6 w-full relative z-10 mt-4"
-          initial={{ y: 40, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.2, delay: 0.15, ease: [0.25, 1, 0.5, 1] }}
-        >
-          <p className="text-white/65 max-w-lg mx-auto text-[14px] md:text-[15px] font-sans tracking-wide leading-relaxed">
-            {footerCopy.sub}
-          </p>
-        </motion.div>
-      </div>
-
-      {/* --- GRID --- */}
-      <div ref={gridRef} className="w-full relative z-20 border-t border-white/[0.09] container-wide mx-auto px-4 sm:px-6 lg:px-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 py-12 md:py-14 divide-y md:divide-y-0 md:divide-x divide-white/[0.09]">
-
-          {/* Col 1 — Studio Contact */}
-          <FooterSection title="STUDIO" id="studio" openSection={openSection} toggleSection={toggleSection} delay={0} className="pr-0 md:pr-10 pb-8 md:pb-0">
-            <p className="text-white/50 text-[12px] leading-relaxed font-sans mb-5 max-w-[220px]">
-              Premium turnkey interior design studio headquartered in Jamshedpur, India.
+    <footer className="bg-[#0A0A0A] text-white pt-20 pb-24 md:pt-32 md:pb-16">
+      <div className="mx-auto w-full max-w-[1440px] px-6 md:px-10 xl:px-12">
+        {/* ── Statement + columns ─────────────────────────────── */}
+        <div className="flex flex-col gap-16 md:flex-row md:justify-between md:gap-20 md:items-start mb-20 md:mb-28">
+          {/* Statement */}
+          <motion.div {...reveal()} className="w-full md:w-[38%] lg:w-1/3">
+            <h2 className="font-display text-[2rem] md:text-[2.5rem] leading-[1.08] text-white mb-6">
+              {footerCopy.headlineStart}{" "}
+              <span className="italic text-primary">{footerCopy.headlineHighlight}</span>
+            </h2>
+            <p className="max-w-xs text-[15px] font-light leading-relaxed text-white/55 mb-10">
+              {footerCopy.sub}
             </p>
-            <a
-              href={`mailto:${settings?.email || 'info@crossangleinterior.com'}`}
-              className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#D4AF37] transition-colors duration-300 font-sans mb-3 group"
-            >
-              <Mail className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-[#D4AF37] transition-colors" />
-              {settings?.email || 'info@crossangleinterior.com'}
-            </a>
-            {settings?.phone && (
-              <a
-                href={`tel:${settings.phone}`}
-                className="flex items-center gap-2.5 text-[13px] text-white/70 hover:text-[#D4AF37] transition-colors duration-300 font-sans group"
+
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
+              <RouterLink
+                to={footerCopy.btn1Link}
+                className="group relative inline-flex items-center justify-center overflow-hidden rounded-lg border border-primary/40 px-6 py-3.5 md:px-7 md:py-4 text-[10px] font-medium uppercase tracking-[0.2em] text-white transition-all duration-400 hover:border-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-[#0A0A0A] motion-reduce:transition-none"
               >
-                <Phone className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-[#D4AF37] transition-colors" />
-                {settings.phone}
-              </a>
-            )}
-            <LiveClock />
-          </FooterSection>
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-0 -translate-x-full bg-primary transition-transform duration-400 ease-out group-hover:translate-x-0 motion-reduce:transition-none"
+                />
+                <span className="relative z-10 flex items-center gap-2.5">
+                  {footerCopy.btn1}
+                  <span className="transition-transform duration-400 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true">→</span>
+                </span>
+              </RouterLink>
 
-          {/* Col 2 — Location */}
-          <FooterSection title="LOCATIONS" id="locations" openSection={openSection} toggleSection={toggleSection} delay={0.1} className="px-0 md:px-10 py-8 md:py-0">
-            <div className="flex flex-col gap-5 mb-5">
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#D4AF37]" />
-                {settings?.address ? (
-                  <p className="text-[13px] text-white/70 font-sans leading-relaxed">{settings.address}</p>
-                ) : (
-                  <div>
-                    <span className="text-[14px] text-white font-sans font-medium">Headquarters</span>
-                    <p className="text-[13px] text-white/50 font-sans mt-0.5">Jamshedpur, Jharkhand 831012, India</p>
-                  </div>
+              <RouterLink
+                to={footerCopy.btn2Link}
+                className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/50 hover:text-primary transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A] relative after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100"
+              >
+                {footerCopy.btn2}
+              </RouterLink>
+            </div>
+          </motion.div>
+
+          {/* Columns */}
+          <div className="grid w-full grid-cols-2 gap-x-8 gap-y-12 md:w-[58%] md:grid-cols-3 md:gap-x-8 md:gap-y-0 lg:w-2/3">
+            <motion.div {...reveal(0.04)}>
+              <h4 className={columnHeading}>Explore</h4>
+              <ul className="space-y-3.5">
+                {navLinks.filter((l) => l.href !== "/").map((link) => (
+                  <li key={link.href}>
+                    <RouterLink to={link.href} onClick={scrollTop} className={columnLink}>
+                      {link.name}
+                    </RouterLink>
+                  </li>
+                ))}
+                <li>
+                  <RouterLink to="/aesthetic-discovery-engine" onClick={scrollTop} className={columnLink}>
+                    Style Quiz
+                  </RouterLink>
+                </li>
+              </ul>
+            </motion.div>
+
+            <motion.div {...reveal(0.08)}>
+              <h4 className={columnHeading}>Studio</h4>
+              <ul className="space-y-3.5 text-sm font-light text-white/65">
+                {phone && (
+                  <li>
+                    <a href={`tel:${phone.replace(/\s+/g, "")}`} className={columnLink}>{phone}</a>
+                  </li>
                 )}
-              </div>
-              
-              <div>
-                <p className="font-sans text-[11px] tracking-[0.3em] text-white/50 mb-3">SERVICING REGIONS</p>
-                <div className="flex flex-col gap-2.5">
-                  {(() => {
-                    const cities = [
-                      { id: 'jamshedpur', name: 'Jamshedpur' },
-                      { id: 'bistupur', name: 'Bistupur' },
-                      { id: 'adityapur', name: 'Adityapur' },
-                      { id: 'kadma', name: 'Kadma' },
-                      { id: 'mango', name: 'Mango' },
-                      { id: 'sakchi', name: 'Sakchi' },
-                      { id: 'sonari', name: 'Sonari' },
-                      { id: 'telco', name: 'Telco' },
-                      { id: 'golmuri', name: 'Golmuri' },
-                      { id: 'baridih', name: 'Baridih' },
-                      { id: 'dimna', name: 'Dimna' },
-                    ];
-                    
-                    const rows = [];
-                    for (let i = 0; i < cities.length; i += 3) {
-                      rows.push(cities.slice(i, i + 3));
-                    }
-                    
-                    return rows.map((row, rIndex) => (
-                      <div key={rIndex} className="flex items-center gap-x-2.5 flex-wrap">
-                        {row.map((city, cIndex, arr) => (
-                          <React.Fragment key={city.id}>
-                            <Link
-                              as={RouterLink}
-                              to={`/locations/${city.id}`}
-                              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                              variant="inherit"
-                              underline="none"
-                              className="text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans whitespace-nowrap"
-                            >
-                              {city.name}
-                            </Link>
-                            {cIndex < arr.length - 1 && (
-                              <span className="text-white/40 text-[12px] select-none">|</span>
-                            )}
-                          </React.Fragment>
-                        ))}
-                      </div>
-                    ));
-                  })()}
-                </div>
-              </div>
-            </div>
-          </FooterSection>
+                <li>
+                  <a href={`mailto:${email}`} className={`${columnLink} break-all`}>{email}</a>
+                </li>
+                <li className="leading-relaxed">
+                  <span className="block text-white font-medium">{studioName}</span>
+                  <address className="not-italic text-white/60 text-[13px] mt-1">{address}</address>
+                </li>
+              </ul>
+            </motion.div>
 
-          {/* Col 3 — All Links (merged) */}
-          <FooterSection title="NAVIGATE" id="navigate" openSection={openSection} toggleSection={toggleSection} delay={0.2} className="px-0 md:px-10 py-8 md:py-0">
-            <div className="grid grid-cols-2 gap-x-6 gap-y-0">
-              {[
-                { key: 'home', name: 'Home', path: '/' },
-                { key: 'gallery', name: 'Gallery', path: '/gallery' },
-                { key: 'services', name: 'Services', path: '/services' },
-                { key: 'estimate', name: 'Estimator', path: '/estimate' },
-                { key: 'portfolio', name: 'Portfolio', path: '/portfolio' },
-                { key: 'discovery', name: 'Discovery', path: '/aesthetic-discovery-engine' },
-                { key: 'about', name: 'About Us', path: '/about-us' },
-                { key: 'blog', name: 'Blog', path: '/blog' },
-                { key: 'contact', name: 'Contact', path: '/contact-us' },
-              ].map(({ key, name, path }) => (
-                <Link
-                  key={key}
-                  as={RouterLink}
-                  to={path}
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  variant="inherit"
-                  underline="none"
-                  className="block mb-3 text-[13px] text-white/60 hover:text-white transition-colors duration-200 font-sans"
-                >
-                  {name}
-                </Link>
-              ))}
-            </div>
-          </FooterSection>
-
-          {/* Col 4 — Socials as labelled icon pills */}
-          <FooterSection title="CONNECT" id="socials" openSection={openSection} toggleSection={toggleSection} delay={0.3} className="pl-0 md:pl-10 pt-8 md:pt-0">
-            <p className="text-white/50 text-[12px] font-sans mb-5">Follow us on social media</p>
-            <div className="flex flex-col gap-2.5">
-              {([
-                { key: 'instagram', name: 'Instagram', Icon: Instagram },
-                { key: 'facebook', name: 'Facebook', Icon: Facebook },
-                { key: 'youtube', name: 'YouTube', Icon: Youtube },
-                { key: 'linkedin', name: 'LinkedIn', Icon: Linkedin },
-                { key: 'twitter', name: 'Twitter / X', Icon: Twitter },
-              ] as { key: string; name: string; Icon: React.ElementType }[]).map(({ key, name, Icon }) =>
-                renderSocialLink(key, name, Icon)
+            <motion.div {...reveal(0.12)} className="col-span-2 md:col-span-1">
+              <h4 className={columnHeading}>Social</h4>
+              {socials.length > 0 ? (
+                <ul className="flex flex-wrap gap-x-8 gap-y-3.5 md:flex-col md:gap-y-3.5">
+                  {socials.map(({ key, name, Icon }) => (
+                    <li key={key}>
+                      <a
+                        href={settings?.social_links?.[key]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`group inline-flex items-center gap-2.5 ${columnLink}`}
+                      >
+                        <Icon className="h-4 w-4 text-white/45 transition-all duration-300 group-hover:text-primary group-hover:scale-110" aria-hidden="true" />
+                        <span>{name}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm font-light text-white/40">Coming soon.</p>
               )}
-            </div>
-          </FooterSection>
-        </div>
-      </div>
-
-      {/* --- BOTTOM --- */}
-      <div className="border-t border-white/[0.09] container-wide mx-auto px-4 sm:px-6 lg:px-10 relative z-10 w-full">
-        {/* Thin gold rule above bottom bar */}
-        <div className="w-8 h-px bg-[#C9A85C]/30 mx-auto mt-5" aria-hidden="true" />
-        <div className="flex flex-col md:flex-row items-center justify-between py-5 gap-3 text-[10px] md:text-[11px] text-white/40 uppercase tracking-[0.2em] font-sans">
-          <span className="text-white/60 font-medium tracking-[0.2em]">© {new Date().getFullYear()} Cross Angle Interior. All Rights Reserved.</span>
-          <div className="flex items-center gap-6">
-            <Link as={RouterLink} to="/privacy" onClick={() => window.scrollTo(0, 0)} variant="inherit" underline="none" className="hover:text-white transition-colors duration-200">Privacy Policy</Link>
-            <Link as={RouterLink} to="/terms" onClick={() => window.scrollTo(0, 0)} variant="inherit" underline="none" className="hover:text-white transition-colors duration-200">Terms</Link>
+            </motion.div>
           </div>
         </div>
-      </div>
 
-      {/* --- BG TEXT --- */}
-      <div className="absolute bottom-[-110px] left-[50%] -translate-x-1/2 text-[clamp(100px,20vw,300px)] opacity-[0.03] font-serif pointer-events-none whitespace-nowrap z-0 select-none">
-        CROSSANGLE
-      </div>
+        {/* ── Service areas (local-SEO links, kept deliberately quiet) ── */}
+        <motion.div
+          {...reveal(0.08)}
+          className="mb-10 pt-10 border-t border-white/8 flex flex-wrap items-baseline gap-x-2.5 gap-y-2 text-[10px] font-medium uppercase tracking-[0.2em] text-white/30"
+        >
+          <span className="mr-2 text-white/35">Serving</span>
+          {FOOTER_AREAS.map((area, i) => (
+            <React.Fragment key={area.slug}>
+              <RouterLink
+                to={`/locations#${area.slug}`}
+                className="relative text-white/25 hover:text-white/60 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A]"
+              >
+                {area.name}
+              </RouterLink>
+              {i < FOOTER_AREAS.length - 1 && (
+                <span aria-hidden="true" className="h-0.5 w-0.5 self-center rounded-full bg-white/15" />
+              )}
+            </React.Fragment>
+          ))}
+        </motion.div>
 
+        {/* ── Legal strip ────────────────────────────────────── */}
+        <motion.div
+          {...reveal(0.06)}
+          className="flex flex-col items-center gap-6 border-t border-white/8 pt-10 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-white/40 md:flex-row md:justify-between md:text-left"
+        >
+          <p>© {new Date().getFullYear()} {studioName}</p>
+          <div className="flex items-center gap-5">
+            <RouterLink to="/privacy" onClick={scrollTop} className={legalLink}>Privacy Policy</RouterLink>
+            <span aria-hidden="true" className="h-0.5 w-0.5 rounded-full bg-white/15" />
+            <RouterLink to="/terms" onClick={scrollTop} className={legalLink}>Terms of Service</RouterLink>
+          </div>
+        </motion.div>
+      </div>
     </footer>
   );
 }
