@@ -32,6 +32,9 @@ export const queryKeys = {
   transformationStories: {
     active: ["transformation-stories"] as const,
   },
+  siteMedia: {
+    slot: (assetKey: string) => ["site-media-slot", assetKey] as const,
+  },
   users: {
     all: ["users"] as const,
   },

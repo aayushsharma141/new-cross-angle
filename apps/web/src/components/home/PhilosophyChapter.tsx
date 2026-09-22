@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import gsap from "gsap";
 import { PinnedChapter } from "@/components/motion/PinnedChapter";
-import { useDamAsset } from "@/hooks/useDamAsset";
+import { useSiteMediaSlot } from "@/hooks/useSiteMediaSlot";
 import { getOptimizedUrl } from "@/lib/cdn";
 import { ChapterKicker } from "@/components/home/ChapterKicker";
 
@@ -14,11 +14,11 @@ const PHILOSOPHY_LINES = [
 const NBSP = String.fromCharCode(160);
 
 /**
- * Backdrop photograph resolved through `asset_usages`
- * (entity_type "home", entity_id "philosophy", role = slot) with a static fallback.
+ * Backdrop photograph resolved through `site_media_assets`
+ * (asset_key `home_philosophy_<slot>`) with a static fallback.
  */
 const Backdrop = ({ slot, fallback }: { slot: string; fallback: string }) => {
-  const { url } = useDamAsset("home", "philosophy", slot, fallback);
+  const { url } = useSiteMediaSlot(`home_philosophy_${slot}`, fallback);
   return (
     <img
       src={getOptimizedUrl(url, { width: 1920, quality: 82 })}

@@ -7,6 +7,7 @@ import CTAContact from "@/components/shared/CTAContact";
 import ContactFAQ from "@/components/contact/ContactFAQ";
 import SocialBar from "@/components/contact/SocialBar";
 import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
+import { Reveal } from "@/components/motion/Reveal";
 import { ShaderBackground } from "@/components/ui/backgrounds/ShaderBackground";
 import { SITE_CONSTANTS } from "@/lib/constants";
 
@@ -57,7 +58,9 @@ const ContactPage = () => {
           <div className="pointer-events-auto">
 
           {/* Primary contact section — form + bypass + contact info */}
-          <CTAContact />
+          <Reveal variant="fade">
+            <CTAContact />
+          </Reveal>
 
           {/* Compact map strip */}
           <Suspense
@@ -69,14 +72,20 @@ const ContactPage = () => {
               </div>
             }
           >
-            <InteractiveMap latitude={22.8027} longitude={86.2047} zoom={13} />
+            <Reveal variant="scale">
+              <InteractiveMap latitude={22.8027} longitude={86.2047} zoom={13} />
+            </Reveal>
           </Suspense>
 
           {/* FAQ */}
-          <ContactFAQ />
+          <Reveal>
+            <ContactFAQ />
+          </Reveal>
 
           {/* Social pill strip */}
-          <SocialBar />
+          <Reveal variant="fade">
+            <SocialBar />
+          </Reveal>
 
           </div>
         </div>

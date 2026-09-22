@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Compass,
@@ -13,7 +14,7 @@ import {
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
-import AboutHero from "@/components/about/AboutHero";
+import { PageHero } from "@/components/motion/PageHero";
 import AboutValues from "@/components/about/AboutValues";
 import AboutStats from "@/components/about/AboutStats";
 import AboutTimeline from "@/components/about/AboutTimeline";
@@ -134,8 +135,52 @@ const AboutPage = () => {
             <Navbar />
       <main id="main-content" className="min-h-screen relative z-10">
 
-        {/* Immersive Hero with Video */}
-        <AboutHero videoUrl={videoUrl} onPlayVideo={() => setIsVideoOpen(true)} />
+        {/* Cinematic hero — the studio film opens from the secondary action */}
+        <PageHero
+          size="md"
+          kicker="About The Studio"
+          lines={[
+            "We Design. We Execute.",
+            <span key="l2">
+              We Deliver <span className="italic font-light text-[#C9A85C]">Turnkey</span> Interiors.
+            </span>,
+          ]}
+          lede="For over 15 years, we've delivered fully managed interior projects — combining design intelligence, execution precision, and hospitality-level detailing from concept to final handover."
+          image={{ entity: "about-us", fallback: "/modern_interior_base.png", alt: "" }}
+          actions={
+            <>
+              <Link
+                to="/portfolio"
+                className="home-button-sweep inline-flex items-center gap-2 px-8 py-4 bg-white/5 backdrop-blur-md border border-white/10 text-white font-semibold text-[10px] uppercase tracking-[0.2em] hover:border-[#C9A85C] hover:text-[#C9A85C] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none rounded-md"
+              >
+                View Our Work
+              </Link>
+              <button
+                type="button"
+                onClick={() => setIsVideoOpen(true)}
+                className="inline-flex items-center gap-3 px-2 py-4 text-[10px] uppercase tracking-[0.2em] font-semibold text-white/80 hover:text-[#C9A85C] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none"
+              >
+                <span aria-hidden="true" className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/25">▶</span>
+                Watch the studio film
+              </button>
+            </>
+          }
+          meta={
+            <dl className="flex flex-wrap gap-x-10 gap-y-4">
+              {[
+                { value: "15+", label: "Years Experience" },
+                { value: "500+", label: "Projects Delivered" },
+                { value: "98%", label: "Client Satisfaction" },
+              ].map((stat) => (
+                <div key={stat.label} className="flex items-baseline gap-3">
+                  <dt className="sr-only">{stat.label}</dt>
+                  <dd className="font-display text-2xl md:text-3xl text-white">{stat.value}</dd>
+                  <dd className="text-[10px] uppercase tracking-[0.2em] text-white/50">{stat.label}</dd>
+                </div>
+              ))}
+            </dl>
+          }
+        />
 
         <section className="relative overflow-hidden border-y border-[var(--s-border-subtle)] bg-[var(--s-canvas-primary)] py-24 md:py-36">
           {/* Subtle architectural background */}

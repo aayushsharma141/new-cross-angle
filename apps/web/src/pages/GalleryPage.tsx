@@ -6,6 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { Image } from "@/components/ui/enhanced/image";
+import { Reveal } from "@/components/motion/Reveal";
 import { useGallery, useGalleryCategories } from "@/hooks/useGallery";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
@@ -231,7 +232,9 @@ const GalleryPage = () => {
               <span className="home-kicker">Loading...</span>
             </div>
           ) : (
-            <GalleryStackedSlider items={filtered} onImageClick={openLightbox} />
+            <Reveal variant="up">
+              <GalleryStackedSlider items={filtered} onImageClick={openLightbox} />
+            </Reveal>
           )}
 
           {filtered.length === 0 && !isLoading && (
@@ -242,7 +245,11 @@ const GalleryPage = () => {
         </section>
 
         {/* 80–100% Scroll: CTA Transition */}
-        <section className="home-section-frame relative w-full px-6 md:px-12 lg:px-24 mb-[20vh] max-w-[1600px] mx-auto flex flex-col items-center justify-center text-center">
+        <Reveal
+          as="section"
+          stagger={0.12}
+          className="home-section-frame relative w-full px-6 md:px-12 lg:px-24 mb-[20vh] max-w-[1600px] mx-auto flex flex-col items-center justify-center text-center"
+        >
           <span className="home-kicker mb-8 block">Inspired?</span>
           <h2 className="font-display text-5xl md:text-7xl mb-12 text-[var(--s-text-primary)] tracking-tight" style={{ letterSpacing: "-0.02em" }}>
             Let's create your <span className="text-[var(--s-text-secondary)]">space.</span>
@@ -250,7 +257,7 @@ const GalleryPage = () => {
           <Link to="/contact-us" className="home-button-sweep inline-block text-[10px] uppercase tracking-[0.2em] font-bold border-b border-[#D1AF6E] pb-2 text-[var(--s-text-primary)]">
             Book Consultation
           </Link>
-        </section>
+        </Reveal>
 
       </main>
 

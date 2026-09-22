@@ -68,7 +68,12 @@ const FALLBACK_STEPS: ProcessStep[] = [
  *
  * Under prefers-reduced-motion the five steps stack vertically.
  */
-export const ProcessChapter = () => {
+interface ProcessChapterProps {
+  /** Eyebrow text; the homepage numbers it, inner pages name it. */
+  kicker?: string;
+}
+
+export const ProcessChapter = ({ kicker = "Chapter 03" }: ProcessChapterProps) => {
   const { data: steps = FALLBACK_STEPS } = useQuery({
     queryKey: queryKeys.designProcess.steps,
     queryFn: async (): Promise<ProcessStep[]> => {
@@ -108,11 +113,9 @@ export const ProcessChapter = () => {
         gsap.set(photos[0], { opacity: 1 });
         gsap.set(markers[0], { opacity: 1 });
         gsap.set(q(".proc-rail"), { scaleX: 0, transformOrigin: "left" });
-        gsap.set(q(".proc-intro"), { autoAlpha: 0, y: 24 });
 
         tl.to(q(".proc-rail"), { scaleX: 1, duration: 1 }, 0)
-          .to(q(".proc-frame"), { scale: 1.08, duration: 1 }, 0)
-          .to(q(".proc-intro"), { autoAlpha: 1, y: 0, duration: 0.06, ease: "power1.out" }, 0);
+          .to(q(".proc-frame"), { scale: 1.08, duration: 1 }, 0);
 
         for (let i = 1; i < n; i++) {
           const at = i * seg - 0.03;
@@ -129,7 +132,7 @@ export const ProcessChapter = () => {
         {/* Top: kicker + heading */}
         <div className="proc-intro flex items-end justify-between gap-6 mb-4 md:mb-0">
           <div>
-            <ChapterKicker className="mb-4 md:mb-6">Chapter 03</ChapterKicker>
+            <ChapterKicker className="mb-4 md:mb-6">{kicker}</ChapterKicker>
             <h2
               className="font-display text-[clamp(2.25rem,5vw,5rem)] leading-[1] text-[var(--s-text-primary)]"
               style={{ letterSpacing: "-0.03em" }}

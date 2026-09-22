@@ -60,7 +60,12 @@ const FALLBACK_IMAGES = [
  * Under prefers-reduced-motion every description is open and only the
  * first photograph renders.
  */
-export const ExpertiseChapter = () => {
+interface ExpertiseChapterProps {
+  /** Eyebrow text; the homepage numbers it, inner pages name it. */
+  kicker?: string;
+}
+
+export const ExpertiseChapter = ({ kicker = "Chapter 02" }: ExpertiseChapterProps) => {
   const { data: services = [] } = useQuery({
     queryKey: queryKeys.services.all,
     queryFn: api.getServices,
@@ -98,11 +103,9 @@ export const ExpertiseChapter = () => {
         gsap.set(heads[0], { opacity: 1 });
         gsap.set(photos[0], { opacity: 1 });
         gsap.set(q(".exp-rail"), { scaleY: 0, transformOrigin: "top" });
-        gsap.set(q(".exp-intro"), { autoAlpha: 0, y: 24 });
 
         tl.to(q(".exp-rail"), { scaleY: 1, duration: 1 }, 0)
-          .to(q(".exp-frame"), { scale: 1.06, duration: 1 }, 0)
-          .to(q(".exp-intro"), { autoAlpha: 1, y: 0, duration: 0.08, ease: "power1.out" }, 0);
+          .to(q(".exp-frame"), { scale: 1.06, duration: 1 }, 0);
 
         for (let i = 1; i < n; i++) {
           const at = i * seg - 0.04;
@@ -137,7 +140,7 @@ export const ExpertiseChapter = () => {
         {/* Copy + list — mobile: below; desktop: left column */}
         <div className="order-2 md:order-1 md:col-span-6 lg:col-span-5 flex flex-col justify-center min-h-0">
           <div className="exp-intro mb-6 md:mb-12">
-            <ChapterKicker className="mb-5 md:mb-8">Chapter 02</ChapterKicker>
+            <ChapterKicker className="mb-5 md:mb-8">{kicker}</ChapterKicker>
             <h2
               className="font-display text-[clamp(2.25rem,5vw,5rem)] leading-[1] text-[var(--s-text-primary)]"
               style={{ letterSpacing: "-0.03em" }}
