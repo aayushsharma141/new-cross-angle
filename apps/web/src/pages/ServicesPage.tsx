@@ -102,9 +102,10 @@ const ServicesPage = () => {
       </Helmet>
 
       <Navbar />
-      <main id="main-content" className="min-h-screen relative z-10 bg-[var(--s-canvas-primary)] overflow-hidden text-[var(--s-text-primary)] font-sans">
+      <main id="main-content" className="min-h-screen relative z-10 bg-[var(--s-canvas-primary)] overflow-x-clip text-[var(--s-text-primary)] font-sans">
 
         <PageHero
+          as="h2"
           size="md"
           kicker="Our Services"
           lines={["From Empty Shell To", <span key="l2">Move-In Ready <span className="italic font-light text-[#C9A85C]">Home.</span></span>]}

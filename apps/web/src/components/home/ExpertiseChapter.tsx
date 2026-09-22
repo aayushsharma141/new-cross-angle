@@ -118,9 +118,9 @@ export const ExpertiseChapter = ({ kicker = "Chapter 02" }: ExpertiseChapterProp
         }
       }}
     >
-      <div className="relative z-10 h-full w-full max-w-[1600px] mx-auto px-6 md:px-12 lg:px-24 grid grid-rows-[auto_1fr] md:grid-rows-1 md:grid-cols-12 gap-6 md:gap-12 lg:gap-20 items-center pt-[12vh] pb-[8vh] md:py-0">
+      <div className="relative z-10 h-full w-full max-w-[1600px] mx-auto px-6 md:px-12 lg:px-24 grid grid-rows-[auto_1fr] md:grid-rows-1 md:grid-cols-12 gap-6 md:gap-12 lg:gap-20 items-center pt-[10vh] pb-[4vh] md:py-0">
         {/* Photograph frame — mobile: on top; desktop: right column */}
-        <div className="order-1 md:order-2 md:col-span-6 lg:col-span-6 h-[30vh] md:h-[68vh] relative overflow-hidden">
+        <div className="order-1 md:order-2 md:col-span-6 lg:col-span-6 h-[24vh] md:h-[68vh] relative overflow-hidden">
           <div className="exp-frame absolute inset-0 will-change-transform transform-gpu">
             {items.map((item, i) => (
               <img
@@ -139,7 +139,7 @@ export const ExpertiseChapter = ({ kicker = "Chapter 02" }: ExpertiseChapterProp
 
         {/* Copy + list — mobile: below; desktop: left column */}
         <div className="order-2 md:order-1 md:col-span-6 lg:col-span-5 flex flex-col justify-center min-h-0">
-          <div className="exp-intro mb-6 md:mb-12">
+          <div className="exp-intro mb-4 md:mb-12">
             <ChapterKicker className="mb-5 md:mb-8">{kicker}</ChapterKicker>
             <h2
               className="font-display text-[clamp(2.25rem,5vw,5rem)] leading-[1] text-[var(--s-text-primary)]"
@@ -156,7 +156,7 @@ export const ExpertiseChapter = ({ kicker = "Chapter 02" }: ExpertiseChapterProp
 
             <ol className="divide-y divide-white/10">
               {items.map((item) => (
-                <li key={item.index} className="py-4 md:py-6">
+                <li key={item.index} className="py-3 md:py-6">
                   <div className="exp-head flex items-baseline gap-4 md:gap-6">
                     <span className="text-[10px] tracking-[0.3em] font-bold text-[#C9A85C] shrink-0">{item.index}</span>
                     <h3 className="font-display text-xl md:text-3xl lg:text-4xl leading-tight" style={{ letterSpacing: "-0.02em" }}>
@@ -169,7 +169,7 @@ export const ExpertiseChapter = ({ kicker = "Chapter 02" }: ExpertiseChapterProp
                     </p>
                     <Link
                       to={item.href}
-                      className="mt-4 ml-8 md:ml-11 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] font-semibold text-[#C9A85C] border-b border-[#C9A85C]/40 pb-1.5 hover:border-[#C9A85C] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none"
+                      className="tap-target mt-3 md:mt-4 ml-8 md:ml-11 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] font-semibold text-[#C9A85C] border-b border-[#C9A85C]/40 pb-1.5 hover:border-[#C9A85C] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none"
                     >
                       Explore
                       <span aria-hidden="true">→</span>

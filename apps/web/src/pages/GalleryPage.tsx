@@ -254,7 +254,7 @@ const GalleryPage = () => {
           <h2 className="font-display text-5xl md:text-7xl mb-12 text-[var(--s-text-primary)] tracking-tight" style={{ letterSpacing: "-0.02em" }}>
             Let's create your <span className="text-[var(--s-text-secondary)]">space.</span>
           </h2>
-          <Link to="/contact-us" className="home-button-sweep inline-block text-[10px] uppercase tracking-[0.2em] font-bold border-b border-[#D1AF6E] pb-2 text-[var(--s-text-primary)]">
+          <Link to="/contact-us" className="tap-target home-button-sweep inline-block text-[10px] uppercase tracking-[0.2em] font-bold border-b border-[#D1AF6E] pb-2 text-[var(--s-text-primary)]">
             Book Consultation
           </Link>
         </Reveal>

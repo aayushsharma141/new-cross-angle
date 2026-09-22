@@ -202,7 +202,7 @@ export const PageHero = ({
       {scrollCue && (
         <div data-hero-cue aria-hidden="true" className="absolute bottom-5 left-6 md:left-12 lg:left-24 z-20 flex items-center gap-3">
           <span className="block w-6 h-px bg-gradient-to-r from-transparent to-white/30 animate-[pulse_2.2s_ease-in-out_infinite] motion-reduce:animate-none" />
-          <span className="text-[8px] uppercase tracking-[0.3em] text-white/35">Scroll to explore</span>
+          <span className="text-[9px] uppercase tracking-[0.3em] text-white/40">Scroll to explore</span>
         </div>
       )}
     </section>

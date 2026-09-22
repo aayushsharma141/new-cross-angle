@@ -121,6 +121,8 @@ export const PinnedChapter = ({
         ref={stageRef}
         className={cn(
           "pinned-chapter__stage relative w-full overflow-hidden",
+          // Below md the fixed MobileActionBar covers the bottom edge of the viewport.
+          "max-md:pb-[calc(env(safe-area-inset-bottom)+56px)]",
           prefersReducedMotion ? "min-h-[100dvh]" : "sticky top-0 h-[100dvh]",
           stageClassName,
         )}

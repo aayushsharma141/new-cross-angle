@@ -863,6 +863,19 @@ em,
   background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 15%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.03) 85%, transparent 100%);
 }
 
+/* Touch hit-area for small text links: widens the tappable box to ~44px
+   on coarse pointers without changing the visual size. */
+@media (pointer: coarse) {
+  .tap-target {
+    position: relative;
+  }
+  .tap-target::after {
+    content: "";
+    position: absolute;
+    inset: -12px -8px;
+  }
+}
+
 /* Scroll-pinned chapter: runway height set by PinnedChapter via custom props.
    Without them (reduced motion) the section is content-height. */
 .pinned-chapter {
