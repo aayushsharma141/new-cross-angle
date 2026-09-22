@@ -29,6 +29,9 @@ export const queryKeys = {
   designProcess: {
     steps: ["designProcessSteps"] as const,
   },
+  transformationStories: {
+    active: ["transformation-stories"] as const,
+  },
   users: {
     all: ["users"] as const,
   },

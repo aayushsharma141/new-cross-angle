@@ -9,6 +9,7 @@ import Hero from "@/components/home/Hero";
 import { PhilosophyChapter } from "@/components/home/PhilosophyChapter";
 import { ExpertiseChapter } from "@/components/home/ExpertiseChapter";
 import { ProcessChapter } from "@/components/home/ProcessChapter";
+import { TransformationChapter } from "@/components/home/TransformationChapter";
 import { HomeFAQ } from "@/components/home/HomeFAQ";
 import { useEffect, useState } from "react";
 import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
@@ -149,6 +150,11 @@ const Index = () => {
         {/* Chapter 03 — pinned five-stage journey */}
         <div className="relative z-10 mb-[10vh]">
           <ProcessChapter />
+        </div>
+
+        {/* Chapter 04 — scroll-scrubbed before/after wipe */}
+        <div className="relative z-10 mb-[10vh]">
+          <TransformationChapter />
         </div>
 
         <HomeFAQ />

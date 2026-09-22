@@ -2,6 +2,13 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
 import { getOptimizedUrl } from "@/lib/cdn";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import useReducedMotion from "@/hooks/useReducedMotion";
+import { HeroWatermark } from "@/components/home/HeroWatermark";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 type AnimationEffect = "none" | "ken-burns-in" | "ken-burns-out" | "pan-left" | "pan-right" | "pan-up" | "pan-down" | "zoom-pan";
 
@@ -39,6 +46,24 @@ function preloadImage(url: string): Promise<void> {
 
 const Hero = () => {
   const containerRef = useAttentionTelemetry<HTMLDivElement>("entrance", "hero-media", 1);
+  const prefersReducedMotion = useReducedMotion();
+
+  // Scroll exit: as Chapter 01 pins beneath, the photograph pushes in and
+  // the copy drifts up and out, so the hero reads as the cover of the story.
+  useGSAP(
+    () => {
+      if (prefersReducedMotion || !containerRef.current) return;
+      const q = gsap.utils.selector(containerRef);
+      gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: { trigger: containerRef.current, start: "top top", end: "bottom top", scrub: 0.6 },
+      })
+        .to(q("[data-hero-media]"), { scale: 1.1, duration: 1 }, 0)
+        .to(q("[data-hero-copy]"), { y: -80, autoAlpha: 0, duration: 0.6 }, 0.1)
+        .to(q("[data-hero-watermark]"), { rotate: 90, autoAlpha: 0, duration: 0.6 }, 0.1);
+    },
+    { scope: containerRef, dependencies: [prefersReducedMotion] },
+  );
   const [mediaItems, setMediaItems] = useState<HeroMediaItem[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
@@ -182,11 +207,16 @@ const Hero = () => {
         ref={containerRef}
         className="relative w-full h-[70vh] md:h-[85vh] lg:h-[95vh] overflow-hidden bg-[var(--s-canvas-primary)]"
       >
+        {/* Rotating seal — top right, decorative */}
+        <div data-hero-watermark className="absolute top-[14vh] right-6 md:right-16 lg:right-24 z-[9] pointer-events-none will-change-transform">
+          <HeroWatermark />
+        </div>
+
         {/* Noise grain overlay */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.025] mix-blend-screen z-10 bg-[url('/noise.png')]" />
 
         {/* Photography layer */}
-        <div className="absolute inset-0 overflow-hidden">
+        <div data-hero-media className="absolute inset-0 overflow-hidden will-change-transform transform-gpu">
           {/* Guaranteed fallback render */}
           <img
             src="/hero_reality_render_1775299733746.png"
@@ -238,7 +268,7 @@ const Hero = () => {
           <div
             className={`absolute inset-0 pointer-events-none z-10 flex flex-col justify-end p-8 md:p-16 lg:px-24 bg-gradient-to-t from-black/75 via-black/15 to-transparent${contentVisible ? " hero-content-visible" : ""}`}
           >
-            <div className="pointer-events-auto w-full max-w-[1600px] mx-auto flex flex-col gap-5">
+            <div data-hero-copy className="pointer-events-auto w-full max-w-[1600px] mx-auto flex flex-col gap-5 will-change-transform">
 
               {/* Kicker */}
               <span className="hero-kicker-text uppercase text-[10px] tracking-[0.25em] font-bold text-[#C9A85C] flex items-center gap-4">
