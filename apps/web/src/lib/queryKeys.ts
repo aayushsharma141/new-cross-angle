@@ -26,6 +26,9 @@ export const queryKeys = {
     all: ["services"] as const,
     detail: (id: string) => ["services", id] as const,
   },
+  designProcess: {
+    steps: ["designProcessSteps"] as const,
+  },
   users: {
     all: ["users"] as const,
   },

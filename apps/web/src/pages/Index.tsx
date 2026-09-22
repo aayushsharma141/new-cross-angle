@@ -7,6 +7,8 @@ import { SITE_CONSTANTS } from "@/lib/constants";
 import { Link } from "react-router-dom";
 import Hero from "@/components/home/Hero";
 import { PhilosophyChapter } from "@/components/home/PhilosophyChapter";
+import { ExpertiseChapter } from "@/components/home/ExpertiseChapter";
+import { ProcessChapter } from "@/components/home/ProcessChapter";
 import { HomeFAQ } from "@/components/home/HomeFAQ";
 import { useEffect, useState } from "react";
 import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
@@ -98,6 +100,11 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Chapter 02 — pinned services accordion */}
+        <div className="relative z-10 mb-[14vh]">
+          <ExpertiseChapter />
+        </div>
+
         {/* 55–80% Scroll: Featured project — editorial photograph treatment */}
         <section className="home-section-frame relative z-10 w-full mb-[18vh] overflow-visible">
           <div ref={featuredRef} className="px-6 md:px-12 lg:px-24 max-w-[1600px] mx-auto flex flex-col-reverse md:flex-row items-end gap-12 md:gap-16">
@@ -138,6 +145,11 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* Chapter 03 — pinned five-stage journey */}
+        <div className="relative z-10 mb-[10vh]">
+          <ProcessChapter />
+        </div>
 
         <HomeFAQ />
 

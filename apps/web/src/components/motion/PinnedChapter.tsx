@@ -32,6 +32,11 @@ export interface PinnedChapterProps {
   build: (ctx: ChapterBuildContext) => void;
   /** Smoothing between scroll position and timeline head, in seconds. */
   scrub?: number | boolean;
+  /**
+   * Values that, when changed, tear the timeline down and run `build` again
+   * (e.g. async data that re-renders the animated children).
+   */
+  deps?: React.DependencyList;
   id?: string;
   className?: string;
   stageClassName?: string;
@@ -56,6 +61,7 @@ export const PinnedChapter = ({
   mobileRunway,
   build,
   scrub = 0.6,
+  deps = [],
   id,
   className,
   stageClassName,
@@ -93,7 +99,7 @@ export const PinnedChapter = ({
 
       return () => mm.revert();
     },
-    { scope: sectionRef, dependencies: [prefersReducedMotion] },
+    { scope: sectionRef, dependencies: [prefersReducedMotion, ...deps], revertOnUpdate: true },
   );
 
   const sectionStyle = prefersReducedMotion
