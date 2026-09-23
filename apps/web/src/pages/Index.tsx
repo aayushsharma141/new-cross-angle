@@ -11,6 +11,7 @@ import { ExpertiseChapter } from "@/components/home/ExpertiseChapter";
 import { ProcessChapter } from "@/components/home/ProcessChapter";
 import { TransformationChapter } from "@/components/home/TransformationChapter";
 import { HomeFAQ } from "@/components/home/HomeFAQ";
+import { ToolsChapter } from "@/components/home/ToolsChapter";
 import { useEffect, useState } from "react";
 import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
 
@@ -81,25 +82,10 @@ const Index = () => {
           <PhilosophyChapter />
         </div>
 
-        {/* 35–55% Scroll: One primary CTA (Editorial Asymmetry, staggered left) */}
-        <section className="home-section-frame relative z-10 w-full px-6 md:px-12 lg:px-24 mt-[14vh] mb-[18vh] max-w-[1600px] mx-auto flex justify-start">
-          <div className="home-panel w-full md:w-6/12 lg:w-5/12 p-8 md:p-12 flex flex-col gap-10 rounded-xl relative">
-            <p className="home-body text-base md:text-lg leading-relaxed max-w-[44ch] text-white/72">
-              We treat interior design as an engineering challenge, not just decoration. Enjoy beautiful, highly functional spaces for daily living, delivered through our CrossAngle Predictable Interior System™.
-            </p>
-            <div ref={ctaRef} className="pt-4 flex items-center justify-between group border-t border-[rgba(255,255,255,0.06)]">
-              <Link
-                to="/aesthetic-discovery-engine"
-                className="home-button-sweep inline-flex items-center justify-between w-full uppercase tracking-[0.2em] text-[10px] font-semibold text-[var(--s-text-primary)] py-2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] rounded-md"
-              >
-                <span>Take Style Quiz</span>
-                <span className="text-[#C9A85C] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1.5 motion-reduce:transition-none flex items-center gap-1.5">
-                  Explore <span aria-hidden="true">→</span>
-                </span>
-              </Link>
-            </div>
-          </div>
-        </section>
+        {/* 35–55% Scroll: The two tools, presented as a core attraction */}
+        <div ref={ctaRef} className="relative z-10">
+          <ToolsChapter />
+        </div>
 
         {/* Chapter 02 — pinned services accordion */}
         <div className="relative z-10 mb-[14vh]">

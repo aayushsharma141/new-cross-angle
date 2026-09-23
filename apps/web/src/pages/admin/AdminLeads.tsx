@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LeadGridView } from "@/components/admin/leads/LeadGridView";
 import { LeadDetailSheet } from "@/components/admin/leads/LeadDetailSheet";
 import { LeadListView } from "@/components/admin/leads/LeadListView";
+import { BulkActionToolbar } from "@/components/admin/leads/BulkActionToolbar";
 import { PageSkeleton } from "@/components/ui/enhanced/PageSkeleton";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -94,6 +95,7 @@ export default function AdminLeads() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [selectedLeadIds, setSelectedLeadIds] = useState<Set<string>>(new Set());
 
   const { can } = usePermissions();
   const { toast } = useToast();
@@ -290,6 +292,31 @@ export default function AdminLeads() {
     setIsSheetOpen(true);
   }, []);
 
+  const toggleLeadSelection = useCallback((leadId: string) => {
+    setSelectedLeadIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(leadId)) {
+        next.delete(leadId);
+      } else {
+        next.add(leadId);
+      }
+      return next;
+    });
+  }, []);
+
+  const selectAllFiltered = useCallback(() => {
+    setSelectedLeadIds(new Set(filteredLeads.map((l) => l.id)));
+  }, [filteredLeads]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedLeadIds(new Set());
+  }, []);
+
+  const selectedLeads = useMemo(
+    () => filteredLeads.filter((l) => selectedLeadIds.has(l.id)),
+    [filteredLeads, selectedLeadIds]
+  );
+
   const activeFilterCount = [
     statusFilter !== "all",
     viewFilter !== "all",
@@ -388,7 +415,7 @@ export default function AdminLeads() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-text-subtle" />
             <input 
               type="text" 
-              placeholder="Search by name, phone, or email…" 
+              placeholder="Search by name, phone, or emailï¿½" 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full h-9 bg-admin-surface border border-admin-border rounded-lg pl-9 pr-9 text-[13px] text-admin-text placeholder:text-admin-text-subtle focus:outline-none focus:border-admin-border-subtle focus:ring-1 focus:ring-[hsl(var(--admin-primary)/0.3)] transition-all"
@@ -462,6 +489,17 @@ export default function AdminLeads() {
         </div>
       </div>
 
+      {/* Bulk Action Toolbar */}
+      {selectedLeads.length > 0 && (
+        <div className="px-6 lg:px-8 mb-4 shrink-0">
+          <BulkActionToolbar
+            selectedLeads={selectedLeads}
+            isLoading={false}
+            onActionsComplete={() => clearSelection()}
+          />
+        </div>
+      )}
+
       {/* List/Card Content */}
       <div className="flex-1 overflow-hidden min-h-0 flex flex-col">
         {isLoading ? (
@@ -506,6 +544,9 @@ export default function AdminLeads() {
               leads={filteredLeads}
               onLeadClick={(lead) => { setSelectedLead(lead); setIsSheetOpen(true); }}
               onDeleteClick={canDelete ? (id) => setDeleteTargetId(id) : undefined}
+              selectedLeadIds={selectedLeadIds}
+              onLeadToggleSelect={toggleLeadSelection}
+              onSelectAll={selectAllFiltered}
             />
           </div>
         )}

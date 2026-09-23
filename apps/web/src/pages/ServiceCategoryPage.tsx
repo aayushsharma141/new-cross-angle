@@ -1,17 +1,21 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowRight, Check, Loader2 } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import { Button } from "@/components/ui/primitives/button";
-import { serviceCategories } from "@/config/site-content";
-import NotFound from "./NotFound";
-import ScrollToTop from "@/components/layout/ScrollToTop";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-import { Image } from "@/components/ui/enhanced/image";
 
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import ScrollToTop from "@/components/layout/ScrollToTop";
+import NotFound from "./NotFound";
+import ServiceDomain from "@/components/services/ServiceDomain";
+import { serviceCategories } from "@/config/site-content";
+import { api } from "@/lib/api";
+import { Container, Eyebrow, DisplayHeading, Body, textLinkClass, EASE_OUT_EXPO } from "@/components/editorial";
+
+/**
+ * One service domain on its own page — the same treatment the domain gets on
+ * /services, so the two views of the same content agree.
+ */
 const ServiceCategoryPage = () => {
     const { category: categorySlug } = useParams();
     const category = serviceCategories.find((c) => c.slug === categorySlug);
@@ -27,31 +31,24 @@ const ServiceCategoryPage = () => {
 
     if (isError) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
-                <div className="max-w-md text-center space-y-6">
-                    <h2 className="font-serif text-3xl text-primary">Failed to load services</h2>
-                    <p className="text-muted-foreground font-light">There was a network error loading our design portfolio. Please try again.</p>
-                    <Button onClick={() => refetch()} className="rounded-full px-8 py-6 text-lg">
-                        Retry Connection
-                    </Button>
-                </div>
-            </div>
+            <>
+                <Navbar />
+                <main className="flex min-h-screen items-center justify-center bg-[var(--s-canvas-primary)] px-6 text-white">
+                    <div className="max-w-md text-center">
+                        <DisplayHeading as="h1" size="md" className="mb-6">Failed to load services.</DisplayHeading>
+                        <Body className="mb-8">There was a network error loading this page. Please try again.</Body>
+                        <button type="button" onClick={() => refetch()} className={textLinkClass}>
+                            Retry connection <span aria-hidden="true">→</span>
+                        </button>
+                    </div>
+                </main>
+                <Footer />
+            </>
         );
     }
 
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-        );
-    }
-
-    // Filter services for this category
     // Matches service.category_id (db) with category.id (static)
     const categoryServices = (services || []).filter((s) => s.category_id === category.id);
-    const categoryHeroImage = categoryServices.find((service) => service.hero_image)?.hero_image;
-
 
     return (
         <>
@@ -60,107 +57,38 @@ const ServiceCategoryPage = () => {
                 <meta name="description" content={category.description} />
                 <meta property="og:title" content={`${category.title} services | Cross Angle Interior`} />
                 <meta property="og:description" content={category.description} />
-                <meta property="og:type" content="website" />
-                <link rel="canonical" href={`https://crossangleinterior.com/services/${categorySlug}`} />
+                <link rel="canonical" href={`https://crossangleinterior.com/services/${category.slug}`} />
             </Helmet>
 
-            <div className="min-h-screen bg-background flex flex-col">
-                <Navbar />
+            <Navbar />
 
-                <main id="main-content" className="flex-grow">
-                    {/* Hero Section */}
-                    <div className="relative h-[50vh] flex items-center justify-center overflow-hidden">
-                        <div className="absolute inset-0 z-0">
-                            <Image
-                                src={categoryHeroImage}
-                                alt={category.title}
-                                className="h-full w-full"
-                                width={1600}
-                                height={900}
-                                loading="eager"
-                            />
-                            <div className="absolute inset-0 bg-black/50" />
-                        </div>
-                        <div className="relative z-10 text-center text-white px-4">
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8 }}
-                            >
-                                <h1 className="font-serif text-4xl md:text-6xl font-bold mb-4">{category.title}</h1>
-                                <p className="text-lg md:text-xl max-w-2xl mx-auto opacity-90">{category.description}</p>
-                            </motion.div>
-                        </div>
-                    </div>
+            <main id="main-content" className="relative z-10 min-h-screen bg-[var(--s-canvas-primary)] text-white">
+                <Container className="pt-36 pb-4 md:pt-48 md:pb-8">
+                    <motion.div
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
+                        className="max-w-3xl"
+                    >
+                        <Eyebrow className="mb-8">Services</Eyebrow>
+                        <DisplayHeading as="h1" size="lg" className="mb-6">{category.title}</DisplayHeading>
+                        <Body className="max-w-xl">{category.description}</Body>
+                    </motion.div>
+                </Container>
 
-                    {/* Services List */}
-                    <section className="py-20" aria-labelledby="services-list-heading">
-                        <div className="container mx-auto px-4">
-                            <h2 id="services-list-heading" className="sr-only">Our {category.title} Services</h2>
-                            <div className="grid grid-cols-1 gap-12">
-                                {categoryServices.map((service, index) => (
-                                    <motion.div
-                                        key={service.id}
-                                        initial={{ opacity: 0, y: 30 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ delay: index * 0.1 }}
-                                        className="group grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
-                                    >
-                                        <div className={`aspect-video rounded-2xl overflow-hidden ${index % 2 === 1 ? 'md:order-2' : ''}`}>
-                                            <Image
-                                                src={service.hero_image}
-                                                alt={service.title}
-                                                className="h-full w-full"
-                                                imageClassName="transition-transform duration-500 group-hover:scale-105"
-                                                width={900}
-                                                height={506}
-                                            />
-                                        </div>
-                                        <div className={`${index % 2 === 1 ? 'md:order-1 md:text-right' : ''}`}>
-                                            <h3 className="font-serif text-3xl mb-4 text-primary">{service.title}</h3>
-                                            <p className="text-muted-foreground mb-6 leading-relaxed">
-                                                {service.description}
-                                            </p>
-                                            <ul className={`space-y-2 mb-8 ${index % 2 === 1 ? 'flex flex-col items-end' : ''}`}>
-                                                {(service.features || []).slice(0, 3).map((f, i) => (
-                                                    <li key={i} className="flex items-center gap-2 text-sm font-medium">
-                                                        <Check className="w-4 h-4 text-primary" /> {f}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                            <Button asChild size="lg" className="rounded-full px-8">
-                                                <Link to={`/services/${category.slug}/${service.slug}`}>
-                                                    Explore {service.title} <ArrowRight className="ml-2 w-4 h-4" />
-                                                </Link>
-                                            </Button>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                                {categoryServices.length === 0 && (
-                                    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-12 text-center text-muted-foreground max-w-lg mx-auto">
-                                        No {category.title.toLowerCase()} services are currently listed. Please contact us for bespoke enquiries.
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </section>
+                <ServiceDomain
+                    id="services"
+                    rule={false}
+                    eyebrow={`${categoryServices.length} ${categoryServices.length === 1 ? "service" : "services"}`}
+                    heading={<>What we deliver in {category.title.toLowerCase()}.</>}
+                    body={`Every engagement below runs turn-key — one team, one contract, from first drawing to final handover.`}
+                    services={categoryServices}
+                    isLoading={isLoading}
+                />
+            </main>
 
-                    {/* CTA */}
-                    <section className="py-20 bg-accent/10" aria-labelledby="cta-heading">
-                        <div className="container mx-auto text-center">
-                            <h2 id="cta-heading" className="font-serif text-3xl mb-4">Need Custom {category.title} Solutions?</h2>
-                            <p className="text-muted-foreground mb-8">We offer bespoke design services tailored to your unique requirements.</p>
-                            <Button variant="outline" size="lg" asChild>
-                                <Link to="/contact-us">Contact Our Design Team</Link>
-                            </Button>
-                        </div>
-                    </section>
-                </main>
-
-                <Footer />
-                <ScrollToTop />
-            </div>
+            <Footer />
+            <ScrollToTop />
         </>
     );
 };

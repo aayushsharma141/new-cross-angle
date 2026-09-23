@@ -95,7 +95,7 @@ function AdminDesktopRequiredPrompt({ deviceSnapshot, onRecheck }: AdminDesktopR
       <div className="flex min-h-screen items-center justify-center px-5 py-8">
         <section
           aria-labelledby="admin-device-title"
-          className="w-full max-w-xl rounded-lg border border-admin-border bg-admin-card p-6 shadow-surface-lg sm:p-8"
+          className="w-full max-w-xl admin-card p-6 shadow-surface-lg sm:p-8"
         >
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-amber-500/25 bg-amber-500/10">

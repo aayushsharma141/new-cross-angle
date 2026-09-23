@@ -1,6 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import { AssetInUseError } from "@/services/AssetService";
 
+import type { AssetRow } from "@/services/AssetService";
+
 export type CollectionType = "shoot" | "campaign" | "moodboard_set" | "project_delivery";
 
 export interface CollectionRow {
@@ -11,7 +13,67 @@ export interface CollectionRow {
   asset_count?: number;
 }
 
+export interface CollectionDetails {
+  collection: CollectionRow;
+  assets: AssetRow[];
+  totalBytes: number;
+  totalUsages: number;
+  inUseAssetsCount: number;
+}
+
 export const CollectionService = {
+  async getCollectionDetails(collectionId: string): Promise<CollectionDetails> {
+    const { data: collection, error: colError } = await supabase
+      .from("asset_collections")
+      .select("*")
+      .eq("id", collectionId)
+      .single();
+
+    if (colError) throw colError;
+
+    const { data: assets, error: assetsError } = await supabase
+      .from("assets")
+      .select(`
+        *,
+        asset_versions (
+          id,
+          url,
+          version_number,
+          file_id,
+          size_bytes
+        ),
+        asset_usages (count),
+        asset_tag_links (tag_id)
+      `)
+      .eq("collection_id", collectionId)
+      .order("updated_at", { ascending: false })
+      .order("version_number", { referencedTable: "asset_versions", ascending: false });
+
+    if (assetsError) throw assetsError;
+
+    const typedAssets = (assets || []) as unknown as AssetRow[];
+
+    let totalBytes = 0;
+    let totalUsages = 0;
+    let inUseAssetsCount = 0;
+
+    for (const a of typedAssets) {
+      const latestVersionSize = a.asset_versions?.[0]?.size_bytes || 0;
+      totalBytes += latestVersionSize;
+      const usagesCount = a.asset_usages?.[0]?.count || 0;
+      totalUsages += usagesCount;
+      if (usagesCount > 0) inUseAssetsCount++;
+    }
+
+    return {
+      collection: collection as CollectionRow,
+      assets: typedAssets,
+      totalBytes,
+      totalUsages,
+      inUseAssetsCount,
+    };
+  },
+
   async getCollections(): Promise<CollectionRow[]> {
     const { data, error } = await supabase
       .from("asset_collections")

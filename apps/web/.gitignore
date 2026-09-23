@@ -26,3 +26,6 @@ dist-ssr
 # Vite dev-server artifacts (auto-generated, never commit)
 vite.config.ts.timestamp-*.mjs
 *.tsbuildinfo
+
+.vercel
+.env*

@@ -22,7 +22,9 @@ const faqs = [
 ];
 
 export const HomeFAQ = () => {
-  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  // First answer open by default: the timeline/estimate facts are the point of
+  // surfacing these, so they should be readable without a click.
+  const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
     <section className="relative bg-background py-24 md:py-32 px-6 overflow-hidden">

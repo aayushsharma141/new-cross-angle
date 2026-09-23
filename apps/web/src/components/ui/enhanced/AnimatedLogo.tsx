@@ -110,7 +110,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         className="absolute inset-0 pointer-events-none transition-opacity duration-300"
         style={{
           opacity: hoverX !== null ? 1 : 0,
-          background: `radial-gradient(100px circle at var(--logo-spotlight-x, 50%) var(--logo-spotlight-y, 50%), rgba(201, 168, 118, 0.15) 0%, transparent 60%)`,
+          background: `radial-gradient(100px circle at var(--logo-spotlight-x, 50%) var(--logo-spotlight-y, 50%), hsl(var(--primary) / 0.15) 0%, transparent 60%)`,
           mixBlendMode: "screen",
           zIndex: 1,
         }}
@@ -121,7 +121,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         initial="hidden"
         animate="visible"
         className={cn(
-          "flex mr-2 lg:mr-2.5 xl:mr-3.5 logo-word-crossangle relative z-10 font-bold",
+          "flex mr-2 lg:mr-2.5 xl:mr-3.5 logo-word-crossangle relative z-10 font-bold text-foreground",
           sizeClass
         )}
       >
@@ -141,7 +141,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         initial="hidden"
         animate="visible"
         className={cn(
-          "flex logo-word-interior relative z-10 font-bold",
+          "flex logo-word-interior relative z-10 font-bold text-primary",
           sizeClass
         )}
       >

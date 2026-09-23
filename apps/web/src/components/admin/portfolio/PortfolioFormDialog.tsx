@@ -23,7 +23,7 @@ import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { AssetUsageService } from "@/services/AssetUsageService";
-import { portfolioSchema, formatZodErrors } from "@/lib/validation/validations";
+import { portfolioSchema } from "@/lib/validation/validations";
 import { Switch } from "@/components/ui/primitives/switch";
 import FocusLock from "react-focus-lock";
 
@@ -62,6 +62,7 @@ interface PortfolioFormDialogProps {
 export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess }: PortfolioFormDialogProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const { toast } = useToast();
 
     // Form state matching the new schema
@@ -184,13 +185,27 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
         // Validate with Zod before saving
         const validation = portfolioSchema.safeParse(formData);
         if (!validation.success) {
+            // Extract field-level errors
+            const errors: Record<string, string> = {};
+            validation.error.errors.forEach(err => {
+                const fieldPath = err.path.join('.');
+                if (fieldPath) {
+                    errors[fieldPath] = err.message;
+                }
+            });
+            setFieldErrors(errors);
+
+            // Show summary toast
             toast({
                 title: "Validation Error",
-                description: formatZodErrors(validation.error),
+                description: `Please check the ${Object.keys(errors).length} field(s) below`,
                 variant: "destructive",
             });
             return;
         }
+
+        // Clear errors on successful validation
+        setFieldErrors({});
 
         setIsSaving(true);
 
@@ -269,14 +284,16 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
 
             toast({
                 title: initialData ? "Project updated!" : "Project created!",
+                description: initialData ? "Your changes have been saved." : "New project added to your portfolio.",
             });
 
             onSuccess();
             onOpenChange(false);
-        } catch {
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : "An unexpected error occurred";
             toast({
                 title: "Error saving project",
-                description: "An unexpected error occurred",
+                description: errorMsg,
                 variant: "destructive",
             });
         } finally {
@@ -303,22 +320,34 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                         <TabsContent value="general" className="space-y-6 mt-0">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="portfolio-title">Title</Label>
+                                    <Label htmlFor="portfolio-title">Title <span className="text-red-400">*</span></Label>
+                                    <p className="text-xs text-zinc-500">Project name displayed on portfolio</p>
                                     <Input
                                         id="portfolio-title"
                                         value={formData.title}
                                         onChange={(e) => handleTitleChange(e.target.value)}
                                         required
+                                        aria-describedby="portfolio-title-help"
+                                        className={fieldErrors.title ? "admin-form-input-error" : ""}
                                     />
+                                    {fieldErrors.title && (
+                                        <div className="admin-form-error-message" aria-live="polite">{fieldErrors.title}</div>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="portfolio-slug">Slug</Label>
+                                    <Label htmlFor="portfolio-slug">URL Slug <span className="text-red-400">*</span></Label>
+                                    <p className="text-xs text-zinc-500">Auto-generated from title (optional edit)</p>
                                     <Input
                                         id="portfolio-slug"
                                         value={formData.slug}
                                         onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                         required
+                                        aria-describedby="portfolio-slug-help"
+                                        className={fieldErrors.slug ? "admin-form-input-error" : ""}
                                     />
+                                    {fieldErrors.slug && (
+                                        <div className="admin-form-error-message" aria-live="polite">{fieldErrors.slug}</div>
+                                    )}
                                 </div>
                             </div>
 
@@ -329,7 +358,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         value={formData.category_id}
                                         onValueChange={(value) => setFormData({ ...formData, category_id: value })}
                                     >
-                                        <SelectTrigger id="portfolio-category">
+                                        <SelectTrigger id="portfolio-category" className={fieldErrors.category_id ? "admin-form-input-error" : ""}>
                                             <SelectValue placeholder="Select Category" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -340,6 +369,9 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                             ))}
                                         </SelectContent>
                                     </Select>
+                                    {fieldErrors.category_id && (
+                                        <div className="admin-form-error-message" aria-live="polite">{fieldErrors.category_id}</div>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="portfolio-status">Status</Label>
@@ -347,7 +379,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         value={formData.status}
                                         onValueChange={(value: "draft" | "live") => setFormData({ ...formData, status: value })}
                                     >
-                                        <SelectTrigger id="portfolio-status">
+                                        <SelectTrigger id="portfolio-status" className={fieldErrors.status ? "admin-form-input-error" : ""}>
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -355,6 +387,9 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                             <SelectItem value="live">Live (Published)</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                    {fieldErrors.status && (
+                                        <div className="admin-form-error-message" aria-live="polite">{fieldErrors.status}</div>
+                                    )}
                                 </div>
                             </div>
 
@@ -376,19 +411,23 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                             <div className="grid grid-cols-4 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="portfolio-area">Area</Label>
-                                    <Input id="portfolio-area" value={formData.area} onChange={(e) => setFormData({ ...formData, area: e.target.value })} placeholder="e.g. 2500 sqft" />
+                                    <p className="text-xs text-zinc-500">Total project area</p>
+                                    <Input id="portfolio-area" value={formData.area} onChange={(e) => setFormData({ ...formData, area: e.target.value })} placeholder="e.g. 2500 sqft" aria-describedby="portfolio-area-help" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="portfolio-budget">Budget</Label>
-                                    <Input id="portfolio-budget" value={formData.budget} onChange={(e) => setFormData({ ...formData, budget: e.target.value })} placeholder="e.g. ₹500k" />
+                                    <p className="text-xs text-zinc-500">Project investment</p>
+                                    <Input id="portfolio-budget" value={formData.budget} onChange={(e) => setFormData({ ...formData, budget: e.target.value })} placeholder="e.g. ₹500k" aria-describedby="portfolio-budget-help" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="portfolio-duration">Duration</Label>
-                                    <Input id="portfolio-duration" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} placeholder="e.g. 6 months" />
+                                    <p className="text-xs text-zinc-500">Project timeline</p>
+                                    <Input id="portfolio-duration" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} placeholder="e.g. 6 months" aria-describedby="portfolio-duration-help" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="portfolio-style">Style Tag</Label>
-                                    <Input id="portfolio-style" value={formData.style} onChange={(e) => setFormData({ ...formData, style: e.target.value })} placeholder="e.g. Modern" />
+                                    <p className="text-xs text-zinc-500">Design style (e.g. Modern)</p>
+                                    <Input id="portfolio-style" value={formData.style} onChange={(e) => setFormData({ ...formData, style: e.target.value })} placeholder="e.g. Modern" aria-describedby="portfolio-style-help" />
                                 </div>
                             </div>
 
@@ -410,7 +449,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         value={formData.brief}
                                         onChange={(e) => setFormData({ ...formData, brief: e.target.value })}
                                         rows={3}
-                                        placeholder="Project brief�"
+                                        placeholder="Brief overview of the project..."
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -420,7 +459,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         value={formData.approach}
                                         onChange={(e) => setFormData({ ...formData, approach: e.target.value })}
                                         rows={3}
-                                        placeholder="Design approach�"
+                                        placeholder="Design philosophy and approach..."
                                     />
                                 </div>
                             </div>

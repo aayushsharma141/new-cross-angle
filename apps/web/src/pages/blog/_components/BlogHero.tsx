@@ -1,88 +1,66 @@
 import { Link } from "react-router-dom";
-import { Clock, Eye, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { OptimizedImage as Image } from "@/components/ui/enhanced/OptimizedImage";
-import { Skeleton } from "@/components/ui/primitives/skeleton";
 import { Blog } from "@/lib/api";
-import { cleanTitle, readTime, formatViews, CRIMSON } from "../_utils/blogUtils";
+import { cleanTitle, cleanExcerpt, readTime } from "../_utils/blogUtils";
+import { Section, Eyebrow, DisplayHeading, Body, reveal } from "@/components/editorial";
 
 interface BlogHeroProps {
   featuredPost?: Blog;
   isLoading: boolean;
 }
 
+/** The latest article, given the full width of a lead story. */
 export function BlogHero({ featuredPost, isLoading }: BlogHeroProps) {
   if (isLoading) {
     return (
-      <section className="relative pt-24 pb-0 overflow-hidden" style={{ minHeight: "80vh" }}>
-        <div className="absolute inset-0 skeleton-shimmer" />
-        <div className="container mx-auto px-4 relative z-10 flex items-end pb-16" style={{ minHeight: "70vh" }}>
-          <div className="max-w-2xl space-y-5 md:pl-14">
-            <Skeleton className="h-6 w-32 rounded-full bg-zinc-800/50" />
-            <Skeleton className="h-14 w-full bg-zinc-800/50" />
-            <Skeleton className="h-4 w-3/4 bg-zinc-800/30" />
-            <Skeleton className="h-4 w-1/2 bg-zinc-800/30" />
-            <Skeleton className="h-12 w-44 rounded-lg bg-zinc-800/50" />
-          </div>
-        </div>
-      </section>
+      <Section spacing="tight">
+        <div className="aspect-[21/9] w-full animate-pulse bg-white/[0.03]" aria-busy="true" />
+      </Section>
     );
   }
 
   if (!featuredPost) return null;
 
   return (
-    <section className="relative pt-24 pb-0 overflow-hidden" style={{ minHeight: "80vh" }}>
-      <div className="absolute inset-0">
-        <Image
-          src={featuredPost.image}
-          alt={featuredPost.title}
-          className="w-full h-full"
-          imageClassName="object-cover"
-          loading="eager"
-          width={1400}
-          quality={90}
-        />
-        <div className="absolute inset-0" style={{
-          background: "linear-gradient(105deg, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.78) 45%, rgba(0,0,0,0.35) 100%)"
-        }} />
-        <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-background to-transparent" />
-      </div>
-
-      <div className="container mx-auto px-4 relative z-10 flex items-end pb-20 blog-hero-content" style={{ minHeight: "72vh" }}>
-        <div className="max-w-xl space-y-5 md:pl-14">
-          <span
-            className="inline-block text-[10px] font-bold uppercase tracking-[0.25em] px-3.5 py-1.5 rounded-full"
-            style={{ background: `${CRIMSON}25`, color: CRIMSON, border: `1px solid ${CRIMSON}40` }}
-          >
-            Featured Article
-          </span>
-
-          <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
-            {cleanTitle(featuredPost.title)}
-          </h1>
-
-          <p className="text-sm md:text-base leading-relaxed text-white/65 line-clamp-3">
-            {featuredPost.excerpt}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] text-white/50">
-            <span className="font-semibold" style={{ color: CRIMSON }}>{featuredPost.category || "Interior Design"}</span>
-            <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" />{readTime(featuredPost)} read</span>
-            <span className="flex items-center gap-1.5"><Eye className="w-3.5 h-3.5" />{formatViews(featuredPost.view_count)} views</span>
-            <span>{featuredPost.date}</span>
+    <Section spacing="tight">
+      <motion.article {...reveal()}>
+        <Link to={`/blog/${featuredPost.slug}`} className="group block focus-visible:outline-none">
+          <div className="mb-8 aspect-[16/9] w-full overflow-hidden bg-white/[0.03] md:aspect-[21/9]">
+            <Image
+              src={featuredPost.image}
+              alt={cleanTitle(featuredPost.title)}
+              className="h-full w-full"
+              imageClassName="h-full w-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              width={1600}
+              height={686}
+            />
           </div>
 
-          <Link to={`/blog/${featuredPost.slug || featuredPost.id}`}>
-            <button
-              className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-[13px] font-semibold tracking-wide transition-all duration-300"
-              style={{ background: CRIMSON, color: "#fff" }}
-            >
-              Read Full Article
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </Link>
-        </div>
-      </div>
-    </section>
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
+            <div>
+              <Eyebrow className="mb-5">Latest</Eyebrow>
+              <DisplayHeading as="h2" className="transition-colors duration-300 group-hover:text-primary group-focus-visible:text-primary">
+                {cleanTitle(featuredPost.title)}
+              </DisplayHeading>
+            </div>
+            <div className="lg:pt-16">
+              {cleanExcerpt(featuredPost.excerpt, featuredPost.category) && (
+                <Body className="mb-6 max-w-md">{cleanExcerpt(featuredPost.excerpt, featuredPost.category)}</Body>
+              )}
+              <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">
+                <span>{featuredPost.category || "Interior Design"}</span>
+                <span aria-hidden="true" className="h-1 w-1 rounded-full bg-white/20" />
+                <span>{readTime(featuredPost)} read</span>
+              </p>
+              <span className="mt-6 inline-flex items-center gap-2 border-b border-white/15 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60 transition-colors duration-300 group-hover:border-primary group-hover:text-primary">
+                Read article{" "}
+                <span aria-hidden="true" className="transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1">→</span>
+              </span>
+            </div>
+          </div>
+        </Link>
+      </motion.article>
+    </Section>
   );
 }

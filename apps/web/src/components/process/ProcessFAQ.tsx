@@ -1,12 +1,9 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { Section, Eyebrow, DisplayHeading, Body, Em, FaqAccordion, reveal } from "@/components/editorial";
 
 const ProcessFAQ = () => {
-  const [openIdx, setOpenIdx] = useState<number | null>(null);
-
   const { data: processFAQs = [] } = useQuery({
     queryKey: ['processFAQs'],
     queryFn: api.getProcessFAQs
@@ -28,83 +25,23 @@ const ProcessFAQ = () => {
   if (processFAQs.length === 0) return null;
 
   return (
-    <section className="relative bg-[#050505] border-t border-white/[0.05] py-24 md:py-32 px-6 overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_80%_80%,rgba(196,30,58,0.03)_0%,transparent_50%)]" />
-      </div>
-
-      <div className="max-w-[900px] mx-auto relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-12 h-px bg-kiro-accent" />
-            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-kiro-accent">Questions?</span>
-            <div className="w-12 h-px bg-kiro-accent" />
-          </div>
-          <h2 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] tracking-tight text-white">
-            Common <span className="italic font-medium text-kiro-accent">Questions</span>
-          </h2>
+    <Section rule>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-20">
+        <motion.div {...reveal()} className="lg:sticky lg:top-32 lg:self-start">
+          <Eyebrow className="mb-6">Questions</Eyebrow>
+          <DisplayHeading className="mb-6">
+            How the process <Em>actually runs.</Em>
+          </DisplayHeading>
+          <Body className="max-w-sm">
+            What clients ask before signing — how changes are handled, what happens if a stage slips, and who is
+            accountable for what.
+          </Body>
         </motion.div>
 
-        <div className="space-y-3">
-          {processFAQs.map((faq, idx) => {
-            const isOpen = openIdx === idx;
-            return (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.05 }}
-                className="border border-white/[0.06] rounded-xl overflow-hidden bg-white/[0.02]"
-              >
-                <button
-                  type="button"
-                  id={`process-faq-btn-${idx}`}
-                  onClick={() => setOpenIdx(isOpen ? null : idx)}
-                  aria-controls={`process-faq-panel-${idx}`}
-                  {...{ "aria-expanded": isOpen ? "true" : "false" }}
-                  className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left text-sm font-medium text-white hover:bg-white/[0.02] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
-                  <span className="font-light leading-snug pr-4">{faq.question}</span>
-                  <ChevronDown
-                    className={`w-4 h-4 shrink-0 text-stone-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      key="content"
-                      id={`process-faq-panel-${idx}`}
-                      role="region"
-                      aria-labelledby={`process-faq-btn-${idx}`}
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-6 pb-5 pt-0">
-                        <p className="text-sm text-white/60 font-light leading-relaxed">{faq.answer}</p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
-        </div>
+        <FaqAccordion items={processFAQs} idPrefix="process-faq" />
       </div>
-
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-    </section>
+    </Section>
   );
 };
 

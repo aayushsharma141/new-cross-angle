@@ -1,0 +1,15 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: {width:1440,height:900} });
+await page.goto('http://localhost:8080/portfolio', { waitUntil: 'networkidle' });
+await page.waitForTimeout(1200);
+const all = await page.locator('#archive ul li').count();
+const countLabel = await page.locator('#archive').getByText(/works?$/i).first().textContent();
+await page.getByRole('button', { name: 'Commercial', exact: true }).click();
+await page.waitForTimeout(900);
+const filtered = await page.locator('#archive ul li').count();
+const url = page.url();
+const first = await page.locator('#archive ul li a').first().getAttribute('href');
+const imgOk = await page.locator('#archive ul li img').first().evaluate(i => i.naturalWidth > 0);
+console.log(JSON.stringify({ all, countLabel: countLabel?.trim(), filtered, url, firstHref: first, firstImageLoads: imgOk }, null, 1));
+await browser.close();

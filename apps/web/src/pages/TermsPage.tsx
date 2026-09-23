@@ -35,19 +35,13 @@ const Section = ({
     whileInView="visible"
     viewport={{ once: true, margin: "-60px" }}
     variants={fadeUp}
-    className={`rounded-2xl p-8 backdrop-blur-sm border ${
-      highlight
-        ? "bg-[#D4AF37]/5 border-[#D4AF37]/20"
-        : "bg-white/[0.03] border-white/[0.07]"
-    }`}
+    className={`border-t pt-10 ${highlight ? "border-primary" : "border-white/10"}`}
   >
-    <div className="flex items-start gap-4 mb-6 border-b border-white/[0.07] pb-5">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#d1af6e]/25 bg-[#d1af6e]/10">
-        <Icon className="w-5 h-5 text-[#d1af6e]" />
-      </div>
-      <div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/35 mb-0.5">Section {number}</p>
-        <h2 className="text-xl font-semibold text-white leading-tight m-0">{title}</h2>
+    <div className="mb-8 grid grid-cols-[2.5rem_1fr] gap-4">
+      <span className="pt-1.5 text-[10px] font-bold tracking-[0.2em] text-primary">{number}</span>
+      <div className="flex items-center gap-4">
+        <Icon aria-hidden="true" className="h-4 w-4 shrink-0 text-primary/70" />
+        <h2 className="m-0 font-display text-2xl font-normal leading-tight tracking-[-0.02em] text-white md:text-[1.75rem]">{title}</h2>
       </div>
     </div>
     {children}
@@ -97,7 +91,7 @@ const TermsPage = () => {
               <Scale className="w-3.5 h-3.5" />
               <span>Legal Agreement</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-serif font-medium tracking-tight mb-5 leading-tight">
+            <h1 className="mb-6 font-display text-[clamp(2.25rem,5vw,4rem)] font-normal leading-[1.05] tracking-[-0.02em]">
               Terms &amp; <span className="text-[#d1af6e]">Conditions of Service</span>
             </h1>
             <p className="text-lg text-white/60 leading-relaxed max-w-2xl">

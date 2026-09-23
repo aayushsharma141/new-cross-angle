@@ -195,8 +195,8 @@
     /* #121212 */
     --admin-card: 0 0% 5%;
     /* #0D0D0D */
-    --admin-border: 0 0% 12%;
-    /* #1F1F1F */
+    --admin-border: 0 0% 16%;
+    /* #2A2A2A - Increased from 12% for WCAG AA contrast */
 
     /* Brand Colors - Champagne Gold Accent */
     --admin-gold: 43 90% 55%;
@@ -293,7 +293,7 @@
      * border-subtle one tier below --admin-border, and wine is the brand red
      * already hardcoded in tailwind.config.ts's `btn-brand` shadow. */
     --admin-text-subtle: 215 14% 48%;
-    --admin-border-subtle: 0 0% 9%;
+    --admin-border-subtle: 0 0% 13%;
     --admin-surface-hover: 0 0% 10%;
     --admin-error: 0 91% 60%;
     --admin-wine: 355 85% 42%;
@@ -316,7 +316,7 @@
     --admin-card-foreground: 0 0% 98%;
     --admin-popover: 0 0% 3%;
     --admin-popover-foreground: 0 0% 98%;
-    --admin-border: 0 0% 12%;
+    --admin-border: 0 0% 16%;
     --admin-input: 0 0% 11%;
     --admin-text: 0 0% 100%;
     --admin-text-muted: 215 15% 65%;
@@ -446,6 +446,71 @@
 }
 
 @layer components {
+
+  /* Admin Form Spacing Standards */
+  .admin-form-group {
+    @apply space-y-3 mb-6;
+  }
+
+  .admin-form-group label {
+    @apply block font-semibold text-sm text-admin-text mb-2;
+  }
+
+  .admin-form-group p {
+    @apply text-xs text-admin-muted mb-2;
+  }
+
+  .admin-form-field-container {
+    @apply space-y-2 mb-6;
+  }
+
+  .admin-modal-content {
+    @apply p-6 bg-admin-card border-admin-border;
+  }
+
+  .admin-list-item {
+    @apply py-4 px-0 border-b border-admin-border/50 last:border-b-0;
+  }
+
+  /* Admin Form Validation & Error States */
+  .admin-form-error-message {
+    @apply text-xs text-admin-danger font-medium mt-1.5 flex items-center gap-1.5;
+  }
+
+  .admin-form-error-message::before {
+    content: '●';
+    @apply inline-block text-admin-danger;
+  }
+
+  .admin-form-success-message {
+    @apply text-xs text-admin-success font-medium mt-1.5 flex items-center gap-1.5;
+  }
+
+  .admin-form-success-message::before {
+    content: '✓';
+    @apply inline-block text-admin-success font-bold;
+  }
+
+  .admin-form-input-error {
+    @apply border-admin-danger/50 focus:border-admin-danger focus:ring-admin-danger/20;
+  }
+
+  .admin-form-input-success {
+    @apply border-admin-success/50 focus:border-admin-success focus:ring-admin-success/20;
+  }
+
+  /* Unified Admin Card Base Class */
+  .admin-card {
+    @apply bg-admin-card border border-admin-border rounded-lg;
+  }
+
+  .admin-card-hover {
+    @apply admin-card transition-all duration-200 hover:border-admin-border/80 hover:shadow-sm;
+  }
+
+  .admin-card-interactive {
+    @apply admin-card-hover cursor-pointer;
+  }
 
   /* Glass Effect */
   .glass {
@@ -699,26 +764,6 @@ em,
   color: var(--site-crimson);
   font-style: italic;
 }
-
-/* Elite Navbar Pill Style */
-.navbar-pill {
-  background: rgba(10, 10, 10, 0.45);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6),
-              inset 0 1px 1px rgba(255, 255, 255, 0.10);
-  transform: translateY(0);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.navbar-pill:hover {
-  background: rgba(15, 15, 15, 0.75);
-  border-color: rgba(209, 175, 110, 0.4);
-  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.9),
-              0 0 20px rgba(209, 175, 110, 0.1);
-}
-
 
 /* ════════════════════════════════════╗
  *  Hero Image Animation Effects      ║

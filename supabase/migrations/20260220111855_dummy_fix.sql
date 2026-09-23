@@ -1,0 +1,1 @@
+CREATE TYPE public.lead_source_enum AS ENUM ('contact_form', 'workspace_studio'); CREATE TABLE IF NOT EXISTS public.site_settings (id text, resend_api_key text, posthog_project_api_key text, posthog_host text, telegram_bot_token text, integrations jsonb);

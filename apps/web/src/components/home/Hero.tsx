@@ -266,7 +266,7 @@ const Hero = () => {
 
           {/* Overlay — lighter so photography dominates */}
           <div
-            className={`absolute inset-0 pointer-events-none z-10 flex flex-col justify-end p-8 md:p-16 lg:px-24 bg-gradient-to-t from-black/75 via-black/15 to-transparent${contentVisible ? " hero-content-visible" : ""}`}
+            className={`absolute inset-0 pointer-events-none z-10 flex flex-col justify-end p-8 md:p-16 lg:px-24 bg-[linear-gradient(to_top,rgba(0,0,0,0.88)_0%,rgba(0,0,0,0.70)_40%,rgba(0,0,0,0.28)_62%,transparent_100%)]${contentVisible ? " hero-content-visible" : ""}`}
           >
             <div data-hero-copy className="pointer-events-auto w-full max-w-[1600px] mx-auto flex flex-col gap-5 will-change-transform">
 
@@ -278,7 +278,7 @@ const Hero = () => {
 
               {/* Staggered headline */}
               <h1
-                className="hero-title font-display text-[clamp(2.5rem,6vw,5.75rem)] leading-[1.05] text-white mb-1 font-normal"
+                className="hero-title font-display text-[clamp(2.5rem,6vw,5.75rem)] leading-[1.05] text-white mb-1 font-normal [text-shadow:0_2px_28px_rgba(0,0,0,0.55)]"
                 style={{ letterSpacing: "-0.03em" }}
               >
                 <span className="hero-word hero-word-1 block">Museum-Quality</span>
@@ -286,7 +286,7 @@ const Hero = () => {
               </h1>
 
               {/* Body */}
-              <p className="hero-body-text text-base md:text-lg max-w-[44ch] leading-relaxed text-white/75">
+              <p className="hero-body-text text-base md:text-lg max-w-[44ch] leading-relaxed text-white/85 [text-shadow:0_1px_16px_rgba(0,0,0,0.5)]">
                 We design turn-key interiors that blend architectural discipline with effortless living.
               </p>
 

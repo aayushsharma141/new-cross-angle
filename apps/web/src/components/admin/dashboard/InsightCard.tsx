@@ -50,7 +50,7 @@ export function InsightCard({ title, description, actionLabel, onAction, onDismi
                                 className="absolute top-0 right-0 text-[hsl(var(--admin-text-subtle))] hover:text-[hsl(var(--admin-foreground))] transition-colors p-1 rounded-md hover:bg-[hsl(var(--admin-surface-hover))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-primary))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--admin-card))]"
                                 aria-label="Dismiss insight"
                             >
-                                <X className="w-3.5 h-3.5" />
+                                <X className="w-4 h-4" />
                             </button>
                         )}
                     </div>
@@ -67,7 +67,7 @@ export function InsightCard({ title, description, actionLabel, onAction, onDismi
                                 onClick={onAction}
                             >
                                 {actionLabel}
-                                <ArrowRight className="w-3 h-3 ml-1.5" />
+                                <ArrowRight className="w-4 h-4 ml-1.5" />
                             </Button>
                         </div>
                     )}

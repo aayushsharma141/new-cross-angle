@@ -9,11 +9,11 @@ export const EstimatorModule = () => {
 
     return (
         <ModuleLayout
-            title="Estimator Engine"
-            description="Manage pricing logic, room rates, and review project estimate submissions from clients."
+            title="Quotes & Estimates"
+            description="Create, send, and track project quotes. Manage pricing tiers and estimation settings."
             tabs={[
-                { label: "Estimate Leads", path: "/admin/estimator/estimate-leads" },
-                { label: "Pricing Configuration", path: "/admin/estimator/pricing-configuration" },
+                { label: "Quote Requests", path: "/admin/estimator/estimate-leads", group: "Quotes" },
+                { label: "Pricing & Settings", path: "/admin/estimator/config", group: "Configuration" },
             ]}
         >
             <Outlet />

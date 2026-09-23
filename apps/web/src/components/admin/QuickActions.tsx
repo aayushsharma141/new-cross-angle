@@ -20,7 +20,7 @@ export function QuickActionButton({
     const navigate = useNavigate();
 
     const className =
-        "group relative overflow-hidden rounded-xl border border-admin-border bg-admin-card p-5 hover:shadow-md transition-all duration-300 w-full";
+        "group admin-card-hover relative overflow-hidden p-5 transition-all duration-300 w-full";
     const content = (
         <>
             <div
@@ -96,7 +96,7 @@ function QuickActions() {
     ];
 
     return (
-        <div className="rounded-xl border border-admin-border bg-admin-card p-6 shadow-sm">
+        <div className="admin-card p-6 shadow-sm">
             <h3 className="mb-5 text-lg font-semibold text-admin-text">Quick Actions</h3>
             <div className="grid grid-cols-1 gap-3">
                 {actions.map((action) => (

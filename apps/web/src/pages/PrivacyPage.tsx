@@ -18,13 +18,11 @@ const Section = ({ icon: Icon, title, children, index }: { icon: React.ElementTy
     whileInView="visible"
     viewport={{ once: true, margin: "-60px" }}
     variants={fadeUp}
-    className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-8 backdrop-blur-sm"
+    className="border-t border-white/10 pt-10"
   >
-    <div className="flex items-center gap-3 mb-6 border-b border-white/[0.07] pb-5">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#D4AF37]/20 bg-[#D4AF37]/10">
-        <Icon className="w-5 h-5 text-[#D4AF37]" />
-      </div>
-      <h2 className="text-xl font-semibold text-white m-0">{title}</h2>
+    <div className="mb-8 flex items-center gap-4">
+      <Icon aria-hidden="true" className="h-4 w-4 shrink-0 text-primary" />
+      <h2 className="m-0 font-display text-2xl font-normal tracking-[-0.02em] text-white md:text-[1.75rem]">{title}</h2>
     </div>
     {children}
   </motion.section>
@@ -63,7 +61,7 @@ const PrivacyPage = () => {
               <Shield className="w-3.5 h-3.5" />
               <span>Legal & Privacy · Version 2.0</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-serif font-medium tracking-tight mb-5 leading-tight">
+            <h1 className="mb-6 font-display text-[clamp(2.25rem,5vw,4rem)] font-normal leading-[1.05] tracking-[-0.02em]">
               Privacy Policy &amp; <span className="text-[#D4AF37]">DPDPA Compliance</span>
             </h1>
             <p className="text-lg text-white/60 leading-relaxed max-w-2xl">

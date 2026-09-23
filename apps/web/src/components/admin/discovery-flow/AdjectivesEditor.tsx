@@ -58,7 +58,7 @@ export function AdjectivesEditor() {
             disabled={!dirty || isSaving}
             className="h-7 text-xs gap-1.5 bg-[hsl(var(--admin-primary))] text-black hover:bg-[hsl(var(--admin-primary))]/90"
           >
-            {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Save
           </Button>
         }
@@ -82,7 +82,7 @@ export function AdjectivesEditor() {
                   className="text-[hsl(var(--admin-text-muted))] hover:text-red-400 transition-colors ml-0.5"
                   aria-label={`Remove ${word}`}
                 >
-                  <X className="w-3 h-3" />
+                  <X className="w-4 h-4" />
                 </button>
               </span>
             ))}
@@ -107,7 +107,7 @@ export function AdjectivesEditor() {
             disabled={!newItem.trim()}
             className="h-8 text-xs gap-1 shrink-0"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-4 h-4" />
             Add
           </Button>
         </div>

@@ -26,9 +26,7 @@ export const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
 
     useEffect(() => {
         if (!loading && !roleLoading && role && !allowedRoles.includes(role)) {
-            console.warn(
-                `[RoleGuard] Access denied. Role "${role}" not in [${allowedRoles.join(', ')}] for "${location.pathname}".`
-            );
+            // Access denied - render redirect to /admin hub instead
         }
     }, [role, loading, roleLoading, allowedRoles, location.pathname]);
 

@@ -1,0 +1,29 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "bounce-easing",
+        "value": "animate-bounce",
+        "createdAt": "2026-09-09T11:47:03.856Z",
+        "reason": "Claude: match sits inside a prefers-reduced-motion block that sets animation:none on .animate-pulse/.animate-spin/.animate-bounce - the rule fires on code that DISABLES bounce, not code that applies it"
+      },
+      {
+        "rule": "bounce-easing",
+        "value": "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+        "createdAt": "2026-09-09T11:47:10.081Z",
+        "reason": "user confirmed: asked to leave the navbar easing alone (.navbar-pill hover overshoot, spotlight-navbar.tsx:107) after being shown it was live code"
+      },
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "apps/web/src/components/portfolio/TrustSection.tsx"
+        ],
+        "createdAt": "2026-09-09T20:14:51.583Z",
+        "reason": "Claude: L41 is a CSS loading spinner (w-8 h-8 rounded-full border-t-2 border-primary animate-spin), not a card - the single-side border plus full radius IS the spinner arc; removing either breaks it. Pre-existing code, untouched by the ImageKit URL fix on L79."
+      }
+    ]
+  }
+}

@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { ArrowRight, Sun, Layers, Fingerprint, Palette, BarChart3, Compass, X, BatteryCharging, Circle, Eye, Sparkles, Users, Flame } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Sun, Layers, Fingerprint, Palette, BarChart3, Compass, X, BatteryCharging, Circle, Eye, Sparkles, Users, Flame } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
-import logoIcon from "@/assets/logo-icon.png";
-import { AnimatedLogo } from "@/components/ui/enhanced/AnimatedLogo";
-import SoftAurora from "@/components/ReactBits/SoftAurora";
 import CountUp from "@/components/ReactBits/CountUp";
-
-import BlurText from "@/components/ReactBits/BlurText";
-import ShinyText from "@/components/ReactBits/ShinyText";
+import { ECOSYSTEM_COPY, ECOSYSTEM_ROUTES } from "@/addons/_shared/ecosystemCopy";
+import {
+  WorkspaceShell, wsEyebrow, wsRule, wsDisplay, wsBody, wsMeta,
+  wsPrimaryCta, wsSecondaryCta, wsTextLink, wsArrow,
+} from "@/addons/_shared/WorkspaceShell";
+import { EntryChoice, type EntryDoor } from "@/addons/_shared/EntryChoice";
+import { cn } from "@/lib/utils";
 import type { DiscoveryConfig } from "@/types/discovery";
 
 
@@ -210,9 +211,22 @@ interface DiscoveryLandingProps {
   config?: DiscoveryConfig;
 }
 
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+const DEEP_OUTPUTS = [
+  "Your interior archetype, named",
+  "Colour and material direction",
+  "Light and spatial preferences",
+  "A practical design roadmap",
+];
+
+const QUICK_OUTPUTS = [
+  "Your top archetype match",
+  "A starting palette direction",
+  "Enough to calibrate an estimate",
+];
+
 export default function DiscoveryLanding({ onStart }: DiscoveryLandingProps) {
-  const { settings } = useSiteSettings();
-  const logoUrl = settings?.company_logo_url || settings?.logo_light_url || logoIcon;
   const { lang, setLang } = useLanguage();
   const [showIntent, setShowIntent] = useState(false);
 
@@ -225,218 +239,130 @@ export default function DiscoveryLanding({ onStart }: DiscoveryLandingProps) {
     onStart("deep", id);
   };
 
+  const doors: EntryDoor[] = [
+    {
+      id: "deep",
+      index: "01",
+      eyebrow: "Full discovery",
+      title: <>Decode how you want to live.</>,
+      description:
+        "A guided read of instinct, emotion and texture. The longer route, and the one that produces a blueprint precise enough to design from.",
+      duration: "About 6 minutes",
+      outputs: DEEP_OUTPUTS,
+      featured: true,
+      action: (
+        <button type="button" onClick={handleStartDeep} className={wsPrimaryCta}>
+          Start full discovery {wsArrow}
+        </button>
+      ),
+    },
+    {
+      id: "quick",
+      index: "02",
+      eyebrow: "Quick read",
+      title: <>Just show me my style.</>,
+      description:
+        "A short version for a first direction. You can always come back and go deeper — nothing you answer here is wasted.",
+      duration: "About 3 minutes",
+      outputs: QUICK_OUTPUTS,
+      action: (
+        <button type="button" onClick={handleStartQuick} className={wsSecondaryCta}>
+          Take the 3-minute quiz {wsArrow}
+        </button>
+      ),
+    },
+  ];
+
+  const languageToggle = (
+    <div className="flex items-center overflow-hidden rounded-full border border-[var(--ws-line)] bg-[var(--ws-paper)]/70">
+      {(["en", "hi"] as const).map((l) => (
+        <button
+          key={l}
+          type="button"
+          onClick={() => setLang(l)}
+          aria-current={lang === l ? "true" : undefined}
+          className={cn(
+            "px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.2em] transition-colors duration-300",
+            lang === l
+              ? "bg-[var(--ws-gold)] text-black"
+              : "text-[var(--ws-muted)] hover:text-[var(--ws-ink)]",
+          )}
+        >
+          {l === "en" ? "EN" : "Hinglish"}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="relative w-full h-full min-h-screen bg-[#faf8f5] text-[#1a1a1a] selection:bg-[#c9a96e]/20 overflow-x-hidden"
-    >
-      {/* ── Background ── */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <SoftAurora
-          speed={0.12}
-          scale={1.3}
-          brightness={1.1}
-          color1="#c8a96e"
-          color2="#5a705e"
-          color3="#faf8f5"
-          enableMouseInteraction={true}
-          className="absolute inset-0 w-full h-full opacity-[0.2]"
-        />
-        <div
-          className="absolute inset-0 opacity-[0.03] mix-blend-overlay"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
-          }}
-        />
-      </div>
-
-      {/* ── Fixed Header ── */}
-      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-4 md:px-10 pointer-events-none">
-        <div className="pointer-events-auto">
-          <a href="/" className="flex items-center gap-2 sm:gap-3 z-10 shrink-0 group min-w-0 hover:opacity-75 transition-all duration-300 rounded-lg focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none" aria-label="Return to CrossAngle Home">
-            <img src={logoUrl} alt="Cross Angle Interior" className="h-10 md:h-12 w-auto transition-all duration-500 shrink-0" />
-            <AnimatedLogo isScrolled={false} className="flex gap-1 sm:gap-1.5 font-bold tracking-tight whitespace-nowrap min-w-0 [&_span]:text-[#1a1a1a]" />
-          </a>
-        </div>
-        <div className="pointer-events-auto">
-          <div className="flex items-center border border-[#e8e4dd] bg-white/70 backdrop-blur-md overflow-hidden rounded-full shadow-sm">
-            {(["en", "hi"] as const).map((l) => (
-              <button
-                key={l}
-                onClick={() => setLang(l)}
-                aria-current={lang === l ? "true" : undefined}
-                className={`px-4 py-1.5 text-[10px] font-mono tracking-widest uppercase transition-all duration-300 ${
-                  lang === l ? "bg-[#c9a96e] text-black font-semibold shadow-sm" : "text-[#5a5a5a] hover:text-[#1a1a1a] hover:bg-[#c9a96e]/10"
-                }`}
-              >
-                {l === "en" ? "EN" : "Hinglish"}
-              </button>
-            ))}
-          </div>
-        </div>
-      </header>
-
-      {/* ── DESKTOP LAYOUT ── */}
-      <div className="hidden lg:flex h-screen overflow-hidden relative z-10 pt-[72px]">
-        {/* Left Panel (45%) */}
-        <div className="w-[45%] flex flex-col justify-center px-10 xl:px-16 2xl:px-20 py-12">
-          <div className="mb-3">
-            <ShinyText
-              text="Aesthetic Discovery Engine"
-              className="text-[9px] font-mono tracking-[0.35em] uppercase text-[#70593a] font-bold"
-              color="#70593a"
-              shineColor="#c9a96e"
-              speed={4}
-              spread={60}
-            />
-          </div>
-
-          <h1 className="font-serif text-[clamp(2.2rem,3.2vw,3.6rem)] font-normal leading-[1.12] mb-5 text-[#1a1a1a] tracking-tight max-w-xl">
-            Most tools ask what you want.
-            <br />
-            We decode how you{" "}
-            <em className="not-italic text-[#70593a] font-serif font-medium">want to live.</em>
-          </h1>
-
-          <BlurText
-            text="Your home is not a design problem. It's a psychology question. Take a 3-minute discovery and receive your interior archetype, palette direction, material focus, and a practical design roadmap."
-            className="text-sm text-[#4a4a4a] max-w-lg leading-relaxed mb-8 font-light"
-            delay={80}
-            animateBy="words"
-            direction="top"
-            stepDuration={0.4}
-          />
-
-          <div className="flex flex-col gap-4 mb-10 w-fit">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleStartDeep}
-                className="group relative overflow-hidden px-8 py-3.5 bg-[#c9a96e] hover:bg-[#b5955a] text-black font-semibold text-[11px] font-mono uppercase tracking-[0.2em] transition-all duration-300 rounded-full shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#80643e] focus-visible:outline-none"
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  Start Full Discovery
-                  <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
-                </span>
-                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ease-out" />
-              </button>
-
-              <button
-                onClick={handleStartQuick}
-                className="px-8 py-3.5 text-[11px] font-mono font-bold tracking-[0.25em] uppercase border border-[#70593a]/30 text-[#70593a] hover:bg-[#70593a]/5 hover:border-[#70593a] transition-all duration-300 rounded-full focus-visible:ring-2 focus-visible:ring-[#70593a] focus-visible:outline-none"
-              >
-                Take 3-Min Quiz
-              </button>
-            </div>
-            <p className="text-xs text-[#5a5a5a] font-light pl-2">No payment required. Get your first design direction instantly.</p>
-          </div>
-
-          <div className="flex items-center gap-3 bg-white/50 backdrop-blur-sm border border-[#e8e4dd] px-5 py-2.5 rounded-full shadow-sm w-fit">
-            <div className="flex -space-x-1">
-              <div className="w-5 h-5 rounded-full bg-[#354f40] border border-white flex items-center justify-center text-[7px] font-bold text-white">C</div>
-              <div className="w-5 h-5 rounded-full bg-[#80643e] border border-white flex items-center justify-center text-[7px] font-bold text-white">A</div>
-              <div className="w-5 h-5 rounded-full bg-[#354f40] border border-white flex items-center justify-center text-[7px] font-bold text-white">P</div>
-            </div>
-            <span className="text-[11px] font-mono tracking-wide text-[#3a3a3a] font-medium">
-              <strong className="text-[#1a1a1a]"><CountUp to={quizCount} duration={2.5} separator="," />+</strong> homeowners discovered their style
-            </span>
-          </div>
-        </div>
-
-        {/* Right Panel (55%) */}
-        <div className="w-[55%] flex flex-col h-screen overflow-y-auto px-10 xl:px-14 py-20 pb-32 hide-scrollbar">
-          <UnifiedDashboard />
-        </div>
-      </div>
-
-      {/* ── MOBILE LAYOUT ── */}
-      <div className="block lg:hidden relative z-10 pt-16">
-        {/* Hero */}
-        <section className="min-h-[70vh] flex flex-col items-center justify-center px-6 py-16 text-center">
-          <div className="mb-4">
-            <ShinyText
-              text="Aesthetic Discovery Engine"
-              className="text-[9px] font-mono tracking-[0.35em] uppercase text-[#70593a] font-bold"
-              color="#70593a"
-              shineColor="#c9a96e"
-              speed={4}
-              spread={60}
-            />
-          </div>
-          <h1 className="font-serif text-3xl md:text-4xl font-normal leading-[1.12] mb-5 text-[#1a1a1a] tracking-tight max-w-xl">
+    <WorkspaceShell headerAside={languageToggle}>
+      <main className="mx-auto w-full max-w-[1280px] px-6 pb-24 pt-36 md:px-10 md:pb-32 md:pt-44">
+        {/* Statement */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: EASE }}
+          className="max-w-3xl"
+        >
+          <span className={cn(wsEyebrow, "mb-8")}>
+            <span aria-hidden="true" className={wsRule} />
+            Aesthetic Discovery Engine
+          </span>
+          <h1 className={cn(wsDisplay, "mb-6 text-[clamp(2.5rem,6vw,4.75rem)] leading-[1.02]")}>
             Most tools ask what you want. We decode how you{" "}
-            <em className="not-italic text-[#70593a] font-serif font-medium">want to live.</em>
+            <span className="italic font-light text-[var(--ws-bronze)]">want to live.</span>
           </h1>
-          <p className="text-sm text-[#4a4a4a] max-w-md leading-relaxed mb-8 font-light">
-            Your home is not a design problem. It's a psychology question. Take a 3-minute discovery and receive your interior archetype, palette direction, material focus, and a practical design roadmap.
+          <p className={cn(wsBody, "max-w-xl")}>
+            Your home is not a design problem — it is a psychology question. Answer honestly and receive your interior
+            archetype, palette direction, material focus and a practical roadmap.
           </p>
-          <div className="flex flex-col items-center gap-3 w-full max-w-xs mb-4">
-            <button
-              onClick={handleStartDeep}
-              className="w-full group relative overflow-hidden px-8 py-3.5 bg-[#c9a96e] hover:bg-[#b5955a] text-black font-semibold text-[11px] font-mono uppercase tracking-[0.2em] transition-all duration-300 rounded-full shadow-lg"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                Start Full Discovery
-                <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
-              </span>
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ease-out" />
-            </button>
-            <button
-              onClick={handleStartQuick}
-              className="w-full px-8 py-3.5 text-[11px] font-mono font-bold tracking-[0.25em] uppercase border border-[#70593a]/30 text-[#70593a] hover:bg-[#70593a]/5 hover:border-[#70593a] transition-all duration-300 rounded-full"
-            >
-              Take 3-Min Quiz
-            </button>
-          </div>
-          <p className="text-xs text-[#5a5a5a] font-light mb-8">No payment required. Get your first design direction instantly.</p>
-          <div className="flex items-center gap-3 bg-white/50 backdrop-blur-sm border border-[#e8e4dd] px-5 py-2.5 rounded-full shadow-sm">
-            <span className="text-[11px] font-mono tracking-wide text-[#3a3a3a] font-medium">
-              <strong className="text-[#1a1a1a]"><CountUp to={quizCount} duration={2.5} separator="," />+</strong> homeowners discovered their style
-            </span>
-          </div>
-        </section>
+        </motion.div>
 
-        {/* Mobile Unified Dashboard */}
-        <section className="px-6 py-12 border-t border-[#e8e4dd]/60 bg-[#faf8f5]">
+        {/* Proof */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.25, ease: EASE }}
+          className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--ws-line)] pt-6"
+        >
+          <span className={wsMeta}>No payment required</span>
+          <span className="text-sm font-light text-[var(--ws-ink)]/80">
+            <strong className="font-medium text-[var(--ws-bronze)]">
+              <CountUp to={quizCount} duration={2.5} separator="," />+
+            </strong>{" "}
+            homeowners have discovered their style here.
+          </span>
+        </motion.div>
+
+        {/* The two doors */}
+        <div className="mt-16 md:mt-24">
+          <EntryChoice doors={doors} />
+        </div>
+
+        {/* What the blueprint contains */}
+        <div className="mt-24 md:mt-32">
           <UnifiedDashboard />
-        </section>
+        </div>
 
-        {/* Mobile Final CTA */}
-        <section className="relative min-h-[50vh] flex items-center justify-center py-20 px-6 overflow-hidden">
-          <img
-            src="/images/projects/discovery/visual-2.webp"
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/40 z-0 backdrop-blur-[3px]" />
-          <div className="relative z-10 flex flex-col items-center text-center max-w-md">
-            <h2 className="text-3xl font-serif text-white font-light tracking-tight mb-4">
-              Ready to find your style?
-            </h2>
-            <p className="text-sm text-zinc-300 italic font-light mb-8 max-w-sm">
-              "No right answers. Be honest with yourself."
-            </p>
-            <button
-              onClick={handleStartDeep}
-              className="group relative overflow-hidden px-10 py-4 bg-[#c9a96e] hover:bg-[#b5955a] text-black font-semibold text-xs font-mono uppercase tracking-[0.2em] transition-all duration-300 rounded-full shadow-lg"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Start Full Discovery
-                <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
-              </span>
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ease-out" />
-            </button>
-          </div>
-        </section>
-      </div>
+        {/* Route across to the estimator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.4, ease: EASE }}
+          className="mt-20 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-[var(--ws-line)] pt-8"
+        >
+          <span className={wsMeta}>Only after a number?</span>
+          <Link to={ECOSYSTEM_ROUTES.estimator} className={wsTextLink}>
+            {ECOSYSTEM_COPY.ctas.startEstimator} {wsArrow}
+          </Link>
+        </motion.div>
+      </main>
 
-      {/* ── Intent Overlay ── */}
       <AnimatePresence>
         {showIntent && (
           <IntentOverlay lang={lang} onSelect={handleIntentSelect} onClose={() => setShowIntent(false)} />
         )}
       </AnimatePresence>
-    </motion.div>
+    </WorkspaceShell>
   );
 }

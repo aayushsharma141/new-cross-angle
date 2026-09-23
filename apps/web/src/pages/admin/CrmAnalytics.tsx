@@ -39,7 +39,7 @@ import { ResponsiveContainer, BarChart, Bar, Cell, XAxis, YAxis, Tooltip, PieCha
 
 // ─── Source Normalizer ────────────────────────────────────────────────────────
 // Single source of truth: maps every raw DB value → canonical key
-function normalizeSource(raw: string | null | undefined): string {
+export function normalizeSource(raw: string | null | undefined): string {
   const s = (raw ?? "").toLowerCase().trim();
   if (!s) return "other";
   // Interactive platform channels
@@ -47,6 +47,9 @@ function normalizeSource(raw: string | null | undefined): string {
   if (s === "website_contact" || s === "contact-form" || s === "contact_form" || s.includes("contact")) return "website_contact";
   if (s === "estimator" || s.includes("estimator") || s.includes("estimate")) return "estimator";
   if (s === "welcome_popup" || s.includes("popup") || s.includes("welcome")) return "welcome_popup";
+  // Workspace studio (a real lead_source_enum value — keep above the generic
+  // catch-alls so it is attributed as its own channel rather than "other")
+  if (s === "workspace_studio" || s.includes("workspace")) return "workspace_studio";
   // Referral
   if (s === "referral" || s.includes("referral")) return "referral";
   // Social media
@@ -76,7 +79,26 @@ const SOURCE_META: Record<string, { label: string; icon: React.ElementType; colo
   whatsapp:          { label: "WhatsApp",               icon: MessageSquare,color: "text-green-400",   bgColor: "bg-green-500/10 border-green-500/20",    description: "WhatsApp direct inquiries" },
   social:            { label: "Social Media",           icon: Megaphone,    color: "text-rose-400",    bgColor: "bg-rose-500/10 border-rose-500/20",      description: "Instagram / Facebook / other social" },
   google_ads:        { label: "Paid Search",            icon: Globe,        color: "text-yellow-400",  bgColor: "bg-yellow-500/10 border-yellow-500/20",  description: "Google Ads & PPC campaigns" },
+  workspace_studio:  { label: "Workspace Studio",       icon: BrainCircuit, color: "text-indigo-400",  bgColor: "bg-indigo-500/10 border-indigo-500/20",  description: "Leads captured in the decision workspace" },
+  // `other` is the fallback `normalizeSource` returns for anything unmatched
+  // (including a null lead_source). It MUST exist: every call site does
+  // `SOURCE_META[src] ?? SOURCE_META.other` and then reads `.icon` / `.label`,
+  // so a missing entry here crashes the whole page rather than degrading.
+  other:             { label: "Other",                  icon: Users,        color: "text-zinc-400",    bgColor: "bg-zinc-500/10 border-zinc-500/20",      description: "Uncategorised or unattributed lead source" },
 };
+
+type SourceMeta = (typeof SOURCE_META)[string];
+
+/**
+ * Always returns a renderable meta object.
+ *
+ * Prefer this over `SOURCE_META[key] ?? SOURCE_META.other` at call sites: that
+ * form silently yields `undefined` if the `other` entry is ever removed, and
+ * the next property read takes the whole page down with it.
+ */
+export function getSourceMeta(key: string): SourceMeta {
+  return SOURCE_META[key] ?? SOURCE_META.other;
+}
 
 const SOURCE_HEX_COLORS: Record<string, string> = {
   website_contact: "#3B82F6",
@@ -89,6 +111,7 @@ const SOURCE_HEX_COLORS: Record<string, string> = {
   whatsapp: "#22C55E",
   social: "#F43F5E",
   google_ads: "#EAB308",
+  workspace_studio: "#818CF8",
   other: "#9CA3AF",
 };
 
@@ -234,7 +257,7 @@ export default function CrmAnalytics() {
     const sourcePerformance = Object.entries(sourceMap)
       .map(([key, d]) => ({
         key,
-        meta: SOURCE_META[key] ?? SOURCE_META.other,
+        meta: getSourceMeta(key),
         leads: d.leads,
         won: d.won,
         lost: d.lost,
@@ -520,7 +543,7 @@ export default function CrmAnalytics() {
             {forecast.stale.slice(0, 4).map(lead => {
               const health = getLeadHealth(lead);
               const src = normalizeSource(lead.source ?? lead.lead_source);
-              const srcMeta = SOURCE_META[src] ?? SOURCE_META.other;
+              const srcMeta = getSourceMeta(src);
               const SrcIcon = srcMeta.icon;
               return (
                 <div key={lead.id} className="bg-[hsl(var(--admin-danger-muted))] border border-[hsl(var(--admin-danger)/0.2)] rounded-lg p-3 flex items-center justify-between hover:bg-[hsl(var(--admin-danger-muted))/1.5] transition-colors">
@@ -551,7 +574,7 @@ export default function CrmAnalytics() {
           <div className="space-y-3">
             {analytics.radar.map(lead => {
               const src = normalizeSource(lead.source ?? lead.lead_source);
-              const srcMeta = SOURCE_META[src] ?? SOURCE_META.other;
+              const srcMeta = getSourceMeta(src);
               const SrcIcon = srcMeta.icon;
               return (
                 <div key={lead.id} className="bg-[hsl(var(--admin-success-muted))] border border-[hsl(var(--admin-success)/0.2)] rounded-lg p-3 hover:bg-[hsl(var(--admin-success-muted))/1.5] transition-colors">

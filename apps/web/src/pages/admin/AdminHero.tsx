@@ -38,6 +38,15 @@ const isValidUrl = (str: string) => {
 
 const formatDuration = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
 
+/* Stable empty-array identity for the query fallback.
+ *
+ * Using a `= []` literal as the default for `data` allocates a fresh array on
+ * every render while the query is unresolved. The effect below mirrors that
+ * value into local state, so a new reference each render means setState each
+ * render — an infinite update loop until the query settles ("Maximum update
+ * depth exceeded"). A module-level constant keeps the reference stable. */
+const NO_ITEMS: HeroMediaItem[] = [];
+
 /* ─── Component ─── */
 const AdminHero = () => {
     const { toast } = useToast();
@@ -81,7 +90,7 @@ const AdminHero = () => {
     const addUrlRef = useRef<HTMLInputElement>(null);
 
     /* ─── Fetch ─── */
-    const { data: fetchedItems = [], isLoading, refetch } = useQuery({
+    const { data: fetchedItems = NO_ITEMS, isLoading, refetch } = useQuery({
         queryKey: ['hero-items'],
         queryFn: async () => {
             const { data, error } = await supabase

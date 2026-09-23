@@ -9,12 +9,12 @@ export const UserAccessModule = () => {
 
     return (
         <ModuleLayout
-            title="User Access"
-            description="Manage admin users, roles, permissions, and security settings."
+            title="Team & Access Control"
+            description="Manage admin team members, assign roles, and configure security settings."
             tabs={[
-                { label: "Users", path: "/admin/user-access/users" },
-                { label: "Roles & Permissions", path: "/admin/user-access/roles" },
-                { label: "Security", path: "/admin/user-access/security" },
+                { label: "Team Members", path: "/admin/user-access/users", group: "Team Management" },
+                { label: "Roles & Permissions", path: "/admin/user-access/roles", group: "Access Control" },
+                { label: "Security Settings", path: "/admin/user-access/security", group: "Security" },
             ]}
         >
             <Outlet />

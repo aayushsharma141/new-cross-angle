@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.5"
   }
   graphql_public: {
     Tables: {
@@ -39,6 +39,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_sessions: {
+        Row: {
+          admin_id: string | null
+          created_at: string | null
+          expires_at: string
+          id: string
+          ip_address: string | null
+          last_activity: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          admin_id?: string | null
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: string | null
+          last_activity?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          admin_id?: string | null
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          last_activity?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           event_type: string
@@ -618,6 +648,36 @@ export type Database = {
         }
         Relationships: []
       }
+      cms_sections: {
+        Row: {
+          content: Json
+          id: string
+          is_active: boolean | null
+          page_name: string
+          section_key: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          content?: Json
+          id?: string
+          is_active?: boolean | null
+          page_name: string
+          section_key: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          content?: Json
+          id?: string
+          is_active?: boolean | null
+          page_name?: string
+          section_key?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           author_id: string | null
@@ -693,6 +753,41 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_pipeline_history: {
+        Row: {
+          admin_id: string | null
+          created_at: string | null
+          from_status: string | null
+          id: string
+          lead_id: string | null
+          to_status: string
+        }
+        Insert: {
+          admin_id?: string | null
+          created_at?: string | null
+          from_status?: string | null
+          id?: string
+          lead_id?: string | null
+          to_status: string
+        }
+        Update: {
+          admin_id?: string | null
+          created_at?: string | null
+          from_status?: string | null
+          id?: string
+          lead_id?: string | null
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_pipeline_history_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_tasks: {
         Row: {
           created_at: string | null
@@ -737,9 +832,50 @@ export type Database = {
           },
         ]
       }
-      design_process_steps: {
+      decision_events: {
         Row: {
           created_at: string
+          event_type: string
+          id: string
+          lead_id: string
+          occurred_at: string
+          payload: Json
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          lead_id: string
+          occurred_at?: string
+          payload?: Json
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          lead_id?: string
+          occurred_at?: string
+          payload?: Json
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decision_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      design_process_steps: {
+        Row: {
+          budget_range: string | null
+          client_does: Json | null
+          created_at: string
+          deliverables: Json | null
           description: string
           detail: string
           display_order: number
@@ -750,11 +886,16 @@ export type Database = {
           kicker: string | null
           step_number: string
           subtitle: string
+          timeline_estimate: string | null
           title: string
           updated_at: string
+          we_do: Json | null
         }
         Insert: {
+          budget_range?: string | null
+          client_does?: Json | null
           created_at?: string
+          deliverables?: Json | null
           description: string
           detail: string
           display_order?: number
@@ -765,11 +906,16 @@ export type Database = {
           kicker?: string | null
           step_number: string
           subtitle: string
+          timeline_estimate?: string | null
           title: string
           updated_at?: string
+          we_do?: Json | null
         }
         Update: {
+          budget_range?: string | null
+          client_does?: Json | null
           created_at?: string
+          deliverables?: Json | null
           description?: string
           detail?: string
           display_order?: number
@@ -780,8 +926,10 @@ export type Database = {
           kicker?: string | null
           step_number?: string
           subtitle?: string
+          timeline_estimate?: string | null
           title?: string
           updated_at?: string
+          we_do?: Json | null
         }
         Relationships: []
       }
@@ -1553,6 +1701,57 @@ export type Database = {
         }
         Relationships: []
       }
+      process_faqs: {
+        Row: {
+          answer: string
+          created_at: string
+          display_order: number
+          id: string
+          question: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          question: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          question?: string
+        }
+        Relationships: []
+      }
+      process_metrics: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          label: string
+          suffix: string | null
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          label: string
+          suffix?: string | null
+          value: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          label?: string
+          suffix?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1562,6 +1761,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          last_login: string | null
           role: string | null
           status: string | null
           updated_at: string | null
@@ -1574,6 +1774,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          last_login?: string | null
           role?: string | null
           status?: string | null
           updated_at?: string | null
@@ -1586,6 +1787,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          last_login?: string | null
           role?: string | null
           status?: string | null
           updated_at?: string | null
@@ -2346,7 +2548,6 @@ export type Database = {
           posthog_host: string | null
           rbac_permissions: Json | null
           report_recipients: Json | null
-          resend_api_key: string | null
           security_config: Json | null
           seo_description: string | null
           seo_title_template: string | null
@@ -2354,11 +2555,9 @@ export type Database = {
           social_links: Json | null
           studio_name: string
           studio_stats: Json | null
-          supabase_api_key: string | null
           tagline: string | null
           telegram_chat_ids: string[]
           updated_at: string | null
-          vercel_api_key: string | null
           whatsapp: string | null
         }
         Insert: {
@@ -2391,7 +2590,6 @@ export type Database = {
           posthog_host?: string | null
           rbac_permissions?: Json | null
           report_recipients?: Json | null
-          resend_api_key?: string | null
           security_config?: Json | null
           seo_description?: string | null
           seo_title_template?: string | null
@@ -2399,11 +2597,9 @@ export type Database = {
           social_links?: Json | null
           studio_name?: string
           studio_stats?: Json | null
-          supabase_api_key?: string | null
           tagline?: string | null
           telegram_chat_ids?: string[]
           updated_at?: string | null
-          vercel_api_key?: string | null
           whatsapp?: string | null
         }
         Update: {
@@ -2436,7 +2632,6 @@ export type Database = {
           posthog_host?: string | null
           rbac_permissions?: Json | null
           report_recipients?: Json | null
-          resend_api_key?: string | null
           security_config?: Json | null
           seo_description?: string | null
           seo_title_template?: string | null
@@ -2444,11 +2639,9 @@ export type Database = {
           social_links?: Json | null
           studio_name?: string
           studio_stats?: Json | null
-          supabase_api_key?: string | null
           tagline?: string | null
           telegram_chat_ids?: string[]
           updated_at?: string | null
-          vercel_api_key?: string | null
           whatsapp?: string | null
         }
         Relationships: []
@@ -2480,6 +2673,42 @@ export type Database = {
           title?: string
           updated_at?: string
           year?: string
+        }
+        Relationships: []
+      }
+      system_logs: {
+        Row: {
+          action: string
+          admin_id: string | null
+          created_at: string | null
+          details: Json | null
+          device: string | null
+          id: string
+          ip_address: string | null
+          module: string
+          status: string | null
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          device?: string | null
+          id?: string
+          ip_address?: string | null
+          module: string
+          status?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          device?: string | null
+          id?: string
+          ip_address?: string | null
+          module?: string
+          status?: string | null
         }
         Relationships: []
       }
@@ -2701,6 +2930,123 @@ export type Database = {
         }
         Relationships: []
       }
+      website_events: {
+        Row: {
+          browser: string | null
+          city: string | null
+          created_at: string | null
+          device: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          page: string | null
+          session_id: string | null
+          source: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          created_at?: string | null
+          device?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          page?: string | null
+          session_id?: string | null
+          source?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          created_at?: string | null
+          device?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          page?: string | null
+          session_id?: string | null
+          source?: string | null
+        }
+        Relationships: []
+      }
+      workspace_commitment_revisions: {
+        Row: {
+          commitment_id: string
+          created_at: string
+          decision_genome: Json
+          decision_schema_version: string
+          design_system_version: string
+          divergence_score: number | null
+          genome_version: string
+          id: string
+          is_locked: boolean
+          lead_id: string | null
+          locked_at: string | null
+          narrative_brief: string
+          previous_revision_id: string | null
+          project_snapshot: Json
+          recommendation_engine_version: string
+          recommendation_id: string | null
+          session_id: string | null
+          workspace_state: Json
+        }
+        Insert: {
+          commitment_id?: string
+          created_at?: string
+          decision_genome: Json
+          decision_schema_version?: string
+          design_system_version?: string
+          divergence_score?: number | null
+          genome_version?: string
+          id?: string
+          is_locked?: boolean
+          lead_id?: string | null
+          locked_at?: string | null
+          narrative_brief: string
+          previous_revision_id?: string | null
+          project_snapshot: Json
+          recommendation_engine_version?: string
+          recommendation_id?: string | null
+          session_id?: string | null
+          workspace_state: Json
+        }
+        Update: {
+          commitment_id?: string
+          created_at?: string
+          decision_genome?: Json
+          decision_schema_version?: string
+          design_system_version?: string
+          divergence_score?: number | null
+          genome_version?: string
+          id?: string
+          is_locked?: boolean
+          lead_id?: string | null
+          locked_at?: string | null
+          narrative_brief?: string
+          previous_revision_id?: string | null
+          project_snapshot?: Json
+          recommendation_engine_version?: string
+          recommendation_id?: string | null
+          session_id?: string | null
+          workspace_state?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_commitment_revisions_previous_revision_id_fkey"
+            columns: ["previous_revision_id"]
+            isOneToOne: false
+            referencedRelation: "workspace_commitment_revisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspace_project_commitments_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       daily_project_kpis: {
@@ -2881,6 +3227,20 @@ export type Database = {
       is_admin: { Args: { uid: string }; Returns: boolean }
       is_admin_or_editor: { Args: { _user_id: string }; Returns: boolean }
       is_cms_editor: { Args: never; Returns: boolean }
+      is_crm_viewer: { Args: never; Returns: boolean }
+      is_platform_admin: { Args: never; Returns: boolean }
+      is_platform_admin_by_id: { Args: { _user_id: string }; Returns: boolean }
+      migrate_legacy_asset: {
+        Args: {
+          p_domain: string
+          p_entity_id: string
+          p_entity_type: string
+          p_role: string
+          p_title: string
+          p_url: string
+        }
+        Returns: undefined
+      }
       record_blog_event: {
         Args: {
           p_article_id?: string
@@ -2971,7 +3331,7 @@ export type Database = {
           }
     }
     Enums: {
-      app_role: "super_admin" | "admin" | "viewer"
+      app_role: "super_admin" | "admin" | "viewer" | "editor"
       asset_source_enum:
         | "uploaded"
         | "imported"
@@ -3002,6 +3362,7 @@ export type Database = {
         | "other"
         | "aesthetic_discovery_engine"
         | "welcome_popup"
+        | "workspace_studio"
       lead_status_enum:
         | "new"
         | "contacted"
@@ -3045,12 +3406,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3074,11 +3435,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3099,11 +3460,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3124,11 +3485,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3141,11 +3502,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3160,7 +3521,7 @@ export const Constants = {
   },
   public: {
     Enums: {
-      app_role: ["super_admin", "admin", "viewer"],
+      app_role: ["super_admin", "admin", "viewer", "editor"],
       asset_source_enum: [
         "uploaded",
         "imported",
@@ -3194,6 +3555,7 @@ export const Constants = {
         "other",
         "aesthetic_discovery_engine",
         "welcome_popup",
+        "workspace_studio",
       ],
       lead_status_enum: [
         "new",

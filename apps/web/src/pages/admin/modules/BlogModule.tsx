@@ -9,12 +9,12 @@ export const BlogModule = () => {
 
     return (
         <ModuleLayout
-            title="Blog Analytics"
-            description="Track content performance, reader engagement, and article-level analytics across your blog."
+            title="Blog & SEO Analytics"
+            description="Track blog article performance, reader engagement, and search engine rankings."
             tabs={[
-                { label: "Overview", path: "/admin/blog/overview" },
-                { label: "Article Performance", path: "/admin/blog/article-performance" },
-                { label: "Reader Engagement", path: "/admin/blog/reader-engagement" },
+                { label: "Overview", path: "/admin/blog/overview", group: "Analytics" },
+                { label: "Article Performance", path: "/admin/blog/article-performance", group: "Analytics" },
+                { label: "Reader Engagement", path: "/admin/blog/reader-engagement", group: "Analytics" },
             ]}
         >
             <Outlet />

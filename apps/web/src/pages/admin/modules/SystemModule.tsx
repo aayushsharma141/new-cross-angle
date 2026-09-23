@@ -12,15 +12,15 @@ export const SystemModule = () => {
 
     return (
         <ModuleLayout
-            title="System Settings"
-            description="Manage global settings, API integrations, system maintenance, and audit logs."
+            title="System Administration"
+            description="Configure global settings, email delivery, integrations, maintenance tasks, and system audit logs."
             tabs={[
-                { label: "Company Settings", path: "/admin/system/settings?tab=general" },
-                { label: "Email Recipients", path: "/admin/system/settings?tab=reports" },
-                { label: "Email Templates", path: "/admin/system/email-templates" },
-                { label: "API & Integrations", path: "/admin/system/settings?tab=credentials" },
-                { label: "Updates & Maintenance", path: "/admin/system/settings?tab=updates" },
-                { label: "Audit Logs", path: "/admin/system/audit-logs" },
+                { label: "General Settings", path: "/admin/system/settings?tab=general", group: "Configuration" },
+                { label: "Email Delivery", path: "/admin/system/settings?tab=reports", group: "Configuration" },
+                { label: "Email Templates", path: "/admin/system/email-templates", group: "Configuration" },
+                { label: "Integrations", path: "/admin/system/settings?tab=credentials", group: "Integrations" },
+                { label: "Maintenance", path: "/admin/system/settings?tab=updates", group: "Maintenance" },
+                { label: "Audit Logs", path: "/admin/system/audit-logs", group: "Audit & Security" },
             ]}
         >
             <Outlet />

@@ -1,0 +1,16 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: {width:1440,height:900} });
+const posts = [];
+page.on('request', r => { if (r.method() === 'POST' && /supabase|leads|rest/.test(r.url())) posts.push(r.url() + ' :: ' + (r.postData()||'').slice(0,80)); });
+await page.goto('http://localhost:8080/contact-us', { waitUntil: 'networkidle' });
+await page.getByRole('button', { name: /send inquiry/i }).click();
+await page.waitForTimeout(500);
+const errors = await page.locator('[id$="-error"]').allTextContents();
+const focused = await page.evaluate(() => document.activeElement?.id);
+await page.fill('#firstName', 'Test'); await page.fill('#email', 'not-an-email'); await page.locator('#email').blur();
+await page.waitForTimeout(300);
+const emailErr = await page.locator('#email-error').textContent().catch(() => null);
+const floated = await page.evaluate(() => getComputedStyle(document.querySelector('label[for=firstName]')).top);
+console.log(JSON.stringify({ errorCount: errors.length, errors, focusedAfterSubmit: focused, emailErr, firstNameLabelTop: floated, leadPosts: posts }, null, 1));
+await browser.close();

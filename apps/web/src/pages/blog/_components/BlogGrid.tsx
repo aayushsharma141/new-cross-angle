@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Clock, Eye, ArrowRight, ArrowDown } from "lucide-react";
 import { OptimizedImage as Image } from "@/components/ui/enhanced/OptimizedImage";
-import { Skeleton } from "@/components/ui/primitives/skeleton";
 import { Blog } from "@/lib/api";
-import { cleanTitle, readTime, formatViews, CRIMSON } from "../_utils/blogUtils";
+import { cleanTitle, cleanExcerpt, readTime, formatViews } from "../_utils/blogUtils";
+import { Body, EASE_OUT_EXPO, textLinkClass } from "@/components/editorial";
 
 interface BlogGridProps {
   isLoading: boolean;
@@ -19,7 +18,6 @@ interface BlogGridProps {
 
 export function BlogGrid({
   isLoading,
-  activeCategory,
   setActiveCategory,
   setSearchQuery,
   filteredLength,
@@ -27,117 +25,89 @@ export function BlogGrid({
   visibleCount,
   setVisibleCount,
 }: BlogGridProps) {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="aspect-[4/3] w-full animate-pulse bg-white/[0.03]" />
+        ))}
+      </div>
+    );
+  }
+
+  if (paginatedPosts.length === 0) {
+    return (
+      <div className="py-24 text-center">
+        <p className="mb-6 font-display text-xl font-light italic text-white/40">No articles match that search.</p>
+        <button
+          type="button"
+          onClick={() => { setActiveCategory("All"); setSearchQuery(""); setVisibleCount(5); }}
+          className={textLinkClass}
+        >
+          Clear filters
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className={`rounded-2xl overflow-hidden border space-y-4 ${i === 1 ? "md:col-span-2" : ""}`} style={{ background: "#0D0D0D", borderColor: "#1a1a1a" }}>
-              <Skeleton className={`w-full rounded-lg bg-zinc-800/30 ${i === 1 ? "aspect-[21/9]" : "aspect-[16/9]"}`} />
-              <div className="p-5 space-y-3">
-                <Skeleton className="h-3 w-20 bg-zinc-800/50" />
-                <Skeleton className="h-5 w-full bg-zinc-800/50" />
-                <Skeleton className="h-4 w-4/5 bg-zinc-800/30" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : paginatedPosts.length === 0 ? (
-        <div className="text-center py-24" style={{ color: "#555" }}>
-          <BookOpen className="w-10 h-10 mx-auto mb-4 opacity-30" />
-          <p className="text-base text-white/40">No articles found for this filter.</p>
-          <button
-            onClick={() => { setActiveCategory("All"); setSearchQuery(""); }}
-            className="mt-4 text-[13px] underline text-white/30 hover:text-white/60 transition-colors"
-          >
-            Clear filters
-          </button>
-        </div>
-      ) : (
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`${activeCategory}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            role="tabpanel"
-            id="blog-posts-panel"
-            aria-labelledby={`tab-${activeCategory.toLowerCase().replace(/\s+/g, '-')}`}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          >
-            {paginatedPosts.map((post, i) => (
-              <motion.article
-                key={post.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className={`rounded-2xl overflow-hidden border group transition-all duration-400 hover:border-[#D4AF37]/30 hover:shadow-[0_12px_40px_rgba(212,175,55,0.07)] ${i === 0 ? "md:col-span-2" : ""}`}
-                style={{ background: "#0D0D0D", borderColor: "#1c1c1c" }}
-              >
-                <Link to={`/blog/${post.slug || post.id}`} className="block">
-                  <div className={`overflow-hidden ${i === 0 ? "aspect-[21/9]" : "aspect-[16/9]"}`}>
-                    <Image
-                      src={post.image}
-                      alt={post.title}
-                      className="w-full h-full"
-                      imageClassName="object-cover group-hover:scale-105 transition-transform duration-700"
-                      width={i === 0 ? 900 : 500}
-                      height={i === 0 ? 400 : 280}
-                    />
-                  </div>
-                </Link>
-                <div className="p-5 md:p-6 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
-                      style={{ background: `${CRIMSON}15`, color: CRIMSON }}
-                    >
-                      {post.category || "Design"}
-                    </span>
-                    <span className="text-[12px] text-white/30">{post.date}</span>
-                  </div>
-                  <Link to={`/blog/${post.slug || post.id}`}>
-                    <h3 className={`font-serif font-semibold text-white group-hover:text-[#D4AF37] transition-colors leading-snug line-clamp-2 ${i === 0 ? "text-xl md:text-2xl" : "text-base md:text-lg"}`}>
-                      {cleanTitle(post.title)}
-                    </h3>
-                  </Link>
-                  <p className="text-[13px] leading-relaxed line-clamp-2 text-white/55">
-                    {post.excerpt}
-                  </p>
-                  <div className="flex items-center justify-between pt-1">
-                    <div className="flex items-center gap-4 text-[12px] text-white/35">
-                      <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" />{readTime(post)} read</span>
-                      <span className="flex items-center gap-1.5"><Eye className="w-3 h-3" />{formatViews(post.view_count)} views</span>
-                    </div>
-                    <Link
-                      to={`/blog/${post.slug || post.id}`}
-                      className="text-[12px] font-semibold flex items-center gap-1 transition-colors hover:gap-2"
-                      style={{ color: CRIMSON }}
-                      aria-label={`Read more: ${cleanTitle(post.title)}`}
-                    >
-                      Read <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
+      <ul className="grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+        <AnimatePresence mode="popLayout">
+          {paginatedPosts.map((post, i) => (
+            <motion.li
+              key={post.id}
+              layout
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.7, delay: Math.min(i, 5) * 0.05, ease: EASE_OUT_EXPO }}
+            >
+              <Link to={`/blog/${post.slug}`} className="group block focus-visible:outline-none">
+                <div className="mb-6 aspect-[4/3] w-full overflow-hidden bg-white/[0.03]">
+                  <Image
+                    src={post.image}
+                    alt={cleanTitle(post.title)}
+                    className="h-full w-full"
+                    imageClassName="h-full w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                    width={900}
+                    height={675}
+                  />
                 </div>
-              </motion.article>
-            ))}
-          </motion.div>
-        </AnimatePresence>
-      )}
 
-      {/* ── Load More ── */}
-      {filteredLength > visibleCount && (
-        <div className="flex items-center justify-center mt-16 w-full relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t" style={{ borderColor: "#1A1A1A" }}></div>
-          </div>
+                <p className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">
+                  <span>{post.category || "Interior Design"}</span>
+                  <span aria-hidden="true" className="h-1 w-1 rounded-full bg-white/20" />
+                  <span>{readTime(post)} read</span>
+                  {post.view_count > 0 && (
+                    <>
+                      <span aria-hidden="true" className="h-1 w-1 rounded-full bg-white/20" />
+                      <span>{formatViews(post.view_count)} views</span>
+                    </>
+                  )}
+                </p>
+
+                <h3 className="font-display text-2xl leading-snug text-white transition-colors duration-300 group-hover:text-primary group-focus-visible:text-primary">
+                  {cleanTitle(post.title)}
+                </h3>
+
+                {cleanExcerpt(post.excerpt, post.category) && (
+                  <Body className="mt-3 line-clamp-3 text-sm">{cleanExcerpt(post.excerpt, post.category)}</Body>
+                )}
+              </Link>
+            </motion.li>
+          ))}
+        </AnimatePresence>
+      </ul>
+
+      {visibleCount < filteredLength && (
+        <div className="mt-16 border-t border-white/10 pt-10 text-center">
           <button
-            onClick={() => setVisibleCount(prev => prev + 2)}
-            className="group relative z-10 flex items-center gap-2.5 px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 hover:text-[#D4AF37]"
-            style={{ background: "#000", color: "#666" }}
+            type="button"
+            onClick={() => setVisibleCount((c) => c + 6)}
+            className={textLinkClass}
           >
-            <span>Load More</span>
-            <ArrowDown className="w-3.5 h-3.5 group-hover:translate-y-0.5 transition-transform" />
+            Load more articles <span aria-hidden="true">↓</span>
           </button>
         </div>
       )}

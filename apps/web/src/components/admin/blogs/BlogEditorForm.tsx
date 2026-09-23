@@ -172,13 +172,17 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
         void auditService.writeAudit('CREATE', 'blog', inserted?.id ?? null, { title: postData.title, status: postData.status });
       }
 
-      toast({ title: post ? "Post updated!" : "Post created!" });
+      toast({
+        title: post ? "Post updated!" : "Post created!",
+        description: post ? "Your changes have been published." : "New blog post published successfully.",
+      });
       
       const draftKey = post ? `admin_blog_draft_${post.id}` : "admin_blog_draft_new";
       localStorage.removeItem(draftKey);
       onSaved();
     } catch (err) {
-      toast({ title: "Error saving post", description: (err as Error).message, variant: "destructive" });
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      toast({ title: "Error saving post", description: errorMsg, variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -200,7 +204,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
               value={formData.title}
               onChange={(e) => handleTitleChange(e.target.value)}
               required
-              placeholder="Enter a catchy title�"
+              placeholder="Enter a catchy title..."
               className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
             />
           </div>
@@ -369,7 +373,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
                   <Input
                     value={formData.cover_image_url || ""}
                     onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                    placeholder="https://�"
+                    placeholder="https://example.com/image.jpg"
                     className="mt-1 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
                   />
                 </div>

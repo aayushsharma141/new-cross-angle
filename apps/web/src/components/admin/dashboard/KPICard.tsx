@@ -180,7 +180,7 @@ export function ConversionFunnel({ stages, className }: ConversionFunnelProps) {
                 </span>
                 {index > 0 && (
                   <span className="flex items-center text-xs text-[hsl(var(--admin-success))]">
-                    <ArrowUpRight className="h-3 w-3" />
+                    <ArrowUpRight className="h-4 w-4" />
                     {conversionRate}%
                   </span>
                 )}

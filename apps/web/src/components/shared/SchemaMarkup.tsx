@@ -228,7 +228,9 @@ export const SchemaMarkup = ({ type, data, locale = "en-IN" }: SchemaMarkupProps
 
     return (
         <Helmet>
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd }} />
+            {/* react-helmet-async only renders script content passed as a string
+                child; `dangerouslySetInnerHTML` here emits nothing at all. */}
+            <script type="application/ld+json">{safeJsonLd}</script>
         </Helmet>
     );
 };

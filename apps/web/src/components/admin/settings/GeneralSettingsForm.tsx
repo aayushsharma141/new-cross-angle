@@ -277,8 +277,7 @@ export function GeneralSettingsForm() {
                     office_hours: Array.isArray(data.business_hours) ? data.business_hours as { id: string; days: string; hours: string; }[] : [],
                 });
             }
-        } catch (error) {
-            console.error("Error fetching settings:", error);
+        } catch {
             toast({
                 variant: "destructive",
                 title: "Error",
@@ -359,7 +358,6 @@ export function GeneralSettingsForm() {
             });
         } catch (error) {
             const err = error as Error;
-            console.error("Error saving settings:", err);
             toast({
                 variant: "destructive",
                 title: "Error",

@@ -114,8 +114,8 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
             if (error) throw error;
             queryClient.invalidateQueries({ queryKey: ['lead-timeline', formData.id] });
-        } catch (error) {
-            console.error("Error logging activity:", error);
+        } catch {
+            // Error logging activity - silently fail (activity is non-critical)
         }
     }, [formData?.id, queryClient]);
 

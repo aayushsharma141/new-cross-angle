@@ -83,11 +83,11 @@ function ArchetypeCard({
           aria-label={isExpanded ? `Collapse ${item.name}` : `Expand ${item.name}`}
           className="shrink-0 text-[hsl(var(--admin-text-muted))] hover:text-[hsl(var(--admin-text))] transition-colors"
         >
-          {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+          {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
 
         <div className="w-6 h-6 rounded-full bg-[hsl(var(--admin-primary))]/15 border border-[hsl(var(--admin-primary))]/30 flex items-center justify-center shrink-0">
-          <Users className="w-3 h-3 text-[hsl(var(--admin-primary))]" />
+          <Users className="w-4 h-4 text-[hsl(var(--admin-primary))]" />
         </div>
 
         {/* Inline name edit */}
@@ -105,11 +105,11 @@ function ArchetypeCard({
             />
             <Button variant="ghost" size="icon" className="h-6 w-6 text-emerald-400"
               onClick={() => { onUpdate("name", nameDraft); setEditingName(false); }}>
-              <Check className="w-3 h-3" />
+              <Check className="w-4 h-4" />
             </Button>
             <Button variant="ghost" size="icon" className="h-6 w-6"
               onClick={() => { setNameDraft(item.name); setEditingName(false); }}>
-              <X className="w-3 h-3" />
+              <X className="w-4 h-4" />
             </Button>
           </div>
         ) : (
@@ -132,11 +132,11 @@ function ArchetypeCard({
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
           <Button variant="ghost" size="icon" className="h-6 w-6"
             onClick={(e) => { e.stopPropagation(); setEditingName(true); setNameDraft(item.name); }}>
-            <Pencil className="w-3 h-3" />
+            <Pencil className="w-4 h-4" />
           </Button>
           <Button variant="ghost" size="icon" className="h-6 w-6 text-red-400 hover:text-red-300"
             onClick={(e) => { e.stopPropagation(); onRemove(); }}>
-            <Trash2 className="w-3 h-3" />
+            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -223,7 +223,7 @@ function ArchetypeCard({
           {/* Media Images */}
           <div className="space-y-3 pt-2 pb-2 border-y border-[hsl(var(--admin-border))]/50">
             <h4 className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text))] font-semibold flex items-center gap-1.5">
-              <ImageIcon className="w-3 h-3" /> Archetype Visuals
+              <ImageIcon className="w-4 h-4" /> Archetype Visuals
             </h4>
             <div className="space-y-1">
               <label htmlFor="heroImageUrl" className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))]">Hero Image</label>
@@ -293,7 +293,7 @@ function ArchetypeCard({
                 placeholder="Add trait…"
               />
               <Button variant="outline" size="sm" onClick={addTrait} disabled={!newTrait.trim()} className="h-7 text-xs gap-1 shrink-0">
-                <Plus className="w-3 h-3" />
+                <Plus className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -309,7 +309,7 @@ function ArchetypeCard({
             <div className="grid grid-cols-5 gap-2">
               {SCORE_DIMENSIONS.map((dim) => (
                 <div key={dim} className="text-center">
-                  <p className="text-[9px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))] mb-1 capitalize">{dim}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))] mb-1 capitalize font-semibold">{dim}</p>
                   <div className="h-1.5 rounded-full bg-[hsl(var(--admin-border))]">
                     <div
                       className="h-1.5 rounded-full bg-[hsl(var(--admin-primary))]/60 transition-all"
@@ -319,7 +319,7 @@ function ArchetypeCard({
                 </div>
               ))}
             </div>
-            <p className="text-[9px] text-[hsl(var(--admin-text-muted))] italic">
+            <p className="text-[10px] text-[hsl(var(--admin-text-muted))] italic">
               Score logic is defined in code via the match() function in constants/discovery.ts
             </p>
           </div>
@@ -397,7 +397,7 @@ export function ArchetypesEditor() {
         action={
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={addItem} className="h-7 text-xs gap-1 border-[hsl(var(--admin-border))] bg-transparent hover:bg-[hsl(var(--admin-surface))] text-[hsl(var(--admin-text))]">
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-4 h-4" />
               Add
             </Button>
             <Button
@@ -406,7 +406,7 @@ export function ArchetypesEditor() {
               disabled={!dirty || isSaving}
               className="h-7 text-xs gap-1.5 bg-[hsl(var(--admin-primary))] text-black hover:bg-[hsl(var(--admin-primary))]/90"
             >
-              {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save
             </Button>
           </div>
