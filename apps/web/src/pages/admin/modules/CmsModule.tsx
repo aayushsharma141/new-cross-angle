@@ -6,6 +6,10 @@ export const CmsModule = () => {
     if (location.pathname === "/admin/cms" || location.pathname === "/admin/cms/") {
         return <Navigate to="/admin/cms/portfolio" replace />;
     }
+    // Redirect legacy media-library requests to visual media hub
+    if (location.pathname === "/admin/cms/media-library" && !location.search) {
+        return <Navigate to="/admin/cms/visual-media" replace />;
+    }
 
     return (
         <ModuleLayout
@@ -18,6 +22,7 @@ export const CmsModule = () => {
                 { label: "Testimonials", path: "/admin/cms/testimonials", group: "Main Content" },
                 { label: "Team Members", path: "/admin/cms/team-members", group: "Main Content" },
 
+                { label: "Visual Media Hub", path: "/admin/cms/visual-media", group: "Visual Media" },
                 { label: "Images & Videos", path: "/admin/cms/media-library", group: "Visual Media" },
                 { label: "Project Gallery", path: "/admin/cms/gallery", group: "Visual Media" },
                 { label: "Before & After", path: "/admin/cms/before-and-after", group: "Visual Media" },
