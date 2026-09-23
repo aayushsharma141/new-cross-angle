@@ -391,21 +391,48 @@ Accessibility      ███████████░░░░░  85%  (good,
 
 ---
 
+## ✅ Fixes Applied (2026-09-23)
+
+### High-Priority Fixes Completed
+1. **Border Contrast** ✅
+   - Increased `--admin-border` from 12% to 16% gray (WCAG AA compliant)
+   - Increased `--admin-border-subtle` from 9% to 13%
+   - Affects: All card edges, input borders, dividers
+
+2. **Typography Floor** ✅
+   - TopBar "Intelligence Command Center": 9px → 11px (reduced tracking from 0.25em to 0.15em)
+   - TopBar time display: 10px → 11px (font-mono maintained)
+   - Status badges: 10px → 11px
+   - Lead temperature badges: 10px → 11px (font-bold → font-semibold)
+   - Lead assigned-to avatars: 9px → 10px
+   - LeadCard source chip: 9px → 10px
+   - LeadHealthScore indicator: 9px → 10px
+   - ArchetypesEditor labels: 9px → 10px (added font-semibold)
+   - **Result**: All UI text now minimum 10px, most labels 11px
+
+3. **Form & Modal Spacing** ✅
+   - Added `.admin-form-group`: space-y-3 mb-6
+   - Added `.admin-form-field-container`: space-y-2 mb-6
+   - Added `.admin-modal-content`: p-6 (consistent dialog padding)
+   - Added `.admin-list-item`: py-4 (list row spacing)
+
 ## Next Steps
 
-1. **Before Production Release**:
-   - Fix border contrast to 16% minimum
-   - Audit all text below 12px, increase where readable
-   - Create `.admin-card` and `.admin-list-item` base classes
+1. **Phase 6 Polish** (Medium Priority):
+   - Add inline form validation error messages (red text below inputs)
+   - Standardize icon sizes (16px across all buttons)
+   - Implement `.admin-card` base class for card styling consistency
+   - Improve empty state copy with action prompts
 
-2. **Phase 6 Polish**:
-   - Add inline form validation messages
-   - Standardize modal/dialog padding
-   - Implement empty state improvements
+2. **Optional Enhancements** (Low Priority):
+   - Add subtle hover animations to cards
+   - Implement tooltip system for truncated text
+   - Add loading state animations
+   - Refine status badge styling
 
 3. **Ongoing Quality**:
-   - Monthly design audits
-   - Contrast testing with WebAIM tools
-   - Mobile testing on actual devices
+   - WebAIM contrast testing validation
+   - Mobile device testing (real devices)
    - Dyslexia-friendly text review
+   - Monitor for CSS class drift over time
 
