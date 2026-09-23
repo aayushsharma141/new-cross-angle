@@ -242,7 +242,7 @@ export function AuditLogTable({
         loading={loading}
         onPaginationChange={onPaginationChange}
         onSearchChange={onSearchChange}
-        searchPlaceholder="Search logs by action, entity, or IP�"
+        searchPlaceholder="Search logs by action, entity, or IP…"
         emptyMessage="No audit logs yet — activity will appear here"
         pageSizeOptions={[10, 25, 50, 100]}
         initialSearch={search}

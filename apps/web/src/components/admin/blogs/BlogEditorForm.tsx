@@ -330,7 +330,7 @@ export function BlogEditorForm({ post, onSaved, onCancel }: BlogEditorFormProps)
               value={formData.excerpt}
               onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
               rows={5}
-              placeholder="Short summary for SEO and previews�"
+              placeholder="Short summary for SEO and previews…"
               className="bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]"
             />
           </div>

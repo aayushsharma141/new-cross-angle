@@ -429,7 +429,7 @@ export function AssetSidebar({
                                 <Search className="absolute left-2.5 top-1.5 h-4 w-4 text-muted-foreground" />
                                 <input
                                     type="text"
-                                    placeholder="Search assets�"
+                                    placeholder="Search assets…"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full pl-9 pr-3 py-1.5 text-xs bg-muted/50 border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary"

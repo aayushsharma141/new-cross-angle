@@ -209,7 +209,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                             <span>Lead in <span className="text-admin-text font-medium">{CRM_STAGE_LABELS[activeStage] || "New Inquiry"}</span></span>
                             {STAGE_SUB_STATUSES[activeStage]?.length > 0 && (
                                 <>
-                                    <span className="text-admin-border-subtle">â€¢</span>
+                                    <span className="text-admin-border-subtle">•</span>
                                     <select
                                         value={formData.sub_status || ""}
                                         onChange={(e) => setFormData({ ...formData, sub_status: e.target.value })}
@@ -476,7 +476,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                             value={formData.budget || ""}
                                             onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                                             readOnly={isReadOnly}
-                                            placeholder="e.g. â‚¹3 - 5 L"
+                                            placeholder="e.g. ₹3 - 5 L"
                                             className="h-8 text-[13px] text-admin-text bg-transparent border-0 px-0 focus-visible:ring-0"
                                         />
                                     </div>
@@ -519,7 +519,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                     value={formData.message || formData.notes || ""}
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                     readOnly={isReadOnly}
-                                    placeholder="Add notes, requirements, or copy their initial message here�"
+                                    placeholder="Add notes, requirements, or copy their initial message here…"
                                     className="min-h-[120px] bg-admin-surface border-admin-border text-[13px] text-admin-text placeholder:text-admin-text-subtle"
                                 />
                             </section>
@@ -613,7 +613,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                                     {sendState === "sending" ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : 
                                                      sendState === "sent" ? <CheckCheck className="w-3.5 h-3.5 mr-1.5" /> : 
                                                      <Send className="w-3.5 h-3.5 mr-1.5" />}
-                                                    {sendState === "sending" ? "Sending...��" : sendState === "sent" ? "Sent Successfully" : "Send via CrossAngle"}
+                                                    {sendState === "sending" ? "Sending..." : sendState === "sent" ? "Sent Successfully" : "Send via CrossAngle"}
                                                 </Button>
                                             </div>
                                         </div>
