@@ -176,7 +176,7 @@ export default function Footer() {
   });
 
   return (
-    <footer className="relative bg-[#0A0A0A] text-white pt-20 pb-24 md:pt-32 md:pb-16 overflow-hidden">
+    <footer className="relative bg-[#0A0A0A] text-white pt-24 pb-32 md:pt-40 md:pb-24 overflow-hidden">
       {/* Subtle architectural grid pattern - connects to interior design theme */}
       <div className="absolute inset-0 -z-10 opacity-[0.02]" style={{
         backgroundImage: `
@@ -188,16 +188,21 @@ export default function Footer() {
       {/* Subtle gradient for connection - fades from transparent to dark */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#0A0A0A]/0 via-[#0A0A0A]/20 to-[#0A0A0A]" />
 
+      {/* Large brand text background (PlayFolly style) */}
+      <div className="absolute bottom-0 right-0 -z-[5] text-[12vw] md:text-[20vw] font-display font-bold leading-none text-white/5 pointer-events-none whitespace-nowrap select-none">
+        CROSSANGLE
+      </div>
+
       <div className="mx-auto w-full max-w-[1440px] px-6 md:px-10 xl:px-12 relative z-10">
         {/* ── Statement + columns ─────────────────────────────── */}
-        <div className="flex flex-col gap-16 md:flex-row md:justify-between md:gap-20 md:items-start mb-20 md:mb-28">
+        <div className="flex flex-col gap-20 md:flex-row md:justify-between md:gap-24 md:items-start mb-24 md:mb-36">
           {/* Statement */}
           <motion.div {...reveal()} className="w-full md:w-[38%] lg:w-1/3">
-            <h2 className="font-display text-[2rem] md:text-[2.5rem] leading-[1.08] text-white mb-6">
+            <h2 className="font-display text-[2rem] md:text-[2.5rem] leading-[1.08] text-white mb-8">
               {footerCopy.headlineStart}{" "}
               <span className="italic text-primary">{footerCopy.headlineHighlight}</span>
             </h2>
-            <p className="max-w-xs text-[15px] font-light leading-relaxed text-white/55 mb-10">
+            <p className="max-w-xs text-[15px] font-light leading-relaxed text-white/55 mb-12">
               {footerCopy.sub}
             </p>
 
@@ -230,7 +235,7 @@ export default function Footer() {
             {/* Explore Part 1 */}
             <motion.div {...reveal(0.04)}>
               <h4 className={columnHeading}>Explore</h4>
-              <ul className="space-y-2">
+              <ul className="space-y-3.5">
                 {navLinks.filter((l) => l.href !== "/" && l.href !== "/about-us" && l.href !== "/our-process" && l.href !== "/blog").map((link) => (
                   <li key={link.href}>
                     <RouterLink
@@ -248,7 +253,7 @@ export default function Footer() {
             {/* Explore Part 2 */}
             <motion.div {...reveal(0.06)}>
               <h4 className={columnHeading}>&nbsp;</h4>
-              <ul className="space-y-2">
+              <ul className="space-y-3.5">
                 {navLinks.filter((l) => (l.href === "/about-us" || l.href === "/our-process" || l.href === "/blog")).map((link) => (
                   <li key={link.href}>
                     <RouterLink
@@ -274,7 +279,7 @@ export default function Footer() {
 
             <motion.div {...reveal(0.08)}>
               <h4 className={columnHeading}>Studio</h4>
-              <ul className="space-y-2.5 text-sm font-light text-white/65">
+              <ul className="space-y-4 text-sm font-light text-white/65">
                 {phone && (
                   <li>
                     <a
@@ -303,7 +308,7 @@ export default function Footer() {
             <motion.div {...reveal(0.12)} className="col-span-2 md:col-span-1">
               <h4 className={columnHeading}>Social</h4>
               {socials.length > 0 ? (
-                <ul className="flex flex-wrap gap-x-6 gap-y-2 md:flex-col md:gap-y-2.5">
+                <ul className="flex flex-wrap gap-x-6 gap-y-3 md:flex-col md:gap-y-3.5">
                   {socials.map(({ key, name, Icon }) => (
                     <li key={key}>
                       <a
@@ -328,7 +333,7 @@ export default function Footer() {
         {/* ── Service areas (local-SEO links, kept deliberately quiet) ── */}
         <motion.div
           {...reveal(0.08)}
-          className="mb-12 pt-12 border-t border-white/8 flex flex-wrap items-baseline gap-x-2.5 gap-y-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white/30"
+          className="mb-16 pt-16 border-t border-white/8 flex flex-wrap items-baseline gap-x-3 gap-y-3 text-[10px] font-medium uppercase tracking-[0.2em] text-white/30"
         >
           <span className="mr-2 text-white/35">Serving</span>
           {FOOTER_AREAS.map((area, i) => (
@@ -349,7 +354,7 @@ export default function Footer() {
         {/* ── Legal strip ────────────────────────────────────── */}
         <motion.div
           {...reveal(0.06)}
-          className="flex flex-col items-center gap-6 border-t border-white/8 pt-12 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-white/40 md:flex-row md:justify-between md:text-left"
+          className="flex flex-col items-center gap-6 border-t border-white/8 pt-16 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-white/40 md:flex-row md:justify-between md:text-left"
         >
           <p>© {new Date().getFullYear()} {studioName}</p>
           <div className="flex items-center gap-4">
