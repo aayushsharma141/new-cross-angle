@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { icons } from '@/design-system/tokens/icons';
 import { Loader2, Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/primitives/button';
 import { Input } from "@/components/primitives/interactive";
 import { Textarea } from "@/components/primitives/interactive";
@@ -265,6 +269,24 @@ const AdminGallery = () => {
         },
     });
 
+    const reorderItemsMutation = useMutation({
+        mutationFn: async (itemsWithNewOrder: Array<{ id: string; display_order: number }>) => {
+            const updates = itemsWithNewOrder.map(({ id, display_order }) =>
+                supabase.from('gallery_items').update({ display_order }).eq('id', id)
+            );
+            const results = await Promise.all(updates);
+            const hasError = results.some(r => r.error);
+            if (hasError) throw new Error('Failed to update order');
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['gallery-items'] });
+            toast({ title: "Order updated successfully" });
+        },
+        onError: (error: Error) => {
+            toast({ title: "Error updating order", description: error.message, variant: "destructive" });
+        },
+    });
+
     const generateSlug = (name: string) => {
         return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     };
@@ -357,6 +379,30 @@ const AdminGallery = () => {
         }
     };
 
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    );
+
+    const handleDragEnd = useCallback((event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id || !items) return;
+
+        const oldIndex = items.findIndex(item => item.id === active.id);
+        const newIndex = items.findIndex(item => item.id === over.id);
+
+        if (oldIndex === -1 || newIndex === -1) return;
+
+        const newItems = arrayMove(items, oldIndex, newIndex);
+        const updatesWithOrder = newItems.map((item, index) => ({
+            id: item.id,
+            display_order: index
+        }));
+
+        queryClient.setQueryData(['gallery-items', selectedCategory], newItems);
+        reorderItemsMutation.mutate(updatesWithOrder);
+    }, [items, queryClient, selectedCategory]);
+
     const isLoading = categoriesLoading || itemsLoading;
 
     if (isLoading) {
@@ -366,6 +412,59 @@ const AdminGallery = () => {
             </div>
         );
     }
+
+    // Sortable gallery item component
+    const SortableGalleryItem = ({ item }: { item: GalleryItem }) => {
+        const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+        const style = { transform: CSS.Transform.toString(transform), transition };
+
+        return (
+            <div
+                ref={setNodeRef}
+                style={style}
+                className={`${isDragging ? 'opacity-50' : ''}`}
+            >
+                <Surface variant="primary" radius="lg" border shadow="sm" className="overflow-hidden bg-zinc-900/50 border-zinc-800 group transition-all duration-300 hover:border-zinc-700">
+                    <div className="aspect-video relative overflow-hidden">
+                        <Image
+                            src={item.image_url}
+                            alt={item.title}
+                            width={720}
+                            quality={76}
+                            imageClassName="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-[-10px] group-hover:translate-y-0">
+                            <Button variant="secondary" size="icon" className="h-8 w-8 bg-zinc-900/80 backdrop-blur-sm border-none hover:bg-zinc-800" onClick={() => openItemDialog(item)} aria-label="Edit item">
+                                <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="destructive" size="icon" className="h-8 w-8 backdrop-blur-sm border-none" onClick={() => handleDeleteItem(item.id)} aria-label="Delete item">
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <div className="absolute top-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div className="bg-zinc-900/80 backdrop-blur-sm text-xs font-mono px-2 py-1 rounded text-zinc-400 border border-zinc-800/50 flex items-center gap-1 cursor-grab active:cursor-grabbing" {...attributes} {...listeners}>
+                                <GripVertical className="h-3 w-3" />
+                                {item.display_order}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="p-6 pt-0 p-4 relative">
+                        <h3 className="font-medium text-white truncate text-base mb-1">{item.title}</h3>
+                        <div className="flex items-center justify-between">
+                            {item.category && (
+                                <span className="text-xs font-medium text-zinc-400 bg-zinc-800/50 px-2 py-0.5 rounded-full">{item.category.name}</span>
+                            )}
+                            {item.location && (
+                                <p className="text-xs text-zinc-500 flex items-center gap-1">{item.location}</p>
+                            )}
+                        </div>
+                    </div>
+                </Surface>
+            </div>
+        );
+    };
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
@@ -531,49 +630,20 @@ const AdminGallery = () => {
                         </Dialog>
                     </div>
 
-                    {/* Items Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {items?.map(item => (
-                            <Surface variant="primary" radius="lg" border shadow="sm" key={item.id} className="overflow-hidden bg-zinc-900/50 border-zinc-800 group transition-all duration-300 hover:border-zinc-700">
-                                <div className="aspect-video relative overflow-hidden">
-                                    <Image
-                                        src={item.image_url}
-                                        alt={item.title}
-                                        width={720}
-                                        quality={76}
-                                        imageClassName="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    
-                                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-[-10px] group-hover:translate-y-0">
-                                        <Button variant="secondary" size="icon" className="h-8 w-8 bg-zinc-900/80 backdrop-blur-sm border-none hover:bg-zinc-800" onClick={() => openItemDialog(item)} aria-label="Edit item">
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <Button variant="destructive" size="icon" className="h-8 w-8 backdrop-blur-sm border-none" onClick={() => handleDeleteItem(item.id)} aria-label="Delete item">
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                    <div className="absolute top-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <div className="bg-zinc-900/80 backdrop-blur-sm text-xs font-mono px-2 py-1 rounded text-zinc-400 border border-zinc-800/50 flex items-center gap-1">
-                                            <GripVertical className="h-3 w-3" />
-                                            {item.display_order}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="p-6 pt-0 p-4 relative">
-                                    <h3 className="font-medium text-white truncate text-base mb-1">{item.title}</h3>
-                                    <div className="flex items-center justify-between">
-                                        {item.category && (
-                                            <span className="text-xs font-medium text-zinc-400 bg-zinc-800/50 px-2 py-0.5 rounded-full">{item.category.name}</span>
-                                        )}
-                                        {item.location && (
-                                            <p className="text-xs text-zinc-500 flex items-center gap-1">{item.location}</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </Surface>
-                        ))}
-                    </div>
+                    {/* Items Grid with Drag & Drop */}
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext items={items?.map(i => i.id) || []} strategy={verticalListSortingStrategy}>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {items?.map(item => (
+                                    <SortableGalleryItem key={item.id} item={item} />
+                                ))}
+                            </div>
+                        </SortableContext>
+                    </DndContext>
 
                     {items?.length === 0 && (
                         <div className="text-center py-16 border border-dashed border-zinc-800 rounded-xl bg-zinc-900/20">
