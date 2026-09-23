@@ -5,20 +5,9 @@ import { Textarea } from "@/components/primitives/interactive";
 import { ShieldAlert, Plus, CheckCircle2, CircleDot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
+import type { Tables } from "@/integrations/supabase/types";
 
-interface Objection {
-  id: string;
-  lead_id: string;
-  category: string;
-  objection_text: string;
-  response_text: string | null;
-  status: "open" | "resolved";
-  created_at: string;
-}
-
-// Supabase client - using the typed client directly
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const db = (supabase as any);
+type Objection = Tables<"lead_objections">;
 
 export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isReadOnly?: boolean }) {
   const [objections, setObjections] = useState<Objection[]>([]);
@@ -27,6 +16,8 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
   const [newText, setNewText] = useState("");
   const [newCategory, setNewCategory] = useState("pricing");
   const [isSaving, setIsSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const { toast } = useToast();
 
   const categories = [
@@ -42,15 +33,21 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
     const abortController = new AbortController();
 
     async function load() {
+      setLoading(true);
+      setLoadError(null);
       try {
-        const { data } = await db
+        const { data, error } = await supabase
           .from("lead_objections")
           .select("*")
           .eq("lead_id", leadId)
-          .order("created_at", { ascending: false });
-        if (data && !abortController.signal.aborted) {
-          setObjections(data as Objection[]);
+          .order("created_at", { ascending: false })
+          .abortSignal(abortController.signal);
+        if (abortController.signal.aborted) return;
+        if (error) {
+          setLoadError(error.message);
+          return;
         }
+        setObjections(data ?? []);
       } finally {
         if (!abortController.signal.aborted) {
           setLoading(false);
@@ -58,24 +55,24 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
       }
     }
 
-    load();
+    void load();
     return () => abortController.abort();
-  }, [leadId]);
+  }, [leadId, reloadKey]);
 
   const handleAdd = async () => {
     if (!newText.trim() || isReadOnly || isSaving) return;
     setIsSaving(true);
     try {
-      const { data, error } = await db
+      const { data, error } = await supabase
         .from("lead_objections")
-        .insert({ lead_id: leadId, objection_text: newText, category: newCategory, status: "open" })
+        .insert({ lead_id: leadId, detail: newText.trim(), category: newCategory, resolved: false })
         .select()
         .single();
 
       if (error) throw error;
 
       if (data) {
-        setObjections([data as Objection, ...objections]);
+        setObjections((prev) => [data, ...prev]);
         setNewText("");
         setShowAdd(false);
         toast({
@@ -83,11 +80,11 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
           description: "Objection has been logged successfully.",
         });
       }
-    } catch {
+    } catch (err) {
       toast({
         variant: "destructive",
         title: "Failed to save objection",
-        description: "Could not save the objection. Please try again.",
+        description: err instanceof Error ? err.message : "Please try again.",
       });
     } finally {
       setIsSaving(false);
@@ -97,9 +94,9 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
   const handleResolve = async (id: string) => {
     if (isReadOnly) return;
     try {
-      const { data, error } = await db
+      const { data, error } = await supabase
         .from("lead_objections")
-        .update({ status: "resolved", resolved_at: new Date().toISOString() })
+        .update({ resolved: true, resolved_at: new Date().toISOString() })
         .eq("id", id)
         .select()
         .single();
@@ -107,22 +104,33 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
       if (error) throw error;
 
       if (data) {
-        setObjections(objections.map((o) => (o.id === id ? (data as Objection) : o)));
+        setObjections((prev) => prev.map((o) => (o.id === id ? data : o)));
         toast({
           title: "Objection resolved",
           description: "Objection has been marked as resolved.",
         });
       }
-    } catch {
+    } catch (err) {
       toast({
         variant: "destructive",
         title: "Failed to resolve objection",
-        description: "Could not update the objection status. Please try again.",
+        description: err instanceof Error ? err.message : "Please try again.",
       });
     }
   };
 
-  if (loading) return <div className="p-4 text-xs text-[hsl(var(--admin-text-muted))]">Loading objections...</div>;
+  if (loading) return <div role="status" className="p-4 text-xs text-[hsl(var(--admin-text-muted))]">Loading objections…</div>;
+
+  if (loadError) {
+    return (
+      <div role="alert" className="p-3 rounded-md border border-[hsl(var(--admin-danger))]/30 bg-[hsl(var(--admin-danger))]/5 text-xs text-[hsl(var(--admin-text))] flex items-center justify-between gap-3">
+        <span>Couldn't load objections: {loadError}</span>
+        <Button variant="outline" size="sm" onClick={() => setReloadKey((k) => k + 1)} className="h-7 text-xs shrink-0">
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -144,6 +152,8 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
             {categories.map((c) => (
               <button
                 key={c.id}
+                type="button"
+                aria-pressed={newCategory === c.id}
                 onClick={() => setNewCategory(c.id)}
                 data-active={newCategory === c.id}
                 className={cn(
@@ -158,6 +168,7 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
             ))}
           </div>
           <Textarea
+            aria-label="Objection details"
             placeholder="What is the client's concern?"
             className="text-sm bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))] min-h-[60px]"
             value={newText}
@@ -180,22 +191,25 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {objections.map((obj) => (
+          {objections.map((obj) => {
+            const isResolved = obj.resolved === true;
+            return (
             <div
               key={obj.id}
               className={cn(
                 "p-3 rounded-md border flex gap-3",
-                obj.status === "resolved" ? "bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] opacity-60" : "bg-orange-500/5 border-orange-500/20"
+                isResolved ? "bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))] opacity-60" : "bg-orange-500/5 border-orange-500/20"
               )}
             >
               <button
+                type="button"
                 onClick={() => handleResolve(obj.id)}
-                disabled={isReadOnly || obj.status === "resolved"}
-                aria-label={obj.status === "resolved" ? "Resolved" : "Mark as resolved"}
-                title={obj.status === "resolved" ? "Resolved" : "Mark as resolved"}
+                disabled={isReadOnly || isResolved}
+                aria-label={isResolved ? "Resolved" : "Mark as resolved"}
+                title={isResolved ? "Resolved" : "Mark as resolved"}
                 className="mt-0.5 shrink-0"
               >
-                {obj.status === "resolved" ? (
+                {isResolved ? (
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                 ) : (
                   <CircleDot className="w-4 h-4 text-orange-400 hover:text-orange-300" />
@@ -206,20 +220,17 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
                   <span className="text-[10px] uppercase tracking-wide font-medium text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded">
                     {categories.find((c) => c.id === obj.category)?.label || obj.category}
                   </span>
-                  <span className="text-[10px] text-[hsl(var(--admin-text-muted))]">{new Date(obj.created_at).toLocaleDateString()}</span>
+                  {obj.created_at && (
+                    <span className="text-[10px] text-[hsl(var(--admin-text-muted))]">{new Date(obj.created_at).toLocaleDateString()}</span>
+                  )}
                 </div>
-                <p className={cn("text-sm", obj.status === "resolved" ? "text-[hsl(var(--admin-text-muted))] line-through" : "text-[hsl(var(--admin-text))]")}>
-                  {obj.objection_text}
+                <p className={cn("text-sm", isResolved ? "text-[hsl(var(--admin-text-muted))] line-through" : "text-[hsl(var(--admin-text))]")}>
+                  {obj.detail}
                 </p>
-                {obj.response_text && (
-                  <div className="mt-2 text-xs bg-[hsl(var(--admin-surface))] p-2 rounded text-[hsl(var(--admin-text-muted))] border border-[hsl(var(--admin-border))]">
-                    <span className="font-medium text-[hsl(var(--admin-text))] mb-1 block">Response:</span>
-                    {obj.response_text}
-                  </div>
-                )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

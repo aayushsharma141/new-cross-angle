@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { Card } from "@/design-system/components/Card";
 import { Badge } from "@/components/primitives/interactive";
 import { Button } from "@/design-system/components/Button";
@@ -125,7 +125,9 @@ export function LeadGridView({ leads, onLeadClick, onDeleteClick }: LeadGridView
                 <span>Score: {score}</span>
               </div>
               <span className="text-admin-text-muted">
-                {format(new Date(lead.created_at || new Date()), "MMM d, yyyy")}
+                {lead.created_at && isValid(new Date(lead.created_at))
+                  ? format(new Date(lead.created_at), "MMM d, yyyy")
+                  : "—"}
               </span>
             </div>
           </Card>

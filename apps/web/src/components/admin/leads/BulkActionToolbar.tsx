@@ -1,9 +1,9 @@
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/primitives/button";
 import { useToast } from "@/hooks/useToast";
 import {
-  MoreVertical,
   ChevronDown,
   Trash2,
   CheckCircle2,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type { Lead } from "@/lib/scoring/leadScoring";
 import { CRM_STAGES, type CrmStageId } from "@/lib/crm/stages";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,11 +32,10 @@ interface BulkActionToolbarProps {
 export function BulkActionToolbar({ selectedLeads, isLoading = false, onActionsComplete }: BulkActionToolbarProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
-  // Database update with dynamic fields based on bulk action type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const bulkUpdateMutation = useMutation({
-    mutationFn: async ({ leadIds, updates }: { leadIds: string[]; updates: any }) => {
+    mutationFn: async ({ leadIds, updates }: { leadIds: string[]; updates: { status: CrmStageId } }) => {
       const { error } = await supabase
         .from("leads")
         .update(updates)
@@ -90,16 +90,7 @@ export function BulkActionToolbar({ selectedLeads, isLoading = false, onActionsC
   const isBusy = isLoading || bulkUpdateMutation.isPending || bulkDeleteMutation.isPending;
 
   const handleStageChange = (stage: CrmStageId) => {
-    bulkUpdateMutation.mutate({
-      leadIds,
-      updates: { status: stage },
-    });
-  };
-
-  const handleDelete = () => {
-    if (confirm(`Delete ${selectedLeads.length} lead(s)? This cannot be undone.`)) {
-      bulkDeleteMutation.mutate(leadIds);
-    }
+    bulkUpdateMutation.mutate({ leadIds, updates: { status: stage } });
   };
 
   return (
@@ -147,7 +138,7 @@ export function BulkActionToolbar({ selectedLeads, isLoading = false, onActionsC
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleDelete}
+          onClick={() => setConfirmDelete(true)}
           disabled={isBusy}
           className="text-xs text-red-500 hover:text-red-600 hover:bg-red-500/10"
         >
@@ -158,26 +149,17 @@ export function BulkActionToolbar({ selectedLeads, isLoading = false, onActionsC
           )}
           Delete
         </Button>
-
-        {/* More actions */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" disabled={isBusy}>
-              <MoreVertical className="w-3 h-3" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem disabled className="text-xs opacity-50">
-              Send Email (coming soon)
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled className="text-xs opacity-50">
-              Add Tags (coming soon)
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        variant="destructive"
+        title={`Delete ${selectedLeads.length} lead${selectedLeads.length === 1 ? "" : "s"}?`}
+        description="This permanently removes the selected leads and their activity history. It cannot be undone."
+        confirmText="Delete"
+        onConfirm={() => bulkDeleteMutation.mutateAsync(leadIds)}
+      />
     </div>
   );
 }

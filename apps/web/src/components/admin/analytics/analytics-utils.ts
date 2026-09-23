@@ -241,12 +241,18 @@ export function computeLeadBreakdown(leads: LeadRow[], key: keyof LeadRow): { na
 }
 
 export function toCsv(headers: string[], rows: string[][]): string {
-  const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
+  const escape = (v: string) => {
+    // Lead fields come from public forms; a leading = + - @ tab or CR makes
+    // spreadsheets evaluate the cell as a formula (CSV injection).
+    const safe = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
+    return `"${safe.replace(/"/g, '""')}"`;
+  };
   return [headers.map(escape).join(","), ...rows.map((r) => r.map(escape).join(","))].join("\n");
 }
 
 export function downloadCsv(filename: string, csv: string) {
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  // BOM so Excel reads UTF-8 instead of cp1252 (otherwise "₹" renders as "â‚¹").
+  const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

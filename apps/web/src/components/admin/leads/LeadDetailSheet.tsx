@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/primitives/button";
 import { Label } from "@/components/ui/primitives/label";
 import { Input } from "@/components/primitives/interactive";
 import { Textarea } from "@/components/primitives/interactive";
-import { leadSchema, formatZodErrors, validateStageAdvance } from "@/lib/validation/validations";
+import { leadSchema, formatZodErrors } from "@/lib/validation/validations";
 import { useState, useEffect, useRef, useCallback } from "react";
 import FocusLock from "react-focus-lock";
 import { LeadTimeline } from "@/components/admin/leads/LeadTimeline";
@@ -30,14 +30,19 @@ import { CRM_STAGES, CRM_STAGE_LABELS, isCrmStageId, type CrmStageId, FOLLOW_UP_
 import { getCrmSourceLabel } from "@/lib/crm/sources";
 import { LeadTaskList } from "@/components/admin/leads/LeadTaskList";
 import { ObjectionTracker } from "@/components/admin/leads/ObjectionTracker";
+import { DuplicateBanner } from "@/components/admin/leads/DuplicateBanner";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 
 interface LeadDetailSheetProps {
     lead: Lead | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onSave: (lead: Lead) => void;
+    onSave: (lead: Lead) => void | Promise<void>;
     onDelete?: (id: string) => void;
     isReadOnly?: boolean;
+    /** Pool for duplicate detection when creating a lead. */
+    allLeads?: Lead[];
+    onViewLead?: (lead: Lead) => void;
 }
 
 type DetailTab = "activity" | "details" | "tasks" | "email";
@@ -73,12 +78,14 @@ const EMAIL_TEMPLATES = [
     }
 ];
 
-export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, isReadOnly = false }: LeadDetailSheetProps) {
+export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, isReadOnly = false, allLeads, onViewLead }: LeadDetailSheetProps) {
     const [formData, setFormData] = useState<Lead | null>(null);
     const [sentTemplates, setSentTemplates] = useState<Record<string, "sending" | "sent" | "error">>({});
     const [activeTab, setActiveTab] = useState<DetailTab>("activity");
     const [showPlaybook, setShowPlaybook] = useState(false);
     const [isSavingForm, setIsSavingForm] = useState(false);
+    const [confirmDiscard, setConfirmDiscard] = useState(false);
+    const initialSnapshotRef = useRef<string>("");
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const isNewLead = formData?.id === "__new__";
@@ -88,7 +95,9 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
     useEffect(() => {
         if (lead) {
-            setFormData({ ...lead, status: isCrmStageId(lead.status) ? lead.status : "new" });
+            const initial = { ...lead, status: isCrmStageId(lead.status) ? lead.status : "new" };
+            initialSnapshotRef.current = JSON.stringify(initial);
+            setFormData(initial);
             setActiveTab(lead.id === "__new__" ? "details" : "activity");
             hasLoggedViewRef.current = false;
         }
@@ -140,27 +149,26 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
         setIsSavingForm(true);
         try {
-            await Promise.resolve(onSave(formData));
+            await onSave(formData);
+        } catch {
+            // The caller's mutation onError already shows the failure toast.
         } finally {
             setIsSavingForm(false);
         }
     };
 
-    const setStage = (stage: CrmStageId) => {
-        if (!formData || isReadOnly) return;
+    const isDirty = formData !== null && JSON.stringify(formData) !== initialSnapshotRef.current;
 
-        // Validate stage advancement requirements
-        const errors = validateStageAdvance(formData as unknown as Partial<Record<string, unknown>>, stage);
-
-        if (errors.length > 0) {
-            toast({
-                variant: "destructive",
-                title: "Cannot advance stage",
-                description: errors.join("\n"),
-            });
+    const requestClose = (next: boolean) => {
+        if (!next && isDirty && !isReadOnly && !isSavingForm) {
+            setConfirmDiscard(true);
             return;
         }
+        onOpenChange(next);
+    };
 
+    const setStage = (stage: CrmStageId) => {
+        if (!formData || isReadOnly) return;
         setFormData({ ...formData, status: stage });
     };
 
@@ -179,13 +187,18 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
         return { body, subject };
     };
 
-    const copyToClipboard = (text: string, templateName: string) => {
-        navigator.clipboard.writeText(text);
+    const copyToClipboard = async (text: string, templateName: string) => {
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch {
+            toast({ variant: "destructive", title: "Couldn't copy draft", description: "Clipboard access was blocked by the browser." });
+            return;
+        }
         toast({
             title: "Copied to clipboard",
             description: "You can now paste it into your email client.",
         });
-        logActivity("email_copied", `Copied email template: ${templateName}`, { template: templateName });
+        void logActivity("email_copied", `Copied email template: ${templateName}`, { template: templateName });
     };
 
     // Log view activity when sheet opens for an existing lead
@@ -199,7 +212,8 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
     if (!formData) return null;
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
+        <>
+        <Sheet open={open} onOpenChange={requestClose}>
             <SheetContent className="admin-theme w-[95vw] sm:max-w-[880px] p-0 flex flex-col h-full bg-admin-bg border-l border-admin-border gap-0 z-[100] shadow-2xl text-admin-text">
                 <FocusLock returnFocus className="flex flex-col h-full overflow-hidden">
                 {/* Stage progress */}
@@ -296,6 +310,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                             <Input
                                 value={formData.name || ""}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                aria-label="Lead name"
                                 placeholder="Enter lead name"
                                 className="text-[20px] font-semibold text-admin-text h-9 mt-1 bg-transparent border-admin-border-subtle focus-visible:ring-1 px-1 -ml-1"
                             />
@@ -311,6 +326,8 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                     <Input
                                         value={formData.phone || ""}
                                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        aria-label="Phone number"
+                                        type="tel"
                                         placeholder="Phone number"
                                         className="h-7 text-[12px] bg-transparent border-admin-border-subtle w-32 px-1 -ml-1"
                                     />
@@ -324,6 +341,8 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                     <Input
                                         value={formData.email || ""}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        aria-label="Email address"
+                                        type="email"
                                         placeholder="Email address"
                                         className="h-7 text-[12px] bg-transparent border-admin-border-subtle w-48 px-1 -ml-1"
                                     />
@@ -339,6 +358,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                     <Input
                                         value={formData.city || ""}
                                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                        aria-label="City or location"
                                         placeholder="City / Location"
                                         className="h-7 text-[12px] bg-transparent border-admin-border-subtle w-32 px-1 -ml-1"
                                     />
@@ -370,6 +390,16 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                         </div>
                     )}
                 </div>
+
+                {isNewLead && allLeads && (
+                    <DuplicateBanner
+                        className="mx-5 mt-4"
+                        candidate={{ email: formData.email, phone: formData.phone }}
+                        allLeads={allLeads}
+                        currentId={formData.id}
+                        onViewLead={onViewLead}
+                    />
+                )}
 
                 {/* NEXT ACTION banner */}
                 {!isNewLead && NEXT_ACTION_BY_STAGE[activeStage] && (
@@ -461,8 +491,9 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                 <h4 className="text-[11px] uppercase tracking-wider text-admin-text-subtle mb-2 font-semibold">Project</h4>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="bg-admin-surface border border-admin-border rounded-md p-3">
-                                        <Label className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Type</Label>
+                                        <Label htmlFor="lead-category" className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Type</Label>
                                         <Input
+                                            id="lead-category"
                                             value={formData.category || ""}
                                             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                             readOnly={isReadOnly}
@@ -471,8 +502,9 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                         />
                                     </div>
                                     <div className="bg-admin-surface border border-admin-border rounded-md p-3">
-                                        <Label className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Budget</Label>
+                                        <Label htmlFor="lead-budget" className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Budget</Label>
                                         <Input
+                                            id="lead-budget"
                                             value={formData.budget || ""}
                                             onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                                             readOnly={isReadOnly}
@@ -481,8 +513,9 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                         />
                                     </div>
                                     <div className="bg-admin-surface border border-admin-border rounded-md p-3">
-                                        <Label className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Move-in by</Label>
+                                        <Label htmlFor="lead-timeline" className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Move-in by</Label>
                                         <Input
+                                            id="lead-timeline"
                                             value={formData.timeline || ""}
                                             onChange={(e) => setFormData({ ...formData, timeline: e.target.value })}
                                             readOnly={isReadOnly}
@@ -514,8 +547,9 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
                             {/* Notes / Message Section */}
                             <section>
-                                <h4 className="text-[11px] uppercase tracking-wider text-admin-text-subtle mb-2 font-semibold">Internal Notes & Message</h4>
+                                <h4 id="lead-notes-heading" className="text-[11px] uppercase tracking-wider text-admin-text-subtle mb-2 font-semibold">Internal Notes & Message</h4>
                                 <Textarea
+                                    aria-labelledby="lead-notes-heading"
                                     value={formData.message || formData.notes || ""}
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                     readOnly={isReadOnly}
@@ -558,7 +592,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                                 <Mail className="w-4 h-4 text-admin-text-muted" />
                                                 {template.name}
                                             </div>
-                                            <Button variant="ghost" size="sm" className="h-7 text-[11px] font-bold uppercase text-admin-text-muted hover:text-admin-text" onClick={() => copyToClipboard(body, template.name)}>
+                                            <Button variant="ghost" size="sm" className="h-7 text-[11px] font-bold uppercase text-admin-text-muted hover:text-admin-text" onClick={() => void copyToClipboard(body, template.name)}>
                                                 <Copy className="w-3.5 h-3.5 mr-1.5" /> Copy Draft
                                             </Button>
                                         </div>
@@ -650,5 +684,16 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                 </FocusLock>
             </SheetContent>
         </Sheet>
+        <ConfirmDialog
+            open={confirmDiscard}
+            onOpenChange={setConfirmDiscard}
+            variant="destructive"
+            title="Discard unsaved changes?"
+            description="You've edited this lead without saving. Closing now will lose those edits."
+            confirmText="Discard"
+            cancelText="Keep editing"
+            onConfirm={() => onOpenChange(false)}
+        />
+        </>
     );
 }
