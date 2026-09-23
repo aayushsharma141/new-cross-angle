@@ -188,9 +188,13 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick, selectedLeadId
                       </DropdownMenuItem>
                       {lead.email ? (
                         <DropdownMenuItem
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
-                            navigator.clipboard.writeText(lead.email ?? "");
+                            try {
+                              await navigator.clipboard.writeText(lead.email ?? "");
+                            } catch {
+                              console.error("Failed to copy email to clipboard");
+                            }
                           }}
                         >
                           <Mail className="mr-2 h-4 w-4" />
@@ -199,9 +203,13 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick, selectedLeadId
                       ) : null}
                       {lead.phone ? (
                         <DropdownMenuItem
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
-                            navigator.clipboard.writeText(lead.phone ?? "");
+                            try {
+                              await navigator.clipboard.writeText(lead.phone ?? "");
+                            } catch {
+                              console.error("Failed to copy phone to clipboard");
+                            }
                           }}
                         >
                           <Phone className="mr-2 h-4 w-4" />

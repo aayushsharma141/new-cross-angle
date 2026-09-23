@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/primitives/button";
 import { Textarea } from "@/components/primitives/interactive";
 import { ShieldAlert, Plus, CheckCircle2, CircleDot } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/useToast";
 
 interface Objection {
   id: string;
@@ -26,6 +27,7 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
   const [newText, setNewText] = useState("");
   const [newCategory, setNewCategory] = useState("pricing");
   const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
 
   const categories = [
     { id: "pricing", label: "Pricing / Budget" },
@@ -64,16 +66,29 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
     if (!newText.trim() || isReadOnly || isSaving) return;
     setIsSaving(true);
     try {
-      const { data } = await db
+      const { data, error } = await db
         .from("lead_objections")
         .insert({ lead_id: leadId, objection_text: newText, category: newCategory, status: "open" })
         .select()
         .single();
+
+      if (error) throw error;
+
       if (data) {
         setObjections([data as Objection, ...objections]);
         setNewText("");
         setShowAdd(false);
+        toast({
+          title: "Objection saved",
+          description: "Objection has been logged successfully.",
+        });
       }
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Failed to save objection",
+        description: "Could not save the objection. Please try again.",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -81,14 +96,29 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
 
   const handleResolve = async (id: string) => {
     if (isReadOnly) return;
-    const { data } = await db
-      .from("lead_objections")
-      .update({ status: "resolved", resolved_at: new Date().toISOString() })
-      .eq("id", id)
-      .select()
-      .single();
-    if (data) {
-      setObjections(objections.map((o) => (o.id === id ? (data as Objection) : o)));
+    try {
+      const { data, error } = await db
+        .from("lead_objections")
+        .update({ status: "resolved", resolved_at: new Date().toISOString() })
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setObjections(objections.map((o) => (o.id === id ? (data as Objection) : o)));
+        toast({
+          title: "Objection resolved",
+          description: "Objection has been marked as resolved.",
+        });
+      }
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Failed to resolve objection",
+        description: "Could not update the objection status. Please try again.",
+      });
     }
   };
 

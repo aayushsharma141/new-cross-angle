@@ -115,9 +115,14 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
             if (error) throw error;
             queryClient.invalidateQueries({ queryKey: ['lead-timeline', formData.id] });
         } catch {
-            // Error logging activity - silently fail (activity is non-critical)
+            // Show error toast for failed activity logging
+            toast({
+                variant: "destructive",
+                title: "Activity Log Error",
+                description: `Failed to log activity: ${description}`,
+            });
         }
-    }, [formData?.id, queryClient]);
+    }, [formData?.id, queryClient, toast]);
 
     const handleSave = () => {
         if (!formData) return;
@@ -573,7 +578,14 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                                                     logActivity("email_sent", `Sent email template: ${template.name}`, { template: template.name, subject });
                                                                     toast({ title: "Email Sent", description: `Sent to ${formData.email}` });
                                                                 },
-                                                                onError: () => setSentTemplates(prev => ({ ...prev, [template.id]: "error" }))
+                                                                onError: () => {
+                                                                    setSentTemplates(prev => ({ ...prev, [template.id]: "error" }));
+                                                                    toast({
+                                                                        variant: "destructive",
+                                                                        title: "Email Send Failed",
+                                                                        description: `Failed to send email template: ${template.name}. Please try again.`,
+                                                                    });
+                                                                }
                                                             }
                                                         );
                                                     }}
@@ -582,7 +594,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                                     {sendState === "sending" ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : 
                                                      sendState === "sent" ? <CheckCheck className="w-3.5 h-3.5 mr-1.5" /> : 
                                                      <Send className="w-3.5 h-3.5 mr-1.5" />}
-                                                    {sendState === "sending" ? "Sending�" : sendState === "sent" ? "Sent Successfully" : "Send via CrossAngle"}
+                                                    {sendState === "sending" ? "Sending...��" : sendState === "sent" ? "Sent Successfully" : "Send via CrossAngle"}
                                                 </Button>
                                             </div>
                                         </div>
