@@ -17,7 +17,7 @@ import {
 import { useToast } from '@/hooks/useToast';
 import { BulkActionsToolbar } from '@/components/admin/BulkActionsToolbar';
 import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
-import { AdminPageHeader, AdminMetricsPanel } from '@/components/admin/shared';
+import { AdminMetricsPanel } from '@/components/admin/shared';
 import { auditService } from '@/services/AuditService';
 import { cn } from '@/lib/utils';
 import { format, subDays } from 'date-fns';
@@ -204,8 +204,6 @@ export default function AdminEstimateLeads() {
         .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
         .fade-up-4 { animation: fadeUp var(--anim-duration) var(--anim-stagger-4) var(--anim-ease) both; }
       `}</style>
-
-      <AdminPageHeader moduleName="Estimator" tabName="Leads" />
 
       <div className="fade-up-1">
         <AdminMetricsPanel metrics={[
