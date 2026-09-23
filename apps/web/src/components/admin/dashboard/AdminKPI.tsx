@@ -79,7 +79,7 @@ export function AdminKPI({
                                     aria-label={errorLabel ?? `${title} failed to load`}
                                     title={errorLabel ?? `${title} failed to load`}
                                 >
-                                    <AlertTriangle className="w-3.5 h-3.5" />
+                                    <AlertTriangle className="w-4 h-4" />
                                 </span>
                             )}
                         </p>
