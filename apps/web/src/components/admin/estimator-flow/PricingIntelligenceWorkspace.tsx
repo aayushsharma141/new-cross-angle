@@ -100,7 +100,7 @@ export default function PricingIntelligenceWorkspace({ registry }: Props) {
 
             <div className="space-y-4 fade-up-2">
                 <AdminFormCard title="Design Rates" icon={Paintbrush} iconClassName="text-purple-400">
-                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-3">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
                         {Object.entries(config.design).map(([key, val]) => (
                             <div key={key} className="flex items-center justify-between gap-2">
                                 <span className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))] truncate">{formatLabel(key)}</span>
@@ -128,7 +128,7 @@ export default function PricingIntelligenceWorkspace({ registry }: Props) {
                 </AdminFormCard>
 
                 <AdminFormCard title="Add-on Costs (₹)" icon={Plug} iconClassName="text-pink-400">
-                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-3">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
                         {config.addons && Object.entries(config.addons).map(([key, val]) => (
                             <div key={key} className="flex items-center justify-between gap-2">
                                 <span className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))] truncate">{formatLabel(key)}</span>

@@ -10,8 +10,9 @@ import { PageSkeleton } from "@/components/ui/enhanced/PageSkeleton";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useToast } from "@/hooks/useToast";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { getLeadTemperature, type Lead } from "@/lib/scoring/leadScoring";
+import { toCsv, downloadCsv } from "@/components/admin/analytics/analytics-utils";
 
 import { useSearchParams } from "react-router-dom";
 import {
@@ -156,7 +157,7 @@ export default function AdminLeads() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...patch }: Partial<Lead> & { id: string }): Promise<void> => {
-      const { score, created_at, updated_at, service, source_url, internal_notes, score_details, ...saveable } = patch; // eslint-disable-line @typescript-eslint/no-unused-vars
+      const { score, created_at, updated_at, service, source_url, score_details, ...saveable } = patch; // eslint-disable-line @typescript-eslint/no-unused-vars
       await leadRepo.updateLead(id, saveable);
     },
     onMutate: async (newLead) => {
@@ -193,14 +194,12 @@ export default function AdminLeads() {
         phone: draft.phone,
         message: draft.message,
         source: draft.source,
-        category: draft.category,
+        project_type: draft.project_type,
         city: draft.city,
         budget: draft.budget,
-        notes: draft.notes,
+        start_timing: draft.start_timing,
         lead_source: draft.lead_source,
         lead_type: draft.lead_type,
-        scope: draft.scope,
-        timeline: draft.timeline,
       });
 
       await supabase.from("lead_activities").insert({
@@ -249,35 +248,28 @@ export default function AdminLeads() {
   });
 
   const handleExport = (): void => {
-    const csvContent = [
-      ["Name", "Email", "Phone", "Status", "Source", "Type", "City", "Budget", "Score", "Temperature", "Date"],
-      ...leads.map((l) => {
-        const temp = getLeadTemperature(l.score || 0);
-        const lSource = l.source || l.lead_source || "";
-        const lType = l.category || l.lead_type || "";
-        return [
-          l.name,
-          l.email,
-          l.phone || "",
-          l.status,
-          getCrmSourceLabel(lSource),
-          getCrmLeadTypeLabel(lType),
-          l.city || "",
-          l.budget || "",
-          `${l.score || 0}`,
-          temp.label,
-          format(new Date(l.created_at || ""), "yyyy-MM-dd"),
-        ];
-      }),
-    ]
-      .map((e) => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(","))
-      .join("\n");
+    const headers = ["Name", "Email", "Phone", "Status", "Source", "Type", "City", "Budget", "Score", "Temperature", "Date"];
+    const rows = filteredLeads.map((l) => {
+      const temp = getLeadTemperature(l.score || 0);
+      const lSource = l.source || l.lead_source || "";
+      const lType = l.category || l.lead_type || "";
+      const created = l.created_at ? new Date(l.created_at) : null;
+      return [
+        l.name,
+        l.email,
+        l.phone || "",
+        l.status,
+        getCrmSourceLabel(lSource),
+        getCrmLeadTypeLabel(lType),
+        l.city || "",
+        l.budget || "",
+        `${l.score || 0}`,
+        temp.label,
+        created && isValid(created) ? format(created, "yyyy-MM-dd") : "",
+      ].map((v) => String(v ?? ""));
+    });
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `leads_export_${format(new Date(), "yyyy-MM-dd")}.csv`;
-    link.click();
+    downloadCsv(`leads_export_${format(new Date(), "yyyy-MM-dd")}.csv`, toCsv(headers, rows));
   };
 
   const openNewLead = useCallback((initialStatus: CrmStageId = "new") => {
@@ -415,7 +407,7 @@ export default function AdminLeads() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-admin-text-subtle" />
             <input 
               type="text" 
-              placeholder="Search by name, phone, or email�" 
+              placeholder="Search by name, phone, or email…" 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full h-9 bg-admin-surface border border-admin-border rounded-lg pl-9 pr-9 text-[13px] text-admin-text placeholder:text-admin-text-subtle focus:outline-none focus:border-admin-border-subtle focus:ring-1 focus:ring-[hsl(var(--admin-primary)/0.3)] transition-all"
@@ -556,21 +548,23 @@ export default function AdminLeads() {
         lead={selectedLead}
         open={isSheetOpen}
         onOpenChange={setIsSheetOpen}
-        onSave={(updated) => {
+        onSave={async (updated) => {
           if (updated.id === NEW_LEAD_ID) {
             if (!canCreate) {
               toast({ variant: "destructive", title: "Access Denied", description: "You do not have permission to create leads." });
               return;
             }
-            createMutation.mutate(updated);
+            await createMutation.mutateAsync(updated);
             return;
           }
           if (!can('leads', 'edit')) {
             toast({ variant: "destructive", title: "Access Denied", description: "You do not have permission to edit leads." });
             return;
           }
-          updateMutation.mutate(updated);
+          await updateMutation.mutateAsync(updated);
         }}
+        allLeads={leads}
+        onViewLead={(lead) => setSelectedLead(lead)}
         onDelete={canDelete ? (id) => setDeleteTargetId(id) : undefined}
         isReadOnly={!can('leads', 'edit')}
       />

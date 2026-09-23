@@ -19,6 +19,7 @@ const AdminUserAccessRoles = lazy(() => import("@/pages/admin/AdminUserAccessRol
 const AdminUserAccessSecurity = lazy(() => import("@/pages/admin/AdminUserAccessSecurity"));
 const UserAccessModule = lazy(() => import("@/pages/admin/modules/UserAccessModule"));
 const AdminTeam = lazy(() => import("@/pages/admin/AdminTeam"));
+const AdminEstimateLeads = lazy(() => import("@/pages/admin/AdminEstimateLeads"));
 const AdminEstimatorConfig = lazy(() => import("@/pages/admin/AdminEstimatorConfig"));
 const AdminHero = lazy(() => import("@/pages/admin/AdminHero"));
 const AdminGallery = lazy(() => import("@/pages/admin/AdminGallery"));
@@ -107,7 +108,8 @@ export const adminRoutes = (
 
         {/* ── Estimator: super_admin | admin ──────────────────────────────── */}
         <Route path="estimator" element={<RoleGuard allowedRoles={ADMIN_ONLY}><EstimatorModule /></RoleGuard>}>
-          {/* estimate-leads route (Phase 5): requires estimate_leads table type definitions */}
+          {/* Reads `leads` where lead_source = 'estimator' (estimate_leads was merged into leads, migration 20260411121000) */}
+          <Route path="estimate-leads" element={<AdminEstimateLeads />} />
           <Route path="config" element={<RoleGuard allowedRoles={SUPER_ONLY}><AdminEstimatorConfig /></RoleGuard>} />
           {/* Legacy redirects — old URLs before Phase 12 consolidation */}
           <Route path="pricing-configuration" element={<Navigate to="/admin/estimator/config" replace />} />

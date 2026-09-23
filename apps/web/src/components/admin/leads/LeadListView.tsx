@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import {
   Table,
   TableBody,
@@ -20,6 +20,7 @@ import { Card } from "@/design-system/components/Card";
 import { Link } from "react-router-dom";
 import { MoreHorizontal, Eye, Mail, Phone, Trash2, Flame, Thermometer, Snowflake, Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/useToast";
 import { getLeadTemperature, Lead } from "@/lib/scoring/leadScoring";
 import { icons } from "@/design-system/tokens/icons";
 import {
@@ -49,6 +50,16 @@ interface LeadListViewProps {
 
 export function LeadListView({ leads, onLeadClick, onDeleteClick, selectedLeadIds = new Set(), onLeadToggleSelect, onSelectAll }: LeadListViewProps) {
   const allSelected = leads.length > 0 && leads.every((l) => selectedLeadIds.has(l.id));
+  const { toast } = useToast();
+
+  const copyText = async (text: string, what: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: `${what} copied`, description: text });
+    } catch {
+      toast({ variant: "destructive", title: `Couldn't copy ${what.toLowerCase()}`, description: "Clipboard access was blocked by the browser." });
+    }
+  };
 
   return (
     <Card className="overflow-hidden shadow-none border border-[hsl(var(--admin-border))]/60 bg-transparent rounded-xl">
@@ -150,7 +161,7 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick, selectedLeadId
                 </TableCell>
 
                 <TableCell className="align-middle px-4 whitespace-nowrap text-[13px] text-[hsl(var(--admin-text-muted))] font-medium group-hover:text-foreground/80 transition-colors">
-                  {lead.created_at
+                  {lead.created_at && isValid(new Date(lead.created_at))
                     ? format(new Date(lead.created_at), "MMM d, yyyy")
                     : EM_DASH}
                 </TableCell>
@@ -190,7 +201,7 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick, selectedLeadId
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigator.clipboard.writeText(lead.email ?? "");
+                            void copyText(lead.email ?? "", "Email");
                           }}
                         >
                           <Mail className="mr-2 h-4 w-4" />
@@ -201,7 +212,7 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick, selectedLeadId
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigator.clipboard.writeText(lead.phone ?? "");
+                            void copyText(lead.phone ?? "", "Phone");
                           }}
                         >
                           <Phone className="mr-2 h-4 w-4" />

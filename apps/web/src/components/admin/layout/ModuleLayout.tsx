@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { ModuleBreadcrumb } from "./ModuleBreadcrumb";
 interface ModuleTab {
     label: string;
     path: string;
@@ -107,8 +108,9 @@ export const ModuleLayout = ({ title, description, tabs, sidebar, children }: Mo
                 {/* Right side area: Top header + Main content */}
                 <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                     {/* Desktop Top Header (Merged Logo + Title) */}
-                    <div className="hidden lg:flex items-center justify-between border-b border-[hsl(var(--admin-border))]/50 bg-[hsl(var(--admin-background))]/50 px-7 py-5 flex-none">
-                        <div className="flex items-center gap-6 min-w-0">
+                    <div className="hidden lg:flex flex-col border-b border-[hsl(var(--admin-border))]/50 bg-[hsl(var(--admin-background))]/50 px-7 py-5 flex-none">
+                        <ModuleBreadcrumb moduleTitle={title} tabs={tabs} />
+                        <div className="flex items-center justify-between gap-6">
                             {/* Title and Description */}
                             <div className="flex items-baseline gap-3 min-w-0">
                                 <h1 className="admin-title text-2xl md:text-3xl tracking-tight shrink-0">{title}</h1>
@@ -118,13 +120,13 @@ export const ModuleLayout = ({ title, description, tabs, sidebar, children }: Mo
                                     </p>
                                 )}
                             </div>
-                        </div>
 
-                        {/* Actions Slot */}
-                        <div
-                            ref={setSlotEl}
-                            className="flex items-center gap-2 shrink-0 empty:hidden"
-                        />
+                            {/* Actions Slot */}
+                            <div
+                                ref={setSlotEl}
+                                className="flex items-center gap-2 shrink-0 empty:hidden"
+                            />
+                        </div>
                     </div>
 
                     {/* 4. Main Content Area (Bottom Right on Desktop, Bottom on Mobile) */}

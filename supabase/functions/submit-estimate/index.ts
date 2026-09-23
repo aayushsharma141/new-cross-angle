@@ -155,17 +155,20 @@ Deno.serve(async (req: Request) => {
         const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // Fetch dynamic pricing rates created by user from Admin Panel
+        // Pricing is admin-managed in estimator_flow_config (key "pricing"), the same row the
+        // public estimator and the admin Pricing & Settings page read. The former estimate_rates
+        // table never existed in production, so this used to fall back to defaults silently.
         let pricingConfig = DEFAULT_PRICING_CONFIG;
-        const { data: dbRates } = await supabase
-            .from('estimate_rates')
-            .select('config')
-            .order('updated_at', { ascending: false })
-            .limit(1)
+        const { data: pricingRow, error: pricingError } = await supabase
+            .from('estimator_flow_config')
+            .select('data')
+            .eq('key', 'pricing')
             .maybeSingle();
 
-        if (dbRates?.config) {
-            pricingConfig = { ...DEFAULT_PRICING_CONFIG, ...dbRates.config };
+        if (pricingError) {
+            console.error(`[${FN}] pricing config lookup failed, using defaults:`, pricingError.message);
+        } else if (pricingRow?.data) {
+            pricingConfig = { ...DEFAULT_PRICING_CONFIG, ...pricingRow.data };
         }
 
         // Calculate true values on server, defeating client-side overrides
