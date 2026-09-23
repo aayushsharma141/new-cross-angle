@@ -60,8 +60,10 @@ export class UploadOrchestrator {
     const { file, title, domain, entityType, entityId, role, collectionId, onProgress } = options;
 
     const uploadPromise = (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Not authenticated");
+      // No client-side session gate: persistSession:false means
+      // supabase.auth.getSession() is always null here, so gating on it rejected
+      // every DAM upload before the saga started. rpc_create_uploading_asset and
+      // the imagekit-upload edge function both authorize server-side.
 
       return new Promise<DamUploadResult>((resolve, reject) => {
         const reader = new FileReader();
