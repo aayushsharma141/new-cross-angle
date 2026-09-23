@@ -113,6 +113,22 @@ export function isCrmStageId(value: string): value is CrmStageId {
   return CRM_STAGE_IDS.includes(value as CrmStageId);
 }
 
+/**
+ * Statuses from the pre-CRM vocabulary (still in lead_status_enum and on older
+ * estimator rows) mapped to the nearest CRM stage without claiming progress that
+ * didn't happen: "qualified" has no CRM stage, and a meeting may not exist.
+ */
+const LEGACY_STAGE_MAP: Record<string, CrmStageId> = {
+  contacted: "in_conversation",
+  qualified: "in_conversation",
+  proposal: "quote_sent",
+};
+
+export function toCrmStageId(value: string | null | undefined): CrmStageId {
+  if (value && isCrmStageId(value)) return value;
+  return (value && LEGACY_STAGE_MAP[value]) || "new";
+}
+
 // ─── Follow-Up SLA ──────────────────────────────────────────────────
 /** Recommended maximum response time after entering each stage. */
 export const FOLLOW_UP_SLA: Record<CrmStageId, { hours: number; label: string }> = {
