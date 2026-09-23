@@ -23,7 +23,7 @@ export function LeadHealthScore({ health, compact = false }: LeadHealthScoreProp
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1 text-[9px] font-medium px-1.5 py-0.5 rounded-full border",
+          "inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full border",
           riskConfig.color, riskConfig.bg, riskConfig.border
         )}
         title={`Health: ${riskConfig.label} | Completeness: ${completeness}% | Last activity: ${freshnessDays}d ago`}

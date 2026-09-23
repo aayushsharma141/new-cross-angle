@@ -98,7 +98,7 @@ export function LeadCard({ lead, onClick, isPreview = false }: LeadCardProps) {
       {/* Line 1: Source + Name + Temp */}
       <div className="flex items-center justify-between gap-2 mb-1.5">
         <div className="flex items-center gap-2 min-w-0">
-          <span className={cn("text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded", sourceChip.chipClass)}>
+          <span className={cn("text-[10px] font-semibold tracking-wider px-1.5 py-0.5 rounded", sourceChip.chipClass)}>
             {sourceChip.shortCode}
           </span>
           <span className="text-[13px] font-semibold text-admin-text truncate">
@@ -176,14 +176,14 @@ export function LeadCard({ lead, onClick, isPreview = false }: LeadCardProps) {
         <span className="flex items-center gap-1.5">
           {lead.assigned_to ? (
             <>
-              <span className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-500 to-rose-600 text-[9px] font-semibold text-white grid place-items-center">
+              <span className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-500 to-rose-600 text-[10px] font-semibold text-white grid place-items-center">
                 {lead.assigned_to.substring(0,2).toUpperCase()}
               </span>
               <span>{lead.assigned_to}</span>
             </>
           ) : (
             <>
-              <span className="w-5 h-5 rounded-full border border-dashed border-admin-border-subtle text-[9px] grid place-items-center">?</span>
+              <span className="w-5 h-5 rounded-full border border-dashed border-admin-border-subtle text-[10px] grid place-items-center">?</span>
               <span>Unassigned</span>
             </>
           )}

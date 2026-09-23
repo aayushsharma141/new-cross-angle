@@ -309,7 +309,7 @@ function ArchetypeCard({
             <div className="grid grid-cols-5 gap-2">
               {SCORE_DIMENSIONS.map((dim) => (
                 <div key={dim} className="text-center">
-                  <p className="text-[9px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))] mb-1 capitalize">{dim}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-[hsl(var(--admin-text-muted))] mb-1 capitalize font-semibold">{dim}</p>
                   <div className="h-1.5 rounded-full bg-[hsl(var(--admin-border))]">
                     <div
                       className="h-1.5 rounded-full bg-[hsl(var(--admin-primary))]/60 transition-all"
@@ -319,7 +319,7 @@ function ArchetypeCard({
                 </div>
               ))}
             </div>
-            <p className="text-[9px] text-[hsl(var(--admin-text-muted))] italic">
+            <p className="text-[10px] text-[hsl(var(--admin-text-muted))] italic">
               Score logic is defined in code via the match() function in constants/discovery.ts
             </p>
           </div>
