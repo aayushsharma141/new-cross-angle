@@ -13,23 +13,33 @@ export class SupabaseLeadRepo implements LeadRepository {
         if (error) throw error;
     }
 
-    async getLeads(filters?: FilterParams, limit: number = 50): Promise<Lead[]> {
-        let query = supabase
-            .from('leads')
-            .select('*')
-            .order('created_at', { ascending: false });
+    async getLeads(filters?: FilterParams): Promise<Lead[]> {
+        // PostgREST caps a single response at 1000 rows, so page until exhausted
+        // rather than silently truncating boards and analytics.
+        const PAGE = 1000;
+        const all: Lead[] = [];
 
-        if (filters) {
-            Object.entries(filters).forEach(([key, value]) => {
-                if (value !== undefined) {
-                    query = query.eq(key as keyof LeadsRow, value);
+        for (let from = 0; ; from += PAGE) {
+            let query = supabase
+                .from('leads')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .order('id', { ascending: false })
+                .range(from, from + PAGE - 1);
+
+            if (filters) {
+                for (const [key, value] of Object.entries(filters)) {
+                    if (value !== undefined) {
+                        query = query.eq(key as keyof LeadsRow, value);
+                    }
                 }
-            });
-        }
+            }
 
-        const { data, error } = await query.limit(Math.min(limit, 1000));
-        if (error) throw error;
-        return data as Lead[];
+            const { data, error } = await query;
+            if (error) throw error;
+            all.push(...(data as Lead[]));
+            if (data.length < PAGE) return all;
+        }
     }
 
     async getLeadsPaginated(
