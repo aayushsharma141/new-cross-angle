@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/primitives/button";
 import { Label } from "@/components/ui/primitives/label";
 import { Input } from "@/components/primitives/interactive";
 import { Textarea } from "@/components/primitives/interactive";
-import { leadSchema, formatZodErrors } from "@/lib/validation/validations";
+import { leadSchema, formatZodErrors, validateStageAdvance } from "@/lib/validation/validations";
 import { useState, useEffect, useRef, useCallback } from "react";
 import FocusLock from "react-focus-lock";
 import { LeadTimeline } from "@/components/admin/leads/LeadTimeline";
@@ -148,6 +148,19 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
     const setStage = (stage: CrmStageId) => {
         if (!formData || isReadOnly) return;
+
+        // Validate stage advancement requirements
+        const errors = validateStageAdvance(formData as unknown as Partial<Record<string, unknown>>, stage);
+
+        if (errors.length > 0) {
+            toast({
+                variant: "destructive",
+                title: "Cannot advance stage",
+                description: errors.join("\n"),
+            });
+            return;
+        }
+
         setFormData({ ...formData, status: stage });
     };
 
