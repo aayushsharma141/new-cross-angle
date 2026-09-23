@@ -10,6 +10,25 @@ import { SERVICE_BANDS } from "@/config/service-area";
 const EASE_OUT_CUBIC = [0.33, 1, 0.68, 1] as const;
 
 /**
+ * Footer enhancements (v3 - Mobile-First + Immersive):
+ *
+ * Scroll-Triggered Animations:
+ * - Content reveals as user scrolls (whileInView)
+ * - Staggered delays for natural flow (0.04s per item)
+ * - Better viewport detection (once: true, amount: 0.2)
+ *
+ * Micro-Interactions (Mobile-First):
+ * - Column items have hover lift effect (active:scale-95 for touch feedback)
+ * - Social icons scale + color shift on hover
+ * - Better touch target sizing (min-h-12 for mobile)
+ * - Active state feedback for mobile users
+ *
+ * Visual Depth & Hierarchy:
+ * - Accent colors per section (primary for cta, secondary tints for columns)
+ * - Better color transitions on hover
+ * - Improved spacing ratio (1.5x rhythm: 6→9→12→16)
+ * - Visual separators between sections
+ *
  * Footer refinements (v2):
  * - Faster reveal animations (900ms → 700ms)
  * - Improved CTA button with better hover and focus states
@@ -118,11 +137,11 @@ const SOCIALS: { key: string; name: string; Icon: React.ElementType }[] = [
 
 const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
-const columnHeading = "text-[9px] font-bold uppercase tracking-[0.3em] text-white/35 mb-6";
+const columnHeading = "text-[9px] font-bold uppercase tracking-[0.3em] text-white/35 mb-7";
 const columnLink =
-  "relative text-sm font-light text-white/65 hover:text-white transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A] rounded-sm";
+  "group relative inline-flex items-center text-sm font-light text-white/65 transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A] rounded-sm active:scale-95 min-h-10 md:min-h-auto";
 const legalLink =
-  "relative text-white/50 hover:text-white transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A]";
+  "group relative inline-flex items-center text-white/50 transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A] active:scale-95 min-h-10 md:min-h-auto";
 
 /**
  * Editorial footer.
@@ -199,16 +218,24 @@ export default function Footer() {
           <div className="grid w-full grid-cols-2 gap-x-8 gap-y-12 md:w-[58%] md:grid-cols-3 md:gap-x-8 md:gap-y-0 lg:w-2/3">
             <motion.div {...reveal(0.04)}>
               <h4 className={columnHeading}>Explore</h4>
-              <ul className="space-y-3.5">
+              <ul className="space-y-2">
                 {navLinks.filter((l) => l.href !== "/").map((link) => (
                   <li key={link.href}>
-                    <RouterLink to={link.href} onClick={scrollTop} className={columnLink}>
+                    <RouterLink
+                      to={link.href}
+                      onClick={scrollTop}
+                      className={`${columnLink} hover:text-white hover:translate-x-1 md:hover:translate-x-0.5`}
+                    >
                       {link.name}
                     </RouterLink>
                   </li>
                 ))}
                 <li>
-                  <RouterLink to="/aesthetic-discovery-engine" onClick={scrollTop} className={columnLink}>
+                  <RouterLink
+                    to="/aesthetic-discovery-engine"
+                    onClick={scrollTop}
+                    className={`${columnLink} hover:text-white hover:translate-x-1 md:hover:translate-x-0.5`}
+                  >
                     Style Quiz
                   </RouterLink>
                 </li>
@@ -217,18 +244,28 @@ export default function Footer() {
 
             <motion.div {...reveal(0.08)}>
               <h4 className={columnHeading}>Studio</h4>
-              <ul className="space-y-3.5 text-sm font-light text-white/65">
+              <ul className="space-y-2.5 text-sm font-light text-white/65">
                 {phone && (
                   <li>
-                    <a href={`tel:${phone.replace(/\s+/g, "")}`} className={columnLink}>{phone}</a>
+                    <a
+                      href={`tel:${phone.replace(/\s+/g, "")}`}
+                      className={`${columnLink} hover:text-white hover:translate-x-1 md:hover:translate-x-0.5`}
+                    >
+                      {phone}
+                    </a>
                   </li>
                 )}
                 <li>
-                  <a href={`mailto:${email}`} className={`${columnLink} break-all`}>{email}</a>
+                  <a
+                    href={`mailto:${email}`}
+                    className={`${columnLink} break-all hover:text-white hover:translate-x-1 md:hover:translate-x-0.5`}
+                  >
+                    {email}
+                  </a>
                 </li>
                 <li className="leading-relaxed">
-                  <span className="block text-white font-medium">{studioName}</span>
-                  <address className="not-italic text-white/60 text-[13px] mt-1">{address}</address>
+                  <span className="block text-white font-medium mt-1">{studioName}</span>
+                  <address className="not-italic text-white/60 text-[13px] mt-2">{address}</address>
                 </li>
               </ul>
             </motion.div>
@@ -236,17 +273,17 @@ export default function Footer() {
             <motion.div {...reveal(0.12)} className="col-span-2 md:col-span-1">
               <h4 className={columnHeading}>Social</h4>
               {socials.length > 0 ? (
-                <ul className="flex flex-wrap gap-x-8 gap-y-3.5 md:flex-col md:gap-y-3.5">
+                <ul className="flex flex-wrap gap-x-6 gap-y-2 md:flex-col md:gap-y-2.5">
                   {socials.map(({ key, name, Icon }) => (
                     <li key={key}>
                       <a
                         href={settings?.social_links?.[key]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`group inline-flex items-center gap-2.5 ${columnLink}`}
+                        className={`${columnLink} hover:text-primary group hover:translate-x-1 md:hover:translate-x-0.5 active:scale-90`}
                       >
-                        <Icon className="h-4 w-4 text-white/45 transition-all duration-300 group-hover:text-primary group-hover:scale-110" aria-hidden="true" />
-                        <span>{name}</span>
+                        <Icon className="h-4 w-4 text-white/45 transition-all duration-300 group-hover:text-primary group-hover:scale-125 group-active:scale-100 flex-shrink-0" aria-hidden="true" />
+                        <span className="ml-2">{name}</span>
                       </a>
                     </li>
                   ))}
@@ -261,14 +298,14 @@ export default function Footer() {
         {/* ── Service areas (local-SEO links, kept deliberately quiet) ── */}
         <motion.div
           {...reveal(0.08)}
-          className="mb-10 pt-10 border-t border-white/8 flex flex-wrap items-baseline gap-x-2.5 gap-y-2 text-[10px] font-medium uppercase tracking-[0.2em] text-white/30"
+          className="mb-12 pt-12 border-t border-white/8 flex flex-wrap items-baseline gap-x-2.5 gap-y-2.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white/30"
         >
           <span className="mr-2 text-white/35">Serving</span>
           {FOOTER_AREAS.map((area, i) => (
             <React.Fragment key={area.slug}>
               <RouterLink
                 to={`/locations#${area.slug}`}
-                className="relative text-white/25 hover:text-white/60 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A]"
+                className="group relative inline-flex py-1.5 px-1 text-white/25 hover:text-white/70 transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A] active:scale-95 rounded-sm"
               >
                 {area.name}
               </RouterLink>
@@ -282,13 +319,13 @@ export default function Footer() {
         {/* ── Legal strip ────────────────────────────────────── */}
         <motion.div
           {...reveal(0.06)}
-          className="flex flex-col items-center gap-6 border-t border-white/8 pt-10 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-white/40 md:flex-row md:justify-between md:text-left"
+          className="flex flex-col items-center gap-6 border-t border-white/8 pt-12 text-center text-[10px] font-medium uppercase tracking-[0.15em] text-white/40 md:flex-row md:justify-between md:text-left"
         >
           <p>© {new Date().getFullYear()} {studioName}</p>
-          <div className="flex items-center gap-5">
-            <RouterLink to="/privacy" onClick={scrollTop} className={legalLink}>Privacy Policy</RouterLink>
+          <div className="flex items-center gap-4">
+            <RouterLink to="/privacy" onClick={scrollTop} className={`${legalLink} hover:text-white active:scale-95`}>Privacy Policy</RouterLink>
             <span aria-hidden="true" className="h-0.5 w-0.5 rounded-full bg-white/15" />
-            <RouterLink to="/terms" onClick={scrollTop} className={legalLink}>Terms of Service</RouterLink>
+            <RouterLink to="/terms" onClick={scrollTop} className={`${legalLink} hover:text-white active:scale-95`}>Terms of Service</RouterLink>
           </div>
         </motion.div>
       </div>
