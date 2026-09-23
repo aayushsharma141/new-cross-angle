@@ -78,6 +78,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
     const [sentTemplates, setSentTemplates] = useState<Record<string, "sending" | "sent" | "error">>({});
     const [activeTab, setActiveTab] = useState<DetailTab>("activity");
     const [showPlaybook, setShowPlaybook] = useState(false);
+    const [isSavingForm, setIsSavingForm] = useState(false);
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const isNewLead = formData?.id === "__new__";
@@ -124,8 +125,8 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
         }
     }, [formData?.id, queryClient, toast]);
 
-    const handleSave = () => {
-        if (!formData) return;
+    const handleSave = async () => {
+        if (!formData || isSavingForm) return;
 
         const validation = leadSchema.safeParse(formData);
         if (!validation.success) {
@@ -137,7 +138,12 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
             return;
         }
 
-        onSave(formData);
+        setIsSavingForm(true);
+        try {
+            await Promise.resolve(onSave(formData));
+        } finally {
+            setIsSavingForm(false);
+        }
     };
 
     const setStage = (stage: CrmStageId) => {
@@ -620,8 +626,10 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                             Discard
                         </Button>
                         {!isReadOnly && (
-                            <Button className="h-9 px-5 rounded-md bg-admin-primary hover:bg-admin-primary-hover text-black text-[13px] font-bold shadow-md" onClick={handleSave}>
-                                Save changes
+                            <Button className="h-9 px-5 rounded-md bg-admin-primary hover:bg-admin-primary-hover text-black text-[13px] font-bold shadow-md disabled:opacity-50" disabled={isSavingForm} onClick={handleSave}>
+                                {isSavingForm ? <>
+                                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Saving...
+                                </> : "Save changes"}
                             </Button>
                         )}
                     </div>

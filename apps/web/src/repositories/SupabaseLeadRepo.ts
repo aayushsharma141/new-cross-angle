@@ -13,7 +13,7 @@ export class SupabaseLeadRepo implements LeadRepository {
         if (error) throw error;
     }
 
-    async getLeads(filters?: FilterParams): Promise<Lead[]> {
+    async getLeads(filters?: FilterParams, limit: number = 50): Promise<Lead[]> {
         let query = supabase
             .from('leads')
             .select('*')
@@ -27,7 +27,7 @@ export class SupabaseLeadRepo implements LeadRepository {
             });
         }
 
-        const { data, error } = await query.limit(500); // Safety cap — use pagination for large datasets
+        const { data, error } = await query.limit(Math.min(limit, 1000));
         if (error) throw error;
         return data as Lead[];
     }
