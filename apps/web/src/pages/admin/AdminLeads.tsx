@@ -157,7 +157,7 @@ export default function AdminLeads() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...patch }: Partial<Lead> & { id: string }): Promise<void> => {
-      const { score, created_at, updated_at, service, source_url, internal_notes, score_details, ...saveable } = patch; // eslint-disable-line @typescript-eslint/no-unused-vars
+      const { score, created_at, updated_at, service, source_url, score_details, ...saveable } = patch; // eslint-disable-line @typescript-eslint/no-unused-vars
       await leadRepo.updateLead(id, saveable);
     },
     onMutate: async (newLead) => {
@@ -194,14 +194,12 @@ export default function AdminLeads() {
         phone: draft.phone,
         message: draft.message,
         source: draft.source,
-        category: draft.category,
+        project_type: draft.project_type,
         city: draft.city,
         budget: draft.budget,
-        notes: draft.notes,
+        start_timing: draft.start_timing,
         lead_source: draft.lead_source,
         lead_type: draft.lead_type,
-        scope: draft.scope,
-        timeline: draft.timeline,
       });
 
       await supabase.from("lead_activities").insert({

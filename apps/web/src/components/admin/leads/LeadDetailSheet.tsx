@@ -174,15 +174,22 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
     const activeStage: CrmStageId = formData && isCrmStageId(formData.status) ? formData.status : "new";
 
+    // Admin notes live inside internal_notes (JSON shared with quiz/estimator data), never in the client's message.
+    const internalNotes: Record<string, unknown> =
+        formData?.internal_notes && typeof formData.internal_notes === "object" && !Array.isArray(formData.internal_notes)
+            ? (formData.internal_notes as Record<string, unknown>)
+            : {};
+    const adminNotes = typeof internalNotes.admin_notes === "string" ? internalNotes.admin_notes : "";
+
     const processTemplate = (templateBody: string, templateSubject: string) => {
         if (!formData) return { body: "", subject: "" };
 
         const body = templateBody
             .replace(/{{name}}/g, formData.name || "there")
-            .replace(/{{service}}/g, formData.category || formData.lead_type || "your project");
+            .replace(/{{service}}/g, formData.project_type || formData.lead_type || "your project");
 
         const subject = templateSubject
-            .replace(/{{service}}/g, formData.category || formData.lead_type || "Project");
+            .replace(/{{service}}/g, formData.project_type || formData.lead_type || "Project");
 
         return { body, subject };
     };
@@ -491,11 +498,11 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                 <h4 className="text-[11px] uppercase tracking-wider text-admin-text-subtle mb-2 font-semibold">Project</h4>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="bg-admin-surface border border-admin-border rounded-md p-3">
-                                        <Label htmlFor="lead-category" className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Type</Label>
+                                        <Label htmlFor="lead-project-type" className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Type</Label>
                                         <Input
-                                            id="lead-category"
-                                            value={formData.category || ""}
-                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                            id="lead-project-type"
+                                            value={formData.project_type || ""}
+                                            onChange={(e) => setFormData({ ...formData, project_type: e.target.value })}
                                             readOnly={isReadOnly}
                                             placeholder="e.g. Living Room + Kitchen"
                                             className="h-8 text-[13px] text-admin-text bg-transparent border-0 px-0 focus-visible:ring-0"
@@ -513,11 +520,11 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
                                         />
                                     </div>
                                     <div className="bg-admin-surface border border-admin-border rounded-md p-3">
-                                        <Label htmlFor="lead-timeline" className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Move-in by</Label>
+                                        <Label htmlFor="lead-start-timing" className="text-[10px] text-admin-text-subtle uppercase tracking-wider mb-1 block">Move-in by</Label>
                                         <Input
-                                            id="lead-timeline"
-                                            value={formData.timeline || ""}
-                                            onChange={(e) => setFormData({ ...formData, timeline: e.target.value })}
+                                            id="lead-start-timing"
+                                            value={formData.start_timing || ""}
+                                            onChange={(e) => setFormData({ ...formData, start_timing: e.target.value })}
                                             readOnly={isReadOnly}
                                             placeholder="e.g. August 2026"
                                             className="h-8 text-[13px] text-admin-text bg-transparent border-0 px-0 focus-visible:ring-0"
@@ -547,15 +554,38 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onSave, onDelete, is
 
                             {/* Notes / Message Section */}
                             <section>
-                                <h4 id="lead-notes-heading" className="text-[11px] uppercase tracking-wider text-admin-text-subtle mb-2 font-semibold">Internal Notes & Message</h4>
-                                <Textarea
-                                    aria-labelledby="lead-notes-heading"
-                                    value={formData.message || formData.notes || ""}
-                                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                                    readOnly={isReadOnly}
-                                    placeholder="Add notes, requirements, or copy their initial message here…"
-                                    className="min-h-[120px] bg-admin-surface border-admin-border text-[13px] text-admin-text placeholder:text-admin-text-subtle"
-                                />
+                                {isNewLead ? (
+                                    <>
+                                        <h4 id="lead-notes-heading" className="text-[11px] uppercase tracking-wider text-admin-text-subtle mb-2 font-semibold">Inquiry & Requirements</h4>
+                                        <Textarea
+                                            aria-labelledby="lead-notes-heading"
+                                            value={formData.message || ""}
+                                            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                                            placeholder="What the client asked for…"
+                                            className="min-h-[120px] bg-admin-surface border-admin-border text-[13px] text-admin-text placeholder:text-admin-text-subtle"
+                                        />
+                                    </>
+                                ) : (
+                                    <>
+                                        {formData.message && (
+                                            <>
+                                                <h4 className="text-[11px] uppercase tracking-wider text-admin-text-subtle mb-2 font-semibold">Client's Message</h4>
+                                                <p className="mb-4 whitespace-pre-wrap rounded-md border border-admin-border bg-admin-surface p-3 text-[13px] text-admin-text-muted">
+                                                    {formData.message}
+                                                </p>
+                                            </>
+                                        )}
+                                        <h4 id="lead-notes-heading" className="text-[11px] uppercase tracking-wider text-admin-text-subtle mb-2 font-semibold">Internal Notes</h4>
+                                        <Textarea
+                                            aria-labelledby="lead-notes-heading"
+                                            value={adminNotes}
+                                            onChange={(e) => setFormData({ ...formData, internal_notes: { ...internalNotes, admin_notes: e.target.value } })}
+                                            readOnly={isReadOnly}
+                                            placeholder="Notes for your team — not visible to the client…"
+                                            className="min-h-[120px] bg-admin-surface border-admin-border text-[13px] text-admin-text placeholder:text-admin-text-subtle"
+                                        />
+                                    </>
+                                )}
                             </section>
 
                             {/* Objection Tracker Section */}

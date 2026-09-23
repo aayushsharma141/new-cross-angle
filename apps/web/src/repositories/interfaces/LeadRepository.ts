@@ -12,6 +12,7 @@ export interface LeadPayload {
     budget?: string | null;
     project_type?: string | null;
     property_type?: string | null;
+    start_timing?: string | null;
     notes?: string | null;
     lead_source?: string | null;
     lead_type?: string | null;
