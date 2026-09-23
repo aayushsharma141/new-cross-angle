@@ -26,7 +26,7 @@ Release-gate items unresolved (brief §20):
 | --- | --- | --- |
 | Broken core CRUD | **FAIL** — Services create/edit (DEF-001); Estimator pricing save (QA-03) | live PostgREST 42703 / PGRST205 |
 | Broken critical API | **FAIL** — `posthog-query` 500 on Dashboard, Quiz Analytics, Estimate Leads | live 500 bodies |
-| P0/P1 security | **PARTIALLY OPEN** — F-08 Origin check CLOSED 2026-09-21; F-07 rate limit IMPLEMENTED, not yet applied to prod | `74dae374`/`d0cfc248`; live probe now 403 on cross-origin logout, still 401×8 (no 429) on login until migration `20260921000000` is applied |
+| P0/P1 security | **CLOSED** — F-08 Origin check (2026-09-21) and F-07 rate limit (applied 2026-09-23) both verified | `74dae374`/`d0cfc248`; `probe-auth-hardening.mjs` → cross-origin logout `403`, login `401×5` then `429` |
 | Unverified critical workflow | editor/viewer RBAC, F-09 API-level role denial, 10/12 CMS write cycles | blocked on credentials / write authorisation |
 | Production deployment | production branch still pre-cookie-auth (PL-010, D-001/D-002) | STATE.md, unchanged |
 | Fixture hygiene | second `super_admin` (`testadmin@example.com`) + plaintext service-role key at repo root | `create_test_admin.mjs` |
