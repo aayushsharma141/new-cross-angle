@@ -15,11 +15,9 @@ interface Objection {
   created_at: string;
 }
 
-// Supabase client typed against the generated schema — `lead_objections` is a
-// custom table that may not yet be reflected in the local types file.
-// We cast through `unknown` to silence the type mismatch without losing safety.
+// Supabase client - using the typed client directly
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const db = supabase as unknown as { from: (table: string) => any };
+const db = (supabase as any);
 
 export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isReadOnly?: boolean }) {
   const [objections, setObjections] = useState<Objection[]>([]);
@@ -27,6 +25,7 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
   const [showAdd, setShowAdd] = useState(false);
   const [newText, setNewText] = useState("");
   const [newCategory, setNewCategory] = useState("pricing");
+  const [isSaving, setIsSaving] = useState(false);
 
   const categories = [
     { id: "pricing", label: "Pricing / Budget" },
@@ -38,29 +37,45 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
   ];
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     async function load() {
-      const { data } = await db
-        .from("lead_objections")
-        .select("*")
-        .eq("lead_id", leadId)
-        .order("created_at", { ascending: false });
-      if (data) setObjections(data as Objection[]);
-      setLoading(false);
+      try {
+        const { data } = await db
+          .from("lead_objections")
+          .select("*")
+          .eq("lead_id", leadId)
+          .order("created_at", { ascending: false });
+        if (data && !abortController.signal.aborted) {
+          setObjections(data as Objection[]);
+        }
+      } finally {
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
+      }
     }
+
     load();
+    return () => abortController.abort();
   }, [leadId]);
 
   const handleAdd = async () => {
-    if (!newText.trim() || isReadOnly) return;
-    const { data } = await db
-      .from("lead_objections")
-      .insert({ lead_id: leadId, objection_text: newText, category: newCategory, status: "open" })
-      .select()
-      .single();
-    if (data) {
-      setObjections([data as Objection, ...objections]);
-      setNewText("");
-      setShowAdd(false);
+    if (!newText.trim() || isReadOnly || isSaving) return;
+    setIsSaving(true);
+    try {
+      const { data } = await db
+        .from("lead_objections")
+        .insert({ lead_id: leadId, objection_text: newText, category: newCategory, status: "open" })
+        .select()
+        .single();
+      if (data) {
+        setObjections([data as Objection, ...objections]);
+        setNewText("");
+        setShowAdd(false);
+      }
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -77,7 +92,7 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
     }
   };
 
-  if (loading) return <div className="p-4 text-xs text-[hsl(var(--admin-text-muted))]">Loading objections�</div>;
+  if (loading) return <div className="p-4 text-xs text-[hsl(var(--admin-text-muted))]">Loading objections...</div>;
 
   return (
     <div className="flex flex-col gap-4">
@@ -119,11 +134,11 @@ export function ObjectionTracker({ leadId, isReadOnly }: { leadId: string; isRea
             onChange={(e) => setNewText(e.target.value)}
           />
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setShowAdd(false)} className="h-7 text-xs">
+            <Button variant="ghost" size="sm" onClick={() => setShowAdd(false)} disabled={isSaving} className="h-7 text-xs">
               Cancel
             </Button>
-            <Button variant="default" size="sm" onClick={handleAdd} className="h-7 text-xs bg-orange-500 hover:bg-orange-600 text-white">
-              Save Objection
+            <Button variant="default" size="sm" onClick={handleAdd} disabled={isSaving} className="h-7 text-xs bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50">
+              {isSaving ? "Saving..." : "Save Objection"}
             </Button>
           </div>
         </div>

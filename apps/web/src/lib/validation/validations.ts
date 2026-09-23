@@ -132,7 +132,7 @@ export type LossReason = typeof lossReasonOptions[number];
 export const leadSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name is too long"),
     email: z.string().email("Invalid email address").max(100, "Email is too long"),
-    phone: z.string().regex(/^\+?[0-9\s-]{7,20}$/, "Invalid phone format").optional().nullable(),
+    phone: z.string().regex(/^(\+?\d{1,3})?[-.\s]?(\(?\d{1,4}\)?)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/, "Invalid phone format").optional().nullable(),
     message: z.string().max(2000, "Message is too long").optional().nullable(),
     service: z.string().max(100).optional().nullable(),
     status: z.enum(leadStatusOptions).default("new"),
