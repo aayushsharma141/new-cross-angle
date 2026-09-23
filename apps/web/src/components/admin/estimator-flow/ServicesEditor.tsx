@@ -3,7 +3,6 @@ import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/primitives/interactive";
 import { Save, Loader2, Plus, X, GripVertical } from "lucide-react";
-import { DEFAULT_PRICING_CONFIG } from "@/addons/calculators/components/data/pricing-config";
 import {
   DndContext,
   closestCenter,
@@ -31,13 +30,6 @@ interface ServiceItem {
   desc: string;
   includes: string[];
   excludes?: string[];
-}
-
-interface ExecTier {
-  min: number;
-  max: number;
-  label: string;
-  desc: string;
 }
 
 function SortableServiceItem({
@@ -210,12 +202,9 @@ function SortableServiceItem({
 
 export function ServicesEditor() {
   const { data: svcData, isLoading: svcLoading, save: saveSvc, isSaving: svcSaving } = useFlowConfig<ServiceItem[]>("services");
-  const { data: execData, isLoading: execLoading, save: saveExec, isSaving: execSaving } = useFlowConfig<Record<string, ExecTier>>("execution_tiers");
 
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [svcDirty, setSvcDirty] = useState(false);
-  const [execTiers, setExecTiers] = useState<Record<string, ExecTier>>({});
-  const [execDirty, setExecDirty] = useState(false);
   const [expandedSvc, setExpandedSvc] = useState<string | null>(null);
 
   const sensors = useSensors(
@@ -226,20 +215,6 @@ export function ServicesEditor() {
   );
 
   useEffect(() => { if (svcData && !svcDirty) setServices(svcData as ServiceItem[]); }, [svcData, svcDirty]);
-  useEffect(() => {
-    if (!execDirty) {
-      if (execData && typeof execData === "object" && Object.keys(execData).length > 0) {
-        setExecTiers(execData as Record<string, ExecTier>);
-      } else {
-        // Fallback: build from DEFAULT_PRICING_CONFIG.execution + SERVICES C5 tiers
-        const fallback: Record<string, ExecTier> = {};
-        Object.entries(DEFAULT_PRICING_CONFIG.execution).forEach(([k, v]) => {
-          fallback[k] = { min: v.min, max: v.max, label: k, desc: "" };
-        });
-        setExecTiers(fallback);
-      }
-    }
-  }, [execData, execDirty]);
 
   const updateSvc = (id: string, field: keyof ServiceItem, value: ServiceItem[keyof ServiceItem]) => {
     setServices(services.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
@@ -261,11 +236,6 @@ export function ServicesEditor() {
     setSvcDirty(true);
   };
 
-  const updateExecTier = (key: string, field: keyof ExecTier, val: string | number) => {
-    setExecTiers({ ...execTiers, [key]: { ...execTiers[key], [field]: val } });
-    setExecDirty(true);
-  };
-
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
@@ -278,7 +248,7 @@ export function ServicesEditor() {
     }
   };
 
-  if (svcLoading || execLoading) return <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-[hsl(var(--admin-primary))]" /></div>;
+  if (svcLoading) return <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-[hsl(var(--admin-primary))]" /></div>;
 
   return (
     <div className="space-y-6">
@@ -317,29 +287,11 @@ export function ServicesEditor() {
         </div>
       </section>
 
-      {/* Execution Tiers */}
-      <section className="rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs font-bold text-[hsl(var(--admin-text))] uppercase tracking-widest">Execution Tiers (C5)</h3>
-          <Button size="sm" onClick={() => saveExec(execTiers, { onSuccess: () => setExecDirty(false) })} disabled={!execDirty || execSaving} className="h-7 text-xs gap-1 bg-[hsl(var(--admin-primary))] text-black">
-            {execSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}Save
-          </Button>
-        </div>
-        <div className="space-y-2">
-          {Object.entries(execTiers).map(([key, tier]) => (
-            <div key={key} className="flex items-center gap-3 py-2 px-3 rounded-lg bg-[hsl(var(--admin-surface))]/50 border border-[hsl(var(--admin-border))]/30">
-              <span className="text-xs font-medium text-[hsl(var(--admin-text))] capitalize w-16 shrink-0">{key}</span>
-              <div className="flex items-center gap-2 flex-1">
-                <span className="text-[10px] text-[hsl(var(--admin-text-muted))]">Min₹</span>
-                <Input type="number" value={tier.min} onChange={(e) => updateExecTier(key, "min", +e.target.value)} className="h-7 w-20 text-xs bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]" />
-                <span className="text-[10px] text-[hsl(var(--admin-text-muted))]">Max₹</span>
-                <Input type="number" value={tier.max} onChange={(e) => updateExecTier(key, "max", +e.target.value)} className="h-7 w-20 text-xs bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]" />
-                <Input value={tier.label} onChange={(e) => updateExecTier(key, "label", e.target.value)} placeholder="Label" className="h-7 text-xs flex-1 bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Execution tiers are owned elsewhere: this section used to save an object into the
+          execution_tiers key that the public estimator reads as an array. */}
+      <p className="text-xs text-[hsl(var(--admin-text-muted))] px-1">
+        Execution tier prices (₹/sqft) are set in <span className="text-[hsl(var(--admin-text))] font-medium">Pricing</span>; tier names, descriptions and images in <span className="text-[hsl(var(--admin-text))] font-medium">Packages &amp; Tiers</span>.
+      </p>
     </div>
   );
 }
