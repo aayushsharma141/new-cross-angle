@@ -6,10 +6,14 @@ export const CmsModule = () => {
     if (location.pathname === "/admin/cms" || location.pathname === "/admin/cms/") {
         return <Navigate to="/admin/cms/portfolio" replace />;
     }
-    // Redirect legacy media-library requests to visual media hub
-    if (location.pathname === "/admin/cms/media-library" && !location.search) {
-        return <Navigate to="/admin/cms/visual-media" replace />;
-    }
+    // NOTE: there was a redirect here sending /admin/cms/media-library to the
+    // visual-media hub, guarded by `!location.search`. Nothing in the app ever
+    // links to media-library with a query string — not the "Images & Videos"
+    // tab below, not the hub's own card, not useHubStats, not DiscoveryMediaSlot
+    // — so the guard never passed and AdminMedia was unreachable from anywhere
+    // in the UI. adminRoutes.tsx already forwards the genuine legacy paths
+    // (/admin/media, /admin/media-library) here, and this bounced them straight
+    // back out again.
 
     return (
         <ModuleLayout
@@ -22,11 +26,11 @@ export const CmsModule = () => {
                 { label: "Testimonials", path: "/admin/cms/testimonials", group: "Main Content" },
                 { label: "Team Members", path: "/admin/cms/team-members", group: "Main Content" },
 
-                { label: "Visual Media Hub", path: "/admin/cms/visual-media", group: "Visual Media" },
-                { label: "Images & Videos", path: "/admin/cms/media-library", group: "Visual Media" },
-                { label: "Project Gallery", path: "/admin/cms/gallery", group: "Visual Media" },
-                { label: "Before & After", path: "/admin/cms/before-and-after", group: "Visual Media" },
-                { label: "Hero Section", path: "/admin/cms/hero-carousel", group: "Visual Media" },
+                { label: "Visual Media Library", path: "/admin/cms/visual-media", group: "Visual Media" },
+                { label: "Media Uploader", path: "/admin/cms/media-library", group: "Visual Media" },
+                { label: "Project Gallery", path: "/admin/cms/gallery", group: "Visual Media Gallery" },
+                { label: "Before & After", path: "/admin/cms/before-and-after", group: "Visual Media Gallery" },
+                { label: "Hero Carousel", path: "/admin/cms/hero-carousel", group: "Visual Media Gallery" },
 
                 { label: "Process Steps", path: "/admin/cms/process-steps", group: "Page Sections" },
                 { label: "Milestones", path: "/admin/cms/milestones", group: "Page Sections" },
