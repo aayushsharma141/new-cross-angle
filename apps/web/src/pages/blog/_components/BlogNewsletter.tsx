@@ -11,6 +11,7 @@ export function BlogNewsletter() {
     setEmail,
     isSubmitting,
     isDone,
+    error,
     honeypot,
     setHoneypot,
     handleNewsletter,
@@ -40,30 +41,39 @@ export function BlogNewsletter() {
                 <p className="text-[13px] text-white/50 mt-2">Your first edition is on its way.</p>
               </motion.div>
             ) : (
-              <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-3">
-                <label className="sr-only" htmlFor="newsletter-email">Email address</label>
-                <div aria-hidden="true" className="absolute left-[-9999px]">
-                  <label htmlFor="newsletter-website">Website</label>
-                  <input id="newsletter-website" tabIndex={-1} autoComplete="off" value={honeypot} onChange={e => setHoneypot(e.target.value)} />
+              <form onSubmit={handleNewsletter} className="flex flex-col gap-2">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <label className="sr-only" htmlFor="newsletter-email">Email address</label>
+                  <div aria-hidden="true" className="absolute left-[-9999px]">
+                    <label htmlFor="newsletter-website">Website</label>
+                    <input id="newsletter-website" tabIndex={-1} autoComplete="off" value={honeypot} onChange={e => setHoneypot(e.target.value)} />
+                  </div>
+                  <input
+                    id="newsletter-email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="Your professional email"
+                    aria-invalid={error ? true : undefined}
+                    aria-describedby={error ? "newsletter-error" : undefined}
+                    className="flex-1 px-5 py-3.5 rounded-full text-[13px] border focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40 transition-all"
+                    style={{ background: "#111", borderColor: error ? "#ef4444" : "#2a2a2a", color: "#fff" }}
+                  />
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-6 py-3.5 text-[13px] font-semibold rounded-full whitespace-nowrap transition-all hover:scale-[1.02]"
+                    style={{ background: CRIMSON, color: "#fff" }}
+                  >
+                    {isSubmitting ? "Subscribing…" : "Subscribe"}
+                  </Button>
                 </div>
-                <input
-                  id="newsletter-email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="Your professional email"
-                  className="flex-1 px-5 py-3.5 rounded-full text-[13px] border focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40 transition-all"
-                  style={{ background: "#111", borderColor: "#2a2a2a", color: "#fff" }}
-                />
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-6 py-3.5 text-[13px] font-semibold rounded-full whitespace-nowrap transition-all hover:scale-[1.02]"
-                  style={{ background: CRIMSON, color: "#fff" }}
-                >
-                  {isSubmitting ? "Subscribing…" : "Subscribe"}
-                </Button>
+                {error && (
+                  <p id="newsletter-error" role="alert" className="text-[11px] font-medium text-red-400 px-1">
+                    {error}
+                  </p>
+                )}
               </form>
             )}
             <div className="text-[10px] mt-4 text-white/25 flex items-center justify-center lg:justify-start gap-2">
