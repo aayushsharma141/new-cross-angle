@@ -17,6 +17,7 @@ import { ROLE_LABELS } from "@/lib/auth/rbac";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useState, useEffect } from "react";
+import { KeyboardShortcutsGuide } from "./KeyboardShortcutsGuide";
 
 /**
  * Admin top navigation. The breadcrumb trail lives on each page via
@@ -156,6 +157,8 @@ export function TopBar() {
                         </DropdownMenu>
 
                         <div className="h-5 w-px bg-admin-border" />
+
+                        <KeyboardShortcutsGuide />
 
                         <Button
                             variant="ghost"
