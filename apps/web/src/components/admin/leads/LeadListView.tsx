@@ -130,7 +130,7 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick, selectedLeadId
                     <span className="text-sm font-semibold tabular-nums text-[hsl(var(--admin-text))]">{score}</span>
                     <Badge
                       variant="outline"
-                      className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border-0", temp.color, "bg-[hsl(var(--admin-background))]")}
+                      className={cn("text-[11px] uppercase font-semibold px-2 py-0.5 rounded-full border-0", temp.color, "bg-[hsl(var(--admin-background))]")}
                     >
                       {temp.label}
                     </Badge>

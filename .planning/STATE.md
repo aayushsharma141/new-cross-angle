@@ -612,3 +612,49 @@ User direction: write the missing city/neighbourhood content, make the page comp
 - Reversible by design: give an area `hasOwnPage: true` and add a route once it has real content — nothing else changes.
 - Verified: tsc, eslint; Playwright — 21 areas, 21 jump links, 1,412 words, 1440px wide, zero page errors.
 - **Noticed, not fixed:** `scripts/generate-sitemap.js` lists only 5 routes and two of them are wrong — `/contact` (redirect, canonical is `/contact-us`) and `/estimator` (no such route; it is `/estimate`). Portfolio, blog, services and locations are all absent.
+
+## Release-blocking findings on the merged production branch — 2026-09-23
+
+Context: PR #7 merged `fix-auth-refresh-e2e` into `new-crossangle-2.0` (`339e143e`, 149 commits ahead of `9fed45c3`). **Nothing has been deployed from it** — the only Vercel deployment is the 85-day-old June production build, so production still serves the pre-cookie-auth architecture (`/api/auth/me` → HTML, `/admin` → 200 unauthenticated). Verified against a preview built from `339e143e` with known provenance (`main-elt6pxaev`, Root Directory now `apps/web`, deploy block cleared by linking GitHub).
+
+| ID | Severity | Finding | Evidence |
+| --- | --- | --- | --- |
+| **F-15** | **Critical — blocks release** | **4 of 5 auth endpoints 500 at runtime.** `login`, `logout`, `refresh`, `recover` all import `../_lib/security` without a `.js` extension; `apps/web/package.json` is `"type":"module"`, so Node ESM refuses. `me` (the only handler that does not import it) works. Introduced by the F-07/F-08 commits `74dae374` + `d0cfc248`, already merged. | Live on `main-elt6pxaev`: login/logout/refresh/recover → 500 `FUNCTION_INVOCATION_FAILED`, me → 401. Build prints TS2835 for exactly those four files. **Fix proven:** appending `.js` to the four imports → rebuild → all five endpoints return real statuses (`main-6e7vjanbs`). One-line change per file; not committed anywhere. |
+| **F-16** | **Critical — admin lockout** | **RLS on `user_roles` no longer lets a user read their own row**, and the fallback is down. A `super_admin` JWT queried directly against Supabase REST returns **0 rows**, while `is_platform_admin()` returns **true** and the service role sees 4 rows. `fetchUserRole` therefore gets no role, falls back to the `sync-user-role` edge function → **500**, retries exhaust → `role = null` → post-F-01 `AuthGuard` redirects to `/admin/auth?error=role_unavailable`. The fail-closed behaviour works correctly and locks out the legitimate admin. | Direct GoTrue login + REST query (no proxy): `user_roles?select=role` → 200/0 rows; `rpc/is_platform_admin` → `true`; `functions/v1/sync-user-role` → 500. On 2026-09-14 the same query returned `{role:"super_admin"}`, so this changed in the interval. Browser render not exercised — chain verified link by link. |
+| **F-13** | High, unchanged | The F-13 fix is **not in the merge**. Merged `useSiteSettings.ts` still `.select("*")` (line 102); the hotfix branch was never merged and the feature-branch refactor was only ever an uncommitted working-tree edit. Production's own request has returned **401 for 12 days**. | Deployed bundle scan (169 chunks): only `select("*")` and `select("id")`. anon `select=*` → 401. Live browser probe of production 2026-09-23: `site_settings?select=*` → 401. |
+
+### Events that did pass on the patched preview (`main-6e7vjanbs`, real provider, deployed)
+- **F-02 — Closed.** Login 200; body keys `[user, role, message]`; no `session`/`access_token`. Cookies: access 936 B `Max-Age=3600; Path=/; HttpOnly; Secure; SameSite=Lax`, refresh `Path=/api`.
+- **F-05 — Closed.** Positive: bogus access + valid refresh → 200, new access cookie issued ≠ bogus ≠ login, **refresh token rotated**. Control: valid access alone → 200 with no Set-Cookie. Negative: bogus access + bad refresh → **401 twice**, both cookies cleared `Max-Age=0`, JSON body, ~2 s for both (no loop).
+- **F-06 — Closed.** Token valid before (200) → logout 204, both cookies cleared → old access **403**, old refresh reuse **400**.
+- **F-08 — Closed.** Cross-origin POST to `/api/auth/login` with a foreign `Origin` → **403 `{"error":"Invalid request origin"}`**.
+- **F-01 — still Implemented.** Server half could not be proven: the role read itself is broken (F-16). Not a fault of the F-01 fix.
+
+### Recommended order before any promotion
+1. Fix F-15 (four `.js` import specifiers) — without it the admin panel is 500 on login.
+2. Fix F-16 — restore a self-read SELECT policy on `user_roles` (or repair `sync-user-role`), then re-run F-01 including the browser half and the no-role fail-closed case.
+3. Fix F-13 — cherry-pick `65166b12` (or commit the allow-list refactor) so the release does not carry the live 401.
+4. Re-deploy a preview from the fixed tip, re-run all events, then promote.
+
+Artifacts: previews `main-elt6pxaev` (as-merged, broken) and `main-6e7vjanbs` (patched, events passed); script `<scratchpad>/events.mjs` (statuses only, no secrets).
+
+## Preview verified end to end — 2026-09-23
+
+Preview `https://main-cj5nrxmju-aayush-dev.vercel.app`, built from `e35546d4` on `fix/f15-auth-esm-import-extensions` (pushed). Deployed from a copy of `.vercel/output` outside the git tree because Vercel still blocks commits authored `aayushsharma141@gmail.com` ("could not be matched to a Git account" — the GitHub email addition has not taken effect/verified yet). **Provenance proven instead by hash:** 5/5 deployed `/assets/*.js` sha256-match the local build of `e35546d4`.
+
+| Finding | Label | Live evidence on this deployment |
+| --- | --- | --- |
+| **F-01** role resolution | **Closed** | Browser login: `/admin` → `/admin/auth` → login 200 → `/api/auth/me` 200 → `user_roles` 200 → console `Auth: Got role from user_roles: super_admin (916ms)` → **landed on `/admin`**, dashboard rendered ("SUPER ADMIN"). API: login body `role: "super_admin"`; proxied `user_roles` 1 row. |
+| **F-02** token leakage | **Closed** | Body keys `[user, role, message]`; no `session`/`access_token`. Cookie `Max-Age=3600; Path=/; HttpOnly; Secure; SameSite=Lax`. |
+| **F-05** refresh | **Closed** | Positive: bogus access + valid refresh → 200 row `super_admin`, new access ≠ bogus ≠ login, refresh rotated. Control: valid access only → 200, no Set-Cookie. Negative: bad refresh → 401 twice, both cookies cleared, JSON, no loop. |
+| **F-06** logout | **Closed** | valid 200 → logout 204, cookies cleared → old access **403**, refresh reuse **400**. |
+| **F-08** cross-origin | **Closed** | POST with foreign `Origin` → **403 `{"error":"Invalid request origin"}`**. |
+| **F-13** site settings | **Closed** | Bundle now carries the allow-list form; browser request `site_settings?select=id,stu…` → **200** (was 401 for 12 days). anon `select=*` still 401 — lockdown intact. |
+| **F-15** ESM imports | **Closed** | login 400 / logout 204 / refresh 401 / recover 400 / me 401 — real handler responses, no 500. |
+| **F-16** user_roles RLS | **Closed** | SQL applied by the owner; admin login works on production and here. |
+
+Still open: **F-03** recovery (needs a throwaway account + emailed link), **F-07** rate limit (untested — would lock the admin out), **F-01 fail-closed half** (needs a user with no `user_roles` row), F-09/F-10.
+
+Also open: `sync-user-role` edge function is 500 server-side and CORS-blocked in the browser (`ALLOWED_ORIGINS` not set as a Supabase secret) — the role-resolution fallback is dead, harmless while the RLS policy holds.
+
+Nothing is promoted: production still serves the 85-day-old June build.

@@ -73,7 +73,7 @@ export function TopBar() {
                 <div className="hidden md:flex flex-col items-center absolute left-1/2 -translate-x-1/2">
                     <div className="flex items-center gap-2 mb-0.5">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                        <span className="text-[9px] text-[hsl(var(--admin-primary))] uppercase tracking-[0.25em] font-extrabold">
+                        <span className="text-[11px] text-[hsl(var(--admin-primary))] uppercase tracking-[0.15em] font-semibold">
                             Intelligence Command Center
                         </span>
                     </div>
@@ -87,7 +87,7 @@ export function TopBar() {
 
                 <div className="flex items-center gap-4">
                     {/* Integrated System Time & Project Load KPI */}
-                    <div className="hidden lg:flex items-center gap-3 bg-admin-card/30 border border-admin-border/50 rounded-full px-4 py-1.5 text-[10px] font-mono text-admin-muted">
+                    <div className="hidden lg:flex items-center gap-3 bg-admin-card/30 border border-admin-border/50 rounded-full px-4 py-1.5 text-[11px] font-mono text-admin-muted">
                         <span className="flex items-center gap-1.5">
                             <Clock className="w-3.5 h-3.5 text-[hsl(var(--admin-primary))]" />
                             {timeString} ({dateString})
