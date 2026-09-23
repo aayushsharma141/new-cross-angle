@@ -11,6 +11,7 @@ export function BlogNewsletter() {
     setEmail,
     isSubmitting,
     isDone,
+    error,
     honeypot,
     setHoneypot,
     handleNewsletter,
@@ -34,7 +35,7 @@ export function BlogNewsletter() {
             <span className="text-primary">Welcome aboard.</span> Your first edition is on its way.
           </p>
         ) : (
-          <form onSubmit={handleNewsletter} className="flex flex-col gap-6 sm:flex-row sm:items-end">
+          <form onSubmit={handleNewsletter} className="flex flex-col gap-6 sm:flex-row sm:flex-wrap sm:items-end">
             {/* Honeypot — hidden from real users, catches bots */}
             <div aria-hidden="true" className="absolute left-[-9999px]">
               <label htmlFor="company-website">Company website</label>
@@ -59,6 +60,8 @@ export function BlogNewsletter() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@studio.com"
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? "newsletter-error" : undefined}
                 className="w-full rounded-none border-0 border-b border-white/15 bg-transparent pb-3 text-[15px] font-light text-white placeholder:text-white/25 transition-colors duration-300 focus:border-primary focus:outline-none"
               />
             </div>
@@ -74,6 +77,12 @@ export function BlogNewsletter() {
                 )}
               </PillCtaInner>
             </button>
+
+            {error && (
+              <p id="newsletter-error" role="alert" className="basis-full text-[10px] font-medium uppercase tracking-[0.15em] text-red-400">
+                {error}
+              </p>
+            )}
           </form>
         )}
       </motion.div>
