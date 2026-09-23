@@ -399,8 +399,8 @@ export function CollectionDetailView({
                 {assets.length === 0 ? (
                     <div className="p-8 border border-dashed border-border rounded-xl text-center flex flex-col items-center justify-center space-y-2 text-muted-foreground">
                         <Folders className="w-10 h-10 opacity-30" />
-                        <p className="text-sm font-medium">This collection is empty</p>
-                        <p className="text-xs max-w-sm">Drop photos below or assign assets from the library to populate this collection.</p>
+                        <p className="text-sm font-medium">Start building this collection</p>
+                        <p className="text-xs max-w-sm">Drop images here or select from your asset library to add them to this collection.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">

@@ -125,10 +125,14 @@ export function BlogList({ refreshTrigger, onEdit, onNew, searchQuery = "", onSe
           </>
         ) : filteredPosts.length === 0 ? (
           <div className="fade-up-3 mt-4">
-              <AdminEmptyState 
+              <AdminEmptyState
                   icon={FileText}
-                  title="No posts found"
-                  description="You don't have any blog posts matching this filter yet."
+                  title="Start creating content"
+                  description="Your blog is empty. Add your first post to share stories with your audience."
+                  action={{
+                    label: "Create first post",
+                    onClick: () => window.location.href = "/admin/cms/blog/new"
+                  }}
               />
           </div>
         ) : (
