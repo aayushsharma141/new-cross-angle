@@ -163,7 +163,7 @@ export function BlogList({ refreshTrigger, onEdit, onNew, searchQuery = "", onSe
                       
                       {post.featured && (
                         <span className="bg-[hsl(var(--admin-accent)/0.1)] border border-[hsl(var(--admin-accent)/0.2)] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-accent))] tracking-wide uppercase flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-current" />
+                          <Star className="w-4 h-4 fill-current" />
                           Featured
                         </span>
                       )}
