@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { ECOSYSTEM_COPY, ECOSYSTEM_ROUTES } from "@/addons/_shared/ecosystemCopy";
 import { EstimatorIntelligencePanel } from "../EstimatorIntelligencePanel";
 import type { EstimatorResponse } from "../data/discovery-handoff";
+import type { LeadSubmitState } from "../hooks/_internals/useLeadCapture";
 import { CountUp, FallingText, StarBorder, Magnet } from "@/components/ReactBits";
 
 interface Props {
@@ -23,6 +24,8 @@ interface Props {
     alcsEstimatorResponse?: EstimatorResponse | null;
     onReset: () => void;
     onBack: () => void;
+    submitState?: LeadSubmitState;
+    onRetrySubmit?: () => void;
 }
 
 // ─── Item Explanations for Drawers ───
@@ -45,8 +48,10 @@ function getItemExplanation(label: string, propertyType: string): string {
     }
 }
 
-export function StepResults({ formData, estimate, discoveryApplied = false, discoveryName = "", discoveryRationale = "", alcsEstimatorResponse = null, onReset, onBack }: Props) {
+export function StepResults({ formData, estimate, discoveryApplied = false, discoveryName = "", discoveryRationale = "", alcsEstimatorResponse = null, onReset, onBack, submitState = "idle", onRetrySubmit }: Props) {
     const { data: services = DEFAULT_SERVICES } = useFlowConfig<typeof DEFAULT_SERVICES>("services");
+    const { data: resultTemplates } = useFlowConfig<{ ctaPrimary?: string } | null>("result_templates");
+    const ctaLabel = resultTemplates?.ctaPrimary?.trim() || "Review With Designer";
     const [expandedItemIndex, setExpandedItemIndex] = useState<number | null>(null);
     const [appliedSavings, setAppliedSavings] = useState<number>(0);
 
@@ -131,6 +136,35 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
         <div
             className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700"
         >
+            {submitState === "error" && (
+                <div role="alert" className="flex flex-col gap-3 rounded-[12px] border border-kiro-hard/30 bg-kiro-hard/5 p-4">
+                    <div className="flex items-start gap-3">
+                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-kiro-hard" aria-hidden="true" />
+                        <p className="text-sm text-kiro-ink">
+                            <span className="font-semibold">We couldn't send your request to our team.</span>{" "}
+                            Your estimate is below, but we haven't received your details yet.
+                        </p>
+                    </div>
+                    <div className="flex shrink-0 gap-2">
+                        <button
+                            type="button"
+                            onClick={onRetrySubmit}
+                            className="rounded-[8px] bg-kiro-accent px-4 py-2 text-xs font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#705939] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
+                        >
+                            Try again
+                        </button>
+                        <Link
+                            to={ECOSYSTEM_ROUTES.contact}
+                            className="rounded-[8px] border border-kiro-line bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-kiro-ink transition-colors hover:bg-kiro-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
+                        >
+                            Contact us
+                        </Link>
+                    </div>
+                </div>
+            )}
+            {submitState === "saving" && (
+                <p role="status" className="sr-only">Sending your request to our team…</p>
+            )}
             {/* ═══ Immersive Header Card ═══ */}
             <StarBorder
               color="#7a5c30"
@@ -436,7 +470,7 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
                                 className="w-full p-6 rounded-[8px] bg-kiro-accent hover:bg-[#705939] transition-all group flex flex-col items-center gap-3 shadow-[0_4px_16px_rgba(139,111,71,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                             >
                                 <PhoneCall className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-                                <span className="text-[12px] uppercase font-black tracking-wide text-white">Review With Designer</span>
+                                <span className="text-[12px] uppercase font-black tracking-wide text-white">{ctaLabel}</span>
                             </Link>
                         </Magnet>
                     </div>

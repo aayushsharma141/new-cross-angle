@@ -7,7 +7,7 @@
  * - Computing lead score for CRM routing
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import type { CalculatorFormData, EstimateResult } from "../../data/types";
 import { DEFAULT_PRICING_CONFIG } from "../../data/pricing-config";
 import type { DiscoveryHandoff } from "../../data/discovery-handoff";
@@ -30,6 +30,33 @@ export interface LeadScore {
   };
 }
 
+export type LeadSubmitState = "idle" | "saving" | "saved" | "error";
+
+// One id per calculator session, so Back → Results and reloads update the same
+// lead instead of inserting a new one each time.
+const SUBMISSION_KEY = "estimator_submission_id";
+
+function readSubmissionId(fallback: { current: string | null }): string {
+  try {
+    const existing = sessionStorage.getItem(SUBMISSION_KEY);
+    if (existing) return existing;
+    const id = crypto.randomUUID();
+    sessionStorage.setItem(SUBMISSION_KEY, id);
+    return id;
+  } catch {
+    fallback.current ??= crypto.randomUUID();
+    return fallback.current;
+  }
+}
+
+export function clearSubmissionId(): void {
+  try {
+    sessionStorage.removeItem(SUBMISSION_KEY);
+  } catch {
+    // storage unavailable — nothing persisted to clear
+  }
+}
+
 export function useLeadCapture(
   formData: CalculatorFormData,
   estimate: EstimateResult | null,
@@ -38,7 +65,11 @@ export function useLeadCapture(
   prefillSnapshotRef: React.RefObject<DiscoveryPreFillSnapshot | null>,
 ) {
   const analytics = useAnalytics();
-  const [isSaving, setIsSaving] = useState(false);
+  const [submitState, setSubmitState] = useState<LeadSubmitState>("idle");
+  const isSaving = submitState === "saving";
+  const fallbackIdRef = useRef<string | null>(null);
+  const savedKeyRef = useRef<string | null>(null);
+  const inFlightKeyRef = useRef<string | null>(null);
 
   const scoreLead = useCallback((): LeadScore => {
     const w = DEFAULT_PRICING_CONFIG.scoring_weights;
@@ -84,34 +115,31 @@ export function useLeadCapture(
     };
   }, [formData]);
 
-  const saveLead = useCallback(async () => {
-    if (!estimate) return;
-    setIsSaving(true);
+  /** Resolves true once the server has this exact estimate; false on failure. */
+  const saveLead = useCallback(async (): Promise<boolean> => {
+    if (!estimate) return false;
+    const key = JSON.stringify(formData);
+    if (savedKeyRef.current === key) return true;
+    if (inFlightKeyRef.current === key) return false;
+    inFlightKeyRef.current = key;
+    setSubmitState("saving");
     try {
       const { data, error } = await supabase.functions.invoke("submit-estimate", {
         body: {
+          submissionId: readSubmissionId(fallbackIdRef),
           formData,
           discoveryContext: discoveryHandoff ?? undefined,
           alcsRecommendation: alcsPipeline?.blueprint.recommendation ?? undefined,
         },
       });
+      if (error) throw error;
 
-      if (error) {
-        console.error("Submission failed:", error);
-      } else {
-        track(analytics, "contact_form_submitted", {
-          leadSource: "estimator",
-          email: formData.email,
-          leadId: data?.leadId,
-          sessionId: discoveryHandoff?.userId ?? crypto.randomUUID(),
-          correlationId: data?.leadId,
-        });
-      }
-
-      if (error) {
-        console.error("Edge Function error:", error);
-        throw error;
-      }
+      track(analytics, "contact_form_submitted", {
+        leadSource: "estimator",
+        leadId: data?.leadId,
+        sessionId: discoveryHandoff?.userId ?? crypto.randomUUID(),
+        correlationId: data?.leadId,
+      });
 
       const snap = prefillSnapshotRef.current;
       if (snap && analytics) {
@@ -132,12 +160,24 @@ export function useLeadCapture(
           addonsOriginalCount: snap.addonFields.length,
         });
       }
-    } catch (err) {
-      console.error("Failed to save lead securely:", err);
+      savedKeyRef.current = key;
+      setSubmitState("saved");
+      return true;
+    } catch {
+      setSubmitState("error");
+      return false;
     } finally {
-      setIsSaving(false);
+      if (inFlightKeyRef.current === key) inFlightKeyRef.current = null;
     }
   }, [estimate, formData, analytics, discoveryHandoff, alcsPipeline, prefillSnapshotRef]);
 
-  return { isSaving, saveLead, scoreLead };
+  const resetSubmission = useCallback(() => {
+    clearSubmissionId();
+    fallbackIdRef.current = null;
+    savedKeyRef.current = null;
+    inFlightKeyRef.current = null;
+    setSubmitState("idle");
+  }, []);
+
+  return { isSaving, submitState, saveLead, resetSubmission, scoreLead };
 }

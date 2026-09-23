@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
+import { ConfigLoadError } from "./ConfigLoadError";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/primitives/interactive";
 import { Save, Plus, Trash2, Pencil, X, Check, GripVertical, Loader2 } from "lucide-react";
@@ -21,6 +22,10 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { usePricingConfig } from "@/addons/calculators/components/hooks/usePricingConfig";
+import { ADDONS as BUILT_IN_ADDONS, ADDON_PRICE_KEYS } from "@/addons/calculators/components/data/pricing-config";
+
+const UNIT_LABEL: Record<string, string> = { flat: "flat", per_sqft: "per sq ft", per_room: "per room" };
 
 interface AddonItem {
   id: string;
@@ -41,7 +46,9 @@ function SortableAddonItem({
   cancelEdit,
   confirmEdit,
   removeItem,
+  price,
 }: {
+  price: number;
   item: AddonItem;
   editId: string | null;
   draft: AddonItem;
@@ -81,20 +88,16 @@ function SortableAddonItem({
       {isEditing ? (
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Input value={draft.icon} onChange={(e) => setDraft({ ...draft, icon: e.target.value })} className="h-7 w-12 text-center text-sm bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
-            <Input value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} className="h-7 text-xs flex-1 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" placeholder="Label" />
-            <Input value={draft.id} onChange={(e) => setDraft({ ...draft, id: e.target.value })} className="h-7 text-xs w-32 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" placeholder="ID (camelCase)" />
+            <Input value={draft.icon} onChange={(e) => setDraft({ ...draft, icon: e.target.value })} aria-label="Icon" className="h-7 w-12 text-center text-sm bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
+            <Input value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} aria-label="Label" className="h-7 text-xs flex-1 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" placeholder="Label" />
           </div>
           <div className="flex items-center gap-2">
-            <Input value={draft.desc} onChange={(e) => setDraft({ ...draft, desc: e.target.value })} className="h-7 text-xs flex-1 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" placeholder="Description" />
-            <Input type="number" value={draft.cost} onChange={(e) => setDraft({ ...draft, cost: +e.target.value })} className="h-7 text-xs w-28 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" placeholder="Cost ₹" />
-            <select value={draft.unit} onChange={(e) => setDraft({ ...draft, unit: e.target.value as AddonItem["unit"] })} className="h-7 text-xs px-2 rounded-md bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))]">
-              <option value="flat">Flat</option>
-              <option value="per_sqft">Per Sqft</option>
-              <option value="per_room">Per Room</option>
-            </select>
-            <Button variant="ghost" size="icon" onClick={confirmEdit} className="h-7 w-7 text-[hsl(var(--admin-success))]"><Check className="w-3.5 h-3.5" /></Button>
-            <Button variant="ghost" size="icon" onClick={cancelEdit} className="h-7 w-7"><X className="w-3.5 h-3.5" /></Button>
+            <Input value={draft.desc} onChange={(e) => setDraft({ ...draft, desc: e.target.value })} aria-label="Description" className="h-7 text-xs flex-1 bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" placeholder="Description" />
+            <span className="text-[11px] text-[hsl(var(--admin-text-muted))] whitespace-nowrap" title="Set on the Pricing tab">
+              ₹{price.toLocaleString("en-IN")} {UNIT_LABEL[draft.unit] ?? draft.unit}
+            </span>
+            <Button variant="ghost" size="icon" onClick={confirmEdit} aria-label="Apply changes" className="h-7 w-7 text-[hsl(var(--admin-success))]"><Check className="w-3.5 h-3.5" /></Button>
+            <Button variant="ghost" size="icon" onClick={cancelEdit} aria-label="Cancel editing" className="h-7 w-7"><X className="w-3.5 h-3.5" /></Button>
           </div>
         </div>
       ) : (
@@ -108,12 +111,12 @@ function SortableAddonItem({
             <p className="text-[10px] text-[hsl(var(--admin-text-muted))] truncate">{item.desc}</p>
           </div>
           <div className="text-right shrink-0 mr-2">
-            <p className="text-xs font-bold text-[hsl(var(--admin-text))]">₹{(item.cost).toLocaleString("en-IN")}</p>
-            <p className="text-[10px] text-[hsl(var(--admin-text-muted))]">{item.unit}</p>
+            <p className="text-xs font-bold text-[hsl(var(--admin-text))]">₹{price.toLocaleString("en-IN")}</p>
+            <p className="text-[10px] text-[hsl(var(--admin-text-muted))]">{UNIT_LABEL[item.unit] ?? item.unit}</p>
           </div>
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button variant="ghost" size="icon" onClick={() => startEdit(item)} className="h-6 w-6"><Pencil className="w-3 h-3" /></Button>
-            <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)} className="h-6 w-6 text-red-400"><Trash2 className="w-3 h-3" /></Button>
+          <div className="flex gap-1 opacity-60 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+            <Button variant="ghost" size="icon" onClick={() => startEdit(item)} aria-label={`Edit ${item.label}`} className="h-6 w-6"><Pencil className="w-3 h-3" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)} aria-label={`Hide ${item.label} from the estimator`} className="h-6 w-6 text-red-400"><Trash2 className="w-3 h-3" /></Button>
           </div>
         </div>
       )}
@@ -122,7 +125,7 @@ function SortableAddonItem({
 }
 
 export function AddonsEditor() {
-  const { data, isLoading, save, isSaving } = useFlowConfig<AddonItem[]>("addons");
+  const { data, isLoading, loadFailed, retry, save, isSaving } = useFlowConfig<AddonItem[]>("addons");
   const [items, setItems] = useState<AddonItem[]>([]);
   const [dirty, setDirty] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -141,10 +144,18 @@ export function AddonsEditor() {
   const cancelEdit = () => setEditId(null);
   const confirmEdit = () => { setItems(items.map((i) => (i.id === editId ? { ...draft } : i))); setEditId(null); setDirty(true); };
 
-  const addItem = () => {
-    const n: AddonItem = { id: `addon_${Date.now()}`, label: "New Add-on", icon: "✨", cost: 100000, unit: "flat", desc: "Description" };
-    setItems([...items, n]);
-    startEdit(n);
+  const { config: pricing } = usePricingConfig();
+  const priceOf = (item: AddonItem) => {
+    const key = ADDON_PRICE_KEYS[item.id];
+    return key ? pricing.addons[key] : item.cost;
+  };
+  // The calculator can only price the built-in add-ons, so instead of creating
+  // new ones (which it could never charge for) offer back any that were hidden.
+  const hidden = BUILT_IN_ADDONS.filter((b) => !items.some((i) => i.id === b.id));
+  const restore = (id: string) => {
+    const b = BUILT_IN_ADDONS.find((x) => x.id === id);
+    if (!b) return;
+    setItems([...items, { ...b } as AddonItem]);
     setDirty(true);
   };
 
@@ -164,6 +175,7 @@ export function AddonsEditor() {
   };
 
   if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-[hsl(var(--admin-primary))]" /></div>;
+  if (loadFailed) return <ConfigLoadError what="add-ons" onRetry={retry} />;
 
   return (
     <div className="space-y-4">
@@ -173,7 +185,6 @@ export function AddonsEditor() {
           <p className="text-[10px] text-[hsl(var(--admin-text-muted))]">Step 6 options — modular kitchen, wardrobes, automation, etc.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={addItem} className="h-7 text-xs gap-1"><Plus className="w-3 h-3" />Add</Button>
           <Button size="sm" onClick={() => save(items, { onSuccess: () => setDirty(false) })} disabled={!dirty || isSaving} className="h-7 text-xs gap-1 bg-[hsl(var(--admin-primary))] text-black">
             {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}Save
           </Button>
@@ -194,12 +205,26 @@ export function AddonsEditor() {
                 cancelEdit={cancelEdit}
                 confirmEdit={confirmEdit}
                 removeItem={removeItem}
+                price={priceOf(item)}
               />
             ))}
           </SortableContext>
         </DndContext>
         {items.length === 0 && <p className="text-center py-8 text-xs text-[hsl(var(--admin-text-muted))]">No add-ons configured</p>}
       </div>
+
+      <p className="text-[11px] text-[hsl(var(--admin-text-muted))]">Prices are set on the Pricing tab; the estimate and the saved quote both use them.</p>
+
+      {hidden.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[11px] text-[hsl(var(--admin-text-muted))]">Hidden from the estimator:</span>
+          {hidden.map((b) => (
+            <Button key={b.id} variant="outline" size="sm" onClick={() => restore(b.id)} className="h-7 text-xs gap-1">
+              <Plus className="w-3 h-3" /> {b.label}
+            </Button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
