@@ -284,14 +284,16 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
 
             toast({
                 title: initialData ? "Project updated!" : "Project created!",
+                description: initialData ? "Your changes have been saved." : "New project added to your portfolio.",
             });
 
             onSuccess();
             onOpenChange(false);
-        } catch {
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : "An unexpected error occurred";
             toast({
                 title: "Error saving project",
-                description: "An unexpected error occurred",
+                description: errorMsg,
                 variant: "destructive",
             });
         } finally {

@@ -43,8 +43,10 @@ export function BlogList({ refreshTrigger, onEdit, onNew, searchQuery = "", onSe
 
     if (error) {
       toast({ title: "Error fetching posts", description: error.message, variant: "destructive" });
-    } else if (data) {
-      setPosts(data as unknown as BlogPost[]);
+    } else if (data && Array.isArray(data)) {
+      // Validate data is array of BlogPosts with required fields
+      const validPosts = data.filter((item: any) => item && typeof item === 'object' && 'id' in item && 'title' in item);
+      setPosts(validPosts as BlogPost[]);
     }
     setIsLoading(false);
   };
@@ -189,7 +191,7 @@ export function BlogList({ refreshTrigger, onEdit, onNew, searchQuery = "", onSe
                       )}
                     </div>
                     
-                    <div className="text-[13px] text-[hsl(var(--admin-text-muted))] truncate max-w-2xl mt-1.5">
+                    <div className="text-[13px] text-[hsl(var(--admin-text-muted))] line-clamp-1 max-w-xs sm:max-w-sm md:max-w-2xl mt-1.5">
                       /{post.slug}
                     </div>
 
