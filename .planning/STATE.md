@@ -658,3 +658,44 @@ Still open: **F-03** recovery (needs a throwaway account + emailed link), **F-07
 Also open: `sync-user-role` edge function is 500 server-side and CORS-blocked in the browser (`ALLOWED_ORIGINS` not set as a Supabase secret) — the role-resolution fallback is dead, harmless while the RLS policy holds.
 
 Nothing is promoted: production still serves the 85-day-old June build.
+
+## F-07 / F-08 closed + RLS incident — 2026-09-23 (QA Lead)
+
+**F-08 (CSRF/Origin) and F-07 (login rate limiting) are both VERIFIED — CLOSED.**
+`node scripts/checks/probe-auth-hardening.mjs` → `401×5` then `429` (F-07 PASS); cross-origin
+`POST /api/auth/logout` → `403` (F-08 PASS). Auth unit suites 48/48; `auth-lifecycle-smoke` F-06 passes.
+
+**Root cause of ~6 failed "applied" reports on the F-07 migration: pasted SQL blocks were silently truncated in
+the Dashboard SQL Editor.** The function had never existed in the database despite reports of `fn_count = 1`,
+and the earlier `REVOKE`/`GRANT` pair landed only its `REVOKE` — leaving a function no role could execute,
+which is why PostgREST omitted it entirely (`PGRST202`) and why a project restart and `NOTIFY pgrst` changed
+nothing. Fixed by driving the SQL Editor directly and running one statement at a time, verifying each.
+**Lesson for future migrations: apply one statement at a time and verify from outside the editor; never trust a
+"Success" message alone.**
+
+### Separate production incident found while diagnosing (NOT caused by this work)
+
+- `public_read_services` (anon SELECT) was missing from `services`, so the **public website rendered "No
+  services are currently listed"** to real visitors. Confirmed live on crossangleinterior.com, then fixed by
+  restoring the canonical policy from `20260226120500_rls_public_tables.sql`. anon now reads 10 services.
+- **`projects` is the same regression, still unfixed**: anon read it fine on 2026-09-21 (probe evidence in this
+  session) and returns 0 rows today. `/portfolio` only *looks* healthy because the page falls back to static
+  content. Canonical policy: `FOR SELECT TO anon USING (status = 'published')`.
+- `testimonials`, `blog_posts`, `team_members` also return 0 rows to anon; unknown whether regression or
+  long-standing.
+- **68 public tables have RLS enabled with zero policies** (`admin_sessions`, `audit_logs`, `asset_collections`,
+  `asset_metadata`, `asset_tags`, `asset_tag_links`, … ). With RLS on and no policy, everything except
+  `service_role` is denied, so this likely affects admin CMS reads/writes too. Only `services` was restored;
+  the rest were deliberately left alone — blanket-recreating policies is security-critical and a wrong
+  `USING (true)` would expose leads, audit logs or admin sessions.
+- **Timing could not be established from logs.** The project is on the free plan: Postgres log retention is 24h
+  (2/3/5-day ranges are locked). Within that window the only policy DDL was legitimate drop+create pairs on
+  `assets` and `user_roles`, plus three runs of `20260622000000_dam_v3_schema.sql` (which only touches the
+  `asset_*` tables and *creates* policies). The `services`/`projects` loss happened between 2026-09-21 and
+  2026-09-23 — outside retention. Recommend point-in-time restore (if the plan allows) or a deliberate
+  table-by-table policy rebuild.
+
+### Also fixed
+`dec254a7` ("fix(admin-design): High-priority fixes for Phase 6") unrelatedly reverted the F-08 Origin header
+fix in `e2e/auth-lifecycle-smoke.spec.ts`, almost certainly from a stale working copy; F-06 failed as a result.
+Restored in `0e38cd64`.
