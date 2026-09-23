@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
@@ -14,13 +14,13 @@ import { Button } from "@/components/ui/primitives/button";
 import { useToast } from "@/hooks/useToast";
 import { supabase, invokeEdge } from "@/integrations/supabase/client";
 import { MediaService } from "@/services/media";
+import { AssetService } from "@/services/AssetService";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { AssetWorkspaceLayout } from "@/components/admin/media/AssetWorkspaceLayout";
 import { icons } from "@/design-system/tokens/icons";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { AdminMetricsPanel, AdminSkeletonCard } from "@/components/admin/shared";
 import { queryKeys } from "@/lib/queryKeys";
-import type { Tables } from "@/integrations/supabase/types";
 
 interface MediaFile {
     id: string;
@@ -33,39 +33,8 @@ interface MediaFile {
     caption?: string;
 }
 
-type MediaRow = Tables<"media_files">;
-
 const FOLDERS = ["portfolio", "services", "blogs", "general"];
 const BUCKET_NAME = "media";
-
-/** Derive a display folder from the raw file_name stored in DB. */
-const deriveFolder = (fileName: string): string => {
-    const isImageKit = fileName.startsWith("imagekit:");
-    const rawPath = isImageKit ? fileName.replace("imagekit:", "") : fileName;
-    const parts = rawPath.replace(/^\//, "").split("/");
-    if (isImageKit) return parts.length > 1 ? parts[0] : "imagekit";
-    return parts.length > 1 ? parts[0] : "general";
-};
-
-const fetchMediaFiles = async (): Promise<MediaFile[]> => {
-    const { data, error } = await supabase
-        .from("media_files")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    return data.map((file: MediaRow) => ({
-        id: file.id,
-        name: file.display_name || file.file_name,
-        url: file.url,
-        folder: deriveFolder(file.file_name),
-        size: file.size_bytes || 0,
-        created_at: file.created_at || "",
-        alt: file.alt_text || undefined,
-        caption: file.caption || undefined,
-    }));
-};
 
 const AdminMedia = () => {
     const { toast } = useToast();
@@ -80,10 +49,30 @@ const AdminMedia = () => {
 
     // ── Data fetching ─────────────────────────────────────────────────────────
 
-    const { data: files = [], isLoading } = useQuery({
-        queryKey: queryKeys.media.all,
-        queryFn: fetchMediaFiles,
+    // The KPI row must describe the same store the workspace below renders.
+    //
+    // It previously counted `media_files` (the v2 store) while
+    // AssetWorkspaceLayout lists `assets` (the v3 DAM), so the header claimed
+    // 131 files above a grid showing 22. Until media_files is retired per
+    // ADR-0002, the headline numbers follow the assets the user can actually
+    // see; `files` stays for the Sync/Import flows that still target v2.
+    const { data: damAssets = [], isLoading } = useQuery({
+        queryKey: ["dam", "assets", "metrics"],
+        queryFn: () => AssetService.getAssets(null, { limit: 1000 }),
     });
+
+    const damMetrics = useMemo(() => {
+        const bytes = damAssets.reduce(
+            (sum, a) => sum + (a.asset_versions?.[0]?.size_bytes ?? 0),
+            0,
+        );
+        return {
+            total: damAssets.length,
+            images: damAssets.filter((a) => a.type === "image").length,
+            videos: damAssets.filter((a) => a.type === "video").length,
+            megabytes: (bytes / (1024 * 1024)).toFixed(1),
+        };
+    }, [damAssets]);
 
 
 
@@ -262,10 +251,10 @@ const AdminMedia = () => {
             <div className="fade-up-1">
                 <AdminMetricsPanel 
                     metrics={[
-                        { label: "Total Files", value: String(files.length), icon: Files },
-                        { label: "Storage Used", value: (files.reduce((a, f) => a + f.size, 0) / (1024 * 1024)).toFixed(1) + " MB", icon: HardDrive },
-                        { label: "Images", value: String(files.filter(f => /\.(jpg|jpeg|png|gif|webp|svg|avif)$/i.test(f.name)).length), icon: FileImage },
-                        { label: "Videos", value: String(files.filter(f => /\.(mp4|webm|ogg)$/i.test(f.name)).length), icon: FileVideo }
+                        { label: "Total Assets", value: String(damMetrics.total), icon: Files },
+                        { label: "Storage Used", value: damMetrics.megabytes + " MB", icon: HardDrive },
+                        { label: "Images", value: String(damMetrics.images), icon: FileImage },
+                        { label: "Videos", value: String(damMetrics.videos), icon: FileVideo }
                     ] as unknown as never} 
                 />
             </div>

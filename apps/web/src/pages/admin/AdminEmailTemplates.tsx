@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/primitives/button";
 import { Loader2, Save } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useAdminSiteSettings } from "@/hooks/useSiteSettings";
 import { captureException } from "@/lib/sentry";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,7 +21,7 @@ const defaultAutoReplyHtml = `
 
 const AdminEmailTemplates = () => {
     const { toast } = useToast();
-    const { settings, refetch } = useSiteSettings();
+    const { settings, refetch } = useAdminSiteSettings();
     const [isSaving, setIsSaving] = useState(false);
     
     const [autoReplyHtml, setAutoReplyHtml] = useState(defaultAutoReplyHtml);

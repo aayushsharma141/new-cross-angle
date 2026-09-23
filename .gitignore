@@ -42,3 +42,6 @@ audit-reports/
 /ECC/
 debug-artifacts/
 skills-lock.json
+
+# Local audit evidence (disposable)
+e2e/audit-evidence/

@@ -13,12 +13,14 @@ import {
   EyeOff, 
   Loader2, 
   AlertTriangle,
-  Server
+  Server,
+  Lock,
+  ExternalLink
 } from "lucide-react";
 import { ModuleActions } from "@/components/admin/layout/ModuleLayout";
 import { useToast } from "@/hooks/useToast";
 import { useSystem } from "@/context/SystemContext";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useAdminSiteSettings } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
 import type { TablesUpdate } from "@/integrations/supabase/types";
 
@@ -44,45 +46,54 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/primitives/alert-dialog";
 
+/**
+ * Two kinds of integration live on this tab:
+ *  - "site"    → public identifiers (PostHog project token, GA measurement ID).
+ *                They ship in the browser bundle anyway, so storing them in
+ *                site_settings is fine and they stay editable here.
+ *  - "secrets" → real credentials consumed only by edge functions. These are
+ *                read from Supabase secrets (Deno.env) and are never written to
+ *                the database — the old Credentials tab used to store them in
+ *                plaintext on a table anonymous visitors could read.
+ */
 interface Integration {
   id: string;
   name: string;
   desc: string;
-  status: "Active" | "Pending configuration" | "Revoked";
+  status: "Active" | "Pending configuration" | "Managed via Supabase secrets";
   key: string;
+  managed: "site" | "secrets";
+  /** For `secrets`: the Supabase secret name(s) the edge functions read. */
+  secretNames?: string[];
 }
+
+const INTEGRATIONS: Integration[] = [
+  { id: "posthog", name: "PostHog (Analytics)", desc: "Product analytics and event tracking", status: "Pending configuration", key: "", managed: "site" },
+  { id: "ga", name: "Google Analytics", desc: "Secondary web analytics tracking", status: "Pending configuration", key: "", managed: "site" },
+  { id: "resend", name: "Resend (Email)", desc: "Lead auto-replies, hot-lead alerts and weekly reports", status: "Managed via Supabase secrets", key: "", managed: "secrets", secretNames: ["RESEND_API_KEY"] },
+  { id: "telegram", name: "Telegram Bot", desc: "Lead notification delivery", status: "Managed via Supabase secrets", key: "", managed: "secrets", secretNames: ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"] },
+  { id: "posthog-server", name: "PostHog (Reporting API)", desc: "Server-side analytics sync and admin reporting queries", status: "Managed via Supabase secrets", key: "", managed: "secrets", secretNames: ["POSTHOG_PERSONAL_API_KEY", "POSTHOG_PROJECT_ID"] },
+  { id: "imagekit", name: "ImageKit (Media)", desc: "Managed visual media uploads and transformations", status: "Managed via Supabase secrets", key: "", managed: "secrets", secretNames: ["IMAGEKIT_PRIVATE_KEY"] },
+];
 
 const AdminSettings = () => {
   const [searchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "general";
   const { toast } = useToast();
   const { maintenanceMode, setMaintenanceMode } = useSystem();
-  const { settings, refetch: refetchSettings } = useSiteSettings();
+  const { settings, refetch: refetchSettings } = useAdminSiteSettings();
 
-  const [integrations, setIntegrations] = useState<Integration[]>([
-    { id: "resend", name: "Resend (Email)", desc: "Connected to crossangleinteriors@gmail.com", status: "Pending configuration", key: "" },
-    { id: "supabase", name: "Supabase (Database)", desc: "Primary database and auth provider", status: "Pending configuration", key: "" },
-    { id: "vercel", name: "Vercel (Hosting)", desc: "Frontend hosting and edge functions", status: "Pending configuration", key: "" },
-    { id: "posthog", name: "PostHog (Analytics)", desc: "Product analytics and event tracking", status: "Pending configuration", key: "" },
-    { id: "ga", name: "Google Analytics", desc: "Secondary web analytics tracking", status: "Pending configuration", key: "" },
-    { id: "whisper", name: "OpenAI Whisper", desc: "Automated media transcription API", status: "Pending configuration", key: "" },
-    { id: "checkly", name: "Checkly", desc: "System health and uptime monitoring", status: "Pending configuration", key: "" },
-    { id: "telegram", name: "Telegram Bot", desc: "Lead notification delivery", status: "Pending configuration", key: "" },
-  ]);
+  const [integrations, setIntegrations] = useState<Integration[]>(INTEGRATIONS);
 
   useEffect(() => {
     if (!settings) return;
 
     setIntegrations((prev) => prev.map(item => {
+      if (item.managed === "secrets") return item;
+
       let key = "";
-      if (item.id === "resend") key = settings.resend_api_key || "";
-      if (item.id === "supabase") key = settings.supabase_api_key || import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_ANON_KEY || "";
-      if (item.id === "vercel") key = settings.vercel_api_key || "";
       if (item.id === "posthog") key = settings.posthog_api_key || import.meta.env.VITE_POSTHOG_KEY || "";
       if (item.id === "ga") key = settings.ga_measurement_id || "";
-      if (item.id === "whisper") key = (settings.integrations as Record<string, string>)?.whisper_api_key || "";
-      if (item.id === "checkly") key = (settings.integrations as Record<string, string>)?.checkly_api_key || "";
-      if (item.id === "telegram") key = (settings.integrations as Record<string, string>)?.telegram_bot_token || "";
 
       if (key) {
         return {
@@ -126,61 +137,43 @@ const AdminSettings = () => {
   const [isClearingCache, setIsClearingCache] = useState(false);
 
   const handleConfigureIntegration = (integration: Integration) => {
+    if (integration.managed !== "site") return;
     setSelectedIntegration(integration);
-    // Pre-populate existing PostHog key so the user can see / update it
+    // Pre-populate the existing public identifier so the user can see / update it
     if (integration.id === "posthog") {
       setIntegrationApiKey(settings?.posthog_api_key || "");
       setIntegrationApiHost(settings?.posthog_host || "https://us.i.posthog.com");
-    } else if (integration.id === "ga") {
-      setIntegrationApiKey(settings?.ga_measurement_id || "");
-      setIntegrationApiHost("");
-    } else if (integration.id === "whisper" || integration.id === "checkly" || integration.id === "telegram") {
-      const integrationsJson = (settings?.integrations as Record<string, string>) || {};
-      if (integration.id === "whisper") setIntegrationApiKey(integrationsJson.whisper_api_key || "");
-      if (integration.id === "checkly") setIntegrationApiKey(integrationsJson.checkly_api_key || "");
-      if (integration.id === "telegram") setIntegrationApiKey(integrationsJson.telegram_bot_token || "");
-      setIntegrationApiHost("");
     } else {
-      setIntegrationApiKey("");
+      setIntegrationApiKey(settings?.ga_measurement_id || "");
       setIntegrationApiHost("");
     }
     setShowApiKey(false);
     setShowIntegrationDialog(true);
   };
 
+  /** Column payload for the two site-managed integrations. `null` clears them. */
+  const buildSitePayload = (integration: Integration, key: string | null, host: string | null): TablesUpdate<"site_settings"> => {
+    if (integration.id === "posthog") {
+      return { posthog_api_key: key, posthog_host: host };
+    }
+    return { ga_measurement_id: key };
+  };
+
   const handleSaveIntegration = async () => {
-    if (!selectedIntegration) return;
+    if (!selectedIntegration || selectedIntegration.managed !== "site") return;
 
     setIsIntegrationLoading(true);
 
     try {
       let dbError;
-      
-      const payload: Record<string, unknown> = {};
-      if (selectedIntegration.id === "posthog") {
-        payload.posthog_api_key = integrationApiKey || null;
-        payload.posthog_host = integrationApiHost || null;
-      } else if (selectedIntegration.id === "resend") {
-        payload.resend_api_key = integrationApiKey || null;
-      } else if (selectedIntegration.id === "supabase") {
-        payload.supabase_api_key = integrationApiKey || null;
-      } else if (selectedIntegration.id === "vercel") {
-        payload.vercel_api_key = integrationApiKey || null;
-      } else if (selectedIntegration.id === "ga") {
-        payload.ga_measurement_id = integrationApiKey || null;
-      } else if (["whisper", "checkly", "telegram"].includes(selectedIntegration.id)) {
-        const currentIntegrations = (settings?.integrations as Record<string, string>) || {};
-        if (selectedIntegration.id === "whisper") currentIntegrations.whisper_api_key = integrationApiKey || "";
-        if (selectedIntegration.id === "checkly") currentIntegrations.checkly_api_key = integrationApiKey || "";
-        if (selectedIntegration.id === "telegram") currentIntegrations.telegram_bot_token = integrationApiKey || "";
-        payload.integrations = currentIntegrations;
-      }
+
+      const payload = buildSitePayload(selectedIntegration, integrationApiKey || null, integrationApiHost || null);
 
       if (settings?.id) {
         // Row exists — update it
         const { error } = await supabase
           .from("site_settings")
-          .update(payload as TablesUpdate<"site_settings">)
+          .update(payload)
           .eq("id", settings.id);
         dbError = error;
       } else {
@@ -215,32 +208,12 @@ const AdminSettings = () => {
   };
 
   const handleConfirmRevoke = async () => {
-    if (!selectedIntegration || !settings?.id) return;
+    if (!selectedIntegration || selectedIntegration.managed !== "site" || !settings?.id) return;
 
     try {
-      const payload: Record<string, unknown> = {};
-      if (selectedIntegration.id === "posthog") {
-        payload.posthog_api_key = null;
-        payload.posthog_host = null;
-      } else if (selectedIntegration.id === "resend") {
-        payload.resend_api_key = null;
-      } else if (selectedIntegration.id === "supabase") {
-        payload.supabase_api_key = null;
-      } else if (selectedIntegration.id === "vercel") {
-        payload.vercel_api_key = null;
-      } else if (selectedIntegration.id === "ga") {
-        payload.ga_measurement_id = null;
-      } else if (["whisper", "checkly", "telegram"].includes(selectedIntegration.id)) {
-        const currentIntegrations = (settings?.integrations as Record<string, string>) || {};
-        if (selectedIntegration.id === "whisper") currentIntegrations.whisper_api_key = "";
-        if (selectedIntegration.id === "checkly") currentIntegrations.checkly_api_key = "";
-        if (selectedIntegration.id === "telegram") currentIntegrations.telegram_bot_token = "";
-        payload.integrations = currentIntegrations;
-      }
-
       await supabase
         .from("site_settings")
-        .update(payload as TablesUpdate<"site_settings">)
+        .update(buildSitePayload(selectedIntegration, null, null))
         .eq("id", settings.id);
       
       await refetchSettings();
@@ -250,8 +223,8 @@ const AdminSettings = () => {
 
     setShowRevokeDialog(false);
     toast({
-      title: "Integration Revoked",
-      description: `${selectedIntegration.name} API credentials have been successfully disconnected.`,
+      title: "Integration Disconnected",
+      description: `${selectedIntegration.name} has been cleared from site settings.`,
     });
   };
 
@@ -392,49 +365,74 @@ const AdminSettings = () => {
         <div className="w-full space-y-6">
                 <div className="grid gap-4">
                   {integrations.map((service) => (
-                    <div key={service.name} className="p-5 rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] flex items-center justify-between">
-                      <div>
+                    <div key={service.name} className="p-5 rounded-xl border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-card))] flex items-center justify-between gap-4">
+                      <div className="min-w-0">
                         <h3 className="font-bold text-sm text-[hsl(var(--admin-text))]">{service.name}</h3>
                         <p className="text-[hsl(var(--admin-muted))] text-xs mt-1 flex items-center gap-1.5 flex-wrap">
                           <span>{service.desc}</span>
                           <span className="text-zinc-600">•</span>
                           <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold border ${
-                            service.status === "Active" 
-                              ? "text-[hsl(var(--admin-success))] border-[hsl(var(--admin-success))]/20 bg-[hsl(var(--admin-success))]/5" 
-                              : service.status === "Revoked"
-                              ? "text-red-400 border-red-500/20 bg-red-950/10"
+                            service.status === "Active"
+                              ? "text-[hsl(var(--admin-success))] border-[hsl(var(--admin-success))]/20 bg-[hsl(var(--admin-success))]/5"
+                              : service.status === "Managed via Supabase secrets"
+                              ? "text-[hsl(var(--admin-muted))] border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))]"
                               : "text-[hsl(var(--admin-warning))] border-[hsl(var(--admin-warning))]/20 bg-[hsl(var(--admin-warning))]/5"
                           }`}>
                             {service.status}
                           </span>
                         </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleConfigureIntegration(service)}
-                          className="bg-[hsl(var(--admin-surface))] hover:text-black hover:bg-[hsl(var(--admin-primary))] h-8 text-xs"
-                        >
-                          Configure
-                        </Button>
-                        {service.status === "Active" && (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => {
-                              setSelectedIntegration(service);
-                              setShowRevokeDialog(true);
-                            }}
-                            className="text-[hsl(var(--admin-danger))] border-[hsl(var(--admin-danger))]/30 hover:bg-[hsl(var(--admin-danger))]/10 h-8 text-xs"
-                          >
-                            Revoke
-                          </Button>
+                        {service.managed === "secrets" && service.secretNames && (
+                          <p className="text-[11px] text-[hsl(var(--admin-muted))] mt-2 flex items-center gap-1.5 flex-wrap">
+                            <Lock className="w-3 h-3 shrink-0" aria-hidden="true" />
+                            <span>Set with</span>
+                            <code className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))]">
+                              supabase secrets set {service.secretNames.map((n) => `${n}=…`).join(" ")}
+                            </code>
+                          </p>
                         )}
                       </div>
+                      {service.managed === "site" ? (
+                        <div className="flex gap-2 shrink-0">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleConfigureIntegration(service)}
+                            className="bg-[hsl(var(--admin-surface))] hover:text-black hover:bg-[hsl(var(--admin-primary))] h-8 text-xs"
+                          >
+                            Configure
+                          </Button>
+                          {service.status === "Active" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedIntegration(service);
+                                setShowRevokeDialog(true);
+                              }}
+                              className="text-[hsl(var(--admin-danger))] border-[hsl(var(--admin-danger))]/30 hover:bg-[hsl(var(--admin-danger))]/10 h-8 text-xs"
+                            >
+                              Disconnect
+                            </Button>
+                          )}
+                        </div>
+                      ) : (
+                        <a
+                          href="https://supabase.com/dashboard/project/_/functions/secrets"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="shrink-0 inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] text-xs text-[hsl(var(--admin-text))] hover:bg-[hsl(var(--admin-primary))] hover:text-black transition-colors"
+                        >
+                          Manage in Supabase
+                          <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                        </a>
+                      )}
                     </div>
                   ))}
                 </div>
+                <p className="text-[11px] text-[hsl(var(--admin-muted))] leading-relaxed">
+                  Server-side credentials are never stored in the database. Edge functions read them from Supabase
+                  secrets at runtime, so rotating a key in a provider console only requires updating the secret.
+                </p>
               </div>
       }
       {activeTab === "updates" &&
@@ -530,19 +528,20 @@ const AdminSettings = () => {
               Configure {selectedIntegration?.name}
             </DialogTitle>
             <DialogDescription className="text-zinc-400 text-sm mt-1">
-              Enter authorization token details to sync system processes with third-party service features.
+              {selectedIntegration?.id === "posthog"
+                ? "Enter the PostHog project token (phc_…). This is a public identifier that ships in the browser bundle."
+                : "Enter the Google Analytics measurement ID (G-…). This is a public identifier that ships in the browser bundle."}
             </DialogDescription>
           </DialogHeader>
 
           <div className="my-6 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="api-key-field" className="text-xs text-zinc-400 flex items-center justify-between">
-                  <span>API Secret Key / Access Token</span>
-                  <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono">Masked for privacy</span>
+                  <span>{selectedIntegration?.id === "posthog" ? "Project token" : "Measurement ID"}</span>
                 </Label>
                 {selectedIntegration?.key && (
                   <p className="text-[11px] text-zinc-500 mb-1">
-                    A key is currently saved. Enter a new token below to replace it, or leave blank to keep existing.
+                    A value is currently saved. Enter a new one below to replace it.
                   </p>
                 )}
                 <div className="relative">
@@ -551,7 +550,7 @@ const AdminSettings = () => {
                   type={showApiKey ? "text" : "password"}
                   value={integrationApiKey}
                   onChange={(e) => setIntegrationApiKey(e.target.value)}
-                  placeholder="Enter secret token"
+                  placeholder={selectedIntegration?.id === "posthog" ? "phc_…" : "G-XXXXXXXXXX"}
                   className="bg-white/5 border border-white/10 text-white pr-10 font-mono"
                 />
                 <button
@@ -585,7 +584,7 @@ const AdminSettings = () => {
               </div>
             )}
             <p className="text-[11px] text-zinc-500 italic mt-4">
-              Keys remain encrypted in database storage and are verified on save.
+              Stored in site settings and readable by the public site. Never paste a private or personal API key here.
             </p>
           </div>
 
@@ -625,10 +624,10 @@ const AdminSettings = () => {
               <AlertTriangle className="w-6 h-6" />
             </div>
             <AlertDialogTitle className="text-xl font-serif text-[hsl(var(--admin-text))]">
-              Revoke {selectedIntegration?.name} Integration?
+              Disconnect {selectedIntegration?.name}?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-zinc-400 text-sm mt-2">
-              This will immediately disconnect the integration connection. Dependent modules and automatic operations utilizing this secret token will fail. Are you sure you want to revoke credentials?
+              This clears the identifier from site settings. Client-side tracking for this provider stops until a new value is saved.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 flex gap-2">
@@ -639,7 +638,7 @@ const AdminSettings = () => {
               onClick={handleConfirmRevoke}
               className="bg-red-600 hover:bg-red-700 text-white font-semibold"
             >
-              Revoke Credentials
+              Disconnect
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,18 +1,17 @@
 import { Helmet } from "react-helmet-async";
-import { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Link, useSearchParams } from "react-router-dom";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
-import { Image } from "@/components/ui/enhanced/image";
-import { Reveal } from "@/components/motion/Reveal";
 import { useGallery, useGalleryCategories } from "@/hooks/useGallery";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
 import GalleryLightbox from "@/components/gallery/GalleryLightbox";
-import GalleryStackedSlider from "@/components/gallery/GalleryStackedSlider";
+import GalleryMasonry, { type MasonryItem } from "@/components/gallery/GalleryMasonry";
 import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
+import { Container, Section, Eyebrow, DisplayHeading, Body, Em, reveal, EASE_OUT_EXPO } from "@/components/editorial";
 
 function useSavedItems(urlBoardIds: string[]) {
   const [saved, setSaved] = useState<string[]>(() => {
@@ -42,17 +41,17 @@ function useSavedItems(urlBoardIds: string[]) {
   return { saved, toggleSave };
 }
 
-interface GalleryItem {
-  id: string;
-  image: string;
-  category: string;
-  title: string;
-  location: string;
-  year: number;
+interface GalleryItem extends MasonryItem {
   description?: string;
   slug?: string;
 }
 
+/**
+ * Gallery — filter row over a grouped masonry.
+ *
+ * With "All" active the archive is grouped by category, each group carrying
+ * its own heading and count; a specific category renders one masonry.
+ */
 const GalleryPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlCategory = searchParams.get("category");
@@ -61,9 +60,8 @@ const GalleryPage = () => {
 
   const [activeCategory, setActiveCategory] = useState(urlCategory || (urlBoard ? "Saved" : "All"));
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
 
-  const heroTelemetryRef = useAttentionTelemetry<HTMLDivElement>("gallery", "hero-image", 1);
+  const headerRef = useAttentionTelemetry<HTMLDivElement>("gallery", "hero-image", 1);
   const categoriesRef = useAttentionTelemetry<HTMLDivElement>("gallery", "category-nav", 2);
   const gridRef = useAttentionTelemetry<HTMLDivElement>("gallery", "project-grid", 3);
 
@@ -75,10 +73,6 @@ const GalleryPage = () => {
 
   const { data: dbItems, isLoading } = useGallery();
   const { data: categories } = useGalleryCategories();
-
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   const items: GalleryItem[] = useMemo(() => {
     if (!dbItems) return [];
@@ -111,11 +105,27 @@ const GalleryPage = () => {
     }
   }, [urlBoard, urlBoardIds.length, searchParams, setSearchParams, toast]);
 
-  const filtered = activeCategory === "All"
-    ? items
-    : activeCategory === "Saved"
-    ? items.filter(i => saved.includes(i.id))
-    : items.filter((i) => i.category === activeCategory);
+  const filtered = useMemo(() => (
+    activeCategory === "All"
+      ? items
+      : activeCategory === "Saved"
+      ? items.filter((i) => saved.includes(i.id))
+      : items.filter((i) => i.category === activeCategory)
+  ), [activeCategory, items, saved]);
+
+  /** Groups for the "All" view; a single unnamed group otherwise. */
+  const groups = useMemo(() => {
+    if (activeCategory !== "All") return [{ name: null, items: filtered }];
+    const byCategory = new Map<string, GalleryItem[]>();
+    filtered.forEach((item) => {
+      const list = byCategory.get(item.category) ?? [];
+      list.push(item);
+      byCategory.set(item.category, list);
+    });
+    return [...byCategory.entries()].map(([name, groupItems]) => ({ name, items: groupItems }));
+  }, [activeCategory, filtered]);
+
+  const indexOf = useCallback((item: MasonryItem) => filtered.findIndex((i) => i.id === item.id), [filtered]);
 
   const openLightbox = useCallback((idx: number) => setLightboxIndex(idx), []);
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
@@ -139,8 +149,6 @@ const GalleryPage = () => {
     }
   };
 
-  const heroItem = filtered[0];
-
   const lightboxItems = useMemo(
     () =>
       filtered.map((item) => ({
@@ -159,106 +167,110 @@ const GalleryPage = () => {
     <>
       <Helmet>
         <title>Gallery | Crossangle Interior</title>
+        <meta
+          name="description"
+          content="Browse the Cross Angle Interior gallery — living rooms, bedrooms, kitchens and workspaces from delivered turn-key projects across Jamshedpur."
+        />
+        <link rel="canonical" href="https://crossangleinterior.com/gallery" />
       </Helmet>
 
       <Navbar />
 
-      <main id="main-content" className="home-shell min-h-screen relative w-full pb-[10vh]" data-environment="gallery">
-        <div className="absolute inset-0 pointer-events-none home-noise z-0" />
-        
-        {/* 0–20% Scroll: Hero photography (Design Silence) */}
-        <section ref={heroRef} className="relative z-10 w-full h-[70vh] md:h-[85vh] lg:h-[95vh] overflow-hidden bg-transparent">
-          {heroItem && (
-            <motion.div ref={heroTelemetryRef} className="absolute inset-4 md:inset-8 lg:inset-12 overflow-hidden home-panel" style={{ scale: heroScale }}>
-              <Image
-                src={heroItem.image}
-                alt={heroItem.title}
-                className="w-full h-full"
-                imageClassName="object-cover"
-                loading="eager"
-                draggable={false}
-              />
-            </motion.div>
-          )}
-
+      <main id="main-content" className="relative z-10 min-h-screen bg-[var(--s-canvas-primary)] text-white" data-environment="gallery">
+        {/* Header */}
+        <Container className="pt-36 pb-14 md:pt-48 md:pb-20">
           <motion.div
-            className="absolute bottom-16 md:bottom-24 lg:bottom-32 left-8 md:left-16 lg:left-24"
-            style={{ opacity: heroOpacity }}
+            ref={headerRef}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
+            className="max-w-3xl"
           >
-            <span className="home-kicker mb-4 block">Archive</span>
-            <motion.h1
-              className="font-display text-5xl md:text-7xl lg:text-8xl text-[var(--s-text-primary)] tracking-tight"
-              style={{ letterSpacing: "-0.03em" }}
-            >
-              Spaces We've<br />
-              <span className="text-[var(--s-text-secondary)]">Crafted.</span>
-            </motion.h1>
+            <Eyebrow className="mb-8">The archive</Eyebrow>
+            <DisplayHeading as="h1" size="lg" className="mb-6">
+              Spaces we've <Em>crafted.</Em>
+            </DisplayHeading>
+            <Body className="max-w-xl">
+              Rooms from delivered projects — photographed as built, not staged. Open any frame for the full view.
+            </Body>
           </motion.div>
-        </section>
+        </Container>
 
-        {/* 20–35% Scroll: Category Navigation (Asymmetric sticky) */}
-        <section ref={categoriesRef} className="sticky top-[72px] z-30 bg-[var(--s-canvas-primary)]/90 backdrop-blur-xl border-b border-[var(--s-border-subtle)]">
-          <div className="container mx-auto px-6 md:px-12 py-6 overflow-x-auto scrollbar-hide">
-            <div className="flex items-center gap-6 min-w-max">
-              {categoryList.map((cat) => {
-                const count = cat === "All" ? items.length : cat === "Saved" ? saved.length : items.filter((i) => i.category === cat).length;
-                const isActive = activeCategory === cat;
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => handleCategoryChange(cat)}
-                    className={cn(
-                      "text-[10px] uppercase tracking-[0.15em] font-bold transition-all duration-300 whitespace-nowrap",
-                      isActive
-                        ? "text-[var(--s-text-primary)] border-b border-[var(--s-text-primary)] pb-1"
-                        : "text-[var(--s-text-tertiary)] hover:text-[var(--s-text-secondary)] pb-1"
-                    )}
-                  >
-                    {cat}
-                    <span className={cn("ml-2 text-[9px] font-medium", isActive ? "text-[var(--s-text-secondary)]" : "text-[var(--s-text-tertiary)]")}>
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+        {/* Filters */}
+        <Container>
+          <div
+            ref={categoriesRef}
+            className="sticky top-[72px] z-30 -mx-6 flex items-center gap-x-8 overflow-x-auto whitespace-nowrap border-b border-white/10 bg-[var(--s-canvas-primary)]/90 px-6 py-5 backdrop-blur-xl [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden"
+          >
+            {categoryList.map((cat) => {
+              const count = cat === "All"
+                ? items.length
+                : cat === "Saved"
+                ? saved.length
+                : items.filter((i) => i.category === cat).length;
+              const isActive = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => handleCategoryChange(cat)}
+                  aria-pressed={isActive}
+                  className={cn(
+                    "relative shrink-0 py-1 text-[10px] font-bold uppercase tracking-[0.25em] transition-colors duration-300",
+                    "focus-visible:outline-none focus-visible:text-primary",
+                    isActive ? "text-white" : "text-white/40 hover:text-white",
+                  )}
+                >
+                  {cat}
+                  <span className={cn("ml-2 text-[9px] tabular-nums", isActive ? "text-primary" : "text-white/25")}>
+                    {count}
+                  </span>
+                  {isActive && (
+                    <motion.span
+                      layoutId="galleryFilterUnderline"
+                      aria-hidden="true"
+                      className="absolute -bottom-[21px] left-0 h-px w-full bg-primary"
+                      transition={{ duration: 0.4, ease: EASE_OUT_EXPO }}
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
-        </section>
+        </Container>
 
-        {/* 35–80% Scroll: Asymmetric Gallery Grid */}
-        <section ref={gridRef} className="home-section-frame relative z-10 w-full px-6 md:px-12 lg:px-24 mb-[30vh] mt-[15vh] max-w-[1600px] mx-auto flex flex-col gap-[30vh]">
+        {/* Grouped masonry */}
+        <Section spacing="default">
+          <div ref={gridRef}>
           {isLoading ? (
-            <div className="w-full flex justify-center py-20">
-              <span className="home-kicker">Loading...</span>
+            <div className="columns-1 gap-6 sm:columns-2 lg:columns-3" aria-busy="true">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="mb-6 aspect-[4/3] w-full animate-pulse break-inside-avoid bg-white/[0.03]" />
+              ))}
             </div>
+          ) : filtered.length === 0 ? (
+            <p className="py-24 text-center font-display text-xl font-light italic text-white/40">
+              {activeCategory === "Saved" ? "Nothing saved yet." : "No projects found."}
+            </p>
           ) : (
-            <Reveal variant="up">
-              <GalleryStackedSlider items={filtered} onImageClick={openLightbox} />
-            </Reveal>
-          )}
-
-          {filtered.length === 0 && !isLoading && (
-            <div className="text-center py-24">
-              <p className="home-body text-sm uppercase tracking-widest">No projects found.</p>
+            <div className="flex flex-col gap-20 md:gap-28">
+              {groups.map((group) => (
+                <section key={group.name ?? "all"}>
+                  {group.name && (
+                    <motion.div {...reveal()} className="mb-10 flex flex-wrap items-baseline gap-x-6 gap-y-2 border-b border-white/10 pb-5">
+                      <DisplayHeading as="h2" size="sm">{group.name}</DisplayHeading>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/30 tabular-nums">
+                        {group.items.length} {group.items.length === 1 ? "work" : "works"}
+                      </span>
+                    </motion.div>
+                  )}
+                  <GalleryMasonry items={group.items} indexOf={indexOf} onImageClick={openLightbox} />
+                </section>
+              ))}
             </div>
           )}
-        </section>
-
-        {/* 80–100% Scroll: CTA Transition */}
-        <Reveal
-          as="section"
-          stagger={0.12}
-          className="home-section-frame relative w-full px-6 md:px-12 lg:px-24 mb-[20vh] max-w-[1600px] mx-auto flex flex-col items-center justify-center text-center"
-        >
-          <span className="home-kicker mb-8 block">Inspired?</span>
-          <h2 className="font-display text-5xl md:text-7xl mb-12 text-[var(--s-text-primary)] tracking-tight" style={{ letterSpacing: "-0.02em" }}>
-            Let's create your <span className="text-[var(--s-text-secondary)]">space.</span>
-          </h2>
-          <Link to="/contact-us" className="tap-target home-button-sweep inline-block text-[10px] uppercase tracking-[0.2em] font-bold border-b border-[#D1AF6E] pb-2 text-[var(--s-text-primary)]">
-            Book Consultation
-          </Link>
-        </Reveal>
-
+          </div>
+        </Section>
       </main>
 
       <GalleryLightbox

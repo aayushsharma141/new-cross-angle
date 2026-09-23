@@ -82,7 +82,7 @@ export function DiscoveryMediaSlot({
           </button>
           {url && (
             <Link
-              to="/admin/media"
+              to="/admin/cms/media-library"
               className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-800/80 text-white text-xs font-medium rounded hover:bg-neutral-700 transition-colors"
             >
               <LinkIcon className="w-3.5 h-3.5" />

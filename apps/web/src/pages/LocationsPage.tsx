@@ -1,72 +1,39 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MapPin, ArrowRight, Building, Home, Users } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
 import ScrollToTop from "@/components/layout/ScrollToTop";
-import { LOCATION_DATA } from "@/addons/calculators/components/data/pricing-config";
-import type { CityTier } from "@/addons/calculators/components/data/types";
+import {
+    Section, Container, Eyebrow, DisplayHeading, Body, Em, StatStrip, Closing,
+    reveal, pillCtaClass, PillCtaInner, textLinkClass, EASE_OUT_EXPO,
+} from "@/components/editorial";
+import { SERVICE_BANDS, SERVICE_AREAS } from "@/config/service-area";
 
-function slugify(name: string) {
-    return (name || "").toLowerCase().replace(/\s+/g, "-");
-}
+const totalAreas = SERVICE_AREAS.length;
+const totalStates = 4; // Jharkhand, West Bengal, Odisha, Bihar
 
-interface CityEntry {
-    name: string;
-    slug: string;
-    tier: CityTier;
-}
-
-interface StateGroup {
-    state: string;
-    cities: CityEntry[];
-}
-
-const seen = new Set<string>();
-
-const stateGroups: StateGroup[] = Object.entries(LOCATION_DATA)
-    .map(([state, cities]) => ({
-        state,
-        cities: Object.entries(cities)
-            .filter(([name]) => {
-                if (seen.has(name)) return false;
-                seen.add(name);
-                return true;
-            })
-            .map(([name, tier]) => ({
-                name,
-                slug: slugify(name),
-                tier: tier as CityTier,
-            })),
-    }))
-    .sort((a, b) => a.state.localeCompare(b.state));
-
-const allCities = stateGroups.flatMap(g => g.cities);
-const totalCities = allCities.length;
-const totalStates = stateGroups.length;
-const metroCount = allCities.filter(c => c.tier === "metro").length;
-
-const tierConfig = {
-    metro: { label: "Metro", color: "text-red-400 bg-red-400/10 border-red-400/20" },
-    tier1: { label: "Tier-1", color: "text-amber-400 bg-amber-400/10 border-amber-400/20" },
-    tier2: { label: "Tier-2", color: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" },
-} as const;
-
+/**
+ * Every service area on one page.
+ *
+ * Each area is an anchor (`/locations#bistupur`), and `/locations/:slug`
+ * redirects here — see `config/service-area.ts` for why the per-city pages
+ * were consolidated.
+ */
 const LocationsPage = () => {
     return (
         <>
             <Helmet>
-                <title>Service Locations | Cross Angle Interior</title>
+                <title>Service Areas | Interior Designers in Jamshedpur &amp; Eastern India</title>
                 <meta
                     name="description"
-                    content={`Premium luxury interior design services across ${totalCities}+ cities in ${totalStates}+ states & UTs across India. Find your nearest studio.`}
+                    content={`Turn-key interior design across ${totalAreas} areas — every Jamshedpur neighbourhood plus Ranchi, Dhanbad, Bokaro, Kolkata, Bhubaneswar and Patna. See how we work in each.`}
                 />
-                <meta property="og:title" content="Service Locations | Cross Angle Interior" />
+                <meta property="og:title" content="Service Areas | Cross Angle Interior" />
                 <meta
                     property="og:description"
-                    content={`Premium luxury interior design services across ${totalCities}+ cities in India.`}
+                    content={`Turn-key interior design across ${totalAreas} areas in eastern India, based in Jamshedpur.`}
                 />
                 <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://crossangleinterior.com/locations" />
@@ -78,171 +45,119 @@ const LocationsPage = () => {
                 data={{
                     items: [
                         { name: "Home", url: "/" },
-                        { name: "Locations", url: "/locations" },
+                        { name: "Service Areas", url: "/locations" },
                     ],
                 }}
             />
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                    "@context": "https://schema.org",
-                    "@type": "ItemList",
-                    itemListElement: allCities.map((c, i) => ({
-                        "@type": "ListItem",
-                        position: i + 1,
-                        name: c.name,
-                        url: `https://crossangleinterior.com/locations/${c.slug}`,
-                    })),
-                }),
-            }} />
-
             <Navbar />
 
-            <main id="main-content" className="bg-[#020202] min-h-screen pt-32 md:pt-48">
-                {/* ── Hero ── */}
-                <section className="relative overflow-hidden pb-8">
-                    <div className="absolute inset-0 pointer-events-none">
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(196,30,58,0.06)_0%,transparent_60%)]" />
-                        <div className="absolute top-0 left-1/3 w-px h-full bg-white/[0.03]" />
-                    </div>
-
-                    <div className="relative z-10 max-w-[1400px] mx-auto px-6">
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="max-w-4xl"
-                        >
-                            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-primary flex items-center gap-4 mb-6">
-                                <div className="w-12 h-px bg-primary" />
-                                Service Areas
-                            </span>
-                            <h1 className="font-display text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.05] tracking-tight text-white mb-8">
-                                Luxury Interior Design <br className="hidden sm:block" />
-                                <em className="italic font-medium text-primary">Across India</em>
-                            </h1>
-                            <p className="text-[1.1rem] text-white/60 font-light leading-relaxed max-w-2xl mb-12">
-                                From metro hubs to emerging cities — we bring premium turnkey interior solutions
-                                to <strong className="text-white/80">{totalCities}+ cities</strong> across{" "}
-                                <strong className="text-white/80">{totalStates}+ states &amp; union territories</strong>.
-                                Each location backed by a dedicated local execution team.
-                            </p>
-
-                            <Link to="/estimate">
-                                <button className="px-8 py-4 bg-primary text-white text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-primary/90 transition-colors">
-                                    Estimate Your Project
-                                </button>
+            <main id="main-content" className="relative z-10 min-h-screen bg-[var(--s-canvas-primary)] text-white">
+                {/* Statement */}
+                <Container className="pt-36 pb-12 md:pt-48 md:pb-16">
+                    <motion.div
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
+                        className="max-w-3xl"
+                    >
+                        <Eyebrow className="mb-8">Where we work</Eyebrow>
+                        <DisplayHeading as="h1" size="lg" className="mb-6">
+                            Based in Jamshedpur. <Em>Delivering across the east.</Em>
+                        </DisplayHeading>
+                        <Body className="max-w-xl">
+                            We keep a resident team rather than a franchise network, so the studio works where it can
+                            supervise properly. Every area below is one we actually deliver in — and each one asks for
+                            something slightly different.
+                        </Body>
+                        <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+                            <Link to="/estimate" className={pillCtaClass}>
+                                <PillCtaInner>Get an estimate</PillCtaInner>
                             </Link>
+                            <Link to="/contact-us" className={textLinkClass}>
+                                Talk to the studio <span aria-hidden="true">&rarr;</span>
+                            </Link>
+                        </div>
+                    </motion.div>
+                </Container>
+
+                <StatStrip
+                    stats={[
+                        { label: "Home city", value: "Jamshedpur" },
+                        { label: "Areas served", value: totalAreas },
+                        { label: "States", value: totalStates },
+                        { label: "Projects delivered", value: "1,200+" },
+                    ]}
+                />
+
+                {/* Jump list — the compact index for a long page */}
+                <Container className="pt-14 md:pt-20">
+                    <motion.nav {...reveal()} aria-label="Jump to an area" className="border-t border-white/10 pt-8">
+                        <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.25em] text-white/35">Jump to</p>
+                        <ul className="flex flex-wrap gap-x-6 gap-y-3">
+                            {SERVICE_AREAS.map((area) => (
+                                <li key={area.slug}>
+                                    <a
+                                        href={`#${area.slug}`}
+                                        className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45 transition-colors duration-300 hover:text-primary focus-visible:outline-none focus-visible:text-primary"
+                                    >
+                                        {area.name}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </motion.nav>
+                </Container>
+
+                {/* Areas, grouped by how far out they sit */}
+                {SERVICE_BANDS.map((band, bandIndex) => (
+                    <Section key={band.id} spacing="tight">
+                        <motion.div {...reveal()} className="mb-10 grid grid-cols-[2.5rem_1fr] gap-4 border-t border-white/10 pt-8">
+                            <span className="pt-1.5 text-[10px] font-bold tracking-[0.2em] text-primary">
+                                {String(bandIndex + 1).padStart(2, "0")}
+                            </span>
+                            <div>
+                                <h2 className="mb-2 font-display text-2xl text-white md:text-[1.75rem]">{band.label}</h2>
+                                <Body className="max-w-xl text-sm md:text-[15px]">{band.note}</Body>
+                            </div>
                         </motion.div>
-                    </div>
-                </section>
 
-                {/* ── Stats Strip ── */}
-                <section className="border-y border-white/5 bg-[#050505]">
-                    <div className="max-w-[1400px] mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
-                        {[
-                            { label: "Cities Served", value: totalCities, icon: MapPin },
-                            { label: "States & UTs", value: totalStates, icon: Building },
-                            { label: "Metro Cities", value: metroCount, icon: Home },
-                            { label: "Active Projects", value: "1,200+", icon: Users },
-                        ].map((stat, i) => {
-                            const Icon = stat.icon;
-                            return (
-                                <div key={i} className="text-center">
-                                    <Icon className="w-5 h-5 mx-auto mb-3 text-primary/60" />
-                                    <div className="text-2xl md:text-3xl font-display text-white mb-1">
-                                        {typeof stat.value === "number" ? `${stat.value}+` : stat.value}
+                        <div className="grid grid-cols-1 gap-x-12 gap-y-0 md:grid-cols-2">
+                            {band.areas.map((area, i) => (
+                                <motion.article
+                                    key={area.slug}
+                                    id={area.slug}
+                                    {...reveal(Math.min(i, 5) * 0.04)}
+                                    className="scroll-mt-28 border-t border-white/5 py-8"
+                                >
+                                    <div className="mb-3 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                                        <h3 className="font-display text-xl text-white md:text-2xl">{area.name}</h3>
+                                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
+                                            {area.context}
+                                        </span>
                                     </div>
-                                    <div className="text-[10px] uppercase tracking-wider text-white/50">
-                                        {stat.label}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </section>
-
-                {/* ── Location Grid by State ── */}
-                <section className="py-24">
-                    <div className="max-w-[1400px] mx-auto px-6">
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-20">
-                            {stateGroups.map((group) => (
-                                <div key={group.state}>
-                                    <h2 className="font-display text-xl text-white mb-6 flex items-center gap-3">
-                                        <div className="w-1 h-6 bg-primary rounded-full" />
-                                        {group.state}
-                                    </h2>
-                                    <ul className="space-y-3">
-                                        {group.cities.map((city) => {
-                                            const tier = tierConfig[city.tier];
-                                            return (
-                                                <li key={city.name}>
-                                                    <Link
-                                                        to={`/locations/${city.slug}`}
-                                                        className="group flex items-center justify-between py-2 px-3 -mx-3 rounded-lg transition-all duration-200 hover:bg-white/[0.04]"
-                                                    >
-                                                        <span className="text-sm text-white/70 group-hover:text-white transition-colors">
-                                                            {city.name}
-                                                        </span>
-                                                        <span
-                                                            className={`text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full border ${tier.color} transition-colors`}
-                                                        >
-                                                            {tier.label}
-                                                        </span>
-                                                    </Link>
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                </div>
+                                    <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-primary/80">
+                                        {area.focus}
+                                    </p>
+                                    <Body className="max-w-prose text-sm md:text-[15px]">{area.copy}</Body>
+                                </motion.article>
                             ))}
                         </div>
-                    </div>
-                </section>
+                    </Section>
+                ))}
 
-                {/* ── Tier Legend ── */}
-                <section className="border-t border-white/5 bg-[#050505] py-16">
-                    <div className="max-w-[1400px] mx-auto px-6">
-                        <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-white/50">
-                            <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary mr-4">
-                                City Classification
-                            </span>
-                            {Object.entries(tierConfig).map(([key, cfg]) => (
-                                <span key={key} className="flex items-center gap-2">
-                                    <span className={`inline-block w-2 h-2 rounded-full ${cfg.color.split(" ")[0].replace("text-", "bg-")}`} />
-                                    {cfg.label}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* ── CTA ── */}
-                <section className="py-24 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(196,30,58,0.06)_0%,transparent_60%)] pointer-events-none" />
-                    <div className="relative z-10 max-w-[1400px] mx-auto px-6 text-center">
-                        <h2 className="font-display text-3xl md:text-5xl text-white tracking-tight mb-6">
-                            Don&apos;t See Your City?
-                        </h2>
-                        <p className="text-white/60 font-light max-w-xl mx-auto mb-12">
-                            We continuously expand our service network. Reach out and we&apos;ll connect you with
-                            the nearest design studio or explore a remote consultation.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link
-                                to="/contact-us"
-                                className="inline-flex items-center gap-3 bg-primary text-white px-8 py-4 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-primary/90 transition-colors"
-                            >
-                                Contact Us <ArrowRight className="w-4 h-4" />
-                            </Link>
-                            <Link
-                                to="/estimate"
-                                className="inline-flex items-center gap-3 border border-white/20 text-white/80 px-8 py-4 text-[11px] uppercase tracking-[0.2em] hover:bg-white/5 transition-colors"
-                            >
-                                Get a Free Estimate
-                            </Link>
-                        </div>
-                    </div>
-                </section>
+                <Closing
+                    eyebrow="Further afield"
+                    heading={<>Project outside <Em>this map?</Em></>}
+                    body="We take selected projects beyond the region when the scope justifies the travel — outstation work runs with scheduled site visits and weekly video walk-throughs. Tell us where it is."
+                >
+                    <Link to="/contact-us" className={pillCtaClass}>
+                        <PillCtaInner>Ask about your city</PillCtaInner>
+                    </Link>
+                    <Link to="/estimate" className={textLinkClass}>
+                        Get a free estimate <span aria-hidden="true">&rarr;</span>
+                    </Link>
+                </Closing>
             </main>
 
             <Footer />

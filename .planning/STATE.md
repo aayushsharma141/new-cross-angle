@@ -360,3 +360,255 @@ above). Re-executed independently, not taken on report:
   available) rather than the throttle being live. Runbook: `.planning/tasks/2026-09-21-f07-f08-apply-and-verify.md`.
   Given DEF-001's history (two false "applied" reports before a third held), this will be re-probed independently
   before being marked Verified — not accepted on report.
+
+## Navbar editorial overhaul — 2026-09-22
+
+Reference: livingspaceinteriors.in header (measured: transparent `py-8` over hero → `charcoal/95 + blur(24px) + border-b white/5, py-4` on scroll; 3 links at 10px/700/uppercase/3px tracking at white/40; ghost CTA 1px white/20).
+
+- Checkpoint tag before change: `checkpoint/v20-pre-navbar-editorial` (glass spotlight pill, 8 links, per-letter logo stagger).
+- `Navbar.tsx` rewritten: three-column bare header, no pill. Links from new `headerLinks` (Services · Portfolio · Gallery · About · Contact) at 10–11px bold uppercase `tracking-[0.3em]`, gold hairline draws in on hover/active. Ghost CTA. Solid `bg-background/95 backdrop-blur-xl border-foreground/5` on scroll. Soft black top scrim (`before:` gradient) only while over the hero so bright hero frames stay legible. Mobile = full-screen overlay with all 8 `navLinks`, scroll lock, focus trap, clears `MobileActionBar`.
+- Wordmark now uses `font-display` (Cormorant) — `font-serif` resolves to Georgia because `--font-display` is only wired to `font-display` in tailwind.config; `font-serif` is used ~381× elsewhere and is a separate cleanup.
+- Removed `spotlight-navbar.tsx` and `.navbar-pill` CSS. `AnimatedLogo` untouched (still used by estimator/discovery/welcome).
+- Verified: tsc, eslint, arch:no-console, architecture fitness tests pass; no E2E spec depends on the old nav structure.
+
+## Homepage scroll choreography (v21) — 2026-09-22
+
+Reference: livingspaceinteriors.in — teardown showed no animation library, just tall sections with a sticky
+100dvh stage and rAF scroll-progress → inline transform/opacity, alternating pinned/free sections, word-scrub
+reveals, day→night crossfades, accordion + progress-rail chapters. Built on v20 (user decision), not an overhaul.
+
+- Checkpoint before change: `checkpoint/v21-pre-scroll-choreography`. Commits `c112aa47`, `29f329d7`, `187a0a1d`.
+- **Root cause fixed first:** two Lenis instances ran concurrently on public routes (`SmoothScroll` via
+  deprecated `@studio-freight/react-lenis`, plus `ScrollManager` constructing a second `new Lenis()` on idle,
+  with a third bundled lenis copy). `SmoothScroll` now owns the only instance (`lenis/react`, `autoRaf:false`,
+  driven by `gsap.ticker`, `ScrollTrigger.update` wired). `ScrollManager` removed; its `.gsap-reveal` hooks had
+  no consumers.
+- **Primitive:** `components/motion/PinnedChapter.tsx` — runway section + CSS-sticky stage, ScrollTrigger
+  scrub 0→1 (`gsap.matchMedia` desktop/mobile runways, `deps` rebuild for async data); collapses to a static
+  viewport with `data-motion="static"` under reduced motion. Gotcha recorded in code: scrubbed timelines
+  render lazily, so start states are pinned with `gsap.set` (not `fromTo`); CSS-variable tweens lose their
+  initial value under strict-mode remounts, so the wipe drives `--wipe` through a numeric proxy.
+- **Chapters on `/`:** 01 Philosophy (250vh, title lifts, word-scrub, day→evening crossfade via
+  `asset_usages` home/philosophy/backdrop-day|night), 02 Expertise (400vh accordion + photo crossfade +
+  gold rail, `api.getServices`), 03 Journey (500vh five stages + horizontal rail, `api.getProcessStages`),
+  04 Before/After (300vh clip-path wipe, `useTransformationStories` → `transformation_stories`, hidden when
+  empty). Hero gains a rotating brand seal and a scrubbed exit.
+- **Verified:** tsc, eslint, depcruise (no new violations; `Hero.tsx`/`MediaSlot.tsx` supabase imports are
+  pre-existing), architecture fitness tests, `arch:supabase-auth`, production build (main 266 KB,
+  motion-runtime 172 KB, within budget). Visual proof via Playwright at desktop/mobile and reduced-motion
+  (the desktop Browser pane cannot screenshot sticky/pinned layouts — captures render black).
+- **Open / content:** light "sand" section alternation is blocked by tokens (`environments.css` not wired —
+  full light/dark pass needed); process stages in the DB share one `image_url`, so Chapter 03 photos don't
+  change until the CMS rows get distinct images; no video assets exist for a reel section.
+
+## Footer editorial overhaul — 2026-09-22
+
+Reference: livingspaceinteriors.in footer (DOM-measured: `pt-24 pb-12` on charcoal; left brand statement `w-1/3` with 30px serif h2, `text-sm font-light white/50` sub, pill CTA `border-gold/30 rounded-full px-8 py-4` with gold fill sliding up on hover; right `grid-cols-2 md:grid-cols-3` columns with `10px/700/uppercase/0.2em white/40` headings and `text-sm font-light white/70 → gold` links; legal strip `border-t white/10 pt-8 10px/500 uppercase white/30`).
+
+- Checkpoint tag before change: `checkpoint/v21-pre-footer-editorial`.
+- `Footer.tsx` rewritten to that shape. Page-aware CTA copy (`getFooterCopy` + `useDynamicCTA`) is preserved as the statement block; btn1 = pill with gold fill-up hover, btn2 = quiet underlined text link. Columns: Explore (`navLinks` minus Home + Style Quiz), Studio (phone/email/address from settings), Social (only configured `social_links`). The 11 `/locations/*` local-SEO links kept as a single tracked "Serving …" line above the legal strip rather than a column.
+- Removed: mobile accordion (`FooterSection`), live IST clock, noise overlay, top vignette, giant background wordmark, gold rule, inline `<style>` sweep CSS.
+- Mobile: everything visible in a 2-col grid (no accordion), Social spans both columns, statement + CTAs stack; `pb-28` on mobile so the legal strip clears the `ScrollToTop` FAB (`bottom-24`) on top of App's 56px action-bar padding.
+- Fixed dark surface by design (`bg-[#0A0A0A]`, `text-white`, gold via `primary` token) — same reasoning as the hero.
+- Verified: tsc, eslint, arch:no-console pass; desktop 1440 and mobile 375 checked in browser.
+- Pre-existing, not touched: `FixedSocialBar` (left rail) overlaps footer statement at ≤1440; `ScrollToTop` FAB overlaps bottom-right content on every page.
+
+## Inner-page choreography (v22) — 2026-09-22
+
+Reference teardown of livingspaceinteriors.in inner pages (`/story`, `/portfolio`, `/gallery`, `/contact`): no
+pinning or scrubbing — 90vh photo hero + editorial sections with in-view reveals (fade-up, slide-x, scale).
+Checkpoints `checkpoint/v22-pre-inner-pages` → `checkpoint/v22-inner-pages-choreography`; commit `51b8937d`.
+
+- `components/motion/PageHero.tsx` (shared cinematic hero with scroll exit + seal) and
+  `components/motion/Reveal.tsx` (GSAP in-view entrance). About / Services / Our Process open with `PageHero`;
+  Services gets `ExpertiseChapter`, Our Process gets `ProcessChapter` (both now take a `kicker`). Gallery and
+  Contact sections wrapped in `Reveal`. Portfolio untouched — its `HubHero` is already cinematic.
+- **Data finding:** `asset_usages.entity_id` is a uuid, so slug-style page ids can't resolve there (22P02).
+  Named page imagery goes through `site_media_assets.asset_key` via new `hooks/useSiteMediaSlot.ts`
+  (`page_<entity>_hero`, `home_philosophy_backdrop-day|night`). `useDamAsset` remains for real entity rows.
+- Orphaned but kept: `components/about/AboutHero.tsx` (glass-cursor canvas) and
+  `components/services/ServicesHero.tsx` (draggable blueprint/reality slider) — bespoke work preserved for
+  the design-history docs; delete in a later cleanup if the new heroes stick.
+- Verified: tsc, eslint, depcruise (3 pre-existing violations only: MediaSlot, AboutTimeline, AboutTeam),
+  architecture fitness, `arch:no-console`, production build within budget (ServicesPage 74 KB, AboutPage 47 KB,
+  OurProcessPage 30 KB, motion-runtime 136 KB). Playwright captures at 1440×900 and 390×844.
+
+## About page editorial overhaul — 2026-09-22 (page 1 of the inner-page pass)
+
+Reference: livingspaceinteriors.in/story (90vh centred hero with 110px display H1; `py-32 max-w-7xl` sections = eyebrow → 60px H2 → `white/50 font-light` body → one image; `py-24 border-y white/5` 4-number strip; `py-40` centred closing statement + one CTA).
+
+- Checkpoint tag before change: `checkpoint/v22-pre-about-editorial`.
+- New shared system `apps/web/src/components/editorial/index.tsx`: `EditorialHero`, `Section`, `Container`, `Split` (text + one media), `NumberedList`, `StatStrip`, `Closing`, `Eyebrow`, `DisplayHeading`, `Em`, `Body`, `pillCtaClass`/`PillCtaInner`, `textLinkClass`, `reveal()`. All subsequent inner pages should compose from this rather than adding page-local section styling.
+- `AboutPage.tsx` rewritten: hero (image from `page_about-us_hero` media slot, same key PageHero used) → studio statement with the founder film as its single visual → `AboutValues` (numbered list) → `AboutStats` (strip, count-up kept, `settings.studio_stats`) → `AboutTimeline` (sticky heading + milestone rows, `studio_milestones` query and per-year `MediaSlot` keys untouched) → how we work (numbered list) → `AboutTeam` (portrait grid, `team_members` fetch untouched) → `AboutCTA` (closing, phone from settings).
+- Removed: `AboutVideoModal.tsx` (dead after hero change), `AboutHero.tsx` (was already unused), all card chrome / glows / grid textures / watermark, the "signature pillars" (Smart Layouts / Premium Materials / Made Just For You), "what defines us" and "studio standards" cards, and the hero's inline 3 stats + bullet list (numbers now live only in the strip). SEO: Helmet + all three SchemaMarkup blocks unchanged; the visible `h1` replaces the previous `sr-only` one.
+- Content notes: 4 team portraits still point at the old WordPress host (`crossangleinterior.com/wp-content/...`), 2 members have no `image_url` — migrate via CMS/ImageKit. `AboutTeam`/`AboutTimeline` still import `integrations/supabase/client` directly (pre-existing dep-cruiser violation, not new).
+- Verification: tsc, eslint clean; full-page Playwright screenshots at 1440 and 390 (`scripts/tmp-shots/shot.mjs`, temporary — delete when the inner-page pass is done). Browser pane could not draw during this session.
+
+## Contact page editorial overhaul — 2026-09-22 (page 2 of the inner-page pass)
+
+Reference: livingspaceinteriors.in/contact (two columns: tracked detail labels DIRECT CONNECT / CALL THE STUDIO / THE STUDIO on the left, 5-field underline form on the right).
+
+- Checkpoint tag before change: `checkpoint/v22-pre-contact-editorial`.
+- `ContactPage.tsx` rewritten: compact header (no photo hero — the form must be reachable without scrolling) → details | form (`minmax(0,4fr)_minmax(0,8fr)`, form first below `lg`) → map strip (same Google `cid` embed, grayscale) → FAQ. Details/hours/WhatsApp from `useSiteSettings`; estimator + style-quiz links kept with their analytics events.
+- New `components/contact/ContactForm.tsx` replaces the 630-line `shared/CTAContact.tsx`: single page, underline floating-label fields, 8 fields unchanged (firstName, lastName, email, phone, projectType, projectBudget, location, message). **Unchanged behaviour:** `useLeadValidation` rules, `leadService.submitLead` payload (`lead_source: website_contact`, `source: Contact-Form`, `form_data`), toast copy, `?interest=` prefill, `contact_form_started` / `contact_form_submitted` / `cta_clicked` / `estimate_path_selected` / `discovery_path_selected` events, focus-first-invalid, `#contact-form-section` anchor.
+- `ContactFAQ.tsx` rewritten as hairline accordion (`data/contactFAQ.json` unchanged, aria wiring kept). Removed `InteractiveMap.tsx`, `SocialBar.tsx`, `ShaderBackground` usage on this page. `ShaderBackground.tsx` itself is now unused but left in place.
+- Grid fix applied across the pass: `grid-cols-12` + large gaps overflowed the viewport (page rendered 1456px wide at 1440). `Split`, timeline, FAQ and contact grids now use two explicit `minmax(0,Nfr)` tracks.
+- Verified: tsc, eslint; Playwright: empty submit → 8 validation errors, focus on first invalid field, live email error, no lead POST (only the `contact_form_started` analytics event); full-page captures at 1440 (3624px) and 390.
+
+## Portfolio page editorial overhaul — 2026-09-22 (page 3 of the inner-page pass)
+
+Reference: livingspaceinteriors.in/portfolio (no hero copy at all — straight into a 3-col `gap-12` grid of image + 24px H3 + tracked category · client + "VIEW PROJECT").
+
+- Checkpoint tag before change: `checkpoint/v22-pre-portfolio-editorial`.
+- `PortfolioPage.tsx` reduced from a 9-section narrative hub to: compact header → `ProjectArchive` → `ClientPerspective`. Page went 6046px → 3217px at 1440.
+- `ProjectArchive.tsx`: bento grid (6 alternating span patterns, 240–650px tiles) → even `sm:2 / lg:3` grid, `gap-x-8 gap-y-16`. Filters are now a hairline row with an animated `layoutId` underline; on mobile they were wrapping and the underline cut through the second line, so the row is a single horizontally scrollable line (count hidden below `sm`). `?category=` linkability and the `api.getProjects` query are unchanged.
+- `ProjectArchiveCard.tsx`: direction-aware hover overlay + card chrome → image, display title, tracked `category · location`, "View project" underline link. 154 → 63 lines.
+- `ClientPerspective.tsx`: word-stagger quote in a 60vh block → display-scale pull quote with figcaption.
+- Removed (orphaned by this change): `HubHero`, `Philosophy`, `FeaturedProjectStory`, `TrustLayer`, `DesignPerspective`, `DesignSignatures`, `PortfolioFinalCTA`. The page's own closing CTA was dropped too — `getFooterCopy("/portfolio")` already renders "Seen the work? Now shape yours." so the two were duplicating verbatim.
+- **Pre-existing dead code found, not touched:** `portfolio/{CursorGlow,GrainOverlay,MeshGradientBg,HubLightExperience,SpaceNavigator,StyleSelector,ProjectGrid,FeaturedJourneys,BehindTheWork,HowWeWork,InspirationGallery,TrustSection,HubFinalCTA}.tsx` were already unreferenced before this pass; `MagneticLink.tsx` is now orphaned (its only consumer was HubHero).
+- **Layout fix applied pass-wide:** the global `FixedSocialBar` (48px, `left-0`, vertically centred) sat exactly on the content edge — editorial `Container` padding went `xl:px-12` → `lg:px-16 xl:px-20`, so content starts at 80px and clears it at 1280/1440.
+- Verified: tsc, eslint; Playwright — 5 projects render, "Commercial" filter → 1 project + `?category=Commercial` in the URL, project links resolve (`/portfolio/executive-workspace`), images load; captures at 1440 and 390.
+
+## Gallery page editorial overhaul — 2026-09-22 (page 4 of the inner-page pass)
+
+Reference: livingspaceinteriors.in/gallery (filter row → grouped by category, each group = 36px H2 + "N WORKS" count + masonry with small tracked captions).
+
+- Checkpoint tag before change: `checkpoint/v22-pre-gallery-editorial`.
+- `GalleryPage.tsx` rewritten: compact header → sticky hairline filter row (counts kept) → **grouped masonry**. With "All" active the archive groups by category (heading + count per group); a specific category renders one masonry. Previously the page showed a 95vh parallax hero plus a *one-image-at-a-time stacked slider* — 29 images behind arrow clicks; all 29 are now visible.
+- New `components/gallery/GalleryMasonry.tsx`: CSS-column masonry, images at natural aspect ratio, `TITLE · LOCATION` caption, click → lightbox. Column count adapts to group size (1 / 2 / 3, with 4 items balancing to 2×2) because `column-fill: balance` otherwise left an empty third column on small groups.
+- **Unchanged behaviour:** `useGallery` / `useGalleryCategories` queries, `?category=` linkability, `?board=` shared-board import + toast + param cleanup, `gallery_saved` localStorage and the "Saved" filter, `GalleryLightbox` and its prev/next/index wiring, all three `useAttentionTelemetry` slots (`hero-image` now on the page header, `category-nav`, `project-grid`).
+- Removed `GalleryStackedSlider.tsx`. Page-level CTA dropped — `getFooterCopy("/gallery")` already closes the page.
+- Verified: tsc, eslint; Playwright — 6 category groups, 29 tiles, per-group counts match the filter counts, filter → 4 tiles + `?category=Modular+Kitchen`, and the lightbox opens on the *clicked* image for tiles 0, 5 and 28 (last group), confirming the grouped→flat index mapping.
+
+## Services page editorial overhaul — 2026-09-22 (page 5 of the inner-page pass)
+
+No reference equivalent (their services live as a home-page chapter), so the editorial section system was applied directly.
+
+- Checkpoint tag before change: `checkpoint/v22-pre-services-editorial`.
+- `ServicesPage.tsx`: 16 sections → hero → three domains → what's included → investment tiers → FAQ. 12,000px → 7,687px at 1440.
+- The three domains previously had **three different card treatments** (4:5 photo cards / `gap-px` icon grid / icon cards). New `components/services/ServiceDomain.tsx` gives all three one treatment: statement + even `sm:2 / lg:3` grid of 4:3 image, title, description, "View service". Anchor ids `#residential` / `#commercial` / `#specialized` preserved for `?category=` deep links.
+- `ServicesDeliverables` (11 icon tiles → numbered two-column list), `ServicesInvestmentTiers` (3 bordered/ringed cards → plain columns, gold rule on "Signature"), `ServicesFAQ` (bespoke accordion → shared `FaqAccordion`) rewritten. Copy and data unchanged in all three.
+- New shared `FaqAccordion` in `components/editorial`; `ContactFAQ` now uses it too, so the two accordions can't drift.
+- Removed: `ServicesMarquee`, `ServiceArchetypes`, `ServicesTransformations`, `ServicesEngines` (588 lines), `ServicesWhyUs`, `ServicesProcess`, `ServicesCTA`, `ProcessTeaser`, `ServicesFinalCTA`. `ExpertiseChapter` is no longer imported here but kept — the home page uses it. `OurApproach` untouched (used by `/our-process`).
+- Page-level closing CTA dropped: it rendered "Choose your service, then build the plan." directly above the footer's `getFooterCopy("/services")`, which is the same sentence. (Same duplication previously fixed on Portfolio and Gallery.)
+- **Content gap, not code:** "Wardrobe" and "Garden & Sitting Area" have no `hero_image`, so their frames render empty. Needs a CMS upload.
+- Verified: tsc, eslint; Playwright — 3+3+6 services render, `/services/residential/living-room` resolves, images load, FAQ panel opens, `?category=commercial` scrolls, zero console errors.
+
+## Process page editorial overhaul — 2026-09-22 (page 6 of the inner-page pass)
+
+- Checkpoint tag before change: `checkpoint/v22-pre-process-editorial`.
+- The page rendered the **same five `design_process_steps` records three different ways**: the pinned `ProcessChapter`, the tabbed `StageDetailPanel`, and `TimelineGantt`. Now once: new `components/process/ProcessStages.tsx` gives each stage a full section — `Stage NN` eyebrow, title with subtitle on its own gold line, summary + detail, timeline/budget, photograph, and the three `We do` / `You do` / `You receive` lists (all CMS fields, none dropped). Media alternates sides.
+- `TrustStrip` → shared `StatStrip` (still `api.getProcessMetrics`). `ProcessFAQ` → shared `FaqAccordion`, **FAQPage JSON-LD schema preserved**.
+- Removed: `StageDetailPanel`, `TimelineGantt`, `ProcessCaseStudy`, `ProcessCTA`, `services/OurApproach`. `home/ProcessChapter` kept (home page uses it).
+- Hero CTA now links `/contact-us` directly instead of `/contact` (which was hitting the redirect route). Page-level CTA dropped — footer carries it.
+- Verified: tsc, eslint; Playwright — 5 stages with correct CMS titles, 4 metrics, 6 FAQs, `FAQPage` schema present, `#process` anchor jump works, zero console errors. 7,860px desktop.
+
+## Blog index editorial overhaul — 2026-09-22 (page 7 of the inner-page pass)
+
+- Checkpoint tag before change: `checkpoint/v22-pre-blog-editorial`.
+- `BlogPage.tsx`: header → lead story → one hairline filter band → 3-col article grid → newsletter. 6,000px → 4,271px at 1440.
+- `BlogHero` (pill-badge featured card) → full-width lead story: 21:9 image, display title, excerpt + meta + "Read article". `BlogFilterBar` (crimson pill tabs, separate search/sort rows) → one sticky band: tracked category tabs with animated `layoutId` underline, underline search field, latest/trending toggle. `BlogGrid` (2-col rounded cards with icon meta) → even `sm:2 / lg:3` grid, 4:3 image, `CATEGORY · N MIN READ · N VIEWS`, display title, excerpt. `BlogNewsletter` (199 lines, SVG-pattern background, badge) → statement + underline email field + gold-fill pill; **`useNewsletter` hook, lead insert, honeypot and 30s throttle untouched**.
+- Removed: `BlogSidebar` (its category list duplicated the filter bar), `BlogTrendingSlider` (duplicated the grid; the latest/trending sort covers it). `useBlogList` untouched — filtering, sorting, pagination and `featuredPost` logic are unchanged.
+- **New `cleanExcerpt` in `blog/_utils/blogUtils.ts`:** several imported posts have scraped WordPress chrome in `excerpt` ("Interior Design  August 22, 2024  Interior Design  …") instead of prose, and it was rendering verbatim on every card. The helper strips the repeated category label and leading date and returns "" when nothing meaningful remains, so those cards render without an excerpt. **The real fix is cleaning the field in the CMS.**
+- **Pre-existing content mismatch, not touched:** every post's `category` is "Interior Design", but `CATEGORIES` in blogUtils lists 6 specific tabs (Modular Kitchens, Luxury Residential, …). All of them therefore filter to zero results. Either retag the posts or derive the tab list from the data.
+- Note: a stale Vite HMR transform produced a phantom "does not provide an export named 'BlogNewsletter'" error mid-session; restarting the dev server cleared it. Not a code fault.
+- Verified: tsc, eslint; Playwright — lead story renders, 5 cards, search/category/sort all respond, article links resolve (`/blog/<slug>`), newsletter field present and no lead POST fired during the test, zero console errors.
+
+## Estimator + Discovery: shared workspace shell — 2026-09-22 (page 8 of the inner-page pass)
+
+User intent captured: **the estimator and the style quiz are one connected experience split into two doors on purpose** — someone who only wants a number must not be forced through the quiz — and they are a **core attraction of the business**, not a side utility. Design follows that: both doors at full weight, recommended one marked rather than the other hidden, and each door shows its own product.
+
+- Decisions taken with the user: keep the light "workspace" room (focused, form-heavy, reads better on paper) rather than moving the tools to the dark site canvas; scope = landings + shared shell only, quiz/calculator step UI untouched.
+- **The site runs under `.dark`, so `data-environment="workspace"` resolves to dark surfaces** — that is why both tools hardcoded `#faf8f5`. New `addons/_shared/WorkspaceShell.tsx` declares that light palette once as scoped CSS vars (`--ws-canvas/paper/ink/muted/faint/line/bronze/gold/deep`) plus shared type and control classes, so both doors are literally the same styles instead of two sets of hex values.
+- New `addons/_shared/EntryChoice.tsx`: the two doors as a flagship pair — index, eyebrow, display title, description, **"You receive" list**, duration and action per door; `featured` marks the recommendation.
+- `PriceEstimator.tsx` rewritten on the shell: statement → blueprint-status line (`ECOSYSTEM_COPY.estimatorWith/WithoutBlueprint`) → doors (01 Estimate / 02 Discovery) → **new `SampleEstimatePreview`** (worked example: headline range, room-by-room breakdown, finish-level comparison, clearly labelled illustrative) → consultation link. Removed MagicRings, SoftAurora, FallingText, Magnet, the urgency badge and the bespoke logo header.
+- `DiscoveryLanding.tsx` main component rewritten on the same shell: statement → proof (`CountUp` 1,420+) → doors (01 Full discovery / 02 Quick quiz) → existing `UnifiedDashboard` as the "what the blueprint contains" showcase → cross-link to the estimator. `UnifiedDashboard` and `IntentOverlay` kept as-is; `onStart("deep"|"quick")`, the intent overlay flow and the EN/Hinglish toggle (now in the shell's header slot) all preserved.
+- Cross-links are now honest in both directions and both use `ECOSYSTEM_ROUTES`/`ECOSYSTEM_COPY`.
+- Verified: tsc, eslint; Playwright — both landings render on `rgb(250,248,245)`, both door pairs present, estimator flow starts, quick quiz starts, cross-links and language toggle present, zero page errors.
+- Follow-up worth doing (not done): surface these two as core attractions *on the site* — home page, nav and footer currently treat them as ordinary links.
+
+## Tools surfaced as a core attraction — 2026-09-22
+
+User intent: the estimator and style quiz are **a core attraction of the business**, so the site itself must say so rather than treating them as ordinary links.
+
+- New `components/home/ToolsChapter.tsx` — the dark-canvas twin of the tools' own `EntryChoice`: "Two ways in. One system." + both tools at full weight (index, eyebrow, display title, description, **You receive** list, duration, CTA), discovery marked "Start here". Same story and same copy shape as the landings, so site and tools agree.
+- `Index.tsx`: the single "Take the Style Quiz" CTA panel (one link in a glass panel) was replaced by `<ToolsChapter />`. **Only that block changed** — another session has uncommitted work in `Index.tsx`/`Hero.tsx`/`HomeFAQ.tsx`, so the edit was kept contained. The `primary-cta` attention-telemetry ref was preserved by moving it onto the wrapper.
+- `Navbar.tsx`: desktop now shows "Style Quiz" as a tracked hairline link beside the bordered "Get Estimate" CTA (quiz link appears at `xl` and up to protect the 5-link row at 1280). Mobile overlay footer now offers both — "Get Estimate" bordered, "Take the Style Quiz" beneath it.
+- Verified: tsc, eslint; Playwright at 1600×1000 — both nav links present, "Two ways in" section renders with both tool titles and both CTAs, zero page errors.
+
+## Slug / detail pages — audit + typography fix + ProjectPage — 2026-09-22
+
+- Checkpoint tag before this pass: `checkpoint/v23-pre-slug-pages`.
+
+### Site-wide typography fix (one line, ~307 call sites)
+Audit of all nine slug/secondary pages showed **six rendered their `h1` in `ui-serif` (Georgia), not Cormorant** — they use Tailwind's `font-serif`, which was never mapped to `--font-display`. Only the Locations pages (which use `font-display`) were correct. Added `serif: ["var(--font-display)", …]` to `tailwind.config.ts` alongside `display`. Re-audit confirms all eight content pages now render Cormorant Garamond. This is the Georgia bug first noticed during the navbar work.
+
+### Audit baseline (1440px, before changes)
+project 13,736px · blogdetail 4,386 · servicecat 2,755 · servicedetail 4,602 · locations 7,026 · location 2,913 · privacy 4,077 · terms 4,839 · notfound 900. No horizontal overflow anywhere. `notfound` renders without Navbar/Footer and in Outfit 128px — inconsistent with every other page.
+
+### ProjectPage (`/portfolio/:slug`)
+- **13,736px → 5,492px with no content lost** — every CMS field still renders (brief, approach, materials, gallery by room, testimonial, facts). The reduction is from section design, not from dropping content.
+- Rebuilt on the editorial system: full-bleed cover → 7-fact strip → brief & approach → numbered materials → gallery grouped by room → client pull-quote → prev/next. Each block renders **only when the CMS has that content** (`hasValue` also treats the `"-"` placeholder as empty), which the old page did not do.
+- Removed the entire `components/project/` directory — 22 components, 3,363 lines. **16 were already dead before this pass**; the 6 in use were replaced by the page itself.
+- **Correction to an earlier note in this session:** I wrote that 3 of 5 projects "have no content". That was true of `getProjects()` (the list query returns thin DB rows — `area`/`budget`/`duration` as `"-"`, empty brief/materials/gallery). It is **not** true of the detail page: `getProjectBySlug` falls through to `staticProjects` when its `.or(...).maybeSingle()` query returns nothing, and that static data is complete. So the grid and the detail page currently disagree about the same project — the DB rows are thin, the static fallback is rich. Worth reconciling in the CMS.
+- Verified: tsc, eslint; Playwright — full data project, thin-DB project and a nonexistent slug all render correctly (the last gives a proper "Project not found" with a route back), 1440px wide with no overflow, zero page errors.
+
+### Remaining slug / secondary pages — 2026-09-22
+
+All rebuilt on the editorial system; heights at 1440 (before → after):
+
+| Page | Before | After | Note |
+| --- | --- | --- | --- |
+| `/portfolio/:slug` | 13,736 | 5,492 | no content lost |
+| `/blog/:slug` | 4,386 | 4,604 | prose column widened, card chrome removed |
+| `/services/:category` | 2,755 | 2,064 | now uses the same `ServiceDomain` as /services |
+| `/services/:category/:service` | 4,602 | 6,375 | grew: all CMS blocks now render (prose, features, process, gallery, FAQ, related) instead of being compressed into cards |
+| `/privacy` | 4,077 | 3,826 | 7 cards → hairline sections |
+| `/terms` | 4,839 | 4,299 | 11 cards → numbered hairline sections |
+| 404 | 900 | 1,610 | **now has Navbar + Footer** and routes out |
+
+- `BlogDetailPage`: glass cards + pill badge → masthead, full-width cover, 68ch prose column with the contents rail and share links beside it, prev/next, related grid. `useBlogPost` untouched (data, TOC, tracking). `DOMPurify.sanitize` retained on the CMS HTML. Share list corrected to the three platforms `handleShare` actually implements (LinkedIn / WhatsApp / copy) — it previously offered Twitter, which fell through to the copy branch.
+- `ServiceCategoryPage`: bespoke hero + bespoke card list → shared `ServiceDomain`, so a category page and the same domain on `/services` are now identical.
+- `ServiceDetailPage`: rebuilt with `FaqAccordion`; **FAQPage JSON-LD and the `Service` SchemaMarkup preserved**. Page-level closing CTA dropped (footer's page-aware CTA already covers `/services/*`).
+- `PrivacyPage` / `TermsPage`: only the shared local `Section` wrapper and the `h1` were restyled — **no legal copy was touched**. Cards → hairline sections; Terms keeps its section numbers and highlight variant.
+- `NotFound`: was a glass card on a bare page with no Navbar/Footer and a 128px Outfit "404". Now a normal site page — eyebrow, display heading, the attempted path, "Back to home" + contact link, and four suggested routes.
+- Verified: tsc, eslint, full re-audit — all nine pages render Cormorant, 1440px wide with no overflow, zero page errors; rounded-card counts now 0 on project/servicecat/servicedetail/privacy/terms.
+
+### Locations pages + a site-wide structured-data fix — 2026-09-22
+
+- `/locations` (7,026 → 7,110px): statement + shared `StatStrip` (152 cities / 29 states / 13 metros / 1,200+ projects) → cities grouped by state as hairline rows → `Closing`. The red/amber/emerald tier pills became a quiet tracked label with one legend line explaining that classification affects rates. All 152 city links and the `ItemList` JSON-LD preserved.
+- `/locations/:city` (2,913 → 3,580px): statement → per-city `StatStrip` → `Split` (focus + description beside the `location_hero_bg` media slot) → local context as a definition list → `Closing`. Known-city data and the generic fallback both render; **the fallback still emits `noindex, follow`** (verified on `/locations/pune`).
+- Bug caught in verification: my edit left a duplicate `motion` import in `LocationPage.tsx`, which crashed the route to the error boundary. `tsc` did not flag it — only the browser did. Fixed and re-verified.
+
+### Pre-existing bug found: no structured data was being emitted anywhere
+`SchemaMarkup.tsx` rendered `<script type="application/ld+json" dangerouslySetInnerHTML={...} />` **inside `<Helmet>`**. react-helmet-async ignores `dangerouslySetInnerHTML` on children and only renders script content passed as a string child, so **every `SchemaMarkup` block across the whole site silently emitted nothing**. Confirmed pre-existing: `git diff checkpoint/v22-pre-about-editorial -- SchemaMarkup.tsx` is empty, and `/about-us` (untouched schema) showed zero JSON-LD.
+
+Fixed to `<script type="application/ld+json">{safeJsonLd}</script>`. Verified live: `/about-us` → BreadcrumbList + Organization + Person, `/contact-us` → BreadcrumbList + InteriorDesigner, `/locations/jamshedpur` → LocalBusiness, `/services/residential/living-room` → FAQPage + Service, `/our-process` → FAQPage.
+
+Also added schema the detail pages never had (confirmed absent in `checkpoint/v23-pre-slug-pages`, so nothing was dropped): `Article` + `BreadcrumbList` on `/blog/:slug`, `BreadcrumbList` on `/portfolio/:slug`.
+
+### Locations narrowed to a real service area — 2026-09-22
+
+User direction: the locations listing should show Jamshedpur and nearby cities with their states, not all of India.
+
+- New `src/config/service-area.ts` — the editorial answer to "where do you work?", in three rings out from Jamshedpur: **Jamshedpur** (home, + its 10 neighbourhoods), **Across Jharkhand** (Ranchi, Dhanbad, Bokaro, Deoghar), **Neighbouring states** (Kolkata, Durgapur, Asansol, Rourkela, Bhubaneswar, Patna). Each ring carries a line describing what delivery actually looks like there (resident team / half-day drive / milestone visits).
+- **`LOCATION_DATA` in the estimator's pricing config is deliberately untouched** — it still holds all 152 cities because it drives tier-based pricing. Only the *listing* narrowed. Every other city route still resolves via the generic fallback with `noindex, follow`, so no inbound link breaks.
+- `/locations`: **7,110px → 3,342px**, 152 city links → 21, stat strip now leads with "Jamshedpur / home city". The `ItemList` JSON-LD now lists the 11 served cities instead of 152, so the structured data matches the page.
+- `cityRegions` in `LocationPage` extended from 5 entries to 21 so every listed city and neighbourhood emits the correct `addressRegion` in its `LocalBusiness` schema — verified: Dhanbad/Bistupur → Jharkhand, Kolkata → West Bengal.
+- Verified: tsc, eslint; Playwright — 3 bands render, 21 links, featured cities (Jamshedpur, Kolkata) are indexable while fallback cities (Dhanbad, Bistupur) correctly keep `noindex`.
+- **Content gap worth closing:** only 5 of the 11 listed cities have bespoke copy (Jamshedpur, Ranchi, Kolkata, Bhubaneswar, Patna). Dhanbad, Bokaro, Deoghar, Durgapur, Asansol, Rourkela and all 10 Jamshedpur neighbourhoods render generic fallback copy and are `noindex` — they are linked from the footer and this page but cannot rank until they get real content.
+
+## Locations consolidated to one page + area content written — 2026-09-22
+
+User direction: write the missing city/neighbourhood content, make the page compact, and drop per-location pages in favour of a single page.
+
+**Recommendation given and taken:** consolidate fully. Reasoning: (1) Jamshedpur's neighbourhoods are districts of one city — separate near-duplicate pages for each is the doorway-page pattern Google penalises, which is why all of them already carried `noindex`; (2) separate city pages only earn their keep with distinct local projects/photography/testimonials, which none of the 20 had; (3) **`generate-sitemap.js` never listed any `/locations/*` URL**, so there was no ranking equity to lose.
+
+- `config/service-area.ts` rewritten as the single source of truth: 3 bands, **21 areas, ~1,400 words of newly written content**. Each area carries `context`, a `focus` line, and 2–4 sentences on what interior work is actually like there (housing stock, access, humidity, township layouts, remote-approval patterns). Content is grounded in real geography and delivery practice — **no invented project counts, testimonials or client names**.
+- `/locations` is now the whole thing: statement → stat strip (leads with "Jamshedpur / home city") → "Jump to" index of all 21 → two-column area blocks grouped by band → closing. 21 anchors, `scroll-mt-28` so the fixed header doesn't cover the target.
+- `LocationPage.tsx` is now a redirect only: `/locations/:slug` → `/locations#<slug>`, unknown slugs → `/locations`. Verified: `/bistupur` → `#bistupur`, `/ranchi` → `#ranchi`, `/jamshedpur` → `#jamshedpur`, `/nowhere-city` → `/locations`. No link breaks.
+- Added a Jamshedpur overview block (`#jamshedpur`) — it is the site's most valuable local query and previously had no anchor of its own.
+- `Footer.tsx` now derives its "Serving" row from `SERVICE_BANDS` and links to anchors instead of the redirecting routes; the hardcoded `SERVICE_AREAS` array is gone.
+- Reversible by design: give an area `hasOwnPage: true` and add a route once it has real content — nothing else changes.
+- Verified: tsc, eslint; Playwright — 21 areas, 21 jump links, 1,412 words, 1440px wide, zero page errors.
+- **Noticed, not fixed:** `scripts/generate-sitemap.js` lists only 5 routes and two of them are wrong — `/contact` (redirect, canonical is `/contact-us`) and `/estimator` (no such route; it is `/estimate`). Portfolio, blog, services and locations are all absent.

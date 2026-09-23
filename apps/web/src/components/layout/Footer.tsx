@@ -176,8 +176,19 @@ export default function Footer() {
   });
 
   return (
-    <footer className="bg-[#0A0A0A] text-white pt-20 pb-24 md:pt-32 md:pb-16">
-      <div className="mx-auto w-full max-w-[1440px] px-6 md:px-10 xl:px-12">
+    <footer className="relative bg-[#0A0A0A] text-white pt-20 pb-24 md:pt-32 md:pb-16 overflow-hidden">
+      {/* Subtle architectural grid pattern - connects to interior design theme */}
+      <div className="absolute inset-0 -z-10 opacity-[0.02]" style={{
+        backgroundImage: `
+          linear-gradient(90deg, rgba(201,168,92,0.3) 1px, transparent 1px),
+          linear-gradient(rgba(201,168,92,0.3) 1px, transparent 1px)
+        `,
+        backgroundSize: '80px 80px',
+      }} />
+      {/* Subtle gradient for connection - fades from transparent to dark */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#0A0A0A]/0 via-[#0A0A0A]/20 to-[#0A0A0A]" />
+
+      <div className="mx-auto w-full max-w-[1440px] px-6 md:px-10 xl:px-12 relative z-10">
         {/* ── Statement + columns ─────────────────────────────── */}
         <div className="flex flex-col gap-16 md:flex-row md:justify-between md:gap-20 md:items-start mb-20 md:mb-28">
           {/* Statement */}
@@ -215,11 +226,30 @@ export default function Footer() {
           </motion.div>
 
           {/* Columns */}
-          <div className="grid w-full grid-cols-2 gap-x-8 gap-y-12 md:w-[58%] md:grid-cols-3 md:gap-x-8 md:gap-y-0 lg:w-2/3">
+          <div className="grid w-full grid-cols-2 gap-x-8 gap-y-12 md:w-[58%] md:grid-cols-4 md:gap-x-6 md:gap-y-0 lg:w-2/3">
+            {/* Explore Part 1 */}
             <motion.div {...reveal(0.04)}>
               <h4 className={columnHeading}>Explore</h4>
               <ul className="space-y-2">
-                {navLinks.filter((l) => l.href !== "/").map((link) => (
+                {navLinks.filter((l) => l.href !== "/" && l.href !== "/about-us" && l.href !== "/our-process" && l.href !== "/blog").map((link) => (
+                  <li key={link.href}>
+                    <RouterLink
+                      to={link.href}
+                      onClick={scrollTop}
+                      className={`${columnLink} hover:text-white hover:translate-x-1 md:hover:translate-x-0.5`}
+                    >
+                      {link.name}
+                    </RouterLink>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+
+            {/* Explore Part 2 */}
+            <motion.div {...reveal(0.06)}>
+              <h4 className={columnHeading}>&nbsp;</h4>
+              <ul className="space-y-2">
+                {navLinks.filter((l) => (l.href === "/about-us" || l.href === "/our-process" || l.href === "/blog")).map((link) => (
                   <li key={link.href}>
                     <RouterLink
                       to={link.href}

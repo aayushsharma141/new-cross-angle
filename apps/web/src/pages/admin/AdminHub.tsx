@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAdmin } from "@/context/AdminContext";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/useToast";
 import { useHubStats, formatStorage } from "@/hooks/useHubStats";
@@ -30,6 +31,12 @@ export default function AdminHub() {
     const { setCurrentModule } = useAdmin();
     const location = useLocation();
     const { toast } = useToast();
+    const { role } = useAuth();
+
+    const hasAdminAccess = role === "super_admin" || role === "admin";
+    const hasCrmAccess = hasAdminAccess || role === "viewer";
+    const hasCmsAccess = hasAdminAccess || role === "editor";
+    const hasSuperAccess = role === "super_admin";
 
     // Show access-denied toast when RoleGuard redirects here
     useEffect(() => {
@@ -60,6 +67,7 @@ export default function AdminHub() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
                     
                     {/* CRM Overview (lg:col-span-4) */}
+                    {hasCrmAccess && (
                     <Link
                         to="/admin/crm/leads"
                         onClick={() => setCurrentModule("CRM")}
@@ -133,7 +141,10 @@ export default function AdminHub() {
                         </SpotlightCard>
                     </Link>
 
+                    )}
+
                     {/* Business Health Card (lg:col-span-2) */}
+                    {hasAdminAccess && (
                     <Link
                         to="/admin/dashboard"
                         onClick={() => setCurrentModule("Intelligence Hub")}
@@ -196,7 +207,10 @@ export default function AdminHub() {
                         </SpotlightCard>
                     </Link>
 
+                    )}
+
                     {/* Discovery Engine (lg:col-span-2) */}
+                    {hasAdminAccess && (
                     <Link
                         to="/admin/discovery/quiz-analytics"
                         onClick={() => setCurrentModule("Discovery")}
@@ -243,7 +257,10 @@ export default function AdminHub() {
                         </SpotlightCard>
                     </Link>
 
+                    )}
+
                     {/* Estimator Engine (lg:col-span-2) */}
+                    {hasAdminAccess && (
                     <Link
                         to="/admin/estimator/estimate-leads"
                         onClick={() => setCurrentModule("Estimator")}
@@ -274,7 +291,10 @@ export default function AdminHub() {
                         </SpotlightCard>
                     </Link>
 
+                    )}
+
                     {/* Content Management (lg:col-span-2) */}
+                    {hasCmsAccess && (
                     <Link
                         to="/admin/cms/portfolio"
                         onClick={() => setCurrentModule("CMS")}
@@ -313,7 +333,10 @@ export default function AdminHub() {
                         </SpotlightCard>
                     </Link>
 
+                    )}
+
                     {/* Blog Analytics (lg:col-span-2) */}
+                    {hasAdminAccess && (
                     <Link
                         to="/admin/blog/overview"
                         onClick={() => setCurrentModule("Blog")}
@@ -344,7 +367,10 @@ export default function AdminHub() {
                         </SpotlightCard>
                     </Link>
 
+                    )}
+
                     {/* User Access (lg:col-span-2) */}
+                    {hasAdminAccess && (
                     <Link
                         to="/admin/user-access/users"
                         onClick={() => setCurrentModule("User Access")}
@@ -380,7 +406,10 @@ export default function AdminHub() {
                         </SpotlightCard>
                     </Link>
 
+                    )}
+
                     {/* System Settings (lg:col-span-2) */}
+                    {hasSuperAccess && (
                     <Link
                         to="/admin/system/settings"
                         onClick={() => setCurrentModule("System")}
@@ -417,7 +446,10 @@ export default function AdminHub() {
                         </SpotlightCard>
                     </Link>
 
+                    )}
+
                     {/* ── Smart AI Insights Panel (lg:col-span-4) ── */}
+                    {hasAdminAccess && (
                     <div className="lg:col-span-4 rounded-2xl border border-[hsl(var(--admin-primary))]/10 bg-[hsl(var(--admin-card))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
                         <div className="flex items-center gap-2 mb-4">
                             <Zap className="w-4 h-4 text-[hsl(var(--admin-primary))] animate-pulse" />
@@ -472,7 +504,10 @@ export default function AdminHub() {
                         </div>
                     </div>
 
+                    )}
+
                     {/* ── Live Activity Stream (lg:col-span-2) — moved from right sidebar ── */}
+                    {hasAdminAccess && (
                     <div className="lg:col-span-2 rounded-2xl border border-admin-border/50 bg-[hsl(var(--admin-card))]/60 backdrop-blur-xl p-5">
                         <div className="flex items-center justify-between pb-3.5 border-b border-admin-border/50 mb-4">
                             <span className="text-xs font-bold uppercase tracking-widest text-[hsl(var(--admin-muted))]">
@@ -517,6 +552,7 @@ export default function AdminHub() {
                             ))}
                         </div>
                     </div>
+                    )}
 
                 </div>
 

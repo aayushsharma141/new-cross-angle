@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "bounce-easing",
+        "value": "animate-bounce",
+        "createdAt": "2026-09-11T02:40:44.102Z",
+        "reason": "Claude: src/index.css L1041 is inside a prefers-reduced-motion block that sets animation:none on .animate-pulse/.animate-spin/.animate-bounce. The rule matched the class name in a disabling context - this is the accessibility guard, not a bounce curve."
+      }
+    ]
+  }
+}

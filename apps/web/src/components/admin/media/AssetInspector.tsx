@@ -22,12 +22,21 @@ interface AssetInspectorProps {
 }
 
 export function AssetInspector({ selectedAssetId, onCollectionFilter, activeCollectionId }: AssetInspectorProps) {
-    const { data: assets } = useQuery({
-        queryKey: ["dam", "assets"],
-        queryFn: () => AssetService.getAssets(),
+    // This hook must stay ABOVE the empty-state guard below.
+    //
+    // AssetWorkspaceLayout renders AssetInspector in two branches of the same
+    // ternary at the same tree position, so React reuses the fiber across
+    // select -> deselect instead of remounting. With the guard above the hook,
+    // the hook count swung 1 -> 0 on that transition: React does not throw, but
+    // it commits no effect list for the fiber, so the previous render's cleanup
+    // never runs and this query's subscription is never torn down. React also
+    // logged "Internal React error: Expected static flag was missing" against
+    // this component. `enabled` already handles the null case correctly.
+    const { data: asset, isLoading } = useQuery({
+        queryKey: ["dam", "asset", selectedAssetId],
+        queryFn: () => (selectedAssetId ? AssetService.getAssetById(selectedAssetId) : null),
+        enabled: !!selectedAssetId,
     });
-
-    const asset = assets?.find(a => a.id === selectedAssetId);
 
     if (!selectedAssetId) {
         return (
@@ -39,10 +48,20 @@ export function AssetInspector({ selectedAssetId, onCollectionFilter, activeColl
         );
     }
 
-    if (!asset) {
+    if (isLoading) {
         return (
             <div className="h-full flex items-center justify-center bg-background">
                 <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            </div>
+        );
+    }
+
+    if (!asset) {
+        return (
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground p-8 text-center bg-background">
+                <Info className="w-12 h-12 mb-4 opacity-20" />
+                <h3 className="text-lg font-medium text-foreground mb-1">Asset Not Found</h3>
+                <p className="text-sm">The selected asset could not be loaded or has been deleted.</p>
             </div>
         );
     }
@@ -199,6 +218,7 @@ function AssetVersionPanel({ asset }: { asset: AssetRow }) {
             // The grid, the preview and this panel all read the version list.
             queryClient.invalidateQueries({ queryKey: ["dam", "asset_versions", asset.id] });
             queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+            queryClient.invalidateQueries({ queryKey: ["dam", "asset", asset.id] });
             toast({
                 title: `Replaced with v${version.version_number}`,
                 description: "Every entity referencing this asset now serves the new file.",
@@ -338,6 +358,7 @@ function AssetCollectionPanel({ asset, onCollectionFilter, activeCollectionId }:
         onSuccess: () => {
             toast({ title: "Collection updated" });
             void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "asset", asset.id] });
             void queryClient.invalidateQueries({ queryKey: ["dam", "collections"] });
         },
         onError: (err: Error) => {
@@ -460,7 +481,20 @@ function AssetActionsPanel({ asset }: { asset: AssetRow }) {
         onSuccess: () => {
             toast({ title: "Asset Archived" });
             void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "asset", asset.id] });
         },
+        onError: (err: Error) => {
+            if (err.name === "AssetInUseError") {
+                // err.message already names the action and lists where it is used.
+                toast({
+                    title: "Asset in use",
+                    description: err.message,
+                    variant: "destructive"
+                });
+            } else {
+                toast({ title: "Error", description: err.message, variant: "destructive" });
+            }
+        }
     });
 
     const restoreMutation = useMutation({
@@ -468,6 +502,7 @@ function AssetActionsPanel({ asset }: { asset: AssetRow }) {
         onSuccess: () => {
             toast({ title: "Asset Restored" });
             void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "asset", asset.id] });
         },
     });
 
@@ -476,14 +511,15 @@ function AssetActionsPanel({ asset }: { asset: AssetRow }) {
         onSuccess: () => {
             toast({ title: "Asset Deleted" });
             void queryClient.invalidateQueries({ queryKey: ["dam", "assets"] });
+            void queryClient.invalidateQueries({ queryKey: ["dam", "asset", asset.id] });
             setDeleteDialogOpen(false);
         },
         onError: (err: Error) => {
             if (err.name === "AssetInUseError") {
-                toast({ 
-                    title: "Asset in Use", 
-                    description: err.message, 
-                    variant: "destructive" 
+                toast({
+                    title: "Asset in use",
+                    description: err.message,
+                    variant: "destructive"
                 });
             } else {
                 toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -493,6 +529,7 @@ function AssetActionsPanel({ asset }: { asset: AssetRow }) {
     });
 
     const isArchived = asset.status === "archived";
+    const hasUsages = Boolean(usages && usages.length > 0);
 
     return (
         <div className="space-y-4">
@@ -512,9 +549,10 @@ function AssetActionsPanel({ asset }: { asset: AssetRow }) {
                     <Button 
                         variant="outline"
                         size="sm" 
-                        className="flex-1 text-amber-600 hover:text-amber-700 hover:bg-amber-50 focus-visible:ring-1 focus-visible:ring-amber-500 focus-visible:outline-none" 
+                        className="flex-1 text-amber-600 hover:text-amber-700 hover:bg-amber-50 focus-visible:ring-1 focus-visible:ring-amber-500 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed" 
                         onClick={() => archiveMutation.mutate()}
-                        disabled={archiveMutation.isPending}
+                        disabled={archiveMutation.isPending || usagesLoading || hasUsages}
+                        title={hasUsages ? `Cannot archive: Asset is currently linked to ${usages!.length} entity/entities` : "Archive asset"}
                         aria-label="Archive asset"
                     >
                         {archiveMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Archive className="w-4 h-4 mr-2" />}
