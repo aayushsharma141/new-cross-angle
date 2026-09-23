@@ -289,3 +289,35 @@ export const DEFAULT_PRICING_CONFIG: PricingConfig = {
         premium_lighting: 1200000, // ₹12L (was ₹75k) - "Curated Fixtures"
     },
 };
+
+/**
+ * Deep-merge a (possibly partial) admin pricing row over the defaults. A shallow
+ * spread would replace whole nested groups and leave missing rates undefined,
+ * turning every total into NaN. Mirrors mergeConfig in supabase/functions/submit-estimate.
+ */
+export function mergePricingConfig(base: PricingConfig, override: unknown): PricingConfig {
+    const merge = (b: unknown, o: unknown): unknown => {
+        if (!o || typeof o !== "object" || Array.isArray(o)) return b;
+        const out: Record<string, unknown> = { ...(b as Record<string, unknown>) };
+        for (const [k, v] of Object.entries(o as Record<string, unknown>)) {
+            const bv = (b as Record<string, unknown> | undefined)?.[k];
+            if (v && typeof v === "object" && !Array.isArray(v) && bv && typeof bv === "object" && !Array.isArray(bv)) {
+                out[k] = merge(bv, v);
+            } else if (v !== null && v !== undefined) {
+                out[k] = v;
+            }
+        }
+        return out;
+    };
+    return merge(base, override) as PricingConfig;
+}
+
+/** Add-on ids (calculator form flags) → their price in PricingConfig.addons. */
+export const ADDON_PRICE_KEYS: Record<string, keyof PricingConfig["addons"]> = {
+    modularKitchen: "modular_kitchen",
+    wardrobes: "wardrobe_per_room",
+    falseCeiling: "false_ceiling_sqft",
+    smartHome: "smart_home",
+    customFurniture: "custom_furniture",
+    premiumLighting: "premium_lighting",
+};

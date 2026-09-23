@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
+import { ConfigLoadError } from "./ConfigLoadError";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/primitives/interactive";
 import { Save, Loader2, Plus, X, GripVertical } from "lucide-react";
@@ -201,7 +202,7 @@ function SortableServiceItem({
 }
 
 export function ServicesEditor() {
-  const { data: svcData, isLoading: svcLoading, save: saveSvc, isSaving: svcSaving } = useFlowConfig<ServiceItem[]>("services");
+  const { data: svcData, isLoading: svcLoading, loadFailed: svcFailed, retry: retrySvc, save: saveSvc, isSaving: svcSaving } = useFlowConfig<ServiceItem[]>("services");
 
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [svcDirty, setSvcDirty] = useState(false);
@@ -249,6 +250,7 @@ export function ServicesEditor() {
   };
 
   if (svcLoading) return <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-[hsl(var(--admin-primary))]" /></div>;
+  if (svcFailed) return <ConfigLoadError what="services" onRetry={retrySvc} />;
 
   return (
     <div className="space-y-6">

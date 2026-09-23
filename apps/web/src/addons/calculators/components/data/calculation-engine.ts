@@ -19,7 +19,9 @@ import { TIERS, SERVICES } from "./pricing-config";
  */
 export function calculateEstimate(data: CalculatorFormData, config: PricingConfig): EstimateResult {
     const a = data.area;
-    const m = TIERS[data.cityTier]?.multiplier ?? config.city_multipliers[data.cityTier] ?? 1.0;
+    // Admin pricing is authoritative (submit-estimate prices from the same row);
+    // the static tables only cover a missing key.
+    const m = config.city_multipliers?.[data.cityTier] ?? TIERS[data.cityTier]?.multiplier ?? 1.0;
 
     let dMin = 0, dMax = 0, sup = 0, exMin = 0, exMax = 0, extraVC = 0;
 
@@ -36,8 +38,7 @@ export function calculateEstimate(data: CalculatorFormData, config: PricingConfi
         sup = config.design.supervision_monthly * (data.projectMonths || 3);
         extraVC = Math.max(0, (data.extraVisits || 5) - config.design.free_visits) * config.design.extra_visit_cost;
     } else if (svc === "C5" && data.executionTier) {
-        const c5 = SERVICES.find(s => s.id === "C5");
-        const tier = c5?.tiers?.[data.executionTier];
+        const tier = config.execution?.[data.executionTier] ?? SERVICES.find(s => s.id === "C5")?.tiers?.[data.executionTier];
         if (tier) {
             exMin = a * tier.min * m;
             exMax = a * tier.max * m;

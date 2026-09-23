@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
+import { ConfigLoadError } from "./ConfigLoadError";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/primitives/interactive";
 import { Save, Plus, Trash2, Pencil, X, Check, GripVertical, Loader2, ImageIcon } from "lucide-react";
@@ -142,7 +143,7 @@ function SortableItem({
 }
 
 export function PropertyTypesEditor() {
-  const { data, isLoading, save, isSaving } = useFlowConfig<PropertyTypeItem[]>("property_types");
+  const { data, isLoading, loadFailed, retry, save, isSaving } = useFlowConfig<PropertyTypeItem[]>("property_types");
   const [items, setItems] = useState<PropertyTypeItem[]>([]);
   const [editId, setEditId] = useState<string | null>(null);
   const [draft, setDraft] = useState<PropertyTypeItem>({ id: "", label: "", icon: "", desc: "", imageId: null });
@@ -196,6 +197,7 @@ export function PropertyTypesEditor() {
   const handleSave = () => save(items, { onSuccess: () => setDirty(false) });
 
   if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-[hsl(var(--admin-primary))]" /></div>;
+  if (loadFailed) return <ConfigLoadError what="property types" onRetry={retry} />;
 
   return (
     <div className="space-y-4">

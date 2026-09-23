@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
+import { ConfigLoadError } from "./ConfigLoadError";
+import { usePricingConfig } from "@/addons/calculators/components/hooks/usePricingConfig";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/primitives/interactive";
 import { Save, Plus, Trash2, ChevronDown, ChevronRight, Loader2, Search } from "lucide-react";
@@ -32,6 +34,8 @@ export function LocationsEditor() {
   const {
     data: locData,
     isLoading: locLoading,
+    loadFailed: locFailed,
+    retry: retryLoc,
     save: saveLoc,
     isSaving: locSaving,
   } = useFlowConfig<LocationData>("location_data");
@@ -45,9 +49,12 @@ export function LocationsEditor() {
   const {
     data: tierData,
     isLoading: tierLoading,
+    loadFailed: tierFailed,
+    retry: retryTiers,
     save: saveTiers,
     isSaving: tierSaving,
-  } = useFlowConfig<TierMap>("city_tiers");
+  } = useFlowConfig<TierMap>("city_tiers");
+  const { config: pricing } = usePricingConfig();
 
   const [tiers, setTiers] = useState<TierMap>({} as TierMap);
   const [tiersDirty, setTiersDirty] = useState(false);
@@ -127,6 +134,10 @@ export function LocationsEditor() {
     setTiersDirty(true);
   };
 
+  if (!locLoading && !tierLoading && (locFailed || tierFailed)) {
+    return <ConfigLoadError what="locations" onRetry={() => { retryLoc(); retryTiers(); }} />;
+  }
+
   if (locLoading || tierLoading)
     return (
       <div className="flex justify-center py-12">
@@ -191,15 +202,11 @@ export function LocationsEditor() {
                   </div>
                   <div className="flex gap-2">
                     <div className="flex-1">
-                      <label htmlFor={`tier-mult-${tier}`} className="text-[10px] text-[hsl(var(--admin-text-muted))]">Multiplier</label>
-                      <Input
-                        id={`tier-mult-${tier}`}
-                        type="number"
-                        step="0.05"
-                        value={t.multiplier}
-                        onChange={(e) => updateTierField(tier, "multiplier", +e.target.value)}
-                        className="h-7 text-xs bg-[hsl(var(--admin-card))] border-[hsl(var(--admin-border))]"
-                      />
+                      <span className="text-[10px] text-[hsl(var(--admin-text-muted))]">Multiplier</span>
+                      <p className="h-7 flex items-center text-xs text-[hsl(var(--admin-text))]" title="Set on the Pricing tab">
+                        {pricing.city_multipliers[tier as keyof typeof pricing.city_multipliers] ?? t.multiplier}×
+                        <span className="ml-1.5 text-[10px] text-[hsl(var(--admin-text-muted))]">(Pricing tab)</span>
+                      </p>
                     </div>
                     <div className="flex-1">
                       <label htmlFor={`tier-color-${tier}`} className="text-[10px] text-[hsl(var(--admin-text-muted))]">Color (hex)</label>

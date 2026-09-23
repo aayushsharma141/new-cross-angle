@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { CalculatorFormData, CityTier } from "../data/types";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
+import { usePricingConfig } from "../hooks/usePricingConfig";
 
 interface Props {
     formData: CalculatorFormData;
@@ -17,6 +18,7 @@ const dropdownItemStyle = "flex justify-between items-center w-full bg-transpare
 export function StepLocation({ formData, updateFields }: Props) {
     const { data: LOCATION_DATA } = useFlowConfig<Record<string, Record<string, string>>>("location_data");
     const { data: TIERS } = useFlowConfig<Record<string, { label: string; multiplier: number }>>("city_tiers");
+    const { config: pricing } = usePricingConfig();
 
     const [stateSearch, setStateSearch] = useState("");
     const [citySearch, setCitySearch] = useState("");
@@ -49,7 +51,10 @@ export function StepLocation({ formData, updateFields }: Props) {
         setCitySearch("");
     };
 
-    const tierInfo = formData.cityTier ? TIERS[formData.cityTier] : null;
+    // Label from the city-tier list; multiplier from pricing, which is what the estimate uses.
+    const tierInfo = formData.cityTier && TIERS[formData.cityTier]
+        ? { ...TIERS[formData.cityTier], multiplier: pricing.city_multipliers[formData.cityTier] ?? TIERS[formData.cityTier].multiplier }
+        : null;
 
     return (
         <div>
@@ -62,7 +67,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                         id="state-input"
                         type="text"
                         title="Search for your state"
-                        placeholder="Search state…"
+                        placeholder="Search stateï¿½"
                         value={formData.state || stateSearch}
                         onChange={e => {
                             setStateSearch(e.target.value);
@@ -118,7 +123,7 @@ export function StepLocation({ formData, updateFields }: Props) {
                             id="city-input"
                             type="text"
                             title="Search for your city"
-                            placeholder="Search city…"
+                            placeholder="Search cityï¿½"
                             value={formData.city || citySearch}
                             onChange={e => {
                                 setCitySearch(e.target.value);

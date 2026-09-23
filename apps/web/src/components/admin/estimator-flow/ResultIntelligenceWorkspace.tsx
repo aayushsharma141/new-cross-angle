@@ -17,7 +17,7 @@ export default function ResultIntelligenceWorkspace({ registry }: Props) {
     const { data: templatesData, save: saveTemplates, isSaving: savingTemplates } = registry.resultTemplates;
 
     const [rules, setRules] = useState<any>(alcsRulesData || { defaultRecommendation: "Based on the budget constraints and property specifics, a comprehensive design and execution package is recommended to ensure quality." });
-    const [templates, setTemplates] = useState<any>(templatesData || { ctaPrimary: "Book Consultation", confidenceMessage: "High Confidence" });
+    const [templates, setTemplates] = useState<any>(templatesData || { ctaPrimary: "Review With Designer", confidenceMessage: "High Confidence" });
     const [hasChanges, setHasChanges] = useState(false);
 
     useEffect(() => {
@@ -28,7 +28,7 @@ export default function ResultIntelligenceWorkspace({ registry }: Props) {
 
     const handleReset = async () => {
         setRules(alcsRulesData || { defaultRecommendation: "Based on the budget constraints and property specifics, a comprehensive design and execution package is recommended to ensure quality." });
-        setTemplates(templatesData || { ctaPrimary: "Book Consultation", confidenceMessage: "High Confidence" });
+        setTemplates(templatesData || { ctaPrimary: "Review With Designer", confidenceMessage: "High Confidence" });
         setHasChanges(false);
     };
 
@@ -84,7 +84,7 @@ export default function ResultIntelligenceWorkspace({ registry }: Props) {
             <div className="space-y-4 fade-up-2">
                 <AdminFormCard title="ALCS Rules & Explanations" icon={MessageSquare} iconClassName="text-blue-400">
                     <div className="space-y-3">
-                        <label htmlFor="defaultRecommendation" className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">Default Recommendation Text</label>
+                        <label htmlFor="defaultRecommendation" className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">Default Recommendation Text <span className="ml-1 rounded bg-[hsl(var(--admin-surface))] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-[hsl(var(--admin-text-muted))]">Not shown on the site yet</span></label>
                         <Textarea 
                             id="defaultRecommendation"
                             value={rules?.defaultRecommendation || ""}
@@ -100,7 +100,7 @@ export default function ResultIntelligenceWorkspace({ registry }: Props) {
                 <AdminFormCard title="Result Templates & CTAs" icon={FileText} iconClassName="text-emerald-400">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
-                            <label htmlFor="ctaPrimary" className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">Primary CTA Label</label>
+                            <label htmlFor="ctaPrimary" className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">Primary CTA Label <span className="ml-1 text-[10px] text-[hsl(var(--admin-text-muted))]">— main button on the estimate results</span></label>
                             <Input 
                                 id="ctaPrimary"
                                 value={templates?.ctaPrimary || ""}
@@ -112,7 +112,7 @@ export default function ResultIntelligenceWorkspace({ registry }: Props) {
                             />
                         </div>
                         <div className="space-y-3">
-                            <label htmlFor="confidenceMessage" className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">Confidence Messaging</label>
+                            <label htmlFor="confidenceMessage" className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">Confidence Messaging <span className="ml-1 rounded bg-[hsl(var(--admin-surface))] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-[hsl(var(--admin-text-muted))]">Not shown on the site yet</span></label>
                             <Input 
                                 id="confidenceMessage"
                                 value={templates?.confidenceMessage || ""}
