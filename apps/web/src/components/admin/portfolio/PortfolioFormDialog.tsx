@@ -303,21 +303,25 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                         <TabsContent value="general" className="space-y-6 mt-0">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="portfolio-title">Title</Label>
+                                    <Label htmlFor="portfolio-title">Title <span className="text-red-400">*</span></Label>
+                                    <p className="text-xs text-zinc-500">Project name displayed on portfolio</p>
                                     <Input
                                         id="portfolio-title"
                                         value={formData.title}
                                         onChange={(e) => handleTitleChange(e.target.value)}
                                         required
+                                        aria-describedby="portfolio-title-help"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="portfolio-slug">Slug</Label>
+                                    <Label htmlFor="portfolio-slug">URL Slug <span className="text-red-400">*</span></Label>
+                                    <p className="text-xs text-zinc-500">Auto-generated from title (optional edit)</p>
                                     <Input
                                         id="portfolio-slug"
                                         value={formData.slug}
                                         onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                         required
+                                        aria-describedby="portfolio-slug-help"
                                     />
                                 </div>
                             </div>
@@ -376,19 +380,23 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                             <div className="grid grid-cols-4 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="portfolio-area">Area</Label>
-                                    <Input id="portfolio-area" value={formData.area} onChange={(e) => setFormData({ ...formData, area: e.target.value })} placeholder="e.g. 2500 sqft" />
+                                    <p className="text-xs text-zinc-500">Total project area</p>
+                                    <Input id="portfolio-area" value={formData.area} onChange={(e) => setFormData({ ...formData, area: e.target.value })} placeholder="e.g. 2500 sqft" aria-describedby="portfolio-area-help" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="portfolio-budget">Budget</Label>
-                                    <Input id="portfolio-budget" value={formData.budget} onChange={(e) => setFormData({ ...formData, budget: e.target.value })} placeholder="e.g. ₹500k" />
+                                    <p className="text-xs text-zinc-500">Project investment</p>
+                                    <Input id="portfolio-budget" value={formData.budget} onChange={(e) => setFormData({ ...formData, budget: e.target.value })} placeholder="e.g. ₹500k" aria-describedby="portfolio-budget-help" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="portfolio-duration">Duration</Label>
-                                    <Input id="portfolio-duration" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} placeholder="e.g. 6 months" />
+                                    <p className="text-xs text-zinc-500">Project timeline</p>
+                                    <Input id="portfolio-duration" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} placeholder="e.g. 6 months" aria-describedby="portfolio-duration-help" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="portfolio-style">Style Tag</Label>
-                                    <Input id="portfolio-style" value={formData.style} onChange={(e) => setFormData({ ...formData, style: e.target.value })} placeholder="e.g. Modern" />
+                                    <p className="text-xs text-zinc-500">Design style (e.g. Modern)</p>
+                                    <Input id="portfolio-style" value={formData.style} onChange={(e) => setFormData({ ...formData, style: e.target.value })} placeholder="e.g. Modern" aria-describedby="portfolio-style-help" />
                                 </div>
                             </div>
 
