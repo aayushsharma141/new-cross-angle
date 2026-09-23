@@ -62,7 +62,7 @@ export function AdminKPI({
     return (
         <SpotlightCard
             spotlightColor={spotlightColors[variant]}
-            className="rounded-xl border border-admin-border bg-admin-card group hover:border-admin-gold/30 transition-all duration-300"
+            className="admin-card-hover group hover:border-admin-gold/30 transition-all duration-300"
         >
             <div className="relative overflow-hidden p-6" title={tooltip}>
                 <div className="flex items-start justify-between">

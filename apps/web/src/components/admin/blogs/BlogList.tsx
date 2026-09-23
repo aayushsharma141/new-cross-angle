@@ -137,7 +137,7 @@ export function BlogList({ refreshTrigger, onEdit, onNew, searchQuery = "", onSe
 
             return (
               <div key={post.id} className={`${delayClass} group`}>
-                <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-xl p-5 hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200 grid grid-cols-[80px_1fr_auto] gap-5 items-center">
+                <div className="admin-card p-5 hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200 grid grid-cols-[80px_1fr_auto] gap-5 items-center">
                   
                   {/* Image */}
                   <div className="w-[80px] h-[60px] rounded-lg bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex items-center justify-center shrink-0 overflow-hidden relative">

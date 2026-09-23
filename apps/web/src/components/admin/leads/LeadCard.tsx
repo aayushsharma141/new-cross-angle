@@ -89,7 +89,7 @@ export function LeadCard({ lead, onClick, isPreview = false }: LeadCardProps) {
       onClick={isPreview ? undefined : () => onClick?.(lead)}
       onKeyDown={isPreview ? undefined : (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(lead); } }}
       className={cn(
-        "bg-admin-card border border-admin-border rounded-md p-3 cursor-pointer transition-all duration-150 ease-in outline-none",
+        "admin-card-interactive p-3 transition-all duration-150 ease-in outline-none",
         "hover:border-admin-border-subtle hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)]",
         "focus-visible:ring-2 focus-visible:ring-[hsl(var(--admin-primary))] focus-visible:ring-offset-2",
         isDragging && "opacity-40"
