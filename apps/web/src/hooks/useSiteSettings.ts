@@ -1,5 +1,47 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+
+/**
+ * Columns anonymous visitors may read from `site_settings`.
+ *
+ * Migration 20260911000000_lock_down_site_settings.sql replaced the table-wide
+ * anon SELECT with a column-level GRANT. A `select("*")` as anon is now
+ * rejected by Postgres (401 from PostgREST), so the public site must name the
+ * allow-listed columns explicitly. Authenticated staff keep the full row via
+ * RLS and continue to use `select("*")`.
+ *
+ * Keep this list a subset of the GRANT in that migration.
+ */
+const PUBLIC_COLUMNS = [
+  "id",
+  "studio_name",
+  "tagline",
+  "email",
+  "phone",
+  "whatsapp",
+  "address",
+  "map_embed_url",
+  "business_hours",
+  "logo_light_url",
+  "logo_dark_url",
+  "company_logo_url",
+  "favicon_url",
+  "og_image_url",
+  "about_video_url",
+  "seo_title_template",
+  "seo_description",
+  "ga_measurement_id",
+  "fb_pixel_id",
+  "maintenance_mode_active",
+  "nav_links",
+  "footer_columns",
+  "social_links",
+  "studio_stats",
+  "updated_at",
+] as const;
+
+const PUBLIC_SELECT = PUBLIC_COLUMNS.join(",");
 
 export interface SiteSettings {
   id: string;
@@ -93,13 +135,28 @@ const defaultSettings: SiteSettings = {
 
 
 export function useSiteSettings(): UseSiteSettingsResult {
+  const queryClient = useQueryClient();
+
+  // The row we may read depends on whether the visitor is signed in. When that
+  // changes (login/logout), drop the cached settings so the next read uses the
+  // right column set instead of serving a stale anon/staff result for 5 minutes.
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        queryClient.invalidateQueries({ queryKey: ['siteSettings'] });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [queryClient]);
+
   const { data: settings, isLoading, error, refetch } = useQuery({
     queryKey: ['siteSettings'],
     queryFn: async () => {
       try {
+        const { data: { session } } = await supabase.auth.getSession();
         const { data, error: fetchError } = await supabase
           .from("site_settings")
-          .select("*")
+          .select(session ? "*" : PUBLIC_SELECT)
           .limit(1)
           .maybeSingle();
 
@@ -108,10 +165,13 @@ export function useSiteSettings(): UseSiteSettingsResult {
         }
 
         if (data) {
+          // The column list is chosen at runtime, so the row type is a union;
+          // treat it as a partial settings row and let defaults fill the rest.
+          const row = data as unknown as Partial<SiteSettings>;
           return {
             ...defaultSettings,
-            ...data,
-            social_links: { ...defaultSettings.social_links, ...(data.social_links as Record<string, string> || {}) },
+            ...row,
+            social_links: { ...defaultSettings.social_links, ...((row.social_links as Record<string, string>) || {}) },
           } as SiteSettings;
         }
         return defaultSettings;
