@@ -9,11 +9,11 @@ export const DiscoveryModule = () => {
 
     return (
         <ModuleLayout
-            title="Discovery Engine"
-            description="Monitor style quiz submissions, drop-off rates, and configure quiz logic and scoring."
+            title="Style Quiz"
+            description="Track visitor quiz responses and responses. Manage quiz questions and scoring rules."
             tabs={[
-                { label: "Quiz Analytics", path: "/admin/discovery/quiz-analytics" },
-                { label: "Quiz Configuration", path: "/admin/discovery/quiz-configuration" },
+                { label: "Results & Analytics", path: "/admin/discovery/quiz-analytics", group: "Insights" },
+                { label: "Quiz Settings", path: "/admin/discovery/quiz-configuration", group: "Configuration" },
             ]}
         >
             <Outlet />

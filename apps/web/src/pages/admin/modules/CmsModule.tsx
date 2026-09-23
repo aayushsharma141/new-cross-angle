@@ -9,24 +9,24 @@ export const CmsModule = () => {
 
     return (
         <ModuleLayout
-            title="Content Management"
-            description="Create, edit, and publish all website content — from portfolio showcases to testimonials and team profiles."
+            title="Content Management System"
+            description="Manage all website content: projects, blog posts, images, videos, and team profiles."
             tabs={[
-                { label: "Portfolio", path: "/admin/cms/portfolio", group: "Content" },
-                { label: "Blog Posts", path: "/admin/cms/blog-posts", group: "Content" },
-                { label: "Services", path: "/admin/cms/services", group: "Content" },
-                { label: "Testimonials", path: "/admin/cms/testimonials", group: "Content" },
-                { label: "Gallery", path: "/admin/cms/gallery", group: "Content" },
+                { label: "Projects", path: "/admin/cms/portfolio", group: "Main Content" },
+                { label: "Blog Posts", path: "/admin/cms/blog-posts", group: "Main Content" },
+                { label: "Services", path: "/admin/cms/services", group: "Main Content" },
+                { label: "Testimonials", path: "/admin/cms/testimonials", group: "Main Content" },
+                { label: "Team Members", path: "/admin/cms/team-members", group: "Main Content" },
 
-                { label: "Media Library", path: "/admin/cms/media-library", group: "Media" },
-                { label: "Site Assets", path: "/admin/cms/site-assets", group: "Media" },
-                { label: "Before & After", path: "/admin/cms/before-and-after", group: "Media" },
+                { label: "Images & Videos", path: "/admin/cms/media-library", group: "Visual Media" },
+                { label: "Project Gallery", path: "/admin/cms/gallery", group: "Visual Media" },
+                { label: "Before & After", path: "/admin/cms/before-and-after", group: "Visual Media" },
+                { label: "Hero Section", path: "/admin/cms/hero-carousel", group: "Visual Media" },
 
-                { label: "Hero Carousel", path: "/admin/cms/hero-carousel", group: "Engagement" },
-                { label: "Process Steps", path: "/admin/cms/process-steps", group: "Engagement" },
-                { label: "Milestones", path: "/admin/cms/milestones", group: "Engagement" },
+                { label: "Process Steps", path: "/admin/cms/process-steps", group: "Page Sections" },
+                { label: "Milestones", path: "/admin/cms/milestones", group: "Page Sections" },
 
-                { label: "Team Members", path: "/admin/cms/team-members", group: "Team" }
+                { label: "Static Resources", path: "/admin/cms/site-assets", group: "Resources" }
             ]}
         >
             <Outlet />

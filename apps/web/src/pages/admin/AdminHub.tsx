@@ -1,8 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useAdmin } from "@/context/AdminContext";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useToast } from "@/hooks/useToast";
 import { useHubStats, formatStorage } from "@/hooks/useHubStats";
 import {
@@ -16,9 +15,7 @@ import {
     Settings,
     Database,
     Zap,
-    Plus,
     RefreshCw,
-    X,
     ArrowUpRight,
     Lock,
 } from "lucide-react";
@@ -54,8 +51,6 @@ export default function AdminHub() {
         }
     }, [location, navigate, toast]);
 
-    // Floating actions dock state
-    const [dockOpen, setDockOpen] = useState(false);
 
     return (
         <div className="w-full h-full flex-1 overflow-y-auto bg-[hsl(var(--admin-background))]">
@@ -80,8 +75,8 @@ export default function AdminHub() {
                                         <Users className="w-5 h-5" strokeWidth={1.5} />
                                     </div>
                                     <div>
-                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Client CRM</h3>
-                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Manage leads & pipeline stages</p>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Client Leads</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Track leads through each stage from inquiry to signed contract</p>
                                     </div>
                                 </div>
                                 {stats.newLeads > 0 && (
@@ -223,8 +218,8 @@ export default function AdminHub() {
                                         <Sparkles className="w-5 h-5" strokeWidth={1.5} />
                                     </div>
                                     <div>
-                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Discovery Engine</h3>
-                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Quiz visitors & leads</p>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Style Quiz</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Track visitor quiz responses and insights</p>
                                     </div>
                                 </div>
                             </div>
@@ -273,8 +268,8 @@ export default function AdminHub() {
                                         <Calculator className="w-5 h-5" strokeWidth={1.5} />
                                     </div>
                                     <div>
-                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Estimator Engine</h3>
-                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Calculate quotes & pricing</p>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Quotes & Estimates</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Create and track project quotes from clients</p>
                                     </div>
                                 </div>
                             </div>
@@ -307,8 +302,8 @@ export default function AdminHub() {
                                         <FileText className="w-5 h-5" strokeWidth={1.5} />
                                     </div>
                                     <div>
-                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Content CMS</h3>
-                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Manage projects & assets</p>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Website Content</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Edit projects, blog, images, and team profiles</p>
                                     </div>
                                 </div>
                             </div>
@@ -349,8 +344,8 @@ export default function AdminHub() {
                                         <BookOpen className="w-5 h-5" strokeWidth={1.5} />
                                     </div>
                                     <div>
-                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Blog Analytics</h3>
-                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Publish content & track organic</p>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Blog & SEO</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Monitor article performance and search rankings</p>
                                     </div>
                                 </div>
                             </div>
@@ -383,8 +378,8 @@ export default function AdminHub() {
                                         <Shield className="w-5 h-5" strokeWidth={1.5} />
                                     </div>
                                     <div>
-                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">User Access</h3>
-                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Manage admin team roles</p>
+                                        <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Team & Security</h3>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Manage admin team members and security settings</p>
                                     </div>
                                 </div>
                             </div>
@@ -454,17 +449,17 @@ export default function AdminHub() {
                         <div className="flex items-center gap-2 mb-4">
                             <Zap className="w-4 h-4 text-[hsl(var(--admin-primary))] animate-pulse" />
                             <span className="text-xs font-bold uppercase tracking-widest text-[hsl(var(--admin-primary))]">
-                                CrossAngle AI Proactive Insights
+                                Key Alerts & Recommendations
                             </span>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
                                 <div className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 shrink-0" role="img" aria-label="Medium priority alert" title="Medium priority" />
                                 <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-[hsl(var(--admin-text))]">Leads Requiring Immediate Action</span>
-                                    <span className="text-[hsl(var(--admin-muted))]">Rahul Sharma has submitted a high-value estimator query and is currently waiting for a manual callback.</span>
+                                    <span className="font-semibold text-[hsl(var(--admin-text))]">New Lead Waiting for Response</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Rahul Sharma submitted a quote request 2 hours ago.</span>
                                     <Link to="/admin/crm/leads" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
-                                        Open CRM Leads <ArrowUpRight className="w-3 h-3" />
+                                        View Leads <ArrowUpRight className="w-3 h-3" />
                                     </Link>
                                 </div>
                             </div>
@@ -472,10 +467,10 @@ export default function AdminHub() {
                             <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
                                 <div className="h-2 w-2 rounded-full bg-red-500 mt-1.5 shrink-0" role="img" aria-label="High priority alert" title="High priority" />
                                 <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-[hsl(var(--admin-text))]">Pending Estimate Overdue</span>
-                                    <span className="text-[hsl(var(--admin-muted))]">The master design proposal for the Luxury Culinary Space Project is currently pending client signature for past 3 days.</span>
+                                    <span className="font-semibold text-[hsl(var(--admin-text))]">Quote Waiting for Signature</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Luxury Culinary Space Project quote sent 3 days ago, waiting for client approval.</span>
                                     <Link to="/admin/estimator/estimate-leads" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
-                                        View Estimate Leads <ArrowUpRight className="w-3 h-3" />
+                                        View Quotes <ArrowUpRight className="w-3 h-3" />
                                     </Link>
                                 </div>
                             </div>
@@ -483,10 +478,10 @@ export default function AdminHub() {
                             <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
                                 <div className="h-2 w-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" role="img" aria-label="Success alert" title="Success" />
                                 <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-[hsl(var(--admin-text))]">Search Engine Ranking Growth</span>
-                                    <span className="text-[hsl(var(--admin-muted))]">SEO performance score increased by 4%. The keyword "luxury interior design Jamshedpur" has entered Google page 1.</span>
+                                    <span className="font-semibold text-[hsl(var(--admin-text))]">Search Rankings Improved</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">SEO score up 4%. "Luxury interior design Jamshedpur" now ranking on Google page 1.</span>
                                     <Link to="/admin/blog/overview" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
-                                        View Blog SEO <ArrowUpRight className="w-3 h-3" />
+                                        View SEO Analytics <ArrowUpRight className="w-3 h-3" />
                                     </Link>
                                 </div>
                             </div>
@@ -494,10 +489,10 @@ export default function AdminHub() {
                             <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
                                 <div className="h-2 w-2 rounded-full bg-[hsl(var(--admin-primary))] mt-1.5 shrink-0" role="img" aria-label="System status alert" title="System status" />
                                 <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-[hsl(var(--admin-text))]">System Optimization Completed</span>
-                                    <span className="text-[hsl(var(--admin-muted))]">Vite bundles consolidated, unused three.js assets purged, and all static routes cached. Server response latency down by 14%.</span>
+                                    <span className="font-semibold text-[hsl(var(--admin-text))]">System Performance Improved</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Site speed optimized. Page load time down 14%.</span>
                                     <Link to="/admin/dashboard" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
-                                        Open Diagnostics <ArrowUpRight className="w-3 h-3" />
+                                        View Dashboard <ArrowUpRight className="w-3 h-3" />
                                     </Link>
                                 </div>
                             </div>
@@ -511,7 +506,7 @@ export default function AdminHub() {
                     <div className="lg:col-span-2 rounded-2xl border border-admin-border/50 bg-[hsl(var(--admin-card))]/60 backdrop-blur-xl p-5">
                         <div className="flex items-center justify-between pb-3.5 border-b border-admin-border/50 mb-4">
                             <span className="text-xs font-bold uppercase tracking-widest text-[hsl(var(--admin-muted))]">
-                                Live Activity
+                                Recent Activity
                             </span>
                             <button
                                 onClick={() => refresh()}
@@ -558,55 +553,6 @@ export default function AdminHub() {
 
             </div>
 
-            {/* ── Floating Actions Dock ── */}
-            <div className="fixed bottom-16 right-6 z-50">
-                <div className="relative">
-                    {/* Expanded Actions Panel */}
-                    {dockOpen && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 15 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            className="absolute bottom-14 right-0 w-52 rounded-xl border border-admin-border/80 bg-[hsl(var(--admin-card))] p-2 shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex flex-col gap-1"
-                        >
-                            <div className="px-3 py-1.5 text-[9px] uppercase tracking-wider font-bold text-[hsl(var(--admin-muted))] border-b border-admin-border/40 mb-1">
-                                Quick System Action
-                            </div>
-                            {[
-                                { label: "Add Lead", route: "/admin/crm/leads?action=create", icon: Users },
-                                { label: "New Estimate", route: "/admin/estimator/estimate-leads", icon: Calculator },
-                                { label: "Upload Asset", route: "/admin/cms/media-library", icon: FileText },
-                                { label: "Access Security", route: "/admin/user-access/security", icon: Shield },
-                                { label: "System Config", route: "/admin/system/settings", icon: Settings }
-                            ].map((action) => (
-                                <button
-                                    key={action.label}
-                                    onClick={() => {
-                                        setDockOpen(false);
-                                        navigate(action.route);
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-admin-surface hover:text-[hsl(var(--admin-primary))] text-xs font-medium transition-colors flex items-center gap-2"
-                                >
-                                    <action.icon className="w-3.5 h-3.5 text-[hsl(var(--admin-muted))]" />
-                                    <span>{action.label}</span>
-                                </button>
-                            ))}
-                        </motion.div>
-                    )}
-
-                    {/* Trigger Button */}
-                    <button
-                        onClick={() => setDockOpen(!dockOpen)}
-                        className={cn(
-                            "flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(var(--admin-primary))] text-black font-semibold shadow-[0_4px_25px_hsl(var(--admin-primary)/0.45)] border border-[hsl(var(--admin-primary))]/20 hover:scale-105 transition-all duration-300",
-                            dockOpen && "bg-neutral-800 text-white"
-                        )}
-                        aria-label="Toggle quick actions panel"
-                        {...{ 'aria-expanded': dockOpen }}
-                    >
-                        {dockOpen ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-                    </button>
-                </div>
-            </div>
 
         </div>
     );
