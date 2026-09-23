@@ -472,6 +472,33 @@
     @apply py-4 px-0 border-b border-admin-border/50 last:border-b-0;
   }
 
+  /* Admin Form Validation & Error States */
+  .admin-form-error-message {
+    @apply text-xs text-admin-danger font-medium mt-1.5 flex items-center gap-1.5;
+  }
+
+  .admin-form-error-message::before {
+    content: '●';
+    @apply inline-block text-admin-danger;
+  }
+
+  .admin-form-success-message {
+    @apply text-xs text-admin-success font-medium mt-1.5 flex items-center gap-1.5;
+  }
+
+  .admin-form-success-message::before {
+    content: '✓';
+    @apply inline-block text-admin-success font-bold;
+  }
+
+  .admin-form-input-error {
+    @apply border-admin-danger/50 focus:border-admin-danger focus:ring-admin-danger/20;
+  }
+
+  .admin-form-input-success {
+    @apply border-admin-success/50 focus:border-admin-success focus:ring-admin-success/20;
+  }
+
   /* Glass Effect */
   .glass {
     background: hsl(0 0% 100% / 0.04);

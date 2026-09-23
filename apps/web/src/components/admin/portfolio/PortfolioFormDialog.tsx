@@ -23,7 +23,7 @@ import { useToast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { AssetUsageService } from "@/services/AssetUsageService";
-import { portfolioSchema, formatZodErrors } from "@/lib/validation/validations";
+import { portfolioSchema } from "@/lib/validation/validations";
 import { Switch } from "@/components/ui/primitives/switch";
 import FocusLock from "react-focus-lock";
 
@@ -62,6 +62,7 @@ interface PortfolioFormDialogProps {
 export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess }: PortfolioFormDialogProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const { toast } = useToast();
 
     // Form state matching the new schema
@@ -184,13 +185,27 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
         // Validate with Zod before saving
         const validation = portfolioSchema.safeParse(formData);
         if (!validation.success) {
+            // Extract field-level errors
+            const errors: Record<string, string> = {};
+            validation.error.errors.forEach(err => {
+                const fieldPath = err.path.join('.');
+                if (fieldPath) {
+                    errors[fieldPath] = err.message;
+                }
+            });
+            setFieldErrors(errors);
+
+            // Show summary toast
             toast({
                 title: "Validation Error",
-                description: formatZodErrors(validation.error),
+                description: `Please check the ${Object.keys(errors).length} field(s) below`,
                 variant: "destructive",
             });
             return;
         }
+
+        // Clear errors on successful validation
+        setFieldErrors({});
 
         setIsSaving(true);
 
@@ -311,7 +326,11 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         onChange={(e) => handleTitleChange(e.target.value)}
                                         required
                                         aria-describedby="portfolio-title-help"
+                                        className={fieldErrors.title ? "admin-form-input-error" : ""}
                                     />
+                                    {fieldErrors.title && (
+                                        <div className="admin-form-error-message" aria-live="polite">{fieldErrors.title}</div>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="portfolio-slug">URL Slug <span className="text-red-400">*</span></Label>
@@ -322,7 +341,11 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                         required
                                         aria-describedby="portfolio-slug-help"
+                                        className={fieldErrors.slug ? "admin-form-input-error" : ""}
                                     />
+                                    {fieldErrors.slug && (
+                                        <div className="admin-form-error-message" aria-live="polite">{fieldErrors.slug}</div>
+                                    )}
                                 </div>
                             </div>
 
@@ -333,7 +356,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         value={formData.category_id}
                                         onValueChange={(value) => setFormData({ ...formData, category_id: value })}
                                     >
-                                        <SelectTrigger id="portfolio-category">
+                                        <SelectTrigger id="portfolio-category" className={fieldErrors.category_id ? "admin-form-input-error" : ""}>
                                             <SelectValue placeholder="Select Category" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -344,6 +367,9 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                             ))}
                                         </SelectContent>
                                     </Select>
+                                    {fieldErrors.category_id && (
+                                        <div className="admin-form-error-message" aria-live="polite">{fieldErrors.category_id}</div>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="portfolio-status">Status</Label>
@@ -351,7 +377,7 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                         value={formData.status}
                                         onValueChange={(value: "draft" | "live") => setFormData({ ...formData, status: value })}
                                     >
-                                        <SelectTrigger id="portfolio-status">
+                                        <SelectTrigger id="portfolio-status" className={fieldErrors.status ? "admin-form-input-error" : ""}>
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -359,6 +385,9 @@ export function PortfolioFormDialog({ open, onOpenChange, initialData, onSuccess
                                             <SelectItem value="live">Live (Published)</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                    {fieldErrors.status && (
+                                        <div className="admin-form-error-message" aria-live="polite">{fieldErrors.status}</div>
+                                    )}
                                 </div>
                             </div>
 
