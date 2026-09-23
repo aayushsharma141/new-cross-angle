@@ -137,7 +137,7 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
             className="space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700"
         >
             {submitState === "error" && (
-                <div role="alert" className="flex flex-col gap-3 rounded-[12px] border border-kiro-hard/30 bg-kiro-hard/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div role="alert" className="flex flex-col gap-3 rounded-[12px] border border-kiro-hard/30 bg-kiro-hard/5 p-4">
                     <div className="flex items-start gap-3">
                         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-kiro-hard" aria-hidden="true" />
                         <p className="text-sm text-kiro-ink">
