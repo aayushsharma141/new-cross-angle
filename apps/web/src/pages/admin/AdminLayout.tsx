@@ -230,7 +230,7 @@ const AdminLayout = (): JSX.Element | null => {
                     <KpiChip
                         icon={Bell}
                         label="Attention"
-                        href="/admin/crm/leads?filter=new"
+                        href="/admin/crm/leads?stage=new"
                         value={isRefreshing ? "…" : stats.newLeads > 0 ? `${stats.newLeads} Priority` : "All Clear"}
                         variant={stats.newLeads > 0 ? "warning" : "muted"}
                     />

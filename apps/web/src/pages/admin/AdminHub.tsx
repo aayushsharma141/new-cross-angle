@@ -13,8 +13,7 @@ import {
     Calculator,
     Shield,
     Settings,
-    Database,
-    Zap,
+    Bell,
     RefreshCw,
     ArrowUpRight,
     Lock,
@@ -22,9 +21,12 @@ import {
 import { cn } from "@/lib/utils";
 import { SpotlightCard } from "@/components/ReactBits/index";
 import { ModuleDirectory } from "@/components/admin/ModuleDirectory";
+import { RecentActivityFeed } from "@/components/admin/dashboard/RecentActivityFeed";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function AdminHub() {
-    const { stats, isRefreshing, refresh } = useHubStats();
+    const { stats, hasError, isLoading: isHubLoading } = useHubStats();
+    const queryClient = useQueryClient();
     const navigate = useNavigate();
     const { setCurrentModule } = useAdmin();
     const location = useLocation();
@@ -106,9 +108,9 @@ export default function AdminHub() {
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-2xl font-bold text-amber-500 tabular-nums">
-                                        {stats.totalLeads > 0 ? "15m" : "—"}
+                                        {stats.inboxCount}
                                     </span>
-                                    <span className="text-[10px] uppercase font-semibold text-[hsl(var(--admin-muted))]">Avg Response</span>
+                                    <span className="text-[10px] uppercase font-semibold text-[hsl(var(--admin-muted))]">New Inquiries</span>
                                 </div>
                             </div>
 
@@ -444,62 +446,73 @@ export default function AdminHub() {
 
                     )}
 
-                    {/* ── Smart AI Insights Panel (lg:col-span-4) ── */}
+                    {/* ── Needs attention: derived only from real lead counts ── */}
                     {hasAdminAccess && (
-                    <div className="lg:col-span-4 rounded-2xl border border-[hsl(var(--admin-primary))]/10 bg-[hsl(var(--admin-card))] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                    <div className="lg:col-span-4 rounded-2xl border border-admin-border/50 bg-[hsl(var(--admin-card))] p-6">
                         <div className="flex items-center gap-2 mb-4">
-                            <Zap className="w-4 h-4 text-[hsl(var(--admin-primary))] animate-pulse" />
-                            <span className="text-xs font-bold uppercase tracking-widest text-[hsl(var(--admin-primary))]">
-                                Key Alerts & Recommendations
-                            </span>
+                            <Bell className="w-4 h-4 text-[hsl(var(--admin-primary))]" />
+                            <h2 className="text-xs font-bold uppercase tracking-widest text-[hsl(var(--admin-primary))]">
+                                Needs attention
+                            </h2>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
-                                <div className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 shrink-0" role="img" aria-label="Medium priority alert" title="Medium priority" />
-                                <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-[hsl(var(--admin-text))]">New Lead Waiting for Response</span>
-                                    <span className="text-[hsl(var(--admin-muted))]">Rahul Sharma submitted a quote request 2 hours ago.</span>
-                                    <Link to="/admin/crm/leads" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
-                                        View Leads <ArrowUpRight className="w-3 h-3" />
-                                    </Link>
-                                </div>
-                            </div>
+                        {(() => {
+                            const alerts: { tone: string; title: string; detail: string; href: string; cta: string }[] = [];
+                            if (hasError) {
+                                alerts.push({
+                                    tone: "bg-red-500",
+                                    title: "Some hub figures failed to load",
+                                    detail: "Zeros on this page may be missing data rather than real zeros. Refresh, or open the CRM directly.",
+                                    href: "/admin/crm/leads",
+                                    cta: "Open CRM",
+                                });
+                            }
+                            if (stats.newLeads > 0) {
+                                alerts.push({
+                                    tone: "bg-amber-500",
+                                    title: `${stats.newLeads} new ${stats.newLeads === 1 ? "lead is" : "leads are"} waiting for a first reply`,
+                                    detail: "Leads still in the New Inquiry stage.",
+                                    href: "/admin/crm/leads?stage=new",
+                                    cta: "Review new leads",
+                                });
+                            }
+                            if (stats.proposalCount > 0) {
+                                alerts.push({
+                                    tone: "bg-[hsl(var(--admin-primary))]",
+                                    title: `${stats.proposalCount} ${stats.proposalCount === 1 ? "lead is" : "leads are"} waiting on a decision`,
+                                    detail: "Quote sent or in the closing stage.",
+                                    href: "/admin/crm/leads",
+                                    cta: "Open pipeline",
+                                });
+                            }
 
-                            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
-                                <div className="h-2 w-2 rounded-full bg-red-500 mt-1.5 shrink-0" role="img" aria-label="High priority alert" title="High priority" />
-                                <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-[hsl(var(--admin-text))]">Quote Waiting for Signature</span>
-                                    <span className="text-[hsl(var(--admin-muted))]">Luxury Culinary Space Project quote sent 3 days ago, waiting for client approval.</span>
-                                    <Link to="/admin/estimator/estimate-leads" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
-                                        View Quotes <ArrowUpRight className="w-3 h-3" />
-                                    </Link>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
-                                <div className="h-2 w-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" role="img" aria-label="Success alert" title="Success" />
-                                <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-[hsl(var(--admin-text))]">Search Rankings Improved</span>
-                                    <span className="text-[hsl(var(--admin-muted))]">SEO score up 4%. "Luxury interior design Jamshedpur" now ranking on Google page 1.</span>
-                                    <Link to="/admin/blog/overview" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
-                                        View SEO Analytics <ArrowUpRight className="w-3 h-3" />
-                                    </Link>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
-                                <div className="h-2 w-2 rounded-full bg-[hsl(var(--admin-primary))] mt-1.5 shrink-0" role="img" aria-label="System status alert" title="System status" />
-                                <div className="flex flex-col gap-1">
-                                    <span className="font-semibold text-[hsl(var(--admin-text))]">System Performance Improved</span>
-                                    <span className="text-[hsl(var(--admin-muted))]">Site speed optimized. Page load time down 14%.</span>
-                                    <Link to="/admin/dashboard" className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
-                                        View Dashboard <ArrowUpRight className="w-3 h-3" />
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
+                            if (isHubLoading) {
+                                return <p className="text-xs text-[hsl(var(--admin-muted))]">Checking leads…</p>;
+                            }
+                            if (alerts.length === 0) {
+                                return (
+                                    <p className="text-sm text-[hsl(var(--admin-muted))]">
+                                        Nothing needs attention right now. No new leads and no quotes awaiting a decision.
+                                    </p>
+                                );
+                            }
+                            return (
+                                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {alerts.map((alert) => (
+                                        <li key={alert.title} className="flex items-start gap-3 p-3.5 rounded-xl bg-admin-surface/40 border border-admin-border/40 text-xs">
+                                            <span className={cn("h-2 w-2 rounded-full mt-1.5 shrink-0", alert.tone)} aria-hidden="true" />
+                                            <div className="flex flex-col gap-1">
+                                                <span className="font-semibold text-[hsl(var(--admin-text))]">{alert.title}</span>
+                                                <span className="text-[hsl(var(--admin-muted))]">{alert.detail}</span>
+                                                <Link to={alert.href} className="text-[hsl(var(--admin-primary))] font-semibold hover:underline flex items-center gap-1 mt-1">
+                                                    {alert.cta} <ArrowUpRight className="w-3 h-3" />
+                                                </Link>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            );
+                        })()}
                     </div>
-
                     )}
 
                     {/* ── Live Activity Stream (lg:col-span-2) — moved from right sidebar ── */}
@@ -510,43 +523,17 @@ export default function AdminHub() {
                                 Recent Activity
                             </span>
                             <button
-                                onClick={() => refresh()}
-                                disabled={isRefreshing}
-                                className="text-[hsl(var(--admin-muted))] hover:text-[hsl(var(--admin-primary))] transition-colors disabled:opacity-50"
-                                title="Refresh activity logs"
+                                type="button"
+                                onClick={() => void queryClient.invalidateQueries({ queryKey: ["recent-activity"] })}
+                                className="text-[hsl(var(--admin-muted))] hover:text-[hsl(var(--admin-primary))] transition-colors"
+                                aria-label="Refresh recent activity"
+                                title="Refresh recent activity"
                             >
-                                <RefreshCw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
+                                <RefreshCw className="w-3.5 h-3.5" />
                             </button>
                         </div>
 
-                        <div className="flex flex-col gap-4 text-xs overflow-y-auto max-h-[220px] custom-scrollbar">
-                            {[
-                                { time: "2 min ago", icon: Sparkles, color: "text-[hsl(var(--admin-primary))]", title: "Lead Quiz Complete", desc: "sharma1.aayu completed the style questionnaire.", type: "Quiz Activity" },
-                                { time: "5 min ago", icon: Calculator, color: "text-emerald-500", title: "New Estimate Request", desc: "Luxury master suite quote auto-generated.", type: "Estimator Activity" },
-                                { time: "12 min ago", icon: Database, color: "text-blue-500", title: "System Snapshot", desc: "Daily backup written to secure vault.", type: "System Log" },
-                                { time: "25 min ago", icon: FileText, color: "text-amber-500", title: "Invoice Dispatched", desc: "Billing statement sent to Executive client.", type: "Billing Activity" },
-                                { time: "1 hr ago", icon: Users, color: "text-purple-500", title: "Site Engineer Active", desc: "Designer checked in for Serene Suite project.", type: "Team Activity" },
-                                { time: "2 hrs ago", icon: Shield, color: "text-emerald-500", title: "Security Scan OK", desc: "18 admin tokens verified. No warnings.", type: "Security Log" },
-                            ].map((event, idx) => (
-                                <div key={idx} className="flex gap-2.5 relative before:absolute before:left-3 before:top-7 before:bottom-0 before:w-px before:bg-admin-border/40 last:before:hidden">
-                                    <div 
-                                        className={cn("h-6 w-6 rounded-lg bg-admin-surface border border-admin-border flex items-center justify-center shrink-0", event.color)}
-                                        title={event.type}
-                                        aria-label={event.type}
-                                        role="img"
-                                    >
-                                        <event.icon className="w-3 h-3" />
-                                    </div>
-                                    <div className="flex flex-col gap-0.5 min-w-0">
-                                        <div className="flex justify-between items-center gap-1">
-                                            <span className="font-semibold text-[hsl(var(--admin-text))] truncate" title={event.title}>{event.title}</span>
-                                            <span className="text-[9px] text-[hsl(var(--admin-muted))] tabular-nums shrink-0">{event.time}</span>
-                                        </div>
-                                        <p className="text-[10px] text-[hsl(var(--admin-muted))] leading-normal">{event.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <RecentActivityFeed limit={8} heightClassName="h-[260px]" />
                     </div>
                     )}
 

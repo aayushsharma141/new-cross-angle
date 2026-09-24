@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import {
     Activity,
+    AlertTriangle,
     UserPlus,
     FileEdit,
     Briefcase,
@@ -27,15 +28,22 @@ interface ActivityItem {
     };
 }
 
-export function RecentActivityFeed({ dateRange }: { dateRange?: DateRange }) {
-    const { data: activities, isLoading } = useQuery({
-        queryKey: ["recent-activity", dateRange],
+interface RecentActivityFeedProps {
+    dateRange?: DateRange;
+    limit?: number;
+    heightClassName?: string;
+}
+
+export function RecentActivityFeed({ dateRange, limit = 20, heightClassName = "h-[400px]" }: RecentActivityFeedProps) {
+    const { data: activities, isLoading, isError } = useQuery({
+        queryKey: ["recent-activity", dateRange, limit],
         queryFn: async () => {
             let query = (supabase as any)
                 .from("system_logs")
-                .select("*, profiles(full_name)")
+                // No FK from system_logs to profiles, so a profiles() embed makes PostgREST return 400 (PGRST200).
+                .select("*")
                 .order("created_at", { ascending: false })
-                .limit(20);
+                .limit(limit);
 
             if (dateRange?.from) {
                 query = query.gte("created_at", dateRange.from.toISOString());
@@ -71,11 +79,20 @@ export function RecentActivityFeed({ dateRange }: { dateRange?: DateRange }) {
         );
     }
 
+    if (isError) {
+        return (
+            <div role="alert" className="flex flex-col items-center justify-center py-8 text-center text-admin-muted">
+                <AlertTriangle className="h-8 w-8 mb-2 text-admin-danger opacity-70" />
+                <p>Couldn't load activity. This is a loading error, not an empty log.</p>
+            </div>
+        );
+    }
+
     if (!activities?.length) {
         return (
             <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
                 <Activity className="h-8 w-8 mb-2 opacity-50" />
-                <p>No recent activity in selected period.</p>
+                <p>{dateRange ? "No recent activity in selected period." : "No activity has been logged yet."}</p>
             </div>
         );
     }
@@ -151,7 +168,7 @@ export function RecentActivityFeed({ dateRange }: { dateRange?: DateRange }) {
     };
 
     return (
-        <ScrollArea className="h-[400px] pr-4">
+        <ScrollArea className={`${heightClassName} pr-4`}>
             <div className="space-y-3">
                 {activities.map((activity) => (
                     <div key={activity.id} className="flex gap-4 group items-start border-b border-admin-border/50 pb-4 last:border-0 hover:bg-admin-surface/30 p-2 rounded-lg transition-colors">
