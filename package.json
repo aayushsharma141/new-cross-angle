@@ -14,7 +14,7 @@
     "dev:web": "npm run dev --workspace=web",
     "lint": "npm run lint --workspace=web",
     "typecheck": "tsc --noEmit && npm run typecheck --workspace=web",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --config apps/web/eslint.config.js"
