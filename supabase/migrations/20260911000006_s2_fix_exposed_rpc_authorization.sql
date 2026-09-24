@@ -145,6 +145,17 @@ REVOKE EXECUTE ON FUNCTION public.rpc_register_dam_asset(public.asset_type_enum,
 GRANT EXECUTE ON FUNCTION public.rpc_register_dam_asset(public.asset_type_enum, public.asset_source_enum, text, text, text, bigint, text, integer, integer, text, text, uuid, text) TO authenticated, service_role;
 
 
+-- ── 2.5 Ensure asset_versions has a UNIQUE constraint for concurrency safety ──
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'uq_asset_versions_asset_id_version'
+  ) THEN
+    ALTER TABLE public.asset_versions ADD CONSTRAINT uq_asset_versions_asset_id_version UNIQUE(asset_id, version_number);
+  END IF;
+END $$;
+
+
 -- ── 3. rpc_create_uploading_asset & rpc_finalize_dam_asset: Align to is_cms_editor ─
 -- Functional fix: replaces is_admin_or_editor so editors can upload DAM assets.
 CREATE OR REPLACE FUNCTION public.rpc_create_uploading_asset(
@@ -206,6 +217,16 @@ BEGIN
     RAISE EXCEPTION 'Unauthorized: CMS editor access required';
   END IF;
 
+  -- Ensure the asset exists and is in 'uploading' state
+  IF NOT EXISTS (SELECT 1 FROM public.assets WHERE id = p_asset_id AND status = 'uploading'::public.asset_status_enum) THEN
+    RAISE EXCEPTION 'Asset % is not in an uploadable finalization state', p_asset_id;
+  END IF;
+
+  -- Ensure no version exists (idempotency/security)
+  IF EXISTS (SELECT 1 FROM public.asset_versions WHERE asset_id = p_asset_id) THEN
+    RAISE EXCEPTION 'Asset % already has a version', p_asset_id;
+  END IF;
+
   INSERT INTO public.asset_versions (
     asset_id,
     version_number,
@@ -254,29 +275,9 @@ REVOKE EXECUTE ON FUNCTION public.rpc_finalize_dam_asset(uuid, text, text, bigin
 GRANT EXECUTE ON FUNCTION public.rpc_finalize_dam_asset(uuid, text, text, bigint, text, integer, integer, text, text, uuid, text) TO authenticated, service_role;
 
 
--- ── 4. update_media_metadata: Guard Storage Metadata Updates ──────────────────
-CREATE OR REPLACE FUNCTION public.update_media_metadata(file_path text, new_metadata jsonb)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = ''
-AS $$
-DECLARE
-  _bucket_id text := 'media';
-BEGIN
-  IF NOT public.is_cms_editor() THEN
-    RAISE EXCEPTION 'Unauthorized: CMS editor access required';
-  END IF;
-
-  UPDATE storage.objects
-  SET metadata = metadata || new_metadata
-  WHERE bucket_id = _bucket_id
-    AND name = file_path;
-END;
-$$;
-
-REVOKE EXECUTE ON FUNCTION public.update_media_metadata(text, jsonb) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.update_media_metadata(text, jsonb) TO authenticated, service_role;
+-- ── 4. update_media_metadata: Dead code removal ───────────────────────────────
+-- Audit confirms this function has no consumers in the frontend or edge functions.
+DROP FUNCTION IF EXISTS public.update_media_metadata(text, jsonb);
 
 
 -- ── 5. get_admin_users: Revoke PUBLIC / anon grants ───────────────────────────

@@ -1,19 +1,20 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import OurApproach from "@/components/services/OurApproach";
-import StageDetailPanel from "@/components/process/StageDetailPanel";
-import TrustStrip from "@/components/process/TrustStrip";
-import TimelineGantt from "@/components/process/TimelineGantt";
-import ProcessCaseStudy from "@/components/process/ProcessCaseStudy";
-import ProcessFAQ from "@/components/process/ProcessFAQ";
 import ScrollToTop from "@/components/layout/ScrollToTop";
-import ProcessCTA from "@/components/process/ProcessCTA";
+import TrustStrip from "@/components/process/TrustStrip";
+import ProcessStages from "@/components/process/ProcessStages";
+import ProcessFAQ from "@/components/process/ProcessFAQ";
 import { PageHero } from "@/components/motion/PageHero";
-import { ProcessChapter } from "@/components/home/ProcessChapter";
+import { textLinkClass } from "@/components/editorial";
 
+/**
+ * Our Process — the five stages, once.
+ *
+ * Hero → studio metrics → the five stages in full → FAQ. The footer carries
+ * the page-aware closing CTA.
+ */
 const OurProcessPage = () => {
   return (
     <>
@@ -26,46 +27,30 @@ const OurProcessPage = () => {
         <meta property="og:url" content="https://crossangleinterior.com/our-process" />
         <link rel="canonical" href="https://crossangleinterior.com/our-process" />
       </Helmet>
-      
+
       <Navbar />
 
-      <main id="main-content" className="bg-[#020202] min-h-screen">
+      <main id="main-content" className="relative z-10 min-h-screen bg-[var(--s-canvas-primary)] text-white">
         <PageHero
-          kicker="How We Work"
-          lines={["From Your First Idea", <span key="l2" className="italic font-light text-[#C9A85C]">to Your Finished Space</span>]}
+          kicker="How we work"
+          lines={["From your first idea", <span key="l2" className="italic font-light text-[#C9A85C]">to your finished space</span>]}
           lede="A contractually-guaranteed 5-stage system that eliminates guesswork, protects your budget, and delivers on time. No ambiguity from the first brief to the final handover."
           image={{ entity: "our-process", fallback: "/blueprint_shell.jpg", alt: "" }}
           actions={
             <>
-              <Link
-                to="/contact"
-                className="group inline-flex items-center gap-3 bg-white text-black px-7 py-3.5 rounded-full text-sm font-semibold tracking-wide hover:bg-stone-200 transition-all"
-              >
-                Book Free Consultation
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <Link to="/contact-us" className={textLinkClass}>
+                Book a free consultation <span aria-hidden="true">→</span>
               </Link>
-              <a
-                href="#process"
-                className="group inline-flex items-center gap-3 border border-white/20 text-white px-7 py-3.5 rounded-full text-sm font-light tracking-wide hover:bg-white/5 transition-all"
-              >
-                Explore the 5 Stages
+              <a href="#process" className={textLinkClass}>
+                Explore the 5 stages <span aria-hidden="true">↓</span>
               </a>
             </>
           }
         />
 
-        {/* Cinematic overview of the five stages (pinned, scroll-driven) */}
-        <ProcessChapter kicker="The Journey" />
-
         <TrustStrip />
-        <OurApproach />
-        <div id="process">
-          <StageDetailPanel />
-        </div>
-        <TimelineGantt />
-        <ProcessCaseStudy />
+        <ProcessStages />
         <ProcessFAQ />
-        <ProcessCTA />
       </main>
 
       <Footer />

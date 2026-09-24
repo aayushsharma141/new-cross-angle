@@ -53,10 +53,10 @@ export class AdminRouteErrorBoundary extends Component<Props, State> {
           </p>
           <div className="flex gap-3 justify-center">
             <Button size="sm" onClick={this.handleRetry} className="gap-2">
-              <RefreshCw className="h-3.5 w-3.5" /> Retry
+              <RefreshCw className="h-4 w-4" /> Retry
             </Button>
             <Button size="sm" variant="outline" onClick={this.handleBack} className="gap-2">
-              <ArrowLeft className="h-3.5 w-3.5" /> Back to Hub
+              <ArrowLeft className="h-4 w-4" /> Back to Hub
             </Button>
           </div>
         </div>

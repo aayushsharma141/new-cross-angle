@@ -12,125 +12,11 @@ import {
     structuredLog,
     getRequestId,
 } from "../_lib/security.ts";
+import { DEFAULT_PRICING_CONFIG, mergeConfig, sanitizeFormData, calculateEstimate, scoreLead, UUID_RE } from "./pricing.ts";
 
 // Public endpoint: rate limit generously but still protect.
 const FN = "submit-estimate";
 const RATE_OPTS = { bucket: "submit-estimate", max: 20, windowMs: 60_000 };
-
-// Define default config fallback matching frontend defaults
-const DEFAULT_PRICING_CONFIG = {
-    design: { consultancy_rate: 250, rate_2d: 150, rate_3d: 350, supervision_monthly: 150000, free_visits: 5, extra_visit_cost: 25000 },
-    city_multipliers: { metro: 1.2, tier1: 1.1, tier2: 1.0 },
-    execution: {
-        economy: { min: 3500, max: 4500 },
-        standard: { min: 5500, max: 7500 },
-        premium: { min: 8500, max: 12000 },
-        luxury: { min: 15000, max: 25000 }
-    },
-    logic: { contingency_pct: 10, pm_pct: 8, gst_pct: 18 },
-    scoring_weights: { area: 25, budget: 30, service: 20, city: 10, timeline: 15 },
-    addons: { modular_kitchen: 1500000, wardrobe_per_room: 800000, false_ceiling_sqft: 450, smart_home: 2500000, custom_furniture: 5000000, premium_lighting: 1200000 }
-};
-
-function calculateEstimate(data: any, config: any) {
-    const a = data.area || 0;
-    const m = config.city_multipliers[data.cityTier] ?? 1.0;
-
-    let dMin = 0, dMax = 0, sup = 0, exMin = 0, exMax = 0, extraVC = 0;
-    const svc = data.selectedService;
-
-    if (svc === "C1") {
-        dMin = dMax = a * config.design.consultancy_rate * m;
-    } else if (svc === "C2") {
-        dMin = dMax = a * config.design.rate_2d * m;
-    } else if (svc === "C3") {
-        dMin = dMax = a * config.design.rate_3d * m;
-    } else if (svc === "C4") {
-        dMin = dMax = a * config.design.rate_3d * m;
-        sup = config.design.supervision_monthly * (data.projectMonths || 3);
-        extraVC = Math.max(0, (data.extraVisits || 5) - config.design.free_visits) * config.design.extra_visit_cost;
-    } else if (svc === "C5" && data.executionTier) {
-        const tier = config.execution[data.executionTier];
-        if (tier) {
-            exMin = a * tier.min * m;
-            exMax = a * tier.max * m;
-        }
-        dMin = dMax = a * config.design.rate_2d * m;
-    }
-
-    const gst = dMin * (config.logic.gst_pct / 100);
-    const cMin = exMin * (config.logic.contingency_pct / 100);
-    const cMax = exMax * (config.logic.contingency_pct / 100);
-    const pmMin = exMin * (config.logic.pm_pct / 100);
-    const pmMax = exMax * (config.logic.pm_pct / 100);
-
-    let addons = 0;
-    if (data.modularKitchen) addons += config.addons.modular_kitchen;
-    if (data.wardrobes > 0) addons += data.wardrobes * config.addons.wardrobe_per_room;
-    if (data.falseCeiling) addons += a * config.addons.false_ceiling_sqft;
-    if (data.smartHome) addons += config.addons.smart_home;
-    if (data.customFurniture) addons += config.addons.custom_furniture;
-    if (data.premiumLighting) addons += config.addons.premium_lighting;
-
-    const totalMin = dMin + gst + sup + extraVC + exMin + cMin + pmMin + addons;
-    const totalMax = dMax + gst + sup + extraVC + exMax + cMax + pmMax + addons;
-
-    return {
-        designCost: { min: dMin, max: dMax },
-        gstOnDesign: gst,
-        supervisionCost: sup,
-        extraVisitsCost: extraVC,
-        executionCost: { min: exMin, max: exMax },
-        contingency: { min: cMin, max: cMax },
-        pmFee: { min: pmMin, max: pmMax },
-        addonCost: addons,
-        total: { min: totalMin, max: totalMax },
-    };
-}
-
-function scoreLead(formData: any, config: any) {
-    const w = config.scoring_weights;
-    let budgetScore = 0, scopeScore = 0, areaScore = 0, timelineScore = 0, cityScore = 0;
-
-    if (formData.budgetAmount >= 5000000) budgetScore = w.budget;
-    else if (formData.budgetAmount >= 2000000) budgetScore = w.budget * 0.7;
-    else if (formData.budgetAmount >= 500000) budgetScore = w.budget * 0.4;
-    else budgetScore = w.budget * 0.15;
-
-    if (formData.selectedService === "C5") scopeScore = w.service;
-    else if (formData.selectedService === "C4") scopeScore = w.service * 0.8;
-    else if (formData.selectedService === "C3") scopeScore = w.service * 0.6;
-    else if (formData.selectedService === "C2") scopeScore = w.service * 0.4;
-    else scopeScore = w.service * 0.2;
-
-    if (formData.area >= 3000) areaScore = w.area;
-    else if (formData.area >= 1500) areaScore = w.area * 0.6;
-    else areaScore = w.area * 0.3;
-
-    if (formData.startTiming === "Immediate") timelineScore = w.timeline;
-    else if (formData.startTiming === "1-3 Months") timelineScore = w.timeline * 0.5;
-    else timelineScore = w.timeline * 0.2;
-
-    if (formData.cityTier === "metro") cityScore = w.city;
-    else if (formData.cityTier === "tier1") cityScore = w.city * 0.6;
-    else cityScore = w.city * 0.3;
-
-    const total = Math.round(budgetScore + scopeScore + areaScore + timelineScore + cityScore);
-    const category = total >= 70 ? "HOT" : total >= 40 ? "WARM" : "COLD";
-
-    return {
-        total,
-        category,
-        breakdown: {
-            budget: Math.round(budgetScore),
-            scope: Math.round(scopeScore),
-            area: Math.round(areaScore),
-            timeline: Math.round(timelineScore),
-            city: Math.round(cityScore),
-            engagement: 0,
-        },
-    };
-}
 
 Deno.serve(async (req: Request) => {
     const preflight = handlePreflight(req);
@@ -144,36 +30,44 @@ Deno.serve(async (req: Request) => {
     if (rl.limited) return rateLimitResponse(req, rl, {}, FN, requestId);
 
     try {
-        const body = await req.json();
-        const { formData, discoveryContext, alcsRecommendation } = body;
-
-        if (!formData || !formData.email || !formData.area) {
-            return badRequestResponse(req, "Invalid strictly required form data", {}, requestId);
+        const body = await req.json().catch(() => null);
+        if (!body || typeof body !== "object") {
+            return badRequestResponse(req, "Invalid request body", {}, requestId);
         }
+        const { discoveryContext, alcsRecommendation } = body;
+        const submissionId = typeof body.submissionId === "string" && UUID_RE.test(body.submissionId) ? body.submissionId : null;
 
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
         const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // Fetch dynamic pricing rates created by user from Admin Panel
+        // Pricing is admin-managed in estimator_flow_config (key "pricing"), the same row the
+        // public estimator and the admin Pricing & Settings page read. The former estimate_rates
+        // table never existed in production, so this used to fall back to defaults silently.
         let pricingConfig = DEFAULT_PRICING_CONFIG;
-        const { data: dbRates } = await supabase
-            .from('estimate_rates')
-            .select('config')
-            .order('updated_at', { ascending: false })
-            .limit(1)
+        const { data: pricingRow, error: pricingError } = await supabase
+            .from('estimator_flow_config')
+            .select('data')
+            .eq('key', 'pricing')
             .maybeSingle();
 
-        if (dbRates?.config) {
-            pricingConfig = { ...DEFAULT_PRICING_CONFIG, ...dbRates.config };
+        if (pricingError) {
+            console.error(`[${FN}] pricing config lookup failed, using defaults:`, pricingError.message);
+        } else if (pricingRow?.data) {
+            pricingConfig = mergeConfig(DEFAULT_PRICING_CONFIG, pricingRow.data);
         }
+
+        const sanitized = sanitizeFormData(body.formData, pricingConfig);
+        if (!sanitized.data) {
+            return badRequestResponse(req, sanitized.error ?? "Invalid form data", {}, requestId);
+        }
+        const formData = sanitized.data;
 
         // Calculate true values on server, defeating client-side overrides
         const estimate = calculateEstimate(formData, pricingConfig);
         const score = scoreLead(formData, pricingConfig);
 
-        // Single insert into unified leads table (estimate_leads merged 2026-04-11)
-        const { data: insertedLead, error: errInsert } = await supabase.from("leads").insert({
+        const leadRow = {
             name: formData.name,
             email: formData.email,
             phone: formData.phone,
@@ -227,16 +121,46 @@ Deno.serve(async (req: Request) => {
             alcs_reasoning: alcsRecommendation?.reasoning ?? null,
             alcs_evidence: alcsRecommendation?.evidence ?? null,
             alcs_primary_drivers: alcsRecommendation?.primaryDrivers ?? null,
-        }).select().single();
+        };
 
-        if (errInsert) {
-            structuredLog("error", FN, "Lead Insert Error", { error: errInsert.message, details: errInsert.details }, requestId);
-            throw errInsert;
+        // Same calculator session (Back -> Results, reload, retry): update the lead it
+        // already created. Only when the id, email and source all match and the lead
+        // is fresh, so a leaked id can't be used to overwrite someone else's lead.
+        let leadId: string | undefined;
+        let isNewLead = true;
+        if (submissionId) {
+            const { data: existing } = await supabase
+                .from("leads")
+                .select("id, email, lead_source, created_at")
+                .eq("id", submissionId)
+                .maybeSingle();
+            const fresh = existing?.created_at && Date.now() - new Date(existing.created_at).getTime() < 24 * 60 * 60 * 1000;
+            if (existing && existing.lead_source === "estimator" && existing.email?.toLowerCase() === formData.email && fresh) {
+                const { error: errUpdate } = await supabase.from("leads").update(leadRow).eq("id", submissionId);
+                if (errUpdate) {
+                    structuredLog("error", FN, "Lead Update Error", { error: errUpdate.message }, requestId);
+                    throw errUpdate;
+                }
+                leadId = submissionId;
+                isNewLead = false;
+            }
         }
 
-        const leadId = (insertedLead as unknown as { id?: string })?.id;
+        if (isNewLead) {
+            const reuseId = submissionId && !(await supabase.from("leads").select("id").eq("id", submissionId).maybeSingle()).data;
+            const { data: insertedLead, error: errInsert } = await supabase
+                .from("leads")
+                .insert(reuseId ? { ...leadRow, id: submissionId } : leadRow)
+                .select("id")
+                .single();
+            if (errInsert) {
+                structuredLog("error", FN, "Lead Insert Error", { error: errInsert.message, details: errInsert.details }, requestId);
+                throw errInsert;
+            }
+            leadId = (insertedLead as { id?: string } | null)?.id;
+        }
 
-        if (leadId) {
+        if (leadId && isNewLead) {
             // Insert into decision_events to maintain decision/replay chain
             const { error: decisionErr } = await supabase.from("decision_events").insert({
                 lead_id: leadId,
@@ -279,7 +203,7 @@ Deno.serve(async (req: Request) => {
             }
         }
 
-        structuredLog("info", FN, "Lead Estimate Processed", { email: formData.email, score: score.total, leadId }, requestId);
+        structuredLog("info", FN, "Lead Estimate Processed", { score: score.total, leadId, updated: !isNewLead }, requestId);
         return okResponse(req, { success: true, estimate, leadId }, {}, rl, RATE_OPTS.max, requestId);
 
     } catch (err: unknown) {

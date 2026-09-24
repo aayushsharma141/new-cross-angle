@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/primitives/interactive";
@@ -8,6 +8,27 @@ import { AdminFormCard, AdminSafeAction } from "@/components/admin/shared";
 import type { PricingConfig } from "@/addons/calculators/components/data/types";
 import { DEFAULT_PRICING_CONFIG } from "@/addons/calculators/components/data/pricing-config";
 import type { useEstimatorRegistry } from "@/lib/registry/EstimatorRegistry";
+import { ConfigLoadError } from "./ConfigLoadError";
+
+/** Values that would silently zero out or invert customer quotes if saved. */
+export function validatePricing(c: PricingConfig): string[] {
+    const errors: string[] = [];
+    const bad = (v: unknown) => typeof v !== "number" || !Number.isFinite(v) || v < 0;
+    for (const [k, v] of Object.entries(c.design)) if (bad(v)) errors.push(`Design: ${formatLabel(k)} must be 0 or more`);
+    for (const [k, v] of Object.entries(c.addons ?? {})) if (bad(v)) errors.push(`Add-on: ${formatLabel(k)} must be 0 or more`);
+    for (const [k, v] of Object.entries(c.scoring_weights)) if (bad(v)) errors.push(`Scoring: ${formatLabel(k)} must be 0 or more`);
+    for (const [k, v] of Object.entries(c.city_multipliers)) {
+        if (bad(v) || v <= 0 || v > 5) errors.push(`City multiplier "${k}" must be above 0 and at most 5`);
+    }
+    for (const [k, r] of Object.entries(c.execution)) {
+        if (bad(r.min) || bad(r.max) || r.min <= 0) errors.push(`${formatLabel(k)} package: rates must be above 0`);
+        else if (r.max < r.min) errors.push(`${formatLabel(k)} package: max rate is below min rate`);
+    }
+    for (const [k, v] of Object.entries(c.logic)) {
+        if (bad(v) || v > 100) errors.push(`${formatLabel(k)} must be between 0 and 100`);
+    }
+    return errors;
+}
 
 const formatLabel = (key: string) =>
     key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -17,7 +38,7 @@ interface Props {
 }
 
 export default function PricingIntelligenceWorkspace({ registry }: Props) {
-    const { data: currentConfig, save, isSaving } = registry.pricingRates;
+    const { data: currentConfig, save, isSaving, loadFailed, retry } = registry.pricingRates;
     
     // Local state for editing
     const [config, setConfig] = useState<PricingConfig>(currentConfig || DEFAULT_PRICING_CONFIG);
@@ -52,10 +73,19 @@ export default function PricingIntelligenceWorkspace({ registry }: Props) {
         setHasChanges(false);
     };
 
+    const errors = useMemo(() => validatePricing(config), [config]);
+
     const handleSave = async () => {
-        await save(config);
-        setHasChanges(false);
+        if (errors.length > 0) return;
+        try {
+            await save(config);
+            setHasChanges(false);
+        } catch {
+            // useFlowConfig's onError already shows the failure toast; edits stay unsaved.
+        }
     };
+
+    if (loadFailed) return <ConfigLoadError what="pricing" onRetry={retry} />;
 
     return (
         <div className="flex flex-col space-y-6 pb-20">
@@ -84,8 +114,8 @@ export default function PricingIntelligenceWorkspace({ registry }: Props) {
                         />
                     )}
                     <Button
-                        onClick={handleSave}
-                        disabled={!hasChanges || isSaving}
+                        onClick={() => void handleSave()}
+                        disabled={!hasChanges || isSaving || errors.length > 0}
                         className="bg-[hsl(var(--admin-primary))] text-[hsl(var(--admin-surface))] hover:bg-[hsl(var(--admin-primary))]/90 h-9"
                     >
                         {isSaving ? (
@@ -98,13 +128,22 @@ export default function PricingIntelligenceWorkspace({ registry }: Props) {
                 </div>
             </div>
 
+            {errors.length > 0 && (
+                <div role="alert" className="rounded-lg border border-[hsl(var(--admin-danger))]/30 bg-[hsl(var(--admin-danger))]/5 px-4 py-3 text-xs text-[hsl(var(--admin-text))]">
+                    <p className="font-semibold mb-1">Fix these before saving — they would change every customer quote:</p>
+                    <ul className="list-disc pl-4 space-y-0.5 text-[hsl(var(--admin-text-muted))]">
+                        {errors.map((e) => <li key={e}>{e}</li>)}
+                    </ul>
+                </div>
+            )}
+
             <div className="space-y-4 fade-up-2">
                 <AdminFormCard title="Design Rates" icon={Paintbrush} iconClassName="text-purple-400">
-                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-3">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
                         {Object.entries(config.design).map(([key, val]) => (
                             <div key={key} className="flex items-center justify-between gap-2">
                                 <span className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))] truncate">{formatLabel(key)}</span>
-                                <Input type="number" value={val} onChange={(e) => updateConfig(["design", key], parseFloat(e.target.value) || 0)} className="h-8 w-24 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
+                                <Input type="number" min={0} value={val} onChange={(e) => updateConfig(["design", key], parseFloat(e.target.value) || 0)} className="h-8 w-24 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
                             </div>
                         ))}
                     </div>
@@ -118,9 +157,9 @@ export default function PricingIntelligenceWorkspace({ registry }: Props) {
                                 <span className="text-[11px] font-medium text-[hsl(var(--admin-text))] capitalize w-24 shrink-0">{formatLabel(tierKey)}</span>
                                 <div className="flex items-center gap-2 flex-1">
                                     <span className="text-[10px] text-[hsl(var(--admin-text-muted))]">Min</span>
-                                    <Input type="number" value={tier.min} onChange={(e) => updateConfig(["execution", tierKey, "min"], parseInt(e.target.value) || 0)} className="h-8 w-24 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
+                                    <Input type="number" min={0} value={tier.min} onChange={(e) => updateConfig(["execution", tierKey, "min"], parseInt(e.target.value) || 0)} className="h-8 w-24 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
                                     <span className="text-[10px] text-[hsl(var(--admin-text-muted))] ml-2">Max</span>
-                                    <Input type="number" value={tier.max} onChange={(e) => updateConfig(["execution", tierKey, "max"], parseInt(e.target.value) || 0)} className="h-8 w-24 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
+                                    <Input type="number" min={0} value={tier.max} onChange={(e) => updateConfig(["execution", tierKey, "max"], parseInt(e.target.value) || 0)} className="h-8 w-24 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
                                 </div>
                             </div>
                         );
@@ -128,11 +167,11 @@ export default function PricingIntelligenceWorkspace({ registry }: Props) {
                 </AdminFormCard>
 
                 <AdminFormCard title="Add-on Costs (₹)" icon={Plug} iconClassName="text-pink-400">
-                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-3">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
                         {config.addons && Object.entries(config.addons).map(([key, val]) => (
                             <div key={key} className="flex items-center justify-between gap-2">
                                 <span className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))] truncate">{formatLabel(key)}</span>
-                                <Input type="number" value={val} onChange={(e) => updateConfig(["addons", key], parseInt(e.target.value) || 0)} className="h-8 w-24 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
+                                <Input type="number" min={0} value={val} onChange={(e) => updateConfig(["addons", key], parseInt(e.target.value) || 0)} className="h-8 w-24 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
                             </div>
                         ))}
                     </div>
@@ -144,7 +183,7 @@ export default function PricingIntelligenceWorkspace({ registry }: Props) {
                         {Object.entries(config.city_multipliers).map(([city, multiplier]) => (
                             <div key={city} className="flex items-center justify-between gap-2">
                                 <span className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))] capitalize">{city}</span>
-                                <Input type="number" step="0.01" value={multiplier} onChange={(e) => updateConfig(["city_multipliers", city], parseFloat(e.target.value) || 0)} className="h-8 w-20 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
+                                <Input type="number" min={0} step="0.01" value={multiplier} onChange={(e) => updateConfig(["city_multipliers", city], parseFloat(e.target.value) || 0)} className="h-8 w-20 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
                             </div>
                         ))}
                         </div>
@@ -155,7 +194,7 @@ export default function PricingIntelligenceWorkspace({ registry }: Props) {
                         {Object.entries(config.logic).map(([key, val]) => (
                             <div key={key} className="flex items-center justify-between gap-2">
                                 <span className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">{formatLabel(key)}</span>
-                                <Input type="number" step="0.01" value={val} onChange={(e) => updateConfig(["logic", key], parseFloat(e.target.value) || 0)} className="h-8 w-20 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
+                                <Input type="number" min={0} step="0.01" value={val} onChange={(e) => updateConfig(["logic", key], parseFloat(e.target.value) || 0)} className="h-8 w-20 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
                             </div>
                         ))}
                         </div>
@@ -166,7 +205,7 @@ export default function PricingIntelligenceWorkspace({ registry }: Props) {
                         {Object.entries(config.scoring_weights).map(([key, val]) => (
                             <div key={key} className="flex items-center justify-between gap-2">
                                 <span className="text-[11px] font-medium text-[hsl(var(--admin-text-muted))]">{formatLabel(key)}</span>
-                                <Input type="number" value={val} onChange={(e) => updateConfig(["scoring_weights", key], parseInt(e.target.value) || 0)} className="h-8 w-16 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
+                                <Input type="number" min={0} value={val} onChange={(e) => updateConfig(["scoring_weights", key], parseInt(e.target.value) || 0)} className="h-8 w-16 text-xs text-right bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
                             </div>
                         ))}
                         </div>

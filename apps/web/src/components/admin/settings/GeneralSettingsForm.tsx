@@ -277,8 +277,7 @@ export function GeneralSettingsForm() {
                     office_hours: Array.isArray(data.business_hours) ? data.business_hours as { id: string; days: string; hours: string; }[] : [],
                 });
             }
-        } catch (error) {
-            console.error("Error fetching settings:", error);
+        } catch {
             toast({
                 variant: "destructive",
                 title: "Error",
@@ -359,7 +358,6 @@ export function GeneralSettingsForm() {
             });
         } catch (error) {
             const err = error as Error;
-            console.error("Error saving settings:", err);
             toast({
                 variant: "destructive",
                 title: "Error",
@@ -411,7 +409,7 @@ export function GeneralSettingsForm() {
                                         <FormLabel>Company Description</FormLabel>
                                         <FormControl>
                                             <Textarea
-                                                placeholder="A brief description of your company for SEO�"
+                                                placeholder="A brief description of your company for SEO…"
                                                 className="min-h-[80px]"
                                                 {...field}
                                             />
@@ -503,7 +501,7 @@ export function GeneralSettingsForm() {
                                         <Globe className="w-4 h-4" /> About Video URL
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://www.youtube.com/embed/�" {...field} />
+                                        <Input placeholder="https://www.youtube.com/embed/…" {...field} />
                                     </FormControl>
                                     <FormDescription>
                                         Embed URL for the About page video (e.g., YouTube embed link)
@@ -548,7 +546,7 @@ export function GeneralSettingsForm() {
                                         <Facebook className="w-4 h-4" /> Facebook
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://facebook.com/�" {...field} />
+                                        <Input placeholder="https://facebook.com/…" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -563,7 +561,7 @@ export function GeneralSettingsForm() {
                                         <Instagram className="w-4 h-4" /> Instagram
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://instagram.com/�" {...field} />
+                                        <Input placeholder="https://instagram.com/…" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -578,7 +576,7 @@ export function GeneralSettingsForm() {
                                         <Twitter className="w-4 h-4" /> Twitter (X)
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://twitter.com/�" {...field} />
+                                        <Input placeholder="https://twitter.com/…" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -593,7 +591,7 @@ export function GeneralSettingsForm() {
                                         <Linkedin className="w-4 h-4" /> LinkedIn
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://linkedin.com/in/�" {...field} />
+                                        <Input placeholder="https://linkedin.com/in/…" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -608,7 +606,7 @@ export function GeneralSettingsForm() {
                                         <Youtube className="w-4 h-4" /> YouTube
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://youtube.com/@�" {...field} />
+                                        <Input placeholder="https://youtube.com/@…" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -623,7 +621,7 @@ export function GeneralSettingsForm() {
                                         <PinterestIcon /> Pinterest
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://pinterest.com/�" {...field} />
+                                        <Input placeholder="https://pinterest.com/…" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

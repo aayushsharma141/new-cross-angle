@@ -106,7 +106,7 @@ export default function WorkspaceAfterMeeting({ leadId, sessionId, onSessionComp
               <label htmlFor="followUps" className="text-sm font-bold text-[var(--s-text-primary)]">Follow-up Actions</label>
               <Textarea 
                 id="followUps"
-                placeholder="List follow-up actions (one per line)�" 
+                placeholder="List follow-up actions (one per line)…" 
                 value={followUps}
                 onChange={(e) => setFollowUps(e.target.value)}
                 className="resize-none bg-[var(--s-canvas-primary)] border-[var(--s-border-subtle)] text-[var(--s-text-primary)]"
@@ -117,7 +117,7 @@ export default function WorkspaceAfterMeeting({ leadId, sessionId, onSessionComp
               <label htmlFor="notes" className="text-sm font-bold text-[var(--s-text-primary)]">Designer Private Notes</label>
               <Textarea 
                 id="notes"
-                placeholder="Any other observations or private notes for institutional learning�" 
+                placeholder="Any other observations or private notes for institutional learning…" 
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 className="resize-none bg-[var(--s-canvas-primary)] border-[var(--s-border-subtle)] text-[var(--s-text-primary)]"

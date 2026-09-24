@@ -74,7 +74,6 @@ export interface AnalyticsEventMap {
   contact_form_started: { path: string };
   contact_form_submitted: { 
     leadSource: string;
-    email: string;
     leadId?: string;
     sessionId?: string;
     correlationId?: string;

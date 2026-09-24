@@ -27,3 +27,12 @@ export const navLinks: { name: string; href: string; hasMegaMenu?: boolean }[] =
   { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/contact-us" },
 ];
+
+/**
+ * Desktop header links. Deliberately trimmed to five so the tracked,
+ * uppercase treatment has room to breathe; Home is the logo, and
+ * Process / Blog remain reachable from the mobile menu and footer.
+ */
+export const headerLinks = navLinks.filter((l) =>
+  ["Services", "Portfolio", "Gallery", "About", "Contact"].includes(l.name)
+);

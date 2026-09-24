@@ -44,6 +44,7 @@ export interface BlogPost {
    */
   deprecated_cover_image_url?: string;
   created_at: string;
+  published_at?: string | null;
   read_time_minutes?: number;
   view_count?: number;
   category?: string;

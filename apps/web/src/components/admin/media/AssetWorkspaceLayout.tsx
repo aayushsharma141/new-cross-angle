@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/primitives/resizable";
 import { AssetSidebar } from "./AssetSidebar";
 import { AssetInspector } from "./AssetInspector";
+import { CollectionDetailView } from "./CollectionDetailView";
 import { cn } from "@/lib/utils";
 
 export function AssetWorkspaceLayout() {
@@ -41,7 +42,7 @@ export function AssetWorkspaceLayout() {
                         maxSize={40}
                         className={cn(
                             "bg-muted/10 border-r transition-all",
-                            selectedAssetId ? "hidden md:block" : "block"
+                            (selectedAssetId || activeCollectionId) ? "hidden md:block" : "block"
                         )}
                     >
                         <AssetSidebar
@@ -58,14 +59,28 @@ export function AssetWorkspaceLayout() {
                         defaultSize={80} 
                         className={cn(
                             "bg-background relative transition-all",
-                            selectedAssetId ? "block" : "hidden md:block"
+                            (selectedAssetId || activeCollectionId) ? "block" : "hidden md:block"
                         )}
                     >
-                        <AssetInspector
-                            selectedAssetId={selectedAssetId}
-                            activeCollectionId={activeCollectionId}
-                            onCollectionFilter={handleCollectionFilter}
-                        />
+                        {selectedAssetId ? (
+                            <AssetInspector
+                                selectedAssetId={selectedAssetId}
+                                activeCollectionId={activeCollectionId}
+                                onCollectionFilter={handleCollectionFilter}
+                            />
+                        ) : activeCollectionId ? (
+                            <CollectionDetailView
+                                collectionId={activeCollectionId}
+                                onSelectAsset={handleSelectAsset}
+                                onClearCollection={() => handleCollectionFilter(null)}
+                            />
+                        ) : (
+                            <AssetInspector
+                                selectedAssetId={null}
+                                activeCollectionId={null}
+                                onCollectionFilter={handleCollectionFilter}
+                            />
+                        )}
                     </ResizablePanel>
                 </ResizablePanelGroup>
             </div>

@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import {
   Table,
   TableBody,
@@ -20,6 +20,7 @@ import { Card } from "@/design-system/components/Card";
 import { Link } from "react-router-dom";
 import { MoreHorizontal, Eye, Mail, Phone, Trash2, Flame, Thermometer, Snowflake, Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/useToast";
 import { getLeadTemperature, Lead } from "@/lib/scoring/leadScoring";
 import { icons } from "@/design-system/tokens/icons";
 import {
@@ -42,14 +43,40 @@ interface LeadListViewProps {
   leads: Lead[];
   onLeadClick: (lead: Lead) => void;
   onDeleteClick?: (id: string) => void;
+  selectedLeadIds?: Set<string>;
+  onLeadToggleSelect?: (leadId: string) => void;
+  onSelectAll?: () => void;
 }
 
-export function LeadListView({ leads, onLeadClick, onDeleteClick }: LeadListViewProps) {
+export function LeadListView({ leads, onLeadClick, onDeleteClick, selectedLeadIds = new Set(), onLeadToggleSelect, onSelectAll }: LeadListViewProps) {
+  const allSelected = leads.length > 0 && leads.every((l) => selectedLeadIds.has(l.id));
+  const { toast } = useToast();
+
+  const copyText = async (text: string, what: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: `${what} copied`, description: text });
+    } catch {
+      toast({ variant: "destructive", title: `Couldn't copy ${what.toLowerCase()}`, description: "Clipboard access was blocked by the browser." });
+    }
+  };
+
   return (
     <Card className="overflow-hidden shadow-none border border-[hsl(var(--admin-border))]/60 bg-transparent rounded-xl">
         <Table>
         <TableHeader className="bg-[hsl(var(--admin-surface))]/50 border-b border-[hsl(var(--admin-border))]/60">
           <TableRow className="h-11 hover:bg-transparent border-0">
+            {onLeadToggleSelect && (
+              <TableHead className="px-4 w-10">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={() => onSelectAll?.()}
+                  className="w-4 h-4 rounded border-[hsl(var(--admin-border))] cursor-pointer"
+                  aria-label="Select all leads"
+                />
+              </TableHead>
+            )}
             <TableHead className="px-6 text-[11px] uppercase tracking-wider font-semibold text-[hsl(var(--admin-text-muted))] whitespace-nowrap">Lead</TableHead>
             <TableHead className="px-4 text-[11px] uppercase tracking-wider font-semibold text-[hsl(var(--admin-text-muted))] whitespace-nowrap">Type</TableHead>
             <TableHead className="px-4 text-[11px] uppercase tracking-wider font-semibold text-[hsl(var(--admin-text-muted))] whitespace-nowrap">Source</TableHead>
@@ -70,10 +97,20 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick }: LeadListView
             return (
               <TableRow
                 key={lead.id}
-                className="cursor-pointer group hover:bg-[hsl(var(--admin-surface))] h-20 transition-colors border-b border-[hsl(var(--admin-border))]/40"
-                onClick={() => onLeadClick(lead)}
+                className={`group hover:bg-[hsl(var(--admin-surface))] h-20 transition-colors border-b border-[hsl(var(--admin-border))]/40 ${selectedLeadIds.has(lead.id) ? 'bg-[hsl(var(--admin-primary))]/5' : ''}`}
               >
-                <TableCell className="align-middle px-6">
+                {onLeadToggleSelect && (
+                  <TableCell className="align-middle px-4 w-10" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={selectedLeadIds.has(lead.id)}
+                      onChange={() => onLeadToggleSelect(lead.id)}
+                      className="w-4 h-4 rounded border-[hsl(var(--admin-border))] cursor-pointer"
+                      aria-label={`Select ${lead.name}`}
+                    />
+                  </TableCell>
+                )}
+                <TableCell className="align-middle px-6 cursor-pointer" onClick={() => onLeadClick(lead)}>
                   <div className="flex flex-col justify-center">
                     <p className="font-semibold text-[hsl(var(--admin-text))] text-[14px] group-hover:text-[hsl(var(--admin-primary))] transition-colors tracking-tight">{lead.name}</p>
                     <p className="text-[13px] text-[hsl(var(--admin-text-muted))] mt-1">{lead.email}</p>
@@ -104,7 +141,7 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick }: LeadListView
                     <span className="text-sm font-semibold tabular-nums text-[hsl(var(--admin-text))]">{score}</span>
                     <Badge
                       variant="outline"
-                      className={cn("text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border-0", temp.color, "bg-[hsl(var(--admin-background))]")}
+                      className={cn("text-[11px] uppercase font-semibold px-2 py-0.5 rounded-full border-0", temp.color, "bg-[hsl(var(--admin-background))]")}
                     >
                       {temp.label}
                     </Badge>
@@ -124,7 +161,7 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick }: LeadListView
                 </TableCell>
 
                 <TableCell className="align-middle px-4 whitespace-nowrap text-[13px] text-[hsl(var(--admin-text-muted))] font-medium group-hover:text-foreground/80 transition-colors">
-                  {lead.created_at
+                  {lead.created_at && isValid(new Date(lead.created_at))
                     ? format(new Date(lead.created_at), "MMM d, yyyy")
                     : EM_DASH}
                 </TableCell>
@@ -164,7 +201,7 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick }: LeadListView
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigator.clipboard.writeText(lead.email ?? "");
+                            void copyText(lead.email ?? "", "Email");
                           }}
                         >
                           <Mail className="mr-2 h-4 w-4" />
@@ -175,7 +212,7 @@ export function LeadListView({ leads, onLeadClick, onDeleteClick }: LeadListView
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigator.clipboard.writeText(lead.phone ?? "");
+                            void copyText(lead.phone ?? "", "Phone");
                           }}
                         >
                           <Phone className="mr-2 h-4 w-4" />

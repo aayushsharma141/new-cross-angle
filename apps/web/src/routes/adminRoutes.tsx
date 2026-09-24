@@ -24,6 +24,7 @@ const AdminEstimatorConfig = lazy(() => import("@/pages/admin/AdminEstimatorConf
 const AdminHero = lazy(() => import("@/pages/admin/AdminHero"));
 const AdminGallery = lazy(() => import("@/pages/admin/AdminGallery"));
 const AdminBeforeAndAfter = lazy(() => import("@/pages/admin/AdminBeforeAndAfter"));
+const AdminVisualMediaHub = lazy(() => import("@/pages/admin/AdminVisualMediaHub"));
 const AdminMilestones = lazy(() => import("@/pages/admin/AdminMilestones"));
 const AdminProcessSteps = lazy(() => import("@/pages/admin/AdminProcessSteps"));
 const AdminSiteAssets = lazy(() => import("@/pages/admin/AdminSiteAssets"));
@@ -82,6 +83,7 @@ export const adminRoutes = (
           <Route path="blog-posts"    element={<RoleGuard allowedRoles={CMS_ROLES}><AdminBlogs /></RoleGuard>} />
           <Route path="media-library" element={<RoleGuard allowedRoles={CMS_ROLES}><AdminMedia /></RoleGuard>} />
           <Route path="hero-carousel" element={<RoleGuard allowedRoles={CMS_ROLES}><AdminHero /></RoleGuard>} />
+          <Route path="visual-media"  element={<RoleGuard allowedRoles={CMS_ROLES}><AdminVisualMediaHub /></RoleGuard>} />
           <Route path="gallery"       element={<RoleGuard allowedRoles={CMS_ROLES}><AdminGallery /></RoleGuard>} />
           <Route path="before-and-after" element={<RoleGuard allowedRoles={CMS_ROLES}><AdminBeforeAndAfter /></RoleGuard>} />
           <Route path="milestones"    element={<RoleGuard allowedRoles={CMS_ROLES}><AdminMilestones /></RoleGuard>} />
@@ -106,6 +108,7 @@ export const adminRoutes = (
 
         {/* ── Estimator: super_admin | admin ──────────────────────────────── */}
         <Route path="estimator" element={<RoleGuard allowedRoles={ADMIN_ONLY}><EstimatorModule /></RoleGuard>}>
+          {/* Reads `leads` where lead_source = 'estimator' (estimate_leads was merged into leads, migration 20260411121000) */}
           <Route path="estimate-leads" element={<AdminEstimateLeads />} />
           <Route path="config" element={<RoleGuard allowedRoles={SUPER_ONLY}><AdminEstimatorConfig /></RoleGuard>} />
           {/* Legacy redirects — old URLs before Phase 12 consolidation */}

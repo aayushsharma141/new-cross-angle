@@ -43,8 +43,10 @@ export function BlogList({ refreshTrigger, onEdit, onNew, searchQuery = "", onSe
 
     if (error) {
       toast({ title: "Error fetching posts", description: error.message, variant: "destructive" });
-    } else if (data) {
-      setPosts(data as unknown as BlogPost[]);
+    } else if (data && Array.isArray(data)) {
+      // Validate data is array of BlogPosts with required fields
+      const validPosts = data.filter((item: any) => item && typeof item === 'object' && 'id' in item && 'title' in item);
+      setPosts(validPosts as BlogPost[]);
     }
     setIsLoading(false);
   };
@@ -125,10 +127,14 @@ export function BlogList({ refreshTrigger, onEdit, onNew, searchQuery = "", onSe
           </>
         ) : filteredPosts.length === 0 ? (
           <div className="fade-up-3 mt-4">
-              <AdminEmptyState 
+              <AdminEmptyState
                   icon={FileText}
-                  title="No posts found"
-                  description="You don't have any blog posts matching this filter yet."
+                  title="Start creating content"
+                  description="Your blog is empty. Add your first post to share stories with your audience."
+                  action={{
+                    label: "Create first post",
+                    onClick: () => window.location.href = "/admin/cms/blog/new"
+                  }}
               />
           </div>
         ) : (
@@ -137,7 +143,7 @@ export function BlogList({ refreshTrigger, onEdit, onNew, searchQuery = "", onSe
 
             return (
               <div key={post.id} className={`${delayClass} group`}>
-                <div className="bg-[hsl(var(--admin-card))] border border-[hsl(var(--admin-border))] rounded-xl p-5 hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200 grid grid-cols-[80px_1fr_auto] gap-5 items-center">
+                <div className="admin-card p-5 hover:bg-[hsl(var(--admin-surface-hover))] hover:border-[hsl(var(--admin-border-subtle))] transition-all duration-200 grid grid-cols-[80px_1fr_auto] gap-5 items-center">
                   
                   {/* Image */}
                   <div className="w-[80px] h-[60px] rounded-lg bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] flex items-center justify-center shrink-0 overflow-hidden relative">
@@ -163,7 +169,7 @@ export function BlogList({ refreshTrigger, onEdit, onNew, searchQuery = "", onSe
                       
                       {post.featured && (
                         <span className="bg-[hsl(var(--admin-accent)/0.1)] border border-[hsl(var(--admin-accent)/0.2)] rounded-full px-[7px] py-[1px] text-[10px] font-semibold text-[hsl(var(--admin-accent))] tracking-wide uppercase flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-current" />
+                          <Star className="w-4 h-4 fill-current" />
                           Featured
                         </span>
                       )}
@@ -185,7 +191,7 @@ export function BlogList({ refreshTrigger, onEdit, onNew, searchQuery = "", onSe
                       )}
                     </div>
                     
-                    <div className="text-[13px] text-[hsl(var(--admin-text-muted))] truncate max-w-2xl mt-1.5">
+                    <div className="text-[13px] text-[hsl(var(--admin-text-muted))] line-clamp-1 max-w-xs sm:max-w-sm md:max-w-2xl mt-1.5">
                       /{post.slug}
                     </div>
 

@@ -47,7 +47,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
         canProceed, validationMessage, isSaving,
         discoveryApplied, discoveryName, discoveryRationale, dismissDiscovery,
         updateField, updateFields, nextStep, prevStep, goToStep,
-        reset, saveLead, alcsEstimatorResponse,
+        reset, saveLead, submitState, alcsEstimatorResponse,
     } = useCalculatorStore();
 
     const startedRef = useRef(false);
@@ -70,7 +70,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
 
     useEffect(() => {
         if (showResults && estimate) {
-            saveLead();
+            void saveLead();
         }
     }, [showResults, estimate, saveLead]);
 
@@ -251,6 +251,8 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                             alcsEstimatorResponse={alcsEstimatorResponse}
                             onReset={reset}
                             onBack={prevStep}
+                            submitState={submitState}
+                            onRetrySubmit={() => void saveLead()}
                         />
                     </div>
                 ) : (

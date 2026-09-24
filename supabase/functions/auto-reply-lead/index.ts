@@ -76,7 +76,8 @@ Deno.serve(async (req) => {
         }
 
         // 2. Send Email via Resend
-        const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') || integrations?.resend_api_key;
+        // Secrets come from Supabase secrets only — site_settings never holds credentials.
+        const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
         if (RESEND_API_KEY) {
             const res = await fetch('https://api.resend.com/emails', {
                 method: 'POST',

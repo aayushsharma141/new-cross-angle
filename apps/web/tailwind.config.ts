@@ -16,6 +16,9 @@ export default {
 			},
 			fontFamily: {
 				display: ["var(--font-display)", "serif", ...fontFamily.serif],
+				// `font-serif` is used in ~300 places and was falling through to
+				// Georgia; the design system's serif is the display face.
+				serif: ["var(--font-display)", "serif", ...fontFamily.serif],
 				sans: ["var(--font-sans)", "system-ui", "sans-serif", ...fontFamily.sans],
 				label: ["'Montserrat'", "sans-serif"],
 				mono: ["'JetBrains Mono'", "ui-monospace", "monospace", ...fontFamily.mono],

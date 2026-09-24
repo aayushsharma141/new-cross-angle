@@ -83,7 +83,7 @@ export function useFlowConfig<T = unknown>(key: FlowConfigKey) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data, isLoading } = useQuery<T>({
+  const { data, isLoading, error, refetch } = useQuery<T>({
     queryKey: ["flow-config", key],
     queryFn: async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -127,9 +127,15 @@ export function useFlowConfig<T = unknown>(key: FlowConfigKey) {
     });
 
   return {
+    // Falls back to defaults so the public estimator always renders. Admin editors
+    // must check loadFailed instead: saving defaults after a failed read would
+    // overwrite the real production config.
     data: data ?? (DEFAULTS[key] as T),
     isLoading,
+    loadFailed: !isLoading && data === undefined && error !== null,
+    retry: () => void refetch(),
     save,
+    saveAsync: (newData: T) => upsert.mutateAsync(newData),
     isSaving: upsert.isPending,
   };
 }

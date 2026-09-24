@@ -285,8 +285,8 @@ export function LeadTable({
       loading={loading}
       onPaginationChange={onPaginationChange}
       onSearchChange={onSearchChange}
-      searchPlaceholder="Search leads by name, email, or phone�"
-      emptyMessage="No leads found"
+      searchPlaceholder="Search leads by name, email, or phone…"
+      emptyMessage="No leads yet — add your first lead to get started"
       pageSizeOptions={[10, 25, 50]}
     />
   );

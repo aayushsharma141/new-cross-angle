@@ -215,7 +215,7 @@ export function DataTable<TData>({
                 className="h-6 w-6 min-h-[44px] min-w-[44px] p-0"
                 onClick={() => table.getColumn(String(columnFilter.id))?.setFilterValue(undefined)}
               >
-                <X className="h-3 w-3" />
+                <X className="h-4 w-4" />
               </Button>
             </div>
           ))}

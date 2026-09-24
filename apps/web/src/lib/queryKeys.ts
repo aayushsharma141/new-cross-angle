@@ -38,4 +38,10 @@ export const queryKeys = {
   users: {
     all: ["users"] as const,
   },
+  siteSettings: {
+    // Public-safe column allow-list — used everywhere.
+    public: ["siteSettings"] as const,
+    // Full row — admin dashboard only.
+    admin: ["siteSettings", "admin"] as const,
+  },
 } as const;

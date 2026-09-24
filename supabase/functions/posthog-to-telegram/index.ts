@@ -39,7 +39,8 @@ Deno.serve(async (req) => {
       bodyText = rawPayload.message;
     } else if (rawPayload.event) {
       // It's a raw event payload
-      bodyText = `<b>Event:</b> ${rawPayload.event}`;
+      const eventName = typeof rawPayload.event === 'object' ? JSON.stringify(rawPayload.event, null, 2) : rawPayload.event;
+      bodyText = `<b>Event:</b> <pre>${eventName}</pre>`;
       if (rawPayload.properties?.['$exception_message']) {
         bodyText += `\n<b>Error:</b> ${rawPayload.properties['$exception_message']}`;
       }

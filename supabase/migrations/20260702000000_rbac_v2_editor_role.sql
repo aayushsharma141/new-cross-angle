@@ -136,43 +136,34 @@ CREATE POLICY "crm_delete_lead_activities"
 
 -- ─── 8. Fix CMS table RLS ─────────────────────────────────────────────────────
 
--- blog_posts: editors can manage
-DROP POLICY IF EXISTS "Admin all blog_posts" ON public.blog_posts;
-CREATE POLICY "cms_all_blog_posts"
-  ON public.blog_posts FOR ALL
-  TO authenticated
-  USING (is_cms_editor())
-  WITH CHECK (is_cms_editor());
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'blog_posts') THEN
+        EXECUTE 'DROP POLICY IF EXISTS "Admin all blog_posts" ON public.blog_posts';
+        EXECUTE 'CREATE POLICY "cms_all_blog_posts" ON public.blog_posts FOR ALL TO authenticated USING (is_cms_editor()) WITH CHECK (is_cms_editor())';
+    END IF;
 
--- gallery_items: editors can manage
-DROP POLICY IF EXISTS "Admin all gallery_items" ON public.gallery_items;
-CREATE POLICY "cms_all_gallery_items"
-  ON public.gallery_items FOR ALL
-  TO authenticated
-  USING (is_cms_editor())
-  WITH CHECK (is_cms_editor());
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'gallery_items') THEN
+        EXECUTE 'DROP POLICY IF EXISTS "Admin all gallery_items" ON public.gallery_items';
+        EXECUTE 'CREATE POLICY "cms_all_gallery_items" ON public.gallery_items FOR ALL TO authenticated USING (is_cms_editor()) WITH CHECK (is_cms_editor())';
+    END IF;
 
--- testimonials: consolidate fragmented policies
-DROP POLICY IF EXISTS "Admin all testimonials" ON public.testimonials;
-DROP POLICY IF EXISTS "admin_delete_testimonials" ON public.testimonials;
-DROP POLICY IF EXISTS "admin_insert_testimonials" ON public.testimonials;
-DROP POLICY IF EXISTS "admin_update_testimonials" ON public.testimonials;
-CREATE POLICY "cms_all_testimonials"
-  ON public.testimonials FOR ALL
-  TO authenticated
-  USING (is_cms_editor())
-  WITH CHECK (is_cms_editor());
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'testimonials') THEN
+        EXECUTE 'DROP POLICY IF EXISTS "Admin all testimonials" ON public.testimonials';
+        EXECUTE 'DROP POLICY IF EXISTS "admin_delete_testimonials" ON public.testimonials';
+        EXECUTE 'DROP POLICY IF EXISTS "admin_insert_testimonials" ON public.testimonials';
+        EXECUTE 'DROP POLICY IF EXISTS "admin_update_testimonials" ON public.testimonials';
+        EXECUTE 'CREATE POLICY "cms_all_testimonials" ON public.testimonials FOR ALL TO authenticated USING (is_cms_editor()) WITH CHECK (is_cms_editor())';
+    END IF;
 
--- services: consolidate fragmented policies
-DROP POLICY IF EXISTS "Admin all services" ON public.services;
-DROP POLICY IF EXISTS "admin_delete_services" ON public.services;
-DROP POLICY IF EXISTS "admin_insert_services" ON public.services;
-DROP POLICY IF EXISTS "admin_update_services" ON public.services;
-CREATE POLICY "cms_all_services"
-  ON public.services FOR ALL
-  TO authenticated
-  USING (is_cms_editor())
-  WITH CHECK (is_cms_editor());
+    IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'services') THEN
+        EXECUTE 'DROP POLICY IF EXISTS "Admin all services" ON public.services';
+        EXECUTE 'DROP POLICY IF EXISTS "admin_delete_services" ON public.services';
+        EXECUTE 'DROP POLICY IF EXISTS "admin_insert_services" ON public.services';
+        EXECUTE 'DROP POLICY IF EXISTS "admin_update_services" ON public.services';
+        EXECUTE 'CREATE POLICY "cms_all_services" ON public.services FOR ALL TO authenticated USING (is_cms_editor()) WITH CHECK (is_cms_editor())';
+    END IF;
+END $$;
 
 
 -- ─── 9. Fix profiles RLS ──────────────────────────────────────────────────────

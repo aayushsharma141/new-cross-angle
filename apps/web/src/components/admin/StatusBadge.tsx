@@ -11,7 +11,7 @@ export function StatusBadge({ status }: { status: ContentStatus }) {
     };
 
     return (
-        <Badge variant="outline" className={`text-[10px] font-medium border capitalize ${map[status] ?? map.draft}`}>
+        <Badge variant="outline" className={`text-[11px] font-medium border capitalize ${map[status] ?? map.draft}`}>
             {status}
         </Badge>
     );

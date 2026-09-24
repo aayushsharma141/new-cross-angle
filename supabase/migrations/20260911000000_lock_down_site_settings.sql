@@ -19,9 +19,15 @@
 -- below and PUBLIC_COLUMNS in apps/web/src/hooks/useSiteSettings.ts.
 
 -- ── 1. Remove secret storage ──────────────────────────────────────────────
-ALTER TABLE public.site_settings DROP COLUMN IF EXISTS resend_api_key;
-ALTER TABLE public.site_settings DROP COLUMN IF EXISTS supabase_api_key;
-ALTER TABLE public.site_settings DROP COLUMN IF EXISTS vercel_api_key;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'site_settings') THEN
+    ALTER TABLE public.site_settings DROP COLUMN IF EXISTS resend_api_key;
+    ALTER TABLE public.site_settings DROP COLUMN IF EXISTS posthog_project_api_key;
+    ALTER TABLE public.site_settings DROP COLUMN IF EXISTS posthog_host;
+    ALTER TABLE public.site_settings DROP COLUMN IF EXISTS telegram_bot_token;
+  END IF;
+END $$;
 
 -- Strip any tokens the old Credentials tab wrote into the integrations JSON.
 -- The email_templates sub-object is kept — it is the only legitimate content.

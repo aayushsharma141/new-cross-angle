@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, Eye, EyeOff, Loader2, Shield, User, X, Clock, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/useToast";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useAdminSiteSettings } from "@/hooks/useSiteSettings";
 import { changePasswordSchema } from "@/lib/auth/auth-validation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/primitives/button";
@@ -32,7 +32,7 @@ const TIMEOUT_OPTIONS = [
 ];
 
 export default function AdminUserAccessSecurity(): JSX.Element {
-  const { settings, refetch: refetchSettings } = useSiteSettings();
+  const { settings, refetch: refetchSettings } = useAdminSiteSettings();
   const { toast } = useToast();
 
   // ── 2FA state ──
@@ -297,7 +297,7 @@ export default function AdminUserAccessSecurity(): JSX.Element {
               </div>
               <div className="pt-2">
                 <Button type="submit" disabled={isPasswordLoading} className="rounded-xl shadow-lg shadow-primary/20">
-                  {isPasswordLoading ? (<><Loader2 className="w-4 h-4 animate-spin mr-2" />Processing�</>) : "Update Protocol"}
+                  {isPasswordLoading ? (<><Loader2 className="w-4 h-4 animate-spin mr-2" />Processing…</>) : "Update Protocol"}
                 </Button>
               </div>
             </form>

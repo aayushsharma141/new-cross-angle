@@ -15,9 +15,13 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/primitives/dropdown-menu";
 import { useToast } from '@/hooks/useToast';
+import { leadRepo } from '@/repositories';
+import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
+import { CRM_STAGES, CRM_STAGE_LABELS, toCrmStageId, type CrmStageId } from '@/lib/crm/stages';
+import { toCsv, downloadCsv } from '@/components/admin/analytics/analytics-utils';
 import { BulkActionsToolbar } from '@/components/admin/BulkActionsToolbar';
 import { ModuleActions } from '@/components/admin/layout/ModuleLayout';
-import { AdminPageHeader, AdminMetricsPanel } from '@/components/admin/shared';
+import { AdminMetricsPanel } from '@/components/admin/shared';
 import { auditService } from '@/services/AuditService';
 import { cn } from '@/lib/utils';
 import { format, subDays } from 'date-fns';
@@ -25,12 +29,13 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell, AreaCh
 import { generateDesignerBrief } from '@/addons/calculators/components/data/engines/brief-generator';
 
 type Lead = Database['public']['Tables']['leads']['Row'];
-type EstimateLeadStatus = 'new' | 'contacted' | 'qualified' | 'won' | 'lost';
-
-const STATUS_COLORS: Record<string, string> = {
+// Same stages as the CRM board: these rows are ordinary leads and both pages edit them.
+const STATUS_COLORS: Record<CrmStageId, string> = {
   new: 'hsl(43, 74%, 49%)',
-  contacted: 'hsl(200, 70%, 50%)',
-  qualified: 'hsl(280, 60%, 55%)',
+  in_conversation: 'hsl(200, 70%, 50%)',
+  meeting_planned: 'hsl(250, 60%, 60%)',
+  quote_sent: 'hsl(280, 60%, 55%)',
+  closing: 'hsl(30, 85%, 55%)',
   won: 'hsl(150, 60%, 45%)',
   lost: 'hsl(0, 60%, 50%)',
 };
@@ -49,6 +54,7 @@ export default function AdminEstimateLeads() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [detailLead, setDetailLead] = useState<Lead | null>(null);
   const [showBrief, setShowBrief] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<{ ids: string[]; label: string } | null>(null);
 
   const briefData = useMemo(() => {
     if (!detailLead) return null;
@@ -59,13 +65,7 @@ export default function AdminEstimateLeads() {
   const { data, isLoading, error } = useQuery<Lead[]>({
     queryKey: ['estimate-leads'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('leads')
-        .select('*')
-        .eq('lead_source', 'estimator')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as Lead[];
+      return leadRepo.getEstimatorLeads();
     },
   });
 
@@ -98,17 +98,16 @@ export default function AdminEstimateLeads() {
   }, [data]);
 
   const statusChartData = Object.entries(analytics.statusCounts).map(([name, value]) => ({
-    name, value, color: STATUS_COLORS[name] || 'hsl(0,0%,50%)',
+    name: CRM_STAGE_LABELS[toCrmStageId(name)], value, color: STATUS_COLORS[toCrmStageId(name)],
   }));
 
   // Mutations
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: EstimateLeadStatus }) => {
-      const { error } = await supabase.from('leads').update({ status }).eq('id', id);
-      if (error) throw error;
-    },
+    // updateLeadStatus also stamps last_activity_at and closed_at, like the CRM does.
+    mutationFn: ({ id, status }: { id: string; status: CrmStageId }) => leadRepo.updateLeadStatus(id, status),
     onSuccess: (_, { id, status }) => {
       queryClient.invalidateQueries({ queryKey: ['estimate-leads'] });
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
       void auditService.writeAudit('STATUS_CHANGE', 'estimate', id, { new_status: status });
       toast({ title: "Status updated" });
     },
@@ -116,36 +115,41 @@ export default function AdminEstimateLeads() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('leads').delete().eq('id', id);
-      if (error) throw error;
-    },
+    mutationFn: (id: string) => leadRepo.deleteLead(id),
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ['estimate-leads'] });
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
       void auditService.writeAudit('DELETE', 'estimate', id, {});
       toast({ title: "Lead deleted" });
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
-  const handleBulkDelete = async () => {
-    if (!confirm(`Delete ${selectedIds.size} leads?`)) return;
-    await Promise.all(Array.from(selectedIds).map((id) => supabase.from('leads').delete().eq('id', id)));
-    queryClient.invalidateQueries({ queryKey: ['estimate-leads'] });
-    setSelectedIds(new Set());
-    toast({ title: `${selectedIds.size} leads deleted` });
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const { ids } = pendingDelete;
+    try {
+      const deleted = ids.length === 1
+        ? (await deleteMutation.mutateAsync(ids[0]), 1)
+        : await leadRepo.bulkDelete(ids);
+      if (ids.length > 1) {
+        queryClient.invalidateQueries({ queryKey: ['estimate-leads'] });
+        queryClient.invalidateQueries({ queryKey: ['leads'] });
+        toast(deleted === ids.length
+          ? { title: `${deleted} leads deleted` }
+          : { title: `Deleted ${deleted} of ${ids.length} leads`, description: "The rest weren't removed — you may not have permission to delete them.", variant: "destructive" });
+      }
+      setSelectedIds(new Set());
+      if (detailLead && ids.includes(detailLead.id)) setDetailLead(null);
+    } catch (e) {
+      if (ids.length > 1) toast({ title: "Delete failed", description: e instanceof Error ? e.message : "Please try again.", variant: "destructive" });
+    }
   };
 
   const exportCSV = () => {
-    const rows = [['Name', 'Email', 'Phone', 'Property', 'Area', 'Budget', 'Min Estimate', 'Max Estimate', 'Status', 'Date']];
-    for (const l of filteredData) {
-      rows.push([l.name, l.email, l.phone || '', l.property_type || '', String(l.area || ''), l.budget || '', String(l.estimated_min || ''), String(l.estimated_max || ''), l.status, l.created_at ? format(new Date(l.created_at), 'yyyy-MM-dd') : '']);
-    }
-    const csv = rows.map((r) => r.map((c) => `"${c}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `estimator-leads-${format(new Date(), 'yyyy-MM-dd')}.csv`; a.click();
-    URL.revokeObjectURL(url);
+    const headers = ['Name', 'Email', 'Phone', 'Property', 'Area', 'Budget', 'Min Estimate', 'Max Estimate', 'Status', 'Date'];
+    const rows = filteredData.map((l) => [l.name, l.email, l.phone || '', l.property_type || '', String(l.area || ''), l.budget || '', String(l.estimated_min || ''), String(l.estimated_max || ''), CRM_STAGE_LABELS[toCrmStageId(l.status)], l.created_at ? format(new Date(l.created_at), 'yyyy-MM-dd') : '']);
+    downloadCsv(`estimator-leads-${format(new Date(), 'yyyy-MM-dd')}.csv`, toCsv(headers, rows));
   };
 
   const toggleSort = (field: typeof sortField) => {
@@ -204,8 +208,6 @@ export default function AdminEstimateLeads() {
         .fade-up-3 { animation: fadeUp var(--anim-duration) var(--anim-stagger-3) var(--anim-ease) both; }
         .fade-up-4 { animation: fadeUp var(--anim-duration) var(--anim-stagger-4) var(--anim-ease) both; }
       `}</style>
-
-      <AdminPageHeader moduleName="Estimator" tabName="Leads" />
 
       <div className="fade-up-1">
         <AdminMetricsPanel metrics={[
@@ -275,7 +277,7 @@ export default function AdminEstimateLeads() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--admin-text-muted))]" />
           <input
             type="text"
-            placeholder="Search name, email, phone�"
+            placeholder="Search name, email, phone…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))] placeholder:text-[hsl(var(--admin-text-muted))] focus:outline-none focus:border-[hsl(var(--admin-primary))]/50"
@@ -289,18 +291,14 @@ export default function AdminEstimateLeads() {
           className="px-3 py-2 text-xs rounded-xl bg-[hsl(var(--admin-surface))] border border-[hsl(var(--admin-border))] text-[hsl(var(--admin-text))] focus:outline-none"
         >
           <option value="all">All Status</option>
-          <option value="new">New</option>
-          <option value="contacted">Contacted</option>
-          <option value="qualified">Qualified</option>
-          <option value="won">Won</option>
-          <option value="lost">Lost</option>
+          {CRM_STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
         </select>
         <span className="text-xs text-[hsl(var(--admin-text-muted))]">{filteredData.length} results</span>
       </div>
 
         {/* Bulk Actions */}
         {selectedIds.size > 0 && (
-          <BulkActionsToolbar selectedCount={selectedIds.size} onClear={() => setSelectedIds(new Set())} onDelete={handleBulkDelete} />
+          <BulkActionsToolbar selectedCount={selectedIds.size} onClear={() => setSelectedIds(new Set())} onDelete={() => setPendingDelete({ ids: Array.from(selectedIds), label: `${selectedIds.size} leads` })} />
         )}
       </div>
 
@@ -367,12 +365,8 @@ export default function AdminEstimateLeads() {
                     </span>
                   </TableCell>
                   <TableCell className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
-                    <select value={lead.status} title={`Status for ${lead.name}`} aria-label={`Status for ${lead.name}`} onChange={(e) => updateStatusMutation.mutate({ id: lead.id, status: e.target.value as EstimateLeadStatus })} className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-lg border-0 cursor-pointer" style={{ background: `${STATUS_COLORS[lead.status]}20`, color: STATUS_COLORS[lead.status] }}>
-                      <option value="new">New</option>
-                      <option value="contacted">Contacted</option>
-                      <option value="qualified">Qualified</option>
-                      <option value="won">Won</option>
-                      <option value="lost">Lost</option>
+                    <select value={lead.status} title={`Status for ${lead.name}`} aria-label={`Status for ${lead.name}`} onChange={(e) => updateStatusMutation.mutate({ id: lead.id, status: e.target.value as CrmStageId })} className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-lg border-0 cursor-pointer" style={{ background: `${STATUS_COLORS[toCrmStageId(lead.status)]}20`, color: STATUS_COLORS[toCrmStageId(lead.status)] }}>
+                      {CRM_STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
                     </select>
                   </TableCell>
                   <TableCell className="py-3 px-4 text-[11px] text-[hsl(var(--admin-text-muted))]">{lead.created_at ? format(new Date(lead.created_at), 'MMM d, yy') : '—'}</TableCell>
@@ -383,7 +377,7 @@ export default function AdminEstimateLeads() {
                         <DropdownMenuItem onClick={() => setDetailLead(lead)}>View Details</DropdownMenuItem>
                         {lead.phone && <DropdownMenuItem onClick={() => window.open(`tel:${lead.phone}`)}>Call</DropdownMenuItem>}
                         <DropdownMenuItem onClick={() => window.open(`mailto:${lead.email}`)}>Email</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => { if (confirm('Delete?')) deleteMutation.mutate(lead.id); }} className="text-red-400">Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setPendingDelete({ ids: [lead.id], label: lead.name || 'this lead' })} className="text-red-400">Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -403,7 +397,7 @@ export default function AdminEstimateLeads() {
               <h2 className="text-lg font-bold text-[hsl(var(--admin-text))]">Lead Details</h2>
               <div className="flex items-center gap-2">
                 {(detailLead as Record<string, unknown>).discovery_archetype && (
-                  <Button size="sm" variant="outline" onClick={() => navigate(`/admin/leads/${detailLead.id}/workspace`)} className="gap-1.5 h-8 text-xs border-[hsl(var(--admin-primary))]/30 text-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))]/10">
+                  <Button size="sm" variant="outline" onClick={() => navigate(`/admin/crm/leads/${detailLead.id}/workspace`)} className="gap-1.5 h-8 text-xs border-[hsl(var(--admin-primary))]/30 text-[hsl(var(--admin-primary))] hover:bg-[hsl(var(--admin-primary))]/10">
                     <Sparkles className="w-3.5 h-3.5" /> Open Project Intelligence &rarr;
                   </Button>
                 )}
@@ -603,7 +597,7 @@ export default function AdminEstimateLeads() {
               <div className="flex gap-2 pt-4 border-t border-[hsl(var(--admin-border))]">
                 {detailLead.phone && <Button size="sm" variant="outline" onClick={() => window.open(`tel:${detailLead.phone}`)} className="gap-1"><Phone className="w-3 h-3" />Call</Button>}
                 <Button size="sm" variant="outline" onClick={() => window.open(`mailto:${detailLead.email}`)} className="gap-1"><Mail className="w-3 h-3" />Email</Button>
-                <Button size="sm" variant="outline" onClick={() => { if (confirm('Delete?')) { deleteMutation.mutate(detailLead.id); setDetailLead(null); } }} className="gap-1 text-red-400 hover:text-red-300"><Trash2 className="w-3 h-3" />Delete</Button>
+                <Button size="sm" variant="outline" onClick={() => setPendingDelete({ ids: [detailLead.id], label: detailLead.name || 'this lead' })} className="gap-1 text-red-400 hover:text-red-300"><Trash2 className="w-3 h-3" />Delete</Button>
               </div>
             </div>
           </div>
@@ -628,8 +622,10 @@ export default function AdminEstimateLeads() {
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => {
                   const text = `DESIGNER BRIEF: ${briefData.identity.name}\n\nSTRATEGY: ${briefData.strategy.recommendedPath.replace(/_/g, ' ')}\n${briefData.strategy.conversationStarters.join('\n')}\n\nWATCH OUTS:\n${briefData.strategy.watchOuts.map(w => '- ' + w).join('\n')}`;
-                  navigator.clipboard.writeText(text);
-                  toast({ title: "Copied to clipboard" });
+                  navigator.clipboard.writeText(text).then(
+                    () => toast({ title: "Copied to clipboard" }),
+                    () => toast({ title: "Couldn't copy", description: "Clipboard access was blocked by the browser.", variant: "destructive" }),
+                  );
                 }}>
                   <Copy className="w-3.5 h-3.5" /> Copy Text
                 </Button>
@@ -725,6 +721,16 @@ export default function AdminEstimateLeads() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => { if (!open) setPendingDelete(null); }}
+        variant="destructive"
+        title={`Delete ${pendingDelete?.label ?? ''}?`}
+        description="This permanently removes the lead, its estimate and its activity history. It cannot be undone."
+        confirmText="Delete"
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

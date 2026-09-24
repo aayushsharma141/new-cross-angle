@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
+import { ConfigLoadError } from "./ConfigLoadError";
 import { Button } from "@/components/ui/primitives/button";
 import { Input } from "@/components/primitives/interactive";
 import { Save, Plus, Trash2, X, Loader2, GripVertical } from "lucide-react";
@@ -62,18 +63,18 @@ function SortableStageItem({
 
 export function DetailsEditor() {
   // BHK Presets
-  const { data: bhkData, isLoading: bhkLoading, save: saveBhk, isSaving: bhkSaving } = useFlowConfig<Record<string, BhkPreset>>("bhk_presets");
+  const { data: bhkData, isLoading: bhkLoading, loadFailed: bhkFailed, retry: retryBhk, save: saveBhk, isSaving: bhkSaving } = useFlowConfig<Record<string, BhkPreset>>("bhk_presets");
   const [bhk, setBhk] = useState<Record<string, BhkPreset>>({});
   const [bhkDirty, setBhkDirty] = useState(false);
 
   // Renovation Rooms
-  const { data: roomsData, isLoading: roomsLoading, save: saveRooms, isSaving: roomsSaving } = useFlowConfig<string[]>("renovation_rooms");
+  const { data: roomsData, isLoading: roomsLoading, loadFailed: roomsFailed, retry: retryRooms, save: saveRooms, isSaving: roomsSaving } = useFlowConfig<string[]>("renovation_rooms");
   const [rooms, setRooms] = useState<string[]>([]);
   const [roomsDirty, setRoomsDirty] = useState(false);
   const [newRoom, setNewRoom] = useState("");
 
   // Renovation Stages
-  const { data: stagesData, isLoading: stagesLoading, save: saveStages, isSaving: stagesSaving } = useFlowConfig<StageItem[]>("renovation_stages");
+  const { data: stagesData, isLoading: stagesLoading, loadFailed: stagesFailed, retry: retryStages, save: saveStages, isSaving: stagesSaving } = useFlowConfig<StageItem[]>("renovation_stages");
   const [stages, setStages] = useState<StageItem[]>([]);
   const [stagesDirty, setStagesDirty] = useState(false);
 
@@ -126,6 +127,9 @@ export function DetailsEditor() {
   };
 
   if (bhkLoading || roomsLoading || stagesLoading) return <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-[hsl(var(--admin-primary))]" /></div>;
+  if (bhkFailed || roomsFailed || stagesFailed) {
+    return <ConfigLoadError what="property details" onRetry={() => { retryBhk(); retryRooms(); retryStages(); }} />;
+  }
 
   return (
     <div className="space-y-6">
@@ -231,7 +235,7 @@ export function DetailsEditor() {
           ))}
         </div>
         <div className="flex gap-2">
-          <Input value={newRoom} onChange={(e) => setNewRoom(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addRoom()} placeholder="Add room name�" className="h-7 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
+          <Input value={newRoom} onChange={(e) => setNewRoom(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addRoom()} placeholder="Add room name…" className="h-7 text-xs bg-[hsl(var(--admin-surface))] border-[hsl(var(--admin-border))]" />
           <Button variant="outline" size="sm" onClick={addRoom} className="h-7 text-xs"><Plus className="w-3 h-3" /></Button>
         </div>
       </section>

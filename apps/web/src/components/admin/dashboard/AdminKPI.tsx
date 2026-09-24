@@ -62,7 +62,7 @@ export function AdminKPI({
     return (
         <SpotlightCard
             spotlightColor={spotlightColors[variant]}
-            className="rounded-xl border border-admin-border bg-admin-card group hover:border-admin-gold/30 transition-all duration-300"
+            className="admin-card-hover group hover:border-admin-gold/30 transition-all duration-300"
         >
             <div className="relative overflow-hidden p-6" title={tooltip}>
                 <div className="flex items-start justify-between">
@@ -79,7 +79,7 @@ export function AdminKPI({
                                     aria-label={errorLabel ?? `${title} failed to load`}
                                     title={errorLabel ?? `${title} failed to load`}
                                 >
-                                    <AlertTriangle className="w-3.5 h-3.5" />
+                                    <AlertTriangle className="w-4 h-4" />
                                 </span>
                             )}
                         </p>

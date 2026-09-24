@@ -11,7 +11,7 @@
     "optimize-images": "node scripts/optimize-images.js",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "arch:check": "depcruise src --config .dependency-cruiser.cjs --ignore-known",
     "arch:fitness": "vitest run src/test/architecture.test.ts",
     "arch:engine": "npx vite-node scripts/checks/architecture-engine.ts",
