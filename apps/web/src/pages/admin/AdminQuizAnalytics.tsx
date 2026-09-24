@@ -189,10 +189,10 @@ export default function AdminQuizAnalytics() {
       {activeTab === "analytics" && (<>
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-6">
-          <StatCard icon={Users} label="Total Sessions" value={totalSessions.toString()} sub="+12% vs last month" delay={0.1} />
-          <StatCard icon={Activity} label="Completion Rate" value={`${overallRate.toFixed(1)}%`} sub="+5% vs last month" delay={0.2} />
-          <StatCard icon={TrendingUp} label="Leads Generated" value={leads.length.toString()} sub="Active pipeline" delay={0.3} />
-          <StatCard icon={Timer} label="Avg. Time" value={avgTime ? formatDuration(avgTime) : "—"} sub="Stable" delay={0.4} />
+          <StatCard icon={Users} label="Total Sessions" value={totalSessions.toString()} sub="Quiz starts in this period" delay={0.1} />
+          <StatCard icon={Activity} label="Completion Rate" value={`${overallRate.toFixed(1)}%`} sub="Sessions that reached results" delay={0.2} />
+          <StatCard icon={TrendingUp} label="Leads Generated" value={leads.length.toString()} sub="Quiz leads in this period" delay={0.3} />
+          <StatCard icon={Timer} label="Avg. Time" value={avgTime ? formatDuration(avgTime) : "—"} sub="Per completed session" delay={0.4} />
         </div>
 
         {/* Charts Section */}

@@ -1,4 +1,4 @@
-import { BookOpen, Calculator, FileText, Settings, Shield, Users, type LucideIcon } from "lucide-react";
+import { BookOpen, Calculator, FileText, Settings, Shield, Sparkles, Users, type LucideIcon } from "lucide-react";
 import type { AppRole } from "@/lib/auth/rbac";
 import { CRM_WORKSPACE_NAV, isCrmNavLink } from "@/lib/crm";
 
@@ -19,7 +19,7 @@ export interface AdminNavSection {
 }
 
 export interface AdminNavModule {
-    id: "cms" | "crm" | "estimator" | "blog" | "user-access" | "system";
+    id: "cms" | "crm" | "discovery" | "estimator" | "blog" | "user-access" | "system";
     name: string;
     icon: LucideIcon;
     roles: readonly AppRole[];
@@ -42,6 +42,16 @@ export const ADMIN_MODULE_NAV: readonly AdminNavModule[] = [
             path: item.to,
             roles: CRM_SECTION_ROLES[item.id],
         })),
+    },
+    {
+        id: "discovery",
+        name: "Style Quiz",
+        icon: Sparkles,
+        roles: ADMIN_ONLY,
+        sections: [
+            { label: "Results & Analytics", path: "/admin/discovery/quiz-analytics", group: "Insights" },
+            { label: "Quiz Settings", path: "/admin/discovery/quiz-configuration", group: "Configuration", roles: SUPER_ONLY },
+        ],
     },
     {
         id: "cms",
