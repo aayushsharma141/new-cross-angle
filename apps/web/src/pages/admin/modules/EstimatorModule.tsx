@@ -1,5 +1,6 @@
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { ModuleLayout } from "@/components/admin/layout/ModuleLayout";
+import { getModuleSections } from "@/lib/admin/moduleNav";
 
 export const EstimatorModule = () => {
     const location = useLocation();
@@ -11,10 +12,7 @@ export const EstimatorModule = () => {
         <ModuleLayout
             title="Quotes & Estimates"
             description="Create, send, and track project quotes. Manage pricing tiers and estimation settings."
-            tabs={[
-                { label: "Quote Requests", path: "/admin/estimator/estimate-leads", group: "Quotes" },
-                { label: "Pricing & Settings", path: "/admin/estimator/config", group: "Configuration" },
-            ]}
+            tabs={getModuleSections("estimator")}
         >
             <Outlet />
         </ModuleLayout>

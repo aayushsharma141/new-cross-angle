@@ -1,5 +1,6 @@
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { ModuleLayout } from "@/components/admin/layout/ModuleLayout";
+import { getModuleSections } from "@/lib/admin/moduleNav";
 
 export const UserAccessModule = () => {
     const location = useLocation();
@@ -11,11 +12,7 @@ export const UserAccessModule = () => {
         <ModuleLayout
             title="Team & Access Control"
             description="Manage admin team members, assign roles, and configure security settings."
-            tabs={[
-                { label: "Team Members", path: "/admin/user-access/users", group: "Team Management" },
-                { label: "Roles & Permissions", path: "/admin/user-access/roles", group: "Access Control" },
-                { label: "Security Settings", path: "/admin/user-access/security", group: "Security" },
-            ]}
+            tabs={getModuleSections("user-access")}
         >
             <Outlet />
         </ModuleLayout>

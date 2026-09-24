@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SpotlightCard } from "@/components/ReactBits/index";
+import { ModuleDirectory } from "@/components/admin/ModuleDirectory";
 
 export default function AdminHub() {
     const { stats, isRefreshing, refresh } = useHubStats();
@@ -548,6 +549,8 @@ export default function AdminHub() {
                         </div>
                     </div>
                     )}
+
+                    <ModuleDirectory role={role} />
 
                 </div>
 

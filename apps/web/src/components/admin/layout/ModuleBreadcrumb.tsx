@@ -9,7 +9,7 @@ interface ModuleTab {
 
 interface ModuleBreadcrumbProps {
     moduleTitle: string;
-    tabs?: ModuleTab[];
+    tabs?: readonly ModuleTab[];
 }
 
 export const ModuleBreadcrumb = ({ moduleTitle, tabs }: ModuleBreadcrumbProps) => {
