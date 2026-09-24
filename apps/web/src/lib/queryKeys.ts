@@ -44,4 +44,11 @@ export const queryKeys = {
     // Full row — admin dashboard only.
     admin: ["siteSettings", "admin"] as const,
   },
+  integrations: {
+    supabaseProbe: ["integrations", "supabaseProbe"] as const,
+    email: ["integrations", "email"] as const,
+    webhooks: ["integrations", "webhooks"] as const,
+    analytics: ["integrations", "analytics"] as const,
+    media: ["integrations", "media"] as const,
+  },
 } as const;

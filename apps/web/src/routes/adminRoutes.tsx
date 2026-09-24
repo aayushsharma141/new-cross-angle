@@ -4,6 +4,7 @@ import { RoleGuard } from "@/components/admin/RoleGuard";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import AdminAuth from "@/pages/admin/AdminAuth";
 import AdminLayout from "@/pages/admin/AdminLayout";
+import { ADMIN_ONLY, CMS_ROLES, CRM_ROLES, SUPER_ONLY } from "@/lib/admin/moduleNav";
 
 const AdminHub = lazy(() => import("@/pages/admin/AdminHub"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
@@ -46,15 +47,9 @@ const CrmSettings = lazy(() => import("@/pages/admin/CrmSettings"));
 const AdminLeadWorkspace = lazy(() => import("@/pages/admin/workspace/AdminLeadWorkspace"));
 const LearningHealthDashboard = lazy(() => import("@/pages/admin/workspace/LearningHealthDashboard"));
 const AdminArchitecturePortal = lazy(() => import("@/pages/admin/AdminArchitecturePortal"));
+const AdminServiceIntegrations = lazy(() => import("@/pages/admin/AdminServiceIntegrations"));
 const AdminNotFound = lazy(() => import("@/pages/admin/AdminNotFound"));
 
-// ─── Role Sets ────────────────────────────────────────────────────────────────
-// Kept as named constants so the intent is readable at a glance.
-
-const ADMIN_ONLY    = ["super_admin", "admin"] as const;
-const CMS_ROLES     = ["super_admin", "admin", "editor"] as const;
-const CRM_ROLES     = ["super_admin", "admin", "viewer"] as const;
-const SUPER_ONLY    = ["super_admin"] as const;
 
 export const adminRoutes = (
   <>
@@ -133,9 +128,10 @@ export const adminRoutes = (
 
         {/* ── System: super_admin only ─────────────────────────────────────── */}
         <Route path="system" element={<RoleGuard allowedRoles={SUPER_ONLY}><SystemModule /></RoleGuard>}>
-          <Route path="settings"        element={<AdminSettings />} />
-          <Route path="email-templates" element={<AdminEmailTemplates />} />
-          <Route path="audit-logs"      element={<AdminAuditLogs />} />
+          <Route path="settings"              element={<AdminSettings />} />
+          <Route path="email-templates"       element={<AdminEmailTemplates />} />
+          <Route path="service-integrations"  element={<AdminServiceIntegrations />} />
+          <Route path="audit-logs"            element={<AdminAuditLogs />} />
         </Route>
 
         {/* ── Operational Health & Architecture OS: super_admin / admin ───── */}

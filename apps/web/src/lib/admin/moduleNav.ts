@@ -106,7 +106,7 @@ export const ADMIN_MODULE_NAV: readonly AdminNavModule[] = [
             { label: "Email Delivery", path: "/admin/system/settings?tab=reports", group: "Configuration" },
             { label: "Email Templates", path: "/admin/system/email-templates", group: "Configuration" },
             { label: "Integrations", path: "/admin/system/settings?tab=credentials", group: "Integrations" },
-            { label: "Service Map", path: "/admin/system/service-integrations", group: "Integrations" },
+            { label: "Service Integrations", path: "/admin/system/service-integrations", group: "Integrations" },
             { label: "Maintenance", path: "/admin/system/settings?tab=updates", group: "Maintenance" },
             { label: "Audit Logs", path: "/admin/system/audit-logs", group: "Audit & Security" },
         ],
