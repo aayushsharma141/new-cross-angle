@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { callOmniRoute, parseModelFromRequest } from "../_lib/omniroute.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -57,55 +58,30 @@ Deno.serve(async (req: Request) => {
     const body = await req.json();
     const signals: UserSignals = body?.signals ?? {};
 
-    const apiKey = Deno.env.get("OPENROUTER_API_KEY");
-    if (!apiKey) {
-      console.error("OPENROUTER_API_KEY not set");
-      return new Response(
-        JSON.stringify({ error: "AI service unavailable" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
-    }
-
     const prompt = buildPrompt(signals);
-
-    const orRes = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`,
-          "HTTP-Referer": "https://crossangle.com", // Optional, for OpenRouter rankings
-          "X-Title": "Cross Angle Interior", // Optional, for OpenRouter rankings
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [{ role: "user", content: prompt }],
-          response_format: { type: "json_object" },
-          temperature: 0.88,
-          max_tokens: 2000,
-        }),
-      },
+    const model = parseModelFromRequest(
+      { model: "google/gemini-2.5-flash" },
+      "OMNIROUTE_AESTHETIC_MODEL"
     );
 
-    if (!orRes.ok) {
-      const errText = await orRes.text();
-      console.error("OpenRouter API error:", orRes.status, errText);
-      return new Response(
-        JSON.stringify({ error: "AI generation failed" }),
-        {
-          status: 502,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+    const omniRes = await callOmniRoute(
+      {
+        model,
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        temperature: 0.88,
+        max_tokens: 2000,
+      },
+      corsHeaders
+    );
+
+    if (!omniRes.ok) {
+      return omniRes;
     }
 
-    const orData = await orRes.json();
+    const omniData = await omniRes.json();
     const rawText =
-      orData?.choices?.[0]?.message?.content ?? "";
+      omniData?.choices?.[0]?.message?.content ?? "";
 
     let result: AIAestheticResult;
     try {

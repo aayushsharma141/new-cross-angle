@@ -1,16 +1,17 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
-import { 
-  handlePreflight, 
-  checkRateLimit, 
-  getClientId, 
-  rateLimitResponse, 
-  okResponse, 
-  badRequestResponse, 
-  unauthorizedResponse, 
-  serverErrorResponse, 
-  structuredLog, 
-  getRequestId 
+import {
+  handlePreflight,
+  checkRateLimit,
+  getClientId,
+  rateLimitResponse,
+  okResponse,
+  badRequestResponse,
+  unauthorizedResponse,
+  serverErrorResponse,
+  structuredLog,
+  getRequestId
 } from "../_lib/security.ts";
+import { callOmniRoute, parseModelFromRequest } from "../_lib/omniroute.ts";
 
 interface RequestBody {
     imageUrl: string
@@ -77,28 +78,29 @@ Deno.serve(async (req) => {
 
         // Determine media type
         const contentType = imageResponse.headers.get('content-type') || 'image/jpeg'
-        let caption = '';
+        const model = parseModelFromRequest(
+            { model: 'google/gemini-2.5-flash' },
+            'OMNIROUTE_CAPTION_MODEL'
+        );
 
-        if (OPENROUTER_API_KEY) {
-            structuredLog("info", FN, "Using OpenRouter (Gemini-2.5-Flash) for caption generation", {}, requestId);
-            const openRouterResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                    'HTTP-Referer': 'https://crossangle.com',
-                    'X-Title': 'Cross Angle Interior'
-                },
-                body: JSON.stringify({
-                    model: 'google/gemini-2.5-flash',
-                    messages: [
-                        {
-                            role: 'user',
-                            content: [
-                                {
-                                    type: 'text',
-                                    text: `Generate a concise, SEO-friendly alt text for this interior design image. ${projectContext ? `Context: ${projectContext}.` : ''
-                                        } Requirements:
+        const corsHeaders = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+        };
+
+        structuredLog("info", FN, `Using OmniRoute (${model}) for caption generation`, {}, requestId);
+
+        const omniRes = await callOmniRoute(
+            {
+                model,
+                messages: [
+                    {
+                        role: 'user',
+                        content: [
+                            {
+                                type: 'text',
+                                text: `Generate a concise, SEO-friendly alt text for this interior design image. ${projectContext ? `Context: ${projectContext}.` : ''
+                                    } Requirements:
 - Maximum ${maxLength} characters
 - Describe the room type, style, and key features
 - Use professional interior design terminology
@@ -107,79 +109,29 @@ Deno.serve(async (req) => {
 - Do not use phrases like "image of" or "picture of"
 
 Respond with ONLY the alt text, nothing else.`
-                                },
-                                {
-                                    type: 'image_url',
-                                    image_url: {
-                                        url: `data:${contentType};base64,${base64Image}`
-                                    }
+                            },
+                            {
+                                type: 'image_url',
+                                image_url: {
+                                    url: `data:${contentType};base64,${base64Image}`
                                 }
-                            ]
-                        }
-                    ],
-                    temperature: 0.5,
-                    max_tokens: 150
-                })
-            });
+                            }
+                        ]
+                    }
+                ],
+                temperature: 0.5,
+                max_tokens: 150
+            },
+            corsHeaders
+        );
 
-            if (!openRouterResponse.ok) {
-                const error = await openRouterResponse.text();
-                throw new Error(`OpenRouter API error: ${error}`);
-            }
-
-            const data = await openRouterResponse.json();
-            caption = data.choices?.[0]?.message?.content?.trim() || '';
-        } else {
-            structuredLog("info", FN, "Using Anthropic for caption generation", {}, requestId);
-            const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': ANTHROPIC_API_KEY!,
-                    'anthropic-version': '2023-06-01'
-                },
-                body: JSON.stringify({
-                    model: 'claude-3-5-sonnet-20241022',
-                    max_tokens: 200,
-                    messages: [
-                        {
-                            role: 'user',
-                            content: [
-                                {
-                                    type: 'image',
-                                    source: {
-                                        type: 'base64',
-                                        media_type: contentType,
-                                        data: base64Image
-                                    }
-                                },
-                                {
-                                    type: 'text',
-                                    text: `Generate a concise, SEO-friendly alt text for this interior design image. ${projectContext ? `Context: ${projectContext}.` : ''
-                                        } Requirements:
-- Maximum ${maxLength} characters
-- Describe the room type, style, and key features
-- Use professional interior design terminology
-- Focus on what makes this space unique
-- Start with the room type (e.g., "Modern minimalist bedroom...")
-- Do not use phrases like "image of" or "picture of"
-
-Respond with ONLY the alt text, nothing else.`
-                                }
-                            ]
-                        }
-                    ]
-                })
-            });
-
-            if (!anthropicResponse.ok) {
-                const error = await anthropicResponse.text();
-                throw new Error(`Anthropic API error: ${error}`);
-            }
-
-            const data = await anthropicResponse.json();
-            caption = data.content[0].text.trim();
+        if (!omniRes.ok) {
+            const error = await omniRes.text();
+            throw new Error(`OmniRoute API error: ${error}`);
         }
+
+        const data = await omniRes.json();
+        const caption = data.choices?.[0]?.message?.content?.trim() || '';
 
         // Log successful generation
         structuredLog("info", FN, "Generated caption", { length: caption.length }, requestId);
