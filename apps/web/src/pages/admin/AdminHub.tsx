@@ -16,17 +16,23 @@ import {
     Bell,
     RefreshCw,
     ArrowUpRight,
-    Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SpotlightCard } from "@/components/ReactBits/index";
 import { ModuleDirectory } from "@/components/admin/ModuleDirectory";
 import { RecentActivityFeed } from "@/components/admin/dashboard/RecentActivityFeed";
 import { useQueryClient } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
+import { useSystem } from "@/context/SystemContext";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { APP_ROLES, ROLE_LABELS } from "@/lib/auth/rbac";
 
 export default function AdminHub() {
     const { stats, hasError, isLoading: isHubLoading } = useHubStats();
     const queryClient = useQueryClient();
+    const { health } = useSystem();
+    const { settings } = useSiteSettings();
+    const storagePct = stats.storageTotalGB > 0 ? (stats.storageUsedGB / stats.storageTotalGB) * 100 : 0;
     const navigate = useNavigate();
     const { setCurrentModule } = useAdmin();
     const location = useLocation();
@@ -159,43 +165,43 @@ export default function AdminHub() {
                                         <p className="text-xs text-[hsl(var(--admin-muted))]">System status & operations</p>
                                     </div>
                                 </div>
-                                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                                               <div className="flex items-center gap-4 mb-4 mt-2">
-                                <div className="relative flex items-center justify-center h-14 w-14 shrink-0" role="progressbar" {...{ 'aria-valuenow': 96, 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-label': 'System Health Score' }}>
-                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                        <path
-                                            className="text-admin-border/30"
-                                            strokeWidth="3"
-                                            stroke="currentColor"
-                                            fill="none"
-                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                        />
-                                        <path
-                                            className="text-emerald-500"
-                                            strokeDasharray="96, 100"
-                                            strokeWidth="3"
-                                            strokeLinecap="round"
-                                            stroke="currentColor"
-                                            fill="none"
-                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                        />
-                                    </svg>
-                                    <span className="absolute text-xs font-bold text-[hsl(var(--admin-text))]">96%</span>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-bold text-[hsl(var(--admin-text))]">Health Score</span>
-                                    <span className="text-xs text-[hsl(var(--admin-muted))]">Critical checks OK</span>
-                                </div>
-                            </div>              </div>
+                                <span
+                                    className={cn(
+                                        "h-2 w-2 rounded-full",
+                                        health.status === "healthy" && "bg-emerald-500",
+                                        health.status === "unknown" && "bg-admin-border",
+                                        (health.status === "degraded" || health.status === "error") && "bg-amber-500"
+                                    )}
+                                    aria-hidden="true"
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-0.5 mb-4 mt-2">
+                                <span className="text-lg font-serif text-[hsl(var(--admin-text))]">
+                                    {health.status === "unknown" && "Checking…"}
+                                    {health.status === "healthy" && "All checks passing"}
+                                    {health.status === "degraded" && "Some checks failing"}
+                                    {health.status === "error" && "Health check failed"}
+                                </span>
+                                {health.status !== "unknown" && (
+                                    <span className="text-xs text-[hsl(var(--admin-muted))]">
+                                        Checked {formatDistanceToNow(new Date(health.lastChecked), { addSuffix: true })}
+                                    </span>
+                                )}
+                            </div>
 
                             <div className="flex flex-col gap-2 mt-auto text-xs font-mono pt-4 border-t border-admin-border/40">
                                 <div className="flex justify-between items-center py-0.5">
-                                    <span className="text-[hsl(var(--admin-muted))]">Website</span>
-                                    <span className="text-emerald-500 font-bold">HEALTHY</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Database</span>
+                                    <span className={cn("font-bold", health.status === "unknown" ? "text-[hsl(var(--admin-muted))]" : health.database === "connected" ? "text-emerald-500" : "text-amber-500")}>
+                                        {health.status === "unknown" ? "—" : health.database === "connected" ? "Connected" : "Unreachable"}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between items-center py-0.5">
-                                    <span className="text-[hsl(var(--admin-muted))]">CRM Synced</span>
-                                    <span className="text-emerald-500 font-bold">HEALTHY</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Edge functions</span>
+                                    <span className={cn("font-bold", health.status === "unknown" ? "text-[hsl(var(--admin-muted))]" : health.api === "online" ? "text-emerald-500" : "text-amber-500")}>
+                                        {health.status === "unknown" ? "—" : health.api === "online" ? "Reachable" : "Unreachable"}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between items-center py-0.5">
                                     <span className="text-[hsl(var(--admin-muted))]">Storage Used</span>
@@ -241,10 +247,6 @@ export default function AdminHub() {
                             </div>
 
                             <div className="flex flex-col gap-1 mt-auto pt-4 border-t border-admin-border/40 text-xs">
-                                <div className="flex justify-between">
-                                    <span className="text-[hsl(var(--admin-muted))]">Organic Funnel</span>
-                                    <span className="text-emerald-500 font-bold">Active</span>
-                                </div>
                                 <div className="flex justify-between">
                                     <span className="text-[hsl(var(--admin-muted))]">Funnel Share</span>
                                     <span className="text-[hsl(var(--admin-text))] font-bold">
@@ -314,19 +316,21 @@ export default function AdminHub() {
                             <div className="flex flex-col gap-1.5 my-2">
                                 <div className="flex justify-between text-xs">
                                     <span className="text-[hsl(var(--admin-muted))]">Storage Usage</span>
-                                    <span className="text-[hsl(var(--admin-text))] font-mono font-bold">12% ({formatStorage(stats.storageUsedGB)})</span>
+                                    <span className="text-[hsl(var(--admin-text))] font-mono font-bold">
+                                        {storagePct < 1 && storagePct > 0 ? "<1" : Math.round(storagePct)}% ({formatStorage(stats.storageUsedGB)} of {stats.storageTotalGB} GB)
+                                    </span>
                                 </div>
                                 <div className="h-1.5 w-full bg-admin-border/30 rounded-full overflow-hidden">
-                                    <div className="h-full bg-emerald-500 rounded-full w-[12%]" />
+                                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.min(100, storagePct)}%` }} />
                                 </div>
                             </div>
 
                             <div className="flex items-center justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs text-[hsl(var(--admin-muted))]">
-                                <span className="font-semibold text-[hsl(var(--admin-text))]">158 Images</span>
-                                <span>•</span>
-                                <span className="font-semibold text-[hsl(var(--admin-text))]">43 Videos</span>
-                                <span>•</span>
-                                <span className="font-semibold text-[hsl(var(--admin-text))]">12 Reviews</span>
+                                <span className="font-semibold text-[hsl(var(--admin-text))]">{stats.imageCount} Images</span>
+                                <span aria-hidden="true">•</span>
+                                <span className="font-semibold text-[hsl(var(--admin-text))]">{stats.videoCount} Videos</span>
+                                <span aria-hidden="true">•</span>
+                                <span className="font-semibold text-[hsl(var(--admin-text))]">{stats.activeTestimonials} Reviews</span>
                             </div>
                         </SpotlightCard>
                     </Link>
@@ -354,13 +358,15 @@ export default function AdminHub() {
                             </div>
 
                             <div className="flex flex-col gap-1.5 my-2">
-                                <span className="text-xs text-[hsl(var(--admin-muted))]">Total Organic Views</span>
-                                <span className="text-2xl font-bold text-[hsl(var(--admin-text))] font-mono">124.6K</span>
+                                <span className="text-xs text-[hsl(var(--admin-muted))]">Article views (on-site tracker)</span>
+                                <span className="text-2xl font-bold text-[hsl(var(--admin-text))] font-mono">{stats.blogViews.toLocaleString("en-IN")}</span>
                             </div>
 
                             <div className="flex justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs">
                                 <span className="text-[hsl(var(--admin-muted))]">Articles Published</span>
-                                <span className="text-[hsl(var(--admin-text))] font-bold">18 (Active)</span>
+                                <span className="text-[hsl(var(--admin-text))] font-bold">
+                                    {stats.publishedPosts}{stats.draftPosts > 0 && ` (${stats.draftPosts} ${stats.draftPosts === 1 ? "draft" : "drafts"})`}
+                                </span>
                             </div>
                         </SpotlightCard>
                     </Link>
@@ -382,23 +388,26 @@ export default function AdminHub() {
                                     </div>
                                     <div>
                                         <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">Team & Security</h3>
-                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Manage admin team members and security settings</p>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Manage admin team members, roles and security settings</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="flex flex-col gap-1.5 my-2">
-                                <span className="text-xs text-[hsl(var(--admin-muted))]">Online Personnel</span>
-                                <div className="flex items-center gap-2 text-xs font-semibold">
-                                    <span className="px-2 py-0.5 rounded bg-admin-surface border border-admin-border">4 Admins</span>
-                                    <span className="px-2 py-0.5 rounded bg-admin-surface border border-admin-border">6 Designers</span>
+                                <span className="text-xs text-[hsl(var(--admin-muted))]">Team members by role</span>
+                                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+                                    {APP_ROLES.filter((r) => stats.roleCounts[r]).map((r) => (
+                                        <span key={r} className="px-2 py-0.5 rounded bg-admin-surface border border-admin-border">
+                                            {stats.roleCounts[r]} {ROLE_LABELS[r]}
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
 
                             <div className="flex justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs">
-                                <span className="text-[hsl(var(--admin-muted))]">2FA Security Status</span>
-                                <span className="text-emerald-500 font-bold flex items-center gap-1">
-                                    <Lock className="w-3 h-3" /> Enforced
+                                <span className="text-[hsl(var(--admin-muted))]">Total team members</span>
+                                <span className="text-[hsl(var(--admin-text))] font-bold">
+                                    {Object.values(stats.roleCounts).reduce((sum, n) => sum + n, 0)}
                                 </span>
                             </div>
                         </SpotlightCard>
@@ -421,25 +430,27 @@ export default function AdminHub() {
                                     </div>
                                     <div>
                                         <h3 className="text-base font-serif font-medium text-[hsl(var(--admin-text))] tracking-tight">System Settings</h3>
-                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Configuration & backups</p>
+                                        <p className="text-xs text-[hsl(var(--admin-muted))]">Configuration, integrations & audit log</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="flex flex-col gap-1.5 my-2">
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-[hsl(var(--admin-muted))]">Database Health</span>
-                                    <span className="text-emerald-500 font-bold">100% ONLINE</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Maintenance mode</span>
+                                    <span className={cn("font-bold", settings?.maintenance_mode_active ? "text-red-400" : "text-[hsl(var(--admin-text))]")}>
+                                        {settings ? (settings.maintenance_mode_active ? "On (site offline)" : "Off") : "—"}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-[hsl(var(--admin-muted))]">Integrations Active</span>
-                                    <span className="text-[hsl(var(--admin-text))] font-bold">6 Integrations</span>
+                                    <span className="text-[hsl(var(--admin-muted))]">Media storage</span>
+                                    <span className="text-[hsl(var(--admin-text))] font-bold">{formatStorage(stats.storageUsedGB)} of {stats.storageTotalGB} GB</span>
                                 </div>
                             </div>
 
                             <div className="flex justify-between mt-auto pt-4 border-t border-admin-border/40 text-xs">
-                                <span className="text-[hsl(var(--admin-muted))]">Auto Backups Status</span>
-                                <span className="text-emerald-500 font-bold">SUCCESSFUL</span>
+                                <span className="text-[hsl(var(--admin-muted))]">Settings, email templates, audit log</span>
+                                <ArrowUpRight className="w-3.5 h-3.5 text-[hsl(var(--admin-primary))]" aria-hidden="true" />
                             </div>
                         </SpotlightCard>
                     </Link>

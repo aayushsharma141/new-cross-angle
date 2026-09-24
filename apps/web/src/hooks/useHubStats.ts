@@ -19,6 +19,14 @@ export interface HubStats {
     signedCount: number;
     quizLeadsCount: number;
     estimatorLeadsCount: number;
+    imageCount: number;
+    videoCount: number;
+    activeTestimonials: number;
+    publishedPosts: number;
+    draftPosts: number;
+    /** Sum of blog_posts.view_count, incremented by record_blog_event on article views. */
+    blogViews: number;
+    roleCounts: Record<string, number>;
     /** At least one query failed, so some zeros above mean "unknown", not "none". */
     partialFailure: boolean;
 }
@@ -33,6 +41,9 @@ async function fetchHubStats(): Promise<HubStats> {
         { count: newLeadCount, error: e3 },
         { data: mediaData, error: e4 },
         { data: leadsData, error: e5 },
+        { data: blogData, error: e6 },
+        { count: testimonialCount, error: e7 },
+        { data: roleData, error: e8 },
     ] = await Promise.all([
         supabase
             .from("lead_activities")
@@ -46,18 +57,37 @@ async function fetchHubStats(): Promise<HubStats> {
             .from("leads")
             .select("*", { count: "exact", head: true })
             .eq("status", "new"),
-        supabase.from("media_files").select("size_bytes"),
+        supabase.from("media_files").select("size_bytes, mime_type"),
         supabase
             .from("leads")
             .select("status, lead_source, estimated_min"),
+        supabase.from("blog_posts").select("status, view_count"),
+        supabase
+            .from("testimonials")
+            .select("*", { count: "exact", head: true })
+            .eq("active", true),
+        supabase.from("user_roles").select("role"),
     ]);
 
-    const partialFailure = Boolean(e1 || e2 || e3 || e4 || e5);
+    const partialFailure = Boolean(e1 || e2 || e3 || e4 || e5 || e6 || e7 || e8);
     if (partialFailure) {
-        console.error("Hub stats partial failure", { e1, e2, e3, e4, e5 });
+        console.error("Hub stats partial failure", { e1, e2, e3, e4, e5, e6, e7, e8 });
     }
 
-    const totalBytes = (mediaData ?? []).reduce(
+    const media = mediaData ?? [];
+    const imageCount = media.filter(m => m.mime_type?.startsWith("image/")).length;
+    const videoCount = media.filter(m => m.mime_type?.startsWith("video/")).length;
+
+    const posts = blogData ?? [];
+    const published = posts.filter(p => p.status === "published");
+    const blogViews = published.reduce((sum, p) => sum + (p.view_count ?? 0), 0);
+
+    const roleCounts = (roleData ?? []).reduce<Record<string, number>>((acc, r) => {
+        acc[r.role] = (acc[r.role] ?? 0) + 1;
+        return acc;
+    }, {});
+
+    const totalBytes = media.reduce(
         (sum: number, m: { size_bytes: number | null }) => sum + (m.size_bytes ?? 0),
         0
     );
@@ -94,6 +124,13 @@ async function fetchHubStats(): Promise<HubStats> {
         signedCount,
         quizLeadsCount,
         estimatorLeadsCount,
+        imageCount,
+        videoCount,
+        activeTestimonials: testimonialCount ?? 0,
+        publishedPosts: published.length,
+        draftPosts: posts.filter(p => p.status === "draft").length,
+        blogViews,
+        roleCounts,
         partialFailure,
     };
 }
@@ -113,6 +150,13 @@ const DEFAULT_STATS: HubStats = {
     signedCount: 0,
     quizLeadsCount: 0,
     estimatorLeadsCount: 0,
+    imageCount: 0,
+    videoCount: 0,
+    activeTestimonials: 0,
+    publishedPosts: 0,
+    draftPosts: 0,
+    blogViews: 0,
+    roleCounts: {},
     partialFailure: false,
 };
 

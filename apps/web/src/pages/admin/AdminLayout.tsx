@@ -83,6 +83,10 @@ const AdminLayout = (): JSX.Element | null => {
     };
     useKeyboardShortcutsHelp(toggleShortcuts);
 
+    useEffect(() => {
+        if (isAuthenticated && role) void refreshHealth();
+    }, [isAuthenticated, role, refreshHealth]);
+
     const handleDeactivateMaintenance = async () => {
         if (!settings?.id) return;
         try {
@@ -253,8 +257,8 @@ const AdminLayout = (): JSX.Element | null => {
                                     icon={Shield}
                                     label="Security"
                                     href="/admin/system/settings"
-                                    value={health.status === "healthy" ? "Optimal" : "Check"}
-                                    variant={health.status === "healthy" ? "success" : "warning"}
+                                    value={health.status === "unknown" ? "Checking…" : health.status === "healthy" ? "Optimal" : "Check"}
+                                    variant={health.status === "unknown" ? "muted" : health.status === "healthy" ? "success" : "warning"}
                                 />
                             </div>
                         </>

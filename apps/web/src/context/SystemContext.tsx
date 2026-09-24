@@ -2,7 +2,8 @@ import React, { createContext, useContext, useState, useCallback, ReactNode } fr
 import { supabase } from '@/integrations/supabase/client';
 
 interface SystemHealth {
-    status: 'healthy' | 'degraded' | 'error';
+    /** 'unknown' until refreshHealth() has actually probed — never report health that wasn't checked. */
+    status: 'unknown' | 'healthy' | 'degraded' | 'error';
     database: 'connected' | 'disconnected';
     storage: 'available' | 'full' | 'error';
     api: 'online' | 'offline';
@@ -30,7 +31,7 @@ const SystemContext = createContext<SystemContextType | undefined>(undefined);
 
 export const SystemProvider = ({ children }: { children: ReactNode }) => {
     const [health, setHealth] = useState<SystemHealth>({
-        status: 'healthy',
+        status: 'unknown',
         database: 'connected',
         storage: 'available',
         api: 'online',
