@@ -1,32 +1,24 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import {
     Activity,
     AlertTriangle,
-    UserPlus,
-    FileEdit,
     Briefcase,
+    Calculator,
+    FileEdit,
+    Image,
     MessageSquare,
-    Shield
+    Settings,
+    Shield,
+    UserPlus,
+    Users,
+    type LucideIcon,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import type { DateRange } from "react-day-picker";
 import { ScrollArea } from "@/components/ui/primitives/scroll-area";
 import { Skeleton } from "@/components/ui/primitives/skeleton";
-import { DateRange } from "react-day-picker";
-
-interface ActivityItem {
-    id: string;
-    action: string;
-    module: string;
-    created_at: string;
-    admin_id?: string;
-    status: string;
-    details?: Record<string, unknown> | null;
-    profiles?: {
-        full_name: string;
-    };
-}
+import { auditService } from "@/services/AuditService";
+import type { AuditAction, AuditEntityType, AuditLogEntry } from "@/types/audit";
 
 interface RecentActivityFeedProps {
     dateRange?: DateRange;
@@ -34,31 +26,73 @@ interface RecentActivityFeedProps {
     heightClassName?: string;
 }
 
+const ACTION_LABELS: Record<AuditAction, string> = {
+    CREATE: "Created",
+    UPDATE: "Updated",
+    DELETE: "Deleted",
+    VIEW: "Viewed",
+    EXPORT: "Exported",
+    LOGIN: "Signed in",
+    LOGOUT: "Signed out",
+    ROLE_CHANGE: "Changed role of",
+    STATUS_CHANGE: "Changed status of",
+    PUBLISH: "Published",
+    UNPUBLISH: "Unpublished",
+    APPROVE: "Approved",
+    REJECT: "Rejected",
+    ARCHIVE: "Archived",
+    RESTORE: "Restored",
+};
+
+const ENTITY: Record<AuditEntityType, { label: string; icon: LucideIcon }> = {
+    user: { label: "user", icon: UserPlus },
+    lead: { label: "lead", icon: MessageSquare },
+    project: { label: "project", icon: Briefcase },
+    blog: { label: "blog post", icon: FileEdit },
+    service: { label: "service", icon: Briefcase },
+    testimonial: { label: "testimonial", icon: MessageSquare },
+    team_member: { label: "team member", icon: Users },
+    media: { label: "media file", icon: Image },
+    settings: { label: "site settings", icon: Settings },
+    estimate: { label: "estimate", icon: Calculator },
+};
+
+const toneFor = (action: AuditAction): string => {
+    if (action === "DELETE" || action === "REJECT") return "bg-admin-danger/10 text-admin-danger border-admin-danger/20";
+    if (action === "CREATE" || action === "PUBLISH" || action === "APPROVE") return "bg-admin-success/10 text-admin-success border-admin-success/20";
+    return "bg-admin-surface text-admin-muted border-admin-border";
+};
+
+const describe = (entry: AuditLogEntry): string => {
+    const verb = ACTION_LABELS[entry.action] ?? entry.action;
+    const noun = ENTITY[entry.entity_type]?.label ?? entry.entity_type.replace(/_/g, " ");
+    return `${verb} ${noun}`;
+};
+
+const summarize = (details: AuditLogEntry["details"]): string | null => {
+    if (!details) return null;
+    const name = details.title ?? details.name;
+    if (typeof name === "string" && name) return name;
+    if (typeof details.new_status === "string") return `Status: ${details.new_status}`;
+    return null;
+};
+
 export function RecentActivityFeed({ dateRange, limit = 20, heightClassName = "h-[400px]" }: RecentActivityFeedProps) {
     const { data: activities, isLoading, isError } = useQuery({
         queryKey: ["recent-activity", dateRange, limit],
         queryFn: async () => {
-            let query = (supabase as any)
-                .from("system_logs")
-                // No FK from system_logs to profiles, so a profiles() embed makes PostgREST return 400 (PGRST200).
-                .select("*")
-                .order("created_at", { ascending: false })
-                .limit(limit);
-
-            if (dateRange?.from) {
-                query = query.gte("created_at", dateRange.from.toISOString());
-            }
-
+            let dateTo: string | undefined;
             if (dateRange?.to) {
-                const toDate = new Date(dateRange.to);
-                toDate.setHours(23, 59, 59, 999);
-                query = query.lte("created_at", toDate.toISOString());
+                const end = new Date(dateRange.to);
+                end.setHours(23, 59, 59, 999);
+                dateTo = end.toISOString();
             }
-
-            const { data, error } = await query;
-
-            if (error) throw error;
-            return data as unknown as ActivityItem[];
+            const page = await auditService.getLogsPaginated({
+                pageSize: limit,
+                dateFrom: dateRange?.from?.toISOString(),
+                dateTo,
+            });
+            return page.data;
         },
         refetchInterval: 30000,
     });
@@ -97,116 +131,37 @@ export function RecentActivityFeed({ dateRange, limit = 20, heightClassName = "h
         );
     }
 
-    const getIcon = (item: ActivityItem) => {
-        const module = item.module?.toLowerCase();
-        if (module?.includes("blog")) return <FileEdit className="h-4 w-4" />;
-        if (module?.includes("project") || module?.includes("portfolio")) return <Briefcase className="h-4 w-4" />;
-        if (module?.includes("lead")) return <MessageSquare className="h-4 w-4" />;
-        if (module?.includes("user") || module?.includes("auth")) return <UserPlus className="h-4 w-4" />;
-
-        return <Shield className="h-4 w-4" />;
-    };
-
-    const getBadges = (status: string) => {
-        const s = status.toLowerCase();
-        if (s === "success") return "bg-admin-success/10 text-admin-success border-admin-success/20";
-        if (s === "error" || s === "failed") return "bg-admin-danger/10 text-admin-danger border-admin-danger/20";
-        return "bg-admin-surface text-admin-muted border-admin-border";
-    };
-
-    const getStatusLabel = (status: string): string => {
-        const s = status.toLowerCase();
-        if (s === "success") return "Completed";
-        if (s === "error" || s === "failed") return "Failed";
-        if (s === "pending") return "Pending";
-        return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
-    };
-
-    const getModuleLabel = (module: string): string => {
-        const map: Record<string, string> = {
-            lead_activities: "CRM",
-            leads: "CRM",
-            content_versions: "Content",
-            blog_posts: "Blog",
-            projects: "Portfolio",
-            media: "Media",
-            testimonials: "Reviews",
-            services: "Services",
-            system_logs: "System",
-            users: "Users",
-            auth: "Access",
-            settings: "Settings",
-        };
-        const key = module?.toLowerCase().replace(/\s+/g, "_");
-        return map[key] || module.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-    };
-
-    const formatDetails = (details: Record<string, unknown>): string | null => {
-        if (!details || Object.keys(details).length === 0) return null;
-        const parts: string[] = [];
-        if (details.old_status && details.new_status) {
-            parts.push(`Status changed from "${details.old_status}" to "${details.new_status}"`);
-        } else if (details.status) {
-            parts.push(`Status: ${details.status}`);
-        }
-        if (details.name || details.title) {
-            parts.push(`Item: ${details.name || details.title}`);
-        }
-        if (details.count) {
-            parts.push(`${details.count} items affected`);
-        }
-        if (parts.length === 0) {
-            // Fallback: show key-value pairs in readable form (no raw JSON)
-            const readable = Object.entries(details)
-                .filter(([, v]) => v !== null && v !== undefined && typeof v !== "object")
-                .slice(0, 3)
-                .map(([k, v]) => `${k.replace(/_/g, " ")}: ${v}`)
-                .join(" · ");
-            return readable || null;
-        }
-        return parts.join(" · ");
-    };
-
     return (
         <ScrollArea className={`${heightClassName} pr-4`}>
-            <div className="space-y-3">
-                {activities.map((activity) => (
-                    <div key={activity.id} className="flex gap-4 group items-start border-b border-admin-border/50 pb-4 last:border-0 hover:bg-admin-surface/30 p-2 rounded-lg transition-colors">
-                        <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${getBadges(activity.status)}`}>
-                            {getIcon(activity)}
-                        </div>
-                        <div className="flex flex-col gap-1 min-w-0 flex-1">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium leading-none text-admin-foreground">
-                                    {activity.action}
-                                </span>
-                                <span className="text-[11px] text-admin-muted tabular-nums">
-                                    {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
-                                </span>
+            <ul className="space-y-3">
+                {activities.map((entry) => {
+                    const Icon = ENTITY[entry.entity_type]?.icon ?? Shield;
+                    const summary = summarize(entry.details);
+                    return (
+                        <li key={entry.id} className="flex gap-4 items-start border-b border-admin-border/50 pb-4 last:border-0 p-2 rounded-lg">
+                            <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${toneFor(entry.action)}`}>
+                                <Icon className="h-4 w-4" />
                             </div>
-
-                            <div className="text-xs text-admin-muted flex gap-2 items-center mt-1">
-                                <span className={`px-1.5 py-0.5 rounded text-[11px] border ${getBadges(activity.status)}`}>
-                                    {getStatusLabel(activity.status)}
+                            <div className="flex flex-col gap-1 min-w-0 flex-1">
+                                <span className="text-sm font-medium leading-snug text-admin-foreground">
+                                    {describe(entry)}
                                 </span>
-                                <span>
-                                    • in <span className="text-admin-gold">{getModuleLabel(activity.module)}</span>
-                                    {activity.profiles?.full_name && ` • by ${activity.profiles.full_name}`}
-                                </span>
-                            </div>
-
-                            {activity.details && typeof activity.details === 'object' && Object.keys(activity.details).length > 0 && (() => {
-                                const summary = formatDetails(activity.details as Record<string, unknown>);
-                                return summary ? (
-                                    <p className="mt-1.5 text-xs text-admin-muted/80 truncate max-w-[350px]">
+                                {summary && (
+                                    <p className="text-xs text-admin-muted truncate" title={summary}>
                                         {summary}
                                     </p>
-                                ) : null;
-                            })()}
-                        </div>
-                    </div>
-                ))}
-            </div>
+                                )}
+                                <p className="text-[11px] text-admin-muted tabular-nums">
+                                    <time dateTime={entry.created_at}>
+                                        {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
+                                    </time>
+                                    {entry.profiles?.full_name && ` · by ${entry.profiles.full_name}`}
+                                </p>
+                            </div>
+                        </li>
+                    );
+                })}
+            </ul>
         </ScrollArea>
     );
 }
