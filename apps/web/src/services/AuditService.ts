@@ -4,9 +4,11 @@ import type { PaginatedResponse } from '@/services/types';
 
 export class AuditService {
   /**
-   * Write-side helper. Resolves the current auth user automatically so callers
-   * only need to supply what changed. Failures are logged to console but never
-   * thrown — an audit write must never interrupt the primary operation.
+   * Write-side helper. Failures are logged to console but never thrown — an
+   * audit write must never interrupt the primary operation.
+   *
+   * user_id is deliberately not sent: the browser client has no session (cookie
+   * auth), so the audit_logs_set_actor trigger stamps it from the request JWT.
    *
    * @example
    *   await auditService.writeAudit('CREATE', 'blog', newPost.id, { title: newPost.title });
@@ -18,12 +20,10 @@ export class AuditService {
     details?: Record<string, unknown>
   ): Promise<void> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       const { error } = await supabase.from('audit_logs').insert({
         action,
         entity_type: entityType,
         entity_id: entityId,
-        user_id: user?.id ?? null,
         details: details ?? null,
         ip_address: 'client',
       } as any);
