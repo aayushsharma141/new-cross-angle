@@ -105,8 +105,9 @@ async function fetchHubStats(): Promise<HubStats> {
     const quizLeadsCount = leads.filter(l => l.lead_source === "style_quiz" || l.lead_source === "aesthetic_discovery_engine").length;
     const estimatorLeadsCount = leads.filter(l => l.lead_source === "estimator").length;
 
+    // Open deals only: won/lost estimates are no longer pipeline.
     const pipelineValue = leads
-        .filter(l => l.lead_source === "estimator")
+        .filter(l => l.lead_source === "estimator" && l.status !== "won" && l.status !== "lost")
         .reduce((sum: number, l) => sum + (Number(l.estimated_min) || 0), 0);
 
     return {
