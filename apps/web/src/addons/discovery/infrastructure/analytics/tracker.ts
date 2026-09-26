@@ -50,7 +50,11 @@ export const trackQuizStarted = (
     track: TrackFn,
     sessionId: string,
     mode: "quick" | "deep"
-) => track("quiz_started", { sessionId, mode });
+) => track("quiz_started", {
+    sessionId,
+    mode,
+    userAgent: typeof navigator === "undefined" ? undefined : navigator.userAgent,
+});
 
 export const trackQuizStepViewed = (
     track: TrackFn,

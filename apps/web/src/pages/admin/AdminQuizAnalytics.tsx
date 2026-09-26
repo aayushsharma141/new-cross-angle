@@ -25,7 +25,8 @@ import {
   type SessionRow, type EventRow, type LeadRow,
   STAGE_ORDER, STAGE_LABELS, PRESET_RANGES,
   formatDuration, parseUA, computeModeStats, computeDropoffs, computeFunnel,
-  computeBreakdown, scoreLeadIntent, toCsv, downloadCsv,
+  computeArchetypeBreakdown, computeBreakdown, buildSessionsFromEvents, QUIZ_EVENT_TYPES,
+  scoreLeadIntent, toCsv, downloadCsv,
 } from "@/components/admin/analytics/analytics-utils";
 
 
@@ -45,6 +46,7 @@ export default function AdminQuizAnalytics() {
   const [posthogFunnel, setPosthogFunnel] = useState<Record<string, unknown>[]>([]);
   const [posthogRetention, setPosthogRetention] = useState<Record<string, unknown>[]>([]);
   const [posthogEstimator, setPosthogEstimator] = useState<Record<string, unknown>[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setRefreshing(true);
@@ -63,38 +65,40 @@ export default function AdminQuizAnalytics() {
       return next;
     };
 
-    const loadFromReportingTable = async () => {
-      const { data, error } = await supabase
-        .from("analytics_reporting_daily")
-        .select("*")
-        .eq("module_name", "discovery")
-        .order("date", { ascending: false })
-        .limit(500);
+    // Real quiz telemetry: one row per emitted event, grouped into sessions below.
+    const loadQuizEvents = async (): Promise<EventRow[]> => {
+      let query = supabase
+        .from("analytics_events")
+        .select("id, event_type, payload, occurred_at")
+        .in("event_type", QUIZ_EVENT_TYPES)
+        .order("occurred_at", { ascending: false })
+        .limit(5000);
+      query = buildRangeQuery(query, "occurred_at");
+
+      const { data, error } = await query;
       if (error) throw error;
-      const rows = (data ?? []) as Array<Record<string, unknown>>;
-      const syntheticSessions: SessionRow[] = [];
-      const syntheticEvents: EventRow[] = [];
-      const byDate: Record<string, Record<string, number>> = {};
-      for (const row of rows) { const date = String(row.date); const metric = String(row.metric_name); const value = Number(row.metric_value); (byDate[date] ??= {})[metric] = value; }
-      for (const [date, metrics] of Object.entries(byDate)) {
-        const total = metrics["quiz_started"] ?? 0;
-        const completed = metrics["quiz_completed"] ?? 0;
-        for (let i = 0; i < total; i++) {
-          const isCompleted = i < completed;
-          const id = `${date}-synth-${i}`;
-          syntheticSessions.push({ id, started_at: new Date(date).toISOString(), completed_at: isCompleted ? new Date(date).toISOString() : null, mode: "deep", is_completed: isCompleted, last_stage: isCompleted ? "results" : null, completion_time_seconds: metrics["avg_completion_seconds"] ?? null, user_agent: null, answers: {} });
-          syntheticEvents.push({ id: `${id}-evt`, analytics_session_id: id, event_type: isCompleted ? "quiz_completed" : "quiz_started", stage_name: isCompleted ? "results" : null, meta: {}, created_at: new Date(date).toISOString() });
-        }
-      }
-      return { sessions: syntheticSessions, events: syntheticEvents };
+
+      return ((data ?? []) as Array<Record<string, unknown>>).map((row) => {
+        const payload = (row.payload ?? {}) as Record<string, unknown>;
+        return {
+          id: String(row.id),
+          analytics_session_id: typeof payload.sessionId === "string" ? payload.sessionId : null,
+          event_type: String(row.event_type),
+          stage_name: typeof payload.stepName === "string" ? payload.stepName : null,
+          meta: payload,
+          created_at: String(row.occurred_at),
+        };
+      });
     };
 
     let leadsQuery = supabase.from("leads").select("id, name, email, phone, project_type, budget, start_timing, city, lead_source, source, source_url, created_at, internal_notes, form_data").or("lead_source.eq.style_quiz,lead_source.eq.aesthetic_discovery_engine").order("created_at", { ascending: false }).limit(500);
     leadsQuery = buildRangeQuery(leadsQuery, "created_at");
 
     try {
-      const analyticsResult = await loadFromReportingTable().catch(() => ({ sessions: [], events: [] }));
-      const [{ sessions: nextSessions, events: nextEvents }, leadsRes] = await Promise.all([Promise.resolve(analyticsResult), leadsQuery]);
+      setLoadError(null);
+      const [nextEvents, leadsRes] = await Promise.all([loadQuizEvents(), leadsQuery]);
+      if (leadsRes.error) throw leadsRes.error;
+      const nextSessions = buildSessionsFromEvents(nextEvents);
       const nextLeads: LeadRow[] = ((leadsRes.data ?? []) as Array<Record<string, unknown>>).map((lead) => {
         const internalNotes = (lead.internal_notes ?? {}) as Record<string, unknown>;
         const rawData = (internalNotes.raw_data ?? {}) as Record<string, unknown>;
@@ -115,6 +119,11 @@ export default function AdminQuizAnalytics() {
       setPosthogFunnel(phFunnelRes.data || []);
       setPosthogEstimator(phEstimatorRes.data || []);
       setPosthogRetention(phRetentionRes.data || []);
+    } catch (err) {
+      // Never let a failed read render as "no activity" — that reads identical
+      // to a genuinely quiet period.
+      setLoadError(err instanceof Error ? err.message : "Could not load quiz analytics.");
+      setSessions([]); setEvents([]); setLeads([]);
     } finally { setLoading(false); setRefreshing(false); }
   }, [dateFrom, dateTo]);
 
@@ -139,16 +148,14 @@ export default function AdminQuizAnalytics() {
   const dropoffs = computeDropoffs(sessions);
   const funnel = computeFunnel(sessions);
   const maxFunnel = Math.max(...funnel.map((f) => f.count), 1);
+  const deviceBreakdown = computeBreakdown(sessions, "device");
   const recentEvents = events.slice(0, 20);
 
   const analyticsData = useMemo(() => {
     const dailyStatsMap: Record<string, { date: string; label: string; sessions: number; completions: number }> = {};
     sessions.forEach(s => { const d = format(new Date(s.started_at), 'yyyy-MM-dd'); if (!dailyStatsMap[d]) dailyStatsMap[d] = { date: d, label: format(new Date(s.started_at), 'MMM d'), sessions: 0, completions: 0 }; dailyStatsMap[d].sessions++; if (s.is_completed) dailyStatsMap[d].completions++; });
     const dailyStats = Object.values(dailyStatsMap).sort((a, b) => a.date.localeCompare(b.date)).map(({ label, sessions, completions }) => ({ date: label, sessions, completions }));
-    const serviceDistributionMap: Record<string, number> = {};
-    sessions.forEach(s => { if (s.answers?.services && Array.isArray(s.answers.services)) { (s.answers.services as string[]).forEach((svc) => { serviceDistributionMap[svc] = (serviceDistributionMap[svc] || 0) + 1; }); } });
-    const serviceDistribution = Object.entries(serviceDistributionMap).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-    return { dailyStats, serviceDistribution };
+    return { dailyStats, archetypeDistribution: computeArchetypeBreakdown(sessions) };
   }, [sessions]);
 
   const COLORS = ['#7c3aed', '#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe', '#f5f3ff', '#4c1d95'];
@@ -186,27 +193,49 @@ export default function AdminQuizAnalytics() {
       </div>
 
 
+      {loadError && (
+        <div role="alert" className="rounded-2xl border border-red-500/30 bg-red-950/30 p-4 text-sm text-red-300">
+          <strong className="font-semibold">Couldn't load quiz analytics.</strong> The figures below are not zero — they are unknown. {loadError}
+        </div>
+      )}
+
       {activeTab === "analytics" && (<>
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-6">
-          <StatCard icon={Users} label="Total Sessions" value={totalSessions.toString()} sub="Quiz starts in this period" delay={0.1} />
-          <StatCard icon={Activity} label="Completion Rate" value={`${overallRate.toFixed(1)}%`} sub="Sessions that reached results" delay={0.2} />
-          <StatCard icon={TrendingUp} label="Leads Generated" value={leads.length.toString()} sub="Quiz leads in this period" delay={0.3} />
+          <StatCard icon={Users} label="Quiz Sessions" value={totalSessions.toString()} sub="Visitors who started the quiz" delay={0.1} />
+          <StatCard icon={Activity} label="Completion Rate" value={totalSessions > 0 ? `${overallRate.toFixed(1)}%` : "—"} sub={totalSessions > 0 ? `${completedSessions} of ${totalSessions} reached results` : "No sessions yet"} delay={0.2} />
+          <StatCard icon={TrendingUp} label="Leads Captured" value={leads.length.toString()} sub={completedSessions > 0 ? `${((leads.length / completedSessions) * 100).toFixed(0)}% of completed quizzes` : "Needs a completed quiz"} delay={0.3} />
           <StatCard icon={Timer} label="Avg. Time" value={avgTime ? formatDuration(avgTime) : "—"} sub="Per completed session" delay={0.4} />
         </div>
+
+        {!loadError && totalSessions === 0 && (
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 mb-8">
+            <h3 className="text-base font-serif-display font-medium mb-2">No quiz sessions in this period</h3>
+            <p className="text-sm text-muted-foreground max-w-2xl">
+              This page reads the quiz telemetry recorded in <code className="text-xs">analytics_events</code>. Until this
+              release the quiz reported only to PostHog, so nothing was stored here — expect the first rows to appear once
+              visitors take the quiz. Widen the date range to check older periods.
+            </p>
+          </div>
+        )}
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <EngagementChart data={analyticsData.dailyStats} />
-          {/* Service Distribution Pie */}
+          {/* Which style identity finished sessions landed on */}
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, duration: 0.4 }} className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-            <h3 className="text-lg font-serif-display font-semibold mb-6 flex items-center gap-2"><PieChartIcon className={cn("text-rose-500", icons.md)} />Service Distribution</h3>
-            <div className="h-[250px] w-full mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart><Pie data={analyticsData.serviceDistribution} cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={3} dataKey="value" stroke="none">{analyticsData.serviceDistribution.map((_, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie><Tooltip contentStyle={{ backgroundColor: "rgba(0, 0, 0, 0.8)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", boxShadow: "0 10px 30px rgba(0,0,0,0.2)", color: "#fff" }} itemStyle={{ color: "#e2e8f0" }} /></PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex flex-wrap justify-center gap-3 mt-2">{analyticsData.serviceDistribution.map((entry, index) => (<div key={index} className="flex items-center gap-2 text-sm text-muted-foreground"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div><span>{entry.name} ({entry.value})</span></div>))}</div>
+            <h3 className="text-lg font-serif-display font-semibold mb-1 flex items-center gap-2"><PieChartIcon className={cn("text-rose-500", icons.md)} />Style Identities</h3>
+            <p className="text-xs text-muted-foreground mb-4">The archetype each completed quiz resolved to.</p>
+            {analyticsData.archetypeDistribution.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-12 text-center">No completed quizzes in this period.</p>
+            ) : (<>
+              <div className="h-[250px] w-full mt-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart><Pie data={analyticsData.archetypeDistribution} cx="50%" cy="50%" innerRadius={70} outerRadius={100} paddingAngle={3} dataKey="value" stroke="none">{analyticsData.archetypeDistribution.map((_, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie><Tooltip contentStyle={{ backgroundColor: "rgba(0, 0, 0, 0.8)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", boxShadow: "0 10px 30px rgba(0,0,0,0.2)", color: "#fff" }} itemStyle={{ color: "#e2e8f0" }} /></PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-wrap justify-center gap-3 mt-2">{analyticsData.archetypeDistribution.map((entry, index) => (<div key={index} className="flex items-center gap-2 text-sm text-muted-foreground"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div><span>{entry.name} ({entry.value})</span></div>))}</div>
+            </>)}
           </motion.div>
         </div>
 
@@ -220,21 +249,38 @@ export default function AdminQuizAnalytics() {
           </motion.section>
         )}
 
-        {/* Device & Browser */}
-        <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="mb-10">
-          <h2 className="text-lg font-serif-display font-medium mb-4 flex items-center gap-2"><Monitor className={cn("text-muted-foreground", icons.md)} /> Device & Browser</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"><h3 className="tracking-premium text-muted-foreground mb-4">Device Type</h3><BreakdownBar items={computeBreakdown(sessions, "device")} delay={0.3} /></div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"><h3 className="tracking-premium text-muted-foreground mb-4">Browser</h3><BreakdownBar items={computeBreakdown(sessions, "browser")} delay={0.35} /></div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"><h3 className="tracking-premium text-muted-foreground mb-4">Operating System</h3><BreakdownBar items={computeBreakdown(sessions, "os")} delay={0.4} /></div>
-          </div>
-        </motion.section>
+        {/* Device & Browser — from the userAgent recorded at quiz start */}
+        {deviceBreakdown.length > 0 && (
+          <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="mb-10">
+            <h2 className="text-lg font-serif-display font-medium mb-4 flex items-center gap-2"><Monitor className={cn("text-muted-foreground", icons.md)} /> Device & Browser</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"><h3 className="tracking-premium text-muted-foreground mb-4">Device Type</h3><BreakdownBar items={deviceBreakdown} delay={0.3} /></div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"><h3 className="tracking-premium text-muted-foreground mb-4">Browser</h3><BreakdownBar items={computeBreakdown(sessions, "browser")} delay={0.35} /></div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"><h3 className="tracking-premium text-muted-foreground mb-4">Operating System</h3><BreakdownBar items={computeBreakdown(sessions, "os")} delay={0.4} /></div>
+            </div>
+          </motion.section>
+        )}
 
-        {/* Funnel */}
+        {/* Funnel — where the quiz loses people, stage by stage */}
         <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mb-10">
-          <h2 className="text-lg font-serif-display font-medium mb-4 flex items-center gap-2"><TrendingDown className={cn("text-muted-foreground", icons.md)} /> Stage Funnel</h2>
-          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 space-y-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-            {funnel.map((f, i) => (<div key={f.stage} className="flex items-center gap-3"><span className="text-xs text-muted-foreground w-24 text-right shrink-0 truncate">{STAGE_LABELS[f.stage] ?? f.stage}</span><div className="flex-1 h-7 rounded bg-white/5 overflow-hidden relative"><motion.div initial={{ width: 0 }} animate={{ width: `${(f.count / maxFunnel) * 100}%` }} transition={{ delay: 0.3 + i * 0.04, duration: 0.5 }} className="h-full rounded" style={{ background: i === funnel.length - 1 && f.count > 0 ? `hsl(var(--gold))` : `hsl(var(--foreground) / ${0.15 + (1 - i / funnel.length) * 0.25})` }} /><span className="absolute inset-y-0 right-2 flex items-center text-xs text-muted-foreground">{f.count}</span></div><span className="text-xs text-muted-foreground w-12 shrink-0">{f.pct.toFixed(0)}%</span></div>))}
+          <h2 className="text-lg font-serif-display font-medium mb-1 flex items-center gap-2"><TrendingDown className={cn("text-muted-foreground", icons.md)} /> Stage Funnel</h2>
+          <p className="text-xs text-muted-foreground mb-4">Sessions that reached each stage, and how many were lost getting there. Quick mode skips stages, so a session counts once it reaches that point or beyond.</p>
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 space-y-2.5 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+            {totalSessions === 0 ? (
+              <p className="text-sm text-muted-foreground py-6 text-center">No quiz sessions recorded in this period.</p>
+            ) : funnel.map((f, i) => (
+              <div key={f.stage} className="flex items-center gap-3">
+                <span className="text-xs text-muted-foreground w-28 text-right shrink-0 truncate" title={STAGE_LABELS[f.stage] ?? f.stage}>{STAGE_LABELS[f.stage] ?? f.stage}</span>
+                <div className="flex-1 h-7 rounded bg-white/5 overflow-hidden relative">
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${(f.count / maxFunnel) * 100}%` }} transition={{ delay: 0.3 + i * 0.03, duration: 0.5 }} className="h-full rounded" style={{ background: i === funnel.length - 1 && f.count > 0 ? `hsl(var(--gold))` : `hsl(var(--foreground) / ${0.15 + (1 - i / funnel.length) * 0.25})` }} />
+                  <span className="absolute inset-y-0 right-2 flex items-center text-xs text-muted-foreground">{f.count}</span>
+                </div>
+                <span className="text-xs text-muted-foreground w-12 shrink-0 text-right">{f.pct.toFixed(0)}%</span>
+                <span className={cn("text-xs w-20 shrink-0 text-right", f.droppedFromPrev > 0 ? "text-amber-400" : "text-muted-foreground/40")}>
+                  {f.droppedFromPrev > 0 ? `−${f.droppedFromPrev} (${f.dropPctFromPrev.toFixed(0)}%)` : "—"}
+                </span>
+              </div>
+            ))}
           </div>
         </motion.section>
 

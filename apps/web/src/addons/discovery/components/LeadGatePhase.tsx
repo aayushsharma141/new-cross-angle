@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Loader2, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/primitives/button";
@@ -7,8 +7,10 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { UserSignals, AestheticScores, Archetype } from "@/types/discovery";
-import { trackLeadGateViewed, trackLeadGateSubmitted } from "../infrastructure/analytics/tracker";
+import { trackLeadGateViewed, trackLeadGateSubmitted, type TrackFn } from "../infrastructure/analytics/tracker";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
+import { track } from "@/analytics/track";
+import { useCookieConsent } from "@/components/cookies/CookieConsentProvider";
 import { saveDiscoveryResult } from "../core/persistence";
 import { buildDiscoveryHandoff } from "@/addons/calculators/components/data/discovery-handoff";
 
@@ -28,7 +30,15 @@ const LeadGatePhase = ({ sessionId, scores, archetype, signals, onComplete }: Pr
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const analytics = useAnalytics();
-    const analyticsTrack = analytics.track.bind(analytics);
+    const { consent } = useCookieConsent();
+    // Dual-write to PostHog and Supabase, consent-gated — see DiscoveryEngine.
+    const analyticsTrack = useCallback<TrackFn>(
+        (event, properties) => {
+            if (consent !== "all") return;
+            track(analytics, event, properties);
+        },
+        [analytics, consent]
+    );
     const navigate = useNavigate();
 
     useEffect(() => {

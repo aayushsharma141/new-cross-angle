@@ -48,6 +48,8 @@ describe("trackQuizStarted", () => {
         expect(track).toHaveBeenCalledWith("quiz_started", {
             sessionId: "session-1",
             mode: "deep",
+            // Captured once per session so the admin funnel can split by device.
+            userAgent: expect.any(String),
         });
     });
 

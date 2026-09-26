@@ -40,7 +40,8 @@ export interface AnalyticsEventMap {
   page_viewed: { path: string; title?: string };
 
   // ── Discovery quiz funnel ─────────────────────────────────────────────────
-  quiz_started: { sessionId: string; mode: "quick" | "deep" };
+  /** userAgent is recorded once per session so the admin funnel can split by device. */
+  quiz_started: { sessionId: string; mode: "quick" | "deep"; userAgent?: string };
   quiz_step_viewed: { sessionId: string; stepName: string; stepIndex?: number };
   quiz_step_completed: {
     sessionId: string;

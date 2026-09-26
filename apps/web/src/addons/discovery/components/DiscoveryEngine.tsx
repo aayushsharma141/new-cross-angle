@@ -11,8 +11,10 @@ import { initialScores, addScores } from "../core/scoring";
 import { initialSignals, resetSession } from "../flow/session";
 import { getNextStage } from "../flow/transitions";
 import { saveSession, clearSession } from "../flow/persistence";
-import { startSession, trackQuizStarted, trackQuizCompleted, trackQuizStepViewed, trackQuizStepCompleted } from "../infrastructure/analytics/tracker";
+import { startSession, trackQuizStarted, trackQuizCompleted, trackQuizStepViewed, trackQuizStepCompleted, type TrackFn } from "../infrastructure/analytics/tracker";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
+import { track } from "@/analytics/track";
+import { useCookieConsent } from "@/components/cookies/CookieConsentProvider";
 import { synthesizeConsultationIntelligence, detectInterpretationConflict } from "../alcs/intelligence";
 import DiscoveryLanding from "./DiscoveryLanding";
 import PhysicalSpace from "./PhysicalSpace";
@@ -59,7 +61,22 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
     const [sessionId, setSessionId] = useState<string | null>(null);
     const [startTime, setStartTime] = useState<number>(Date.now());
     const analytics = useAnalytics();
-    const analyticsTrack = analytics.track.bind(analytics);
+    const { consent } = useCookieConsent();
+    // Dual-write. analytics.track alone reaches PostHog only, which is why
+    // analytics_events holds no quiz_* rows and the admin Style Quiz page had
+    // to fabricate sessions from stale daily totals. track() also writes the
+    // Supabase row that page now reads.
+    //
+    // Gated on the same consent PostHog uses: track()'s Supabase insert is not
+    // itself consent-aware, so calling it unconditionally would record a
+    // visitor's whole journey after they declined analytics cookies.
+    const analyticsTrack = useCallback<TrackFn>(
+        (event, properties) => {
+            if (consent !== "all") return;
+            track(analytics, event, properties);
+        },
+        [analytics, consent]
+    );
 
     // Persist session on stage change (only during active quiz)
     useEffect(() => {
