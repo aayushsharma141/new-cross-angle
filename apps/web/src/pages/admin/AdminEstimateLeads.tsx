@@ -89,12 +89,16 @@ export default function AdminEstimateLeads() {
   // Analytics
   const analytics = useMemo(() => {
     const all = data || [];
-    const totalPipeline = all.reduce((s, l) => s + (l.estimated_min || 0), 0);
-    const avgEstimate = all.length > 0 ? Math.round(totalPipeline / all.length) : 0;
+    const estimatedTotal = all.reduce((s, l) => s + (l.estimated_min || 0), 0);
+    // Open deals only — a won or lost estimate is no longer pipeline.
+    const openPipeline = all
+      .filter((l) => l.status !== 'won' && l.status !== 'lost')
+      .reduce((s, l) => s + (l.estimated_min || 0), 0);
+    const avgEstimate = all.length > 0 ? Math.round(estimatedTotal / all.length) : 0;
     const wonCount = all.filter((l) => l.status === 'won').length;
     const convRate = all.length > 0 ? Math.round((wonCount / all.length) * 100) : 0;
     const statusCounts = all.reduce((acc, l) => { acc[l.status] = (acc[l.status] || 0) + 1; return acc; }, {} as Record<string, number>);
-    return { total: all.length, totalPipeline, avgEstimate, convRate, wonCount, statusCounts };
+    return { total: all.length, openPipeline, avgEstimate, convRate, wonCount, statusCounts };
   }, [data]);
 
   const statusChartData = Object.entries(analytics.statusCounts).map(([name, value]) => ({
@@ -208,7 +212,7 @@ export default function AdminEstimateLeads() {
       <div className="fade-up-1">
         <AdminMetricsPanel metrics={[
           { label: "Total Leads", value: analytics.total.toString(), dotColor: "accent" },
-          { label: "Pipeline Value", value: `₹${(analytics.totalPipeline / 100000).toFixed(1)}L`, dotColor: "info" },
+          { label: "Open Pipeline", value: `₹${(analytics.openPipeline / 100000).toFixed(1)}L`, dotColor: "info" },
           { label: "Avg Estimate", value: formatINR(analytics.avgEstimate), dotColor: "success" },
           { label: "Conversion", value: `${analytics.convRate}% (${analytics.wonCount} won)`, dotColor: "warning" },
         ]} />
