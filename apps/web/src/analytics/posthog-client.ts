@@ -63,7 +63,12 @@ export function createAnalyticsClient(opts: ClientOptions): AnalyticsClient {
       person_profiles: "identified_only",
       persistence: "localStorage",
       session_recording: {
-        maskTextSelector: "input[type='password'], [data-posthog-mask]",
+        // Session replay is on, and the public site collects names, emails and
+        // phone numbers (quiz lead gate, contact form). Masking only password
+        // fields left every one of those recorded as typed, so mask input
+        // values by default and opt out deliberately via [data-posthog-unmask].
+        maskAllInputs: true,
+        maskTextSelector: "[data-posthog-mask]",
         blockElements: "[data-posthog-block]",
       },
     });
