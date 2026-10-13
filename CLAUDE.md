@@ -129,3 +129,7 @@ Visual iterations are tracked as git tags, not as a checked-in document — `DES
 2. Report the current active iteration and its design properties before editing.
 3. Ask whether to build on the current layout, restore features from an earlier checkpoint, or do a full overhaul.
 4. Never overwrite previous design work without first creating a new `checkpoint/...` tag.
+
+## Task Observer
+At the start of any task-oriented session, invoke the task-observer skill before beginning work.
+
