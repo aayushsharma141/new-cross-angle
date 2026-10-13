@@ -1,6 +1,7 @@
-import { useState, useCallback, useEffect, useMemo, Suspense, lazy } from "react";
+import { useState, useCallback, useEffect, useMemo, Suspense, lazy, useRef, type CSSProperties } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { ArrowLeft } from "lucide-react";
 
 import { Stage, AestheticScores, UserSignals, AIAestheticResult, DiscoveryConfig } from "@/types/discovery";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
@@ -41,6 +42,7 @@ import DotPattern from "@/components/magicui/dot-pattern";
 import AnimatedShinyText from "@/components/magicui/animated-shiny-text";
 import DiscoveryProgressSidebar from "./DiscoveryProgressSidebar";
 import { WorkspacePanel } from "@/components/patterns/WorkspacePanel";
+import { WORKSPACE_MATERIALS } from "@/addons/_shared/WorkspaceShell";
 import { DiscoveryDossier } from "./DiscoveryDossier";
 
 
@@ -54,6 +56,11 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
     const { data: visualPromptsData } = useFlowConfig<unknown[]>("discovery_visual_prompts");
 
     const [stage, setStage] = useState<Stage>(Stage.Welcome);
+    // Always the stage the user is actually on. Option cards auto-advance from a
+    // setTimeout; a late or doubled callback from a stage the user has already
+    // left (second click, Back, sidebar jump) must not complete it again.
+    const stageRef = useRef<Stage>(Stage.Welcome);
+    const [history, setHistory] = useState<Stage[]>([]);
     const [mode, setMode] = useState<"quick" | "deep">("deep");
     const [scores, setScores] = useState<AestheticScores>(initialScores);
     const [signals, setSignals] = useState<UserSignals>(initialSignals);
@@ -100,6 +107,8 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
         setStage(defaultSession.stage);
         setSessionId(null);
         clearSession();
+        stageRef.current = defaultSession.stage;
+        setHistory([]);
     }, [analyticsTrack]);
 
     const transitionToStage = useCallback((nextStage: Stage) => {
@@ -108,8 +117,19 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
             import("./ResultsReveal").catch(() => { });
         }
 
+        const from = stageRef.current;
+        stageRef.current = nextStage;
+        setHistory((h) => (nextStage > from ? [...h, from] : h.filter((st) => st < nextStage)));
         setStage(nextStage);
     }, []);
+
+    const handleBack = useCallback(() => {
+        const prev = history[history.length - 1];
+        if (prev === undefined) return;
+        stageRef.current = prev;
+        setHistory((h) => h.slice(0, -1));
+        setStage(prev);
+    }, [history]);
 
     const handleSidebarNavigate = useCallback((targetStage: Stage) => {
         if (targetStage < stage) {
@@ -142,6 +162,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
 
     const handlePivotComplete = useCallback(
         (data: { primaryValue: 'beauty' | 'practicality' | 'impression' | 'longevity' | 'identity' }) => {
+            if (stageRef.current !== Stage.PivotQuestion) return;
             if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "PivotQuestion");
             setSignals((prev) => ({ ...prev, primaryValue: data.primaryValue }));
             transitionToStage(getNextStage(Stage.PivotQuestion, mode));
@@ -150,6 +171,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
 
     const handleGenericStageComplete = useCallback(
         (currentStage: Stage, stageName: string, data: Partial<UserSignals>) => {
+            if (stageRef.current !== currentStage) return;
             if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, stageName);
             setSignals((prev) => ({ ...prev, ...data }));
             transitionToStage(getNextStage(currentStage, mode));
@@ -162,6 +184,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
             roomEmotionalWeights?: Record<string, import('@/types/discovery').RoomEmotionalWeight>;
             roomConflictResolution?: 'Multi-use' | 'Reduce Density';
         }) => {
+            if (stageRef.current !== Stage.RoomPriority) return;
             if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "RoomPriority");
             setSignals((prev) => ({ ...prev, ...data }));
             transitionToStage(getNextStage(Stage.RoomPriority, mode));
@@ -223,6 +246,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
 
     const handleBudgetComplete = useCallback(
         (data: { budgetBracket: string; luxuryResolution?: string }) => {
+            if (stageRef.current !== Stage.BudgetAlignment) return;
             if (sessionId) trackQuizStepCompleted(analyticsTrack, sessionId, "BudgetAlignment");
             setSignals((prev) => ({ ...prev, ...data }));
             transitionToStage(getNextStage(Stage.BudgetAlignment, mode));
@@ -298,6 +322,17 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                 <div className="lg:hidden absolute top-0 left-0 right-0 z-50">
                     <ProgressBar currentStage={stage} variant="horizontal" />
                 </div>
+            )}
+
+            {/* Back — one step at a time; hidden once analysis starts */}
+            {isQuizStage && stage < Stage.Analysis && history.length > 0 && (
+                <button
+                    type="button"
+                    onClick={handleBack}
+                    className="absolute left-4 top-6 z-40 inline-flex items-center gap-2 rounded-full px-3 py-2 text-[12px] font-mono uppercase tracking-[0.15em] text-kiro-inkSoft transition-colors hover:text-kiro-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent"
+                >
+                    <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back
+                </button>
             )}
 
             {/* Stage content — fills remaining height, each component manages its own scroll */}
@@ -377,8 +412,8 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
                         <Suspense fallback={
                             <div className="w-full h-[60vh] flex items-center justify-center">
                                 <div className="flex flex-col items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full border border-[#e8e4dd] border-t-kiro-accent animate-spin" />
-                                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#5a5a5a] font-mono">Loading Results</p>
+                                    <div className="w-12 h-12 rounded-full border border-kiro-line border-t-kiro-accent animate-spin" />
+                                    <p className="text-[12px] uppercase tracking-[0.2em] text-kiro-inkSoft font-mono" role="status">Loading results</p>
                                 </div>
                             </div>
                         }>
@@ -432,7 +467,7 @@ export const DiscoveryEngine = ({ config, onComplete }: DiscoveryEngineProps = {
         <div className={cn(
             "min-h-[100dvh] font-sans text-foreground relative",
             isQuizStage ? "bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)] h-[100dvh] overflow-hidden" : "bg-[var(--s-canvas-primary)] text-[var(--s-text-primary)]"
-        )} data-environment="workspace">
+        )} data-environment="workspace" style={WORKSPACE_MATERIALS as CSSProperties}>
             {isQuizStage ? (
                 <WorkspacePanel sidebar={sidebarContent} mainContent={stageContent} dossierContent={dossierContent} />
             ) : (

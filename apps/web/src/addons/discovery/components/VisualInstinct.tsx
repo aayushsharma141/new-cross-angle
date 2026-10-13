@@ -125,7 +125,7 @@ const VisualInstinct = ({ sessionId, signals, onComplete, visualPrompts }: Props
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
-              className="text-[10px] uppercase tracking-[0.2em] font-mono text-[#8b6f47] font-semibold"
+              className="text-[12px] uppercase tracking-[0.2em] font-mono text-[#8b6f47] font-semibold"
             >
               {remaining > 0 ? `${remaining} more to pick` : "All done!"}
             </motion.span>
@@ -163,7 +163,7 @@ const VisualInstinct = ({ sessionId, signals, onComplete, visualPrompts }: Props
           onClick={confirm}
           disabled={selected.length < MAX}
           className={`
-            px-12 py-3 text-[11px] xl:text-[12px] font-semibold tracking-[0.2em] uppercase transition-all duration-300 rounded-[4px] shadow-sm
+            px-12 py-3 text-[12px] xl:text-[12px] font-semibold tracking-[0.2em] uppercase transition-all duration-300 rounded-[4px] shadow-sm
             focus-visible:ring-2 focus-visible:ring-[#8b6f47] focus-visible:outline-none focus-visible:ring-offset-2
             ${selected.length === MAX
               ? "bg-[#8b6f47] text-white hover:bg-[#8b6f47]/90 cursor-pointer"

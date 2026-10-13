@@ -134,7 +134,7 @@ export function StepTimeline({ formData, updateField }: Props) {
                         </legend>
                         <div className="flex flex-col gap-5">
                             <div>
-                                <label htmlFor="est-name" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Full Name <span aria-hidden="true" className="text-red-400">*</span></label>
+                                <label htmlFor="est-name" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Full Name <span aria-hidden="true" className="text-red-700">*</span></label>
                                 <input
                                     id="est-name"
                                     type="text"
@@ -148,7 +148,7 @@ export function StepTimeline({ formData, updateField }: Props) {
                                 />
                             </div>
                             <div>
-                                <label htmlFor="est-email" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Email <span aria-hidden="true" className="text-red-400">*</span></label>
+                                <label htmlFor="est-email" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Email <span aria-hidden="true" className="text-red-700">*</span></label>
                                 <input
                                     id="est-email"
                                     type="email"
@@ -162,7 +162,7 @@ export function StepTimeline({ formData, updateField }: Props) {
                                 />
                             </div>
                             <div>
-                                <label htmlFor="est-phone" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Phone Number <span aria-hidden="true" className="text-red-400">*</span></label>
+                                <label htmlFor="est-phone" className="block text-xs font-bold mb-2 text-kiro-inkSoft uppercase tracking-wide">Phone Number <span aria-hidden="true" className="text-red-700">*</span></label>
                                 <input
                                     id="est-phone"
                                     type="tel"
@@ -176,6 +176,9 @@ export function StepTimeline({ formData, updateField }: Props) {
                                 />
                             </div>
                         </div>
+                        <p className="mt-5 text-[13px] leading-relaxed text-kiro-inkSoft">
+                            We use these details to save your estimate and let a designer follow up on it.
+                        </p>
                     </fieldset>
                 </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Building2, Home, LayoutTemplate, Layers, PaintRoller, Hammer, Home as HomeIcon, MapPin } from 'lucide-react';
 import type { UserSignals } from '@/types/discovery';
@@ -12,6 +12,15 @@ export default function PhysicalSpace({ onComplete }: PhysicalSpaceProps) {
   const [propertyType, setPropertyType] = useState<UserSignals['propertyType']>();
   const [carpetArea, setCarpetArea] = useState<number>(1200);
   const [projectScope, setProjectScope] = useState<UserSignals['projectScope']>();
+
+  // One pending auto-advance at a time: a second click inside the delay used to
+  // queue a second step increment and skip the carpet-area question.
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const advanceIn = (ms: number, fn: () => void) => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(fn, ms);
+  };
+  useEffect(() => () => clearTimeout(timer.current), []);
 
   const propertyTypes = [
     { id: 'Apartment', icon: Building2, desc: 'Shared structure, limited exterior changes' },
@@ -64,7 +73,7 @@ export default function PhysicalSpace({ onComplete }: PhysicalSpaceProps) {
                 What type of space are we looking at?
               </h2>
               <p className="text-sm md:text-base text-[#5a5a5a] mb-10 leading-relaxed font-light">
-                This helps us understand your structural boundaries.
+                This sets what we can and can't change.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full max-w-2xl px-2">
@@ -77,7 +86,7 @@ export default function PhysicalSpace({ onComplete }: PhysicalSpaceProps) {
                       type="button"
                       onClick={() => {
                         setPropertyType(type.id);
-                        setTimeout(handleNext, 400);
+                        advanceIn(400, () => setStep(1));
                       }}
                       className={`
                         flex flex-col items-center text-center gap-3.5 p-6 rounded-2xl border transition-all duration-300 w-full hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#80643e] focus-visible:outline-none
@@ -89,7 +98,7 @@ export default function PhysicalSpace({ onComplete }: PhysicalSpaceProps) {
                     >
                       <Icon className={`w-8 h-8 mb-1 transition-colors ${isSelected ? 'text-[#70593a]' : 'text-[#70593a]/65'}`} />
                       <span className="font-serif text-lg font-medium text-[#1a1a1a]">{type.id}</span>
-                      <span className="text-xs text-[#5a5a5a] leading-relaxed font-light">{type.desc}</span>
+                      <span className="text-[13px] text-[#5a5a5a] leading-relaxed">{type.desc}</span>
                     </button>
                   );
                 })}
@@ -109,12 +118,12 @@ export default function PhysicalSpace({ onComplete }: PhysicalSpaceProps) {
                 Roughly, what is the carpet area?
               </h2>
               <p className="text-sm md:text-base text-[#5a5a5a] mb-12 leading-relaxed font-light">
-                We use this to calculate spatial density and functional limits.
+                We use this to size rooms and keep the budget realistic.
               </p>
               
               <div className="w-full max-w-xl flex flex-col items-center gap-8 px-4">
                 <div className="text-5xl md:text-6xl font-light text-[#1a1a1a] flex items-baseline gap-2 font-serif">
-                  {carpetArea} <span className="text-xl md:text-2xl text-[#70593a]/60 font-sans font-medium">sqft</span>
+                  {carpetArea.toLocaleString("en-IN")} <span className="text-xl md:text-2xl text-[#70593a] font-sans font-medium">sq ft</span>
                 </div>
                 
                 <input 
@@ -128,7 +137,7 @@ export default function PhysicalSpace({ onComplete }: PhysicalSpaceProps) {
                   className="w-full accent-[#70593a] h-2 bg-[#e8e4dd] rounded-lg appearance-none cursor-pointer"
                 />
                 
-                <div className="flex justify-between w-full text-[10px] font-mono font-bold tracking-widest text-[#70593a]/60 px-1.5 uppercase">
+                <div className="flex justify-between w-full text-[12px] font-mono font-bold tracking-widest text-[#70593a] px-1.5 uppercase">
                   <span>Compact</span>
                   <span>Expansive</span>
                 </div>
@@ -156,7 +165,7 @@ export default function PhysicalSpace({ onComplete }: PhysicalSpaceProps) {
                 What level of transformation are you planning?
               </h2>
               <p className="text-sm md:text-base text-[#5a5a5a] mb-10 leading-relaxed font-light max-w-lg">
-                This forms the "Hard Lock" for our suggestions. We won't suggest knocking down walls if you only want cosmetic changes.
+                We won't suggest knocking down walls if you only want cosmetic changes.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full max-w-2xl px-2">
@@ -169,7 +178,7 @@ export default function PhysicalSpace({ onComplete }: PhysicalSpaceProps) {
                       type="button"
                       onClick={() => {
                         setProjectScope(scope.id);
-                        setTimeout(() => onComplete({ propertyType, carpetArea, projectScope: scope.id }), 500);
+                        advanceIn(500, () => onComplete({ propertyType, carpetArea, projectScope: scope.id }));
                       }}
                       className={`
                         flex flex-col items-center text-center gap-3.5 p-6 rounded-2xl border transition-all duration-300 w-full hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#80643e] focus-visible:outline-none
@@ -181,7 +190,7 @@ export default function PhysicalSpace({ onComplete }: PhysicalSpaceProps) {
                     >
                       <Icon className={`w-8 h-8 mb-1 transition-colors ${isSelected ? 'text-[#70593a]' : 'text-[#70593a]/65'}`} />
                       <span className="font-serif text-lg font-medium text-[#1a1a1a]">{scope.id}</span>
-                      <span className="text-xs text-[#5a5a5a] leading-relaxed font-light">{scope.desc}</span>
+                      <span className="text-[13px] text-[#5a5a5a] leading-relaxed">{scope.desc}</span>
                     </button>
                   );
                 })}

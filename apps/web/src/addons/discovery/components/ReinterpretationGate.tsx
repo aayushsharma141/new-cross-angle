@@ -53,7 +53,7 @@ const ReinterpretationGate: React.FC<Props> = ({ conflict, signals, onResolve })
           className="flex items-center gap-2 mb-8"
         >
           <Sparkles className="w-4 h-4 text-[#8b6f47]" />
-          <span className="text-[10px] uppercase tracking-[0.3em] text-[#8b6f47] font-mono font-bold">
+          <span className="text-[12px] uppercase tracking-[0.3em] text-[#8b6f47] font-mono font-bold">
             Insight Detected
           </span>
         </motion.div>
@@ -81,12 +81,12 @@ const ReinterpretationGate: React.FC<Props> = ({ conflict, signals, onResolve })
           </p>
           <div className="flex items-center justify-center gap-6 mt-6">
             <div className="text-center">
-              <span className="text-[9px] uppercase tracking-[0.25em] text-[#8c8c8c] block mb-1">You said</span>
+              <span className="text-[12px] uppercase tracking-[0.25em] text-[#8c8c8c] block mb-1">You said</span>
               <span className="text-[#1a1a1a] font-semibold text-sm">"{signals.intent}"</span>
             </div>
             <div className="w-12 h-px bg-[#e8e4dd]" />
             <div className="text-center">
-              <span className="text-[9px] uppercase tracking-[0.25em] text-[#8c8c8c] block mb-1">You chose</span>
+              <span className="text-[12px] uppercase tracking-[0.25em] text-[#8c8c8c] block mb-1">You chose</span>
               <span className="text-[#8b6f47] font-semibold text-sm capitalize">{conflict.visualSignal}</span>
             </div>
           </div>

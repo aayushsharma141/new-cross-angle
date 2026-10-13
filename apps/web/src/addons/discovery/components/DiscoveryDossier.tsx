@@ -13,20 +13,20 @@ export interface DiscoveryDossierProps {
 
 function getDecisionSentences(signals: UserSignals): string[] {
     const sentences: string[] = [];
-    if (signals.propertyType || signals.carpetArea) sentences.push("I have defined the physical space.");
-    if (signals.possessionStatus) sentences.push("I have defined the project's timing.");
-    if (signals.morningRoutine) sentences.push("I have defined how mornings feel.");
-    if (signals.cookingRole) sentences.push("I have defined our relationship with the kitchen.");
-    if (signals.hostingFrequency) sentences.push("I have defined how we entertain.");
-    if (signals.roomPriorities && Object.keys(signals.roomPriorities).length > 0) sentences.push("I have defined our budget priorities.");
-    if (signals.selectedImageIds?.length) sentences.push("I have chosen an instinctive visual direction.");
-    if (signals.intentVisualConflict) sentences.push("I have resolved my design philosophy.");
-    if (signals.designIdentity?.length) sentences.push("I have defined our design identity.");
-    if (signals.atmosphere?.length) sentences.push("I have defined the atmosphere.");
-    if (signals.constraints?.length) sentences.push("I have defined our constraints.");
-    if (signals.materialChoice) sentences.push("I have defined what the home feels like to touch.");
-    if (signals.sliderValues?.length) sentences.push("I have defined how we want to live.");
-    if (signals.primaryValue) sentences.push("I have defined what matters most.");
+    if (signals.propertyType || signals.carpetArea) sentences.push("Space and size");
+    if (signals.possessionStatus) sentences.push("Project timing");
+    if (signals.morningRoutine) sentences.push("Morning routine");
+    if (signals.cookingRole) sentences.push("Kitchen habits");
+    if (signals.hostingFrequency) sentences.push("Hosting style");
+    if (signals.roomPriorities && Object.keys(signals.roomPriorities).length > 0) sentences.push("Room priorities");
+    if (signals.selectedImageIds?.length) sentences.push("Visual instinct");
+    if (signals.intentVisualConflict) sentences.push("Design philosophy");
+    if (signals.designIdentity?.length) sentences.push("Design identity");
+    if (signals.atmosphere?.length) sentences.push("Atmosphere");
+    if (signals.constraints?.length) sentences.push("Constraints");
+    if (signals.materialChoice) sentences.push("Materials and touch");
+    if (signals.sliderValues?.length) sentences.push("Living preferences");
+    if (signals.primaryValue) sentences.push("What matters most");
     return sentences;
 }
 
@@ -97,15 +97,15 @@ export function DiscoveryDossier({ signals, stage: _stage }: DiscoveryDossierPro
 
     return (
         <div className="flex flex-col h-full relative z-10 p-6 md:p-8 bg-transparent">
-            <h3 className="text-[12px] font-mono tracking-wider uppercase text-muted-foreground mb-6 text-[var(--s-accent-primary)]">Workspace Dossier</h3>
+            <h3 className="text-[12px] font-mono tracking-wider uppercase text-kiro-accent mb-6">Your answers so far</h3>
             
             <div className="flex-1 overflow-y-auto pr-2 pb-8 space-y-8">
                 {/* Decision Sentences */}
                 <div>
-                    <h4 className="text-[11px] font-mono uppercase tracking-widest text-[var(--s-text-muted)] mb-4">Decisions</h4>
+                    <h4 className="text-[12px] font-mono uppercase tracking-widest text-kiro-inkSoft mb-4">Answered</h4>
                     <div className="space-y-3">
                         {sentences.length === 0 && (
-                            <div className="text-[13px] text-[var(--s-text-muted)] italic">Awaiting your first decision.</div>
+                            <div className="text-[13px] text-kiro-inkSoft">Your answers will list here as you go.</div>
                         )}
                         <AnimatePresence>
                             {sentences.map((sentence) => (
@@ -113,9 +113,9 @@ export function DiscoveryDossier({ signals, stage: _stage }: DiscoveryDossierPro
                                     key={sentence}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="text-[13px] text-[var(--s-text-primary)] flex items-start gap-2 leading-relaxed"
+                                    className="text-[13px] text-kiro-ink flex items-start gap-2 leading-relaxed"
                                 >
-                                    <span className="text-[var(--s-accent-primary)] font-bold mt-0.5">✓</span>
+                                    <span className="text-kiro-accent font-bold mt-0.5" aria-hidden="true">✓</span>
                                     <span>{sentence}</span>
                                 </motion.div>
                             ))}
@@ -125,31 +125,31 @@ export function DiscoveryDossier({ signals, stage: _stage }: DiscoveryDossierPro
 
                 {/* Intelligence & Estimate */}
                 <div>
-                    <h4 className="text-[11px] font-mono uppercase tracking-widest text-[var(--s-text-muted)] mb-4">Intelligence</h4>
+                    <h4 className="text-[12px] font-mono uppercase tracking-widest text-kiro-inkSoft mb-4">Reading</h4>
                     
-                    <div className="p-4 rounded-xl border border-[var(--s-border-subtle)] bg-[var(--s-surface-sunken)] space-y-4">
+                    <div className="p-4 rounded-xl border border-kiro-line bg-white space-y-4">
                         {/* Confidence Score */}
-                        <div className="flex justify-between items-center border-b border-[var(--s-border-subtle)] pb-4">
-                            <span className="text-[13px] text-[var(--s-text-tertiary)]">Confidence Score</span>
-                            <span className="text-[14px] font-mono font-medium text-[var(--s-accent-primary)]">
-                                {signals.consultationIntelligence?.confidence.overall || '--'}%
+                        <div className="flex justify-between items-center border-b border-kiro-line pb-4">
+                            <span className="text-[13px] text-kiro-inkSoft">Match confidence</span>
+                            <span className="text-[14px] font-mono font-medium text-kiro-accent">
+                                {signals.consultationIntelligence?.confidence.overall ? `${signals.consultationIntelligence.confidence.overall}%` : '—'}
                             </span>
                         </div>
 
                         {/* Estimate */}
                         <div>
-                            <span className="text-[13px] text-[var(--s-text-tertiary)] block mb-2">Live Estimate</span>
+                            <span className="text-[13px] text-kiro-inkSoft block mb-2">Rough range</span>
                             {!estimatorData ? (
-                                <p className="text-[12px] text-[var(--s-text-muted)] italic">
-                                    Requires physical space dimensions to calculate an estimate.
+                                <p className="text-[13px] text-kiro-inkSoft">
+                                    Add your home's size to see a rough range.
                                 </p>
                             ) : estimate ? (
                                 <div className="space-y-1">
-                                    <div className="text-[18px] font-serif font-medium text-[var(--s-text-primary)]">
+                                    <div className="text-[18px] font-serif font-medium text-kiro-ink">
                                         {formatCurrency(estimate.total.min)} - {formatCurrency(estimate.total.max)}
                                     </div>
-                                    <p className="text-[11px] text-[var(--s-text-muted)] uppercase tracking-wide">
-                                        Estimated based on {signals.carpetArea} sq.ft
+                                    <p className="text-[12px] text-kiro-inkSoft leading-relaxed">
+                                        For {signals.carpetArea} sq ft, assuming a 2-bedroom apartment with full-scope execution. The estimator refines this.
                                     </p>
                                 </div>
                             ) : null}

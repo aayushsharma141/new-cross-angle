@@ -65,15 +65,15 @@ export function StepPropertyType({ formData, updateField }: Props) {
                             {/* Full-card background fill — drives all visual state */}
                             <div className={`p-6 w-full h-full flex flex-col items-center justify-center relative overflow-hidden rounded-[7px] transition-all duration-300 ${
                                 selected
-                                    ? "bg-[#7a5c30]/[0.14]"
-                                    : "bg-white/60 group-hover:bg-[#7a5c30]/[0.06]"
+                                    ? "bg-kiro-accent/[0.14]"
+                                    : "bg-white/60 group-hover:bg-kiro-accent/[0.06]"
                             }`}>
 
                                 {/* Icon container */}
                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110 ${
                                     selected
-                                        ? "bg-[#7a5c30]/25 shadow-[0_4px_16px_rgba(122,92,48,0.30)] ring-2 ring-[#7a5c30]/40"
-                                        : "bg-[#1a1a1a]/[0.05] group-hover:bg-[#7a5c30]/[0.12]"
+                                        ? "bg-kiro-accent/25 shadow-[0_4px_16px_rgba(122,92,48,0.30)] ring-2 ring-kiro-accent/40"
+                                        : "bg-kiro-ink/[0.05] group-hover:bg-kiro-accent/[0.12]"
                                 }`}>
                                     {pt.imageId ? (
                                         <img
@@ -89,15 +89,15 @@ export function StepPropertyType({ formData, updateField }: Props) {
                                 {/* Label */}
                                 <div className={`font-bold text-[15px] tracking-tight mb-1.5 transition-colors duration-200 ${
                                     selected
-                                        ? "text-[#7a5c30]"
-                                        : "text-[#1a1a1a] group-hover:text-[#7a5c30]"
+                                        ? "text-kiro-accent"
+                                        : "text-kiro-ink group-hover:text-kiro-accent"
                                 }`}>
                                     {pt.label}
                                 </div>
 
                                 {/* Description */}
-                                <div className={`text-[12px] leading-snug tracking-wide font-medium transition-colors duration-200 max-w-[120px] ${
-                                    selected ? "text-[#7a5c30]/70" : "text-[#5a5a5a]"
+                                <div className={`text-[13px] leading-snug tracking-wide font-medium transition-colors duration-200 max-w-[120px] ${
+                                    selected ? "text-kiro-accent/70" : "text-kiro-inkSoft"
                                 }`}>
                                     {pt.desc}
                                 </div>
@@ -106,8 +106,8 @@ export function StepPropertyType({ formData, updateField }: Props) {
                                 <div
                                     className={`absolute inset-x-0 bottom-0 transition-all duration-300 ${
                                         selected
-                                            ? "h-[3px] bg-gradient-to-r from-transparent via-[#7a5c30] to-transparent opacity-100"
-                                            : "h-[1px] bg-[#1a1a1a]/[0.06] group-hover:bg-[#7a5c30]/30"
+                                            ? "h-[3px] bg-gradient-to-r from-transparent via-kiro-accent to-transparent opacity-100"
+                                            : "h-[1px] bg-kiro-ink/[0.06] group-hover:bg-kiro-accent/30"
                                     }`}
                                     aria-hidden="true"
                                 />

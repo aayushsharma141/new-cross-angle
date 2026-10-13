@@ -19,8 +19,9 @@ import { WorkspacePanel } from "@/components/patterns/WorkspacePanel";
 import { ECOSYSTEM_COPY } from "@/addons/_shared/ecosystemCopy";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import logoIcon from "@/assets/logo-icon.png";
+import { formatCurrency } from "./data/format-utils";
+import { SERVICES as DEFAULT_SERVICES, BUDGET_SLIDER } from "./data/pricing-config";
 
-import { SplitText, BlurText } from "@/components/ReactBits";
 const STEP_LABELS = ["Type", "Details", "Location", "Investment", "Services", "Bespoke", "Timeline"];
 
 const STEP_DESCRIPTIONS: Record<number, { title: string; subtitle: string }> = {
@@ -77,10 +78,14 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
     // Keyboard Navigation
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Only act on bare-page keystrokes. On a focused control, Enter already
+            // activates it (a second nextStep() here skipped a step) and arrows
+            // belong to sliders, radiogroups and text caret movement.
+            const target = e.target as HTMLElement;
             if (
-                e.target instanceof HTMLInputElement ||
-                e.target instanceof HTMLTextAreaElement ||
-                (e.target as HTMLElement).isContentEditable
+                e.defaultPrevented ||
+                e.metaKey || e.ctrlKey || e.altKey ||
+                target.closest("input, textarea, select, button, a, [role='radio'], [role='slider'], [role='combobox'], [role='listbox'], [contenteditable='true']")
             ) {
                 return;
             }
@@ -113,7 +118,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
     useFlowConfig("location_data");
     useFlowConfig("city_tiers");
     useFlowConfig("investment_presets");
-    useFlowConfig("services");
+    const { data: services = DEFAULT_SERVICES } = useFlowConfig<typeof DEFAULT_SERVICES>("services");
     useFlowConfig("execution_tiers");
     useFlowConfig("addons");
     useFlowConfig("timeline_options");
@@ -124,7 +129,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
 
     const sidebarContent = (
         <div className="flex flex-col h-full relative z-10 p-6 md:p-8">
-            <a href="/" className="flex items-center gap-2 mb-8 group hover:opacity-75 transition-opacity focus-visible:ring-2 focus-visible:ring-[#7a5c30] focus-visible:outline-none focus-visible:ring-offset-2 rounded-lg" aria-label="Return to CrossAngle Home">
+            <a href="/" className="flex items-center gap-2 mb-8 group hover:opacity-75 transition-opacity focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:outline-none focus-visible:ring-offset-2 rounded-lg" aria-label="Return to CrossAngle Home">
                 <img src={logoUrl} alt="CrossAngle Logo" className="h-5 w-auto shrink-0 animate-in fade-in duration-300" />
                 <h1 className="text-[14px] tracking-[0.08em] uppercase text-foreground font-semibold font-label m-0">
                     Digital Studio
@@ -132,32 +137,32 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
             </a>
                 
                 {discoveryApplied && (
-                    <div role="status" aria-live="polite" className="mb-8 p-4 bg-kiro-accent-light rounded-[10px] border-l-[3px] border-[#7a5c30] text-[13px] relative bg-[#7a5c30]/[0.06] border border-[#7a5c30]/20">
-                        <button type="button" onClick={dismissDiscovery} aria-label="Dismiss personalization banner" className="absolute top-2 right-2 text-[#7a5c30] hover:text-[#1a1a1a] transition-colors p-1 rounded-full hover:bg-[#7a5c30]/10">
+                    <div role="status" aria-live="polite" className="mb-8 p-4 bg-kiro-accent-light rounded-[10px] border-l-[3px] border-kiro-accent text-[13px] relative bg-kiro-accent/[0.06] border border-kiro-accent/20">
+                        <button type="button" onClick={dismissDiscovery} aria-label="Dismiss personalization banner" className="absolute top-2 right-2 text-kiro-accent hover:text-kiro-ink transition-colors p-1 rounded-full hover:bg-kiro-accent/10">
                             <X className="w-3 h-3" />
                         </button>
-                        <span className="text-[9px] font-mono tracking-wider uppercase text-[#7a5c30] block mb-1">Discovery Blueprint</span>
-                        <strong className="text-[#1a1a1a]">Personalized for {discoveryName}</strong><br/>
-                        <span className="text-[#5a5a5a] mt-1 block">{discoveryRationale || ECOSYSTEM_COPY.estimatorWithBlueprint}</span>
+                        <span className="text-[9px] font-mono tracking-wider uppercase text-kiro-accent block mb-1">Discovery Blueprint</span>
+                        <strong className="text-kiro-ink">Personalized for {discoveryName}</strong><br/>
+                        <span className="text-kiro-inkSoft mt-1 block">{discoveryRationale || ECOSYSTEM_COPY.estimatorWithBlueprint}</span>
                     </div>
                 )}
 
                 {/* Progress bar */}
                 <div className="mb-8 relative">
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-[12px] font-mono tracking-wider uppercase text-[#1a1a1a]/50">Journey</span>
+                        <span className="text-[12px] font-mono tracking-wider uppercase text-kiro-ink/50">Journey</span>
                         <motion.span
                             key={progress}
                             initial={{ opacity: 0, y: 4 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-[12px] font-mono text-[#7a5c30] font-semibold"
+                            className="text-[12px] font-mono text-kiro-accent font-semibold"
                         >
                             {progress}%
                         </motion.span>
                     </div>
-                    <div className="h-[3px] bg-[#1a1a1a]/[0.07] relative overflow-hidden rounded-full">
+                    <div role="progressbar" aria-label="Estimate progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress} className="h-[3px] bg-kiro-ink/[0.07] relative overflow-hidden rounded-full">
                         <motion.div
-                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#7a5c30] to-[#9e7a45] rounded-full shadow-[0_0_10px_rgba(122,92,48,0.4)]"
+                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-kiro-accent to-kiro-accent/70 rounded-full"
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
                             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -168,9 +173,9 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                 {/* Stepper list with vertical spine line */}
                 <nav aria-label="Estimator steps">
                 <div className="relative">
-                    <div className="absolute left-[10px] top-[21px] bottom-[21px] w-[2px] bg-[#1a1a1a]/[0.08] -z-10" aria-hidden="true" />
+                    <div className="absolute left-[10px] top-[21px] bottom-[21px] w-[2px] bg-kiro-ink/[0.08] -z-10" aria-hidden="true" />
                     <motion.div 
-                        className="absolute left-[10px] top-[21px] w-[2px] bg-[#7a5c30] shadow-[0_0_8px_rgba(209,175,110,0.4)] origin-top -z-10"
+                        className="absolute left-[10px] top-[21px] w-[2px] bg-kiro-accent shadow-[0_0_8px_rgba(209,175,110,0.4)] origin-top -z-10"
                         initial={{ scaleY: 0 }}
                         animate={{ scaleY: currentStep / (STEP_LABELS.length - 1) }}
                         style={{ bottom: "21px" }}
@@ -190,18 +195,18 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                                         aria-current={active ? "step" : undefined}
                                         aria-label={`Step ${i + 1}: ${label}${done ? " (completed)" : active ? " (current)" : ""}`}
                                         onClick={() => isClickable && goToStep(i)}
-                                        className={`w-full flex items-center gap-3 py-2.5 text-[14px] transition-all duration-300 rounded-md px-1 -mx-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7a5c30] focus-visible:ring-offset-2 ${
+                                        className={`w-full flex items-center gap-3 py-2.5 text-[14px] transition-all duration-300 rounded-md px-1 -mx-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2 ${
                                             isClickable 
-                                                ? "cursor-pointer text-[#1a1a1a] hover:text-[#7a5c30] hover:bg-[#7a5c30]/[0.04] hover:-translate-y-0.5" 
-                                                : "cursor-not-allowed text-[#5a5a5a]/40"
-                                        } ${active ? "text-[#1a1a1a] font-semibold" : done ? "text-[#7a5c30]" : ""}`}
+                                                ? "cursor-pointer text-kiro-ink hover:text-kiro-accent hover:bg-kiro-accent/[0.04] hover:-translate-y-0.5" 
+                                                : "cursor-not-allowed text-kiro-inkSoft/70"
+                                        } ${active ? "text-kiro-ink font-semibold" : done ? "text-kiro-accent" : ""}`}
                                     >
                                         <div className={`w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center text-[13px] font-semibold shrink-0 transition-all duration-300 bg-white group-hover:shadow-[0_0_8px_rgba(209,175,110,0.3)] ${
                                             active 
-                                                ? "border-[#7a5c30] bg-[#7a5c30] text-white shadow-[0_0_8px_rgba(209,175,110,0.4)]" 
+                                                ? "border-kiro-accent bg-kiro-accent text-white shadow-[0_0_8px_rgba(209,175,110,0.4)]" 
                                                 : done 
-                                                    ? "border-[#7a5c30] text-[#7a5c30]" 
-                                                    : "border-[#1a1a1a]/[0.08] text-[#5a5a5a]/40"
+                                                    ? "border-kiro-accent text-kiro-accent" 
+                                                    : "border-kiro-ink/25 text-kiro-inkSoft/70"
                                         }`} aria-hidden="true">
                                             {done ? "✓" : i + 1}
                                         </div>
@@ -215,8 +220,8 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                 </nav>
 
                 {/* Footer text pushed to bottom by mt-auto */}
-                <div className="mt-auto pt-4 border-t border-[#e8e4dd]/60">
-                    <p className="text-[12px] text-[#5a5a5a]/70 leading-relaxed tracking-wide">
+                <div className="mt-auto pt-4 border-t border-kiro-line/60">
+                    <p className="text-[12px] text-kiro-inkSoft leading-relaxed tracking-wide">
                         Progress saved automatically.<br />
                         You can leave and return anytime.
                     </p>
@@ -228,9 +233,9 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
         <div className="p-6 pb-0 md:px-8 md:pt-8 md:pb-0 lg:px-12 lg:pt-12 lg:pb-0 w-full mx-auto h-[100dvh] flex flex-col relative z-10 overflow-hidden font-sans text-foreground" aria-label="Estimator form">
             {/* Ambient background decoration — always visible */}
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
-                <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-[#7a5c30]/[0.04] blur-[120px]" />
-                <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-[#7a5c30]/[0.03] blur-[80px]" />
-                <div className="absolute inset-0 opacity-[0.018]" style={{ backgroundImage: 'radial-gradient(circle, #1a1a1a 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+                <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-kiro-accent/[0.04] blur-[120px]" />
+                <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-kiro-accent/[0.03] blur-[80px]" />
+                <div className="absolute inset-0 opacity-[0.018]" style={{ backgroundImage: 'radial-gradient(circle, hsl(var(--kiro-ink)) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
             </div>
             {/* Animated background for results page */}
             {showResults && (
@@ -241,7 +246,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
             
             <div className="relative z-10 flex-1 flex flex-col min-h-0 overflow-y-auto pr-2 pb-8">
                 {showResults ? (
-                    <div className="flex-1 flex flex-col min-h-0 overflow-y-auto pr-2 pb-8">
+                    <div className="flex-1 flex flex-col min-h-0">
                         <StepResults
                             formData={formData}
                             estimate={estimate!}
@@ -256,24 +261,24 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                 ) : (
                     <>
                         {/* Mobile Header */}
-                <div className="md:hidden mb-6 border-b border-[#1a1a1a]/[0.06] pb-4">
+                <div className="md:hidden mb-6 border-b border-kiro-ink/[0.06] pb-4">
                     <div className="flex items-center justify-between mb-3">
-                        <h1 className="text-[12px] tracking-[0.1em] uppercase text-[#7a5c30] font-semibold m-0">Cost Estimator</h1>
-                        <span className="text-[12px] font-mono text-[#7a5c30] font-semibold">{progress}%</span>
+                        <h1 className="text-[12px] tracking-[0.1em] uppercase text-kiro-accent font-semibold m-0">Cost Estimator</h1>
+                        <span className="text-[12px] font-mono text-kiro-accent font-semibold">{progress}%</span>
                     </div>
                     {/* Mobile progress bar */}
-                    <div className="h-[3px] bg-[#e8e4dd] rounded-full overflow-hidden mb-3">
+                    <div className="h-[3px] bg-kiro-line rounded-full overflow-hidden mb-3">
                         <motion.div
-                            className="h-full bg-[#7a5c30] rounded-full"
+                            className="h-full bg-kiro-accent rounded-full"
                             animate={{ width: `${progress}%` }}
                             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                         />
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="w-[22px] h-[22px] rounded-full border-[1.5px] border-[#7a5c30] bg-[#7a5c30] text-white flex items-center justify-center text-[13px] font-semibold shrink-0 shadow-[0_0_8px_rgba(139,111,71,0.3)]" aria-hidden="true">
+                        <div className="w-[22px] h-[22px] rounded-full border-[1.5px] border-kiro-accent bg-kiro-accent text-white flex items-center justify-center text-[13px] font-semibold shrink-0 shadow-[0_0_8px_rgba(139,111,71,0.3)]" aria-hidden="true">
                             {currentStep + 1}
                         </div>
-                        <span className="text-[#1a1a1a] font-semibold text-[14px]">{STEP_LABELS[currentStep]}</span>
+                        <span className="text-kiro-ink font-semibold text-[14px]">{STEP_LABELS[currentStep]}</span>
                     </div>
                     {/* Mobile step dots */}
                     <div className="flex items-center gap-1.5 mt-2" aria-hidden="true">
@@ -281,7 +286,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                             <div
                                 key={i}
                                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                                    i <= currentStep ? "bg-[#7a5c30]" : "bg-[#e8e4dd]"
+                                    i <= currentStep ? "bg-kiro-accent" : "bg-kiro-line"
                                 } ${i === currentStep ? "w-4" : "w-1.5"}`}
                             />
                         ))}
@@ -289,26 +294,18 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                 </div>
 
                 <div className="flex-1 flex flex-col min-h-0 overflow-y-auto pr-2 mb-4">
-                            <div className="text-[12px] tracking-[0.1em] uppercase text-[#7a5c30] font-bold mb-2 font-mono" aria-hidden="true">Step {currentStep + 1} of {STEP_LABELS.length}</div>
-                    <div className="mb-2">
-                        <SplitText
-                            key={stepInfo.title}
-                            text={stepInfo.title}
-                            className="text-[28px] sm:text-[32px] md:text-[36px] font-semibold tracking-tight font-serif text-[#1a1a1a]"
-                            delay={30}
-                        />
-                    </div>
-                    <div className="mb-8 sm:mb-10">
-                        <BlurText
-                            key={stepInfo.subtitle}
-                            text={stepInfo.subtitle}
-                            className="text-[15px] sm:text-[16px] md:text-[18px] text-[#1a1a1a]/70 font-medium"
-                            delay={10}
-                        />
+                            <div className="text-[12px] tracking-[0.1em] uppercase text-kiro-accent font-bold mb-2 font-mono" aria-hidden="true">Step {currentStep + 1} of {STEP_LABELS.length}</div>
+                    <div key={currentStep} className="animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none">
+                        <h2 className="mb-2 text-[28px] sm:text-[32px] md:text-[36px] font-semibold tracking-tight font-serif text-kiro-ink">
+                            {stepInfo.title}
+                        </h2>
+                        <p className="mb-8 sm:mb-10 text-[15px] sm:text-[16px] md:text-[18px] text-kiro-ink/70 font-medium">
+                            {stepInfo.subtitle}
+                        </p>
                     </div>
                     {currentStep === 0 && (
-                        <div className="mb-8 rounded-[8px] border border-[#e8e4dd] bg-white/80 p-4 text-sm text-[#5a5a5a] shadow-[0_4px_18px_rgba(0,0,0,0.03)]">
-                            <span className="text-[#7a5c30] font-semibold">
+                        <div className="mb-8 rounded-[8px] border border-kiro-line bg-white/80 p-4 text-sm text-kiro-inkSoft shadow-[0_4px_18px_rgba(0,0,0,0.03)]">
+                            <span className="text-kiro-accent font-semibold">
                                 {discoveryApplied ? "Blueprint connected: " : "Blueprint optional: "}
                             </span>
                             {discoveryApplied
@@ -320,10 +317,10 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={currentStep}
-                            initial={{ opacity: 0, x: 16 }}
+                            initial={{ opacity: 0, x: 12 }}
                             animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -16 }}
-                            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                            exit={{ opacity: 0, x: -8 }}
+                            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                         >
                             {currentStep === 0 && <StepPropertyType formData={formData} updateField={updateField} />}
                             {currentStep === 1 && <StepPropertyDetails formData={formData} updateField={updateField} updateFields={updateFields} />}
@@ -336,7 +333,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                     </AnimatePresence>
                 </div>
 
-                <div className="mt-auto flex flex-col gap-2 pt-4 border-t border-[#1a1a1a]/[0.06] pb-6 md:pb-[14px] lg:pb-[14px] shrink-0 bg-[#faf8f5]">
+                <div className="mt-auto flex flex-col gap-2 pt-4 border-t border-kiro-ink/[0.06] pb-6 md:pb-[14px] lg:pb-[14px] shrink-0 bg-kiro-bg">
                     {/* Validation message */}
                     {validationMessage && (
                         <motion.p
@@ -355,7 +352,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                             onClick={() => currentStep === 0 ? onBack?.() : prevStep()} 
                             disabled={currentStep === 0 && !onBack} 
                             aria-label={currentStep === 0 ? "Go back" : `Go to previous step: ${STEP_LABELS[currentStep - 1] || ""}`}
-                            className="px-5 sm:px-[28px] py-[12px] sm:py-[14px] bg-transparent border border-[#e8e4dd] text-[#1a1a1a] rounded-[10px] text-[14px] sm:text-[15px] font-semibold transition-all duration-200 hover:bg-[#7a5c30]/[0.04] hover:border-[#7a5c30]/40 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7a5c30] focus-visible:ring-offset-2"
+                            className="px-5 sm:px-[28px] py-[12px] sm:py-[14px] bg-transparent border border-kiro-line text-kiro-ink rounded-[10px] text-[14px] sm:text-[15px] font-semibold transition-all duration-200 hover:bg-kiro-accent/[0.04] hover:border-kiro-accent/40 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
                         >
                             <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Back</span>
                         </button>
@@ -364,7 +361,7 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
                             onClick={nextStep} 
                             disabled={!canProceed || isSaving}
                             aria-label={currentStep === STEP_LABELS.length - 1 ? "Get your estimate" : `Continue to ${STEP_LABELS[currentStep + 1] || "next step"}`}
-                            className="relative overflow-hidden px-5 sm:px-[28px] py-[12px] sm:py-[14px] bg-[#7a5c30] text-white hover:bg-[#856534] rounded-[10px] text-[14px] sm:text-[15px] font-semibold transition-all duration-300 shadow-[0_4px_12px_rgba(139,111,71,0.2)] hover:shadow-[0_8px_24px_rgba(139,111,71,0.3)] hover:-translate-y-[2px] active:scale-[0.97] active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:translate-y-0 disabled:hover:bg-[#7a5c30] flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7a5c30] focus-visible:ring-offset-2 before:absolute before:inset-0 before:-translate-x-full hover:before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent group"
+                            className="relative overflow-hidden px-5 sm:px-[28px] py-[12px] sm:py-[14px] bg-kiro-accent text-white hover:bg-kiro-accent/90 rounded-[10px] text-[14px] sm:text-[15px] font-semibold transition-all duration-300 shadow-[0_4px_12px_rgba(139,111,71,0.2)] hover:shadow-[0_8px_24px_rgba(139,111,71,0.3)] hover:-translate-y-[2px] active:scale-[0.97] active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:translate-y-0 disabled:hover:bg-kiro-accent flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2 before:absolute before:inset-0 before:-translate-x-full hover:before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent group"
                         >
                             {isSaving ? (
                                 <>
@@ -386,13 +383,31 @@ export function CostEstimator({ onBack }: CostEstimatorProps = {}) {
         </div>
     );
 
+    const briefRows: { label: string; value: string }[] = [
+        { label: "Property", value: formData.propertyType ? formData.propertyType.replace(/_/g, " ") : "" },
+        { label: "Area", value: currentStep >= 1 && formData.area > 0 ? `${formData.area.toLocaleString("en-IN")} sq ft` : "" },
+        { label: "City", value: currentStep >= 2 ? formData.city : "" },
+        { label: "Budget", value: currentStep >= 3 && formData.budgetAmount >= BUDGET_SLIDER.min ? formatCurrency(formData.budgetAmount) : "" },
+        { label: "Service", value: currentStep >= 4 && formData.selectedService ? services.find(s => s.id === formData.selectedService)?.label ?? "" : "" },
+    ];
+
     const dossierContent = (
-        <div className="flex flex-col p-6 md:p-8 h-full relative z-10">
-            <h3 className="text-[12px] font-mono tracking-wider uppercase text-muted-foreground mb-4">Workspace Dossier</h3>
-            <p className="text-[14px] text-muted-foreground leading-relaxed">
-                Live context and intelligent recommendations will appear here.
+        <aside className="flex flex-col p-6 md:p-8 h-full relative z-10" aria-label="Your brief so far">
+            <h3 className="text-[12px] font-mono tracking-wider uppercase text-kiro-inkSoft mb-5">Your brief so far</h3>
+            <dl className="m-0 divide-y divide-kiro-line">
+                {briefRows.map(({ label, value }) => (
+                    <div key={label} className="flex items-baseline justify-between gap-4 py-3">
+                        <dt className="text-[13px] text-kiro-inkSoft">{label}</dt>
+                        <dd className={`m-0 text-right text-[14px] capitalize ${value ? "font-semibold text-kiro-ink" : "text-kiro-inkSoft/60"}`}>
+                            {value || "Not set"}
+                        </dd>
+                    </div>
+                ))}
+            </dl>
+            <p className="mt-6 text-[13px] text-kiro-inkSoft leading-relaxed">
+                Your range appears once you finish the last step. Nothing is sent to us until you see your result.
             </p>
-        </div>
+        </aside>
     );
 
     return (

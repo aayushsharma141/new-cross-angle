@@ -11,8 +11,12 @@ import { loadDraft, INITIAL_FORM_DATA, ESTIMATOR_DRAFT_KEY } from "./_internals/
 import { useDraftPersistence } from "./_internals/useDraftPersistence";
 import { useEstimateEngine } from "./_internals/useEstimateEngine";
 import { useLeadCapture } from "./_internals/useLeadCapture";
+import { BUDGET_SLIDER } from "../data/pricing-config";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
 import { track } from "@/analytics/track";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const phoneDigits = (v: string) => v.replace(/\D/g, "").length;
 
 const TOTAL_STEPS = 8; // 0..6 = input steps, 7 = results
 
@@ -92,33 +96,35 @@ export function useCalculatorStore() {
     }, []);
 
     // ── Validation ────────────────────────────────────────────────────────
+    // Types that open with a BHK picker; area/room counters stay hidden until one is chosen.
+    const needsConfiguration = (["apartment", "independent_floor", "villa", "turnkey"] as (string | null)[]).includes(formData.propertyType);
     const canProceed = useMemo(() => {
         switch (currentStep) {
             case 0: return !!formData.propertyType;
-            case 1: return formData.area > 0;
+            case 1: return formData.area > 0 && (!needsConfiguration || !!formData.bhk);
             case 2: return !!formData.city;
-            case 3: return formData.budgetAmount > 0;
+            case 3: return formData.budgetAmount >= BUDGET_SLIDER.min;
             case 4: return !!formData.selectedService && (formData.selectedService !== "C5" || !!formData.executionTier);
             case 5: return true;
-            case 6: return !!formData.name && !!formData.email && !!formData.phone;
+            case 6: return !!formData.name.trim() && EMAIL_RE.test(formData.email.trim()) && phoneDigits(formData.phone) >= 10;
             default: return false;
         }
-    }, [currentStep, formData]);
+    }, [currentStep, formData, needsConfiguration]);
 
     const validationMessage = useMemo(() => {
         if (canProceed) return "";
         switch (currentStep) {
             case 0: return "Select a property type to continue";
-            case 1: return "Set your area (sq ft) to continue";
+            case 1: return needsConfiguration && !formData.bhk ? "Choose a configuration to continue" : "Set your area (sq ft) to continue";
             case 2: return "Select your city to continue";
-            case 3: return "Set your budget to continue";
+            case 3: return "Pick a range or drag the slider to continue";
             case 4: return formData.selectedService === "C5" && !formData.executionTier
                 ? "Select an execution tier for Full Scope"
                 : "Select a service to continue";
-            case 6: return !formData.name ? "Enter your name" : !formData.email ? "Enter your email" : "Enter your phone number";
+            case 6: return !formData.name.trim() ? "Enter your name" : !EMAIL_RE.test(formData.email.trim()) ? "Enter a valid email, like name@example.com" : "Enter a phone number with at least 10 digits";
             default: return "";
         }
-    }, [canProceed, currentStep, formData]);
+    }, [canProceed, currentStep, formData, needsConfiguration]);
 
     return {
         formData,

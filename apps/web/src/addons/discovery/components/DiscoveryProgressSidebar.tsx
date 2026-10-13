@@ -74,13 +74,13 @@ export const DiscoveryProgressSidebar = ({
             {/* Progress bar */}
             <div className="mb-6 relative">
                 <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-[var(--s-text-muted)]">Journey</span>
+                    <span className="text-[12px] font-mono tracking-[0.2em] uppercase text-kiro-inkSoft">Journey</span>
                     <motion.span
                         key={progress}
                         aria-live="polite"
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-[10px] font-mono text-[var(--s-accent-primary)] font-semibold"
+                        className="text-[12px] font-mono text-[var(--s-accent-primary)] font-semibold"
                     >
                         {progress}%
                     </motion.span>
@@ -144,19 +144,19 @@ export const DiscoveryProgressSidebar = ({
                             >
                                 <div className="flex items-center gap-3">
                                     <div className={cn(
-                                        "w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center text-[11px] font-semibold shrink-0 transition-all duration-300 bg-[var(--s-surface-raised)]",
+                                        "w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center text-[12px] font-semibold shrink-0 transition-all duration-300 bg-[var(--s-surface-raised)]",
                                         isActive 
                                             ? "border-[var(--s-accent-primary)] bg-[var(--s-accent-primary)] text-white" 
                                             : isCompleted 
                                                 ? "border-[var(--s-accent-primary)] text-[var(--s-accent-primary)]" 
-                                                : "border-[var(--s-border-subtle)] text-[var(--s-text-muted)]",
+                                                : "border-[var(--s-border-subtle)] text-kiro-inkSoft",
                                         isClickable && !isActive && "group-hover:border-[var(--s-accent-primary)] group-hover:text-[var(--s-accent-primary)]"
                                     )} aria-hidden="true">
                                         {isCompleted ? "✓" : parseInt(eyebrow, 10)}
                                     </div>
                                     <span className={cn(
                                         "text-[14px] transition-colors",
-                                        isActive ? "text-[var(--s-text-primary)] font-semibold" : isCompleted ? "text-[var(--s-accent-primary)]" : "text-[var(--s-text-muted)]",
+                                        isActive ? "text-[var(--s-text-primary)] font-semibold" : isCompleted ? "text-[var(--s-accent-primary)]" : "text-kiro-inkSoft",
                                         isClickable && !isActive && "group-hover:text-[var(--s-accent-primary)]"
                                     )}>{label}</span>
                                 </div>
@@ -201,9 +201,9 @@ export const DiscoveryProgressSidebar = ({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
                         aria-live="polite"
-                        className="shrink-0 mt-6 p-4 border border-[var(--s-border-subtle)] bg-[var(--s-surface-sunken)] rounded-[8px] relative overflow-hidden"
+                        className="shrink-0 mt-6 p-4 border border-[var(--s-border-subtle)] bg-white rounded-[8px] relative overflow-hidden"
                     >
-                        <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-[var(--s-accent-primary)] font-semibold block mb-1">
+                        <span className="text-[12px] font-mono tracking-[0.2em] uppercase text-[var(--s-accent-primary)] font-semibold block mb-1">
                             Emerging Profile
                         </span>
                         <span className="text-[14px] font-semibold text-[var(--s-text-primary)] block font-serif">
@@ -214,7 +214,7 @@ export const DiscoveryProgressSidebar = ({
             </AnimatePresence>
 
             <div className="mt-8 pt-4 border-t border-[var(--s-border-subtle)]">
-                <p className="text-[10px] text-[var(--s-text-muted)] leading-relaxed tracking-wide">
+                <p className="text-[12px] text-kiro-inkSoft leading-relaxed tracking-wide">
                     Progress saved automatically.<br />
                     You can leave and return anytime.
                 </p>

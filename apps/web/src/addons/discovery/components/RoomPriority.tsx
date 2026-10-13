@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bed, Utensils, Bath, Monitor, Coffee, Briefcase, Plus, AlertTriangle, ArrowRight, Heart, ChevronDown } from 'lucide-react';
+import { CenterDialog } from '@/addons/_shared/CenterDialog';
+import { Bed, Utensils, Bath, Monitor, Coffee, Briefcase, Plus, AlertTriangle, ArrowRight, Heart, ChevronDown, Check } from 'lucide-react';
 import type { UserSignals, RoomEmotionalWeight } from '@/types/discovery';
 
 interface Props {
@@ -193,7 +194,7 @@ export default function RoomPriority({ signals, onComplete }: Props) {
                   <Icon className={`w-7 h-7 mb-2.5 ${isMustHave ? 'text-[#70593a]' : state === 'Nice-to-Have' ? 'text-blue-500' : 'text-[#8c8c8c]'}`} />
                   <span className="font-medium text-xs text-center leading-tight">{room.id}</span>
                   {state && (
-                    <span className={`text-[9px] mt-2 uppercase tracking-wider font-bold ${isMustHave ? 'text-[#70593a]' : 'text-blue-600'}`}>
+                    <span className={`text-[12px] mt-2 uppercase tracking-wider font-bold ${isMustHave ? 'text-[#70593a]' : 'text-blue-600'}`}>
                       {state}
                     </span>
                   )}
@@ -210,35 +211,13 @@ export default function RoomPriority({ signals, onComplete }: Props) {
                     >
                       <button
                         type="button"
-                        onClick={() => setExpandedRoom(expandedRoom === room.id ? null : room.id)}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-[#70593a]/5 border border-[#70593a]/20 text-[10px] text-[#70593a] hover:border-[#70593a]/40 transition-colors focus-visible:ring-1 focus-visible:ring-[#8b6f47] focus-visible:outline-none"
+                        onClick={() => setExpandedRoom(room.id)}
+                        aria-haspopup="dialog"
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-[#70593a]/5 border border-[#70593a]/20 text-[12px] text-[#70593a] hover:border-[#70593a]/40 transition-colors focus-visible:ring-1 focus-visible:ring-[#8b6f47] focus-visible:outline-none"
                       >
                         <span className="truncate">{weight ? EMOTIONAL_WEIGHT_OPTIONS.find(o => o.id === weight)?.label : 'Why does this matter?'}</span>
-                        <ChevronDown className={`w-3 h-3 transition-transform shrink-0 ${expandedRoom === room.id ? 'rotate-180' : ''}`} />
+                        <ChevronDown className="w-3 h-3 shrink-0" aria-hidden="true" />
                       </button>
-
-                      <AnimatePresence>
-                        {expandedRoom === room.id && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -4 }}
-                            className="mt-1 bg-white border border-[#e8e4dd] rounded-xl overflow-hidden z-50 relative shadow-xl max-h-48 overflow-y-auto"
-                          >
-                            {EMOTIONAL_WEIGHT_OPTIONS.map(opt => (
-                              <button
-                                type="button"
-                                key={opt.id}
-                                onClick={() => setWeight(room.id, opt.id)}
-                                className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] transition-colors border-b border-[#e8e4dd]/50 last:border-0 focus-visible:bg-[#faf8f5] focus-visible:outline-none"
-                              >
-                                <span className="text-[#1a1a1a] text-[11px] font-medium block">{opt.label}</span>
-                                <span className="text-[#5a5a5a] text-[9px]">{opt.desc}</span>
-                              </button>
-                            ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -256,7 +235,7 @@ export default function RoomPriority({ signals, onComplete }: Props) {
               exit={{ opacity: 0 }}
               className="mt-8 w-full max-w-2xl p-5 rounded-2xl border border-[#70593a]/15 bg-[#faf8f5] shadow-sm"
             >
-              <p className="text-[10px] uppercase tracking-[0.2em] text-[#8b6f47] mb-3 font-mono font-bold">
+              <p className="text-[12px] uppercase tracking-[0.2em] text-[#8b6f47] mb-3 font-mono font-bold">
                 Negotiation Intelligence
               </p>
               <div className="flex flex-wrap gap-2">
@@ -264,18 +243,49 @@ export default function RoomPriority({ signals, onComplete }: Props) {
                   const w = emotionalWeights[r];
                   const wLabel = EMOTIONAL_WEIGHT_OPTIONS.find(o => o.id === w)?.label;
                   return (
-                    <span key={r} className="px-3 py-1 text-[10px] rounded-full border border-[#70593a]/25 bg-white text-[#1a1a1a] font-medium">
+                    <span key={r} className="px-3 py-1 text-[12px] rounded-full border border-[#70593a]/25 bg-white text-[#1a1a1a] font-medium">
                       {r}{wLabel ? ` · ${wLabel}` : ''}
                     </span>
                   );
                 })}
               </div>
-              <p className="text-[#5a5a5a] text-[10px] mt-3 font-light">
+              <p className="text-[#5a5a5a] text-[12px] mt-3 font-light">
                 Emotional weights guide what is negotiable if space forces a trade-off.
               </p>
             </motion.div>
           )}
         </AnimatePresence>
+
+        <CenterDialog
+          open={expandedRoom !== null}
+          onOpenChange={(open) => { if (!open) setExpandedRoom(null); }}
+          title={`Why does ${expandedRoom ?? 'this room'} matter?`}
+          description="Pick the closest fit. It tells us what to protect if space gets tight."
+        >
+          <div className="flex flex-col gap-2" role="radiogroup" aria-label="Reason this room matters">
+            {EMOTIONAL_WEIGHT_OPTIONS.map(opt => {
+              const selected = expandedRoom !== null && emotionalWeights[expandedRoom] === opt.id;
+              return (
+                <button
+                  type="button"
+                  key={opt.id}
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => expandedRoom && setWeight(expandedRoom, opt.id)}
+                  className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b6f47] ${
+                    selected ? 'border-[#70593a] bg-[#70593a]/5' : 'border-[#e8e4dd] hover:border-[#70593a]/40 hover:bg-[#faf8f5]'
+                  }`}
+                >
+                  <span>
+                    <span className="block text-[14px] font-medium">{opt.label}</span>
+                    <span className="block text-[13px] text-[#5a5a5a]">{opt.desc}</span>
+                  </span>
+                  {selected && <Check className="h-4 w-4 shrink-0 text-[#70593a]" aria-hidden="true" />}
+                </button>
+              );
+            })}
+          </div>
+        </CenterDialog>
 
         <motion.button
           type="button"

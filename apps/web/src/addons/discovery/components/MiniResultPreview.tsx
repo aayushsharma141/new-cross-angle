@@ -46,12 +46,12 @@ const MiniResultPreview = ({ archetype, scores, onComplete }: Props) => {
         >
             <div className="max-w-[500px] w-full bg-white rounded-3xl border border-black/5 p-10 shadow-xl relative overflow-hidden">
                 <div className="text-center mb-10 relative">
-                    <p className="text-[10px] tracking-[0.2em] text-[#5a5a5a] uppercase mb-4 font-bold">Your Aesthetic DNA</p>
+                    <p className="text-[12px] tracking-[0.2em] text-[#5a5a5a] uppercase mb-4 font-bold">Your Aesthetic DNA</p>
                     <h2 className="text-4xl md:text-5xl mb-5 text-[#1a1a1a] font-serif leading-tight">{archetype.name}</h2>
 
                     <div className="flex flex-wrap justify-center gap-2 mt-4">
                         {archetype.traits.slice(0, 3).map((trait) => (
-                            <span key={trait} className="px-3 py-1.5 bg-[#faf8f5] border border-[#e8e4dd] text-[10px] tracking-widest uppercase rounded-full text-[#1a1a1a] font-medium">
+                            <span key={trait} className="px-3 py-1.5 bg-[#faf8f5] border border-[#e8e4dd] text-[12px] tracking-widest uppercase rounded-full text-[#1a1a1a] font-medium">
                                 {trait}
                             </span>
                         ))}
@@ -106,7 +106,7 @@ const MiniResultPreview = ({ archetype, scores, onComplete }: Props) => {
                                     y={p.y}
                                     textAnchor="middle"
                                     alignmentBaseline="middle"
-                                    className="fill-[#8c8c8c] font-sans font-medium text-[9px] uppercase tracking-widest"
+                                    className="fill-[#8c8c8c] font-sans font-medium text-[12px] uppercase tracking-widest"
                                 >
                                     {d.label}
                                 </text>

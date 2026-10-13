@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -8,7 +8,7 @@ import { loadDiscoveryResult } from "@/addons/discovery/core/persistence";
 import { ECOSYSTEM_COPY, ECOSYSTEM_ROUTES } from "@/addons/_shared/ecosystemCopy";
 import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
 import {
-  WorkspaceShell, wsEyebrow, wsRule, wsDisplay, wsBody, wsMeta,
+  WorkspaceShell, WORKSPACE_MATERIALS, wsEyebrow, wsRule, wsDisplay, wsBody, wsMeta,
   wsPrimaryCta, wsSecondaryCta, wsTextLink, wsArrow,
 } from "@/addons/_shared/WorkspaceShell";
 import { EntryChoice, type EntryDoor } from "@/addons/_shared/EntryChoice";
@@ -39,7 +39,7 @@ const CostEstimatorPage = () => {
 
   if (started) {
     return (
-      <main id="main-content" className="relative h-screen w-full overflow-hidden bg-[#FAF8F5]">
+      <main id="main-content" style={WORKSPACE_MATERIALS as CSSProperties} className="relative h-screen w-full overflow-hidden bg-[var(--ws-canvas)] text-[var(--ws-ink)]">
         <Helmet>
           <title>Cost Estimator | Cross Angle Interior</title>
           <meta property="og:title" content="Cost Estimator | Cross Angle Interior" />

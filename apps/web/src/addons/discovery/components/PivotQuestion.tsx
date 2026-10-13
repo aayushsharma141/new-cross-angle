@@ -88,7 +88,7 @@ const PivotQuestion: React.FC<Props> = ({ onComplete }) => {
                     transition={{ duration: 0.6 }}
                     className="mb-6"
                 >
-                    <span className="text-[10px] font-mono tracking-label uppercase text-kiro-accent font-bold">
+                    <span className="text-[12px] font-mono tracking-label uppercase text-kiro-accent font-bold">
                         Final Question · Most Important
                     </span>
                 </motion.div>
@@ -190,7 +190,7 @@ const PivotQuestion: React.FC<Props> = ({ onComplete }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.9 }}
-                    className="mt-8 text-[10px] font-mono tracking-label uppercase text-kiro-inkSoft/60 text-center"
+                    className="mt-8 text-[12px] font-mono tracking-label uppercase text-kiro-inkSoft text-center"
                 >
                     No wrong answers · This is about you
                 </motion.p>

@@ -155,7 +155,7 @@ const AnalysisPhase = ({ userSignals, onComplete }: Props) => {
         {/* Subtitle */}
         <GradualBlur
           text="Curating your spatial identity"
-          className="mt-6 text-[10px] uppercase tracking-[0.2em] text-[#8c8c8c] justify-center"
+          className="mt-6 text-[12px] uppercase tracking-[0.2em] text-[#8c8c8c] justify-center"
           delay={40}
         />
 
@@ -179,7 +179,7 @@ const AnalysisPhase = ({ userSignals, onComplete }: Props) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => onComplete(undefined)}
-            className="absolute bottom-12 text-[10px] font-medium uppercase tracking-[0.1em] text-[#8c8c8c] hover:text-[#1a1a1a] transition-colors"
+            className="absolute bottom-12 text-[12px] font-medium uppercase tracking-[0.1em] text-[#8c8c8c] hover:text-[#1a1a1a] transition-colors"
           >
             Skip analysis &rarr;
           </motion.button>
