@@ -18,9 +18,12 @@ Deno.serve(async (req) => {
   const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
   
   // Extract chat_id from the URL query parameter if present, otherwise fallback to environment variable
-  // @ts-ignore -- URL is a Deno global, not in TS lib without dom
   const urlParams = new URL(req.url).searchParams;
-  const chatId = urlParams.get("chat_id") || Deno.env.get("TELEGRAM_CHAT_ID") || "1228126069";
+  const configuredChatId = urlParams.get("chat_id") || Deno.env.get("TELEGRAM_CHAT_ID");
+  if (!configuredChatId) {
+    structuredLog("warn", FN, "TELEGRAM_CHAT_ID is not set; using the built-in fallback chat. Set the secret so alerts reach the intended chat.", {}, requestId);
+  }
+  const chatId = configuredChatId || "1228126069";
 
   try {
     const rawPayload = await req.json();
