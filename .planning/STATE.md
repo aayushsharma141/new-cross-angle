@@ -730,3 +730,10 @@ Restored in `0e38cd64`.
 - Still hardcoded fallbacks in edge fns (flagged in panel, behaviour unchanged): Telegram chat id, WhatsApp number, lead alert email.
 - Unverifiable from repo: which secrets are actually set in Supabase/Vercel; DB settings `app.supabase_url`/`app.supabase_service_role_key` needed by pg_cron jobs.
 - Deploy checklist written: docs/runbooks/2026-10-13-admin-cms-deploy-checklist.md (migrations order, functions to deploy, secrets, live SQL checks, first CMS use).
+
+## 2026-10-14 — Live read-only checks (no production writes made)
+- Production cron has ONE job (sync-posthog-reporting-daily, 02:00 UTC) and it gets 401 every night: `app.service_role_key` DB setting is unset. analytics_reporting_daily newest row = 2026-05-15 (≈5 months stale).
+- stale-lead-checker / weekly-report cron jobs and the auto-score-lead trigger are NOT installed in production (migrations 20260409/20260516 never applied).
+- Lead scores: only estimator leads are scored (submit-estimate's own formula); the other 11 of 12 leads score 0. Three formulas exist; none of score-lead / auto-score-lead run automatically.
+- Removed my posthog-cron migration (would have replaced the existing job with a different, equally unset setting). Apply the CMS migration alone via `db query -f` + `migration repair`, NOT `db push`.
+- Runbook rewritten with these findings: docs/runbooks/2026-10-13-admin-cms-deploy-checklist.md.
