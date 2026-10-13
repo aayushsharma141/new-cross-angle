@@ -4,6 +4,8 @@
 import { Utensils, Shirt, Sparkles, Smartphone, Sofa, Lightbulb } from "lucide-react";
 import type { CalculatorFormData } from "../data/types";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
+import { usePricingConfig } from "../hooks/usePricingConfig";
+import { ADDON_PRICE_KEYS } from "../data/pricing-config";
 import { ADDONS as DEFAULT_ADDONS } from "../data/pricing-config";
 import { formatCurrency } from "../data/format-utils";
 import {
@@ -17,6 +19,7 @@ interface Props {
 
 export function StepAddons({ formData, updateField }: Props) {
     const { data: addons = DEFAULT_ADDONS } = useFlowConfig<typeof DEFAULT_ADDONS>("addons");
+    const { config: pricing } = usePricingConfig();
 
     const AddonIconMap: Record<string, React.ReactNode> = {
         modularKitchen: <Utensils size={32} strokeWidth={1.5} />,
@@ -52,13 +55,16 @@ export function StepAddons({ formData, updateField }: Props) {
         }
     };
 
+    // Card prices come from the pricing config the total is computed from.
     const getAddonCost = (addon: typeof DEFAULT_ADDONS[number]): string => {
-        if (addon.unit === "per_sqft") return `${formatCurrency(formData.area * addon.cost)}`;
+        const key = ADDON_PRICE_KEYS[addon.id];
+        const cost = key ? pricing.addons[key] : addon.cost;
+        if (addon.unit === "per_sqft") return `${formatCurrency(formData.area * cost)}`;
         if (addon.unit === "per_room" && addon.id === "wardrobes") {
             const count = formData.wardrobes || formData.bedrooms;
-            return `${formatCurrency(count * addon.cost)} (${count} rooms)`;
+            return `${formatCurrency(count * cost)} (${count} rooms)`;
         }
-        return formatCurrency(addon.cost);
+        return formatCurrency(cost);
     };
 
     return (

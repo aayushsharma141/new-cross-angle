@@ -43,7 +43,7 @@ export function useCalculatorStore() {
         useEstimateEngine(formData, discoveryHandoff);
 
     // ── Lead capture + scoring ────────────────────────────────────────────
-    const { isSaving, saveLead, scoreLead } =
+    const { isSaving, submitState, saveLead, resetSubmission, scoreLead } =
         useLeadCapture(formData, estimate, discoveryHandoff, alcsPipeline, prefillSnapshotRef);
 
     // ── Form state mutations ──────────────────────────────────────────────
@@ -93,7 +93,8 @@ export function useCalculatorStore() {
         setShowResults(false);
         setDiscoveryApplied(false);
         localStorage.removeItem(ESTIMATOR_DRAFT_KEY);
-    }, []);
+        resetSubmission();
+    }, [resetSubmission]);
 
     // ── Validation ────────────────────────────────────────────────────────
     // Types that open with a BHK picker; area/room counters stay hidden until one is chosen.
@@ -134,6 +135,7 @@ export function useCalculatorStore() {
         canProceed,
         validationMessage,
         isSaving,
+        submitState,
         totalSteps: TOTAL_STEPS - 1,
         updateField,
         updateFields,

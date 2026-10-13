@@ -195,7 +195,7 @@ export default function AdminEstimatorConfig() {
                     {(templates.confidenceMessage as string) || "High Confidence"}
                   </span>
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded-full border border-[hsl(var(--admin-primary))]/20 bg-[hsl(var(--admin-primary))]/10 text-[hsl(var(--admin-primary))]">
-                    {(templates.ctaPrimary as string) || "Book Consultation"}
+                    {(templates.ctaPrimary as string) || "Review With Designer"}
                   </span>
                 </div>
               </div>

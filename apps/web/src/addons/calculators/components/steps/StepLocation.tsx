@@ -5,6 +5,7 @@ import { Check, ChevronDown, Search } from "lucide-react";
 import type { CalculatorFormData, CityTier } from "../data/types";
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import { CenterDialog } from "@/addons/_shared/CenterDialog";
+import { usePricingConfig } from "../hooks/usePricingConfig";
 
 interface Props {
     formData: CalculatorFormData;
@@ -91,6 +92,7 @@ function PickerDialog({ open, onOpenChange, title, description, searchLabel, ite
 export function StepLocation({ formData, updateFields }: Props) {
     const { data: LOCATION_DATA } = useFlowConfig<Record<string, Record<string, string>>>("location_data");
     const { data: TIERS } = useFlowConfig<Record<string, { label: string; multiplier: number }>>("city_tiers");
+    const { config: pricing } = usePricingConfig();
 
     const [picker, setPicker] = useState<"state" | "city" | null>(null);
 
@@ -121,7 +123,10 @@ export function StepLocation({ formData, updateFields }: Props) {
         setPicker(null);
     };
 
-    const tierInfo = formData.cityTier ? TIERS[formData.cityTier] : null;
+    // Label from the city-tier list; multiplier from pricing, which is what the estimate uses.
+    const tierInfo = formData.cityTier && TIERS[formData.cityTier]
+        ? { ...TIERS[formData.cityTier], multiplier: pricing.city_multipliers[formData.cityTier] ?? TIERS[formData.cityTier].multiplier }
+        : null;
 
     return (
         <div>

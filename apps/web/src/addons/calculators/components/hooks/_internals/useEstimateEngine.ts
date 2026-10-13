@@ -7,42 +7,20 @@
  * - Running ALCS full pipeline when a Discovery handoff exists
  */
 
-import { useState, useMemo, useEffect } from "react";
-import type { CalculatorFormData, EstimateResult, PricingConfig } from "../../data/types";
+import { useMemo } from "react";
+import type { CalculatorFormData, EstimateResult } from "../../data/types";
 import { calculateEstimate } from "../../data/calculation-engine";
-import { DEFAULT_PRICING_CONFIG } from "../../data/pricing-config";
 import { runALCSPipeline } from "../../data/engines";
 import type { OrchestratorOutput } from "../../data/engines";
 import type { DiscoveryHandoff, EstimatorResponse } from "../../data/discovery-handoff";
 import type { ExecutionBlueprint } from "../../data/engines/types";
-import { supabase } from "@/lib/supabase";
+import { usePricingConfig } from "../usePricingConfig";
 
 export function useEstimateEngine(
   formData: CalculatorFormData,
   discoveryHandoff: DiscoveryHandoff | null,
 ) {
-  const [pricingConfig, setPricingConfig] = useState<PricingConfig>(DEFAULT_PRICING_CONFIG);
-
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        // Pricing is admin-managed in estimator_flow_config (key "pricing") — QA-02.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data } = await (supabase as any)
-          .from("estimator_flow_config")
-          .select("data")
-          .eq("key", "pricing")
-          .maybeSingle();
-
-        if (data?.data) {
-          setPricingConfig({ ...DEFAULT_PRICING_CONFIG, ...(data.data as PricingConfig) });
-        }
-      } catch (err) {
-        console.error("Failed to load dynamic pricing config. Using defaults.", err);
-      }
-    };
-    void fetchConfig();
-  }, []);
+  const { config: pricingConfig } = usePricingConfig();
 
   const estimate: EstimateResult | null = useMemo(() => {
     if (!formData.selectedService) return null;

@@ -1,3 +1,4 @@
+import type { Database } from '@/integrations/supabase/types';
 import type { PaginationParams, FilterParams, SortParams } from '@/services/types';
 
 export interface LeadPayload {
@@ -52,6 +53,7 @@ export interface Lead extends LeadPayload {
 export interface LeadRepository {
     submitLead(payload: LeadPayload): Promise<void>;
     getLeads(filters?: FilterParams): Promise<Lead[]>;
+    getEstimatorLeads(): Promise<Database['public']['Tables']['leads']['Row'][]>;
     getLeadsPaginated(
         params?: PaginationParams & FilterParams & SortParams
     ): Promise<{ data: Lead[]; total: number }>;

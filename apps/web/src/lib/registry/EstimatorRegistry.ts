@@ -1,20 +1,18 @@
 import { useFlowConfig } from "@/hooks/useFlowConfig";
 import type { PricingConfig } from "@/addons/calculators/components/data/types";
-import { DEFAULT_PRICING_CONFIG } from "@/addons/calculators/components/data/pricing-config";
+import { usePricingConfig } from "@/addons/calculators/components/hooks/usePricingConfig";
 
 /**
  * EstimatorRegistry acts as the single source of truth for all Estimator settings.
  * It provides a unified interface to Pricing, Packages, Addons, ALCS, Results, and Media.
  */
 export function useEstimatorRegistry() {
-  // Pricing Logic — stored in estimator_flow_config under key "pricing" (QA-02).
-  // The former `estimate_rates` table never existed in production.
-  const pricing = useFlowConfig<PricingConfig | null>("pricing");
+  // Pricing lives in estimator_flow_config under key "pricing" (QA-02). usePricingConfig
+  // memoises the merged config, so its identity only changes when saved data does —
+  // the Pricing workspace resets its form on identity change.
+  const pricing = usePricingConfig();
 
-  const savePricing = (config: PricingConfig) =>
-    new Promise<void>((resolve, reject) => {
-      pricing.save(config, { onSuccess: resolve, onError: reject });
-    });
+  const savePricing = (config: PricingConfig): Promise<void> => pricing.saveAsync(config);
 
   // Flow Configurations (estimator_flow_config table via useFlowConfig)
   const propertyTypes = useFlowConfig("property_types");
@@ -25,22 +23,17 @@ export function useEstimatorRegistry() {
   const resultTemplates = useFlowConfig("result_templates");
   const mediaAssets = useFlowConfig("media_assets");
 
-  const isLoading =
-    pricing.isLoading ||
-    propertyTypes.isLoading || 
-    executionTiers.isLoading || 
-    services.isLoading || 
-    addons.isLoading ||
-    alcsRules.isLoading ||
-    resultTemplates.isLoading ||
-    mediaAssets.isLoading;
+  const all = [pricing, propertyTypes, executionTiers, services, addons, alcsRules, resultTemplates, mediaAssets];
 
   return {
-    isLoading,
+    isLoading: all.some((q) => q.isLoading),
+    loadFailed: all.some((q) => q.loadFailed),
     pricingRates: {
-      data: { ...DEFAULT_PRICING_CONFIG, ...(pricing.data ?? {}) },
+      data: pricing.config,
       save: savePricing,
       isSaving: pricing.isSaving,
+      loadFailed: pricing.loadFailed,
+      retry: pricing.retry,
     },
     propertyTypes,
     executionTiers,

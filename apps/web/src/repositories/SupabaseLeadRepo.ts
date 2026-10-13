@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { LeadRepository, LeadPayload, Lead } from './interfaces/LeadRepository';
 import type { PaginationParams, FilterParams, SortParams } from '@/services/types';
 import type { Database } from '@/integrations/supabase/types';
+import { toCrmStageId } from '@/lib/crm/stages';
 
 type LeadsRow = Database['public']['Tables']['leads']['Row'];
 
@@ -14,10 +15,19 @@ export class SupabaseLeadRepo implements LeadRepository {
     }
 
     async getLeads(filters?: FilterParams): Promise<Lead[]> {
+        return (await this.fetchAllRows(filters)) as unknown as Lead[];
+    }
+
+    /** Full rows (area, estimates, ALCS fields) for the estimator Quote Requests page. */
+    async getEstimatorLeads(): Promise<LeadsRow[]> {
+        return this.fetchAllRows({ lead_source: 'estimator' });
+    }
+
+    private async fetchAllRows(filters?: FilterParams): Promise<LeadsRow[]> {
         // PostgREST caps a single response at 1000 rows, so page until exhausted
         // rather than silently truncating boards and analytics.
         const PAGE = 1000;
-        const all: Lead[] = [];
+        const all: LeadsRow[] = [];
 
         for (let from = 0; ; from += PAGE) {
             let query = supabase
@@ -37,7 +47,8 @@ export class SupabaseLeadRepo implements LeadRepository {
 
             const { data, error } = await query;
             if (error) throw error;
-            all.push(...(data as Lead[]));
+            // One stage vocabulary for every CRM screen; legacy values are rewritten on next save.
+            all.push(...data.map((l) => ({ ...l, status: toCrmStageId(l.status) })));
             if (data.length < PAGE) return all;
         }
     }
@@ -203,13 +214,15 @@ export class SupabaseLeadRepo implements LeadRepository {
     }
 
     async bulkDelete(ids: string[]): Promise<number> {
+        // RLS can filter rows out of a delete without an error, so report what
+        // was actually removed rather than assuming every id went.
         const { error, count } = await supabase
             .from('leads')
-            .delete()
+            .delete({ count: 'exact' })
             .in('id', ids);
 
         if (error) throw error;
-        return count || ids.length;
+        return count ?? 0;
     }
 
     async getLeadStats(): Promise<{

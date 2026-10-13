@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { serialize } from "cookie";
-import { isSameOriginRequest, checkAuthRateLimit, getClientIp } from "../_lib/security";
+import { isSameOriginRequest, checkAuthRateLimit, getClientIp } from "../_lib/security.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Read env vars lazily (inside the function) so module caching doesn't capture empty strings

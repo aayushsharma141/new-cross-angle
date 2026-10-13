@@ -193,7 +193,7 @@ export const ContactForm = () => {
       setFormData({ firstName: "", lastName: "", email: "", phone: "", projectType: "", projectBudget: "", location: "", message: defaultMessage });
       setErrors({});
       setTouched({});
-      track(analytics, "contact_form_submitted", { leadSource: payload.lead_source, email: payload.email });
+      track(analytics, "contact_form_submitted", { leadSource: payload.lead_source });
       setTimeout(scrollToStatus, 100);
     } catch (error) {
       console.error("Error submitting form:", error);
