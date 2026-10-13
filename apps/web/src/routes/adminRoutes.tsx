@@ -46,7 +46,7 @@ const CrmAnalytics = lazy(() => import("@/pages/admin/CrmAnalytics"));
 const CrmSettings = lazy(() => import("@/pages/admin/CrmSettings"));
 const AdminLeadWorkspace = lazy(() => import("@/pages/admin/workspace/AdminLeadWorkspace"));
 const LearningHealthDashboard = lazy(() => import("@/pages/admin/workspace/LearningHealthDashboard"));
-const AdminArchitecturePortal = lazy(() => import("@/pages/admin/AdminArchitecturePortal"));
+const AdminSiteContent = lazy(() => import("@/pages/admin/AdminSiteContent"));
 const AdminServiceIntegrations = lazy(() => import("@/pages/admin/AdminServiceIntegrations"));
 const AdminNotFound = lazy(() => import("@/pages/admin/AdminNotFound"));
 
@@ -77,6 +77,7 @@ export const adminRoutes = (
           <Route path="team-members"  element={<RoleGuard allowedRoles={CMS_ROLES}><AdminTeam /></RoleGuard>} />
           <Route path="blog-posts"    element={<RoleGuard allowedRoles={CMS_ROLES}><AdminBlogs /></RoleGuard>} />
           <Route path="media-library" element={<RoleGuard allowedRoles={CMS_ROLES}><AdminMedia /></RoleGuard>} />
+          <Route path="site-content"  element={<RoleGuard allowedRoles={SUPER_ONLY}><AdminSiteContent /></RoleGuard>} />
           <Route path="hero-carousel" element={<RoleGuard allowedRoles={CMS_ROLES}><AdminHero /></RoleGuard>} />
           <Route path="visual-media"  element={<RoleGuard allowedRoles={CMS_ROLES}><AdminVisualMediaHub /></RoleGuard>} />
           <Route path="gallery"       element={<RoleGuard allowedRoles={CMS_ROLES}><AdminGallery /></RoleGuard>} />
@@ -136,7 +137,6 @@ export const adminRoutes = (
 
         {/* ── Operational Health & Architecture OS: super_admin / admin ───── */}
         <Route path="learning-health" element={<RoleGuard allowedRoles={SUPER_ONLY}><LearningHealthDashboard /></RoleGuard>} />
-        <Route path="architecture"    element={<RoleGuard allowedRoles={ADMIN_ONLY}><AdminArchitecturePortal /></RoleGuard>} />
 
         {/* ── Catch-all: any unmatched /admin/* path (QA-07). Must stay last. ── */}
         <Route path="*" element={<AdminNotFound />} />

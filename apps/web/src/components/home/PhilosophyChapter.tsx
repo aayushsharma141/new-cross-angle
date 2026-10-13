@@ -4,11 +4,7 @@ import { PinnedChapter } from "@/components/motion/PinnedChapter";
 import { useSiteMediaSlot } from "@/hooks/useSiteMediaSlot";
 import { getOptimizedUrl } from "@/lib/cdn";
 import { ChapterKicker } from "@/components/home/ChapterKicker";
-
-const PHILOSOPHY_LINES = [
-  "We treat interior design as an engineering problem, not decoration.",
-  "Every line has a purpose. Every material is chosen to last.",
-];
+import { useSiteContent } from "@/content/useSiteContent";
 
 /** Split a sentence into word spans the timeline can scrub one by one. */
 const NBSP = String.fromCharCode(160);
@@ -57,8 +53,12 @@ const Words = ({ text, className }: { text: string; className?: string }) => {
  * Under prefers-reduced-motion the title layer is hidden and the statement
  * renders fully lit in a single static viewport.
  */
-export const PhilosophyChapter = () => (
+export const PhilosophyChapter = () => {
+  const c = useSiteContent("home.philosophy");
+  return (
   <PinnedChapter
+    // The scroll timeline is built once from the words on screen, so remount it when the text changes.
+    key={`${c.statementLine1}|${c.statementLine2}`}
     id="philosophy"
     runway={1.5}
     className="group"
@@ -94,39 +94,40 @@ export const PhilosophyChapter = () => (
     <div className="relative z-10 w-full max-w-[1600px] mx-auto px-6 md:px-12 lg:px-24 h-full">
       {/* Layer A — chapter title (lifts away on scroll) */}
       <div className="chapter-title absolute inset-0 px-6 flex flex-col items-center justify-center text-center will-change-transform group-data-[motion=static]:hidden">
-        <ChapterKicker align="center" className="mb-8">Chapter 01</ChapterKicker>
+        <ChapterKicker align="center" className="mb-8">{c.chapterLabel}</ChapterKicker>
         <h2
           className="font-display text-[clamp(3rem,9vw,7.5rem)] leading-[0.95] text-[var(--s-text-primary)] mb-8"
           style={{ letterSpacing: "-0.03em" }}
         >
-          <span className="block font-light text-white/75">Homes Designed</span>
-          <span className="block font-normal">For Living.</span>
+          <span className="block font-light text-white/75">{c.titleLine1}</span>
+          <span className="block font-normal">{c.titleLine2}</span>
         </h2>
-        <p className="text-[10px] md:text-xs tracking-[0.35em] uppercase font-bold text-[#C9A85C]/80">Scroll to explore</p>
+        <p className="text-[10px] md:text-xs tracking-[0.35em] uppercase font-bold text-[#C9A85C]/80">{c.scrollHint}</p>
       </div>
 
       {/* Layer B — the philosophy statement (word-scrubbed) */}
       <div className="chapter-body absolute inset-0 flex flex-col justify-center max-w-5xl mx-auto px-6 md:px-12 will-change-transform group-data-[motion=static]:relative group-data-[motion=static]:py-[18vh]">
-        <span className="home-kicker mb-6 md:mb-10 block uppercase text-[10px] tracking-[0.3em] font-bold text-white/50">The Philosophy</span>
+        <span className="home-kicker mb-6 md:mb-10 block uppercase text-[10px] tracking-[0.3em] font-bold text-white/50">{c.eyebrow}</span>
         <p
           className="font-display text-[clamp(1.9rem,5.2vw,4.6rem)] leading-[1.12] md:leading-[1.06] text-[var(--s-text-primary)]"
           style={{ letterSpacing: "-0.02em" }}
         >
-          <Words text={PHILOSOPHY_LINES[0]} className="block" />
-          <Words text={PHILOSOPHY_LINES[1]} className="block mt-3 md:mt-2 font-light text-white/85" />
+          <Words text={c.statementLine1} className="block" />
+          <Words text={c.statementLine2} className="block mt-3 md:mt-2 font-light text-white/85" />
         </p>
         <div className="chapter-outro mt-10 md:mt-14 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
           <span className="text-[11px] md:text-xs tracking-[0.2em] uppercase font-semibold text-white/55">
-            Engineered for predictability
+            {c.outroLeft}
           </span>
           <span aria-hidden="true" className="hidden sm:block w-10 h-px bg-[#C9A85C]/50" />
           <span className="text-[11px] md:text-xs tracking-[0.2em] uppercase font-semibold text-[#C9A85C]">
-            The CrossAngle Predictable Interior System™
+            {c.outroRight}
           </span>
         </div>
       </div>
     </div>
   </PinnedChapter>
-);
+  );
+};
 
 export default PhilosophyChapter;

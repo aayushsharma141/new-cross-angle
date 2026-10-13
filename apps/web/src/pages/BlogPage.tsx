@@ -10,6 +10,7 @@ import { BlogFilterBar } from "./blog/_components/BlogFilterBar";
 import { BlogGrid } from "./blog/_components/BlogGrid";
 import { BlogNewsletter } from "./blog/_components/BlogNewsletter";
 import { Container, Section, Eyebrow, DisplayHeading, Body, Em, EASE_OUT_EXPO } from "@/components/editorial";
+import { useSiteContent } from "@/content/useSiteContent";
 
 /**
  * Blog index — lead story, filters, grid.
@@ -33,14 +34,16 @@ const BlogPage = () => {
     featuredPost,
     paginatedPosts,
   } = useBlogList();
+  const seo = useSiteContent("blog.seo");
+  const header = useSiteContent("blog.header");
 
   return (
     <>
       <Helmet>
-        <title>Articles & Blog | Cross Angle Interior - Design Intelligence</title>
-        <meta name="description" content="Explore curated articles on hospitality design, luxury interiors, lighting strategies, and sustainable architecture. Expert knowledge from Cross Angle Interior." />
-        <meta property="og:title" content="Design Articles | Cross Angle Interior" />
-        <meta property="og:description" content="Curated articles on hospitality design, luxury interiors, and spatial intelligence." />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta property="og:title" content={seo.ogTitle || seo.title} />
+        <meta property="og:description" content={seo.ogDescription || seo.description} />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/blog" />
       </Helmet>
@@ -55,13 +58,11 @@ const BlogPage = () => {
             transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
             className="max-w-3xl"
           >
-            <Eyebrow className="mb-8">Journal</Eyebrow>
+            <Eyebrow className="mb-8">{header.eyebrow}</Eyebrow>
             <DisplayHeading as="h1" size="lg" className="mb-6">
-              Design <Em>intelligence.</Em>
+              {header.headingLead} <Em>{header.headingEmphasis}</Em>
             </DisplayHeading>
-            <Body className="max-w-xl">
-              Notes from the studio on materials, lighting, layout and what actually holds up once a space is lived in.
-            </Body>
+            <Body className="max-w-xl">{header.intro}</Body>
           </motion.div>
         </Container>
 

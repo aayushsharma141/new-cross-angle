@@ -9,10 +9,7 @@ import {
     Section, Container, Eyebrow, DisplayHeading, Body, Em, StatStrip, Closing,
     reveal, pillCtaClass, PillCtaInner, textLinkClass, EASE_OUT_EXPO,
 } from "@/components/editorial";
-import { SERVICE_BANDS, SERVICE_AREAS } from "@/config/service-area";
-
-const totalAreas = SERVICE_AREAS.length;
-const totalStates = 4; // Jharkhand, West Bengal, Odisha, Bihar
+import { useSiteContent } from "@/content/useSiteContent";
 
 /**
  * Every service area on one page.
@@ -22,19 +19,21 @@ const totalStates = 4; // Jharkhand, West Bengal, Odisha, Bihar
  * were consolidated.
  */
 const LocationsPage = () => {
+    const seo = useSiteContent("locations.seo");
+    const hero = useSiteContent("locations.hero");
+    const stats = useSiteContent("locations.stats");
+    const { bands } = useSiteContent("locations.areas");
+    const closing = useSiteContent("locations.closing");
+    const areas = bands.flatMap((band) => band.areas);
+    const totalAreas = areas.length;
+    const fill = (text: string) => text.replace(/\{areas\}/g, String(totalAreas));
     return (
         <>
             <Helmet>
-                <title>Service Areas | Interior Designers in Jamshedpur &amp; Eastern India</title>
-                <meta
-                    name="description"
-                    content={`Turn-key interior design across ${totalAreas} areas — every Jamshedpur neighbourhood plus Ranchi, Dhanbad, Bokaro, Kolkata, Bhubaneswar and Patna. See how we work in each.`}
-                />
-                <meta property="og:title" content="Service Areas | Cross Angle Interior" />
-                <meta
-                    property="og:description"
-                    content={`Turn-key interior design across ${totalAreas} areas in eastern India, based in Jamshedpur.`}
-                />
+                <title>{seo.title}</title>
+                <meta name="description" content={fill(seo.description)} />
+                <meta property="og:title" content={seo.ogTitle || seo.title} />
+                <meta property="og:description" content={fill(seo.ogDescription || seo.description)} />
                 <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://crossangleinterior.com/locations" />
                 <link rel="canonical" href="https://crossangleinterior.com/locations" />
@@ -61,21 +60,17 @@ const LocationsPage = () => {
                         transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
                         className="max-w-3xl"
                     >
-                        <Eyebrow className="mb-8">Where we work</Eyebrow>
+                        <Eyebrow className="mb-8">{hero.eyebrow}</Eyebrow>
                         <DisplayHeading as="h1" size="lg" className="mb-6">
-                            Based in Jamshedpur. <Em>Delivering across the east.</Em>
+                            {hero.headingLead} <Em>{hero.headingEmphasis}</Em>
                         </DisplayHeading>
-                        <Body className="max-w-xl">
-                            We keep a resident team rather than a franchise network, so the studio works where it can
-                            supervise properly. Every area below is one we actually deliver in — and each one asks for
-                            something slightly different.
-                        </Body>
+                        <Body className="max-w-xl">{hero.intro}</Body>
                         <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
                             <Link to="/estimate" className={pillCtaClass}>
-                                <PillCtaInner>Get an estimate</PillCtaInner>
+                                <PillCtaInner>{hero.primaryLabel}</PillCtaInner>
                             </Link>
                             <Link to="/contact-us" className={textLinkClass}>
-                                Talk to the studio <span aria-hidden="true">&rarr;</span>
+                                {hero.secondaryLabel} <span aria-hidden="true">&rarr;</span>
                             </Link>
                         </div>
                     </motion.div>
@@ -83,10 +78,10 @@ const LocationsPage = () => {
 
                 <StatStrip
                     stats={[
-                        { label: "Home city", value: "Jamshedpur" },
+                        { label: "Home city", value: stats.homeCity },
                         { label: "Areas served", value: totalAreas },
-                        { label: "States", value: totalStates },
-                        { label: "Projects delivered", value: "1,200+" },
+                        { label: "States", value: stats.states },
+                        { label: "Projects delivered", value: stats.projectsDelivered },
                     ]}
                 />
 
@@ -95,7 +90,7 @@ const LocationsPage = () => {
                     <motion.nav {...reveal()} aria-label="Jump to an area" className="border-t border-white/10 pt-8">
                         <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.25em] text-white/35">Jump to</p>
                         <ul className="flex flex-wrap gap-x-6 gap-y-3">
-                            {SERVICE_AREAS.map((area) => (
+                            {areas.map((area) => (
                                 <li key={area.slug}>
                                     <a
                                         href={`#${area.slug}`}
@@ -110,7 +105,7 @@ const LocationsPage = () => {
                 </Container>
 
                 {/* Areas, grouped by how far out they sit */}
-                {SERVICE_BANDS.map((band, bandIndex) => (
+                {bands.map((band, bandIndex) => (
                     <Section key={band.id} spacing="tight">
                         <motion.div {...reveal()} className="mb-10 grid grid-cols-[2.5rem_1fr] gap-4 border-t border-white/10 pt-8">
                             <span className="pt-1.5 text-[10px] font-bold tracking-[0.2em] text-primary">
@@ -147,15 +142,15 @@ const LocationsPage = () => {
                 ))}
 
                 <Closing
-                    eyebrow="Further afield"
-                    heading={<>Project outside <Em>this map?</Em></>}
-                    body="We take selected projects beyond the region when the scope justifies the travel — outstation work runs with scheduled site visits and weekly video walk-throughs. Tell us where it is."
+                    eyebrow={closing.eyebrow}
+                    heading={<>{closing.headingLead} <Em>{closing.headingEmphasis}</Em></>}
+                    body={closing.body}
                 >
                     <Link to="/contact-us" className={pillCtaClass}>
-                        <PillCtaInner>Ask about your city</PillCtaInner>
+                        <PillCtaInner>{closing.primaryLabel}</PillCtaInner>
                     </Link>
                     <Link to="/estimate" className={textLinkClass}>
-                        Get a free estimate <span aria-hidden="true">&rarr;</span>
+                        {closing.secondaryLabel} <span aria-hidden="true">&rarr;</span>
                     </Link>
                 </Closing>
             </main>

@@ -59,6 +59,7 @@ export const ADMIN_MODULE_NAV: readonly AdminNavModule[] = [
         icon: FileText,
         roles: CMS_ROLES,
         sections: [
+            { label: "Site Content", path: "/admin/cms/site-content", group: "Website Copy", roles: SUPER_ONLY },
             { label: "Projects", path: "/admin/cms/portfolio", group: "Main Content" },
             { label: "Blog Posts", path: "/admin/cms/blog-posts", group: "Main Content" },
             { label: "Services", path: "/admin/cms/services", group: "Main Content" },

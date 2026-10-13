@@ -4,7 +4,6 @@ import Footer from "@/components/layout/Footer";
 import { SchemaMarkup } from "@/components/shared/SchemaMarkup";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { SITE_CONSTANTS } from "@/lib/constants";
-import { Link } from "react-router-dom";
 import Hero from "@/components/home/Hero";
 import { PhilosophyChapter } from "@/components/home/PhilosophyChapter";
 import { ExpertiseChapter } from "@/components/home/ExpertiseChapter";
@@ -14,9 +13,17 @@ import { HomeFAQ } from "@/components/home/HomeFAQ";
 import { ToolsChapter } from "@/components/home/ToolsChapter";
 import { useEffect, useState } from "react";
 import { useAttentionTelemetry } from "@/hooks/useAttentionTelemetry";
+import { useSiteContent } from "@/content/useSiteContent";
+import { ContentLink } from "@/content/ContentLink";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Index = () => {
   const [revealed, setRevealed] = useState(false);
+  const seo = useSiteContent("home.seo");
+  const featured = useSiteContent("home.featured");
+  const faq = useSiteContent("home.faq");
+  const galleryCta = useSiteContent("home.gallery_cta");
+  const { settings } = useSiteSettings();
   
   // Instrument focal points for Attention Purity Index
   const headlineRef = useAttentionTelemetry<HTMLDivElement>("entrance", "hero-headline", 2);
@@ -33,25 +40,19 @@ const Index = () => {
 
   return (
     <>
-      <h1 className="sr-only">Crossangle Interior | Premium Interior Design Studio in Jamshedpur</h1>
+      <h1 className="sr-only">{seo.ogTitle || seo.title}</h1>
       <Helmet>
-        <title>Crossangle Interior | Premium Interior Design Studio</title>
-        <meta
-          name="description"
-          content="Transform your vision into exquisite living spaces with Crossangle Interior. Innovative and personalized interior design solutions for homes and commercial spaces in Jamshedpur."
-        />
-        <meta
-          name="keywords"
-          content="interior design, residential design, commercial design, luxury interiors, home design, space planning, Jamshedpur, modular kitchen, false ceiling"
-        />
-        <meta property="og:title" content="Crossangle Interior | Premium Interior Design Studio in Jamshedpur" />
-        <meta property="og:description" content="Transform your vision into exquisite living spaces with Crossangle Interior. Innovative and personalized interior design solutions." />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        {seo.keywords && <meta name="keywords" content={seo.keywords} />}
+        <meta property="og:title" content={seo.ogTitle || seo.title} />
+        <meta property="og:description" content={seo.ogDescription || seo.description} />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/" />
         {/* LCP Preload: fetch above-fold hero image with highest browser priority */}
         <link
           rel="preload"
-          href="/hero_reality_render_1775299733746.png"
+          href={featured.imageUrl}
           as="image"
           fetchPriority="high"
         />
@@ -97,30 +98,35 @@ const Index = () => {
           <div ref={featuredRef} className="px-6 md:px-12 lg:px-24 max-w-[1600px] mx-auto flex flex-col-reverse md:flex-row items-end gap-12 md:gap-16">
             {/* Left: copy block */}
             <div className="w-full md:w-[38%] pb-0 md:pb-12 shrink-0">
-              <span className="home-kicker mb-6 block uppercase text-[10px] tracking-[0.25em] font-bold">01 / Featured Project</span>
-              <h3 className="font-display text-3xl md:text-5xl mb-6 text-[var(--s-text-primary)] font-normal leading-[1.1]" style={{ letterSpacing: "-0.025em" }}>The Highland Residence</h3>
-              <div className="flex gap-2 mb-6">
-                 <span className="home-chip text-[10px] uppercase tracking-[0.12em] font-medium px-2.5 py-1 border border-white/10 bg-white/[0.02] rounded-md">Jamshedpur</span>
-                 <span className="home-chip text-[10px] uppercase tracking-[0.12em] font-medium px-2.5 py-1 border border-white/10 bg-white/[0.02] rounded-md">Turn-key</span>
-              </div>
+              <span className="home-kicker mb-6 block uppercase text-[10px] tracking-[0.25em] font-bold">{featured.eyebrow}</span>
+              <h3 className="font-display text-3xl md:text-5xl mb-6 text-[var(--s-text-primary)] font-normal leading-[1.1]" style={{ letterSpacing: "-0.025em" }}>{featured.title}</h3>
+              {featured.chips.length > 0 && (
+                <div className="flex gap-2 mb-6">
+                  {featured.chips.map((chip, i) => (
+                    <span key={`${chip}-${i}`} className="home-chip text-[10px] uppercase tracking-[0.12em] font-medium px-2.5 py-1 border border-white/10 bg-white/[0.02] rounded-md">{chip}</span>
+                  ))}
+                </div>
+              )}
               <p className="home-body text-sm leading-relaxed max-w-[38ch] mb-10 text-white/70">
-                Limestone / Oak / Natural Light. An exercise in material restraint and spatial flow.
+                {featured.description}
               </p>
-              <Link 
-                to="/portfolio" 
-                className="home-button-sweep inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-semibold border-b border-white/20 pb-2 text-[#C9A85C] transition-colors duration-500 hover:border-[#C9A85C] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none group"
-              >
-                <span>View Case Study</span>
-                <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1" aria-hidden="true">→</span>
-              </Link>
+              {featured.linkLabel && (
+                <ContentLink
+                  href={featured.linkHref}
+                  className="home-button-sweep inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-semibold border-b border-white/20 pb-2 text-[#C9A85C] transition-colors duration-500 hover:border-[#C9A85C] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none group"
+                >
+                  <span>{featured.linkLabel}</span>
+                  <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1" aria-hidden="true">→</span>
+                </ContentLink>
+              )}
             </div>
             {/* Right: editorial photograph — bleeds past container, sharp architectural corners */}
             <div className="w-full md:w-[62%] md:-mr-[4vw] lg:-mr-[6vw]">
               <div className="aspect-[4/5] md:aspect-[4/3] lg:aspect-[3/2] overflow-hidden relative group rounded-none">
                 <img 
-                  src="/hero_reality_render_1775299733746.png"
+                  src={featured.imageUrl}
                   className="w-full h-full object-cover transition-transform duration-[2000ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.015] motion-reduce:transition-none motion-reduce:group-hover:scale-100 rounded-none" 
-                  alt="The Highland Residence architectural interior — Jamshedpur luxury residential project" 
+                  alt={featured.imageAlt} 
                   loading="lazy" 
                   decoding="async"
                   width="1600"
@@ -150,23 +156,23 @@ const Index = () => {
           {/* Vertical gold rule — gentle transition guide */}
           <div className="w-px h-10 bg-gradient-to-b from-transparent via-[#C9A85C]/40 to-transparent mb-8" aria-hidden="true" />
           {/* Restrained eyebrow */}
-          <span className="mb-4 block uppercase text-[10px] tracking-[0.25em] font-bold text-white/40">The Archive</span>
+          <span className="mb-4 block uppercase text-[10px] tracking-[0.25em] font-bold text-white/40">{galleryCta.eyebrow}</span>
           {/* Proportionally balanced statement */}
           <h2
             className="font-display text-[clamp(2.25rem,4.5vw,4rem)] mb-8 text-[var(--s-text-primary)] font-normal leading-[1.1]"
             style={{ letterSpacing: "-0.025em" }}
           >
-            Explore the Gallery
+            {galleryCta.heading}
           </h2>
           {/* Gold thin rule */}
           <div className="w-10 h-px bg-[#C9A85C]/40 mb-8" aria-hidden="true" />
-          <Link 
-            to="/gallery" 
+          <ContentLink
+            href={galleryCta.linkHref}
             className="home-button-sweep inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] font-semibold border-b border-[#C9A85C]/40 pb-2 text-[#C9A85C] transition-colors duration-500 hover:border-[#C9A85C] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A85C] motion-reduce:transition-none group"
           >
-            <span>Enter Gallery</span>
+            <span>{galleryCta.linkLabel}</span>
             <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1.5" aria-hidden="true">→</span>
-          </Link>
+          </ContentLink>
         </section>
 
 
@@ -181,7 +187,7 @@ const Index = () => {
           image: "https://crossangleinterior.com/reality_render.jpg",
           "@id": "https://crossangleinterior.com/#localbusiness",
           url: "https://crossangleinterior.com",
-          telephone: SITE_CONSTANTS.defaultPhone,
+          telephone: settings.phone || SITE_CONSTANTS.defaultPhone,
           priceRange: "$$",
           address: {
             "@type": "PostalAddress",
@@ -203,9 +209,9 @@ const Index = () => {
             closes: "20:00"
           },
           sameAs: [
-            SITE_CONSTANTS.socials.facebook,
-            SITE_CONSTANTS.socials.instagram
-          ]
+            settings.social_links?.facebook || SITE_CONSTANTS.socials.facebook,
+            settings.social_links?.instagram || SITE_CONSTANTS.socials.instagram
+          ].filter(Boolean)
         }}
       />
       <SchemaMarkup
@@ -236,29 +242,12 @@ const Index = () => {
           description: "End-to-end luxury residential and commercial interior design services with modern materials and premium execution."
         }}
       />
-      <SchemaMarkup
+      {faq.items.length > 0 && <SchemaMarkup
         type="FAQPage"
         data={{
-          faqs: [
-            {
-              question: "What interior design services does Cross Angle Interior provide in Jamshedpur?",
-              answer: "We offer comprehensive, turn-key interior design services for luxury residential homes, apartments, custom modular kitchens, premium false ceilings, and bespoke commercial spaces/offices across Jamshedpur and surrounding regions."
-            },
-            {
-              question: "How long does a typical home interior project take?",
-              answer: "Most premium residential projects take between 45 to 75 days from concept design approval to material execution and final handover. Timeline details are provided transparently during our 3D visualization phase."
-            },
-            {
-              question: "Do you offer custom modular kitchens and modern finishes?",
-              answer: "Yes, we specialize in high-end modular kitchens with soft-close mechanisms, custom acrylic or PU finishes, premium quartz countertops, and sleek space-saving accessories designed to last a lifetime."
-            },
-            {
-              question: "What is the process of getting an interior design estimate?",
-              answer: "You can use our interactive digital cost estimator page online or contact us directly. We provide a detailed spatial planning consult, followed by exact line-item material estimations and 3D design iterations."
-            }
-          ]
+          faqs: faq.items.map(({ question, answer }) => ({ question, answer })),
         }}
-      />
+      />}
       <ScrollToTop />
     </>
   );

@@ -13,8 +13,8 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useAnalytics } from "@/analytics/AnalyticsProvider";
 import { track } from "@/analytics/track";
 import { SITE_CONSTANTS } from "@/lib/constants";
-
-const MAP_SRC = "https://maps.google.com/maps?cid=13776842535355950153&output=embed&hl=en";
+import { useSiteContent } from "@/content/useSiteContent";
+import { isGoogleMapsUrl } from "@/content/pageBlocks";
 
 const detailLabel = "mb-3 block text-[10px] font-bold uppercase tracking-[0.25em] text-white/40";
 const detailLink =
@@ -30,6 +30,10 @@ const detailLink =
 const ContactPage = () => {
   const { settings } = useSiteSettings();
   const analytics = useAnalytics();
+  const seo = useSiteContent("contact.seo");
+  const hero = useSiteContent("contact.hero");
+  const labels = useSiteContent("contact.details");
+  const map = useSiteContent("contact.map");
 
   const email = settings?.email || SITE_CONSTANTS.defaultEmail;
   const phone = settings?.phone || SITE_CONSTANTS.defaultPhone;
@@ -43,13 +47,10 @@ const ContactPage = () => {
   return (
     <>
       <Helmet>
-        <title>Contact Us | Cross Angle Interior - Get A Quote</title>
-        <meta
-          name="description"
-          content="Contact Cross Angle Interior for your interior design needs. Get a free quote and consultation for residential and commercial projects in Jamshedpur."
-        />
-        <meta property="og:title" content="Contact Cross Angle Interior" />
-        <meta property="og:description" content="Get a free quote and consultation for residential and commercial projects." />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta property="og:title" content={seo.ogTitle || seo.title} />
+        <meta property="og:description" content={seo.ogDescription || seo.description} />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://crossangleinterior.com/contact-us" />
       </Helmet>
@@ -79,9 +80,9 @@ const ContactPage = () => {
       <main id="main-content" className="relative z-10 min-h-screen bg-[var(--s-canvas-primary)] text-white">
         <PageHero
           size="md"
-          kicker="Design inquiries"
-          lines={["Let's plan your", <span key="l2" className="italic font-light text-[#C9A85C]">interior project.</span>]}
-          lede="One conversation, a clearer next step. Send a brief for a tailored response, or reach the studio directly."
+          kicker={hero.kicker}
+          lines={[hero.lineLead, <span key="l2" className="italic font-light text-[#C9A85C]">{hero.lineEmphasis}</span>]}
+          lede={hero.lede}
           image={{ entity: "contact-us", fallback: "/luxury_interior_base.png", alt: "" }}
         />
 
@@ -91,35 +92,35 @@ const ContactPage = () => {
             <motion.aside {...reveal()}>
               <dl className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-1">
                 <div>
-                  <dt className={detailLabel}>Direct connect</dt>
+                  <dt className={detailLabel}>{labels.emailLabel}</dt>
                   <dd>
                     <a href={`mailto:${email}`} className={`${detailLink} break-all`}>{email}</a>
                   </dd>
                 </div>
                 <div>
-                  <dt className={detailLabel}>Call the studio</dt>
+                  <dt className={detailLabel}>{labels.phoneLabel}</dt>
                   <dd className="flex flex-col gap-2">
                     <a href={`tel:${phone.replace(/\s+/g, "")}`} className={detailLink}>{phone}</a>
                     <a
-                      href={`https://wa.me/${whatsapp}?text=Hi!%20I'm%20interested%20in%20your%20interior%20design%20services.`}
+                      href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(labels.whatsappMessage)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => track(analytics, "cta_clicked", { ctaId: "accelerated_whatsapp", destination: "whatsapp" })}
                       className={`${textLinkClass} w-fit`}
                     >
-                      WhatsApp <span aria-hidden="true">→</span>
+                      {labels.whatsappLabel} <span aria-hidden="true">→</span>
                     </a>
                   </dd>
                 </div>
                 <div>
-                  <dt className={detailLabel}>The studio</dt>
+                  <dt className={detailLabel}>{labels.studioLabel}</dt>
                   <dd className="text-[15px] font-light leading-relaxed text-white/80">
                     <span className="block text-white">{settings?.studio_name || "Crossangle Interior"}</span>
                     <address className="not-italic">{address}</address>
                   </dd>
                 </div>
                 <div>
-                  <dt className={detailLabel}>Hours</dt>
+                  <dt className={detailLabel}>{labels.hoursLabel}</dt>
                   <dd className="text-[15px] font-light leading-relaxed text-white/80">
                     {hours.map((h) => (
                       <span key={h.days} className="block">{h.days}: {h.hours}</span>
@@ -134,14 +135,14 @@ const ContactPage = () => {
                   onClick={() => track(analytics, "estimate_path_selected", { pathId: "contact_page_cta" })}
                   className={`${textLinkClass} w-fit`}
                 >
-                  Looking for numbers? Try the estimator <span aria-hidden="true">→</span>
+                  {labels.estimatorLink} <span aria-hidden="true">→</span>
                 </Link>
                 <Link
                   to="/aesthetic-discovery-engine"
                   onClick={() => track(analytics, "discovery_path_selected", { pathId: "contact_page_cta" })}
                   className={`${textLinkClass} w-fit`}
                 >
-                  Not sure about your style? Take the quiz <span aria-hidden="true">→</span>
+                  {labels.quizLink} <span aria-hidden="true">→</span>
                 </Link>
               </div>
             </motion.aside>
@@ -155,19 +156,19 @@ const ContactPage = () => {
         {/* Map */}
         <Section rule spacing="tight">
           <motion.div {...reveal()} className="mb-8 flex flex-wrap items-baseline justify-between gap-4">
-            <Eyebrow>Find us</Eyebrow>
+            <Eyebrow>{map.eyebrow}</Eyebrow>
             <a
-              href="https://maps.google.com/?cid=13776842535355950153"
+              href={isGoogleMapsUrl(map.openUrl) ? map.openUrl : "https://maps.google.com"}
               target="_blank"
               rel="noopener noreferrer"
               className={textLinkClass}
             >
-              Open in Google Maps <span aria-hidden="true">→</span>
+              {map.openLabel} <span aria-hidden="true">→</span>
             </a>
           </motion.div>
           <motion.div {...reveal(0.05)} className="aspect-[16/9] w-full overflow-hidden bg-white/[0.03] md:aspect-[21/9]">
             <iframe
-              src={MAP_SRC}
+              src={isGoogleMapsUrl(map.embedUrl) ? map.embedUrl : undefined}
               title="Cross Angle Interior studio location"
               className="h-full w-full border-0 grayscale opacity-80 transition-opacity duration-500 hover:opacity-100"
               loading="lazy"

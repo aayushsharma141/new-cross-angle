@@ -14,6 +14,7 @@ import ServicesFAQ from "@/components/services/ServicesFAQ";
 import { Em, textLinkClass } from "@/components/editorial";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/primitives/button";
+import { useSiteContent } from "@/content/useSiteContent";
 
 /**
  * Services — three domains on one editorial system.
@@ -24,6 +25,9 @@ import { Button } from "@/components/ui/primitives/button";
  */
 const ServicesPage = () => {
   const [searchParams] = useSearchParams();
+  const seo = useSiteContent("services.seo");
+  const hero = useSiteContent("services.hero");
+  const { items: domains } = useSiteContent("services.domains");
 
   useEffect(() => {
     const category = searchParams.get("category");
@@ -65,13 +69,10 @@ const ServicesPage = () => {
   return (
     <>
       <Helmet>
-        <title>Services | CrossAngle Interior</title>
-        <meta
-          name="description"
-          content="Ultra-luxury turnkey interior solutions. Design intelligence paired with hospitality-grade precision."
-        />
-        <meta property="og:title" content="Services | CrossAngle Interior" />
-        <meta property="og:description" content="Ultra-luxury turnkey interior solutions. Design intelligence paired with hospitality-grade precision." />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta property="og:title" content={seo.ogTitle || seo.title} />
+        <meta property="og:description" content={seo.ogDescription || seo.description} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://crossangleinterior.com/services" />
         <link rel="canonical" href="https://crossangleinterior.com/services" />
@@ -81,49 +82,34 @@ const ServicesPage = () => {
       <main id="main-content" className="relative z-10 min-h-screen overflow-x-clip bg-[var(--s-canvas-primary)] font-sans text-white">
         <PageHero
           size="md"
-          kicker="Our services"
-          lines={["From empty shell to", <span key="l2">move-in ready <span className="italic font-light text-[#C9A85C]">home.</span></span>]}
+          kicker={hero.kicker}
+          lines={[hero.lineOne, <span key="l2">{hero.lineTwoLead} <span className="italic font-light text-[#C9A85C]">{hero.lineTwoEmphasis}</span></span>]}
           lede={<ServicesHeroTagline />}
           image={{ entity: "services", fallback: "/reality_render.jpg", alt: "" }}
           actions={
             <>
               <Link to="/estimate" className={textLinkClass}>
-                Get an estimate <span aria-hidden="true">→</span>
+                {hero.estimateLabel} <span aria-hidden="true">→</span>
               </Link>
-              <a href="#residential" className={textLinkClass}>
-                Browse services <span aria-hidden="true">↓</span>
+              <a href={`#${domains[0]?.id ?? "residential"}`} className={textLinkClass}>
+                {hero.browseLabel} <span aria-hidden="true">↓</span>
               </a>
             </>
           }
         />
 
-        <ServiceDomain
-          id="residential"
-          rule={false}
-          eyebrow="Domain I"
-          heading={<>Residential <Em>design.</Em></>}
-          body="Custom interiors built for your lifestyle, comfort, and lasting value — planned around how you actually live."
-          services={byCategory("residential")}
-          isLoading={isLoading}
-        />
-
-        <ServiceDomain
-          id="commercial"
-          eyebrow="Domain II"
-          heading={<>Office & commercial <Em>interiors.</Em></>}
-          body="Functional workspaces designed for productivity and brand impact, delivered without disrupting your operation."
-          services={byCategory("commercial")}
-          isLoading={isLoading}
-        />
-
-        <ServiceDomain
-          id="specialized"
-          eyebrow="Domain III"
-          heading={<>Specialized services & <Em>custom building.</Em></>}
-          body="Modular kitchens, ceilings and bespoke joinery — engineered in-house and installed by our own team."
-          services={byCategory("specialized")}
-          isLoading={isLoading}
-        />
+        {domains.map((domain, i) => (
+          <ServiceDomain
+            key={domain.id}
+            id={domain.id}
+            rule={i > 0}
+            eyebrow={domain.eyebrow}
+            heading={<>{domain.headingLead} <Em>{domain.headingEmphasis}</Em></>}
+            body={domain.body}
+            services={byCategory(domain.id)}
+            isLoading={isLoading}
+          />
+        ))}
 
         <ServicesDeliverables />
         <ServicesInvestmentTiers />

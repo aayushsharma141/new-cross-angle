@@ -1,30 +1,15 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-
-const faqs = [
-  {
-    question: "What interior design services does Cross Angle Interior provide in Jamshedpur?",
-    answer: "We offer comprehensive, turn-key interior design services for luxury residential homes, apartments, custom modular kitchens, premium false ceilings, and bespoke commercial spaces/offices across Jamshedpur and surrounding regions."
-  },
-  {
-    question: "How long does a typical home interior project take?",
-    answer: "Most premium residential projects take between 45 to 75 days from concept design approval to material execution and final handover. Timeline details are provided transparently during our 3D visualization phase."
-  },
-  {
-    question: "Do you offer custom modular kitchens and modern finishes?",
-    answer: "Yes, we specialize in high-end modular kitchens with soft-close mechanisms, custom acrylic or PU finishes, premium quartz countertops, and sleek space-saving accessories designed to last a lifetime."
-  },
-  {
-    question: "What is the process of getting an interior design estimate?",
-    answer: "You can use our interactive digital cost estimator page online or contact us directly. We provide a detailed spatial planning consult, followed by exact line-item material estimations and 3D design iterations."
-  }
-];
+import { useSiteContent } from "@/content/useSiteContent";
 
 export const HomeFAQ = () => {
+  const { eyebrow, headingLead, headingEmphasis, items: faqs } = useSiteContent("home.faq");
   // First answer open by default: the timeline/estimate facts are the point of
   // surfacing these, so they should be readable without a click.
   const [openIdx, setOpenIdx] = useState<number | null>(0);
+
+  if (faqs.length === 0) return null;
 
   return (
     <section className="relative bg-background py-24 md:py-32 px-6 overflow-hidden">
@@ -37,11 +22,11 @@ export const HomeFAQ = () => {
         >
           <div className="flex items-center justify-center gap-4 mb-6">
             <div className="w-12 h-px bg-[#D1AF6E]" />
-            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-[#D1AF6E]">Common Questions</span>
+            <span className="font-bold text-[10px] uppercase tracking-[0.4em] text-[#D1AF6E]">{eyebrow}</span>
             <div className="w-12 h-px bg-[#D1AF6E]" />
           </div>
           <h2 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] tracking-tight text-white">
-            Answers <span className="italic font-medium text-[#D1AF6E]">For You</span>
+            {headingLead} <span className="italic font-medium text-[#D1AF6E]">{headingEmphasis}</span>
           </h2>
         </motion.div>
 
