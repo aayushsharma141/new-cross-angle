@@ -3,6 +3,7 @@ import type { LeadRepository, LeadPayload, Lead } from './interfaces/LeadReposit
 import type { PaginationParams, FilterParams, SortParams } from '@/services/types';
 import type { Database } from '@/integrations/supabase/types';
 import { toCrmStageId } from '@/lib/crm/stages';
+import { calculateLeadScoreBreakdown, SCORE_VERSION } from '@/lib/scoring/leadScoring';
 
 type LeadsRow = Database['public']['Tables']['leads']['Row'];
 
@@ -10,7 +11,15 @@ const CLOSED_STATUSES = new Set(['won', 'lost']);
 
 export class SupabaseLeadRepo implements LeadRepository {
     async submitLead(payload: LeadPayload): Promise<void> {
-        const { error } = await supabase.from('leads').insert(payload as unknown as Parameters<ReturnType<typeof supabase.from>['insert']>[0]);
+        // Score at insert so a new lead never sits at 0 waiting for a server recompute.
+        // Uses the same formula as auto-score-lead; the server value overwrites it later.
+        const scored = calculateLeadScoreBreakdown(payload as never);
+        const row = {
+            ...payload,
+            score: scored.total,
+            score_details: { ...scored.breakdown, version: SCORE_VERSION, computed_at: scored.lastCalculated },
+        };
+        const { error } = await supabase.from('leads').insert(row as unknown as Parameters<ReturnType<typeof supabase.from>['insert']>[0]);
         if (error) throw error;
     }
 

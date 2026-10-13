@@ -2,6 +2,12 @@ import type { Lead } from "@/repositories/interfaces/LeadRepository";
 
 export type { Lead };
 
+/**
+ * Keep in step with supabase/functions/_lib/leadScoring.ts (the authoritative
+ * copy). lead-scoring-parity.test.ts fails if the two formulas disagree.
+ */
+export const SCORE_VERSION = "v1";
+
 // ============================================================
 // TYPES
 // ============================================================
@@ -112,7 +118,7 @@ export function calculateLeadScoreBreakdown(lead: Partial<Lead>): LeadScoreDetai
   if (src.includes("referral")) source = 15;
   else if (src.includes("organic") || src.includes("google") || src.includes("website") || src === "website_contact") source = 12;
   else if (src.includes("estimator")) source = 12; // high intent tool
-  else if (src.includes("style_quiz")) source = 10;
+  else if (src.includes("style_quiz") || src.includes("aesthetic_discovery_engine")) source = 10;
   else if (src.includes("social") || src.includes("instagram") || src.includes("facebook")) source = 8;
   else if (src.includes("paid") || src.includes("ad")) source = 6;
   else source = 5;

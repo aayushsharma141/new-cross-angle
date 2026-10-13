@@ -77,12 +77,13 @@ shows 200, and `select max(date) from analytics_reporting_daily;` is yesterday.
 ```bash
 npx supabase functions deploy integration-status
 npx supabase functions deploy sitemap
+npx supabase functions deploy score-lead
+npx supabase functions deploy auto-score-lead
 npx supabase functions deploy notify-telegram
 npx supabase functions deploy posthog-to-telegram
 ```
 
-`score-lead` is **not** in this list on purpose: nothing calls it, and deploying it would
-publish a formula that is not the decided one. Deploy it after the scoring decision (section 5).
+Also deploy `score-lead` and `auto-score-lead` now that they share one formula (section 5).
 
 ## 4. Secrets
 
@@ -91,10 +92,25 @@ anything marked Required and Not set (`npx supabase secrets set NAME=value`). Se
 `TELEGRAM_CHAT_ID` to the intended chat; once the panel shows it Set, the hardcoded fallback
 chat id can be removed from `notify-telegram` and `posthog-to-telegram`.
 
-## 5. Lead scoring decision
+## 5. Lead scoring (decided: auto-score-lead's formula)
 
-Three formulas exist and only one runs today. See the PR discussion. Whichever is chosen,
-the other two should be removed or made to call the same code, and a `score_version` stored.
+The formula now lives once, in `supabase/functions/_lib/leadScoring.ts` (version `v1`, stored
+in `leads.score_details`). `auto-score-lead` and `score-lead` import it, and the browser
+mirror is pinned to it by `lead-scoring-parity.test.ts`. New leads inserted from the site are
+scored at insert time instead of sitting at 0.
+
+After deploying `score-lead` (it is safe now), re-score the existing leads once:
+
+```bash
+# needs a user JWT or the service key; score-lead is verify_jwt = true
+curl -X POST https://iuuivmwqodefdrrrewol.supabase.co/functions/v1/score-lead   -H "Authorization: Bearer <JWT>" -H "Content-Type: application/json" -d '{"recalculateAll": true}'
+```
+
+Still open: `submit-estimate` scores estimator leads with its own admin-weighted formula
+(`scoring_weights` in the estimator config). Moving it to the shared formula would retire
+that admin setting, so it has been left as is pending a decision. The `auto-score-lead`
+database trigger is also not installed (it needs the same working service-key setup as
+section 2); until it is, scores update at insert and on a manual `recalculateAll`.
 
 ## 6. Other live checks still open
 

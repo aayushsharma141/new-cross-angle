@@ -737,3 +737,4 @@ Restored in `0e38cd64`.
 - Lead scores: only estimator leads are scored (submit-estimate's own formula); the other 11 of 12 leads score 0. Three formulas exist; none of score-lead / auto-score-lead run automatically.
 - Removed my posthog-cron migration (would have replaced the existing job with a different, equally unset setting). Apply the CMS migration alone via `db query -f` + `migration repair`, NOT `db push`.
 - Runbook rewritten with these findings: docs/runbooks/2026-10-13-admin-cms-deploy-checklist.md.
+- Scoring decided: auto-score-lead formula is authoritative. Shared module supabase/functions/_lib/leadScoring.ts (SCORE_VERSION v1, stored in score_details); score-lead + auto-score-lead import it; SupabaseLeadRepo scores at insert; parity test pins browser mirror. submit-estimate still uses its own admin-weighted formula (decision pending). auto-score-lead DB trigger still not installed. Nothing deployed.
