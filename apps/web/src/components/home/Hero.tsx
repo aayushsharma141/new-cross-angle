@@ -6,7 +6,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import useReducedMotion from "@/hooks/useReducedMotion";
-import { HeroWatermark } from "@/components/home/HeroWatermark";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -59,8 +58,7 @@ const Hero = () => {
         scrollTrigger: { trigger: containerRef.current, start: "top top", end: "bottom top", scrub: 0.6 },
       })
         .to(q("[data-hero-media]"), { scale: 1.1, duration: 1 }, 0)
-        .to(q("[data-hero-copy]"), { y: -80, autoAlpha: 0, duration: 0.6 }, 0.1)
-        .to(q("[data-hero-watermark]"), { rotate: 90, autoAlpha: 0, duration: 0.6 }, 0.1);
+        .to(q("[data-hero-copy]"), { y: -80, autoAlpha: 0, duration: 0.6 }, 0.1);
     },
     { scope: containerRef, dependencies: [prefersReducedMotion] },
   );
@@ -207,11 +205,6 @@ const Hero = () => {
         ref={containerRef}
         className="relative w-full h-[70vh] md:h-[85vh] lg:h-[95vh] overflow-hidden bg-[var(--s-canvas-primary)]"
       >
-        {/* Rotating seal — top right, decorative */}
-        <div data-hero-watermark className="absolute top-[14vh] right-6 md:right-16 lg:right-24 z-[9] pointer-events-none will-change-transform">
-          <HeroWatermark />
-        </div>
-
         {/* Noise grain overlay */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.025] mix-blend-screen z-10 bg-[url('/noise.png')]" />
 
