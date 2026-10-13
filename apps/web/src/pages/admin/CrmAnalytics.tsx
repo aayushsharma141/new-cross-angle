@@ -13,6 +13,7 @@ import {
   type Lead,
 } from "@/lib/scoring/leadScoring";
 import { leadStatusOptions } from "@/lib/validation/validations";
+import { CRM_STAGE_LABELS } from "@/lib/crm/stages";
 import {
   AlertTriangle,
   TrendingUp,
@@ -116,17 +117,7 @@ const SOURCE_HEX_COLORS: Record<string, string> = {
 };
 
 // ─── Stage Labels ─────────────────────────────────────────────────────────────
-const STATUS_LABELS: Record<string, string> = {
-  new: "New Inquiry",
-  contacted: "Contacted",
-  qualified: "Qualified",
-  consultation_scheduled: "Consultation",
-  proposal_sent: "Proposal Sent",
-  negotiation: "Negotiation",
-  final_review: "Final Review",
-  won: "Won",
-  lost: "Lost",
-};
+const STATUS_LABELS: Record<string, string> = CRM_STAGE_LABELS;
 
 // ─── UI Components ────────────────────────────────────────────────────────────
 function Card({ title, icon: Icon, children, className, badge }: {
@@ -223,7 +214,7 @@ export default function CrmAnalytics() {
     const missingAction = openLeads.filter(l => !l.next_step).length;
     const actionSLA   = openLeads.length > 0 ? Math.round(((openLeads.length - missingAction) / openLeads.length) * 100) : 100;
     const missingBudget  = openLeads.filter(l => !l.budget_value_inr).length;
-    const missingSource  = rawLeads.filter(l => !l.source && !l.lead_source).length;
+    const missingSource  = openLeads.filter(l => !l.source && !l.lead_source).length;
     const staleLoss   = forecast.stale.reduce((s, l) => s + (l.budget_value_inr ?? 0), 0);
     const hotLeadsCount = openLeads.filter(l => getLeadTemperature(l.score ?? 0).priority === "hot").length;
     const weightedPipeline = openLeads.reduce((s, l) => s + getWeightedValue(l), 0);
@@ -340,7 +331,7 @@ export default function CrmAnalytics() {
       {/* ── LAYER 1: EXECUTIVE COMMAND STRIP ─────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
         <KpiCard title="Total Leads"       value={analytics.totalLeads}                         sub="All time"                       trend="neutral" />
-        <KpiCard title="Pipeline Value"    value={formatINR(forecast.totalOpenValue)}            sub={`${analytics.openLeads.length} open deals`} trend="up" />
+        <KpiCard title="Pipeline Value"    value={formatINR(forecast.totalOpenValue)}            sub={`${analytics.openLeads.length} open deals`} trend="neutral" />
         <KpiCard title="Weighted Forecast" value={formatINR(analytics.weightedPipeline)}         sub="Risk-adjusted value"            trend="neutral" />
         <KpiCard title="Revenue At Risk"   value={formatINR(analytics.staleLoss)}                sub={`${forecast.stale.length} stale leads`} alert={forecast.stale.length > 0} />
         <KpiCard title="Conversion Rate"   value={`${analytics.winRate}%`}                      sub="Won / (Won + Lost)"             trend={analytics.winRate >= 20 ? "up" : "down"} />
@@ -610,7 +601,7 @@ export default function CrmAnalytics() {
         <Card title="Revenue Forecast" icon={TrendingUp}>
           <div className="grid grid-cols-3 gap-3 flex-1">
             {[
-              { label: "Committed", value: forecast.committed, note: "Won + Final Review", color: "text-[hsl(var(--admin-success))]", border: "border-[hsl(var(--admin-success)/0.2)] bg-[hsl(var(--admin-success-muted))]" },
+              { label: "Committed", value: forecast.committed, note: "Won + Closing", color: "text-[hsl(var(--admin-success))]", border: "border-[hsl(var(--admin-success)/0.2)] bg-[hsl(var(--admin-success-muted))]" },
               { label: "Likely", value: analytics.weightedPipeline, note: "Risk-weighted open", color: "text-[hsl(var(--admin-info))]", border: "border-[hsl(var(--admin-info)/0.3)] bg-[hsl(var(--admin-info-muted))] scale-105" },
               { label: "Best Case", value: forecast.bestCase, note: "All open at 100%", color: "text-[hsl(var(--admin-warning))]", border: "border-[hsl(var(--admin-warning)/0.2)] bg-[hsl(var(--admin-warning-muted))]" },
             ].map(f => (

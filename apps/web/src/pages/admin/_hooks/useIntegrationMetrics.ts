@@ -221,3 +221,48 @@ export function useMediaMetrics() {
 }
 
 export const REPORTING_WINDOW_DAYS = WINDOW_DAYS;
+
+export interface IntegrationLastSeen {
+  /** created_at of the newest email activity row, or null if none exists. */
+  lastEmailAt: string | null;
+  /** Newest date in the PostHog rollup, or null if the table is empty. */
+  lastAnalyticsDate: string | null;
+}
+
+/**
+ * When each integration last did something we can observe. Unlike a gateway
+ * reachability check, a stale or missing value here means the integration is
+ * not actually producing output.
+ */
+export function useIntegrationLastSeen() {
+  return useQuery<IntegrationLastSeen>({
+    queryKey: queryKeys.integrations.lastSeen,
+    queryFn: async () => {
+      const [emailRes, analyticsRes] = await Promise.all([
+        supabase
+          .from("lead_activities")
+          .select("created_at")
+          .in("activity_type", [
+            ...CUSTOMER_EMAIL_ACTIVITY_TYPES,
+            ...INTERNAL_EMAIL_ACTIVITY_TYPES,
+          ])
+          .order("created_at", { ascending: false })
+          .limit(1),
+        supabase
+          .from("analytics_reporting_daily")
+          .select("date")
+          .order("date", { ascending: false })
+          .limit(1),
+      ]);
+
+      if (emailRes.error) throw emailRes.error;
+      if (analyticsRes.error) throw analyticsRes.error;
+
+      return {
+        lastEmailAt: emailRes.data?.[0]?.created_at ?? null,
+        lastAnalyticsDate: analyticsRes.data?.[0]?.date ?? null,
+      };
+    },
+    staleTime: 60_000,
+  });
+}

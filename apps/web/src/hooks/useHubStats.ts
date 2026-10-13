@@ -4,6 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 /* ───────────────────────────────────────────────
    Hub Stats — shared between AdminHub and AdminLayout
    ─────────────────────────────────────────────── */
+/** Media storage quota shown in admin. Single source: change it here when the plan changes. */
+export const STORAGE_TOTAL_GB = 20;
+
 export interface HubStats {
     actionsToday: number;
     newLeads: number;
@@ -114,7 +117,7 @@ async function fetchHubStats(): Promise<HubStats> {
         actionsToday: (activityCount ?? 0) + (versionCount ?? 0),
         newLeads: newLeadCount ?? 0,
         storageUsedGB: usedGB,
-        storageTotalGB: 20,
+        storageTotalGB: STORAGE_TOTAL_GB,
         pipelineValue,
         totalLeads,
         wonLeads,
@@ -140,7 +143,7 @@ const DEFAULT_STATS: HubStats = {
     actionsToday: 0,
     newLeads: 0,
     storageUsedGB: 0,
-    storageTotalGB: 20,
+    storageTotalGB: STORAGE_TOTAL_GB,
     pipelineValue: 0,
     totalLeads: 0,
     wonLeads: 0,

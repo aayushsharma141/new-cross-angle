@@ -131,7 +131,7 @@ const ContentTab = ({ date }: ContentTabProps) => {
           value={fmt(stats?.totalViews)}
           numericValue={stats?.totalViews}
           change="All-time project views"
-          trend="up"
+          trend="neutral"
           icon={Eye}
           variant="gold"
           isLoading={isLoading}
@@ -161,7 +161,7 @@ const ContentTab = ({ date }: ContentTabProps) => {
           value={fmt(stats?.testimonialCount)}
           numericValue={stats?.testimonialCount}
           change="Active social proof"
-          trend="up"
+          trend="neutral"
           icon={Users}
           variant="gold"
           isLoading={isLoading}

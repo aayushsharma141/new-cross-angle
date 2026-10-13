@@ -159,8 +159,11 @@ export default function AdminBlogOverview() {
 
     const topStats = useMemo(() => {
         const totalViews = articles.reduce((s, a) => s + a.views, 0);
-        const avgReadTime = articles.length > 0 ? articles.reduce((s, a) => s + a.readTime, 0) / articles.length : 0;
-        const avgScrollDepth = articles.length > 0 ? articles.reduce((s, a) => s + a.scrollDepth, 0) / articles.length : 0;
+        // Average only articles that have measurements; an unmeasured article is "no data", not 0.
+        const withRead = articles.filter((a) => a.readTime > 0);
+        const withScroll = articles.filter((a) => a.scrollDepth > 0);
+        const avgReadTime = withRead.length > 0 ? withRead.reduce((s, a) => s + a.readTime, 0) / withRead.length : 0;
+        const avgScrollDepth = withScroll.length > 0 ? Math.round(withScroll.reduce((s, a) => s + a.scrollDepth, 0) / withScroll.length) : 0;
         const totalCta = articles.reduce((s, a) => s + a.ctaClicks, 0);
         const totalShares = articles.reduce((s, a) => s + a.shares, 0);
         return { totalViews, avgReadTime, avgScrollDepth, totalCta, totalShares };

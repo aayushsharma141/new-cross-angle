@@ -278,7 +278,7 @@ export const HYGIENE_RULES = {
 // ============================================================
 
 export interface PipelineForecast {
-  committed: number;      // Won + negotiation budget total
+  committed: number;      // Won + closing budget total
   bestCase: number;       // All open pipeline weighted
   atRisk: Lead[];         // Hot leads inactive > 7 days
   stale: Lead[];          // Any lead inactive > threshold
@@ -289,7 +289,7 @@ export function buildForecast(leads: Lead[]): PipelineForecast {
   const openLeads = leads.filter((l) => l.status !== "won" && l.status !== "lost");
 
   const committed = leads
-    .filter((l) => l.status === "won" || l.status === "negotiation" || l.status === "final_review")
+    .filter((l) => l.status === "won" || l.status === "closing")
     .reduce((acc, l) => acc + (l.budget_value_inr ?? 0), 0);
 
   const bestCase = openLeads.reduce((acc, l) => acc + getWeightedValue(l), 0);

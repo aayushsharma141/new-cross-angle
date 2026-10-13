@@ -170,7 +170,7 @@ Deno.serve(async (req: Request) => {
       const { data: leads, error: fetchError } = await supabase
         .from('leads')
         .select('*')
-        .in('status', ['new', 'contacted', 'qualified', 'proposal']);
+        .in('status', ['new', 'in_conversation', 'meeting_planned', 'quote_sent', 'closing']);
 
       if (fetchError) throw fetchError;
 

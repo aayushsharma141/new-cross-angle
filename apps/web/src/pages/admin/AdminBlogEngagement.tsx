@@ -40,7 +40,7 @@ interface EventBreakdown {
 const EVENT_LABELS: Record<string, string> = {
     page_view: "Page Views",
     scroll_depth: "Scroll Depth",
-    read_time: "Read Time",
+    reading_time: "Read Time",
     cta_click: "CTA Clicks",
     share_click: "Share Clicks",
     tag_click: "Tag Clicks",
