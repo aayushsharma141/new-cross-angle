@@ -699,3 +699,34 @@ nothing. Fixed by driving the SQL Editor directly and running one statement at a
 `dec254a7` ("fix(admin-design): High-priority fixes for Phase 6") unrelatedly reverted the F-08 Origin header
 fix in `e2e/auth-lifecycle-smoke.spec.ts`, almost certainly from a stale working copy; F-06 failed as a result.
 Restored in `0e38cd64`.
+
+## 2026-10-13 — Super-admin site content (home page) + estimator/discovery UX
+- Added `site_content` / `site_content_drafts` / `site_content_versions` migration (`supabase/migrations/20261013000000_site_content.sql`) — **written, not applied**. Super-admin-only writes via SECURITY DEFINER functions; published rows are public-read.
+- New `apps/web/src/content/` (registry, `useSiteContent`, `ContentLink`) and `/admin/cms/site-content` editor (SUPER_ONLY). Home page now reads SEO, philosophy, tools, featured project, FAQ (+FAQPage JSON-LD) and gallery CTA from it, with built-in defaults as fallback.
+- Removed `AdminArchitecturePortal` (1,301 lines of static docs) from admin.
+- Next: Our Process, Locations, Privacy/Terms, per-page SEO, integration status from real events, storage quota as a setting.
+
+## 2026-10-13 (later) — remaining public pages editable
+- Site Content now also covers Privacy/Terms (Markdown sections, history), Our Process, Locations, About, Services, Contact (incl. map, FAQ), Portfolio, Gallery and Blog headings + per-page SEO. Blocks live in `apps/web/src/content/{registry,pageBlocks,types,fields}.ts`.
+- NOTE: `npx tsc --noEmit -p .` checks nothing here (root tsconfig has `files: []`). Use `npm run typecheck` (tsconfig.app.json).
+- Migration `20261013000000_site_content.sql` still not applied.
+
+## 2026-10-13 — Admin accuracy pass
+- CRM-01/02/06: CrmAnalytics labels now read `CRM_STAGE_LABELS`; "Committed" forecast = won + closing; `score-lead` bulk rescore covers all live open statuses (edge fn not redeployed).
+- System tab integrations: PostHog status uses newest `analytics_reporting_daily` date, Resend uses newest email activity (`useIntegrationLastSeen`), not gateway reachability.
+- SVC-03: migration `20261013010000_schedule_posthog_reporting_sync.sql` (daily 01:30 UTC) written, NOT applied. Check Dashboard cron for a hand-made job first.
+- `ContentBlockDef.validate` is now a method signature (strictFunctionTypes fix); `npm run typecheck` clean.
+- Still open: lead-scoring split-brain (CRM-05, needs product decision), storage quota still a constant (`STORAGE_TOTAL_GB`), SVC-01/02 need live DB checks.
+- Admin accuracy pass 2: TrafficTab sub-widgets now throw on PostHog error (banner shows, not "no data"); blog engagement label key fixed (`reading_time`); added `posthog-event-sources.test.ts` (DISC-10 guard). DISC-01/02 funnel was already fixed.
+- Admin accuracy pass 3: CRM-03 missingSource now over open leads; CRM-13 hot-lead KPI counts open leads only (matches CrmAnalytics); DISC-06 blog avg read/scroll average only measured articles (draft filter left as-is, status column shows it).
+- CMS: added `site.footer_cta` (per-page footer CTA wording, exact path or `/section/*`, resolver in content/footerCopy.ts) and `site.not_found` (404 copy) blocks; Footer and NotFound wired. Navbar link labels intentionally left in code (structural).
+- Studio stats: defaults centralized (`STUDIO_STATS_DEFAULTS`, `useStudioStats()` in useSiteSettings.ts; a saved 0 is kept). Added `about.founder` CMS block for the About Person JSON-LD; the previously guessed LinkedIn URL is now blank by default (editable).
+
+## 2026-10-13 — Integration config audit
+- Registry `apps/web/src/lib/admin/integrations.ts` = every edge-function secret, grouped by integration. New admin-only edge fn `integration-status` (NOT deployed; config.toml verify_jwt=true) reports set/not-set; `ServerCredentialsPanel` in Settings → Integrations shows it. Guard test `integration-secrets.test.ts` (functions' env reads ⊆ registry, status fn list == registry, every VITE_ var in `.env.example`).
+- Added `supabase/functions/.env.example`; documented VITE_OTLP_ENDPOINT + Vercel SUPABASE_SERVICE_ROLE_KEY in `apps/web/.env.example`.
+- Bug fixed: prod tracing exported to http://localhost:4318 on every visitor's browser when VITE_OTLP_ENDPOINT unset → `initTracing` now no-ops in prod without it.
+- Removed unused `IntegrationsManager.tsx` (mock data, no importers).
+- Still hardcoded fallbacks in edge fns (flagged in panel, behaviour unchanged): Telegram chat id, WhatsApp number, lead alert email.
+- Unverifiable from repo: which secrets are actually set in Supabase/Vercel; DB settings `app.supabase_url`/`app.supabase_service_role_key` needed by pg_cron jobs.
+- Deploy checklist written: docs/runbooks/2026-10-13-admin-cms-deploy-checklist.md (migrations order, functions to deploy, secrets, live SQL checks, first CMS use).
