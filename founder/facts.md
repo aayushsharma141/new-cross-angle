@@ -1,0 +1,1 @@
+- 2026-10-13 · mvp-scope · Leads are worked in the admin CRM. 10 of 11 sit at status `new` because no staff member is assigned to lead follow-up yet, so they are waiting.
