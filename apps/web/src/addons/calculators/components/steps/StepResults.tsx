@@ -383,7 +383,7 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
                             <PhoneCall className="w-5 h-5 text-white" aria-hidden="true" />
                             <span className="text-[13px] uppercase font-bold tracking-wide text-white">Review this with a designer</span>
                         </Link>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <button
                                 type="button"
                                 onClick={onReset}
@@ -398,13 +398,6 @@ export function StepResults({ formData, estimate, discoveryApplied = false, disc
                             >
                                 <Compass className="w-4 h-4 text-kiro-inkSoft" aria-hidden="true" />
                                 <span className="text-[12px] uppercase font-bold tracking-wide text-kiro-inkSoft">{hasBlueprint ? "Refine blueprint" : "Find your style"}</span>
-                            </Link>
-                            <Link
-                                to="/system-blueprint"
-                                className="px-4 py-4 rounded-[8px] border border-kiro-line bg-white hover:border-kiro-accent/40 hover:bg-kiro-accent/[0.04] transition-colors flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kiro-accent focus-visible:ring-offset-2"
-                            >
-                                <Info className="w-4 h-4 text-kiro-inkSoft" aria-hidden="true" />
-                                <span className="text-[12px] uppercase font-bold tracking-wide text-kiro-inkSoft">How we work</span>
                             </Link>
                         </div>
                     </div>
