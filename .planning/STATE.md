@@ -745,3 +745,4 @@ Restored in `0e38cd64`.
 - Next: /gsd-plan-phase 40
 - Phase 40 UI-SPEC written and checker-approved (non-blocking FLAGs recorded in the file). Research: 40-RESEARCH.md; validation: 40-VALIDATION.md. Next: /gsd-plan-phase 40 (UI gate now satisfied).
 - Open before shipping Phase 40 (from research): site_content migration fixed for the legacy table (2d98e521); enforce_2fa is already true in prod with 0 enrolled factors (rollout must enrol-at-login); handle-new-lead/stale-lead-checker/weekly-report select leads.budget_value_inr which does not exist live; auto-reply-lead unauthenticated.
+- Phase 40 planned: 29 plans in 6 waves (40-01..40-29), checker VERIFIED (0 blockers). Operator plans 24-27 are autonomous:false (production writes). 40-01 Task 0 is a human gate: commit/stash the in-flight home-page WIP (registry.ts, types.ts, Index.tsx, Hero, ExpertiseChapter, ProcessChapter, PinnedChapter) before wave 1. Next: /gsd-execute-phase 40.

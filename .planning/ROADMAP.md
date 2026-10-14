@@ -114,3 +114,35 @@ Make the admin panel safe and usable for non-technical operators. Source: docs/r
   4. Projects and Services have SEO fields; menus, footer links and the default share image are editable.
   5. Two-factor sign-in is enforced for every admin login, and inactive sessions log out after the configured time.
   6. The Lead Workspace "lock decision" saves real session data. (Phone access is out of scope: admin stays desktop-only.)
+- **Pre-execution gate:** the owner's uncommitted home-page work on feat/home-scroll-choreography (content/registry.ts, content/types.ts, pages/Index.tsx, components/home/Hero.tsx, ExpertiseChapter.tsx, ProcessChapter.tsx, motion/PinnedChapter.tsx) must be committed, stashed or branched before execution; plan 40-01 Task 0 is a blocking checkpoint for it and 40-15 depends on 40-01.
+- **Plans:** 29 plans
+- **Plan list:**
+  - [ ] 40-01-PLAN.md — Pre-execution tree-clean gate, Wave 0 test stubs + TOTP e2e helper
+  - [ ] 40-02-PLAN.md — Pure lead-notify and stale-digest libs (TDD)
+  - [ ] 40-03-PLAN.md — Schema migration (lead columns, recipients column, settings guard trigger)
+  - [ ] 40-04-PLAN.md — Vault trigger function, gated 2FA RLS backstop, cron SQL, secrets test
+  - [ ] 40-05-PLAN.md — handle-new-lead rewrite, leadEmail lib, lock auto-reply-lead
+  - [ ] 40-06-PLAN.md — notify-telegram / posthog-to-telegram read the admin chat-id list
+  - [ ] 40-07-PLAN.md — stale-lead-checker and weekly-report-email hardening
+  - [ ] 40-08-PLAN.md — Notifications tab: recipient lists UI
+  - [ ] 40-09-PLAN.md — Email Templates screen (subject, chips, safe preview)
+  - [ ] 40-10-PLAN.md — Server-side MFA API (login withholds cookies, mfa endpoint)
+  - [ ] 40-11-PLAN.md — reset-mfa, mfa-status, edge aal check (gated)
+  - [ ] 40-12-PLAN.md — Two-factor sign-in screens in AdminAuth
+  - [ ] 40-13-PLAN.md — Truthful Security page and Users table 2FA column/reset
+  - [ ] 40-14-PLAN.md — Idle logout hook and warning dialog
+  - [ ] 40-15-PLAN.md — Share image + noindex on every page SEO block
+  - [ ] 40-16-PLAN.md — Editable menu and footer links
+  - [ ] 40-17-PLAN.md — Form wording blocks + contact/pop-up/newsletter wiring
+  - [ ] 40-18-PLAN.md — Estimator and quiz wording wiring
+  - [ ] 40-19-PLAN.md — Project/Service SEO fields and resolver
+  - [ ] 40-20-PLAN.md — SeoMeta component and page wiring (browser SEO output)
+  - [ ] 40-21-PLAN.md — Lead Workspace lock decision with real data
+  - [ ] 40-22-PLAN.md — Blog publish date, silent errors, gallery confirms
+  - [ ] 40-23-PLAN.md — Unlabelled buttons, nav labels, device-gate message
+  - [ ] 40-24-PLAN.md — [OPERATOR] Schema, Vault, secrets, function deploys
+  - [ ] 40-25-PLAN.md — [OPERATOR] Rotate secret, trigger swap, end-to-end proof
+  - [ ] 40-26-PLAN.md — [OPERATOR] Reminder cron jobs, retire old token
+  - [ ] 40-27-PLAN.md — [OPERATOR] App deploy, 2FA enrolment, RLS backstop, extra-recipient proof
+  - [ ] 40-28-PLAN.md — Default share image setting and fallback
+  - [ ] 40-29-PLAN.md — Crawler share-preview middleware and ogFromSeo (blog/project query fix)
