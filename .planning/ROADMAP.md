@@ -50,6 +50,16 @@ The active track focuses on running the system in production, collecting signal-
 
 ---
 
+## Track C — Admin Operations (Active)
+
+Make the admin panel safe and usable for non-technical operators. Source: docs/reports/admin-panel-audit-2026-10-14.md.
+
+| Phase | Goal | Status |
+| :--- | :--- | :---: |
+| **40** | **Admin Panel Remediation** — Lead notifications and auto-replies work end to end, no admin control promises something it does not do, SEO/CMS gaps closed, real 2FA and idle logout. | 🟢 Active |
+
+---
+
 ## Phase Details & Success Criteria
 
 ### Phase 31: Editorial Composition
@@ -92,3 +102,15 @@ The active track focuses on running the system in production, collecting signal-
 - **Goal:** Curate recommendations based on explicit human validation.
 - **Success Criteria:**
   1. Designers approve or modify AI recommendations, and the outcome is logged to compound system intelligence.
+
+### Phase 40: Admin Panel Remediation
+
+- **Goal:** Close the gaps found in the 14 Oct 2026 admin audit so a non-technical owner can run lead capture, notifications and website content without a developer.
+- **Source:** docs/reports/admin-panel-audit-2026-10-14.md (findings C1-C4, H1-H6, M1-M7).
+- **Success Criteria:**
+  1. A new lead triggers the team email alert and the customer auto-reply in production, recorded in the activity log.
+  2. Every setting shown in Security, Email Templates and General Settings either takes effect or is labelled as not active.
+  3. No admin action saves placeholder data or fails silently.
+  4. Projects and Services have SEO fields; menus, footer links and the default share image are editable.
+  5. Two-factor sign-in is enforced for every admin login, and inactive sessions log out after the configured time.
+  6. The Lead Workspace "lock decision" saves real session data. (Phone access is out of scope: admin stays desktop-only.)

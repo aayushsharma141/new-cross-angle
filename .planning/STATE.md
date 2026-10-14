@@ -738,3 +738,8 @@ Restored in `0e38cd64`.
 - Removed my posthog-cron migration (would have replaced the existing job with a different, equally unset setting). Apply the CMS migration alone via `db query -f` + `migration repair`, NOT `db push`.
 - Runbook rewritten with these findings: docs/runbooks/2026-10-13-admin-cms-deploy-checklist.md.
 - Scoring decided: auto-score-lead formula is authoritative. Shared module supabase/functions/_lib/leadScoring.ts (SCORE_VERSION v1, stored in score_details); score-lead + auto-score-lead import it; SupabaseLeadRepo scores at insert; parity test pins browser mirror. submit-estimate still uses its own admin-weighted formula (decision pending). auto-score-lead DB trigger still not installed. Nothing deployed.
+
+## 2026-10-14 — Phase 40 context gathered
+- New Phase 40 "Admin Panel Remediation" (Track C) added to ROADMAP.md; decisions in .planning/phases/40-admin-panel-remediation/40-CONTEXT.md.
+- Key calls: email alert = default + admin-managed extras; auto-reply to all but newsletter; Telegram list read by function (chat 1228126069); both reminder jobs on; real 2FA for everyone + idle logout; Projects/Services SEO + page share image/noindex; editable menus/footer/form wording; Lead Workspace lock saves real data; admin stays desktop-only.
+- Next: /gsd-plan-phase 40
